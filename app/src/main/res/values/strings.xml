@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Actifit Fitness Tracker</string>
+    <string name="success_post">Your post has been successfully submitted to Steemit!</string>
+</resources>
