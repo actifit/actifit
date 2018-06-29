@@ -22,8 +22,11 @@ public class StepHistoryActivity extends AppCompatActivity {
 
         mStepsListView = findViewById(R.id.steps_list);
         mStepFinalList = new ArrayList<String>();
+
+        //grab the data to be displayed in the list
         getDataForList();
 
+        //loop through the data to prepare it for proper display
         for (int position=0;position<mStepCountList.size();position++){
             mStepFinalList.add((mStepCountList.get(position)).mDate + " - Total Steps: " + String.valueOf((mStepCountList.get(position)).mStepCount));
         }
@@ -34,13 +37,12 @@ public class StepHistoryActivity extends AppCompatActivity {
                 new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, mStepFinalList);
 
         mStepsListView.setAdapter(arrayAdapter);
-        //mListAdapter = new io.actifit.fitnesstracker.actifitfitnesstracker.ListAdapter(mStepCountList, this) ;
-        //mStepsListView.setAdapter(mListAdapter);
 
-        //Intent stepsIntent = new Intent(getApplicationContext(), MainActivity.class);
-        //startService(stepsIntent);
     }
 
+    /**
+     * function handles preparing the proper data to the mStepCountList ArrayList
+     */
     public void getDataForList() {
         mStepsDBHelper = new StepsDBHelper(this);
         mStepCountList = mStepsDBHelper.readStepsEntries();
