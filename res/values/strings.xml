@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Actifit Fitness Tracker</string>
+    <string name="success_post">Your post has been successfully submitted to the Steem blockchain</string>
+    <string name="failed_post">There was an error submitting your post to the Steem blockchain</string>
+</resources>
