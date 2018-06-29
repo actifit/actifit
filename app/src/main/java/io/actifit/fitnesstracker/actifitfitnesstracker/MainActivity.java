@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Get an instance of the SensorManager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
+        //try to detect if the device supports a step sensor (TYPE_STEP_DETECTOR)
         if(sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)//TYPE_STEP_COUNTER
                 != null)
         {
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         mStepsDBHelper = new StepsDBHelper(this);
 
+        //handle activity to move to step history screen
         BtnViewHistory.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-
+        //handle activity to move to post to steemit screen
         BtnPostSteemit.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -130,6 +132,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
+    /**
+     * handles the actual counting of steps relying on one of the two sensors,
+     * whichever was detected
+     * @param event
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (isStepSensorPresent) {
@@ -141,6 +148,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    /**
+     * this is overriding the step function which only works in case of using accelerometer sensor
+     * @param timeNs
+     */
     @Override
     public void step(long timeNs) {
         stepDisplay.setText(TEXT_NUM_STEPS + mStepsDBHelper.createStepsEntry());

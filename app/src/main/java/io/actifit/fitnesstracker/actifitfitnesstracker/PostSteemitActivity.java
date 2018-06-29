@@ -39,8 +39,10 @@ public class PostSteemitActivity extends AppCompatActivity {
 
         //Intent myIntent = getIntent();
 
+        //getting an instance of DB handler
         mStepsDBHelper = new StepsDBHelper(this);
 
+        //grabbing instances of input data sources
         EditText stepCountContainer = findViewById(R.id.steemit_step_count);
         stepCountContainer.setText(String.valueOf(mStepsDBHelper.fetchTodayStepCount()), TextView.BufferType.EDITABLE);
 
@@ -97,6 +99,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                     return;
                 }
 
+                //prepare data to be sent along post
                 JSONObject data = new JSONObject();
                 try {
                     data.put("author", steemitUsername.getText());
@@ -110,12 +113,12 @@ public class PostSteemitActivity extends AppCompatActivity {
                 }
 
                 try {
-                    String urlStr = "";
+                    String urlStr = getString(R.string.api_url);
                     String inputLine;
                     String result = "";
-// Headers
+                    // Headers
                     ArrayList<String[]> headers = new ArrayList<>();
-                    //headers.add(new String[]{"custom-header", "custom value"});
+
                     headers.add(new String[]{"Content-Type", "application/json"});
                     HttpResultHelper httpResult = new HttpResultHelper();
                     httpResult = httpResult.httpPost(urlStr, null, null, data.toString(), headers, 7000);
@@ -126,15 +129,17 @@ public class PostSteemitActivity extends AppCompatActivity {
 
                     System.out.println(">>>test:"+result);
 
+                    //check result of action
                     if (result.equals("success")){
-                        notification = "Your post has been successfully submitted to the Steem blockchain";
+                        notification = getString(R.string.success_post);
                     }else{
-                        notification = "There was an error submitting your post to the Steem blockchain ";
+                        notification = getString(R.string.failed_post);
                     }
 
-                    //reset to enabled
+                    //reset button to enabled
                     arg0.setEnabled(true);
 
+                    //render result
                     displayNotification(notification);
 
                 }catch (Exception e){
@@ -149,6 +154,10 @@ public class PostSteemitActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * function handling the display of popup notification
+     * @param notification
+     */
     void displayNotification(String notification){
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
         builder1.setMessage(notification);

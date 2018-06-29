@@ -99,9 +99,14 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         return currentDateStepCounts;
     }
 
+    /**
+     * function handling grabbing the data and returning it
+     * @return ArrayList containing dates and steps
+     */
     public ArrayList<DateStepsModel> readStepsEntries()
     {
         ArrayList<DateStepsModel> mStepCountList = new ArrayList<DateStepsModel>();
+        //build up the query
         String selectQuery = "SELECT * FROM " + TABLE_STEPS_SUMMARY;
         try {
 
@@ -112,6 +117,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                     DateStepsModel mDateStepsModel = new DateStepsModel();
                     mDateStepsModel.mDate = c.getString((c.getColumnIndex(CREATION_DATE)));
                     mDateStepsModel.mStepCount = c.getInt((c.getColumnIndex(STEPS_COUNT)));
+                    //store the result
                     mStepCountList.add(mDateStepsModel);
                 } while (c.moveToNext());
             }
@@ -122,11 +128,16 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         return mStepCountList;
     }
 
-    //handles grabbing the current step count saved so far in case it was stored
+    /**
+     * function handles grabbing the current step count saved so far in case it was stored
+     * @return today's step count
+     */
+
     public int fetchTodayStepCount()
     {
         int currentDateStepCounts = 0;
         Calendar mCalendar = Calendar.getInstance();
+        //build up the query
         String todayDate =
                 String.valueOf(mCalendar.get(Calendar.MONTH)+1)+"/" +
                         String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH))+"/"+String.valueOf(mCalendar.get(Calendar.YEAR));
@@ -138,6 +149,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             Cursor c = db.rawQuery(selectQuery, null);
             if (c.moveToFirst()) {
                 do {
+                    //grab the value returned matching today's date
                     currentDateStepCounts =
                             c.getInt((c.getColumnIndex(STEPS_COUNT)));
                 } while (c.moveToNext());
