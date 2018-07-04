@@ -1,15 +1,20 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -27,6 +32,8 @@ public class PostSteemitActivity extends AppCompatActivity {
     private StepsDBHelper mStepsDBHelper;
     private String notification = "";
     private int min_step_limit = 1000;
+    private Context steemit_post_context;
+    private ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +45,13 @@ public class PostSteemitActivity extends AppCompatActivity {
         setContentView(R.layout.activity_post_steemit);
 
         //Intent myIntent = getIntent();
+
+        //initializing ProgressBar/Spinner
+        /*spinner=findViewById(R.id.progressBar);
+        spinner.setVisibility(View.GONE);*/
+
+        //setting context
+        this.steemit_post_context = this;
 
         //getting an instance of DB handler
         mStepsDBHelper = new StepsDBHelper(this);
@@ -62,18 +76,99 @@ public class PostSteemitActivity extends AppCompatActivity {
             steemitPostingKey.setText(sharedPreferences.getString("actifitPst",""));
        // }
 
-
+        final Activity currentActivity = this;
         //capturing steemit post submission
         Button BtnSubmitSteemit = findViewById(R.id.btn_submit_steemit);
         BtnSubmitSteemit.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View arg0) {
+            public void onClick(final View arg0) {
+                //connect to the server via a thread to prevent application hangup
+                new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+            }
+        });
 
+        /* fixing scrollability of content within the post content section */
+
+        steemitPostContent.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (v.getId() == R.id.steemit_post_content) {
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                    switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                        case MotionEvent.ACTION_UP:
+                            v.getParent().requestDisallowInterceptTouchEvent(false);
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
+    /**
+     * function handling the display of popup notification
+     * @param notification
+     */
+    void displayNotification(final String notification, final ProgressDialog progress,
+                             final Context context, final Activity currentActivity,
+                             final String success){
+        //render result
+        currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //hide the progressDialog
+                progress.dismiss();
+                /*spinner=findViewById(R.id.progressBar);
+                spinner.setVisibility(View.GONE);*/
+
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                builder1.setMessage(notification);
+
+                builder1.setCancelable(true);
+
+                builder1.setPositiveButton(
+                        "Dismiss",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                                if (success.equals("success")) {
+                                    //close current screen
+                                    System.out.println(">>>Finish");
+                                    currentActivity.finish();
+                                }
+                            }
+                        });
+                //create and display alert window
+                AlertDialog alert11 = builder1.create();
+                alert11.show();
+            }
+        });
+
+        //finish();
+    }
+
+    private class PostSteemitRequest extends AsyncTask<String, Void, Void> {
+        ProgressDialog progress;
+        private final Context context;
+        private Activity currentActivity;
+        public PostSteemitRequest(Context c, Activity currentActivity){
+                this.context = c;
+                this.currentActivity = currentActivity;
+        }
+        protected void onPreExecute(){
+            /*spinner=findViewById(R.id.progressBar);
+            spinner.setVisibility(View.VISIBLE);*/
+            progress = new ProgressDialog(this.context);
+            progress.setMessage(getString(R.string.sending_post));
+            progress.show();
+        }
+        protected Void doInBackground(String... params) {
+            try {
                 System.out.println("click");
 
                 //disable button to prevent multiple clicks
-                arg0.setEnabled(false);
+                //arg0.setEnabled(false);
 
                 EditText steemitPostTitle = findViewById(R.id.steemit_post_title);
                 EditText steemitUsername = findViewById(R.id.steemit_username);
@@ -89,18 +184,20 @@ public class PostSteemitActivity extends AppCompatActivity {
                 editor.putString("actifitPst", steemitPostingKey.getText().toString());
                 editor.commit();
 
-                if (Integer.parseInt(steemitStepCount.getText().toString()) < min_step_limit){
-                    notification = "You have not reached the minimum "+
-                            NumberFormat.getNumberInstance(Locale.US).format(min_step_limit)+" steps yet";
-                    displayNotification(notification);
+                //this runs only on live mode
+                if (getString(R.string.test_mode).equals("off")){
+                    if (Integer.parseInt(steemitStepCount.getText().toString()) < min_step_limit) {
+                        notification = "You have not reached the minimum " +
+                                NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " steps yet";
+                        displayNotification(notification, progress, context, currentActivity, "");
 
-                    //reset to enabled
-                    arg0.setEnabled(true);
-                    return;
+                        //reset to enabled
+                        //arg0.setEnabled(true);
+                        return null;
+                    }
                 }
-
                 //prepare data to be sent along post
-                JSONObject data = new JSONObject();
+                final JSONObject data = new JSONObject();
                 try {
                     data.put("author", steemitUsername.getText());
                     data.put("posting_key", steemitPostingKey.getText());
@@ -112,68 +209,49 @@ public class PostSteemitActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                try {
-                    String urlStr = getString(R.string.api_url);
-                    String inputLine;
-                    String result = "";
-                    // Headers
-                    ArrayList<String[]> headers = new ArrayList<>();
+                String inputLine;
+                String result = "";
+                //use test url only if testing mode is on
+                String urlStr = getString(R.string.test_api_url);
+                if (getString(R.string.test_mode).equals("off")){
+                    urlStr = getString(R.string.api_url);
+                }
+                // Headers
+                ArrayList<String[]> headers = new ArrayList<>();
 
-                    headers.add(new String[]{"Content-Type", "application/json"});
-                    HttpResultHelper httpResult = new HttpResultHelper();
-                    httpResult = httpResult.httpPost(urlStr, null, null, data.toString(), headers, 7000);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(httpResult.getResponse()));
-                    while ((inputLine = in.readLine()) != null) {
-                        result += inputLine;
-                    }
+                headers.add(new String[]{"Content-Type", "application/json"});
+                HttpResultHelper httpResult = new HttpResultHelper();
 
-                    System.out.println(">>>test:"+result);
-
-                    //check result of action
-                    if (result.equals("success")){
-                        notification = getString(R.string.success_post);
-                    }else{
-                        notification = getString(R.string.failed_post);
-                    }
-
-                    //reset button to enabled
-                    arg0.setEnabled(true);
-
-                    //render result
-                    displayNotification(notification);
-
-                }catch (Exception e){
-                    //reset to enabled
-                    arg0.setEnabled(true);
-
-                    System.out.println("Error connecting:"+e.getMessage());
-                    e.printStackTrace();
+                httpResult = httpResult.httpPost(urlStr, null, null, data.toString(), headers, 20000);
+                BufferedReader in = new BufferedReader(new InputStreamReader(httpResult.getResponse()));
+                while ((inputLine = in.readLine()) != null) {
+                    result += inputLine;
                 }
 
+                System.out.println(">>>test:"+result);
+
+                //check result of action
+                if (result.equals("success")){
+                    notification = getString(R.string.success_post);
+                }else{
+                    notification = getString(R.string.failed_post);
+                }
+
+                //display proper notification
+                displayNotification(notification, progress, context, currentActivity, result);
+
+            }catch (Exception e){
+
+                //display proper notification
+                notification = getString(R.string.failed_post);
+                displayNotification(notification, progress, context, currentActivity, "");
+
+                System.out.println("Error connecting:"+e.getMessage());
+                e.printStackTrace();
             }
-        });
-    }
-
-    /**
-     * function handling the display of popup notification
-     * @param notification
-     */
-    void displayNotification(String notification){
-        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-        builder1.setMessage(notification);
-
-        builder1.setCancelable(true);
-
-        builder1.setPositiveButton(
-                "Dismiss",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-
-        AlertDialog alert11 = builder1.create();
-        alert11.show();
+            return null;
+        }
     }
 
 }
+

@@ -58,6 +58,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                     isDateAlreadyPresent = true;
                     currentDateStepCounts =
                             c.getInt((c.getColumnIndex(STEPS_COUNT)));
+                    //just need first instance
+                    break;
                 } while (c.moveToNext());
             }
             db.close();
@@ -72,7 +74,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             if(isDateAlreadyPresent)
             {
                 values.put(STEPS_COUNT, ++currentDateStepCounts);
-                int row = db.update(TABLE_STEPS_SUMMARY, values,
+                //int row =
+                db.update(TABLE_STEPS_SUMMARY, values,
                         CREATION_DATE +" = '"+ todayDate+"'", null);
                 /*if(row == 1)
                 {
@@ -84,7 +87,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             {
                 currentDateStepCounts = 1;
                 values.put(STEPS_COUNT, currentDateStepCounts);
-                long row = db.insert(TABLE_STEPS_SUMMARY, null,
+                //long row =
+                db.insert(TABLE_STEPS_SUMMARY, null,
                         values);
                 /*if(row!=-1)
                 {
@@ -109,7 +113,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         //build up the query
         String selectQuery = "SELECT * FROM " + TABLE_STEPS_SUMMARY;
         try {
-
+            //grab all entries
             SQLiteDatabase db = this.getReadableDatabase();
             Cursor c = db.rawQuery(selectQuery, null);
             if (c.moveToFirst()) {
@@ -152,6 +156,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                     //grab the value returned matching today's date
                     currentDateStepCounts =
                             c.getInt((c.getColumnIndex(STEPS_COUNT)));
+                    //only need first result
+                    break;
                 } while (c.moveToNext());
             }
             db.close();
