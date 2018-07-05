@@ -7,20 +7,22 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 public class StepsDBHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "StepsDatabase";
-    private static final String TABLE_STEPS_SUMMARY = "StepsSummary";
-    private static final String ID = "id";
+    private static final String DATABASE_NAME = "ActifitFitness";
+    private static final String TABLE_STEPS_SUMMARY = "ActifitFitness";
+    private static final String CREATION_DATE = "creationdate";//Date format is yyyyMMdd
     private static final String STEPS_COUNT = "stepscount";
-    private static final String CREATION_DATE = "creationdate";//Date format is mm/dd/yyyy
 
 
-    private static final String CREATE_TABLE_STEPS_SUMMARY = "CREATE TABLE "
-            + TABLE_STEPS_SUMMARY + "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + CREATION_DATE + " TEXT,"+ STEPS_COUNT + " INTEGER"+")";
+
+    private static final String CREATE_TABLE_ACTIFIT = "CREATE TABLE "
+            + TABLE_STEPS_SUMMARY + "(" + CREATION_DATE + " INTEGER PRIMARY KEY,"+ STEPS_COUNT + " INTEGER"+")";
 
 
     StepsDBHelper(Context context) {
@@ -34,73 +36,46 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_STEPS_SUMMARY);
+        db.execSQL(CREATE_TABLE_ACTIFIT);
 
     }
 
+    /**
+     * function handles recording a step entry, and returning current step count
+     * @return
+     */
     public int createStepsEntry()
     {
-        boolean isDateAlreadyPresent = false;
-        //boolean createSuccessful = false;
-        int currentDateStepCounts = 0;
-        Calendar mCalendar = Calendar.getInstance();
-        String todayDate =
-                String.valueOf(mCalendar.get(Calendar.MONTH)+1)+"/" +
-                        String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH))+"/"+String.valueOf(mCalendar.get(Calendar.YEAR));
-        String selectQuery = "SELECT " + STEPS_COUNT + " FROM "
-                + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE +" = '"+ todayDate+"'";
-        try {
-
-            SQLiteDatabase db = this.getReadableDatabase();
-            Cursor c = db.rawQuery(selectQuery, null);
-            if (c.moveToFirst()) {
-                do {
-                    isDateAlreadyPresent = true;
-                    currentDateStepCounts =
-                            c.getInt((c.getColumnIndex(STEPS_COUNT)));
-                    //just need first instance
-                    break;
-                } while (c.moveToNext());
-            }
-            db.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        //grab step count for today, if exists
+        int todayStepCount = fetchTodayStepCount();
+        String todaysDateString = getTodayProperFormat();
         try {
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put(CREATION_DATE, todayDate);
-            if(isDateAlreadyPresent)
+            values.put(CREATION_DATE, getTodayProperFormat());
+            //if we found a match
+            if(todayStepCount>-1)
             {
-                values.put(STEPS_COUNT, ++currentDateStepCounts);
-                //int row =
+                values.put(STEPS_COUNT, ++todayStepCount);
+                //updating entry with proper step count
                 db.update(TABLE_STEPS_SUMMARY, values,
-                        CREATION_DATE +" = '"+ todayDate+"'", null);
-                /*if(row == 1)
-                {
-                    createSuccessful = true;
-                }*/
+                        CREATION_DATE + "=" + todaysDateString, null);
                 db.close();
             }
             else
             {
-                currentDateStepCounts = 1;
-                values.put(STEPS_COUNT, currentDateStepCounts);
-                //long row =
+                //create entry with 1 step count as first entry
+                todayStepCount = 1;
+                values.put(STEPS_COUNT, todayStepCount);
                 db.insert(TABLE_STEPS_SUMMARY, null,
                         values);
-                /*if(row!=-1)
-                {
-                    createSuccessful = true;
-                }*/
                 db.close();
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return currentDateStepCounts;
+        return todayStepCount;
     }
 
     /**
@@ -110,19 +85,24 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     public ArrayList<DateStepsModel> readStepsEntries()
     {
         ArrayList<DateStepsModel> mStepCountList = new ArrayList<DateStepsModel>();
-        //build up the query
+        //build up the query to grab all data
         String selectQuery = "SELECT * FROM " + TABLE_STEPS_SUMMARY;
         try {
             //grab all entries
             SQLiteDatabase db = this.getReadableDatabase();
             Cursor c = db.rawQuery(selectQuery, null);
+            //String priorDate = "";
             if (c.moveToFirst()) {
                 do {
                     DateStepsModel mDateStepsModel = new DateStepsModel();
                     mDateStepsModel.mDate = c.getString((c.getColumnIndex(CREATION_DATE)));
                     mDateStepsModel.mStepCount = c.getInt((c.getColumnIndex(STEPS_COUNT)));
-                    //store the result
-                    mStepCountList.add(mDateStepsModel);
+
+                    //fix for the issue with multiple dates showing as row entries
+                    //if (!mDateStepsModel.mDate.equals(priorDate)){
+                        //store the result only if this is a different display
+                        mStepCountList.add(mDateStepsModel);
+                   // }
                 } while (c.moveToNext());
             }
             db.close();
@@ -139,14 +119,16 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     public int fetchTodayStepCount()
     {
-        int currentDateStepCounts = 0;
-        Calendar mCalendar = Calendar.getInstance();
-        //build up the query
-        String todayDate =
-                String.valueOf(mCalendar.get(Calendar.MONTH)+1)+"/" +
-                        String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH))+"/"+String.valueOf(mCalendar.get(Calendar.YEAR));
+        //tracking found step count. Initiate at -1 to know if entry was found
+        int currentDateStepCounts = -1;
+
+        //generate format for today
+        Date todaysDate = new Date();
+        SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
+        String todaysDateString = formatToDB.format(todaysDate);
+
         String selectQuery = "SELECT " + STEPS_COUNT + " FROM "
-                + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE +" = '"+ todayDate+"'";
+                + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE +" = "+ todaysDateString + "";
         try {
 
             SQLiteDatabase db = this.getReadableDatabase();
@@ -156,7 +138,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                     //grab the value returned matching today's date
                     currentDateStepCounts =
                             c.getInt((c.getColumnIndex(STEPS_COUNT)));
-                    //only need first result
+
+                    //just need first instance
                     break;
                 } while (c.moveToNext());
             }
@@ -165,6 +148,14 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
         return currentDateStepCounts;
+    }
+
+    public String getTodayProperFormat(){
+        //generate format for today
+        Date todaysDate = new Date();
+        SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
+        String todaysDateString = formatToDB.format(todaysDate);
+        return todaysDateString;
     }
 
 }

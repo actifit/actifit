@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -23,7 +24,9 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
 
 
@@ -50,6 +53,7 @@ public class PostSteemitActivity extends AppCompatActivity {
         /*spinner=findViewById(R.id.progressBar);
         spinner.setVisibility(View.GONE);*/
 
+
         //setting context
         this.steemit_post_context = this;
 
@@ -67,6 +71,27 @@ public class PostSteemitActivity extends AppCompatActivity {
         EditText steemitPostContent = findViewById(R.id.steemit_post_content);
         EditText steemitPostTags = findViewById(R.id.steemit_post_tags);
         EditText steemitStepCount = findViewById(R.id.steemit_step_count);
+
+        //Adding default title content for the daily post
+
+        //generating today's date
+        Calendar mCalendar = Calendar.getInstance();
+        String postTitle = getString(R.string.default_post_title);
+        postTitle += " "+new SimpleDateFormat("MMMM d yyyy").format(mCalendar.getTime());
+
+        //postTitle += String.valueOf(mCalendar.get(Calendar.MONTH)+1)+" " +
+                //String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH))+"/"+String.valueOf(mCalendar.get(Calendar.YEAR));
+        steemitPostTitle.setText(postTitle);
+
+        //initializing activity options
+        String[] activity_type = {
+                "Walking", "Jogging", "Running", "Cycling", "Rope Skipping",
+                "Dancing","Basketball", "Football", "Boxing", "Tennis",
+                "Weight Lifting", "Treadmill","Stair Mill", "Elliptical", "Other"
+                };
+
+        MultiSelectionSpinner activityTypeSelector = (MultiSelectionSpinner) findViewById(R.id.steemit_activity_type);
+        activityTypeSelector.setItems(activity_type);
 
         //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
@@ -157,8 +182,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                 this.currentActivity = currentActivity;
         }
         protected void onPreExecute(){
-            /*spinner=findViewById(R.id.progressBar);
-            spinner.setVisibility(View.VISIBLE);*/
+            //create a new progress dialog to show action is underway
             progress = new ProgressDialog(this.context);
             progress.setMessage(getString(R.string.sending_post));
             progress.show();
@@ -176,6 +200,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                 EditText steemitPostContent = findViewById(R.id.steemit_post_content);
                 EditText steemitPostTags = findViewById(R.id.steemit_post_tags);
                 EditText steemitStepCount = findViewById(R.id.steemit_step_count);
+                MultiSelectionSpinner activityTypeSelector = findViewById(R.id.steemit_activity_type);
 
                 //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
                 SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
@@ -196,6 +221,8 @@ public class PostSteemitActivity extends AppCompatActivity {
                         return null;
                     }
                 }
+
+
                 //prepare data to be sent along post
                 final JSONObject data = new JSONObject();
                 try {
@@ -205,6 +232,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                     data.put("content", steemitPostContent.getText());
                     data.put("tags", steemitPostTags.getText());
                     data.put("step_count", steemitStepCount.getText());
+                    data.put("activity_type", activityTypeSelector.getSelectedItemsAsString());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
