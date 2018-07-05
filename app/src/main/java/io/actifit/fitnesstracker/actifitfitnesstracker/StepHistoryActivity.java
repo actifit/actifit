@@ -6,8 +6,11 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 
 public class StepHistoryActivity extends AppCompatActivity {
     private ListView mStepsListView;
@@ -26,9 +29,26 @@ public class StepHistoryActivity extends AppCompatActivity {
         //grab the data to be displayed in the list
         getDataForList();
 
+        //initializing date conversion components
+        String dateDisplay;
+        //existing date format
+        SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
+        //output format
+        SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd/yyyy");
+
         //loop through the data to prepare it for proper display
         for (int position=0;position<mStepCountList.size();position++){
-            mStepFinalList.add((mStepCountList.get(position)).mDate + " - Total Steps: " + String.valueOf((mStepCountList.get(position)).mStepCount));
+            try {
+                //grab date entry according to stored format
+                Date feedingDate = dateFormIn.parse((mStepCountList.get(position)).mDate);
+                //convert it to new format for display
+                dateDisplay = dateFormOut.format(feedingDate);
+                //append to display
+                mStepFinalList.add(dateDisplay + " - Total Steps: " + String.valueOf((mStepCountList.get(position)).mStepCount));
+            }catch(ParseException txtEx){
+                System.out.println(txtEx.toString());
+                txtEx.printStackTrace();
+            }
         }
         //reverse the list for descending display
         Collections.reverse(mStepFinalList);
