@@ -42,9 +42,19 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     /**
      * function handles recording a step entry, and returning current step count
+     * this is the default function increasing by 1
      * @return
      */
-    public int createStepsEntry()
+    public int createStepsEntry(){
+        return createStepsEntry(1);
+    }
+
+    /**
+     * function handles recording a step entry, and returning current step count
+     * @param incrementVal contains the amount to increase the count
+     * @return
+     */
+    public int createStepsEntry(int incrementVal)
     {
         //grab step count for today, if exists
         int todayStepCount = fetchTodayStepCount();
@@ -56,7 +66,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             //if we found a match
             if(todayStepCount>-1)
             {
-                values.put(STEPS_COUNT, ++todayStepCount);
+                todayStepCount+=incrementVal;
+                values.put(STEPS_COUNT, todayStepCount);
                 //updating entry with proper step count
                 db.update(TABLE_STEPS_SUMMARY, values,
                         CREATION_DATE + "=" + todaysDateString, null);
@@ -65,7 +76,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             else
             {
                 //create entry with 1 step count as first entry
-                todayStepCount = 1;
+                todayStepCount = (incrementVal>-1?incrementVal:0);
                 values.put(STEPS_COUNT, todayStepCount);
                 db.insert(TABLE_STEPS_SUMMARY, null,
                         values);

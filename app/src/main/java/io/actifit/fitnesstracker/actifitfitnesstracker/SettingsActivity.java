@@ -39,9 +39,13 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         //retrieving prior settings if already saved before
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
         //if (sharedPreferences.contains("actifitUser")){
-        String activeSensor = (sharedPreferences.getString("activeSensor",""));
+
+        //String activeSensor = (sharedPreferences.getString("activeSensor",""));
+        //enforcing ACC to be the active sensor
+        String activeSensor = MainActivity.ACCEL_SENSOR;
+
 
         //check which is the current active sensor
         //if the setting is manually set as ACCEL_SENSOR or if there is not step sensor, check it
@@ -61,7 +65,7 @@ public class SettingsActivity extends AppCompatActivity {
                 //need to adjust the selection of the sensors and store it
 
                 //store as new preferences
-                SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 //if (sharedPreferences.contains("actifitUser")){
                 RadioButton accl_sensor_rdbtn = findViewById(R.id.accelerometer_sensor_rdbtn);
@@ -72,6 +76,11 @@ public class SettingsActivity extends AppCompatActivity {
                     editor.putString("activeSensor", MainActivity.STEP_SENSOR);
                 }
                 editor.commit();
+
+                //unregister existing listener
+                MainActivity.sensorManager.unregisterListener(MainActivity.mainActivitySensorList);
+                MainActivity.isListenerActive = false;
+
                 currentActivity.finish();
 
             }
