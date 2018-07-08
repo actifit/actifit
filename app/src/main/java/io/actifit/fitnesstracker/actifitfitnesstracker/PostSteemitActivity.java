@@ -62,7 +62,11 @@ public class PostSteemitActivity extends AppCompatActivity {
 
         //grabbing instances of input data sources
         EditText stepCountContainer = findViewById(R.id.steemit_step_count);
-        stepCountContainer.setText(String.valueOf(mStepsDBHelper.fetchTodayStepCount()), TextView.BufferType.EDITABLE);
+
+        //set initial steps display value
+        int stepCount = mStepsDBHelper.fetchTodayStepCount();
+        //display step count while ensuring we don't display negative value if no steps tracked yet
+        stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
 
 
         EditText steemitPostTitle = findViewById(R.id.steemit_post_title);
@@ -222,6 +226,15 @@ public class PostSteemitActivity extends AppCompatActivity {
                     }
                 }
 
+                //let us check if user has selected activities yet
+                if (activityTypeSelector.getSelectedIndicies().size()<1){
+                    notification = getString(R.string.error_need_select_one_activity);
+                    displayNotification(notification, progress, context, currentActivity, "");
+
+                    //reset to enabled
+                    //arg0.setEnabled(true);
+                    return null;
+                }
 
                 //prepare data to be sent along post
                 final JSONObject data = new JSONObject();
