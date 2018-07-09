@@ -16,7 +16,7 @@ v 0.2 beta updates:
 - Adding new leaderboard screen displaying daily top 5 scores (posts yet unrewarded).
 - Revamp whole database structure, storing and displaying info. Old local data will no longer be visible after upgrade.
 - Bug Fixes:
---- Fix issue with multiple rows with similar content/replicas showing in history.
---- Fix issue with number of steps resetting after 1,000.
---- Fix issue with long text causing overlap of sections while posting to steemit.
---- Fix random issue of multiple increments of steps on single steps.
+  - Fix issue with multiple rows with similar content/replicas showing in history.
+  - Fix issue with number of steps resetting after 1,000.
+  - Fix issue with long text causing overlap of sections while posting to steemit.
+  - Fix random issue of multiple increments of steps on single steps.
