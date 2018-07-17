@@ -27,8 +27,6 @@ import java.util.Locale;
 public class LeaderboardActivity extends AppCompatActivity {
 
     private ListView mAccountsListView;
-    private StepsDBHelper mStepsDBHelper;
-    private ArrayList<DateStepsModel> mStepCountList;
     private ArrayList<String> mAccountsFinalList ;
     private Context leadership_post_context;
 
@@ -49,7 +47,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     /**
-     * function handles fetching the top 5 actifit account as a thread
+     * Class handles fetching the top 5 actifit account as a thread
      */
 
     private class LeaderboardDataRequest extends AsyncTask<String, Void, Void> {
