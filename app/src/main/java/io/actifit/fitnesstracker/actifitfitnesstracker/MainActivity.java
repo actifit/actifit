@@ -99,10 +99,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //grab pointers to specific elements/buttons to be able to capture events and take action
         stepDisplay = findViewById(R.id.step_display);
         Button BtnViewHistory = findViewById(R.id.btn_view_history);
         Button BtnPostSteemit = findViewById(R.id.btn_post_steemit);
         Button BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
+        Button BtnWallet = findViewById(R.id.btn_view_wallet);
+
         System.out.println(">>>> Getting jiggy with it");
 
         //adding a reference to this class to allow unregistering listeners outside it
@@ -152,13 +155,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-
+        //handle activity to move over to the Leaderboard screen
         BtnLeaderboard.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
 
                 Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
+                MainActivity.this.startActivity(intent);
+
+            }
+        });
+
+        //handle activity to move over to the Wallet screen
+        BtnWallet.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+
+                Intent intent = new Intent(MainActivity.this, WalletActivity.class);
                 MainActivity.this.startActivity(intent);
 
             }

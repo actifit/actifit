@@ -73,8 +73,6 @@ public class PostSteemitActivity extends AppCompatActivity {
         EditText steemitUsername = findViewById(R.id.steemit_username);
         EditText steemitPostingKey = findViewById(R.id.steemit_posting_key);
         EditText steemitPostContent = findViewById(R.id.steemit_post_content);
-        EditText steemitPostTags = findViewById(R.id.steemit_post_tags);
-        EditText steemitStepCount = findViewById(R.id.steemit_step_count);
 
         //Adding default title content for the daily post
 
@@ -90,15 +88,15 @@ public class PostSteemitActivity extends AppCompatActivity {
         //initializing activity options
         String[] activity_type = {
                 "Walking", "Jogging", "Running", "Cycling", "Rope Skipping",
-                "Dancing","Basketball", "Football", "Boxing", "Tennis",
-                "Weight Lifting", "Treadmill","Stair Mill", "Elliptical", "Other"
+                "Dancing","Basketball", "Football", "Boxing", "Tennis", "Table Tennis",
+                "Weight Lifting", "Treadmill","Stair Mill", "Elliptical"
                 };
 
         MultiSelectionSpinner activityTypeSelector = (MultiSelectionSpinner) findViewById(R.id.steemit_activity_type);
         activityTypeSelector.setItems(activity_type);
 
         //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         //if (sharedPreferences.contains("actifitUser")){
             steemitUsername.setText(sharedPreferences.getString("actifitUser",""));
@@ -207,7 +205,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                 MultiSelectionSpinner activityTypeSelector = findViewById(R.id.steemit_activity_type);
 
                 //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
-                SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("actifitUser", steemitUsername.getText().toString());
                 editor.putString("actifitPst", steemitPostingKey.getText().toString());
