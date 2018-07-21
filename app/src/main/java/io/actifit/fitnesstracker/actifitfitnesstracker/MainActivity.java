@@ -18,6 +18,7 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Implementation of this project was made possible via re-use, adoption and improvement of
@@ -70,30 +72,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private int curStepCount = 0;
     private static final String BUNDLE_LISTENER = "listener";
-    // Number of events to keep in queue and display on card
-    /*private static final int EVENT_QUEUE_LENGTH = 10;
-    // List of timestamps when sensor events occurred
-    private float[] mEventDelays = new float[EVENT_QUEUE_LENGTH];
-
-    private final StringBuffer mDelayStringBuffer = new StringBuffer();
-
-    // Bundle tags used to store data when restoring application state
-    private static final String BUNDLE_STEPS = "steps";
 
 
-    // number of events in event list
-    private int mEventLength = 0;
-    // pointer to next entry in sensor event list
-    private int mEventData = 0;
-
-
-    //batch delay for locked-screen mode capturing, in microseconds: 1,000,000=1s
-    int MICRO_SEC = 1000000;
-    int maxDelay = 10 * MICRO_SEC;*/
-
-    /* items related to batch data capturing */
-
-    /*@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Button BtnPostSteemit = findViewById(R.id.btn_post_steemit);
         Button BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         Button BtnWallet = findViewById(R.id.btn_view_wallet);
+        Button BtnSettings = findViewById(R.id.btn_settings);
 
         System.out.println(">>>> Getting jiggy with it");
 
@@ -179,8 +160,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        /*
-        Button BtnSettings = findViewById(R.id.btn_settings);
+
         BtnSettings.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -192,13 +172,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             }
         });
-        */
+
 
         //set initial steps display value
         int stepCount = mStepsDBHelper.fetchTodayStepCount();
         //display step count while ensuring we don't display negative value if no steps tracked yet
         stepDisplay.setText(TEXT_NUM_STEPS + (stepCount < 0 ? 0 : stepCount));
 
+    }
+
+    /* preventing accidental single back button click leading to exiting the app and losing counter tracking */
+    boolean doubleBackToExitPressedOnce = false;
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, getString(R.string.back_exit_confirmation), Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+            }
+        }, 2000);
     }
 
     @Override
