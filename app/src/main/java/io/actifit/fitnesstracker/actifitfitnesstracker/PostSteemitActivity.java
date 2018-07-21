@@ -18,6 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import net.cachapa.expandablelayout.ExpandableLayout;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,13 +49,6 @@ public class PostSteemitActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_steemit);
 
-        //Intent myIntent = getIntent();
-
-        //initializing ProgressBar/Spinner
-        /*spinner=findViewById(R.id.progressBar);
-        spinner.setVisibility(View.GONE);*/
-
-
         //setting context
         this.steemit_post_context = this;
 
@@ -73,6 +68,7 @@ public class PostSteemitActivity extends AppCompatActivity {
         EditText steemitUsername = findViewById(R.id.steemit_username);
         EditText steemitPostingKey = findViewById(R.id.steemit_posting_key);
         EditText steemitPostContent = findViewById(R.id.steemit_post_content);
+        TextView measureSectionLabel = findViewById(R.id.measurements_section_lbl);
 
         //Adding default title content for the daily post
 
@@ -112,6 +108,17 @@ public class PostSteemitActivity extends AppCompatActivity {
             public void onClick(final View arg0) {
                 //connect to the server via a thread to prevent application hangup
                 new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+            }
+        });
+
+        final ExpandableLayout MeasureSectionDetailed = findViewById(R.id.measurements_section);
+        //handle toggling section
+        measureSectionLabel.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(final View arg0) {
+                //connect to the server via a thread to prevent application hangup
+                MeasureSectionDetailed.toggle();
             }
         });
 

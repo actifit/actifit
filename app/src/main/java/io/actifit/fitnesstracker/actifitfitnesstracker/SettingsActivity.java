@@ -20,39 +20,20 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
 
-        RadioButton step_sensor_rdbtn = findViewById(R.id.step_detector_sensor_rdbtn);
-        RadioButton accl_sensor_rdbtn = findViewById(R.id.accelerometer_sensor_rdbtn);
-
-        //grab the value of the isStepSensorPresent based on MainActivity to check if
-        //step sensor is available or not
-        if (isStepSensorPresent){
-            //if it's available, enable the option to use it
-            step_sensor_rdbtn.setEnabled(true);
-            //also set it as default in this case. This will be adjusted in selection below
-            step_sensor_rdbtn.setChecked(true);
-        }else{
-            step_sensor_rdbtn.setEnabled(false);
-            //in this case, acc sensor needs to be checked as well
-            accl_sensor_rdbtn.setChecked(true);
-            //also set it as default in this case. This will be adjusted in selection below
-            accl_sensor_rdbtn.setChecked(true);
-        }
+        final RadioButton metricSysRadioBtn = findViewById(R.id.metric_system);
+        RadioButton usSystemRadioBtn = findViewById(R.id.us_system);
 
         //retrieving prior settings if already saved before
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        //if (sharedPreferences.contains("actifitUser")){
 
-        //String activeSensor = (sharedPreferences.getString("activeSensor",""));
-        //enforcing ACC to be the active sensor
-        String activeSensor = MainActivity.ACCEL_SENSOR;
+        String currentSystem = (sharedPreferences.getString("activeSystem",""));
 
-
-        //check which is the current active sensor
-        //if the setting is manually set as ACCEL_SENSOR or if there is not step sensor, check it
-        if (activeSensor.equals(MainActivity.ACCEL_SENSOR)){
-            accl_sensor_rdbtn.setChecked(true);
-        }else if (activeSensor.equals(MainActivity.STEP_SENSOR)){
-            step_sensor_rdbtn.setChecked(true);
+        //check which is the current active system
+        //if the setting is manually set as US System or default Merci value (else)
+        if (currentSystem.equals(getString(R.string.us_system))){
+            usSystemRadioBtn.setChecked(true);
+        }else{
+            metricSysRadioBtn.setChecked(true);
         }
 
         final Activity currentActivity = this;
@@ -67,21 +48,16 @@ public class SettingsActivity extends AppCompatActivity {
                 //store as new preferences
                 SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                //if (sharedPreferences.contains("actifitUser")){
-                RadioButton accl_sensor_rdbtn = findViewById(R.id.accelerometer_sensor_rdbtn);
+
                 //test for which option the user has set
-                if (accl_sensor_rdbtn.isChecked()) {
-                    editor.putString("activeSensor", MainActivity.ACCEL_SENSOR);
+                if (metricSysRadioBtn.isChecked()) {
+                    editor.putString("activeSystem", getString(R.string.metric_system));
                 }else{
-                    editor.putString("activeSensor", MainActivity.STEP_SENSOR);
+                    editor.putString("activeSystem", getString(R.string.us_system));
                 }
                 editor.commit();
 
-                //unregister existing listener
-                MainActivity.sensorManager.unregisterListener(MainActivity.mainActivitySensorList);
-                MainActivity.isListenerActive = false;
-
-                currentActivity.finish();
+                //currentActivity.finish();
 
             }
         });
