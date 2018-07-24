@@ -44,7 +44,7 @@ public class StepHistoryActivity extends AppCompatActivity {
                 //convert it to new format for display
                 dateDisplay = dateFormOut.format(feedingDate);
                 //append to display
-                mStepFinalList.add(dateDisplay + " - Total Steps: " + String.valueOf((mStepCountList.get(position)).mStepCount));
+                mStepFinalList.add(dateDisplay + " - Total Activity: " + String.valueOf((mStepCountList.get(position)).mStepCount));
             }catch(ParseException txtEx){
                 System.out.println(txtEx.toString());
                 txtEx.printStackTrace();

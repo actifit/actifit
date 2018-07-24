@@ -214,7 +214,9 @@ public class PostSteemitActivity extends AppCompatActivity {
                 //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
                 SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("actifitUser", steemitUsername.getText().toString());
+                //skip on spaces, upper case, and @ symbols to properly match steem username patterns
+                editor.putString("actifitUser", steemitUsername.getText().toString()
+                        .trim().toLowerCase().replace("@",""));
                 editor.putString("actifitPst", steemitPostingKey.getText().toString());
                 editor.commit();
 
@@ -222,7 +224,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                 if (getString(R.string.test_mode).equals("off")){
                     if (Integer.parseInt(steemitStepCount.getText().toString()) < min_step_limit) {
                         notification = "You have not reached the minimum " +
-                                NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " steps yet";
+                                NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " activity yet";
                         displayNotification(notification, progress, context, currentActivity, "");
 
                         //reset to enabled
@@ -244,7 +246,9 @@ public class PostSteemitActivity extends AppCompatActivity {
                 //prepare data to be sent along post
                 final JSONObject data = new JSONObject();
                 try {
-                    data.put("author", steemitUsername.getText());
+                    //skip on spaces, upper case, and @ symbols to properly match steem username patterns
+                    data.put("author", steemitUsername.getText().toString()
+                            .trim().toLowerCase().replace("@",""));
                     data.put("posting_key", steemitPostingKey.getText());
                     data.put("title", steemitPostTitle.getText());
                     data.put("content", steemitPostContent.getText());
