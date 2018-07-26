@@ -82,6 +82,11 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     @Override
     public void onCreate(){
 
+
+        //initialize power manager and wake locks either way
+        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT_SPECIAL_LOCK");
+
         //check if aggressive background tracking mode is enabled
 
         sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
@@ -91,8 +96,6 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         //enable wake lock to ensure tracking functions in the background
         if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on))) {
             System.out.println(">>>>[Actifit]AGG MODE ON");
-            pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT_SPECIAL_LOCK");
             wl.acquire();
         }
 

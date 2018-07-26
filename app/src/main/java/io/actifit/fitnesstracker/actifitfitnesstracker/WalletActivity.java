@@ -76,7 +76,9 @@ public class WalletActivity extends AppCompatActivity {
     void loadAccountBalance(TextView steemitUsername, Activity callerActivity, Context callerContext){
         //make sure we have a value, and if so, automatically grab it
         if (!steemitUsername.getText().equals("")) {
-
+            //skip on spaces, upper case, and @ symbols to properly match steem username patterns
+            String username = steemitUsername.getText().toString()
+                            .trim().toLowerCase().replace("@","");
             //connect to the interface to display result
             final TextView actifitBalance = findViewById(R.id.actifit_balance);
             final TextView actifitBalanceLbl = findViewById(R.id.actifit_balance_lbl);
@@ -95,7 +97,7 @@ public class WalletActivity extends AppCompatActivity {
 
             // This holds the url to connect to the API and grab the balance.
             // We append to it the username
-            String balanceUrl = getString(R.string.user_balance_api_url)+steemitUsername.getText();
+            String balanceUrl = getString(R.string.user_balance_api_url)+username;
 
             //display header
             actifitBalanceLbl.setVisibility(View.VISIBLE);
@@ -131,7 +133,7 @@ public class WalletActivity extends AppCompatActivity {
 
             // This holds the url to connect to the API and grab the transactions.
             // We append to it the username
-            String transactionUrl = getString(R.string.user_transactions_api_url)+steemitUsername.getText();
+            String transactionUrl = getString(R.string.user_transactions_api_url)+username;
 
             //display header
             actifitTransactionsLbl.setVisibility(View.VISIBLE);

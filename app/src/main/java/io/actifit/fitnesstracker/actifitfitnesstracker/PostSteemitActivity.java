@@ -15,10 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
-
-import net.cachapa.expandablelayout.ExpandableLayout;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +34,7 @@ public class PostSteemitActivity extends AppCompatActivity {
     private StepsDBHelper mStepsDBHelper;
     private String notification = "";
     private int min_step_limit = 1000;
+    private int min_word_count = 30;
     private Context steemit_post_context;
     private ProgressBar spinner;
 
@@ -70,6 +68,12 @@ public class PostSteemitActivity extends AppCompatActivity {
         EditText steemitPostContent = findViewById(R.id.steemit_post_content);
         TextView measureSectionLabel = findViewById(R.id.measurements_section_lbl);
 
+        TextView heightSizeUnit = findViewById(R.id.measurements_height_unit);
+        TextView weightSizeUnit = findViewById(R.id.measurements_weight_unit);
+        TextView waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
+        TextView chestSizeUnit = findViewById(R.id.measurements_chest_unit);
+        TextView thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
+
         //Adding default title content for the daily post
 
         //generating today's date
@@ -93,13 +97,30 @@ public class PostSteemitActivity extends AppCompatActivity {
 
         //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        //if (sharedPreferences.contains("actifitUser")){
-            steemitUsername.setText(sharedPreferences.getString("actifitUser",""));
-            steemitPostingKey.setText(sharedPreferences.getString("actifitPst",""));
-       // }
+
+        steemitUsername.setText(sharedPreferences.getString("actifitUser",""));
+        steemitPostingKey.setText(sharedPreferences.getString("actifitPst",""));
+
+        //grab current selection for measure system
+        String activeSystem = sharedPreferences.getString("activeSystem",getString(R.string.metric_system));
+        //adjust units accordingly
+        if (activeSystem.equals(getString(R.string.metric_system))){
+            weightSizeUnit.setText("kg");
+            heightSizeUnit.setText("cm");
+            waistSizeUnit.setText("cm");
+            chestSizeUnit.setText("cm");
+            thighsSizeUnit.setText("cm");
+        }else{
+            weightSizeUnit.setText("lb");
+            heightSizeUnit.setText("ft");
+            waistSizeUnit.setText("in");
+            chestSizeUnit.setText("in");
+            thighsSizeUnit.setText("in");
+        }
 
         final Activity currentActivity = this;
+
+
         //capturing steemit post submission
         Button BtnSubmitSteemit = findViewById(R.id.btn_submit_steemit);
         BtnSubmitSteemit.setOnClickListener(new View.OnClickListener() {
@@ -108,17 +129,6 @@ public class PostSteemitActivity extends AppCompatActivity {
             public void onClick(final View arg0) {
                 //connect to the server via a thread to prevent application hangup
                 new PostSteemitRequest(steemit_post_context, currentActivity).execute();
-            }
-        });
-
-        final ExpandableLayout MeasureSectionDetailed = findViewById(R.id.measurements_section);
-        //handle toggling section
-        measureSectionLabel.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(final View arg0) {
-                //connect to the server via a thread to prevent application hangup
-                MeasureSectionDetailed.toggle();
             }
         });
 
@@ -211,6 +221,20 @@ public class PostSteemitActivity extends AppCompatActivity {
                 EditText steemitStepCount = findViewById(R.id.steemit_step_count);
                 MultiSelectionSpinner activityTypeSelector = findViewById(R.id.steemit_activity_type);
 
+                EditText heightSize = findViewById(R.id.measurements_height);
+                EditText weightSize = findViewById(R.id.measurements_weight);
+                EditText bodyFat = findViewById(R.id.measurements_bodyfat);
+                EditText chestSize = findViewById(R.id.measurements_chest);
+                EditText thighsSize = findViewById(R.id.measurements_thighs);
+                EditText waistSize = findViewById(R.id.measurements_waistsize);
+
+                TextView heightSizeUnit = findViewById(R.id.measurements_height_unit);
+                TextView weightSizeUnit = findViewById(R.id.measurements_weight_unit);
+                TextView waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
+                TextView chestSizeUnit = findViewById(R.id.measurements_chest_unit);
+                TextView thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
+
+
                 //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
                 SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -222,15 +246,43 @@ public class PostSteemitActivity extends AppCompatActivity {
 
                 //this runs only on live mode
                 if (getString(R.string.test_mode).equals("off")){
+                    //make sure we have reached the min movement amount
                     if (Integer.parseInt(steemitStepCount.getText().toString()) < min_step_limit) {
                         notification = "You have not reached the minimum " +
                                 NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " activity yet";
                         displayNotification(notification, progress, context, currentActivity, "");
 
-                        //reset to enabled
-                        //arg0.setEnabled(true);
                         return null;
                     }
+
+
+                    //make sure the post content has at least the min_word_count
+                    if (steemitPostContent.getText().toString().split(" ").length
+                            <= min_word_count){
+                        notification = getString(R.string.min_word_count_error)
+                                +" "+ min_word_count
+                                +" "+ getString(R.string.word_plural_label);
+                        displayNotification(notification, progress, context, currentActivity, "");
+
+                        return null;
+                    }
+
+                    //make sure the user has not posted today already,
+                    //and also avoid potential abuse of changing phone clock via comparing to older dates
+                    String lastPostDate = sharedPreferences.getString("actifitLastPostDate","");
+                    String currentDate = new SimpleDateFormat("yyyyMMdd").format(
+                            Calendar.getInstance().getTime());
+
+                    System.out.println(">>>>[Actifit]lastPostDate:"+lastPostDate);
+                    System.out.println(">>>>[Actifit]currentDate:"+currentDate);
+                    if (!lastPostDate.equals("")){
+                        if (Integer.parseInt(lastPostDate) >= Integer.parseInt(currentDate)) {
+                            notification = getString(R.string.one_post_per_day_error);
+                            displayNotification(notification, progress, context, currentActivity, "");
+                            return null;
+                        }
+                    }
+
                 }
 
                 //let us check if user has selected activities yet
@@ -255,6 +307,21 @@ public class PostSteemitActivity extends AppCompatActivity {
                     data.put("tags", steemitPostTags.getText());
                     data.put("step_count", steemitStepCount.getText());
                     data.put("activity_type", activityTypeSelector.getSelectedItemsAsString());
+
+                    data.put("height", heightSize.getText());
+                    data.put("weight", weightSize.getText());
+                    data.put("chest", chestSize.getText());
+                    data.put("waist", waistSize.getText());
+                    data.put("thighs", thighsSize.getText());
+                    data.put("bodyfat", bodyFat.getText());
+
+                    data.put("heightUnit", heightSizeUnit.getText());
+                    data.put("weightUnit", weightSizeUnit.getText());
+                    data.put("chestUnit", chestSizeUnit.getText());
+                    data.put("waistUnit", waistSizeUnit.getText());
+                    data.put("thighsUnit", thighsSizeUnit.getText());
+
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -283,6 +350,13 @@ public class PostSteemitActivity extends AppCompatActivity {
                 //check result of action
                 if (result.equals("success")){
                     notification = getString(R.string.success_post);
+
+                    //store date of last successful post to prevent multiple posts per day
+
+                    editor.putString("actifitLastPostDate",
+                            new SimpleDateFormat("yyyyMMdd").format(
+                                    Calendar.getInstance().getTime()));
+                    editor.commit();
                 }else{
                     notification = getString(R.string.failed_post);
                 }
