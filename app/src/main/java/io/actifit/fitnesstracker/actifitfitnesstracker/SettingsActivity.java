@@ -3,15 +3,35 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.isStepSensorPresent;
 
@@ -29,6 +49,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         final CheckBox aggBgTrackingChckBox = findViewById(R.id.background_tracking);
 
+        final CheckBox donateCharityChckBox = findViewById(R.id.donate_charity);
+        final Spinner charitySelected = findViewById(R.id.charity_options);
 
         //retrieving prior settings if already saved before
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
@@ -90,12 +112,98 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                 }
 
+                //reset value first
+                editor.putString("selectedCharity", "");
+
+                //check if charity mode is on and a charity has been selected
+                if (donateCharityChckBox.isChecked()){
+                    if (charitySelected.getSelectedItem() !=null){
+                        editor.putString("selectedCharity", charitySelected.getSelectedItem().toString());
+                    }
+                }
+
                 editor.commit();
 
                 currentActivity.finish();
 
             }
         });
+
+        //grab charity list
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        // This holds the url to connect to the API and grab the balance.
+        String charityUrl = getString(R.string.charity_list_api_url);
+
+        JsonArrayRequest charitiesRequest = new JsonArrayRequest(Request.Method.GET,
+                charityUrl, null, new Response.Listener<JSONArray>(){
+
+            @Override
+            public void onResponse(JSONArray transactionListArray) {
+
+                ArrayList<String> transactionList = new ArrayList<String>();
+                Spinner charityOptions = findViewById(R.id.charity_options);
+                // Handle the result
+                try {
+
+                    for (int i = 0; i < transactionListArray.length(); i++) {
+                        // Retrieve each JSON object within the JSON array
+                        JSONObject jsonObject = transactionListArray.getJSONObject(i);
+
+                        // Adds strings from the current object to the data string
+                        transactionList.add(jsonObject.getString("charity_name"));
+                    }
+                    // convert content to adapter display, and render it
+                    ArrayAdapter<String> arrayAdapter =
+                            new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1, transactionList){
+                                @Override
+                                public View getView(int position, View convertView, ViewGroup parent){
+                                    // Get the Item from ListView
+                                    View view = super.getView(position, convertView, parent);
+
+                                    // Initialize a TextView for ListView each Item
+                                    TextView tv = view.findViewById(android.R.id.text1);
+
+                                    // Set the text color of TextView (ListView Item)
+                                    tv.setTextColor(Color.BLACK);
+                                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
+
+                                    // Generate ListView Item using TextView
+                                    return view;
+                                }
+                            };
+
+                    charityOptions.setAdapter(arrayAdapter);
+
+                    //choose a charity if one is already selected before
+
+                    SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+                    String currentCharity = (sharedPreferences.getString("selectedCharity",""));
+
+                    if (!currentCharity.equals("")){
+                        donateCharityChckBox.setChecked(true);
+                        charitySelected.setSelection(arrayAdapter.getPosition(currentCharity));
+                    }
+
+                    //actifitTransactions.setText("Response is: "+ response);
+                }catch (Exception e) {
+                    System.out.println(">>>>[Actifit]: Volley error"+e.getMessage());
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println(">>>>[Actifit]: Volley response error"+error.getMessage());
+                error.printStackTrace();
+            }
+        });
+
+        // Add charities request to be processed
+        queue.add(charitiesRequest);
 
     }
 

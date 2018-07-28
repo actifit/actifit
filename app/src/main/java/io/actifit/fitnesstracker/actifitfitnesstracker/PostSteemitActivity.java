@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.StrictMode;
+
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -25,6 +28,7 @@ import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -65,7 +69,7 @@ public class PostSteemitActivity extends AppCompatActivity {
         EditText steemitPostTitle = findViewById(R.id.steemit_post_title);
         EditText steemitUsername = findViewById(R.id.steemit_username);
         EditText steemitPostingKey = findViewById(R.id.steemit_posting_key);
-        EditText steemitPostContent = findViewById(R.id.steemit_post_content);
+        final EditText steemitPostContent = findViewById(R.id.steemit_post_content);
         TextView measureSectionLabel = findViewById(R.id.measurements_section_lbl);
 
         TextView heightSizeUnit = findViewById(R.id.measurements_height_unit);
@@ -89,8 +93,12 @@ public class PostSteemitActivity extends AppCompatActivity {
         String[] activity_type = {
                 "Walking", "Jogging", "Running", "Cycling", "Rope Skipping",
                 "Dancing","Basketball", "Football", "Boxing", "Tennis", "Table Tennis",
-                "Weight Lifting", "Treadmill","Stair Mill", "Elliptical"
+                "Martial Arts", "House Chores", "Moving Around Office", "Shopping","Daily Activity",
+                "Aerobics", "Weight Lifting", "Treadmill","Stair Mill", "Elliptical"
                 };
+
+        //sort options in alpha order
+        Arrays.sort(activity_type);
 
         MultiSelectionSpinner activityTypeSelector = (MultiSelectionSpinner) findViewById(R.id.steemit_activity_type);
         activityTypeSelector.setItems(activity_type);
@@ -127,8 +135,39 @@ public class PostSteemitActivity extends AppCompatActivity {
 
             @Override
             public void onClick(final View arg0) {
-                //connect to the server via a thread to prevent application hangup
-                new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+
+                //we need to check first if we have a charity setup
+                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+                final String currentCharity = (sharedPreferences.getString("selectedCharity",""));
+
+                if (!currentCharity.equals("")){
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case DialogInterface.BUTTON_POSITIVE:
+                                        //go ahead posting
+                                        new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+                                        break;
+
+                                    case DialogInterface.BUTTON_NEGATIVE:
+                                        //cancel
+                                        break;
+                                }
+                            }
+                        };
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
+                        builder.setMessage(getString(R.string.current_workout_going_charity) + " "
+                                + currentCharity + " "
+                                + getString(R.string.current_workout_settings_based))
+                                .setPositiveButton("Yes", dialogClickListener)
+                                .setNegativeButton("No", dialogClickListener).show();
+                }else {
+                    //connect to the server via a thread to prevent application hangup
+                    new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+                }
             }
         });
 
@@ -138,17 +177,26 @@ public class PostSteemitActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (v.getId() == R.id.steemit_post_content) {
+
                     v.getParent().requestDisallowInterceptTouchEvent(true);
                     switch (event.getAction() & MotionEvent.ACTION_MASK) {
                         case MotionEvent.ACTION_UP:
                             v.getParent().requestDisallowInterceptTouchEvent(false);
                             break;
                     }
+
+                }
+                if (v.getId() == R.id.steemit_post_content || v.getId() == R.id.steemit_post_tags
+                        || v.getId() == R.id.measurements_bodyfat || v.getId() == R.id.measurements_chest
+                        || v.getId() == R.id.measurements_height || v.getId() == R.id.measurements_weight
+                        || v.getId() == R.id.measurements_thighs || v.getId() == R.id.measurements_waistsize) {
+                    ((NestedScrollView)findViewById(R.id.nestedScrollView)).smoothScrollTo(0,v.getBottom());
                 }
                 return false;
             }
         });
     }
+
 
     /**
      * function handling the display of popup notification
@@ -295,6 +343,9 @@ public class PostSteemitActivity extends AppCompatActivity {
                     return null;
                 }
 
+
+
+
                 //prepare data to be sent along post
                 final JSONObject data = new JSONObject();
                 try {
@@ -321,6 +372,15 @@ public class PostSteemitActivity extends AppCompatActivity {
                     data.put("waistUnit", waistSizeUnit.getText());
                     data.put("thighsUnit", thighsSizeUnit.getText());
 
+                    //choose a charity if one is already selected before
+
+                    sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+                    final String currentCharity = (sharedPreferences.getString("selectedCharity",""));
+
+                    if (!currentCharity.equals("")){
+                        data.put("charity", currentCharity);
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -330,7 +390,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                 String result = "";
                 //use test url only if testing mode is on
                 String urlStr = getString(R.string.test_api_url);
-                if (getString(R.string.test_mode).equals("off")){
+                if (getString(R.string.test_mode).equals("off")) {
                     urlStr = getString(R.string.api_url);
                 }
                 // Headers
@@ -345,19 +405,22 @@ public class PostSteemitActivity extends AppCompatActivity {
                     result += inputLine;
                 }
 
-                System.out.println(">>>test:"+result);
+                System.out.println(">>>test:" + result);
 
                 //check result of action
-                if (result.equals("success")){
+                if (result.equals("success")) {
                     notification = getString(R.string.success_post);
 
                     //store date of last successful post to prevent multiple posts per day
 
+                    //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
+                    sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                    editor = sharedPreferences.edit();
                     editor.putString("actifitLastPostDate",
                             new SimpleDateFormat("yyyyMMdd").format(
                                     Calendar.getInstance().getTime()));
                     editor.commit();
-                }else{
+                } else {
                     notification = getString(R.string.failed_post);
                 }
 
@@ -376,6 +439,7 @@ public class PostSteemitActivity extends AppCompatActivity {
             return null;
         }
     }
+
 
 }
 
