@@ -67,7 +67,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.actifit_notif_channel);
             String description = getString(R.string.actifit_notif_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            //making a fix for no sound in Android 8
+            int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel channel = new NotificationChannel(
                     getString(R.string.actifit_channel_ID), name, importance);
             channel.setDescription(description);
@@ -179,7 +180,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                 .setContentText(getString(R.string.activity_today_string)+" "+curActivityCount)
                 .setSmallIcon(R.drawable.actifit_logo)
                 .setContentIntent(pendingIntent)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOnlyAlertOnce(true);
 
         notificationManager = NotificationManagerCompat.from(this);
 

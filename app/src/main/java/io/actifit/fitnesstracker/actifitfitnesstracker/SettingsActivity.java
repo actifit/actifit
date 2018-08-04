@@ -9,9 +9,11 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -50,7 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
         final CheckBox aggBgTrackingChckBox = findViewById(R.id.background_tracking);
 
         final CheckBox donateCharityChckBox = findViewById(R.id.donate_charity);
-        final Spinner charitySelected = findViewById(R.id.charity_options);
+        Spinner charitySelected = findViewById(R.id.charity_options);
 
         //retrieving prior settings if already saved before
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
@@ -73,6 +75,25 @@ public class SettingsActivity extends AppCompatActivity {
         aggBgTrackingChckBox.setChecked(aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on)));
 
         final Activity currentActivity = this;
+
+        //need to update the info based on charity selection
+        charitySelected.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            TextView charityInfo = findViewById(R.id.charity_info);
+            Spinner charitySelected = findViewById(R.id.charity_options);
+
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String fullUrl = getString(R.string.steemit_url)+'@'+((Charity)charitySelected.getSelectedItem()).getCharityName();
+                charityInfo.setText(fullUrl);
+                charityInfo.setMovementMethod(LinkMovementMethod.getInstance());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                charityInfo.setText("");
+            }
+        });
+
 
         Button BtnSaveSettings = findViewById(R.id.btn_save_settings);
         BtnSaveSettings.setOnClickListener(new View.OnClickListener() {
@@ -117,8 +138,10 @@ public class SettingsActivity extends AppCompatActivity {
 
                 //check if charity mode is on and a charity has been selected
                 if (donateCharityChckBox.isChecked()){
+                    Spinner charitySelected = findViewById(R.id.charity_options);
                     if (charitySelected.getSelectedItem() !=null){
-                        editor.putString("selectedCharity", charitySelected.getSelectedItem().toString());
+                        editor.putString("selectedCharity", ((Charity)charitySelected.getSelectedItem()).getCharityName());
+                        editor.putString("selectedCharityDisplayName", charitySelected.getSelectedItem().toString());
                     }
                 }
 
@@ -142,7 +165,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONArray transactionListArray) {
 
-                ArrayList<String> transactionList = new ArrayList<String>();
+                ArrayList<Charity> transactionList = new ArrayList<Charity>();
                 Spinner charityOptions = findViewById(R.id.charity_options);
                 // Handle the result
                 try {
@@ -152,11 +175,11 @@ public class SettingsActivity extends AppCompatActivity {
                         JSONObject jsonObject = transactionListArray.getJSONObject(i);
 
                         // Adds strings from the current object to the data string
-                        transactionList.add(jsonObject.getString("charity_name"));
+                        transactionList.add(new Charity(jsonObject.getString("charity_name"), jsonObject.getString("display_name")));
                     }
                     // convert content to adapter display, and render it
-                    ArrayAdapter<String> arrayAdapter =
-                            new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1, transactionList){
+                    ArrayAdapter arrayAdapter =
+                            new ArrayAdapter(getApplicationContext(),android.R.layout.simple_list_item_1, transactionList){
                                 @Override
                                 public View getView(int position, View convertView, ViewGroup parent){
                                     // Get the Item from ListView
@@ -181,10 +204,17 @@ public class SettingsActivity extends AppCompatActivity {
                     SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
                     String currentCharity = (sharedPreferences.getString("selectedCharity",""));
+                    String currentCharityDisplayName = (sharedPreferences.getString("selectedCharityDisplayName",""));
 
                     if (!currentCharity.equals("")){
+                        Spinner charitySelected = findViewById(R.id.charity_options);
+                        TextView charityInfo = findViewById(R.id.charity_info);
+
                         donateCharityChckBox.setChecked(true);
-                        charitySelected.setSelection(arrayAdapter.getPosition(currentCharity));
+                        charitySelected.setSelection(arrayAdapter.getPosition(new Charity(currentCharity,currentCharityDisplayName)));
+                        String fullUrl = getString(R.string.steemit_url)+'@'+((Charity)charitySelected.getSelectedItem()).getCharityName();
+                        charityInfo.setText(fullUrl);
+                        charityInfo.setMovementMethod(LinkMovementMethod.getInstance());
                     }
 
                     //actifitTransactions.setText("Response is: "+ response);
