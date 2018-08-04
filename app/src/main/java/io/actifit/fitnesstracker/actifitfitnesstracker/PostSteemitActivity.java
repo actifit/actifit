@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 
@@ -12,6 +14,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -78,6 +81,9 @@ public class PostSteemitActivity extends AppCompatActivity {
         TextView chestSizeUnit = findViewById(R.id.measurements_chest_unit);
         TextView thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
 
+        //enabling proper scrolling for postcontent
+        steemitPostContent.setMovementMethod(new ScrollingMovementMethod());
+
         //Adding default title content for the daily post
 
         //generating today's date
@@ -140,6 +146,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
                 final String currentCharity = (sharedPreferences.getString("selectedCharity",""));
+                final String currentCharityDisplayName = (sharedPreferences.getString("selectedCharityDisplayName",""));
 
                 if (!currentCharity.equals("")){
                         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -160,7 +167,7 @@ public class PostSteemitActivity extends AppCompatActivity {
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
                         builder.setMessage(getString(R.string.current_workout_going_charity) + " "
-                                + currentCharity + " "
+                                + currentCharityDisplayName + " "
                                 + getString(R.string.current_workout_settings_based))
                                 .setPositiveButton("Yes", dialogClickListener)
                                 .setNegativeButton("No", dialogClickListener).show();
@@ -371,6 +378,16 @@ public class PostSteemitActivity extends AppCompatActivity {
                     data.put("chestUnit", chestSizeUnit.getText());
                     data.put("waistUnit", waistSizeUnit.getText());
                     data.put("thighsUnit", thighsSizeUnit.getText());
+
+                    //grab app version number
+                    try {
+                        PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                        String version = pInfo.versionName;
+                        data.put("appVersion",version);
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
 
                     //choose a charity if one is already selected before
 
