@@ -11,7 +11,7 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Steps History"
+        android:text="Activity History"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
     <ListView
@@ -19,8 +19,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:dividerHeight="0.1dp"
-        android:divider="#0000CC"
-        />
+        android:divider="#0000CC"/>
 
 
     <EditText

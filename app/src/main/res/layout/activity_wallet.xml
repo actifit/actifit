@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Wallet"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+    <TextView
+        android:id="@+id/steemit_username_lbl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Steemit Username (without the @)" />
+
+    <EditText
+        android:id="@+id/steemit_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName" />
+
+    <Button
+        android:id="@+id/btn_get_balance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Check Balance" />
+
+    <TextView
+        android:id="@+id/actifit_balance_lbl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Actifit Tokens"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/actifit_balance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dip"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/actifit_transactions_lbl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Actifit Transactions"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/actifit_transactions_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Unable to Fetch Transations"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:visibility="invisible"/>
+
+    <ListView
+        android:id="@+id/actifit_transactions"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:dividerHeight="0.1dp"
+        android:divider="#0000CC"
+        />
+
+
+</LinearLayout>

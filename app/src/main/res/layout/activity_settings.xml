@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    >
+
+    <TextView
+        android:id="@+id/activity_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+
+    <TextView
+        android:id="@+id/background_tracking_lbl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:textSize="18dp"
+        android:text="Background Movement Tracking" />
+
+    <CheckBox
+        android:id="@+id/background_tracking"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="Enable Aggressive Background Tracking*" />
+
+    <TextView
+        android:id="@+id/background_tracking_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingBottom="10dp"
+        android:textStyle="italic"
+        android:text="@string/aggr_mode_note" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/available_measure_systems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
+        android:text="Measurement System" />
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+            android:orientation="horizontal"
+            android:paddingLeft="20dp">
+        <RadioButton
+            android:id="@+id/metric_system"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Metric" />
+
+        <RadioButton
+            android:id="@+id/us_system"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="US System"
+           />
+
+    </RadioGroup>
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/donate_charity_lbl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Donate to Charity"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
+         />
+
+    <CheckBox
+        android:id="@+id/donate_charity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="Donate Rewards to Charity" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+    <TextView
+        android:id="@+id/charity_options_lbl"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:text="Available Charities"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:textSize="14dp"
+
+        />
+
+    <Spinner
+        android:id="@+id/charity_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@android:drawable/btn_dropdown"
+        android:paddingTop="0dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="1dp"
+        android:paddingRight="1dp"
+        android:layout_gravity="left"
+        android:textSize="14dp"
+        android:spinnerMode="dropdown"/>
+    </LinearLayout>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+    <TextView
+        android:id="@+id/charity_info_lbl"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:text="Charity Info"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:textSize="14dp"
+
+        />
+    <TextView
+        android:id="@+id/charity_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:paddingTop="10dp"
+        android:autoLink="web"
+
+        android:textSize="14dp"
+        />
+</LinearLayout>
+    <Button
+        android:id="@+id/btn_save_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+
+        android:text="Save Settings" />
+
+</LinearLayout>

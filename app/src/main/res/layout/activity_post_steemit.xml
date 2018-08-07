@@ -1,109 +1,399 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
     >
 
-    <TextView
-        android:id="@+id/steemit_username_lbl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Steemit Username (without the @)" />
 
-    <EditText
-        android:id="@+id/steemit_username"
+    <android.support.v4.widget.NestedScrollView
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ems="10"
-        android:inputType="textPersonName" />
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/nestedScrollView"
+        android:layout_weight="5">
+
+        <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/cLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical">
 
 
-    <TextView
-        android:id="@+id/steemit_posting_key_lbl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Steemit Private Posting Key (NOT the password)" />
 
-    <EditText
-        android:id="@+id/steemit_posting_key"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ems="10"
-        android:inputType="textPassword" />
+            <TextView
+                android:id="@+id/steemit_username_lbl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Steemit Username (without the @)"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/steemit_post_title_lbl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Post Title" />
+            <EditText
+                android:id="@+id/steemit_username"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/steemit_username_lbl" />
 
-    <EditText
-        android:id="@+id/steemit_post_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ems="10"
-        android:inputType="textMultiLine" />
 
-    <TextView
-        android:id="@+id/steemit_step_count_lbl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Step Count" />
+            <TextView
+                android:id="@+id/steemit_posting_key_lbl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="45dp"
+                android:text="Steemit Private Posting Key (NOT the password)"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/steemit_username" />
 
-    <EditText
-        android:id="@+id/steemit_step_count"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:enabled="false"
-        android:ems="10"
-        android:inputType="textMultiLine" />
+            <EditText
+                android:id="@+id/steemit_posting_key"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPassword"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/steemit_posting_key_lbl" />
 
-    <TextView
-        android:id="@+id/steemit_post_tags_lbl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Post Tags" />
+            <TextView
+                android:id="@+id/steemit_post_title_lbl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="45dp"
+                android:text="Post Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/steemit_posting_key" />
 
-    <EditText
-        android:id="@+id/steemit_post_tags"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ems="10"
-        android:inputType="textMultiLine" />
+            <EditText
+                android:id="@+id/steemit_post_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textMultiLine"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/steemit_post_title_lbl" />
 
-    <TextView
-        android:id="@+id/steemit_post_content_lbl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Post Content" />
 
-    <EditText
-        android:id="@+id/steemit_post_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="5"
-        android:ems="10"
-        android:inputType="textMultiLine" />
+            <TextView
+                android:id="@+id/steemit_step_count_lbl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="45dp"
+                android:text="Activity Count"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/steemit_post_title" />
+
+            <EditText
+                android:id="@+id/steemit_step_count"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:enabled="false"
+                android:inputType="textMultiLine"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/steemit_step_count_lbl" />
+
+            <TextView
+                android:id="@+id/steemit_activity_type_lbl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="45dp"
+                android:text="Activity Type"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/steemit_step_count" />
+
+
+            <io.actifit.fitnesstracker.actifitfitnesstracker.MultiSelectionSpinner
+                android:id="@+id/steemit_activity_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/steemit_activity_type_lbl"/>
+
+            <TextView
+                android:id="@+id/measurements_section_lbl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="45dp"
+                android:text="Track Measurements"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/steemit_activity_type" />
+
+            <!-- row 1 measurements -->
+
+            <TextView
+                android:id="@+id/measurements_height_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:paddingLeft="10dp"
+                android:text="Height"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
+
+            <EditText
+                android:id="@+id/measurements_height"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:inputType="numberDecimal"
+                app:layout_constraintStart_toEndOf="@+id/measurements_height_lbl"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl"
+                android:nextFocusDown="@+id/measurements_weight"
+                />
+
+            <TextView
+                android:id="@+id/measurements_height_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="Unit"
+                app:layout_constraintStart_toEndOf="@+id/measurements_height"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
+
+
+            <TextView
+                android:id="@+id/measurements_weight_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="Weight"
+                app:layout_constraintRight_toRightOf="parent"
+                android:paddingLeft="5dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_height_unit"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
+
+            <EditText
+                android:id="@+id/measurements_weight"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:inputType="numberDecimal"
+                app:layout_constraintStart_toEndOf="@+id/measurements_weight_lbl"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl"
+                android:nextFocusDown="@+id/measurements_bodyfat"
+                />
+
+            <TextView
+                android:id="@+id/measurements_weight_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="Unit"
+                app:layout_constraintStart_toEndOf="@+id/measurements_weight"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
+
+            <TextView
+                android:id="@+id/measurements_bodyfat_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="Body Fat"
+                app:layout_constraintRight_toRightOf="parent"
+                android:paddingLeft="5dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_weight_unit"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
+
+            <EditText
+                android:id="@+id/measurements_bodyfat"
+                android:layout_width="50dp"
+                android:paddingTop="20dp"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                app:layout_constraintStart_toEndOf="@+id/measurements_bodyfat_lbl"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl"
+                android:nextFocusDown="@+id/measurements_waistsize"
+                />
+
+            <TextView
+                android:id="@+id/measurements_bodyfat_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="%"
+                app:layout_constraintStart_toEndOf="@+id/measurements_bodyfat"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
+
+            <!-- row 2 measurements -->
+
+            <TextView
+                android:id="@+id/measurements_waistsize_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:paddingLeft="10dp"
+                android:text="Waist"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
+
+            <EditText
+                android:id="@+id/measurements_waistsize"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:inputType="numberDecimal"
+                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl"
+                app:layout_constraintStart_toEndOf="@+id/measurements_waistsize_lbl"
+                android:nextFocusDown="@+id/measurements_thighs"
+                />
+
+            <TextView
+                android:id="@+id/measurements_waistsize_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Unit"
+                app:layout_constraintStart_toEndOf="@+id/measurements_waistsize"
+                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+
+            <TextView
+                android:id="@+id/measurements_thighs_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thighs"
+                app:layout_constraintRight_toRightOf="parent"
+                android:paddingLeft="5dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_height_unit"
+                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+            <EditText
+                android:id="@+id/measurements_thighs"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:inputType="numberDecimal"
+                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl"
+                app:layout_constraintStart_toEndOf="@+id/measurements_thighs_lbl"
+                android:nextFocusDown="@+id/measurements_chest"
+                />
+
+            <TextView
+                android:id="@+id/measurements_thighs_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Unit"
+                app:layout_constraintStart_toEndOf="@+id/measurements_thighs"
+                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+            <TextView
+                android:id="@+id/measurements_chest_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chest"
+                app:layout_constraintRight_toRightOf="parent"
+                android:paddingLeft="5dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_thighs_unit"
+                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+            <EditText
+                android:id="@+id/measurements_chest"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:inputType="numberDecimal"
+                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl"
+                app:layout_constraintStart_toEndOf="@+id/measurements_chest_lbl"
+                android:nextFocusDown="@+id/steemit_post_tags"
+                />
+
+            <TextView
+                android:id="@+id/measurements_chest_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Unit"
+                app:layout_constraintStart_toEndOf="@+id/measurements_chest"
+                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+            <TextView
+                android:id="@+id/steemit_post_tags_lbl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="45dp"
+                android:text="Post Tags"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/measurements_chest_unit" />
+
+            <EditText
+                android:id="@+id/steemit_post_tags"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textMultiLine"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/steemit_post_tags_lbl" />
+
+            <TextView
+                android:id="@+id/steemit_post_content_lbl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="45dp"
+                android:text="Post Content (Describe your day's activity)"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/steemit_post_tags" />
+
+            <EditText
+                android:id="@+id/steemit_post_content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
+                android:maxLines="6"
+                android:textIsSelectable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:minHeight="185dp"
+                android:scrollbars="vertical"
+                android:overScrollMode="always"
+                android:scrollbarStyle="insideInset"
+                android:gravity="top"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/steemit_post_content_lbl" />
+
+        </android.support.constraint.ConstraintLayout>
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_centerHorizontal="true"
+    android:orientation="horizontal"
+        android:layout_weight="1">
 
     <Button
         android:id="@+id/btn_submit_steemit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Post to Steemit"
+        android:layout_gravity="bottom"
         android:layout_weight="1"
-        android:text="Post to Steemit" />
+        />
 
+    </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>
