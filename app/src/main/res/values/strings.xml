@@ -1,4 +1,31 @@
 <resources>
     <string name="app_name">Actifit Fitness Tracker</string>
-    <string name="success_post">Your post has been successfully submitted to Steemit!</string>
+    <string name="sending_post">Sending your post to the Steem blockchain...</string>
+    <string name="success_post">Your post has been successfully submitted to the Steem blockchain</string>
+    <string name="failed_post">There was an error submitting your post to the Steem blockchain</string>
+    <string name="connection_timeout">Connecting to the Steem node took too long. Please try again.</string>
+    <string name="default_post_title">My Actifit Report Card:</string>
+    <string name="error_need_select_one_activity">You need to select at least one Activity Type to proceed</string>
+    <string name="fetching_leaderboard">Updating the leaderboard...</string>
+    <string name="leader_no_results">There are no users on the leaderboard now</string>
+    <string name="leader_error">An error occurred trying to fetch leaderboard list. Please Try again later.</string>
+    <string name="username_missing">Please provide a proper existing steemit username</string>
+    <string name="fetching_user_balance">Grabbing user balance...</string>
+    <string name="metric_system">Metric System</string>
+    <string name="us_system">US System</string>
+    <string name="back_exit_confirmation">Click BACK button again if you want to exit</string>
+    <string name="actifit_service_desc">Actifit Service to keep track of user activity</string>
+    <string name="activity_today_string">Total Activity Today:</string>
+    <string name="actifit_notif_channel">Actifit Notification Channel</string>
+    <string name="actifit_notif_description">Channel used for sending out notifications of Actifit App</string>
+    <string name="actifit_channel_ID">Actifit_Notif_Channel_1</string>
+    <string name="aggr_back_tracking_on">On</string>
+    <string name="aggr_back_tracking_off"></string>
+    <string name="aggr_mode_note">*Enable this setting if you are facing issues with app tracking your movement while screen is locked. The setting may possibly drain your battery faster.</string>
+    <string name="one_post_per_day_error">You can only post once per day</string>
+    <string name="min_word_count_error">You need to describe your activity in at least </string>
+    <string name="word_plural_label">words</string>
+    <string name="current_workout_going_charity">Your current activity rewards will go to charity </string>
+    <string name="current_workout_settings_based">based on your settings choice. Are you sure you want to proceed? </string>
+    <string name="steemit_url">https://www.steemit.com/</string>
 </resources>
