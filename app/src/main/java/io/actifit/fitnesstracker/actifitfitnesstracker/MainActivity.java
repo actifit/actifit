@@ -239,6 +239,33 @@ public class MainActivity extends AppCompatActivity{
         //LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
          //       new IntentFilter("ACTIFIT_SERVICE")
         //);
+        if(new RootChecker().isDeviceRooted()){
+            new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Root Activity")
+                    .setMessage("Your Device Is Rooted. Please Unroot Your Device, and Try Again.")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+
+
+
+                            }
+
+                    )
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            finish();
+                        }
+                    })
+
+
+                    .show()
+        } 
     }
 
     @Override
