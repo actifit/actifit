@@ -234,21 +234,21 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume() {  // We will use the onResume method to implement our rootchecker class.
         super.onResume();
         //LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
          //       new IntentFilter("ACTIFIT_SERVICE")
         //);
-        if(new RootChecker().isDeviceRooted()){
-            new AlertDialog.Builder(this)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle("Root Activity")
-                    .setMessage("Your Device Is Rooted. Please Unroot Your Device, and Try Again.")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+        if(new RootChecker().isDeviceRooted()){ //If device fails test, or I guess, passes :P
+            new AlertDialog.Builder(this) //Create a new alert, displaying to the user that we do not allow root devices to use the app.
+                    .setIcon(android.R.drawable.ic_dialog_alert) //Icon to use in alert.
+                    .setTitle("Root Activity")  //Title
+                    .setMessage("Your Device Is Rooted. Please Unroot Your Device, and Try Again.") //Message to display
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() //code to run on click
                             {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
+                                public void onClick(DialogInterface dialog, int which) { 
+                                    finish(); //closes application
                                 }
 
 
@@ -259,12 +259,12 @@ public class MainActivity extends AppCompatActivity{
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
-                            finish();
+                            finish();//closes application
                         }
                     })
 
 
-                    .show()
+                    .show() //launch alert.
         } 
     }
 
