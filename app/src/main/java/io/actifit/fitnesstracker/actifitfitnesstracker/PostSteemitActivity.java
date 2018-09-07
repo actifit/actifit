@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.icu.text.BreakIterator;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 
@@ -36,14 +37,14 @@ import java.util.Calendar;
 import java.util.Locale;
 
 
+
 public class PostSteemitActivity extends AppCompatActivity {
 
     private StepsDBHelper mStepsDBHelper;
     private String notification = "";
     private int min_step_limit = 1000;
-    private int min_word_count = 30;
+    private int min_char_count = 100;
     private Context steemit_post_context;
-    private ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +62,7 @@ public class PostSteemitActivity extends AppCompatActivity {
         mStepsDBHelper = new StepsDBHelper(this);
 
         //grabbing instances of input data sources
-        EditText stepCountContainer = findViewById(R.id.steemit_step_count);
+        final EditText stepCountContainer = findViewById(R.id.steemit_step_count);
 
         //set initial steps display value
         int stepCount = mStepsDBHelper.fetchTodayStepCount();
@@ -72,7 +73,7 @@ public class PostSteemitActivity extends AppCompatActivity {
         EditText steemitPostTitle = findViewById(R.id.steemit_post_title);
         EditText steemitUsername = findViewById(R.id.steemit_username);
         EditText steemitPostingKey = findViewById(R.id.steemit_posting_key);
-        final EditText steemitPostContent = findViewById(R.id.steemit_post_content);
+        final EditText steemitPostContent = findViewById(R.id.steemit_post_text);
         TextView measureSectionLabel = findViewById(R.id.measurements_section_lbl);
 
         TextView heightSizeUnit = findViewById(R.id.measurements_height_unit);
@@ -80,9 +81,6 @@ public class PostSteemitActivity extends AppCompatActivity {
         TextView waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
         TextView chestSizeUnit = findViewById(R.id.measurements_chest_unit);
         TextView thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
-
-        //enabling proper scrolling for postcontent
-        steemitPostContent.setMovementMethod(new ScrollingMovementMethod());
 
         //Adding default title content for the daily post
 
@@ -142,6 +140,11 @@ public class PostSteemitActivity extends AppCompatActivity {
             @Override
             public void onClick(final View arg0) {
 
+                //ned to grab new updated activity count before posting
+                int stepCount = mStepsDBHelper.fetchTodayStepCount();
+                //display step count while ensuring we don't display negative value if no steps tracked yet
+                stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+
                 //we need to check first if we have a charity setup
                 SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
@@ -183,7 +186,7 @@ public class PostSteemitActivity extends AppCompatActivity {
         steemitPostContent.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (v.getId() == R.id.steemit_post_content) {
+                if (v.getId() == R.id.steemit_post_text) {
 
                     v.getParent().requestDisallowInterceptTouchEvent(true);
                     switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -193,7 +196,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                     }
 
                 }
-                if (v.getId() == R.id.steemit_post_content || v.getId() == R.id.steemit_post_tags
+                if (v.getId() == R.id.steemit_post_text || v.getId() == R.id.steemit_post_tags
                         || v.getId() == R.id.measurements_bodyfat || v.getId() == R.id.measurements_chest
                         || v.getId() == R.id.measurements_height || v.getId() == R.id.measurements_weight
                         || v.getId() == R.id.measurements_thighs || v.getId() == R.id.measurements_waistsize) {
@@ -271,7 +274,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                 EditText steemitPostTitle = findViewById(R.id.steemit_post_title);
                 EditText steemitUsername = findViewById(R.id.steemit_username);
                 EditText steemitPostingKey = findViewById(R.id.steemit_posting_key);
-                EditText steemitPostContent = findViewById(R.id.steemit_post_content);
+                EditText steemitPostContent = findViewById(R.id.steemit_post_text);
                 EditText steemitPostTags = findViewById(R.id.steemit_post_tags);
                 EditText steemitStepCount = findViewById(R.id.steemit_step_count);
                 MultiSelectionSpinner activityTypeSelector = findViewById(R.id.steemit_activity_type);
@@ -310,13 +313,12 @@ public class PostSteemitActivity extends AppCompatActivity {
                         return null;
                     }
 
-
-                    //make sure the post content has at least the min_word_count
-                    if (steemitPostContent.getText().toString().split(" ").length
-                            <= min_word_count){
-                        notification = getString(R.string.min_word_count_error)
-                                +" "+ min_word_count
-                                +" "+ getString(R.string.word_plural_label);
+                    //make sure the post content has at least the min_char_count
+                    if (steemitPostContent.getText().toString().length()
+                            <= min_char_count){
+                        notification = getString(R.string.min_char_count_error)
+                                +" "+ min_char_count
+                                +" "+ getString(R.string.characters_plural_label);
                         displayNotification(notification, progress, context, currentActivity, "");
 
                         return null;
@@ -379,6 +381,8 @@ public class PostSteemitActivity extends AppCompatActivity {
                     data.put("waistUnit", waistSizeUnit.getText());
                     data.put("thighsUnit", thighsSizeUnit.getText());
 
+                    data.put("appType", "Android");
+
                     //grab app version number
                     try {
                         PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -438,7 +442,8 @@ public class PostSteemitActivity extends AppCompatActivity {
                                     Calendar.getInstance().getTime()));
                     editor.commit();
                 } else {
-                    notification = getString(R.string.failed_post);
+                    // notification = getString(R.string.failed_post);
+                    notification = result;
                 }
 
                 //display proper notification
