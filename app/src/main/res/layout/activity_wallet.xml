@@ -4,6 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
     >
 
 
@@ -18,7 +20,7 @@
         android:id="@+id/steemit_username_lbl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Steemit Username (without the @)" />
+        android:text="Steem Username" />
 
     <EditText
         android:id="@+id/steemit_username"
@@ -37,7 +39,7 @@
         android:id="@+id/actifit_balance_lbl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Actifit Tokens"
+        android:text="AFIT Tokens"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:visibility="invisible"/>
 
@@ -52,7 +54,7 @@
         android:id="@+id/actifit_transactions_lbl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Actifit Transactions"
+        android:text="Transactions"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:visibility="invisible"/>
 
