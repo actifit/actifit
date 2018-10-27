@@ -1,13 +1,23 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
@@ -17,6 +27,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -33,17 +44,34 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Random;
 
 import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.isStepSensorPresent;
 
 public class SettingsActivity extends AppCompatActivity {
+
+    private NumberPicker hourOptions, minOptions;
+    private AlarmManager alarmManager;
+    private PendingIntent alarmIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+
+        //display version number
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            String version = pInfo.versionName;
+            TextView version_info = findViewById(R.id.version_info);
+            version_info.setText("Actifit App Version: "+version);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         //grab instances of settings components
         final RadioButton metricSysRadioBtn = findViewById(R.id.metric_system);
@@ -52,6 +80,9 @@ public class SettingsActivity extends AppCompatActivity {
         final CheckBox aggBgTrackingChckBox = findViewById(R.id.background_tracking);
 
         final CheckBox donateCharityChckBox = findViewById(R.id.donate_charity);
+
+        final CheckBox reminderSetChckBox = findViewById(R.id.reminder_settings);
+
         Spinner charitySelected = findViewById(R.id.charity_options);
 
         //retrieving prior settings if already saved before
@@ -145,7 +176,72 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                 }
 
-                editor.commit();
+                //unset alarm and the need to restart Actifit notification reminder after reboot
+                alarmManager = (AlarmManager) getApplicationContext()
+                        .getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(getApplicationContext(), ReminderNotificationService.class);
+                alarmIntent = PendingIntent.getService(getApplicationContext()
+                        , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                //unset any existing alarms first
+                alarmManager.cancel(alarmIntent);
+
+
+
+                //check if reminder setting is on
+                if (reminderSetChckBox.isChecked()) {
+                    editor.putString("selectedReminderHour", "" + hourOptions.getValue());
+                    editor.putString("selectedReminderMin", "" + minOptions.getValue());
+
+                    //set the alarm at user defined value
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(System.currentTimeMillis());
+                    calendar.set(Calendar.HOUR_OF_DAY, hourOptions.getValue());
+                    calendar.set(Calendar.MINUTE, minOptions.getValue());
+
+                    //PendingIntent.getService(currentActivity, ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    intent.putExtra("NOTIFICATION_ID", ReminderNotificationService.NOTIFICATION_ID);
+
+                    System.out.println(">>>>[Actifit]: set alarm manager"+hourOptions.getValue()+" "+minOptions.getValue());
+
+                    alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
+                            , 0, intent, 0);
+
+                    alarmManager = (AlarmManager) getApplicationContext()
+                            .getSystemService(Context.ALARM_SERVICE);
+
+                    //specify alarm interval to be every 24 hours at user defined slot
+                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                            1000 * 60 * 60 * 24, alarmIntent);
+
+                    /*try {
+                        alarmIntent.send();
+                    } catch (PendingIntent.CanceledException e) {
+                        e.printStackTrace();
+                    }
+
+                    Intent sampleIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, sampleIntent, 0);
+
+
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), getString(R.string.actifit_channel_remind_ID))
+                            .setSmallIcon(R.drawable.actifit_logo)
+                            .setContentTitle("sample")
+                            .setContentText("notify me")
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+
+                    notificationManager.notify(ReminderNotificationService.NOTIFICATION_ID, mBuilder.build());
+
+                        */
+
+
+                }
+
+                editor.apply();
 
                 currentActivity.finish();
 
@@ -178,10 +274,11 @@ public class SettingsActivity extends AppCompatActivity {
                         transactionList.add(new Charity(jsonObject.getString("charity_name"), jsonObject.getString("display_name")));
                     }
                     // convert content to adapter display, and render it
-                    ArrayAdapter arrayAdapter =
-                            new ArrayAdapter(getApplicationContext(),android.R.layout.simple_list_item_1, transactionList){
+                    ArrayAdapter<Charity> arrayAdapter  =
+                            new ArrayAdapter<Charity>(getApplicationContext(),android.R.layout.simple_list_item_1, transactionList ){
+                                @NonNull
                                 @Override
-                                public View getView(int position, View convertView, ViewGroup parent){
+                                public View getView(int position, View convertView, @NonNull ViewGroup parent){
                                     // Get the Item from ListView
                                     View view = super.getView(position, convertView, parent);
 
@@ -234,6 +331,54 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Add charities request to be processed
         queue.add(charitiesRequest);
+
+
+        //set proper reminder times
+
+        hourOptions = findViewById(R.id.reminder_hour_options);
+
+        hourOptions.setMinValue(0);
+        hourOptions.setMaxValue(23);
+        //hourOptions.setWrapSelectorWheel(false);
+
+        minOptions = findViewById(R.id.reminder_min_options);
+
+        minOptions.setMinValue(0);
+        minOptions.setMaxValue(59);
+        //minOptions.setWrapSelectorWheel(false);
+
+        //formatting display of reminder times to add extra left zeros (hours and mins)
+        NumberPicker.Formatter formatter = new NumberPicker.Formatter(){
+            @Override
+            public String format(int i) {
+                if (i<10){
+                    return "0"+i;
+                }
+                return ""+i;
+            }
+        };
+
+        hourOptions.setFormatter(formatter);
+        minOptions.setFormatter(formatter);
+
+        //get pre-saved values for reminder setting
+        String reminderHour = (sharedPreferences.getString("selectedReminderHour",""));
+        String reminderMin = (sharedPreferences.getString("selectedReminderMin",""));
+
+        //check which is the current active system
+        //if the setting is manually set as US System or default Merci value (else)
+        if (!reminderHour.equals("") && !reminderMin.equals("")){
+            try {
+                hourOptions.setValue(Integer.parseInt(reminderHour));
+                minOptions.setValue(Integer.parseInt(reminderMin));
+                //we were able to grab proper values, set as checked
+                reminderSetChckBox.setChecked(true);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }else{
+            metricSysRadioBtn.setChecked(true);
+        }
 
     }
 

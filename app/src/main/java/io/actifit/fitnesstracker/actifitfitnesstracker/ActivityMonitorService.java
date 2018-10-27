@@ -18,6 +18,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
+import java.util.Calendar;
+
 
 /**
  * This class is a service that runs in the background and handles tracking and storing of
@@ -129,8 +131,11 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         int curStepCount = mStepsDBHelper.createStepsEntry();
 
         //adjust step count display and print to notification activity
-        mBuilder.setContentText(getString(R.string.activity_today_string)+" "+curStepCount);
-        notificationManager.notify(notificationID,mBuilder.build());
+        //making sure we have an instance of mBuilder
+        if (mBuilder!=null) {
+            mBuilder.setContentText(getString(R.string.activity_today_string) + " " + curStepCount);
+            notificationManager.notify(notificationID, mBuilder.build());
+        }
 
         //also update main activity
         Intent in = new Intent();
@@ -177,7 +182,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         mBuilder = new
                 NotificationCompat.Builder(this, getString(R.string.actifit_channel_ID))
                 .setContentTitle("Actifit Report")
-                .setContentText(getString(R.string.activity_today_string)+" "+curActivityCount)
+                .setContentText(getString(R.string.activity_today_string)+" "+(curActivityCount<0?0:curActivityCount))
                 .setSmallIcon(R.drawable.actifit_logo)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_LOW)

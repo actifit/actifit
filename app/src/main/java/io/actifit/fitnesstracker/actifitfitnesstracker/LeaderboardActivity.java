@@ -111,7 +111,13 @@ public class LeaderboardActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             //hide the progressDialog
-                            progress.dismiss();
+                            try {
+                                if (progress != null && progress.isShowing()) {
+                                    progress.dismiss();
+                                }
+                            }catch(Exception e){
+                                e.printStackTrace();
+                            }
 
                             //need to render the result
                             List<String> items = Arrays.asList(api_outcome.split(";"));
@@ -147,7 +153,13 @@ public class LeaderboardActivity extends AppCompatActivity {
             @Override
             public void run() {
                 //hide the progressDialog
-                progress.dismiss();
+                try{
+                    if (progress != null && progress.isShowing()) {
+                        progress.dismiss();
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
                 /*spinner=findViewById(R.id.progressBar);
                 spinner.setVisibility(View.GONE);*/
 
@@ -169,8 +181,12 @@ public class LeaderboardActivity extends AppCompatActivity {
                             }
                         });
                 //create and display alert window
-                AlertDialog alert11 = builder1.create();
-                alert11.show();
+                try {
+                    AlertDialog alert11 = builder1.create();
+                    alert11.show();
+                }catch(Exception e){
+                    System.out.println("Error creating dialog"+e.getMessage());
+                }
             }
         });
 
