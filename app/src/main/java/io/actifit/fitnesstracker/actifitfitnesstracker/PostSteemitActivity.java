@@ -1,50 +1,295 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.icu.text.BreakIterator;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Environment;
 import android.os.StrictMode;
 
-import android.support.v4.widget.NestedScrollView;
+import android.provider.MediaStore;
+import android.support.v4.widget.CircularProgressDrawable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.mobileconnectors.s3.transferutility.*;
+
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.util.IOUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.UUID;
+
+import com.mittsu.markedview.MarkedView;
 
 
-
-public class PostSteemitActivity extends AppCompatActivity {
+public class PostSteemitActivity extends AppCompatActivity implements View.OnClickListener{
 
     private StepsDBHelper mStepsDBHelper;
     private String notification = "";
     private int min_step_limit = 1000;
     private int min_char_count = 100;
     private Context steemit_post_context;
+
+    //track Choosing Image Intent
+    private static final int CHOOSING_IMAGE_REQUEST = 1234;
+
+    //private TextView tvFileName;
+    //private ImageView imageView;
+    private EditText steemitPostContent;
+
+    private Uri fileUri;
+    private Bitmap bitmap;
+    private ImageView image_preview;
+
+    //required function to ask for proper read/write permissions on later Android versions
+    protected boolean shouldAskPermissions() {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
+    @TargetApi(23)
+    protected void askPermissions() {
+        String[] permissions = {
+                "android.permission.READ_EXTERNAL_STORAGE",
+                "android.permission.WRITE_EXTERNAL_STORAGE"
+        };
+        int requestCode = 200;
+        requestPermissions(permissions, requestCode);
+    }
+
+
+    //implementing file upload functionality
+    private void uploadFile() {
+        final ProgressDialog uploadProgress;
+        if (fileUri != null) {
+
+            //create unique image file name
+            final String fileName = UUID.randomUUID().toString();
+
+            final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                    "/" + fileName);
+
+            createFile(getApplicationContext(), fileUri, file);
+
+            TransferUtility transferUtility =
+                    TransferUtility.builder()
+                            .context(getApplicationContext())
+                            .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+                            .s3Client(new AmazonS3Client(AWSMobileClient.getInstance().getCredentialsProvider()))
+                            .build();
+
+            //specify content type to be image to be properly recognizable upon rendering
+            ObjectMetadata imgMetaData = new ObjectMetadata();
+            imgMetaData.setContentType("image/jpeg");
+
+            TransferObserver uploadObserver =
+                    transferUtility.upload(fileName, file, imgMetaData);
+
+            //create a new progress dialog to show action is underway
+            uploadProgress = new ProgressDialog(steemit_post_context);
+            uploadProgress.setMessage("Uploading...0%");
+            uploadProgress.show();
+
+            uploadObserver.setTransferListener(new TransferListener() {
+
+                @Override
+                public void onStateChanged(int id, TransferState state) {
+                    if (TransferState.COMPLETED == state) {
+                        try {
+                            if (uploadProgress != null && uploadProgress.isShowing()) {
+                                uploadProgress.dismiss();
+                            }
+                        }catch (Exception ex){
+                            System.out.println(ex.getMessage());
+                        }
+
+                        Toast.makeText(getApplicationContext(), "Upload Completed!", Toast.LENGTH_SHORT).show();
+
+                        String full_img_url = getString(R.string.actifit_usermedia_url)+fileName;
+                        String img_markdown_text = "![]("+full_img_url+")";
+
+                        //append the uploaded image url to the text as markdown
+                        //if there is any particular selection, replace it too
+
+                        int start = Math.max(steemitPostContent.getSelectionStart(), 0);
+                        int end = Math.max(steemitPostContent.getSelectionEnd(), 0);
+                        steemitPostContent.getText().replace(Math.min(start, end), Math.max(start, end),
+                                img_markdown_text, 0, img_markdown_text.length());
+
+                        file.delete();
+
+                    } else if (TransferState.FAILED == state) {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Upload Failed!", Toast.LENGTH_SHORT);
+                        TextView v = toast.getView().findViewById(android.R.id.message);
+                        v.setTextColor(Color.RED);
+                        toast.show();
+                        file.delete();
+                    }
+                }
+
+                @Override
+                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                    float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
+                    int percentDone = (int) percentDonef;
+                    uploadProgress.setMessage("Uploading..."+percentDone + "%");
+                    //tvFileName.setText("ID:" + id + "|bytesCurrent: " + bytesCurrent + "|bytesTotal: " + bytesTotal + "|" + percentDone + "%");
+                }
+
+                @Override
+                public void onError(int id, Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            });
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        int i = view.getId();
+
+        if (i == R.id.btn_choose_file) {
+            showChoosingFile();
+        } /*else if (i == R.id.btn_upload) {
+            uploadFile();
+        }*/
+    }
+
+    //handles the display of image selection
+    private void showChoosingFile() {
+
+        //ensure we have proper permissions for image upload
+        if (shouldAskPermissions()) {
+            askPermissions();
+        }
+
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), CHOOSING_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (bitmap != null) {
+            bitmap.recycle();
+        }
+
+        if (requestCode == CHOOSING_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            fileUri = data.getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
+
+                uploadFile();
+
+                /*Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");*/
+
+                //image_preview.setImageBitmap(imageBitmap);
+
+                /*String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+                Cursor cursor = getContentResolver().query(fileUri,
+                        filePathColumn, null, null, null);
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String picturePath = cursor.getString(columnIndex);
+                cursor.close();
+
+                setPic(picturePath);*/
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //handle displaying a preview of selected image
+    private void setPic(String mCurrentPhotoPath) {
+        // Get the dimensions of the View
+        int targetW = image_preview.getWidth();
+        int targetH = image_preview.getHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        image_preview.setImageBitmap(bitmap);
+    }
+
+    private void createFile(Context context, Uri srcUri, File dstFile) {
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
+            if (inputStream == null) return;
+            OutputStream outputStream = new FileOutputStream(dstFile);
+            IOUtils.copy(inputStream, outputStream);
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +299,10 @@ public class PostSteemitActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_steemit);
+
+        //make sure help with PPKey link click works
+        TextView ppHelpLink = findViewById(R.id.posting_key_link);
+        ppHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         //setting context
         this.steemit_post_context = this;
@@ -73,7 +322,7 @@ public class PostSteemitActivity extends AppCompatActivity {
         EditText steemitPostTitle = findViewById(R.id.steemit_post_title);
         EditText steemitUsername = findViewById(R.id.steemit_username);
         EditText steemitPostingKey = findViewById(R.id.steemit_posting_key);
-        final EditText steemitPostContent = findViewById(R.id.steemit_post_text);
+        steemitPostContent = findViewById(R.id.steemit_post_text);
         TextView measureSectionLabel = findViewById(R.id.measurements_section_lbl);
 
         TextView heightSizeUnit = findViewById(R.id.measurements_height_unit);
@@ -81,6 +330,49 @@ public class PostSteemitActivity extends AppCompatActivity {
         TextView waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
         TextView chestSizeUnit = findViewById(R.id.measurements_chest_unit);
         TextView thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
+
+        final MarkedView mdView = (MarkedView)findViewById(R.id.md_view);
+        // call from code
+        // MarkedView mdView = new MarkedView(this);
+
+        // set markdown text pattern. ('contents' object is markdown text)
+        mdView.setMDText(steemitPostContent.getText().toString());
+
+
+        //hook change event for report content preview
+        steemitPostContent.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                if(s.length() != 0)
+                    mdView.setMDText(steemitPostContent.getText().toString());
+            }
+        });
+
+        //image_preview = findViewById(R.id.image_preview);
+
+        //initialize AWS settings and configuration
+
+        //imageView = findViewById(R.id.img_file);
+        //tvFileName = findViewById(R.id.tv_file_name);
+        //tvFileName.setText("");
+
+        findViewById(R.id.btn_choose_file).setOnClickListener(this);
+        //findViewById(R.id.btn_upload).setOnClickListener(this);
+
+        AWSMobileClient.getInstance().initialize(this).execute();
+
+        //credentials = new BasicAWSCredentials(AWS_KEY, AWS_SECRET);
+        //s3Client = new AmazonS3Client(credentials);
 
         //Adding default title content for the daily post
 
@@ -98,13 +390,14 @@ public class PostSteemitActivity extends AppCompatActivity {
                 "Walking", "Jogging", "Running", "Cycling", "Rope Skipping",
                 "Dancing","Basketball", "Football", "Boxing", "Tennis", "Table Tennis",
                 "Martial Arts", "House Chores", "Moving Around Office", "Shopping","Daily Activity",
-                "Aerobics", "Weight Lifting", "Treadmill","Stair Mill", "Elliptical"
+                "Aerobics", "Weight Lifting", "Treadmill","Stair Mill", "Elliptical",
+                "Hiking", "Gardening", "Rollerblading", "Cricket", "Golf", "Volleyball", "Geocaching"
                 };
 
         //sort options in alpha order
         Arrays.sort(activity_type);
 
-        MultiSelectionSpinner activityTypeSelector = (MultiSelectionSpinner) findViewById(R.id.steemit_activity_type);
+        MultiSelectionSpinner activityTypeSelector = findViewById(R.id.steemit_activity_type);
         activityTypeSelector.setItems(activity_type);
 
         //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
@@ -196,17 +489,10 @@ public class PostSteemitActivity extends AppCompatActivity {
                     }
 
                 }
-                if (v.getId() == R.id.steemit_post_text || v.getId() == R.id.steemit_post_tags
-                        || v.getId() == R.id.measurements_bodyfat || v.getId() == R.id.measurements_chest
-                        || v.getId() == R.id.measurements_height || v.getId() == R.id.measurements_weight
-                        || v.getId() == R.id.measurements_thighs || v.getId() == R.id.measurements_waistsize) {
-                    ((NestedScrollView)findViewById(R.id.nestedScrollView)).smoothScrollTo(0,v.getBottom());
-                }
                 return false;
             }
         });
     }
-
 
     /**
      * function handling the display of popup notification
@@ -220,7 +506,13 @@ public class PostSteemitActivity extends AppCompatActivity {
             @Override
             public void run() {
                 //hide the progressDialog
-                progress.dismiss();
+                try{
+                    if (progress != null && progress.isShowing()) {
+                        progress.dismiss();
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
                 /*spinner=findViewById(R.id.progressBar);
                 spinner.setVisibility(View.GONE);*/
 
@@ -278,6 +570,8 @@ public class PostSteemitActivity extends AppCompatActivity {
                 EditText steemitPostTags = findViewById(R.id.steemit_post_tags);
                 EditText steemitStepCount = findViewById(R.id.steemit_step_count);
                 MultiSelectionSpinner activityTypeSelector = findViewById(R.id.steemit_activity_type);
+
+                CheckBox fullAFITPay = findViewById(R.id.full_afit_pay);
 
                 EditText heightSize = findViewById(R.id.measurements_height);
                 EditText weightSize = findViewById(R.id.measurements_weight);
@@ -368,6 +662,10 @@ public class PostSteemitActivity extends AppCompatActivity {
                     data.put("step_count", steemitStepCount.getText());
                     data.put("activity_type", activityTypeSelector.getSelectedItemsAsString());
 
+                    if (fullAFITPay.isChecked()) {
+                        data.put("full_afit_pay", "on");
+                    }
+
                     data.put("height", heightSize.getText());
                     data.put("weight", weightSize.getText());
                     data.put("chest", chestSize.getText());
@@ -383,6 +681,10 @@ public class PostSteemitActivity extends AppCompatActivity {
 
                     data.put("appType", "Android");
 
+
+                    //appending security param values
+                    data.put( getString(R.string.sec_param), getString(R.string.sec_param_val));
+
                     //grab app version number
                     try {
                         PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -391,6 +693,7 @@ public class PostSteemitActivity extends AppCompatActivity {
                     } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
                     }
+
 
 
                     //choose a charity if one is already selected before
@@ -402,6 +705,9 @@ public class PostSteemitActivity extends AppCompatActivity {
                     if (!currentCharity.equals("")){
                         data.put("charity", currentCharity);
                     }
+
+                    //append user ID
+                    data.put("actifitUserID", sharedPreferences.getString("actifitUserID",""));
 
                 } catch (JSONException e) {
                     e.printStackTrace();

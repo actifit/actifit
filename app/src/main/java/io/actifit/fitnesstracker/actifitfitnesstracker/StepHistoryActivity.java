@@ -1,9 +1,12 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import java.text.ParseException;
@@ -57,6 +60,20 @@ public class StepHistoryActivity extends AppCompatActivity {
                 new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, mStepFinalList);
 
         mStepsListView.setAdapter(arrayAdapter);
+
+        //hook chart activity button
+        Button BtnViewChart = findViewById(R.id.chart_view);
+
+        BtnViewChart.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+
+                Intent intent = new Intent(StepHistoryActivity.this, HistoryChartActivity.class);
+                startActivity(intent);
+
+            }
+        });
 
     }
 

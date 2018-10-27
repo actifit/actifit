@@ -15,7 +15,9 @@
  */
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -23,16 +25,24 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,11 +50,34 @@ import android.hardware.SensorEventListener;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.scottyab.rootbeer.RootBeer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.UUID;
+
+import static android.os.Environment.getExternalStoragePublicDirectory;
 
 /**
  * Implementation of this project was made possible via re-use, adoption and improvement of
@@ -100,6 +133,26 @@ public class MainActivity extends AppCompatActivity{
         return ctx;
     }
 
+    static final int REQUEST_TAKE_PHOTO = 1;
+
+    public static final String FRAGTAG = "SafetyNetActifitFragment";
+
+
+    //required function to ask for proper read/write permissions on later Android versions
+    protected boolean shouldAskPermissions() {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
+    @TargetApi(23)
+    protected void askPermissions() {
+        String[] permissions = {
+                "android.permission.READ_EXTERNAL_STORAGE",
+                "android.permission.WRITE_EXTERNAL_STORAGE"
+        };
+        int requestCode = 200;
+        requestPermissions(permissions, requestCode);
+    }
+
     /**
      * function checks if the sensor service is running or not
      * @param serviceClass
@@ -117,6 +170,47 @@ public class MainActivity extends AppCompatActivity{
         return false;
     }
 
+    String mCurrentPhotoPath;
+    //handles creating the snapped image file
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        //File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    //security function to detect emulators
+    public static boolean isEmulator() {
+        return Build.FINGERPRINT.contains("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic")
+                && Build.DEVICE.startsWith("generic"))
+                || "google_sdk".equals(Build.PRODUCT)
+                || Build.HARDWARE.contains("goldfish")
+                || Build.HARDWARE.contains("ranchu")
+                || Build.HARDWARE.contains("andy");
+    }
+
+    //function handles killing the app
+    private void killActifit() {
+        moveTaskToBack(true);
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(1);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +218,59 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
         ctx = this;
+
+
+        //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+        /*************** security features ********************/
+
+        //let's make sure this is a smart phone device by checking SIM Card
+
+        TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        if (tm.getSimState() != TelephonyManager.SIM_STATE_ABSENT){
+            //the phone has a sim card
+            System.out.println(">>>>[Actifit] Sim state valid");
+        } else {
+            System.out.println(">>>>[Actifit] Not a phone");
+            killActifit();
+            return;
+            //no sim card available
+        }
+
+        //also let's try to detect if this is a known emulator
+        if (isEmulator()){
+            System.out.println(">>>>[Actifit] Emulator detected");
+            killActifit();
+            return;
+        }
+
+        //check if device is rooted
+        RootBeer rootBeer = new RootBeer(this);
+        if(rootBeer.isRootedWithoutBusyBoxCheck()){
+            System.out.println(">>>>[Actifit] Device is rooted");
+            killActifit();
+            return;
+        }
+
+        //check if user has a proper unique ID already, if not generate one
+        String actifitUserID = sharedPreferences.getString("actifitUserID","");
+        if (actifitUserID.equals("")) {
+            actifitUserID = UUID.randomUUID().toString();
+            try{
+                PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                String version = pInfo.versionName;
+                actifitUserID += version;
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("actifitUserID", actifitUserID);
+            editor.apply();
+        }
+
+        //System.out.println("actifitUserID:"+actifitUserID);
+
 
         //initiate the monitoring service
         mSensorService = new ActivityMonitorService(getCtx());
@@ -142,9 +289,56 @@ public class MainActivity extends AppCompatActivity{
         Button BtnWallet = findViewById(R.id.btn_view_wallet);
         Button BtnSettings = findViewById(R.id.btn_settings);
 
+        Button BtnSnapActiPic = findViewById(R.id.btn_snap_picture);
+
         System.out.println(">>>>[Actifit] Getting jiggy with it");
 
         mStepsDBHelper = new StepsDBHelper(this);
+
+        //handle taking photos
+        BtnSnapActiPic.setOnClickListener(new OnClickListener() {
+
+              @Override
+              public void onClick(View view) {
+
+                  //make sure we have a cam on device
+                  PackageManager pm = ctx.getPackageManager();
+
+                  //if no cam, notify and leave
+                  if (!pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+                      Toast.makeText(getApplicationContext(),"Your device does not have a camera", Toast.LENGTH_SHORT).show();
+                      return;
+                  }
+
+                  //ensure we have proper permissions for image upload
+                  if (shouldAskPermissions()) {
+                      askPermissions();
+                  }
+
+                  Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                  // Ensure that there's a camera activity to handle the intent
+                  if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                      // Create the File where the photo should go
+                      File photoFile = null;
+                      try {
+                          photoFile = createImageFile();
+                      } catch (IOException ex) {
+                          // Error occurred while creating the File
+                          ex.printStackTrace();
+                      }
+                      // Continue only if the File was successfully created
+                      if (photoFile != null) {
+
+                          Uri photoURI = FileProvider.getUriForFile(ctx,
+                                  "io.actifit.fileprovider",
+                                  photoFile);
+                          takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                          startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                      }
+                  }
+              }
+          }
+        );
 
         //handle activity to move to step history screen
         BtnViewHistory.setOnClickListener(new OnClickListener() {
@@ -208,6 +402,16 @@ public class MainActivity extends AppCompatActivity{
         });
 
 
+        //display current date
+        displayDate();
+
+        displayUserAndRank();
+
+        //try to check first if we had a user defined already and saved to preferences
+
+        // SharedPreferences.Editor editor = sharedPreferences.edit();
+
+
         //set initial steps display value
         int stepCount = mStepsDBHelper.fetchTodayStepCount();
         //display step count while ensuring we don't display negative value if no steps tracked yet
@@ -225,6 +429,118 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+            galleryAddPic();
+        }
+    }
+
+    //handle appending created pic to the gallery
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
+
+    //handles display of local date on front end
+    private void displayDate(){
+        String date_n = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault()).format(new Date());
+        TextView date  = (TextView) findViewById(R.id.current_date);
+        date.setText(date_n);
+    }
+
+    //handles fetching and displaying current user and rank
+    private void displayUserAndRank(){
+        //grab stored value, if any
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        final String username = sharedPreferences.getString("actifitUser","");
+        if (username != "") {
+            //greet user if user identified
+            final TextView welcomeUser = findViewById(R.id.welcome_user);
+            final TextView userRankTV = findViewById(R.id.user_rank);
+
+            //grab user rank if it is already stored today
+            String userRank = sharedPreferences.getString("userRank", "");
+            String userRankUpdateDate =
+                    sharedPreferences.getString("userRankUpdateDate", "");
+            Boolean fetchNewRankVal = false;
+            if (userRank.equals("") || userRankUpdateDate.equals("")){
+                fetchNewRankVal = true;
+            }else{
+                //make sure last value is at least within same day, otherwise grab new val
+                Date date = new Date();
+                DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                String strDate = dateFormat.format(date);
+                if (Integer.parseInt(userRankUpdateDate)<Integer.parseInt(strDate)){
+                    fetchNewRankVal = true;
+                }
+
+            }
+
+            //set username
+            welcomeUser.setText("@"+username);
+
+            if (!fetchNewRankVal){
+                //we already have the rank, display the message and the rank
+                //welcomeUser.setText(getString(R.string.welcome_user).replace("USER_NAME", username).replace("USER_RANK","("+userRank+")"));
+                userRankTV.setText(userRank+"/100");
+
+            }else {
+                //need to fetch user rank data from API
+                RequestQueue queue = Volley.newRequestQueue(this);
+
+                // This holds the url to connect to the API and grab the balance.
+                // We append to it the username
+                String userRankUrl = getString(R.string.user_rank_api_url) + username;
+
+                // Request the rank of the user while expecting a JSON response
+                JsonObjectRequest balanceRequest = new JsonObjectRequest
+                        (Request.Method.GET, userRankUrl, null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+                                // Display the result
+                                try {
+                                    //grab current user rank
+                                    String userRank = response.getString("user_rank");
+
+                                    //store user rank along with date updated
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("userRank", userRank);
+
+                                    Date date = new Date();
+                                    DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                                    String strDate = dateFormat.format(date);
+
+                                    editor.putString("userRankUpdateDate", strDate);
+                                    editor.commit();
+
+                                    //welcomeUser.setText(getString(R.string.welcome_user).replace("USER_NAME", username).replace("USER_RANK", "(" + userRank + ")"));
+                                    userRankTV.setText(userRank+"/100");
+                                } catch (JSONException e) {
+                                    //hide dialog
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                //hide dialog
+                                error.printStackTrace();
+                            }
+                        });
+
+                // Add balance request to be processed
+                queue.add(balanceRequest);
+            }
+
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
@@ -236,6 +552,8 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onResume() {
         super.onResume();
+        displayDate();
+        displayUserAndRank();
         //LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
          //       new IntentFilter("ACTIFIT_SERVICE")
         //);

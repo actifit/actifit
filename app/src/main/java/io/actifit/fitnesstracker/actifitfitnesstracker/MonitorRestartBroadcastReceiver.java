@@ -11,7 +11,7 @@ public class MonitorRestartBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        System.out.println(MonitorRestartBroadcastReceiver.class.getSimpleName() + " Service destroyed!");
-        context.startService(new Intent(context, ActivityMonitorService.class));;
+        /*System.out.println(MonitorRestartBroadcastReceiver.class.getSimpleName() + " Service destroyed!");
+        context.startService(new Intent(context, ActivityMonitorService.class));;*/
     }
 }
