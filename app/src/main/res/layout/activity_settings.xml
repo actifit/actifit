@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v4.widget.NestedScrollView
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nestedScrollView"
+    android:layout_weight="5">
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -12,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Settings"
+        android:paddingLeft="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
 
@@ -155,6 +164,70 @@
         android:textSize="14dp"
         />
 </LinearLayout>
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+
+    <TextView
+        android:id="@+id/reminder_settings_lbl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Daily Post Reminder"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:orientation="horizontal" >
+
+        <CheckBox
+            android:id="@+id/reminder_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="Remind me to Post" />
+
+        <NumberPicker
+            android:id="@+id/reminder_hour_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/actifitnp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+             />
+
+        <NumberPicker
+            android:id="@+id/reminder_min_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/actifitnp"
+
+            android:layout_centerVertical="true"
+            />
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/version_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:paddingTop="10dp"
+        android:autoLink="web"
+        android:textStyle="italic"
+        android:text="test"
+        android:textSize="14dp"
+        />
+
     <Button
         android:id="@+id/btn_save_settings"
         android:layout_width="wrap_content"
@@ -164,3 +237,5 @@
         android:text="Save Settings" />
 
 </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>
