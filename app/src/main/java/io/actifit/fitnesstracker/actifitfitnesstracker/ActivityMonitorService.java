@@ -17,6 +17,7 @@ import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import java.util.Calendar;
 
@@ -51,7 +52,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     public ActivityMonitorService(Context applicationContext) {
         super();
-        System.out.println(">>>>[Actifit]here I am!");
+        Log.d(MainActivity.TAG,">>>>[Actifit]here I am!");
     }
 
     public ActivityMonitorService() {
@@ -88,7 +89,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
         //initialize power manager and wake locks either way
         pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT_SPECIAL_LOCK");
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
 
         //check if aggressive background tracking mode is enabled
 
@@ -98,7 +99,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
         //enable wake lock to ensure tracking functions in the background
         if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on))) {
-            System.out.println(">>>>[Actifit]AGG MODE ON");
+            Log.d(MainActivity.TAG,">>>>[Actifit]AGG MODE ON");
             wl.acquire();
         }
 
@@ -198,7 +199,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        System.out.println(">>>>[Actifit]ondestroy service!");
+        Log.d(MainActivity.TAG,">>>>[Actifit]ondestroy service!");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(Service.STOP_FOREGROUND_REMOVE);
         }
@@ -209,9 +210,9 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
         //release wake lock now
         if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on))) {
-            System.out.println(">>>>[Actifit]AGG MODE ON - RELEASING LOCK");
+            Log.d(MainActivity.TAG,">>>>[Actifit]AGG MODE ON - RELEASING LOCK");
             pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT_SPECIAL_LOCK");
+            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
             if (wl.isHeld()) {
                 wl.release();
             }

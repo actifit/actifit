@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -251,7 +252,7 @@ public class WalletActivity extends AppCompatActivity {
                                 //if we need to close current Activity
                                 if (closeScreen) {
                                     //close current screen
-                                    System.out.println(">>>Finish");
+                                    Log.d(MainActivity.TAG,">>>Finish");
                                     currentActivity.finish();
                                 }
                             }

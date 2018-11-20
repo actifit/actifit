@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -49,7 +50,7 @@ public class StepHistoryActivity extends AppCompatActivity {
                 //append to display
                 mStepFinalList.add(dateDisplay + " - Total Activity: " + String.valueOf((mStepCountList.get(position)).mStepCount));
             }catch(ParseException txtEx){
-                System.out.println(txtEx.toString());
+                Log.d(MainActivity.TAG,txtEx.toString());
                 txtEx.printStackTrace();
             }
         }

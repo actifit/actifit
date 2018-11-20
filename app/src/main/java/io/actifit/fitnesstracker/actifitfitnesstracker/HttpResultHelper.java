@@ -7,6 +7,7 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -54,7 +55,7 @@ public class HttpResultHelper {
                 sc.init(null, null, new java.security.SecureRandom());
                 ((HttpsURLConnection)conn).setSSLSocketFactory(sc.getSocketFactory());
             } catch (Exception e) {
-                System.out.println("Failed to construct SSL object" + e.getMessage());
+                Log.d(MainActivity.TAG,"Failed to construct SSL object" + e.getMessage());
             }
         }
 

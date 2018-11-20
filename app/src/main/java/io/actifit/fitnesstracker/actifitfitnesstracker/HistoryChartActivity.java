@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -60,7 +61,7 @@ public class HistoryChartActivity extends AppCompatActivity {
                 //append to display
                 mStepFinalList.add(dateDisplay + " - Total Activity: " + String.valueOf((mStepCountList.get(position)).mStepCount));
             } catch (ParseException txtEx) {
-                System.out.println(txtEx.toString());
+                Log.d(MainActivity.TAG,txtEx.toString());
                 txtEx.printStackTrace();
             }
         }

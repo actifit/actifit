@@ -169,4 +169,37 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         return todaysDateString;
     }
 
+    /**
+     * function handles manually storing a step entry, to be used by alternative data
+     * tracking services
+     * @param activityCount contains the amount of activity to store on current date
+     * @return operation was successful (TRUE) or not (FALSE)
+     */
+    public boolean manualInsertStepsEntry(int activityCount)
+    {
+
+        String todaysDateString = getTodayProperFormat();
+        try {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(CREATION_DATE, getTodayProperFormat());
+
+            values.put(STEPS_COUNT, activityCount);
+            //updating entry with proper step count
+            int updatedRecords = db.update(TABLE_STEPS_SUMMARY, values,
+                        CREATION_DATE + "=" + todaysDateString, null);
+
+            //if no records updated, create a new entry
+            if (updatedRecords<1) {
+                db.insert(TABLE_STEPS_SUMMARY, null,
+                        values);
+            }
+            db.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }
