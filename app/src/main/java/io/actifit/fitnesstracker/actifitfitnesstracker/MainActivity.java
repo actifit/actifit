@@ -32,6 +32,8 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -40,6 +42,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
@@ -50,7 +53,10 @@ import android.hardware.SensorEventListener;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -75,6 +81,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Scanner;
 import java.util.UUID;
 
 import static android.os.Environment.getExternalStoragePublicDirectory;
@@ -100,6 +107,8 @@ public class MainActivity extends AppCompatActivity{
     //tracks a reference to an instance of this class
     public static SensorEventListener mainActivitySensorList;
 
+    public static final String TAG = "Actifit";
+
     //tracks if listener is active
     public static boolean isListenerActive = false;
 
@@ -120,8 +129,8 @@ public class MainActivity extends AppCompatActivity{
     private int curStepCount = 0;
     private static final String BUNDLE_LISTENER = "listener";
 
-    private Intent mServiceIntent;
-    private ActivityMonitorService mSensorService;
+    private static Intent mServiceIntent;
+    private static ActivityMonitorService mSensorService;
     private Context ctx;
 
     private BroadcastReceiver receiver;
@@ -135,22 +144,25 @@ public class MainActivity extends AppCompatActivity{
 
     static final int REQUEST_TAKE_PHOTO = 1;
 
-    public static final String FRAGTAG = "SafetyNetActifitFragment";
-
-
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
         return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
     }
 
-    @TargetApi(23)
-    protected void askPermissions() {
-        String[] permissions = {
-                "android.permission.READ_EXTERNAL_STORAGE",
-                "android.permission.WRITE_EXTERNAL_STORAGE"
-        };
-        int requestCode = 200;
-        requestPermissions(permissions, requestCode);
+    public static ActivityMonitorService getmSensorService() {
+        return mSensorService;
+    }
+
+    public static void setmSensorService(ActivityMonitorService sensorService) {
+        mSensorService = sensorService;
+    }
+
+    public static Intent getmServiceIntent(){
+        return mServiceIntent;
+    }
+
+    public static void setmServiceIntent(Intent serviceIntent){
+        mServiceIntent = serviceIntent;
     }
 
     /**
@@ -162,11 +174,11 @@ public class MainActivity extends AppCompatActivity{
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
-                System.out.println(">>>>[Actifit]isMyServiceRunning?" + true+"");
+                Log.d(TAG,">>>>[Actifit]isMyServiceRunning?" + true+"");
                 return true;
             }
         }
-        System.out.println(">>>>[Actifit]isMyServiceRunning?" + false+"");
+        Log.d(TAG,">>>>[Actifit]isMyServiceRunning?" + false+"");
         return false;
     }
 
@@ -206,10 +218,42 @@ public class MainActivity extends AppCompatActivity{
     }
 
     //function handles killing the app
-    private void killActifit() {
-        moveTaskToBack(true);
-        android.os.Process.killProcess(android.os.Process.myPid());
-        System.exit(1);
+    private void killActifit(String reason) {
+
+        //display notification to user
+        Toast toast = Toast.makeText(getApplicationContext(), reason,
+                Toast.LENGTH_LONG);
+
+        View view = toast.getView();
+
+        //Gets the actual oval background of the Toast then sets the colour filter
+        view.getBackground().setColorFilter(getResources().getColor(R.color.actifitRed), PorterDuff.Mode.SRC_IN);
+
+        TextView text = view.findViewById(android.R.id.message);
+        text.setTextColor(Color.WHITE);
+
+        toast.show();
+
+        //kill gracefully
+        finish();
+    }
+
+
+    @TargetApi(23)
+    protected void askPermissions(String[] permissions) {
+        int requestCode = 200;
+        requestPermissions(permissions, requestCode);
+    }
+
+    //function handles checking if the SIM card is available
+    public boolean isSimAvailable(){
+        //standard case covering most phones
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        if (telephonyManager.getSimState() != TelephonyManager.SIM_STATE_ABSENT){
+            return true;
+        }
+        //if we could not identify proper SIM (mostly due to multi-SIM), send an alert to user to fix his status
+        return false;
     }
 
     @Override
@@ -219,7 +263,6 @@ public class MainActivity extends AppCompatActivity{
 
         ctx = this;
 
-
         //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
         final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
@@ -227,30 +270,23 @@ public class MainActivity extends AppCompatActivity{
 
         //let's make sure this is a smart phone device by checking SIM Card
 
-        TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-        if (tm.getSimState() != TelephonyManager.SIM_STATE_ABSENT){
-            //the phone has a sim card
-            System.out.println(">>>>[Actifit] Sim state valid");
-        } else {
-            System.out.println(">>>>[Actifit] Not a phone");
-            killActifit();
-            return;
-            //no sim card available
+        if (!isSimAvailable()){
+            //no valid active sim card detected
+            Log.d(TAG,">>>>[Actifit] No valid SIM card detected");
+            killActifit(getString(R.string.no_valid_sim));
         }
 
         //also let's try to detect if this is a known emulator
         if (isEmulator()){
-            System.out.println(">>>>[Actifit] Emulator detected");
-            killActifit();
-            return;
+            Log.d(TAG,">>>>[Actifit] Emulator detected");
+            killActifit(getString(R.string.emulator_device));
         }
 
         //check if device is rooted
         RootBeer rootBeer = new RootBeer(this);
         if(rootBeer.isRootedWithoutBusyBoxCheck()){
-            System.out.println(">>>>[Actifit] Device is rooted");
-            killActifit();
-            return;
+            Log.d(TAG,">>>>[Actifit] Device is rooted");
+            killActifit(getString(R.string.device_rooted));
         }
 
         //check if user has a proper unique ID already, if not generate one
@@ -269,16 +305,20 @@ public class MainActivity extends AppCompatActivity{
             editor.apply();
         }
 
-        //System.out.println("actifitUserID:"+actifitUserID);
+        //Log.d(TAG,"actifitUserID:"+actifitUserID);
 
 
-        //initiate the monitoring service
-        mSensorService = new ActivityMonitorService(getCtx());
-        mServiceIntent = new Intent(getCtx(), mSensorService.getClass());
+        
+            //initiate the monitoring service
+            mSensorService = new ActivityMonitorService(getCtx());
+            mServiceIntent = new Intent(getCtx(), mSensorService.getClass());
+//only start the tracking service if the device sensors is picked as tracking medium
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking));
+        if (dataTrackingSystem.equals(getString(R.string.device_tracking))) {
 
-        if (!isMyServiceRunning(mSensorService.getClass())) {
-            startService(mServiceIntent);
-            //bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+            if (!isMyServiceRunning(mSensorService.getClass())) {
+                startService(mServiceIntent);
+            }
         }
 
         //grab pointers to specific elements/buttons to be able to capture events and take action
@@ -291,13 +331,39 @@ public class MainActivity extends AppCompatActivity{
 
         Button BtnSnapActiPic = findViewById(R.id.btn_snap_picture);
 
-        System.out.println(">>>>[Actifit] Getting jiggy with it");
+        Log.d(TAG,">>>>[Actifit] Getting jiggy with it");
 
         mStepsDBHelper = new StepsDBHelper(this);
 
+
+        //display current date
+        displayDate();
+
+        displayUserAndRank();
+
+        //only display activity count from device if device mode is on
+        if (dataTrackingSystem.equals(getString(R.string.device_tracking))) {
+            //set initial steps display value
+            int stepCount = mStepsDBHelper.fetchTodayStepCount();
+
+            //display step count while ensuring we don't display negative value if no steps tracked yet
+            stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
+        }else{
+            //inform user that fitbit mode is on
+            stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
+        }
+
+        //connecting the activity to the service to receive proper updates on move count
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int stepCount = intent.getIntExtra("move_count", 0);
+                stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
+            }
+        };
+
         //handle taking photos
         BtnSnapActiPic.setOnClickListener(new OnClickListener() {
-
               @Override
               public void onClick(View view) {
 
@@ -312,7 +378,11 @@ public class MainActivity extends AppCompatActivity{
 
                   //ensure we have proper permissions for image upload
                   if (shouldAskPermissions()) {
-                      askPermissions();
+                      String[] permissions = {
+                              "android.permission.READ_EXTERNAL_STORAGE",
+                              "android.permission.WRITE_EXTERNAL_STORAGE"
+                      };
+                      askPermissions(permissions);
                   }
 
                   Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -388,7 +458,7 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-
+        //handle activity to move over to the Settings screen
         BtnSettings.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -400,31 +470,6 @@ public class MainActivity extends AppCompatActivity{
 
             }
         });
-
-
-        //display current date
-        displayDate();
-
-        displayUserAndRank();
-
-        //try to check first if we had a user defined already and saved to preferences
-
-        // SharedPreferences.Editor editor = sharedPreferences.edit();
-
-
-        //set initial steps display value
-        int stepCount = mStepsDBHelper.fetchTodayStepCount();
-        //display step count while ensuring we don't display negative value if no steps tracked yet
-        stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
-
-        //connecting the activity to the service to receive proper updates on move count
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                int stepCount = intent.getIntExtra("move_count", 0);
-                stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
-            }
-        };
 
     }
 
@@ -554,6 +599,41 @@ public class MainActivity extends AppCompatActivity{
         super.onResume();
         displayDate();
         displayUserAndRank();
+
+        //ensure our tracking is active particularly after leaving settings
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+        //only start the tracking service if the device sensors is picked as tracking medium
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking));
+        if (dataTrackingSystem.equals(getString(R.string.device_tracking))) {
+
+            if (!isMyServiceRunning(mSensorService.getClass())) {
+                //initiate the monitoring service
+                startService(mServiceIntent);
+
+                //enable aggressive mode if set
+                String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",getString(R.string.aggr_back_tracking_off));
+                if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on))) {
+                    //enable wake lock to ensure tracking functions in the background
+                    PowerManager.WakeLock wl = ActivityMonitorService.getWakeLockInstance();
+                    if (wl==null){
+                        //initialize power manager and wake locks either way
+                        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
+                    }
+                    if (!wl.isHeld()) {
+                        Log.d(MainActivity.TAG, ">>>>[Actifit]Settings AGG MODE ON");
+                        wl.acquire();
+                    }
+                }
+            }
+        }else{
+            stepDisplay = findViewById(R.id.step_display);
+            //inform user that fitbit mode is on
+            stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
+        }
+
+
         //LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
          //       new IntentFilter("ACTIFIT_SERVICE")
         //);
@@ -590,11 +670,15 @@ public class MainActivity extends AppCompatActivity{
     protected void onDestroy(){
         //sensorManager.unregisterListener(this);
         isListenerActive = false;
-
-        stopService(mServiceIntent);
-
+        try{
+            if (mServiceIntent!=null) {
+                stopService(mServiceIntent);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         super.onDestroy();
-        System.out.println(">>>> Actifit destroy state");
+        Log.d(TAG,">>>> Actifit destroy state");
     }
 
 

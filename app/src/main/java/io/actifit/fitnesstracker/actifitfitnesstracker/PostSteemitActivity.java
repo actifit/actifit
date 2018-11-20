@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -29,6 +30,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -40,7 +42,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.mobileconnectors.s3.transferutility.*;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -48,6 +49,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.util.IOUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,6 +67,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import com.mittsu.markedview.MarkedView;
 
@@ -80,13 +83,14 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
     //track Choosing Image Intent
     private static final int CHOOSING_IMAGE_REQUEST = 1234;
 
-    //private TextView tvFileName;
-    //private ImageView imageView;
     private EditText steemitPostContent;
 
     private Uri fileUri;
     private Bitmap bitmap;
     private ImageView image_preview;
+
+    //tracks whether user synched his Fitbit data to avoid refetching activity count from current device
+    private int fitbitSyncDone = 0;
 
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
@@ -146,7 +150,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                                 uploadProgress.dismiss();
                             }
                         }catch (Exception ex){
-                            System.out.println(ex.getMessage());
+                            Log.d(MainActivity.TAG,ex.getMessage());
                         }
 
                         Toast.makeText(getApplicationContext(), "Upload Completed!", Toast.LENGTH_SHORT).show();
@@ -229,23 +233,6 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
 
                 uploadFile();
-
-                /*Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");*/
-
-                //image_preview.setImageBitmap(imageBitmap);
-
-                /*String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-                Cursor cursor = getContentResolver().query(fileUri,
-                        filePathColumn, null, null, null);
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String picturePath = cursor.getString(columnIndex);
-                cursor.close();
-
-                setPic(picturePath);*/
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -362,17 +349,9 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
 
         //initialize AWS settings and configuration
 
-        //imageView = findViewById(R.id.img_file);
-        //tvFileName = findViewById(R.id.tv_file_name);
-        //tvFileName.setText("");
-
         findViewById(R.id.btn_choose_file).setOnClickListener(this);
-        //findViewById(R.id.btn_upload).setOnClickListener(this);
 
         AWSMobileClient.getInstance().initialize(this).execute();
-
-        //credentials = new BasicAWSCredentials(AWS_KEY, AWS_SECRET);
-        //s3Client = new AmazonS3Client(credentials);
 
         //Adding default title content for the daily post
 
@@ -425,7 +404,6 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
 
         final Activity currentActivity = this;
 
-
         //capturing steemit post submission
         Button BtnSubmitSteemit = findViewById(R.id.btn_submit_steemit);
         BtnSubmitSteemit.setOnClickListener(new View.OnClickListener() {
@@ -433,10 +411,36 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void onClick(final View arg0) {
 
-                //ned to grab new updated activity count before posting
-                int stepCount = mStepsDBHelper.fetchTodayStepCount();
-                //display step count while ensuring we don't display negative value if no steps tracked yet
-                stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+
+                //only if we haven't grabbed fitbit data, we need to grab new sensor data
+                if (fitbitSyncDone == 0){
+                    //ned to grab new updated activity count before posting
+                    int stepCount = mStepsDBHelper.fetchTodayStepCount();
+
+                    //display step count while ensuring we don't display negative value if no steps tracked yet
+                    stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+                }else{
+                    //need to check if a day has passed, to prevent posting again using same fitbit data
+                    SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                    String lastSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
+                    String currentDate = new SimpleDateFormat("yyyyMMdd").format(
+                            Calendar.getInstance().getTime());
+
+                    Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastSyncDate);
+                    Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+currentDate);
+                    if (!lastSyncDate.equals("")){
+                        if (Integer.parseInt(lastSyncDate) < Integer.parseInt(currentDate)) {
+                            notification = getString(R.string.need_sync_fitbit_again);
+                            ProgressDialog progress = new ProgressDialog(steemit_post_context);
+                            progress.setMessage(notification);
+                            progress.show();
+                            displayNotification(notification, progress, steemit_post_context, currentActivity, "");
+                            return;
+                        }
+                    }
+
+                }
+
 
                 //we need to check first if we have a charity setup
                 SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
@@ -492,6 +496,108 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 return false;
             }
         });
+
+
+        /***************** Fitbit Sync Implementation ****************/
+
+        //capturing fitbit sync action
+        Button BtnFitbitSync = findViewById(R.id.fitbit_sync);
+        BtnFitbitSync.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(final View arg0) {
+                // Connect to fitbit and grab data
+                NxFitbitHelper.sendUserToAuthorisation(steemit_post_context);
+            }
+
+        });
+
+        //retrieve resulting data from fitbit sync (parameter from the Intent)
+        Uri returnUrl = getIntent().getData();
+        if (returnUrl != null) {
+            NxFitbitHelper fitbit = new NxFitbitHelper(getApplicationContext());
+            fitbit.requestAccessTokenFromIntent(returnUrl);
+
+            sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+
+            // Get user profile using helper function
+            try {
+                JSONObject responseProfile = fitbit.getUserProfile();
+                Log.d(MainActivity.TAG, "From JSON encodedId: " + responseProfile.getJSONObject("user").getString("encodedId"));
+                Log.d(MainActivity.TAG, "From JSON fullName: " + responseProfile.getJSONObject("user").getString("fullName"));
+
+                //check to see if settings allows fetching measurements - default true
+                String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on));
+                if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on))) {
+                    //grab and update user weight
+                    TextView weight = findViewById(R.id.measurements_weight);
+                    weight.setText(fitbit.getFieldFromProfile("weight"));
+
+                    //grab and update user height
+                    TextView height = findViewById(R.id.measurements_height);
+                    height.setText(fitbit.getFieldFromProfile("height"));
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+            try {
+                String soughtInfo = "steps";
+                JSONObject stepActivityList = fitbit.getTodayActivity(soughtInfo);
+                JSONArray stepActivityArray = stepActivityList.getJSONArray("activities-tracker-"+soughtInfo);
+                Log.d(MainActivity.TAG, "From JSON distance:" + stepActivityArray.length() );
+                int trackedActivityCount = 0;
+                if (stepActivityArray.length()>0){
+                    Log.d(MainActivity.TAG, "we found matching records");
+                    //loop through records adding up recorded steps
+                    for (int i=0;i<stepActivityArray.length();i++){
+                        trackedActivityCount += Integer.parseInt(stepActivityArray.getJSONObject(i).getString("value"));
+                    }
+
+                    //update value according to activity we were able to grab
+                    EditText activityCount = findViewById(R.id.steemit_step_count);
+                    activityCount.setText("" + trackedActivityCount);
+
+                    //flag that we synced properly
+                    fitbitSyncDone = 1;
+
+                    //store the returned activity count to the DB
+                    mStepsDBHelper.manualInsertStepsEntry(trackedActivityCount);
+
+                    //store date of last sync to avoid improper use of older fitbit data
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("fitbitLastSyncDate",
+                            new SimpleDateFormat("yyyyMMdd").format(
+                                    Calendar.getInstance().getTime()));
+                    editor.commit();
+                }else{
+                    Log.d(MainActivity.TAG, "No auto-tracked activity found for today" );
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+        } else {
+            Log.d(MainActivity.TAG, "Something is wrong with the return value from Fitbit. getIntent().getData() is NULL?");
+        }
+
     }
 
     /**
@@ -528,7 +634,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                                 dialog.cancel();
                                 if (success.equals("success")) {
                                     //close current screen
-                                    System.out.println(">>>Finish");
+                                    Log.d(MainActivity.TAG,">>>Finish");
                                     currentActivity.finish();
                                 }
                             }
@@ -558,7 +664,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         }
         protected Void doInBackground(String... params) {
             try {
-                System.out.println("click");
+                Log.d(MainActivity.TAG,"click");
 
                 //disable button to prevent multiple clicks
                 //arg0.setEnabled(false);
@@ -624,8 +730,8 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     String currentDate = new SimpleDateFormat("yyyyMMdd").format(
                             Calendar.getInstance().getTime());
 
-                    System.out.println(">>>>[Actifit]lastPostDate:"+lastPostDate);
-                    System.out.println(">>>>[Actifit]currentDate:"+currentDate);
+                    Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastPostDate);
+                    Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+currentDate);
                     if (!lastPostDate.equals("")){
                         if (Integer.parseInt(lastPostDate) >= Integer.parseInt(currentDate)) {
                             notification = getString(R.string.one_post_per_day_error);
@@ -732,7 +838,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     result += inputLine;
                 }
 
-                System.out.println(">>>test:" + result);
+                Log.d(MainActivity.TAG,">>>test:" + result);
 
                 //check result of action
                 if (result.equals("success")) {
@@ -761,7 +867,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 notification = getString(R.string.failed_post);
                 displayNotification(notification, progress, context, currentActivity, "");
 
-                System.out.println("Error connecting:"+e.getMessage());
+                Log.d(MainActivity.TAG,"Error connecting:"+e.getMessage());
                 e.printStackTrace();
             }
             return null;

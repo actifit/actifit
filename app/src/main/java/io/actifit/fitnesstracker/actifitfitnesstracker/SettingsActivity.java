@@ -20,6 +20,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +28,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -83,6 +86,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         final CheckBox reminderSetChckBox = findViewById(R.id.reminder_settings);
 
+        final RadioButton deviceSensorsBtn = findViewById(R.id.device_sensors);
+        final RadioButton fitbitBtn = findViewById(R.id.fitbit);
+        final LinearLayout aggModeSection = findViewById(R.id.background_tracking_section);
+
+        final LinearLayout fitbitSettingsSection = findViewById(R.id.fitbit_settings_section);
+        final CheckBox fitbitMeasurementsChckBox = findViewById(R.id.fitbit_measurements);
+
+
         Spinner charitySelected = findViewById(R.id.charity_options);
 
         //retrieving prior settings if already saved before
@@ -91,19 +102,58 @@ public class SettingsActivity extends AppCompatActivity {
         String currentSystem = (sharedPreferences.getString("activeSystem",""));
 
         //check which is the current active system
-        //if the setting is manually set as US System or default Merci value (else)
+        //if the setting is manually set as US System or default Metric value (else)
         if (currentSystem.equals(getString(R.string.us_system))){
             usSystemRadioBtn.setChecked(true);
         }else{
             metricSysRadioBtn.setChecked(true);
         }
 
+        //check which data source is active now
+
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem","");
+        if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking))){
+            fitbitBtn.setChecked(true);
+
+            //also hide aggressive mode if fitbit is on, and show fitbit configuration
+            aggModeSection.setVisibility(View.INVISIBLE);
+            fitbitSettingsSection.setVisibility(View.VISIBLE);
+        }else{
+            deviceSensorsBtn.setChecked(true);
+            //alternatively hide fitbit settings and show aggressive mode settings
+            aggModeSection.setVisibility(View.VISIBLE);
+            fitbitSettingsSection.setVisibility(View.INVISIBLE);
+        }
+
+        RadioGroup trackingModeRadiogroup = findViewById(R.id.tracking_mode_radiogroup);
+
+        //capture change event for radiobutton group to reflect on user available options
+        trackingModeRadiogroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+                if (deviceSensorsBtn.isChecked()){
+                    aggModeSection.setVisibility(View.VISIBLE);
+                    fitbitSettingsSection.setVisibility(View.INVISIBLE);
+                }else{
+                    aggModeSection.setVisibility(View.INVISIBLE);
+                    fitbitSettingsSection.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
         //grab aggressive mode setting and update checkbox accordingly
         String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",getString(R.string.aggr_back_tracking_off));
-        System.out.println(">>>>[Actifit] Agg Mode:"+aggModeEnabled);
-        System.out.println(">>>>[Actifit] Agg Mode Test:"+aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on)));
+        Log.d(MainActivity.TAG,">>>>[Actifit] Agg Mode:"+aggModeEnabled);
+        Log.d(MainActivity.TAG,">>>>[Actifit] Agg Mode Test:"+aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on)));
 
         aggBgTrackingChckBox.setChecked(aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on)));
+
+        //grab fitbit setting and update checkbox accordingly
+        String fitbitMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on));
+        fitbitMeasurementsChckBox.setChecked(fitbitMeasurements.equals(getString(R.string.fitbit_measurements_on)));
+
 
         final Activity currentActivity = this;
 
@@ -144,22 +194,37 @@ public class SettingsActivity extends AppCompatActivity {
                     editor.putString("activeSystem", getString(R.string.us_system));
                 }
 
+                //store selected tracking system
+                if (fitbitBtn.isChecked()) {
+                    editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking));
+
+                    //also deactivate running sensors if any instance is running
+                    try {
+                        ActivityMonitorService mSensorService = MainActivity.getmSensorService();
+                        if (mSensorService != null) {
+                            stopService(MainActivity.getmServiceIntent());
+                        }
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    editor.putString("dataTrackingSystem", getString(R.string.device_tracking));
+                }
+
+
                 //PowerManager pm = ActivityMonitorService.getPowerManagerInstance();
                 PowerManager.WakeLock  wl = ActivityMonitorService.getWakeLockInstance();
 
+                //we need to enable aggressive checking only if device sensors are functioning,
+                //otherwise it's pointless
                 if (aggBgTrackingChckBox.isChecked()){
                     editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_on));
 
-                    //enable wake lock to ensure tracking functions in the background
-                    if (!wl.isHeld()) {
-                        System.out.println(">>>>[Actifit]Settings AGG MODE ON");
-                        wl.acquire();
-                    }
                 }else{
                     editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_off));
                     //enable wake lock to ensure tracking functions in the background
-                    if (wl.isHeld()) {
-                        System.out.println(">>>>[Actifit]Settings AGG MODE OFF");
+                    if (wl!=null && wl.isHeld()) {
+                        Log.d(MainActivity.TAG,">>>>[Actifit]Settings AGG MODE OFF");
                         wl.release();
                     }
                 }
@@ -186,8 +251,6 @@ public class SettingsActivity extends AppCompatActivity {
                 //unset any existing alarms first
                 alarmManager.cancel(alarmIntent);
 
-
-
                 //check if reminder setting is on
                 if (reminderSetChckBox.isChecked()) {
                     editor.putString("selectedReminderHour", "" + hourOptions.getValue());
@@ -202,7 +265,7 @@ public class SettingsActivity extends AppCompatActivity {
                     //PendingIntent.getService(currentActivity, ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     intent.putExtra("NOTIFICATION_ID", ReminderNotificationService.NOTIFICATION_ID);
 
-                    System.out.println(">>>>[Actifit]: set alarm manager"+hourOptions.getValue()+" "+minOptions.getValue());
+                    Log.d(MainActivity.TAG,">>>>[Actifit]: set alarm manager"+hourOptions.getValue()+" "+minOptions.getValue());
 
                     alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
                             , 0, intent, 0);
@@ -213,32 +276,14 @@ public class SettingsActivity extends AppCompatActivity {
                     //specify alarm interval to be every 24 hours at user defined slot
                     alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                             1000 * 60 * 60 * 24, alarmIntent);
+                }
 
-                    /*try {
-                        alarmIntent.send();
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
-                    }
-
-                    Intent sampleIntent = new Intent(getApplicationContext(), MainActivity.class);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, sampleIntent, 0);
-
-
-                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), getString(R.string.actifit_channel_remind_ID))
-                            .setSmallIcon(R.drawable.actifit_logo)
-                            .setContentTitle("sample")
-                            .setContentText("notify me")
-                            .setContentIntent(pendingIntent)
-                            .setAutoCancel(true)
-                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-
-                    notificationManager.notify(ReminderNotificationService.NOTIFICATION_ID, mBuilder.build());
-
-                        */
-
-
+                //store fitbit setting to see if user wants to grab measurements too
+                CheckBox fitbitMeasurements = findViewById(R.id.fitbit_measurements);
+                if (fitbitMeasurements.isChecked()){
+                    editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_on));
+                }else{
+                    editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_off));
                 }
 
                 editor.apply();
@@ -316,7 +361,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                     //actifitTransactions.setText("Response is: "+ response);
                 }catch (Exception e) {
-                    System.out.println(">>>>[Actifit]: Volley error"+e.getMessage());
+                    Log.d(MainActivity.TAG,">>>>[Actifit]: Volley error"+e.getMessage());
                     e.printStackTrace();
                 }
 
@@ -324,7 +369,7 @@ public class SettingsActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                System.out.println(">>>>[Actifit]: Volley response error"+error.getMessage());
+                Log.d(MainActivity.TAG,">>>>[Actifit]: Volley response error"+error.getMessage());
                 error.printStackTrace();
             }
         });
@@ -366,7 +411,7 @@ public class SettingsActivity extends AppCompatActivity {
         String reminderMin = (sharedPreferences.getString("selectedReminderMin",""));
 
         //check which is the current active system
-        //if the setting is manually set as US System or default Merci value (else)
+        //if the setting is manually set as US System or default Metric value (else)
         if (!reminderHour.equals("") && !reminderMin.equals("")){
             try {
                 hourOptions.setValue(Integer.parseInt(reminderHour));

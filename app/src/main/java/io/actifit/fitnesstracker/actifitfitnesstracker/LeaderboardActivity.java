@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -92,7 +93,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                     result += inputLine;
                 }
 
-                System.out.println(">>>test:"+result);
+                Log.d(MainActivity.TAG,">>>test:"+result);
 
                 //check result of action
                 if (result.equals("zero")){
@@ -138,7 +139,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                 notification = getString(R.string.leader_error);
                 displayNotification(notification, progress, context, currentActivity, "error");
 
-                System.out.println("Error connecting:"+e.getMessage());
+                Log.d(MainActivity.TAG,"Error connecting:"+e.getMessage());
                 e.printStackTrace();
             }
             return null;
@@ -175,7 +176,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                                 dialog.cancel();
                                 if (success.equals("zero") || success.equals("error")) {
                                     //close current screen
-                                    System.out.println(">>>Finish");
+                                    Log.d(MainActivity.TAG,">>>Finish");
                                     currentActivity.finish();
                                 }
                             }
@@ -185,7 +186,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                     AlertDialog alert11 = builder1.create();
                     alert11.show();
                 }catch(Exception e){
-                    System.out.println("Error creating dialog"+e.getMessage());
+                    Log.d(MainActivity.TAG,"Error creating dialog"+e.getMessage());
                 }
             }
         });
