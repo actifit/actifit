@@ -23,30 +23,111 @@
         android:paddingLeft="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-
     <TextView
-        android:id="@+id/background_tracking_lbl"
+        android:id="@+id/activity_source_lbl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="20dp"
         android:textSize="18dp"
-        android:text="Background Movement Tracking" />
+        android:text="Activity Data Source" />
 
-    <CheckBox
-        android:id="@+id/background_tracking"
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:text="Enable Aggressive Background Tracking*" />
-
-    <TextView
-        android:id="@+id/background_tracking_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="20dp"
         android:paddingBottom="10dp"
-        android:textStyle="italic"
-        android:text="@string/aggr_mode_note" />
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:id="@+id/tracking_mode_radiogroup">
+        <RadioButton
+            android:id="@+id/device_sensors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone Sensors" />
+
+        <RadioButton
+            android:id="@+id/fitbit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fitbit"
+            />
+
+    </RadioGroup>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:id="@+id/adjustable_settings"
+        >
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/background_tracking_section"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:fitsSystemWindows="true">
+            <TextView
+                android:id="@+id/background_tracking_lbl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:textSize="18dp"
+                android:text="Background Movement Tracking" />
+
+            <CheckBox
+                android:id="@+id/background_tracking"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Enable Aggressive Background Tracking*" />
+
+            <TextView
+                android:id="@+id/background_tracking_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:paddingBottom="10dp"
+                android:textStyle="italic"
+                android:text="@string/aggr_mode_note" />
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/fitbit_settings_section"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:fitsSystemWindows="true">
+
+            <TextView
+                android:id="@+id/fitbit_settings_lbl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:textSize="18dp"
+                android:text="Fitbit Settings" />
+
+            <CheckBox
+                android:id="@+id/fitbit_measurements"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:layout_marginLeft="20dp"
+                android:text="Fetch Measurements" />
+
+            <CheckBox
+                android:id="@+id/fitbit_steps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:checked="true"
+                android:layout_marginLeft="20dp"
+                android:text="Fetch Steps" />
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <View
         android:id="@+id/divider"
