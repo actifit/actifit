@@ -537,15 +537,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     height.setText(fitbit.getFieldFromProfile("height"));
                 }
 
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e){
+            } catch (JSONException | InterruptedException | ExecutionException | IOException | Exception e){
                 e.printStackTrace();
             }
 
@@ -582,15 +574,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     Log.d(MainActivity.TAG, "No auto-tracked activity found for today" );
                 }
 
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e){
+            } catch (JSONException | InterruptedException | ExecutionException | IOException | Exception e){
                 e.printStackTrace();
             }
 
