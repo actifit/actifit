@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:id="@+id/post_steemit_container"
     >
+
+    <include
+        android:id="@+id/post_toolbar"
+        layout="@layout/toolbar_post_steemit"
+        />
 
 
     <android.support.v4.widget.NestedScrollView
@@ -15,6 +22,7 @@
         android:id="@+id/nestedScrollView"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
+        android:paddingTop="50dp"
         android:layout_weight="5">
 
         <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -136,16 +144,36 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/full_afit_pay" />
 
-            <EditText
-                android:id="@+id/steemit_step_count"
+
+            <LinearLayout
+                android:id="@+id/activity_data_section"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:enabled="false"
-                android:inputType="textMultiLine"
+                android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_step_count_lbl" />
+                app:layout_constraintTop_toBottomOf="@+id/steemit_step_count_lbl">
+
+                <EditText
+                    android:id="@+id/steemit_step_count"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:enabled="false"
+                    android:inputType="textMultiLine"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/steemit_step_count_lbl" />
+
+                <Button
+                    android:id="@+id/fitbit_sync"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:text="FITBIT SYNC"
+                    />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/steemit_activity_type_lbl"
@@ -156,7 +184,7 @@
                 android:text="Activity Type"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/steemit_step_count" />
+                app:layout_constraintTop_toTopOf="@+id/activity_data_section" />
 
 
             <io.actifit.fitnesstracker.actifitfitnesstracker.MultiSelectionSpinner
@@ -513,7 +541,7 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-    <LinearLayout
+    <!--<LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -531,6 +559,6 @@
             android:layout_weight="1"
             />
 
-    </LinearLayout>
+    </LinearLayout>-->
 
 </RelativeLayout>
