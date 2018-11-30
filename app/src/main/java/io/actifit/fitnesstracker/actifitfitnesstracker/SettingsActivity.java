@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
@@ -59,6 +60,11 @@ public class SettingsActivity extends AppCompatActivity {
     private NumberPicker hourOptions, minOptions;
     private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
+    private String fullSPPay = "full_SP_Pay";
+    private String sbdSPPay = "50_50_SBD_SP_Pay";
+
+    /*@Bind(R.id.main_toolbar)
+    Toolbar toolbar;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +99,9 @@ public class SettingsActivity extends AppCompatActivity {
         final LinearLayout fitbitSettingsSection = findViewById(R.id.fitbit_settings_section);
         final CheckBox fitbitMeasurementsChckBox = findViewById(R.id.fitbit_measurements);
 
+        final RadioButton fullSPayRadioBtn = findViewById(R.id.full_sp_pay);
+        final RadioButton sbdSPPayRadioBtn = findViewById(R.id.sbd_sp_pay);
+
 
         Spinner charitySelected = findViewById(R.id.charity_options);
 
@@ -108,6 +117,15 @@ public class SettingsActivity extends AppCompatActivity {
         }else{
             metricSysRadioBtn.setChecked(true);
         }
+
+        //check which pay mode for reports to be used
+        String reportPayMode = sharedPreferences.getString("reportSTEEMPayMode",sbdSPPay);
+        if (reportPayMode.equals(fullSPPay)){
+            fullSPayRadioBtn.setChecked(true);
+        }else{
+            sbdSPPayRadioBtn.setChecked(true);
+        }
+
 
         //check which data source is active now
 
@@ -192,6 +210,15 @@ public class SettingsActivity extends AppCompatActivity {
                     editor.putString("activeSystem", getString(R.string.metric_system));
                 }else{
                     editor.putString("activeSystem", getString(R.string.us_system));
+                }
+
+                //store selected STEEM pay mode
+
+                //check which pay mode for reports to be used and store it
+                if (fullSPayRadioBtn.isChecked()){
+                    editor.putString("reportSTEEMPayMode", fullSPPay);
+                }else{
+                    editor.putString("reportSTEEMPayMode", sbdSPPay);
                 }
 
                 //store selected tracking system
@@ -426,5 +453,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
     }
+
 
 }

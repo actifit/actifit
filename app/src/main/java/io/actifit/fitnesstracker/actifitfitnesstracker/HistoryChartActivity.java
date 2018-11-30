@@ -59,7 +59,13 @@ public class HistoryChartActivity extends AppCompatActivity {
                 //convert it to new format for display
                 dateDisplay = dateFormOut.format(feedingDate);
                 //append to display
-                mStepFinalList.add(dateDisplay + " - Total Activity: " + String.valueOf((mStepCountList.get(position)).mStepCount));
+                String displayEntryTxt = dateDisplay + " - Total Activity: " + String.valueOf((mStepCountList.get(position)).mStepCount);
+                //append to display
+                if (mStepCountList.get(position).mtrackingDevice!=null && !mStepCountList.get(position).mtrackingDevice.equals("")
+                        && !mStepCountList.get(position).mtrackingDevice.equals(StepsDBHelper.DEVICE_SENSORS)){
+                    displayEntryTxt += " ( "+mStepCountList.get(position).mtrackingDevice+" )";
+                }
+                mStepFinalList.add(displayEntryTxt);
             } catch (ParseException txtEx) {
                 Log.d(MainActivity.TAG,txtEx.toString());
                 txtEx.printStackTrace();

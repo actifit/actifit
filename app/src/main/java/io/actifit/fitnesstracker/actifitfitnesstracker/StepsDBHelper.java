@@ -13,16 +13,23 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class StepsDBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "ActifitFitness";
     private static final String TABLE_STEPS_SUMMARY = "ActifitFitness";
     private static final String CREATION_DATE = "creationdate";//Date format is yyyyMMdd
     private static final String STEPS_COUNT = "stepscount";
+    private static final String TRACKING_DEVICE = "trackingdevice";
 
+    public static final String DEVICE_SENSORS = "Device Sensors";
+    public static final String FITBIT = "Fitbit";
 
 
     private static final String CREATE_TABLE_ACTIFIT = "CREATE TABLE "
-            + TABLE_STEPS_SUMMARY + "(" + CREATION_DATE + " INTEGER PRIMARY KEY,"+ STEPS_COUNT + " INTEGER"+")";
+            + TABLE_STEPS_SUMMARY
+            + "(" + CREATION_DATE + " INTEGER PRIMARY KEY,"
+                + STEPS_COUNT + " INTEGER,"
+                + TRACKING_DEVICE + " TEXT"
+            +")";
 
 
     StepsDBHelper(Context context) {
@@ -30,8 +37,16 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db,int param1, int param2 ){
-
+    public void onUpgrade(SQLiteDatabase db,int oldVersion, int newVersion ){
+        switch(oldVersion) {
+            // If the existing version is before v1 (on which we added the new field)
+            case 1: db.execSQL("ALTER TABLE "+TABLE_STEPS_SUMMARY
+                    +" ADD COLUMN "+TRACKING_DEVICE+" TEXT");
+                    break;
+            default:
+                throw new IllegalStateException(
+                        "onUpgrade() with unknown oldVersion " + oldVersion);
+        }
     }
 
     @Override
@@ -68,6 +83,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             {
                 todayStepCount+=incrementVal;
                 values.put(STEPS_COUNT, todayStepCount);
+                values.put(TRACKING_DEVICE, DEVICE_SENSORS);
                 //updating entry with proper step count
                 db.update(TABLE_STEPS_SUMMARY, values,
                         CREATION_DATE + "=" + todaysDateString, null);
@@ -78,6 +94,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                 //create entry with 1 step count as first entry
                 todayStepCount = (incrementVal>-1?incrementVal:0);
                 values.put(STEPS_COUNT, todayStepCount);
+                values.put(TRACKING_DEVICE, DEVICE_SENSORS);
                 db.insert(TABLE_STEPS_SUMMARY, null,
                         values);
                 db.close();
@@ -108,7 +125,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                     DateStepsModel mDateStepsModel = new DateStepsModel();
                     mDateStepsModel.mDate = c.getString((c.getColumnIndex(CREATION_DATE)));
                     mDateStepsModel.mStepCount = c.getInt((c.getColumnIndex(STEPS_COUNT)));
-
+                    mDateStepsModel.mtrackingDevice = c.getString((c.getColumnIndex(TRACKING_DEVICE)));
                     //fix for the issue with multiple dates showing as row entries
                     //if (!mDateStepsModel.mDate.equals(priorDate)){
                         //store the result only if this is a different display
@@ -185,6 +202,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             values.put(CREATION_DATE, getTodayProperFormat());
 
             values.put(STEPS_COUNT, activityCount);
+            values.put(TRACKING_DEVICE, FITBIT);
             //updating entry with proper step count
             int updatedRecords = db.update(TABLE_STEPS_SUMMARY, values,
                         CREATION_DATE + "=" + todaysDateString, null);
