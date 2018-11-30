@@ -226,10 +226,15 @@ public class MainActivity extends AppCompatActivity{
 
         View view = toast.getView();
 
-        //Gets the actual oval background of the Toast then sets the colour filter
-        view.getBackground().setColorFilter(getResources().getColor(R.color.actifitRed), PorterDuff.Mode.SRC_IN);
-
         TextView text = view.findViewById(android.R.id.message);
+
+        try {
+            //Gets the actual oval background of the Toast then sets the colour filter
+            view.getBackground().setColorFilter(getResources().getColor(R.color.actifitRed), PorterDuff.Mode.SRC_IN);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
         text.setTextColor(Color.WHITE);
 
         toast.show();

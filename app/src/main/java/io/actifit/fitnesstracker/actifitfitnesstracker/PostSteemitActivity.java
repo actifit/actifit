@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -22,23 +21,22 @@ import android.os.Environment;
 import android.os.StrictMode;
 
 import android.provider.MediaStore;
-import android.support.v4.widget.CircularProgressDrawable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -88,6 +86,9 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
     private Uri fileUri;
     private Bitmap bitmap;
     private ImageView image_preview;
+
+    private EditText stepCountContainer;
+    private Activity currentActivity;
 
     //tracks whether user synched his Fitbit data to avoid refetching activity count from current device
     private int fitbitSyncDone = 0;
@@ -287,6 +288,11 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_steemit);
 
+
+        Toolbar postToolbar = findViewById(R.id.post_toolbar);
+        setSupportActionBar(postToolbar);
+
+
         //make sure help with PPKey link click works
         TextView ppHelpLink = findViewById(R.id.posting_key_link);
         ppHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
@@ -298,7 +304,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         mStepsDBHelper = new StepsDBHelper(this);
 
         //grabbing instances of input data sources
-        final EditText stepCountContainer = findViewById(R.id.steemit_step_count);
+        stepCountContainer = findViewById(R.id.steemit_step_count);
 
         //set initial steps display value
         int stepCount = mStepsDBHelper.fetchTodayStepCount();
@@ -325,8 +331,13 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         // set markdown text pattern. ('contents' object is markdown text)
         mdView.setMDText(steemitPostContent.getText().toString());
 
+        //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
-        //hook change event for report content preview
+        //try to load editor content if it was stored previously
+        steemitPostContent.setText(sharedPreferences.getString("steemPostContent",""));
+
+        //hook change event for report content preview and saving the text to prevent data loss
         steemitPostContent.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -340,8 +351,15 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
-                if(s.length() != 0)
+                if(s.length() != 0) {
                     mdView.setMDText(steemitPostContent.getText().toString());
+
+                    //store current text
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("steemPostContent",
+                            steemitPostContent.getText().toString());
+                    editor.apply();
+                }
             }
         });
 
@@ -370,7 +388,8 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 "Dancing","Basketball", "Football", "Boxing", "Tennis", "Table Tennis",
                 "Martial Arts", "House Chores", "Moving Around Office", "Shopping","Daily Activity",
                 "Aerobics", "Weight Lifting", "Treadmill","Stair Mill", "Elliptical",
-                "Hiking", "Gardening", "Rollerblading", "Cricket", "Golf", "Volleyball", "Geocaching"
+                "Hiking", "Gardening", "Rollerblading", "Cricket", "Golf", "Volleyball", "Geocaching",
+                "Shoveling"
                 };
 
         //sort options in alpha order
@@ -378,9 +397,6 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
 
         MultiSelectionSpinner activityTypeSelector = findViewById(R.id.steemit_activity_type);
         activityTypeSelector.setItems(activity_type);
-
-        //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
-        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
         steemitUsername.setText(sharedPreferences.getString("actifitUser",""));
         steemitPostingKey.setText(sharedPreferences.getString("actifitPst",""));
@@ -402,80 +418,17 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
             thighsSizeUnit.setText("in");
         }
 
-        final Activity currentActivity = this;
+        currentActivity = this;
 
         //capturing steemit post submission
-        Button BtnSubmitSteemit = findViewById(R.id.btn_submit_steemit);
+        Button BtnSubmitSteemit = findViewById(R.id.post_to_steem_btn);
         BtnSubmitSteemit.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(final View arg0) {
-
-
-                //only if we haven't grabbed fitbit data, we need to grab new sensor data
-                if (fitbitSyncDone == 0){
-                    //ned to grab new updated activity count before posting
-                    int stepCount = mStepsDBHelper.fetchTodayStepCount();
-
-                    //display step count while ensuring we don't display negative value if no steps tracked yet
-                    stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
-                }else{
-                    //need to check if a day has passed, to prevent posting again using same fitbit data
-                    SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-                    String lastSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
-                    String currentDate = new SimpleDateFormat("yyyyMMdd").format(
-                            Calendar.getInstance().getTime());
-
-                    Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastSyncDate);
-                    Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+currentDate);
-                    if (!lastSyncDate.equals("")){
-                        if (Integer.parseInt(lastSyncDate) < Integer.parseInt(currentDate)) {
-                            notification = getString(R.string.need_sync_fitbit_again);
-                            ProgressDialog progress = new ProgressDialog(steemit_post_context);
-                            progress.setMessage(notification);
-                            progress.show();
-                            displayNotification(notification, progress, steemit_post_context, currentActivity, "");
-                            return;
-                        }
-                    }
-
-                }
-
-
-                //we need to check first if we have a charity setup
-                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-
-                final String currentCharity = (sharedPreferences.getString("selectedCharity",""));
-                final String currentCharityDisplayName = (sharedPreferences.getString("selectedCharityDisplayName",""));
-
-                if (!currentCharity.equals("")){
-                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which) {
-                                    case DialogInterface.BUTTON_POSITIVE:
-                                        //go ahead posting
-                                        new PostSteemitRequest(steemit_post_context, currentActivity).execute();
-                                        break;
-
-                                    case DialogInterface.BUTTON_NEGATIVE:
-                                        //cancel
-                                        break;
-                                }
-                            }
-                        };
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
-                        builder.setMessage(getString(R.string.current_workout_going_charity) + " "
-                                + currentCharityDisplayName + " "
-                                + getString(R.string.current_workout_settings_based))
-                                .setPositiveButton("Yes", dialogClickListener)
-                                .setNegativeButton("No", dialogClickListener).show();
-                }else {
-                    //connect to the server via a thread to prevent application hangup
-                    new PostSteemitRequest(steemit_post_context, currentActivity).execute();
-                }
+                ProcessPost();
             }
+
         });
 
         /* fixing scrollability of content within the post content section */
@@ -517,8 +470,6 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
             NxFitbitHelper fitbit = new NxFitbitHelper(getApplicationContext());
             fitbit.requestAccessTokenFromIntent(returnUrl);
 
-            sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
-
             // Get user profile using helper function
             try {
                 JSONObject responseProfile = fitbit.getUserProfile();
@@ -537,7 +488,9 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     height.setText(fitbit.getFieldFromProfile("height"));
                 }
 
-            } catch (JSONException | InterruptedException | ExecutionException | IOException | Exception e){
+            } catch (JSONException | InterruptedException | ExecutionException | IOException e){
+                e.printStackTrace();
+            } catch (Exception e){
                 e.printStackTrace();
             }
 
@@ -569,12 +522,14 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     editor.putString("fitbitLastSyncDate",
                             new SimpleDateFormat("yyyyMMdd").format(
                                     Calendar.getInstance().getTime()));
-                    editor.commit();
+                    editor.apply();
                 }else{
                     Log.d(MainActivity.TAG, "No auto-tracked activity found for today" );
                 }
 
-            } catch (JSONException | InterruptedException | ExecutionException | IOException | Exception e){
+            } catch (JSONException | InterruptedException | ExecutionException | IOException e){
+                e.printStackTrace();
+            } catch (Exception e){
                 e.printStackTrace();
             }
 
@@ -684,7 +639,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 editor.putString("actifitUser", steemitUsername.getText().toString()
                         .trim().toLowerCase().replace("@",""));
                 editor.putString("actifitPst", steemitPostingKey.getText().toString());
-                editor.commit();
+                editor.apply();
 
                 //this runs only on live mode
                 if (getString(R.string.test_mode).equals("off")){
@@ -799,6 +754,12 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     //append user ID
                     data.put("actifitUserID", sharedPreferences.getString("actifitUserID",""));
 
+                    //append data tracking source to see if this is a device reading or a fitbit one
+                    data.put("dataTrackingSource",sharedPreferences.getString("dataTrackingSystem",""));
+
+                    //append report STEEM payout type
+                    data.put("reportSTEEMPayMode",sharedPreferences.getString("reportSTEEMPayMode",""));
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -836,7 +797,9 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     editor.putString("actifitLastPostDate",
                             new SimpleDateFormat("yyyyMMdd").format(
                                     Calendar.getInstance().getTime()));
-                    editor.commit();
+                    //also clear editor text content
+                    editor.putString("steemPostContent", "");
+                    editor.apply();
                 } else {
                     // notification = getString(R.string.failed_post);
                     notification = result;
@@ -858,6 +821,98 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    private void ProcessPost(){
+
+                //only if we haven't grabbed fitbit data, we need to grab new sensor data
+                if (fitbitSyncDone == 0){
+                    //ned to grab new updated activity count before posting
+                    int stepCount = mStepsDBHelper.fetchTodayStepCount();
+
+                    //display step count while ensuring we don't display negative value if no steps tracked yet
+                    stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+                }else{
+                    //need to check if a day has passed, to prevent posting again using same fitbit data
+                    SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                    String lastSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
+                    String currentDate = new SimpleDateFormat("yyyyMMdd").format(
+                            Calendar.getInstance().getTime());
+
+                    Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastSyncDate);
+                    Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+currentDate);
+                    if (!lastSyncDate.equals("")){
+                        if (Integer.parseInt(lastSyncDate) < Integer.parseInt(currentDate)) {
+                            notification = getString(R.string.need_sync_fitbit_again);
+                            ProgressDialog progress = new ProgressDialog(steemit_post_context);
+                            progress.setMessage(notification);
+                            progress.show();
+                            displayNotification(notification, progress, steemit_post_context, currentActivity, "");
+                            return;
+                        }
+                    }
+
+                }
+
+
+                //we need to check first if we have a charity setup
+                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+                final String currentCharity = sharedPreferences.getString("selectedCharity","");
+                final String currentCharityDisplayName = sharedPreferences.getString("selectedCharityDisplayName","");
+
+                if (!currentCharity.equals("")){
+                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    //go ahead posting
+                                    new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+                                    break;
+
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    //cancel
+                                    break;
+                            }
+                        }
+                    };
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
+                    builder.setMessage(getString(R.string.current_workout_going_charity) + " "
+                            + currentCharityDisplayName + " "
+                            + getString(R.string.current_workout_settings_based))
+                            .setPositiveButton("Yes", dialogClickListener)
+                            .setNegativeButton("No", dialogClickListener).show();
+                }else {
+                    //connect to the server via a thread to prevent application hangup
+                    new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+                }
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        //getMenuInflater().inflate(R.menu.post_steem_menu, menu);
+        return true;
+    }
+
+
+    //handle the menu item click (new post to steem button)
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.action_favorite:
+                ProcessPost();
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
 }
 
