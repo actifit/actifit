@@ -35,11 +35,11 @@ Other services allow the creation of Steem accounts at a cost, yet here at Actif
 
 
 ##### Contact us on
-[Our Website](https://actifit.io)
-[Our blog](https://www.busy.org/@actifit)
-[Discord](https://discord.gg/aHtcA6r)
-[Facebook](https://www.facebook.com/Actifit.fitness/)
-[Twitter](https://www.twitter.com/Actifit_fitness)
-[Instagram](https://www.instagram.com/actifit.fitness/)
+[Our Website](https://actifit.io) |
+[Our blog](https://www.busy.org/@actifit) |
+[Discord](https://discord.gg/aHtcA6r) |
+[Facebook](https://www.facebook.com/Actifit.fitness/) |
+[Twitter](https://www.twitter.com/Actifit_fitness) |
+[Instagram](https://www.instagram.com/actifit.fitness/) |
 [Download on Google Play](https://bit.ly/actifit-app) | [Download on App Store](https://bit.ly/actifit-ios)
 
