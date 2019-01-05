@@ -20,6 +20,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 
@@ -74,11 +76,17 @@ class NxFitbitHelper {
 
         CustomTabsIntent customTabsIntent = builder.build();
 
-        customTabsIntent.launchUrl(callingContext, Uri.parse(helperClass.getAuthorizationUrl()));
+        //add expiration period
+        //more details about options found here
+        //https://dev.fitbit.com/build/reference/web-api/oauth2/#authorization-page
+        Map<String, String> addFitbitOptions = new HashMap<String, String>();
+        addFitbitOptions.put("expires_in", "2592000");//1 month
+
+        customTabsIntent.launchUrl(callingContext, Uri.parse(helperClass.getAuthorizationUrl(addFitbitOptions)));
     }
 
-    private String getAuthorizationUrl() {
-        return getService().getAuthorizationUrl();
+    private String getAuthorizationUrl(Map<String, String> addFitbitOptions) {
+        return getService().getAuthorizationUrl(addFitbitOptions);
     }
 
     //function handles building up connection to fitbit API with relevant params
