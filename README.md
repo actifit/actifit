@@ -1,22 +1,22 @@
 # Actifit
-Actifit Fitness Tracker - Android App
+Actifit: An Innovative Dapp That Rewards Your Everyday Activity!
 
-For a briefing on the project, check out our introductory post on steemit: Announcing Actifit: innovative SMT for rewarding fitness activity!
+
+Built as one of the first Smart Media Tokens on top of the Steem blockchain, with beta Android and iOS mobile apps already available on playstore and app store, Actifit tracks and rewards your activity with Actifit (AFIT) tokens, but also STEEM rewards via upvotes on your Steem posts.
+
+##### Earn Tokens As Simple As One Two Three
+1. Download the Actifit mobile app [Google Play](https://bit.ly/actifit-app) [App Store](https://bit.ly/actifit-ios)
+2. Go for a jog, walk your dog, maw your lawn, go to the gym, move around your office,... with an aim to reach a minimum of 5,000 activity count.
+3. Post via app to the Steem blockchain, and get rewarded!
+
+
+##### Actifit (AFIT) Tokens Use Cases
+AFIT tokens will be available for purchasing fitness related equipment, tools, gadgets, sports wear, gym memberships... and any transactions between providers and actifiters.
+
+As a Steem Smart Media Token, AFIT tokens are planned to have their own valuation per STEEM as well as FIAT currencies, and hence to be cashed out for actual FIAT currency.
+
+##### Delegate To Earn More Rewards
+You can earn more AFIT tokens if you are a STEEM token holder. Delegate Steem Power to Actifit and earn your share of 100,000 AFIT tokens distributed per day to our delegators, as well as a weekly share of the 5% beneficiary reward of actifit posts
+
+For a more detailed briefing on the project, check out our introductory post on steemit: Announcing Actifit: innovative SMT for rewarding fitness activity!
 https://steemit.com/actifit/@actifit/announcing-actifit-innovative-smt-for-rewarding-fitness-activity
-
-
-v 0.2 beta updates:
-- Add progress display on post submission to steemit + changing submission to thread approach.
-- Clearing out post content after submission + success notification display.
-- Add default title content for daily steemit post "My Actifit Report Card: Date".
-- Add activity type drop down options (required) to allow users selecting their daily activity(ies).
-- Transitioning from "step" concept to "move/activity/action" concept and relevant terminology modifications.
-- Changes to post report including activity type.
-- Implementing a cross-device solution to allow background tracking of all steps.
-- Adding new leaderboard screen displaying daily top 5 scores (posts yet unrewarded).
-- Revamp whole database structure, storing and displaying info. Old local data will no longer be visible after upgrade.
-- Bug Fixes:
-  - Fix issue with multiple rows with similar content/replicas showing in history.
-  - Fix issue with number of steps resetting after 1,000.
-  - Fix issue with long text causing overlap of sections while posting to steemit.
-  - Fix random issue of multiple increments of steps on single steps.
