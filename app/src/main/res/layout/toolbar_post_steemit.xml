@@ -8,7 +8,7 @@
     android:elevation="4dp"
     >
 
-    <TextView
+    <!--<TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Actifit Fitness Tracker"
@@ -17,19 +17,19 @@
         android:paddingRight="10dp"
        />
 
-    <android.support.v7.widget.AppCompatButton
+    <Button
         android:id="@+id/post_to_steem_btn"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Post to Steem"
         android:layout_gravity="right"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textColor="@color/colorPrimary"
         android:shadowColor="#A8A8A8"
         android:shadowDx="0"
         android:shadowDy="0"
         android:shadowRadius="5"
         app:backgroundTint="@color/colorWhite"
-        />
+        />-->
 
 </android.support.v7.widget.Toolbar>
