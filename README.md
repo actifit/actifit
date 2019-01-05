@@ -21,6 +21,25 @@ You can earn more AFIT tokens if you are a STEEM token holder. Delegate Steem Po
 For a more detailed briefing on the project, check out our introductory post on steemit: Announcing Actifit: innovative SMT for rewarding fitness activity!
 https://steemit.com/actifit/@actifit/announcing-actifit-innovative-smt-for-rewarding-fitness-activity
 
+##### Sign Up For a New Account
+[Signup Link](https://actifit.io/signup)
+In order to use Actifit, you need an account on the Steem blockchain. If you do not have an account, you can sign up for one right now!
+While you can create a Steem account from Steemit.com for free, it could take up to two weeks, or more to get approved.
+Other services allow the creation of Steem accounts at a cost, yet here at Actifit, for as low as 10$, you get the following awesome treats:
+- Your free Steem / Actifit account, usable across the Steem blockchain and all cool relevant dapps such as Dtube, Steem monsters, Steem hunt, dlike, tasteem, and many more...
+- 133.333 AFIT tokens matching your current investment. The higher you invest, the higher the amount earned.
+- The Steem blockchain requires a min amount of Steem Power (which decides how often you can do transactions on it). To help with that, we will delegate to your new account 10 Steem Power for a month to help you post easily once per day!
+- Via posting your daily activity, you can earn STEEM upvotes and AFIT tokens, a free source of earning crypto while getting healthy and fit!
+- Owning AFIT tokens allows you to earn more rewards for your daily activity, as it increases your User Rank. At the minimum 10$ investment, your User Rank will stand at 3%. For instance, investing 100$ will earn you 1333.333 AFIT tokens, and will increase your User Rank to 6%, reflecting in an increase in your daily STEEM and AFIT rewards.
+[Signup Link](https://actifit.io/signup)
 
-![ruler0.jpg](https://cdn.steemitimages.com/DQmURDM3SgiB7Wkvq7yDhPdsfNpCszwoiPS7hwQ9gYzZFqx/ruler0.jpg)
-<center>[<img src="http://icons.iconarchive.com/icons/bokehlicia/pacifica/64/play-playstore-icon.png">](https://bit.ly/actifit-app) [![appstore.jpg](https://cdn.steemitimages.com/DQmQguVU4Fy8pP2o3dNB21nWgDSPUN6ZLRKvDXtKVHugzdx/appstore.jpg)](http://bit.ly/actifit-ios) [<img src="http://icons.iconarchive.com/icons/limav/flat-gradient-social/64/Twitter-icon.png">](https://www.twitter.com/Actifit_fitness) [<img src="https://cdn.steemitimages.com/DQmbQpv7KDfPEWUmuRd8NZep8W5NSsCAtSsDukxczwGN28C/Actifit.png">](https://actifit.io) [<img src="http://icons.iconarchive.com/icons/papirus-team/papirus-apps/64/discord-icon.png">](https://discord.gg/aHtcA6r) [<img src="http://icons.iconarchive.com/icons/yootheme/social-bookmark/64/social-facebook-box-blue-icon.png">](https://www.facebook.com/Actifit.fitness/) [<img src="https://cdn.steemitimages.com/DQmaq1Tr1fx674yj5D1pCrgx22mtiumJuAhEKV5Ga5P7qwD/Instagram.png">](https://www.instagram.com/actifit.fitness/)</center>
+
+##### Contact us on
+[Our Website](https://actifit.io)
+[Our blog](https://www.busy.org/@actifit)
+[Discord](https://discord.gg/aHtcA6r)
+[Facebook](https://www.facebook.com/Actifit.fitness/)
+[Twitter](https://www.twitter.com/Actifit_fitness)
+[Instagram](https://www.instagram.com/actifit.fitness/)
+[Download on Google Play](https://bit.ly/actifit-app) | [Download on App Store](https://bit.ly/actifit-ios)
+
