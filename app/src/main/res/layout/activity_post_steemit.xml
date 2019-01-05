@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_height="match_parent"
@@ -9,31 +7,68 @@
     android:id="@+id/post_steemit_container"
     >
 
-    <include
+    <!--<include
         android:id="@+id/post_toolbar"
         layout="@layout/toolbar_post_steemit"
-        />
+        />-->
 
-
-    <android.support.v4.widget.NestedScrollView
-        android:layout_height="match_parent"
+    <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/titlebar_section"
         android:layout_width="match_parent"
-        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="60dp"
+        android:background="@color/colorPrimary"
+        android:elevation="2dp"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:shadowColor="#A8A8A8"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5">
+
+        <TextView
+            android:id="@+id/actifit_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="10dp"
+            android:text="Actifit Fitness Tracker"
+            android:textColor="@color/ic_launcher_background"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/post_to_steem_btn"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:shadowColor="#A8A8A8"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"
+            android:text="Post to Steem"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            app:backgroundTint="@color/colorWhite" />
+
+    </LinearLayout>
+
+    <android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/nestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:layout_weight="5"
         android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="50dp"
-        android:layout_weight="5">
+        android:paddingTop="10dp"
+        android:paddingRight="10dp">
 
         <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/cLayout"
-            android:paddingBottom="50dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingBottom="50dp"
             android:scrollbars="vertical">
-
 
 
             <TextView
@@ -62,8 +97,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
-                android:textStyle="bold"
                 android:text="Steem Private Posting Key (NOT the password)"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/steemit_username" />
@@ -77,12 +112,11 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/actifit_find_posting_key_vid"
-                android:textStyle="italic"
                 android:textSize="14dp"
+                android:textStyle="italic"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_posting_key_lbl"
-                />
+                app:layout_constraintTop_toBottomOf="@+id/steemit_posting_key_lbl" />
 
             <EditText
                 android:id="@+id/steemit_posting_key"
@@ -99,8 +133,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
-                android:textStyle="bold"
                 android:text="Report Title"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/steemit_posting_key" />
@@ -119,11 +153,11 @@
                 android:id="@+id/full_afit_pay_lbl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:text="Full Report Payout in AFIT"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_post_title"/>
+                app:layout_constraintTop_toBottomOf="@+id/steemit_post_title" />
 
             <CheckBox
                 android:id="@+id/full_afit_pay"
@@ -132,14 +166,14 @@
                 android:text="Maximize AFIT Token Earnings"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/full_afit_pay_lbl"/>
+                app:layout_constraintTop_toBottomOf="@+id/full_afit_pay_lbl" />
 
             <TextView
                 android:id="@+id/steemit_step_count_lbl"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:text="Activity Count"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/full_afit_pay" />
@@ -170,8 +204,7 @@
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:text="FITBIT SYNC"
-                    />
+                    android:text="FITBIT SYNC" />
 
             </LinearLayout>
 
@@ -180,8 +213,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
-                android:textStyle="bold"
                 android:text="Activity Type"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/activity_data_section" />
@@ -194,15 +227,15 @@
                 android:layout_marginTop="30dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/steemit_activity_type_lbl"/>
+                app:layout_constraintTop_toTopOf="@+id/steemit_activity_type_lbl" />
 
             <TextView
                 android:id="@+id/measurements_section_lbl"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
-                android:textStyle="bold"
                 android:text="Track Measurements"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/steemit_activity_type" />
@@ -224,12 +257,11 @@
                 android:id="@+id/measurements_height"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:paddingTop="20dp"
                 android:inputType="numberDecimal"
-                app:layout_constraintStart_toEndOf="@+id/measurements_height_lbl"
-                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl"
                 android:nextFocusDown="@+id/measurements_weight"
-                />
+                android:paddingTop="20dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_height_lbl"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
 
             <TextView
                 android:id="@+id/measurements_height_unit"
@@ -246,10 +278,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
+                android:paddingLeft="5dp"
                 android:text="Weight"
                 android:textStyle="bold"
                 app:layout_constraintRight_toRightOf="parent"
-                android:paddingLeft="5dp"
                 app:layout_constraintStart_toEndOf="@+id/measurements_height_unit"
                 app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
 
@@ -257,12 +289,11 @@
                 android:id="@+id/measurements_weight"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:paddingTop="20dp"
                 android:inputType="numberDecimal"
-                app:layout_constraintStart_toEndOf="@+id/measurements_weight_lbl"
-                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl"
                 android:nextFocusDown="@+id/measurements_bodyfat"
-                />
+                android:paddingTop="20dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_weight_lbl"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
 
             <TextView
                 android:id="@+id/measurements_weight_unit"
@@ -278,23 +309,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
+                android:paddingLeft="5dp"
                 android:text="Body Fat"
                 android:textStyle="bold"
                 app:layout_constraintRight_toRightOf="parent"
-                android:paddingLeft="5dp"
                 app:layout_constraintStart_toEndOf="@+id/measurements_weight_unit"
                 app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
 
             <EditText
                 android:id="@+id/measurements_bodyfat"
                 android:layout_width="50dp"
-                android:paddingTop="20dp"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
-                app:layout_constraintStart_toEndOf="@+id/measurements_bodyfat_lbl"
-                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl"
                 android:nextFocusDown="@+id/measurements_waistsize"
-                />
+                android:paddingTop="20dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_bodyfat_lbl"
+                app:layout_constraintTop_toTopOf="@+id/measurements_section_lbl" />
 
             <TextView
                 android:id="@+id/measurements_bodyfat_unit"
@@ -322,12 +352,11 @@
                 android:id="@+id/measurements_waistsize"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:paddingTop="20dp"
                 android:inputType="numberDecimal"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl"
-                app:layout_constraintStart_toEndOf="@+id/measurements_waistsize_lbl"
                 android:nextFocusDown="@+id/measurements_thighs"
-                />
+                android:paddingTop="20dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_waistsize_lbl"
+                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
 
             <TextView
                 android:id="@+id/measurements_waistsize_unit"
@@ -342,10 +371,10 @@
                 android:id="@+id/measurements_thighs_lbl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
                 android:text="Thighs"
                 android:textStyle="bold"
                 app:layout_constraintRight_toRightOf="parent"
-                android:paddingLeft="5dp"
                 app:layout_constraintStart_toEndOf="@+id/measurements_height_unit"
                 app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
 
@@ -353,12 +382,11 @@
                 android:id="@+id/measurements_thighs"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:paddingTop="20dp"
                 android:inputType="numberDecimal"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl"
-                app:layout_constraintStart_toEndOf="@+id/measurements_thighs_lbl"
                 android:nextFocusDown="@+id/measurements_chest"
-                />
+                android:paddingTop="20dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_thighs_lbl"
+                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
 
             <TextView
                 android:id="@+id/measurements_thighs_unit"
@@ -372,10 +400,10 @@
                 android:id="@+id/measurements_chest_lbl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
                 android:text="Chest"
                 android:textStyle="bold"
                 app:layout_constraintRight_toRightOf="parent"
-                android:paddingLeft="5dp"
                 app:layout_constraintStart_toEndOf="@+id/measurements_thighs_unit"
                 app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
 
@@ -383,12 +411,11 @@
                 android:id="@+id/measurements_chest"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:paddingTop="20dp"
                 android:inputType="numberDecimal"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl"
-                app:layout_constraintStart_toEndOf="@+id/measurements_chest_lbl"
                 android:nextFocusDown="@+id/steemit_post_tags"
-                />
+                android:paddingTop="20dp"
+                app:layout_constraintStart_toEndOf="@+id/measurements_chest_lbl"
+                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
 
             <TextView
                 android:id="@+id/measurements_chest_unit"
@@ -436,8 +463,7 @@
                 android:text="Insert Image"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/image_section_lbl"
-                />
+                app:layout_constraintTop_toBottomOf="@+id/image_section_lbl" />
 
             <!--<LinearLayout
                 android:id="@+id/upload_section_btns"
@@ -506,10 +532,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:ems="10"
+                android:gravity="top"
                 android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
                 android:maxLines="6"
                 android:minHeight="185dp"
-                android:gravity="top"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/steemit_post_content_note" />
@@ -527,14 +553,13 @@
             <com.mittsu.markedview.MarkedView
                 android:id="@+id/md_view"
                 android:layout_width="0dp"
-                android:minHeight="185dp"
                 android:layout_height="wrap_content"
-                android:paddingBottom="20dp"
                 android:layout_marginBottom="20dp"
+                android:minHeight="185dp"
+                android:paddingBottom="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_post_preview_lbl"
-                />
+                app:layout_constraintTop_toBottomOf="@+id/steemit_post_preview_lbl" />
 
         </android.support.constraint.ConstraintLayout>
 
