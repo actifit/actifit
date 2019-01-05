@@ -289,8 +289,8 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_post_steemit);
 
 
-        Toolbar postToolbar = findViewById(R.id.post_toolbar);
-        setSupportActionBar(postToolbar);
+        /*Toolbar postToolbar = findViewById(R.id.post_toolbar);
+        setSupportActionBar(postToolbar);*/
 
 
         //make sure help with PPKey link click works
@@ -389,7 +389,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 "Martial Arts", "House Chores", "Moving Around Office", "Shopping","Daily Activity",
                 "Aerobics", "Weight Lifting", "Treadmill","Stair Mill", "Elliptical",
                 "Hiking", "Gardening", "Rollerblading", "Cricket", "Golf", "Volleyball", "Geocaching",
-                "Shoveling"
+                "Shoveling", "Skiing"
                 };
 
         //sort options in alpha order
@@ -821,78 +821,11 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void ProcessPost(){
-
-                //only if we haven't grabbed fitbit data, we need to grab new sensor data
-                if (fitbitSyncDone == 0){
-                    //ned to grab new updated activity count before posting
-                    int stepCount = mStepsDBHelper.fetchTodayStepCount();
-
-                    //display step count while ensuring we don't display negative value if no steps tracked yet
-                    stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
-                }else{
-                    //need to check if a day has passed, to prevent posting again using same fitbit data
-                    SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-                    String lastSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
-                    String currentDate = new SimpleDateFormat("yyyyMMdd").format(
-                            Calendar.getInstance().getTime());
-
-                    Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastSyncDate);
-                    Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+currentDate);
-                    if (!lastSyncDate.equals("")){
-                        if (Integer.parseInt(lastSyncDate) < Integer.parseInt(currentDate)) {
-                            notification = getString(R.string.need_sync_fitbit_again);
-                            ProgressDialog progress = new ProgressDialog(steemit_post_context);
-                            progress.setMessage(notification);
-                            progress.show();
-                            displayNotification(notification, progress, steemit_post_context, currentActivity, "");
-                            return;
-                        }
-                    }
-
-                }
-
-
-                //we need to check first if we have a charity setup
-                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-
-                final String currentCharity = sharedPreferences.getString("selectedCharity","");
-                final String currentCharityDisplayName = sharedPreferences.getString("selectedCharityDisplayName","");
-
-                if (!currentCharity.equals("")){
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                                case DialogInterface.BUTTON_POSITIVE:
-                                    //go ahead posting
-                                    new PostSteemitRequest(steemit_post_context, currentActivity).execute();
-                                    break;
-
-                                case DialogInterface.BUTTON_NEGATIVE:
-                                    //cancel
-                                    break;
-                            }
-                        }
-                    };
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
-                    builder.setMessage(getString(R.string.current_workout_going_charity) + " "
-                            + currentCharityDisplayName + " "
-                            + getString(R.string.current_workout_settings_based))
-                            .setPositiveButton("Yes", dialogClickListener)
-                            .setNegativeButton("No", dialogClickListener).show();
-                }else {
-                    //connect to the server via a thread to prevent application hangup
-                    new PostSteemitRequest(steemit_post_context, currentActivity).execute();
-                }
-
-    }
-
+/*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.post_steem_menu, menu);
+        getMenuInflater().inflate(R.menu.post_steem_menu, menu);
         return true;
     }
 
@@ -902,7 +835,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
 
-            case R.id.action_favorite:
+            case R.id.action_post:
                 ProcessPost();
                 return true;
 
@@ -913,6 +846,73 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
 
         }
     }
+*/
+    private void ProcessPost(){
+        //only if we haven't grabbed fitbit data, we need to grab new sensor data
+        if (fitbitSyncDone == 0){
+            //ned to grab new updated activity count before posting
+            int stepCount = mStepsDBHelper.fetchTodayStepCount();
+
+            //display step count while ensuring we don't display negative value if no steps tracked yet
+            stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+        }else{
+            //need to check if a day has passed, to prevent posting again using same fitbit data
+            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+            String lastSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
+            String currentDate = new SimpleDateFormat("yyyyMMdd").format(
+                    Calendar.getInstance().getTime());
+
+            Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastSyncDate);
+            Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+currentDate);
+            if (!lastSyncDate.equals("")){
+                if (Integer.parseInt(lastSyncDate) < Integer.parseInt(currentDate)) {
+                    notification = getString(R.string.need_sync_fitbit_again);
+                    ProgressDialog progress = new ProgressDialog(steemit_post_context);
+                    progress.setMessage(notification);
+                    progress.show();
+                    displayNotification(notification, progress, steemit_post_context, currentActivity, "");
+                    return;
+                }
+            }
+
+        }
+
+
+        //we need to check first if we have a charity setup
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+        final String currentCharity = sharedPreferences.getString("selectedCharity","");
+        final String currentCharityDisplayName = sharedPreferences.getString("selectedCharityDisplayName","");
+
+        if (!currentCharity.equals("")){
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which) {
+                        case DialogInterface.BUTTON_POSITIVE:
+                            //go ahead posting
+                            new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+                            break;
+
+                        case DialogInterface.BUTTON_NEGATIVE:
+                            //cancel
+                            break;
+                    }
+                }
+            };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
+            builder.setMessage(getString(R.string.current_workout_going_charity) + " "
+                    + currentCharityDisplayName + " "
+                    + getString(R.string.current_workout_settings_based))
+                    .setPositiveButton("Yes", dialogClickListener)
+                    .setNegativeButton("No", dialogClickListener).show();
+        }else {
+            //connect to the server via a thread to prevent application hangup
+            new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+        }
+    }
+
 
 }
 
