@@ -10,7 +10,7 @@
         android:id="@+id/textView"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Activity History Chart"
+        android:text="@string/activity_history_chart_title"
         android:paddingLeft="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 

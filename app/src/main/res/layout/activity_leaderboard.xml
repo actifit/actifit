@@ -11,7 +11,7 @@ android:orientation="vertical"
     android:id="@+id/textView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="Daily Leaderboard: Top Actifitters"
+    android:text="@string/activity_leaderboard_title"
     android:paddingLeft="10dp"
     android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
