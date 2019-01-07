@@ -13,14 +13,14 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your Wallet"
+        android:text="@string/your_wallet_title"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
     <TextView
         android:id="@+id/steemit_username_lbl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Steem Username" />
+        android:text="@string/steem_username_lbl" />
 
     <EditText
         android:id="@+id/steemit_username"
@@ -33,13 +33,13 @@
         android:id="@+id/btn_get_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Check Balance" />
+        android:text="@string/get_balance_btn_lbl" />
 
     <TextView
         android:id="@+id/actifit_balance_lbl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="AFIT Tokens"
+        android:text="@string/afit_token_balance"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:visibility="invisible"/>
 
@@ -47,14 +47,14 @@
         android:id="@+id/actifit_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20dip"
+        android:textSize="20sp"
         android:text="" />
 
     <TextView
         android:id="@+id/actifit_transactions_lbl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Transactions"
+        android:text="@string/actifit_transactions_lbl"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:visibility="invisible"/>
 
@@ -62,7 +62,7 @@
         android:id="@+id/actifit_transactions_error"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Unable to Fetch Transations"
+        android:text="@string/actifit_transactions_error"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:visibility="invisible"/>
 

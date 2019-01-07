@@ -19,7 +19,7 @@
         android:id="@+id/activity_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Settings"
+        android:text="@string/settings_title"
         android:paddingLeft="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:paddingLeft="20dp"
         android:textSize="18dp"
-        android:text="Activity Data Source" />
+        android:text="@string/activity_source_lbl" />
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -42,13 +42,13 @@
             android:id="@+id/device_sensors"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Phone Sensors" />
+            android:text="@string/device_sensors_option_lbl" />
 
         <RadioButton
             android:id="@+id/fitbit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fitbit"
+            android:text="@string/fitbit_option_lbl"
             />
 
     </RadioGroup>
@@ -72,14 +72,14 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
                 android:textSize="18dp"
-                android:text="Background Movement Tracking" />
+                android:text="@string/background_move_track_lbl" />
 
             <CheckBox
                 android:id="@+id/background_tracking"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
-                android:text="Enable Aggressive Background Tracking*" />
+                android:text="@string/enable_agg_mode_checkbox" />
 
             <TextView
                 android:id="@+id/background_tracking_info"
@@ -105,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
                 android:textSize="18dp"
-                android:text="Fitbit Settings" />
+                android:text="@string/fitbit_settings_lbl" />
 
             <CheckBox
                 android:id="@+id/fitbit_measurements"
@@ -113,7 +113,7 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:layout_marginLeft="20dp"
-                android:text="Fetch Measurements" />
+                android:text="@string/fitbit_measurements_lbl" />
 
             <CheckBox
                 android:id="@+id/fitbit_steps"
@@ -122,7 +122,7 @@
                 android:enabled="false"
                 android:checked="true"
                 android:layout_marginLeft="20dp"
-                android:text="Fetch Steps" />
+                android:text="@string/fitbit_fetch_steps" />
 
 
         </LinearLayout>
@@ -141,7 +141,7 @@
         android:paddingLeft="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
-        android:text="STEEM Post Payout" />
+        android:text="@string/steem_post_payout" />
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
@@ -154,14 +154,14 @@
             android:id="@+id/sbd_sp_pay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="50% SBD - 50% SP"
+            android:text="@string/pay_option_50_50"
             />
 
         <RadioButton
             android:id="@+id/full_sp_pay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="100% SP" />
+            android:text="@string/pay_option_full_sp" />
 
     </RadioGroup>
 
@@ -178,7 +178,7 @@
         android:paddingLeft="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
-        android:text="Measurement System" />
+        android:text="@string/measure_system_lbl" />
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
@@ -190,13 +190,13 @@
             android:id="@+id/metric_system"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Metric" />
+            android:text="@string/metric_system_option_lbl" />
 
         <RadioButton
             android:id="@+id/us_system"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="US System"
+            android:text="@string/us_system_option_lbl"
            />
 
     </RadioGroup>
@@ -211,7 +211,7 @@
         android:id="@+id/donate_charity_lbl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Donate to Charity"
+        android:text="@string/donate_charity_lbl"
         android:paddingLeft="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
@@ -222,7 +222,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:text="Donate Rewards to Charity" />
+        android:text="@string/donate_charity_checkbox" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -233,7 +233,7 @@
         android:id="@+id/charity_options_lbl"
         android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:text="Available Charities"
+        android:text="@string/charity_options_lbl"
         android:paddingLeft="20dp"
         android:paddingTop="10dp"
         android:textSize="14dp"
@@ -263,7 +263,7 @@
         android:id="@+id/charity_info_lbl"
         android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:text="Charity Info"
+        android:text="@string/charity_info_lbl"
         android:paddingLeft="20dp"
         android:paddingTop="10dp"
         android:textSize="14dp"
@@ -293,7 +293,7 @@
         android:id="@+id/reminder_settings_lbl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Daily Post Reminder"
+        android:text="@string/daily_post_reminder_lbl"
         android:paddingLeft="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
@@ -309,7 +309,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:text="Remind me to Post" />
+            android:text="@string/post_reminder_checkbox" />
 
         <NumberPicker
             android:id="@+id/reminder_hour_options"
@@ -341,7 +341,7 @@
         android:paddingTop="10dp"
         android:autoLink="web"
         android:textStyle="italic"
-        android:text="test"
+        android:text=""
         android:textSize="14dp"
         />
 
@@ -351,7 +351,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
 
-        android:text="Save Settings" />
+        android:text="@string/save_settings_btn_lbl" />
 
 </LinearLayout>
 
