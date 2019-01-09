@@ -33,4 +33,18 @@ public class Charity {
     {
         return getDisplayName();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Charity charity = (Charity) o;
+        return charityName.equals(charity.charityName) &&
+                displayName.equals(charity.displayName);
+    }
+
 }
