@@ -380,8 +380,8 @@ public class SettingsActivity extends AppCompatActivity {
                         TextView charityInfo = findViewById(R.id.charity_info);
 
                         donateCharityChckBox.setChecked(true);
-                        charitySelected.setSelection(arrayAdapter.getPosition(new Charity(currentCharity,currentCharityDisplayName)));
-                        String fullUrl = getString(R.string.steemit_url)+'@'+((Charity)charitySelected.getSelectedItem()).getCharityName();
+                        charitySelected.setSelection(arrayAdapter.getPosition(new Charity(currentCharity,currentCharityDisplayName)), false);
+                        String fullUrl = getString(R.string.steemit_url)+'@'+currentCharity;
                         charityInfo.setText(fullUrl);
                         charityInfo.setMovementMethod(LinkMovementMethod.getInstance());
                     }
