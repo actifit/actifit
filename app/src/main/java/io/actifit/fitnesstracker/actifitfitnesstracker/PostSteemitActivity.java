@@ -389,8 +389,8 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 "Martial Arts", "House Chores", "Moving Around Office", "Shopping","Daily Activity",
                 "Aerobics", "Weight Lifting", "Treadmill","Stair Mill", "Elliptical",
                 "Hiking", "Gardening", "Rollerblading", "Cricket", "Golf", "Volleyball", "Geocaching",
-                "Shoveling", "Skiing"
-                };
+                "Shoveling", "Skiing", "Scootering", "Photowalking", "Kettlebell Training"
+        };
 
         //sort options in alpha order
         Arrays.sort(activity_type);
@@ -579,8 +579,12 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                             }
                         });
                 //create and display alert window
-                AlertDialog alert11 = builder1.create();
-                alert11.show();
+                try {
+                    AlertDialog alert11 = builder1.create();
+                    alert11.show();
+                }catch(Exception e){
+                    Log.e(MainActivity.TAG, e.getMessage());
+                }
             }
         });
 
