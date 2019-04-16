@@ -138,7 +138,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
 
             //create a new progress dialog to show action is underway
             uploadProgress = new ProgressDialog(steemit_post_context);
-            uploadProgress.setMessage("Uploading...0%");
+            uploadProgress.setMessage(getString(R.string.start_upload));
             uploadProgress.show();
 
             uploadObserver.setTransferListener(new TransferListener() {
@@ -154,7 +154,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                             Log.d(MainActivity.TAG,ex.getMessage());
                         }
 
-                        Toast.makeText(getApplicationContext(), "Upload Completed!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
 
                         String full_img_url = getString(R.string.actifit_usermedia_url)+fileName;
                         String img_markdown_text = "![]("+full_img_url+")";
@@ -170,7 +170,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                         file.delete();
 
                     } else if (TransferState.FAILED == state) {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Upload Failed!", Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.upload_failed), Toast.LENGTH_SHORT);
                         TextView v = toast.getView().findViewById(android.R.id.message);
                         v.setTextColor(Color.RED);
                         toast.show();
@@ -182,7 +182,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
                     float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
                     int percentDone = (int) percentDonef;
-                    uploadProgress.setMessage("Uploading..."+percentDone + "%");
+                    uploadProgress.setMessage(getString(R.string.uploading) + percentDone + "%");
                     //tvFileName.setText("ID:" + id + "|bytesCurrent: " + bytesCurrent + "|bytesTotal: " + bytesTotal + "|" + percentDone + "%");
                 }
 
@@ -217,7 +217,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Image"), CHOOSING_IMAGE_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_img_title)), CHOOSING_IMAGE_REQUEST);
     }
 
     @Override
@@ -384,12 +384,20 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
 
         //initializing activity options
         String[] activity_type = {
-                "Walking", "Jogging", "Running", "Cycling", "Rope Skipping",
-                "Dancing","Basketball", "Football", "Boxing", "Tennis", "Table Tennis",
-                "Martial Arts", "House Chores", "Moving Around Office", "Shopping","Daily Activity",
-                "Aerobics", "Weight Lifting", "Treadmill","Stair Mill", "Elliptical",
-                "Hiking", "Gardening", "Rollerblading", "Cricket", "Golf", "Volleyball", "Geocaching",
-                "Shoveling", "Skiing", "Scootering", "Photowalking", "Kettlebell Training"
+                getString(R.string.Walking), getString(R.string.Jogging), getString(R.string.Running), getString(R.string.Cycling),
+                getString(R.string.RopeSkipping), getString(R.string.Dancing),getString(R.string.Basketball), getString(R.string.Football),
+                getString(R.string.Boxing), getString(R.string.Tennis), getString(R.string.TableTennis),
+                getString(R.string.MartialArts), getString(R.string.HouseChores), getString(R.string.MovingAroundOffice),
+                getString(R.string.Shopping),getString(R.string.DailyActivity), getString(R.string.Aerobics),
+                getString(R.string.WeightLifting), getString(R.string.Treadmill),getString(R.string.StairMill),
+                getString(R.string.Elliptical), getString(R.string.Hiking), getString(R.string.Gardening),
+                getString(R.string.Rollerblading), getString(R.string.Cricket), getString(R.string.Golf),
+                getString(R.string.Volleyball), getString(R.string.Geocaching), getString(R.string.Shoveling),
+                getString(R.string.Skiing), getString(R.string.Scootering), getString(R.string.Photowalking),
+                getString(R.string.KettlebellTraining), getString(R.string.Bootcamp), getString(R.string.Gym),
+                getString(R.string.Skating), getString(R.string.Hockey), getString(R.string.Swimming),
+                getString(R.string.ChasingPokemons), getString(R.string.Badminton), getString(R.string.PickleBall),
+                getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking)
         };
 
         //sort options in alpha order
@@ -405,17 +413,17 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         String activeSystem = sharedPreferences.getString("activeSystem",getString(R.string.metric_system));
         //adjust units accordingly
         if (activeSystem.equals(getString(R.string.metric_system))){
-            weightSizeUnit.setText("kg");
-            heightSizeUnit.setText("cm");
-            waistSizeUnit.setText("cm");
-            chestSizeUnit.setText("cm");
-            thighsSizeUnit.setText("cm");
+            weightSizeUnit.setText(getString(R.string.kg_unit));
+            heightSizeUnit.setText(getString(R.string.cm_unit));
+            waistSizeUnit.setText(getString(R.string.cm_unit));
+            chestSizeUnit.setText(getString(R.string.cm_unit));
+            thighsSizeUnit.setText(getString(R.string.cm_unit));
         }else{
-            weightSizeUnit.setText("lb");
-            heightSizeUnit.setText("ft");
-            waistSizeUnit.setText("in");
-            chestSizeUnit.setText("in");
-            thighsSizeUnit.setText("in");
+            weightSizeUnit.setText(getString(R.string.lb_unit));
+            heightSizeUnit.setText(getString(R.string.ft_unit));
+            waistSizeUnit.setText(getString(R.string.in_unit));
+            chestSizeUnit.setText(getString(R.string.in_unit));
+            thighsSizeUnit.setText(getString(R.string.in_unit));
         }
 
         currentActivity = this;
@@ -567,7 +575,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 builder1.setCancelable(true);
 
                 builder1.setPositiveButton(
-                        "Dismiss",
+                        getString(R.string.dismiss_button),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
@@ -649,8 +657,8 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 if (getString(R.string.test_mode).equals("off")){
                     //make sure we have reached the min movement amount
                     if (Integer.parseInt(steemitStepCount.getText().toString()) < min_step_limit) {
-                        notification = "You have not reached the minimum " +
-                                NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " activity yet";
+                        notification = getString(R.string.min_activity_not_reached) + " " +
+                                NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " " + getString(R.string.not_yet);
                         displayNotification(notification, progress, context, currentActivity, "");
 
                         return null;
@@ -909,8 +917,8 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
             builder.setMessage(getString(R.string.current_workout_going_charity) + " "
                     + currentCharityDisplayName + " "
                     + getString(R.string.current_workout_settings_based))
-                    .setPositiveButton("Yes", dialogClickListener)
-                    .setNegativeButton("No", dialogClickListener).show();
+                    .setPositiveButton(getString(R.string.yes_button), dialogClickListener)
+                    .setNegativeButton(getString(R.string.no_button), dialogClickListener).show();
         }else {
             //connect to the server via a thread to prevent application hangup
             new PostSteemitRequest(steemit_post_context, currentActivity).execute();

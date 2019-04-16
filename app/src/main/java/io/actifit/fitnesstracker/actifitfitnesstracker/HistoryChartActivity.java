@@ -59,7 +59,7 @@ public class HistoryChartActivity extends AppCompatActivity {
                 //convert it to new format for display
                 dateDisplay = dateFormOut.format(feedingDate);
                 //append to display
-                String displayEntryTxt = dateDisplay + " - Total Activity: " + String.valueOf((mStepCountList.get(position)).mStepCount);
+                String displayEntryTxt = dateDisplay + " - " +  getString(R.string.tot_activity_string) + String.valueOf((mStepCountList.get(position)).mStepCount);
                 //append to display
                 if (mStepCountList.get(position).mtrackingDevice!=null && !mStepCountList.get(position).mtrackingDevice.equals("")
                         && !mStepCountList.get(position).mtrackingDevice.equals(StepsDBHelper.DEVICE_SENSORS)){
@@ -90,7 +90,7 @@ public class HistoryChartActivity extends AppCompatActivity {
             //data_id_int++;
         }
 
-        BarDataSet dataSet = new BarDataSet(entries, "Activity Count");
+        BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
 
         BarData barData = new BarData( dataSet);
         // set custom bar width
@@ -115,7 +115,7 @@ public class HistoryChartActivity extends AppCompatActivity {
         //add limit lines to show marker of min 5K activity
         YAxis yAxis = chart.getAxisLeft();
 
-        LimitLine line = new LimitLine(5000, "Min Reward - 5K Activity");
+        LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
         line.setLineColor(Color.RED);
         line.setLineWidth(4f);
         line.setTextColor(Color.BLACK);
@@ -125,7 +125,7 @@ public class HistoryChartActivity extends AppCompatActivity {
 
         //description field of chart
         Description chartDescription = new Description();
-        chartDescription.setText("Activity History Chart");
+        chartDescription.setText(getString(R.string.activity_history_chart_title));
         chart.setDescription(chartDescription);
 
         //fill chart with data

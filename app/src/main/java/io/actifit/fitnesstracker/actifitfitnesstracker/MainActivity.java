@@ -377,7 +377,7 @@ public class MainActivity extends AppCompatActivity{
 
                   //if no cam, notify and leave
                   if (!pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-                      Toast.makeText(getApplicationContext(),"Your device does not have a camera", Toast.LENGTH_SHORT).show();
+                      Toast.makeText(getApplicationContext(),getString(R.string.device_has_no_cam), Toast.LENGTH_SHORT).show();
                       return;
                   }
 
@@ -682,7 +682,9 @@ public class MainActivity extends AppCompatActivity{
         }catch(Exception e){
             e.printStackTrace();
         }
+
         super.onDestroy();
+
         Log.d(TAG,">>>> Actifit destroy state");
     }
 

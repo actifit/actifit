@@ -170,7 +170,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                 builder1.setCancelable(true);
 
                 builder1.setPositiveButton(
-                        "Dismiss",
+                        getString(R.string.dismiss_button),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
