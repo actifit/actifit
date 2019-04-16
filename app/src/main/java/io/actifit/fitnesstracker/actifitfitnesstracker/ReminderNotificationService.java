@@ -50,7 +50,7 @@ public class ReminderNotificationService extends BroadcastReceiver {
         //prepare notification details
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
                 context.getString(R.string.actifit_channel_remind_ID))
-                .setContentTitle("Actifit Reminder!")
+                .setContentTitle(context.getString(R.string.daily_post_reminder_title))
                 .setContentText(context.getString(R.string.daily_post_reminder))
                 .setSmallIcon(R.drawable.actifit_logo)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

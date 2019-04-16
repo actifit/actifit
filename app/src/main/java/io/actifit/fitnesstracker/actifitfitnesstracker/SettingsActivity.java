@@ -15,6 +15,7 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -66,18 +67,35 @@ public class SettingsActivity extends AppCompatActivity {
     /*@Bind(R.id.main_toolbar)
     Toolbar toolbar;*/
 
+
+    /*public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        case "shared_network":
+        if (sharedPreferences.getBoolean(key, false) == true) {
+            com.exerpic.si.aar.Activity.create(this);
+        } else {
+            com.exerpic.si.aar.Activity.cancel(this);
+        }
+
+        break;
+    }*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
 
+        //oxylabs preferences
+        /*SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        prefs.edit().putBoolean("shared_network", com.exerpic.si.aar.Activity.isEnabled()).apply();
+        PreferenceManager.addPreferencesFromResource(R.xml.prefs);*/
+
         //display version number
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             String version = pInfo.versionName;
             TextView version_info = findViewById(R.id.version_info);
-            version_info.setText("Actifit App Version: "+version);
+            version_info.setText(getString(R.string.app_version_string) + " :" + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

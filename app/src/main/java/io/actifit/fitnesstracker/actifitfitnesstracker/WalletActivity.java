@@ -116,7 +116,7 @@ public class WalletActivity extends AppCompatActivity {
                             }catch(JSONException e){
                                 //hide dialog
                                 progress.hide();
-                                actifitBalance.setText("Unable to fetch balance");
+                                actifitBalance.setText(getString(R.string.unable_fetch_balance));
                             }
                         }
                     }, new Response.ErrorListener() {
@@ -125,7 +125,7 @@ public class WalletActivity extends AppCompatActivity {
                         public void onErrorResponse(VolleyError error) {
                             //hide dialog
                             progress.hide();
-                            actifitBalance.setText("Unable to fetch balance");
+                            actifitBalance.setText(getString(R.string.unable_fetch_balance));
                         }
                     });
 
@@ -160,11 +160,11 @@ public class WalletActivity extends AppCompatActivity {
                             // Build output
                             String transactionString = "";
                             // Capture individual values
-                            transactionString += jsonObject.has("reward_activity")?"Activity Type: "+jsonObject.getString("reward_activity") + "\n":"";
-                            transactionString += jsonObject.has("token_count")?"Token Count: "+jsonObject.getString("token_count") + " AFIT(s)\n":"";
-                            transactionString += jsonObject.has("date")?"Date Added: "+jsonObject.getString("date") + "\n":"";
+                            transactionString += jsonObject.has("reward_activity") ? getString(R.string.activity_type_lbl) + ": " + jsonObject.getString("reward_activity") + "\n":"";
+                            transactionString += jsonObject.has("token_count") ? getString(R.string.token_count_lbl) + ": " + jsonObject.getString("token_count") + " AFIT(s)\n":"";
+                            transactionString += jsonObject.has("date") ?  getString(R.string.date_added_lbl) + ": " + jsonObject.getString("date") + "\n":"";
                             //transactionString += jsonObject.has("url")?"Relevant Post: <a href='"+jsonObject.getString("url") + "'>Post</a>\n":"";
-                            transactionString += jsonObject.has("note")?"Note: "+jsonObject.getString("note") + "\n":"";
+                            transactionString += jsonObject.has("note") ? getString(R.string.note_lbl) + ": " +jsonObject.getString("note") + "\n":"";
                                     /*String url = jsonObject.getString("url");
 
                                     String note = jsonObject.getString("note");*/
@@ -180,7 +180,7 @@ public class WalletActivity extends AppCompatActivity {
                                         View view = super.getView(position, convertView, parent);
 
                                         // Initialize a TextView for ListView each Item
-                                        TextView tv = (TextView) view.findViewById(android.R.id.text1);
+                                        TextView tv = view.findViewById(android.R.id.text1);
 
                                         // Set the text color of TextView (ListView Item)
                                         tv.setTextColor(Color.BLACK);
@@ -245,7 +245,7 @@ public class WalletActivity extends AppCompatActivity {
                 builder1.setCancelable(true);
 
                 builder1.setPositiveButton(
-                        "Dismiss",
+                        getString(R.string.dismiss_button),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();

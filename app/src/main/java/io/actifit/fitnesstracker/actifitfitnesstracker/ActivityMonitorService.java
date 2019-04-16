@@ -182,7 +182,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
         mBuilder = new
                 NotificationCompat.Builder(this, getString(R.string.actifit_channel_ID))
-                .setContentTitle("Actifit Report")
+                .setContentTitle(getString(R.string.actifit_notif_title))
                 .setContentText(getString(R.string.activity_today_string)+" "+(curActivityCount<0?0:curActivityCount))
                 .setSmallIcon(R.drawable.actifit_logo)
                 .setContentIntent(pendingIntent)

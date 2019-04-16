@@ -48,7 +48,7 @@ public class StepHistoryActivity extends AppCompatActivity {
                 //convert it to new format for display
                 dateDisplay = dateFormOut.format(feedingDate);
 
-                String displayEntryTxt = dateDisplay + " - Total Activity: " + String.valueOf((mStepCountList.get(position)).mStepCount);
+                String displayEntryTxt = dateDisplay + " - " + getString(R.string.tot_activity_string) + String.valueOf((mStepCountList.get(position)).mStepCount);
                 //append to display
                 if (mStepCountList.get(position).mtrackingDevice!=null && !mStepCountList.get(position).mtrackingDevice.equals("")
                         && !mStepCountList.get(position).mtrackingDevice.equals(StepsDBHelper.DEVICE_SENSORS)){
