@@ -397,7 +397,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 getString(R.string.KettlebellTraining), getString(R.string.Bootcamp), getString(R.string.Gym),
                 getString(R.string.Skating), getString(R.string.Hockey), getString(R.string.Swimming),
                 getString(R.string.ChasingPokemons), getString(R.string.Badminton), getString(R.string.PickleBall),
-                getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking)
+                getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking), getString(R.string.Kidplay)
         };
 
         //sort options in alpha order
@@ -703,8 +703,33 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     return null;
                 }
 
+                //prepare relevant day detailed data
 
+                String targetDateString = new SimpleDateFormat("yyyyMMdd").format(
+                        Calendar.getInstance().getTime());
+                ArrayList<ActivitySlot> timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDateString);
 
+                String stepDataString = "";
+
+                //loop through the data to prepare it for proper display
+                for (int position = 0; position < timeSlotActivity.size(); position++) {
+                    try {
+                        //grab date entry according to stored format
+                        String slotTime = (timeSlotActivity.get(position)).slot;
+                        String slotEntryFormat = slotTime;
+                        if (slotTime.length()<4){
+                            //no leading zero, add leading zero
+                            slotEntryFormat = "0" + slotTime;
+                        }
+
+                        //append to display
+                        stepDataString += slotEntryFormat + (timeSlotActivity.get(position)).activityCount + "|";
+
+                    } catch (Exception ex) {
+                        Log.d(MainActivity.TAG, ex.toString());
+                        ex.printStackTrace();
+                    }
+                }
 
                 //prepare data to be sent along post
                 final JSONObject data = new JSONObject();

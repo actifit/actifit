@@ -8,17 +8,24 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 public class StepsDBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "ActifitFitness";
     private static final String TABLE_STEPS_SUMMARY = "ActifitFitness";
     private static final String CREATION_DATE = "creationdate";//Date format is yyyyMMdd
     private static final String STEPS_COUNT = "stepscount";
     private static final String TRACKING_DEVICE = "trackingdevice";
+
+    private static final String TABLE_STEPS_DETAILS = "DailyActivityRecs";
+    private static final String DATE_ENTRY = "dateEntry";//Date format is yyyyMMdd
+    private static final String TIME_SLOT = "timeSlot";
+    private static final String ACTIVITY_COUNT = "activityCount";
+    public static final int MAX_SLOTS_PER_DAY = 100;
 
     public static final String DEVICE_SENSORS = "Device Sensors";
     public static final String FITBIT = "Fitbit";
@@ -31,6 +38,12 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                 + TRACKING_DEVICE + " TEXT"
             +")";
 
+    private static final String CREATE_TABLE_ACTIVITY_DETAILS = "CREATE TABLE " +
+            TABLE_STEPS_DETAILS +
+            "(" + DATE_ENTRY + " INTEGER, " +
+            TIME_SLOT + " INTEGER, " +
+            ACTIVITY_COUNT+" INTEGER )";
+
 
     StepsDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -39,6 +52,11 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db,int oldVersion, int newVersion ){
         switch(oldVersion) {
+
+            // If the existing version is before v1 (on which we added the new field)
+            case 2: db.execSQL(CREATE_TABLE_ACTIVITY_DETAILS);
+                break;
+
             // If the existing version is before v1 (on which we added the new field)
             case 1: db.execSQL("ALTER TABLE "+TABLE_STEPS_SUMMARY
                     +" ADD COLUMN "+TRACKING_DEVICE+" TEXT");
@@ -52,7 +70,47 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE_ACTIFIT);
+        db.execSQL(CREATE_TABLE_ACTIVITY_DETAILS);
+    }
 
+    public int recordDetailedSteps(int incrementVal) {
+
+        String todaysDateString = getTodayProperFormat();
+        //grab current matching timeslot
+        String curTimeSlot = getTimeSlot();
+
+        //grab step count for today, if exists
+        int timeSlotStepCount = fetchTimeSlotStepCount(curTimeSlot);
+        try {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(DATE_ENTRY, todaysDateString);
+            values.put(TIME_SLOT, curTimeSlot);
+            //if we found a match
+            if(timeSlotStepCount>-1)
+            {
+                timeSlotStepCount += incrementVal;
+                values.put(ACTIVITY_COUNT, timeSlotStepCount);
+                //updating entry with proper step count
+                db.update(TABLE_STEPS_DETAILS, values,
+                        DATE_ENTRY + "=" + todaysDateString + " AND "
+                                + TIME_SLOT + "=" + curTimeSlot , null);
+                db.close();
+            }
+            else
+            {
+                //create entry with 1 step count as first entry
+                timeSlotStepCount = (incrementVal>-1?incrementVal:0);
+                values.put(ACTIVITY_COUNT, timeSlotStepCount);
+                db.insert(TABLE_STEPS_DETAILS, null,
+                        values);
+                db.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return timeSlotStepCount;
     }
 
     /**
@@ -103,6 +161,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //also store this in the detailed log
+
+        recordDetailedSteps(incrementVal);
         return todayStepCount;
     }
 
@@ -139,6 +200,90 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         }
         return mStepCountList;
     }
+
+
+
+    /**
+     * function handles grabbing the detailed activity count by each time slot
+     * @return target date's activity count by timeslot
+     */
+    public ArrayList<ActivitySlot> fetchDateTimeSlotActivity(String targetDateString)
+    {
+        //array containing all matching activity slots
+        ArrayList<ActivitySlot> activitySlots = new ArrayList<ActivitySlot>();
+
+        //generate format for target date
+        /*SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
+        String todaysDateString = formatToDB.format(targetDate);*/
+
+        String selectQuery = "SELECT * FROM "
+                + TABLE_STEPS_DETAILS + " WHERE " + DATE_ENTRY +" = "+ targetDateString;
+        try {
+
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor c = db.rawQuery(selectQuery, null);
+            int i = 0;
+            if (c.moveToFirst()) {
+                do {
+                    //grab the value returned matching target date
+
+                    //format slot value properly (HHmm) with leading zeros for night time.
+                    String timeSlot = String.format("%04d", c.getInt((c.getColumnIndex(TIME_SLOT))));
+
+                    ActivitySlot curActivitySlot = new ActivitySlot(timeSlot,
+                            c.getInt((c.getColumnIndex(ACTIVITY_COUNT))));
+
+                    activitySlots.add(curActivitySlot);
+
+                } while (c.moveToNext());
+            }
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return activitySlots;
+
+    }
+
+    /**
+     * function handles grabbing the current step count saved so far in each time slot in case it was stored
+     * @return current timeslot's step count
+     */
+    public int fetchTimeSlotStepCount(String timeSlot)
+    {
+        //tracking found step count. Initiate at -1 to know if entry was found
+        int currentSlotStepCounts = -1;
+
+        //generate format for today
+        Date todaysDate = new Date();
+        SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
+        String todaysDateString = formatToDB.format(todaysDate);
+
+        String selectQuery = "SELECT " + ACTIVITY_COUNT + " FROM "
+                + TABLE_STEPS_DETAILS + " WHERE " + DATE_ENTRY +" = "+ todaysDateString + " AND "
+                + TIME_SLOT + "=" + timeSlot;
+        try {
+
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor c = db.rawQuery(selectQuery, null);
+            if (c.moveToFirst()) {
+                do {
+                    //grab the value returned matching today's date
+                    currentSlotStepCounts =
+                            c.getInt((c.getColumnIndex(ACTIVITY_COUNT)));
+
+                    //just need first instance
+                    break;
+                } while (c.moveToNext());
+            }
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return currentSlotStepCounts;
+
+    }
+
 
     /**
      * function handles grabbing the current step count saved so far in case it was stored
@@ -184,6 +329,26 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
         String todaysDateString = formatToDB.format(todaysDate);
         return todaysDateString;
+    }
+
+    public String getTimeSlot(){
+        //generate format for today
+        Date todaysDate = new Date();
+        SimpleDateFormat hourFormat = new SimpleDateFormat("HH");
+        SimpleDateFormat minFormat = new SimpleDateFormat("mm");
+        String hourStr = hourFormat.format(todaysDate);
+        String minStr = minFormat.format(todaysDate);
+        int minValue = Integer.parseInt(minStr);
+        if (minValue >=45) {
+            minStr = "45";
+        }else if (minValue >=30) {
+            minStr = "30";
+        }else if (minValue >=15) {
+            minStr = "15";
+        }else{
+            minStr = "00";
+        }
+        return hourStr + minStr;
     }
 
     /**

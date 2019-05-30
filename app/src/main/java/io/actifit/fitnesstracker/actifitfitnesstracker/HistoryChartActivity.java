@@ -49,30 +49,8 @@ public class HistoryChartActivity extends AppCompatActivity {
         //existing date format
         SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
         //output format
-        SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd/yyyy");
-
-        //loop through the data to prepare it for proper display
-        for (int position = 0; position < mStepCountList.size(); position++) {
-            try {
-                //grab date entry according to stored format
-                Date feedingDate = dateFormIn.parse((mStepCountList.get(position)).mDate);
-                //convert it to new format for display
-                dateDisplay = dateFormOut.format(feedingDate);
-                //append to display
-                String displayEntryTxt = dateDisplay + " - " +  getString(R.string.tot_activity_string) + String.valueOf((mStepCountList.get(position)).mStepCount);
-                //append to display
-                if (mStepCountList.get(position).mtrackingDevice!=null && !mStepCountList.get(position).mtrackingDevice.equals("")
-                        && !mStepCountList.get(position).mtrackingDevice.equals(StepsDBHelper.DEVICE_SENSORS)){
-                    displayEntryTxt += " ( "+mStepCountList.get(position).mtrackingDevice+" )";
-                }
-                mStepFinalList.add(displayEntryTxt);
-            } catch (ParseException txtEx) {
-                Log.d(MainActivity.TAG,txtEx.toString());
-                txtEx.printStackTrace();
-            }
-        }
-        //reverse the list for descending display
-        Collections.reverse(mStepFinalList);
+        SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
+        SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
 
         //connect to the chart and fill it with data
         BarChart chart = findViewById(R.id.activity_chart);
@@ -83,18 +61,35 @@ public class HistoryChartActivity extends AppCompatActivity {
 
         int data_id = 0;
         //int data_id_int = 0;
-        for (DateStepsModel data : mStepCountList) {
-            labels[data_id] = ""+data.mDate;
-            entries.add(new BarEntry(data_id, Float.parseFloat(""+data.mStepCount)));
-            data_id+=1f;
-            //data_id_int++;
+        try {
+            for (DateStepsModel data : mStepCountList) {
+
+                //grab date entry according to stored format
+                Date feedingDate = dateFormIn.parse(data.mDate);
+
+                //convert it to new format for display
+
+                dateDisplay = dateFormOut.format(feedingDate);
+
+                //if this is month 12, display year along with it
+                if (dateDisplay.substring(0,2).equals("01") || dateDisplay.substring(0,2).equals("12")){
+                    dateDisplay = dateFormOutFull.format(feedingDate);
+                }
+
+                labels[data_id] = dateDisplay;
+                entries.add(new BarEntry(data_id, Float.parseFloat(""+data.mStepCount)));
+                data_id+=1f;
+                //data_id_int++;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
         BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
 
         BarData barData = new BarData( dataSet);
         // set custom bar width
-        barData.setBarWidth(0.3f);
+        barData.setBarWidth(0.5f);
 
 
         //customize X-axis
@@ -109,7 +104,7 @@ public class HistoryChartActivity extends AppCompatActivity {
         };
 
         XAxis xAxis = chart.getXAxis();
-        xAxis.setGranularity(0.5f); // minimum axis-step (interval)
+        xAxis.setGranularity(1f); // minimum axis-step (interval)
         xAxis.setValueFormatter(formatter);
 
         //add limit lines to show marker of min 5K activity
