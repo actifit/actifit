@@ -20,7 +20,8 @@ public class StepHistoryActivity extends AppCompatActivity {
     private ListView mStepsListView;
     private StepsDBHelper mStepsDBHelper;
     private ArrayList<DateStepsModel> mStepCountList;
-    private ArrayList<String> mStepFinalList;
+    private ArrayList<DateStepsModel> mStepFinalList;
+    private ActivityEntryAdapter listingAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +29,8 @@ public class StepHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_step_history);
 
         mStepsListView = findViewById(R.id.steps_list);
-        mStepFinalList = new ArrayList<String>();
+        //mStepFinalList = new ArrayList<String>();
+        mStepFinalList = new ArrayList<>();
 
         //grab the data to be displayed in the list
         getDataForList();
@@ -48,13 +50,11 @@ public class StepHistoryActivity extends AppCompatActivity {
                 //convert it to new format for display
                 dateDisplay = dateFormOut.format(feedingDate);
 
-                String displayEntryTxt = dateDisplay + " - " + getString(R.string.tot_activity_string) + String.valueOf((mStepCountList.get(position)).mStepCount);
-                //append to display
-                if (mStepCountList.get(position).mtrackingDevice!=null && !mStepCountList.get(position).mtrackingDevice.equals("")
-                        && !mStepCountList.get(position).mtrackingDevice.equals(StepsDBHelper.DEVICE_SENSORS)){
-                    displayEntryTxt += " ( "+mStepCountList.get(position).mtrackingDevice+" )";
-                }
-                mStepFinalList.add(displayEntryTxt);
+                //initiate a new entry
+                DateStepsModel newEntry = new DateStepsModel(dateDisplay, mStepCountList.get(position).mStepCount, mStepCountList.get(position).mtrackingDevice);
+
+                mStepFinalList.add(newEntry);
+
             }catch(ParseException txtEx){
                 Log.d(MainActivity.TAG,txtEx.toString());
                 txtEx.printStackTrace();
@@ -63,10 +63,11 @@ public class StepHistoryActivity extends AppCompatActivity {
         //reverse the list for descending display
         Collections.reverse(mStepFinalList);
 
-        ArrayAdapter<String> arrayAdapter =
-                new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, mStepFinalList);
+        // Create the adapter to convert the array to views
+        listingAdapter = new ActivityEntryAdapter(this, mStepFinalList);
 
-        mStepsListView.setAdapter(arrayAdapter);
+
+        mStepsListView.setAdapter(listingAdapter);
 
         //hook chart activity button
         Button BtnViewChart = findViewById(R.id.chart_view);

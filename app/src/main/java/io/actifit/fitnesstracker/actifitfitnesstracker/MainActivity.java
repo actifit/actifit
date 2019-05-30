@@ -69,6 +69,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
+import com.crashlytics.android.Crashlytics;
 import com.scottyab.rootbeer.RootBeer;
 
 import org.json.JSONException;
@@ -265,6 +267,9 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //enforce test crash
+        //Crashlytics.getInstance().crash();
 
         ctx = this;
 
