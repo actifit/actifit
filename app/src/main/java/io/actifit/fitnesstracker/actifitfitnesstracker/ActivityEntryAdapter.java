@@ -46,14 +46,6 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
         //render some visual effects for step count
         if (activityEntry.mStepCount >= 10000 ){
             entryCount.setTextColor(getContext().getResources().getColor(R.color.actifitGreen));
-        }else if (activityEntry.mStepCount >= 9000 ){
-            entryCount.setTextColor(getContext().getResources().getColor(android.R.color.holo_blue_dark));
-        }else if (activityEntry.mStepCount >= 8000 ){
-            entryCount.setTextColor(getContext().getResources().getColor(android.R.color.holo_blue_bright));
-        }else if (activityEntry.mStepCount >= 7000 ){
-            entryCount.setTextColor(getContext().getResources().getColor(android.R.color.holo_purple));
-        }else if (activityEntry.mStepCount >= 6000 ){
-            entryCount.setTextColor(getContext().getResources().getColor(android.R.color.holo_orange_light));
         }else if (activityEntry.mStepCount >= 5000 ){
             entryCount.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
         }else {

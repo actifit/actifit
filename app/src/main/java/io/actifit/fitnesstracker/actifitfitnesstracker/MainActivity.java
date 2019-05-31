@@ -17,18 +17,11 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -38,23 +31,15 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
-import android.support.annotation.RequiresApi;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.hardware.SensorEventListener;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
-import android.telephony.SubscriptionInfo;
-import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
@@ -70,7 +55,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import com.crashlytics.android.Crashlytics;
 import com.scottyab.rootbeer.RootBeer;
 
 import org.json.JSONException;
@@ -80,10 +64,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+
 import java.util.Date;
 import java.util.Locale;
-import java.util.Scanner;
 import java.util.UUID;
 
 import static android.os.Environment.getExternalStoragePublicDirectory;
@@ -358,6 +341,16 @@ public class MainActivity extends AppCompatActivity{
 
             //display step count while ensuring we don't display negative value if no steps tracked yet
             stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
+
+            //adjust color of step account according to milestone achieved
+            if (stepCount >= 10000 ){
+                stepDisplay.setTextColor(getResources().getColor(R.color.actifitGreen));
+            }else if (stepCount >= 5000 ){
+                stepDisplay.setTextColor(getResources().getColor(R.color.actifitRed));
+            }else {
+                stepDisplay.setTextColor(getResources().getColor(android.R.color.tab_indicator_text));
+            }
+
         }else{
             //inform user that fitbit mode is on
             stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
