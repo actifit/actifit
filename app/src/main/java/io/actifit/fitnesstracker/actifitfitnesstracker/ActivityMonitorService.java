@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -35,12 +36,19 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     public static SensorManager sensorManager;
     private SimpleStepDetector simpleStepDetector;
     private int notificationID = 1;
+    private int tenknotificationID = 446878874;
+    private int fiveknotificationID = 574687813;
     private NotificationCompat.Builder mBuilder;
     private NotificationManagerCompat notificationManager;
 
     private SharedPreferences sharedPreferences;
     private static PowerManager pm;
     private static PowerManager.WakeLock wl;
+
+    private static boolean fivekmilestone = false;
+    private static boolean tenkmilestone = false;
+    private final int fivekValMilestone = 5000;
+    private final int tenkValMilestone = 10000;
 
     public static PowerManager getPowerManagerInstance(){
         return pm;
@@ -64,7 +72,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         return null;
     }
 
-    private void createNotificationChannel() {
+    private void createNotificationChannel(String channel_id) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -73,7 +81,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             //making a fix for no sound in Android 8
             int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel channel = new NotificationChannel(
-                    getString(R.string.actifit_channel_ID), name, importance);
+                    channel_id, name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
@@ -111,7 +119,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         //for Android 8, need to initialize notifications first
-        createNotificationChannel();
+        createNotificationChannel(getString(R.string.actifit_channel_ID));
 
         //initiate step detector and start tracking
         simpleStepDetector = new SimpleStepDetector();
@@ -145,6 +153,53 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         //sendBroadcast(in);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(in);
 
+        boolean doNotify = false;
+        //if user crossed 5k, or 10k, also send out another notification
+        if (curStepCount >= tenkValMilestone && !tenkmilestone){
+            doNotify = true;
+            tenkmilestone = true;
+        }else if (curStepCount >= fivekValMilestone && !fivekmilestone){
+            doNotify = true;
+            fivekmilestone = true;
+        }else if (curStepCount < fivekValMilestone){
+            //reset notification status
+            tenkmilestone = false;
+            fivekmilestone = false;
+        }
+
+        if (doNotify) {
+            Context context = getApplicationContext();
+
+            int notID = tenknotificationID;
+            String notText = context.getString(R.string.activity_today_tenk_milestone);
+            //support for Android 8+
+            if (tenkmilestone){
+                createNotificationChannel(getString(R.string.actifit_channel_10k_notice));
+            }else{
+                notID = fiveknotificationID;
+                notText = context.getString(R.string.activity_today_fivek_milestone);
+                createNotificationChannel(getString(R.string.actifit_channel_5k_notice));
+            }
+
+            Intent notifyIntent = new Intent(context, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
+
+            //prepare notification details
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
+                    context.getString(R.string.actifit_channel_remind_ID))
+                    .setContentTitle(context.getString(R.string.daily_post_reminder_title))
+                    .setContentText(notText)
+                    .setSmallIcon(R.drawable.actifit_logo)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent);
+
+            Notification notificationCompat = builder.build();
+
+            //proceed notifying user
+            NotificationManagerCompat managerCompat = NotificationManagerCompat.from(context);
+            managerCompat.notify(notID, notificationCompat);
+        }
         //stepDisplay.setText(TEXT_NUM_STEPS + (curStepCount < 0 ? 0 : curStepCount));
     }
 

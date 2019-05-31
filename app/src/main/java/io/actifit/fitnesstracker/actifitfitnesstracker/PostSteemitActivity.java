@@ -397,7 +397,8 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 getString(R.string.KettlebellTraining), getString(R.string.Bootcamp), getString(R.string.Gym),
                 getString(R.string.Skating), getString(R.string.Hockey), getString(R.string.Swimming),
                 getString(R.string.ChasingPokemons), getString(R.string.Badminton), getString(R.string.PickleBall),
-                getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking), getString(R.string.Kidplay)
+                getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking), getString(R.string.Kidplay),
+                getString(R.string.HomeImprovement), getString(R.string.YardWork),
         };
 
         //sort options in alpha order
@@ -763,6 +764,8 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
 
                     data.put("appType", "Android");
 
+                    //append detailed activity data
+                    data.put("detailedActivity", stepDataString);
 
                     //appending security param values
                     data.put( getString(R.string.sec_param), getString(R.string.sec_param_val));
