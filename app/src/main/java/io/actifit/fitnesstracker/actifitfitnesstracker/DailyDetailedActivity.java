@@ -79,9 +79,9 @@ public class DailyDetailedActivity extends AppCompatActivity {
                     slotLabel += minInt[indMin];
                     labels[data_id] += minInt[indMin];
                 }
-
-                int matchingSlot = mStepCountList.indexOf(new ActivitySlot(slotLabel, 0));
-                if (matchingSlot>0){
+                int matchingSlot = -1;
+                matchingSlot = mStepCountList.indexOf(new ActivitySlot(slotLabel, 0));
+                if (matchingSlot > -1){
                     //found match, assign values
                     entries.add(new BarEntry(data_id, Float.parseFloat( "" + mStepCountList.get(matchingSlot).activityCount)));
                 }else{

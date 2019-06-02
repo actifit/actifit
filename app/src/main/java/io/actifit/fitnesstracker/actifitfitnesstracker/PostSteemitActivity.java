@@ -37,6 +37,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,7 +93,10 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
     private Activity currentActivity;
 
     //tracks whether user synched his Fitbit data to avoid refetching activity count from current device
-    private int fitbitSyncDone = 0;
+    private static int fitbitSyncDone = 0;
+
+    //tracks whether user wants to post yesterday's data instead
+    private static boolean yesterdayReport = false;
 
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
@@ -363,6 +368,80 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
+        //hooking to date change event for activity
+
+        //need to check if user switched to fetch yesterday's data
+
+        RadioGroup reportDateOptionGroup = findViewById(R.id.report_date_option_group);
+
+        //check if the user is allowed to post yesterday's report
+        Calendar myCalendar = Calendar.getInstance();
+
+        myCalendar.add(Calendar.DATE, -1);
+
+        //get yesterday's date
+        String currentDate = new SimpleDateFormat("yyyyMMdd").format(
+                myCalendar.getTime());
+        //check last recorded post date
+        String lastPostDate = sharedPreferences.getString("actifitLastPostDate","");
+
+        if (!lastPostDate.equals("")){
+            if (Integer.parseInt(lastPostDate) >= Integer.parseInt(currentDate)) {
+                //need to disable yesterday's option
+                RadioButton yesterdayOption = findViewById(R.id.report_yesterday_option);
+                yesterdayOption.setEnabled(false);
+                yesterdayReport = false;
+                //ensure today is selected
+                reportDateOptionGroup.check(R.id.report_today_option);
+            }
+        }
+
+
+        //make sure to select proper radio button in case it was previously set
+        if (yesterdayReport){
+            reportDateOptionGroup.check(R.id.report_yesterday_option);
+        }
+
+        final TextView fitbitSyncNotice = findViewById(R.id.fitbit_sync_notice);
+
+        //event listener for change in selection
+        reportDateOptionGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                //common code for both cases
+
+                //if user had synced Fitbit before, we need to notify that they need to sync again after change of date
+                if (fitbitSyncDone > 0) {
+                    fitbitSyncNotice.setVisibility(View.VISIBLE);
+                    //reset that we fetched fitbit data
+                    fitbitSyncDone = 0;
+                }
+
+                switch(checkedId){
+                    case R.id.report_today_option:
+                        //we have today's option
+                        //set initial steps display value
+                        int stepCount = mStepsDBHelper.fetchTodayStepCount();
+                        //display step count while ensuring we don't display negative value if no steps tracked yet
+                        stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+
+                        yesterdayReport = false;
+
+                        break;
+                    case R.id.report_yesterday_option:
+                        //yesterday's option
+                        //set initial steps display value
+                        stepCount = mStepsDBHelper.fetchYesterdayStepCount();
+                        //display step count while ensuring we don't display negative value if no steps tracked yet
+                        stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+
+                        yesterdayReport = true;
+
+                        break;
+                }
+            }
+        });
+
         //image_preview = findViewById(R.id.image_preview);
 
         //initialize AWS settings and configuration
@@ -376,6 +455,10 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
         //generating today's date
         Calendar mCalendar = Calendar.getInstance();
         String postTitle = getString(R.string.default_post_title);
+        //set date in title accordingly
+        if (yesterdayReport){
+            mCalendar.add(Calendar.DATE, -1);
+        }
         postTitle += " "+new SimpleDateFormat("MMMM d yyyy").format(mCalendar.getTime());
 
         //postTitle += String.valueOf(mCalendar.get(Calendar.MONTH)+1)+" " +
@@ -505,7 +588,12 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
 
             try {
                 String soughtInfo = "steps";
-                JSONObject stepActivityList = fitbit.getTodayActivity(soughtInfo);
+                String targetDate = "today";
+                //fetch yesterday data in case this is yesterday's option
+                if (yesterdayReport){
+                    targetDate = new SimpleDateFormat("yyyy-MM-dd").format(mCalendar.getTime());
+                }
+                JSONObject stepActivityList = fitbit.getActivityByDate(soughtInfo, targetDate);
                 JSONArray stepActivityArray = stepActivityList.getJSONArray("activities-tracker-"+soughtInfo);
                 Log.d(MainActivity.TAG, "From JSON distance:" + stepActivityArray.length() );
                 int trackedActivityCount = 0;
@@ -530,7 +618,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("fitbitLastSyncDate",
                             new SimpleDateFormat("yyyyMMdd").format(
-                                    Calendar.getInstance().getTime()));
+                                    mCalendar.getTime()));
                     editor.apply();
                 }else{
                     Log.d(MainActivity.TAG, "No auto-tracked activity found for today" );
@@ -654,6 +742,18 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 editor.putString("actifitPst", steemitPostingKey.getText().toString());
                 editor.apply();
 
+
+                //set proper target date
+                Calendar mCalendar = Calendar.getInstance();
+
+                if (yesterdayReport){
+                    //go back one day
+                    mCalendar.add(Calendar.DATE, -1);
+                }
+
+                String targetDate = new SimpleDateFormat("yyyyMMdd").format(
+                        mCalendar.getTime());
+
                 //this runs only on live mode
                 if (getString(R.string.test_mode).equals("off")){
                     //make sure we have reached the min movement amount
@@ -679,13 +779,11 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     //make sure the user has not posted today already,
                     //and also avoid potential abuse of changing phone clock via comparing to older dates
                     String lastPostDate = sharedPreferences.getString("actifitLastPostDate","");
-                    String currentDate = new SimpleDateFormat("yyyyMMdd").format(
-                            Calendar.getInstance().getTime());
 
                     Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastPostDate);
-                    Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+currentDate);
+                    Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+targetDate);
                     if (!lastPostDate.equals("")){
-                        if (Integer.parseInt(lastPostDate) >= Integer.parseInt(currentDate)) {
+                        if (Integer.parseInt(lastPostDate) >= Integer.parseInt(targetDate)) {
                             notification = getString(R.string.one_post_per_day_error);
                             displayNotification(notification, progress, context, currentActivity, "");
                             return null;
@@ -705,10 +803,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 }
 
                 //prepare relevant day detailed data
-
-                String targetDateString = new SimpleDateFormat("yyyyMMdd").format(
-                        Calendar.getInstance().getTime());
-                ArrayList<ActivitySlot> timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDateString);
+                ArrayList<ActivitySlot> timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDate);
 
                 String stepDataString = "";
 
@@ -780,6 +875,13 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     }
 
 
+                    //if this is a yesterday post, make sure to include this data
+                    if (yesterdayReport){
+                        data.put("yesterdayReport", "1");
+                    }
+
+                    //also append the date used
+                    data.put("activityDate", targetDate);
 
                     //choose a charity if one is already selected before
 
@@ -795,8 +897,12 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     data.put("actifitUserID", sharedPreferences.getString("actifitUserID",""));
 
                     //append data tracking source to see if this is a device reading or a fitbit one
-                    data.put("dataTrackingSource",sharedPreferences.getString("dataTrackingSystem",""));
-
+                    //if there was a Fitbit sync, also need to send out that this is Fitbit data
+                    if (fitbitSyncDone == 1){
+                        data.put("dataTrackingSource", getString(R.string.fitbit_tracking));
+                    }else {
+                        data.put("dataTrackingSource", sharedPreferences.getString("dataTrackingSystem", ""));
+                    }
                     //append report STEEM payout type
                     data.put("reportSTEEMPayMode",sharedPreferences.getString("reportSTEEMPayMode",""));
 
@@ -834,9 +940,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
                     sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
                     editor = sharedPreferences.edit();
-                    editor.putString("actifitLastPostDate",
-                            new SimpleDateFormat("yyyyMMdd").format(
-                                    Calendar.getInstance().getTime()));
+                    editor.putString("actifitLastPostDate", targetDate);
                     //also clear editor text content
                     editor.putString("steemPostContent", "");
                     editor.apply();
@@ -888,24 +992,36 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
     }
 */
     private void ProcessPost(){
+
         //only if we haven't grabbed fitbit data, we need to grab new sensor data
         if (fitbitSyncDone == 0){
-            //ned to grab new updated activity count before posting
-            int stepCount = mStepsDBHelper.fetchTodayStepCount();
-
+            int stepCount = 0;
+            if (yesterdayReport){
+                stepCount = mStepsDBHelper.fetchYesterdayStepCount();
+            }else{
+                stepCount = mStepsDBHelper.fetchTodayStepCount();
+            }
             //display step count while ensuring we don't display negative value if no steps tracked yet
             stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
         }else{
             //need to check if a day has passed, to prevent posting again using same fitbit data
             SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
             String lastSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
-            String currentDate = new SimpleDateFormat("yyyyMMdd").format(
-                    Calendar.getInstance().getTime());
+
+            //generating today's date
+            Calendar mCalendar = Calendar.getInstance();
+            //set date in title accordingly
+            if (yesterdayReport){
+                mCalendar.add(Calendar.DATE, -1);
+            }
+
+            String targetDate = new SimpleDateFormat("yyyyMMdd").format(
+                    mCalendar.getTime());
 
             Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastSyncDate);
-            Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+currentDate);
+            Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+targetDate);
             if (!lastSyncDate.equals("")){
-                if (Integer.parseInt(lastSyncDate) < Integer.parseInt(currentDate)) {
+                if (Integer.parseInt(lastSyncDate) < Integer.parseInt(targetDate)) {
                     notification = getString(R.string.need_sync_fitbit_again);
                     ProgressDialog progress = new ProgressDialog(steemit_post_context);
                     progress.setMessage(notification);

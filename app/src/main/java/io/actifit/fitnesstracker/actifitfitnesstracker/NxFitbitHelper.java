@@ -157,13 +157,13 @@ class NxFitbitHelper {
     // Function handles retrieving all auto-recorded recorded today for this user
     // SoughtInfo param decides whether we need: "step", "distance", or other available options
     // For more info https://dev.fitbit.com/build/reference/web-api/activity/
-    JSONObject getTodayActivity(String soughtInfo) throws InterruptedException, ExecutionException, IOException {
+    JSONObject getActivityByDate(String soughtInfo, String targetDate) throws InterruptedException, ExecutionException, IOException {
 
         // Define which activities we are interested in.
         // Here we only look for auto-registered activities which is fetched using this param
         // For more info https://dev.fitbit.com/build/reference/web-api/activity/
         // Format used: //user/[user-id]/[resource-path]/date/[date]/[period].json
-        String queryFormat = "user/-/activities/tracker/" + soughtInfo + "/date/today/1d.json";
+        String queryFormat = "user/-/activities/tracker/" + soughtInfo + "/date/"+targetDate+"/1d.json";
 
         return makeApiRequest(queryFormat );
 

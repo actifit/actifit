@@ -284,24 +284,18 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     }
 
-
     /**
      * function handles grabbing the current step count saved so far in case it was stored
      * @return today's step count
      */
 
-    public int fetchTodayStepCount()
+    public int fetchStepCountByDate(String dateString)
     {
         //tracking found step count. Initiate at -1 to know if entry was found
         int currentDateStepCounts = -1;
 
-        //generate format for today
-        Date todaysDate = new Date();
-        SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
-        String todaysDateString = formatToDB.format(todaysDate);
-
         String selectQuery = "SELECT " + STEPS_COUNT + " FROM "
-                + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE +" = "+ todaysDateString + "";
+                + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE +" = "+ dateString + "";
         try {
 
             SQLiteDatabase db = this.getReadableDatabase();
@@ -321,6 +315,33 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
         return currentDateStepCounts;
+    }
+
+    public int fetchYesterdayStepCount()
+    {
+        //generate format for today
+        //Date todaysDate = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
+        String todaysDateString = formatToDB.format(cal.getTime());
+
+        return fetchStepCountByDate(todaysDateString);
+    }
+
+    /**
+     * function handles grabbing the current step count saved so far in case it was stored
+     * @return today's step count
+     */
+
+    public int fetchTodayStepCount()
+    {
+        //generate format for today
+        Date todaysDate = new Date();
+        SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
+        String todaysDateString = formatToDB.format(todaysDate);
+
+        return fetchStepCountByDate(todaysDateString);
     }
 
     public String getTodayProperFormat(){
