@@ -62,6 +62,11 @@ public class ReminderNotificationService extends BroadcastReceiver {
         //proceed notifying user
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(context);
         managerCompat.notify(NOTIFICATION_ID, notificationCompat);
+
+        //also launch Actifit & its tracking service
+        Intent i = new Intent(context, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(i);
     }
 
 

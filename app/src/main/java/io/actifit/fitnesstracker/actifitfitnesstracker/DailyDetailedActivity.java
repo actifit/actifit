@@ -22,10 +22,12 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import java.util.List;
 
+/*
+ * Class handles daily broken down recorded activity
+ */
 public class DailyDetailedActivity extends AppCompatActivity {
 
     private StepsDBHelper mStepsDBHelper;
