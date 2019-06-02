@@ -55,6 +55,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import com.crashlytics.android.Crashlytics;
 import com.scottyab.rootbeer.RootBeer;
 
 import org.json.JSONException;
@@ -246,13 +247,46 @@ public class MainActivity extends AppCompatActivity{
         return false;
     }
 
+    /*
+    public void crashMe(View v) {
+        //throw new NullPointerException();
+        //killActifit(getString(R.string.no_valid_sim));
+        Crashlytics.getInstance().crash();
+    }*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //hook up our standard thread catcher to allow auto-restart after crash
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerRestartApp(this));
+
+        //notify user of app restart with a Toast
+        if (getIntent().getBooleanExtra("crash", false)) {
+            Toast toast = Toast.makeText(this,  getString(R.string.actifit_crash_restarted), Toast.LENGTH_SHORT);
+
+            View view = toast.getView();
+
+            TextView text = view.findViewById(android.R.id.message);
+
+            try {
+                //Gets the actual oval background of the Toast then sets the colour filter
+                view.getBackground().setColorFilter(getResources().getColor(R.color.actifitRed), PorterDuff.Mode.SRC_IN);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
+            text.setTextColor(Color.WHITE);
+
+            toast.show();
+
+        }
+
         //enforce test crash
         //Crashlytics.getInstance().crash();
+
+
 
         ctx = this;
 
