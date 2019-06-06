@@ -1,6 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -111,10 +112,23 @@ public class HistoryChartActivity extends AppCompatActivity {
         YAxis yAxis = chart.getAxisLeft();
 
         LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
+        line.enableDashedLine(10f, 10f, 10f);
         line.setLineColor(Color.RED);
-        line.setLineWidth(4f);
+        line.setLineWidth(2f);
+        line.setTextStyle(Paint.Style.FILL_AND_STROKE);
         line.setTextColor(Color.BLACK);
         line.setTextSize(12f);
+
+        yAxis.addLimitLine(line);
+
+        //add Limit line for max rewarded activity
+        line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
+        line.setLineColor(Color.GREEN);
+        line.setLineWidth(2f);
+        line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+        line.setTextColor(Color.BLACK);
+        line.setTextSize(12f);
+
 
         yAxis.addLimitLine(line);
 
