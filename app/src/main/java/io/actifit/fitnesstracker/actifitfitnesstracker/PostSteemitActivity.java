@@ -72,7 +72,7 @@ import java.util.concurrent.ExecutionException;
 import com.mittsu.markedview.MarkedView;
 
 
-public class PostSteemitActivity extends AppCompatActivity implements View.OnClickListener{
+public class PostSteemitActivity extends BaseActivity implements View.OnClickListener{
 
     private StepsDBHelper mStepsDBHelper;
     private String notification = "";
@@ -569,8 +569,8 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                 Log.d(MainActivity.TAG, "From JSON fullName: " + responseProfile.getJSONObject("user").getString("fullName"));
 
                 //check to see if settings allows fetching measurements - default true
-                String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on));
-                if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on))) {
+                String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on_ntt));
+                if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt))) {
                     //grab and update user weight
                     TextView weight = findViewById(R.id.measurements_weight);
                     weight.setText(fitbit.getFieldFromProfile("weight"));
@@ -899,7 +899,7 @@ public class PostSteemitActivity extends AppCompatActivity implements View.OnCli
                     //append data tracking source to see if this is a device reading or a fitbit one
                     //if there was a Fitbit sync, also need to send out that this is Fitbit data
                     if (fitbitSyncDone == 1){
-                        data.put("dataTrackingSource", getString(R.string.fitbit_tracking));
+                        data.put("dataTrackingSource", getString(R.string.fitbit_tracking_ntt));
                     }else {
                         data.put("dataTrackingSource", sharedPreferences.getString("dataTrackingSystem", ""));
                     }

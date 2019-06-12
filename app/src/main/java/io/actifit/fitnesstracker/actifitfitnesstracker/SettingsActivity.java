@@ -56,13 +56,15 @@ import java.util.Random;
 
 import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.isStepSensorPresent;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private NumberPicker hourOptions, minOptions;
     private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
     private String fullSPPay = "full_SP_Pay";
     private String sbdSPPay = "50_50_SBD_SP_Pay";
+    public static boolean languageModified = false;
+    public static int langChoice = -1;
 
     /*@Bind(R.id.main_toolbar)
     Toolbar toolbar;*/
@@ -120,6 +122,8 @@ public class SettingsActivity extends AppCompatActivity {
         final RadioButton fullSPayRadioBtn = findViewById(R.id.full_sp_pay);
         final RadioButton sbdSPPayRadioBtn = findViewById(R.id.sbd_sp_pay);
 
+        final Spinner languageSelected = findViewById(R.id.language_picker);
+
 
         Spinner charitySelected = findViewById(R.id.charity_options);
 
@@ -136,6 +140,24 @@ public class SettingsActivity extends AppCompatActivity {
             metricSysRadioBtn.setChecked(true);
         }
 
+        //select proper language
+
+        languageSelected.setSelection(LocaleManager.getSelectedLang(this));
+
+        //hook for the change event to ensure we update language on main screen
+        languageSelected.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                //invalidate current language
+                SettingsActivity.languageModified = true;
+                SettingsActivity.langChoice = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+
         //check which pay mode for reports to be used
         String reportPayMode = sharedPreferences.getString("reportSTEEMPayMode",sbdSPPay);
         if (reportPayMode.equals(fullSPPay)){
@@ -148,7 +170,7 @@ public class SettingsActivity extends AppCompatActivity {
         //check which data source is active now
 
         String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem","");
-        if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking))){
+        if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))){
             fitbitBtn.setChecked(true);
 
             //also hide aggressive mode if fitbit is on, and show fitbit configuration
@@ -187,8 +209,8 @@ public class SettingsActivity extends AppCompatActivity {
         aggBgTrackingChckBox.setChecked(aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on)));
 
         //grab fitbit setting and update checkbox accordingly
-        String fitbitMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on));
-        fitbitMeasurementsChckBox.setChecked(fitbitMeasurements.equals(getString(R.string.fitbit_measurements_on)));
+        String fitbitMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on_ntt));
+        fitbitMeasurementsChckBox.setChecked(fitbitMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt)));
 
 
         final Activity currentActivity = this;
@@ -210,7 +232,6 @@ public class SettingsActivity extends AppCompatActivity {
                 charityInfo.setText("");
             }
         });
-
 
         Button BtnSaveSettings = findViewById(R.id.btn_save_settings);
         BtnSaveSettings.setOnClickListener(new View.OnClickListener() {
@@ -239,9 +260,13 @@ public class SettingsActivity extends AppCompatActivity {
                     editor.putString("reportSTEEMPayMode", sbdSPPay);
                 }
 
+                //update language
+
+                //SettingsActivity.langChoice = languageSelected.getSelectedItemPosition();
+
                 //store selected tracking system
                 if (fitbitBtn.isChecked()) {
-                    editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking));
+                    editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
 
                     //also deactivate running sensors if any instance is running
                     try {
@@ -253,7 +278,7 @@ public class SettingsActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }else{
-                    editor.putString("dataTrackingSystem", getString(R.string.device_tracking));
+                    editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
                 }
 
 
@@ -326,9 +351,9 @@ public class SettingsActivity extends AppCompatActivity {
                 //store fitbit setting to see if user wants to grab measurements too
                 CheckBox fitbitMeasurements = findViewById(R.id.fitbit_measurements);
                 if (fitbitMeasurements.isChecked()){
-                    editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_on));
+                    editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_on_ntt));
                 }else{
-                    editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_off));
+                    editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_off_ntt));
                 }
 
                 editor.apply();

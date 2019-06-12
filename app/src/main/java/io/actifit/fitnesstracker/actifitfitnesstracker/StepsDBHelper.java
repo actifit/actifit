@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+
+import static java.lang.String.format;
 
 public class StepsDBHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 3;
@@ -216,6 +219,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         /*SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
         String todaysDateString = formatToDB.format(targetDate);*/
 
+        //ensure we are using proper numeric format for dates
+        targetDateString = format(Locale.ENGLISH, "%d", Integer.parseInt(targetDateString));
+
         String selectQuery = "SELECT * FROM "
                 + TABLE_STEPS_DETAILS + " WHERE " + DATE_ENTRY +" = "+ targetDateString;
         try {
@@ -227,8 +233,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                 do {
                     //grab the value returned matching target date
 
-                    //format slot value properly (HHmm) with leading zeros for night time.
-                    String timeSlot = String.format("%04d", c.getInt((c.getColumnIndex(TIME_SLOT))));
+                    //format slot value properly (HHmm) with leading zeros for night time
+                    //and according to standard EN numeric format to avoid language inconsistencies
+                    String timeSlot = format(Locale.ENGLISH,"%04d", c.getInt((c.getColumnIndex(TIME_SLOT))));
 
                     ActivitySlot curActivitySlot = new ActivitySlot(timeSlot,
                             c.getInt((c.getColumnIndex(ACTIVITY_COUNT))));
@@ -258,6 +265,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         Date todaysDate = new Date();
         SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
         String todaysDateString = formatToDB.format(todaysDate);
+
+        //ensure we are using proper numeric format for dates
+        todaysDateString = format(Locale.ENGLISH, "%d", Integer.parseInt(todaysDateString));
 
         String selectQuery = "SELECT " + ACTIVITY_COUNT + " FROM "
                 + TABLE_STEPS_DETAILS + " WHERE " + DATE_ENTRY +" = "+ todaysDateString + " AND "
@@ -291,6 +301,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     public int fetchStepCountByDate(String dateString)
     {
+        //ensure we are using proper numeric format for dates
+        dateString = format(Locale.ENGLISH, "%d", Integer.parseInt(dateString));
         //tracking found step count. Initiate at -1 to know if entry was found
         int currentDateStepCounts = -1;
 
@@ -349,6 +361,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         Date todaysDate = new Date();
         SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
         String todaysDateString = formatToDB.format(todaysDate);
+        //fix for EN format for proper DB querying in case of other languages
+        todaysDateString = format(Locale.ENGLISH, "%d", Integer.parseInt(todaysDateString));
         return todaysDateString;
     }
 
@@ -358,7 +372,14 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         SimpleDateFormat hourFormat = new SimpleDateFormat("HH");
         SimpleDateFormat minFormat = new SimpleDateFormat("mm");
         String hourStr = hourFormat.format(todaysDate);
+        //fix to proper EN format avoiding inconsistencies across languages
+        hourStr = format(Locale.ENGLISH, "%d", Integer.parseInt(hourStr));
+
         String minStr = minFormat.format(todaysDate);
+
+        //fix to proper EN format avoiding inconsistencies across languages
+        minStr = format(Locale.ENGLISH, "%d", Integer.parseInt(minStr));
+
         int minValue = Integer.parseInt(minStr);
         if (minValue >=45) {
             minStr = "45";

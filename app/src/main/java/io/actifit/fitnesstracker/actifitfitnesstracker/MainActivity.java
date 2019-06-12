@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -70,6 +71,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
+import static android.content.pm.PackageManager.GET_META_DATA;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 
 /**
@@ -86,7 +88,7 @@ import static android.os.Environment.getExternalStoragePublicDirectory;
  * to help with services, but also relying on official Android documentation
  */
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends BaseActivity{
     public static SensorManager sensorManager;
     private TextView stepDisplay;
 
@@ -106,6 +108,7 @@ public class MainActivity extends AppCompatActivity{
     public static boolean isStepSensorPresent = false;
     public static String ACCEL_SENSOR = "ACCEL_SENSOR";
     public static String STEP_SENSOR = "STEP_SENSOR";
+    public static String ACTIFIT_CORE_URL = "https://actifit.io";
 
     //enforcing active sensor by default as ACC
     public static String activeSensor = MainActivity.ACCEL_SENSOR;
@@ -254,6 +257,8 @@ public class MainActivity extends AppCompatActivity{
         Crashlytics.getInstance().crash();
     }*/
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -282,11 +287,11 @@ public class MainActivity extends AppCompatActivity{
             toast.show();
 
         }
+        //for language/locale management
+        resetTitles();
 
         //enforce test crash
         //Crashlytics.getInstance().crash();
-
-
 
         ctx = this;
 
@@ -340,8 +345,8 @@ public class MainActivity extends AppCompatActivity{
             mSensorService = new ActivityMonitorService(getCtx());
             mServiceIntent = new Intent(getCtx(), mSensorService.getClass());
 //only start the tracking service if the device sensors is picked as tracking medium
-        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking));
-        if (dataTrackingSystem.equals(getString(R.string.device_tracking))) {
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking_ntt));
+        if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
 
             if (!isMyServiceRunning(mSensorService.getClass())) {
                 startService(mServiceIntent);
@@ -369,7 +374,7 @@ public class MainActivity extends AppCompatActivity{
         displayUserAndRank();
 
         //only display activity count from device if device mode is on
-        if (dataTrackingSystem.equals(getString(R.string.device_tracking))) {
+        if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
             //set initial steps display value
             int stepCount = mStepsDBHelper.fetchTodayStepCount();
 
@@ -631,18 +636,30 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+
+    private void updateLang(int selectedLang){
+        LocaleManager.updateLangChoice(this,selectedLang);
+        recreate();
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
         displayDate();
         displayUserAndRank();
 
+        //update language in case it was adjusted
+        if (SettingsActivity.languageModified) {
+            updateLang(SettingsActivity.langChoice);
+        }
+
         //ensure our tracking is active particularly after leaving settings
         final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
         //only start the tracking service if the device sensors is picked as tracking medium
-        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking));
-        if (dataTrackingSystem.equals(getString(R.string.device_tracking))) {
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking_ntt));
+        if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
 
             if (!isMyServiceRunning(mSensorService.getClass())) {
                 //initiate the monitoring service
