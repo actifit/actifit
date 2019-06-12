@@ -33,7 +33,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class WalletActivity extends AppCompatActivity {
+public class WalletActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class HistoryChartActivity extends AppCompatActivity {
+public class HistoryChartActivity extends BaseActivity {
 
     private StepsDBHelper mStepsDBHelper;
     private ArrayList<DateStepsModel> mStepCountList;
@@ -145,7 +145,10 @@ public class HistoryChartActivity extends AppCompatActivity {
         //chart.setFitBars(true);
 
         //display data
-        chart.invalidate();
+        //chart.invalidate();
+
+        //display data with cool animation
+        chart.animateXY(1500, 1500);
     }
 
     /**

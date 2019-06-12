@@ -1,9 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -28,7 +25,7 @@ import java.util.List;
 /*
  * Class handles daily broken down recorded activity
  */
-public class DailyDetailedActivity extends AppCompatActivity {
+public class DailyDetailedActivity extends BaseActivity {
 
     private StepsDBHelper mStepsDBHelper;
     private ArrayList<ActivitySlot> mStepCountList;
@@ -146,8 +143,12 @@ public class DailyDetailedActivity extends AppCompatActivity {
         // make the x-axis fit exactly all bars
         //chart.setFitBars(true);
 
-        //display data
-        chart.invalidate();
+        //
+        //chart.invalidate();
+
+        //display data with cool animation
+        chart.animateXY(1500, 1500);
+
     }
 
     /**
