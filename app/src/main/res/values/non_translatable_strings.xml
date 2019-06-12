@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fitbit_tracking_ntt" translatable="false">Fitbit Tracking</string>
+    <string name="device_tracking_ntt" translatable="false">Device Tracking</string>
+    <string name="fitbit_measurements_on_ntt" translatable="false">Fitbit Measurements On</string>
+    <string name="fitbit_measurements_off_ntt" translatable="false">Fitbit Measurements Off</string>
+</resources>
