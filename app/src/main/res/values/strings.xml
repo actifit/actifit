@@ -9,7 +9,7 @@
     <string name="fetching_leaderboard">Updating the leaderboard...</string>
     <string name="leader_no_results">There are no users on the leaderboard now</string>
     <string name="leader_error">An error occurred trying to fetch leaderboard list. Please Try again later.</string>
-    <string name="username_missing">Please provide a proper existing steemit username</string>
+    <string name="username_missing">Please provide a proper existing Steem username</string>
     <string name="fetching_user_balance">Grabbing user balance...</string>
     <string name="metric_system">Metric System</string>
     <string name="us_system">US System</string>
@@ -17,10 +17,16 @@
     <string name="actifit_service_desc">Actifit Service to keep track of user activity</string>
     <string name="actifit_reminder_service_desc">Actifit Service to remind user of posting daily reports</string>
     <string name="activity_today_string">Total Activity Today: </string>
+    <string name="actifit_notif_title">Actifit Report</string>
+    <string name="activity_today_fivek_milestone">Congrats On Reaching 5K Milestone. Keep Going!</string>
+    <string name="activity_today_tenk_milestone">Congrats On Reaching 10K Milestone. Well Done!</string>
     <string name="actifit_notif_channel">Actifit Notification Channel</string>
     <string name="actifit_notif_description">Channel used for sending out notifications of Actifit App</string>
-    <string name="actifit_channel_ID">Actifit_Notif_Channel_1</string>
-    <string name="actifit_channel_remind_ID">Actifit_Notif_Channel_2</string>
+    <string name="actifit_channel_ID" translatable="false">Actifit_Notif_Channel_1</string>
+    <string name="actifit_channel_remind_ID" translatable="false">Actifit_Notif_Channel_2</string>
+    <string name="actifit_channel_5k_notice" translatable="false">Actifit_Notif_Channel_3</string>
+    <string name="actifit_channel_10k_notice" translatable="false">Actifit_Notif_Channel_4</string>
+    <string name="actifit_fcm_msg_channel_id" translatable="false">Actifit_FCM_Msg_Chan_1</string>
     <string name="aggr_back_tracking_on">On</string>
     <string name="aggr_back_tracking_off"></string>
     <string name="aggr_mode_note">*Enable this setting if you are facing issues with app tracking your movement while screen is locked. The setting may possibly drain your battery faster.</string>
@@ -33,18 +39,16 @@
     <string name="actifit_usermedia_url">https://usermedia.actifit.io/</string>
     <string name="actifit_find_posting_key_vid"><a href="https://d.tube/#!/v/raserrano/h7rze7he">Help me find my Private Posting Key</a></string>
     <string name="welcome_user">Welcome USER_NAME USER_RANK</string>
+    <string name="daily_post_reminder_title">Actifit Reminder!</string>
     <string name="daily_post_reminder">You haven\'t posted today\'s activity report!</string>
     <string name="update_google_play">Please update Google Play services app on your device.</string>
     <string name="device_rooted">Your device is rooted. Actifit can only run on non-rooted devices.</string>
     <string name="emulator_device">You appear to be running Actifit on an emulator. Actifit can only run on authentic phone devices.</string>
     <string name="no_valid_sim">We could not detect a valid SIM card. If you have a DUAL SIM ensure SIM is in first slot and set as default.</string>
     <string name="need_sync_fitbit_again">A day has passed since you last synced your fitbit data. Need to sync again.</string>
-    <string name="fitbit_tracking">Fitbit Tracking</string>
-    <string name="device_tracking">Device Tracking</string>
     <string name="fitbit_tracking_mode_active">Fitbit Tracking Mode On</string>
-    <string name="fitbit_measurements_on">Fitbit Measurements On</string>
-    <string name="fitbit_measurements_off">Fitbit Measurements Off</string>
     <string name="activity_history_chart_title">Activity History Chart</string>
+    <string name="activity_details_chart_title">Activity Day Details</string>
     <string name="activity_leaderboard_title">Daily Leaderboard: Top Actifitters</string>
     <string name="post_to_steem_btn_txt">Post to Steem</string>
     <string name="snap_picture_btn_txt">Snap an Acti Pic</string>
@@ -59,6 +63,7 @@
     <string name="full_report_AFIT_pay">Full Report Payout in AFIT</string>
     <string name="full_AFIT_checkbox">Maximize AFIT Token Earnings</string>
     <string name="activity_count_lbl">Activity Count</string>
+    <string name="activity_details_lbl">Activity Details</string>
     <string name="activity_type_lbl">Activity Type</string>
     <string name="track_measurements_lbl">Track Measurements</string>
     <string name="height_lbl">Height</string>
@@ -98,10 +103,99 @@
     <string name="post_reminder_checkbox">Remind me to Post</string>
     <string name="save_settings_btn_lbl">Save Settings</string>
     <string name="activity_step_history_title">Activity History</string>
-    <string name="view_chart_btn_lbl">View Chart</string>
+    <string name="view_chart_btn_lbl">History Chart</string>
     <string name="your_wallet_title">Your Wallet</string>
     <string name="get_balance_btn_lbl">Check Balance</string>
     <string name="afit_token_balance">AFIT Tokens</string>
     <string name="actifit_transactions_lbl">Transactions</string>
-    <string name="actifit_transactions_error">Unable to Fetch Transations</string>
+    <string name="actifit_transactions_error">Unable to Fetch Transactions</string>
+    <string name="setting_shareNetworkAgreement">Share network resources</string>
+    <string name="setting_shareNetworkAgreementDesc">Only active when device is plugged in and connected to WiFi network</string>
+    <string name="tot_activity_string">Total Activity:</string>
+    <string name="min_reward_level_chart">Min Reward - 5K Activity</string>
+    <string name="max_reward_level_chart">Max Reward - 10K Activity</string>
+    <string name="dismiss_button">Dismiss</string>
+    <string name="device_has_no_cam">Your device does not have a camera</string>
+    <string name="start_upload">Uploading...0%</string>
+    <string name="upload_complete">Upload Completed!</string>
+    <string name="upload_failed">Upload Failed!</string>
+    <string name="uploading">Uploading...</string>
+    <string name="select_img_title">Select Image</string>
+    <string name="Walking">Walking</string>
+    <string name="Jogging">Jogging</string>
+    <string name="Running">Running</string>
+    <string name="Cycling">Cycling</string>
+    <string name="RopeSkipping">Rope Skipping</string>
+    <string name="Dancing">Dancing</string>
+    <string name="Basketball">Basketball</string>
+    <string name="Football">Football</string>
+    <string name="Boxing">Boxing</string>
+    <string name="Tennis">Tennis</string>
+    <string name="TableTennis">Table Tennis</string>
+    <string name="MartialArts">Martial Arts</string>
+    <string name="HouseChores">House Chores</string>
+    <string name="MovingAroundOffice">Moving Around Office</string>
+    <string name="Shopping">Shopping</string>
+    <string name="DailyActivity">Daily Activity</string>
+    <string name="Aerobics">Aerobics</string>
+    <string name="WeightLifting">Weight Lifting</string>
+    <string name="Treadmill">Treadmill</string>
+    <string name="StairMill">Stair Mill</string>
+    <string name="Elliptical">Elliptical</string>
+    <string name="Hiking">Hiking</string>
+    <string name="Gardening">Gardening</string>
+    <string name="Rollerblading">Rollerblading</string>
+    <string name="Cricket">Cricket</string>
+    <string name="Golf">Golf</string>
+    <string name="Geocaching">Geocaching</string>
+    <string name="Shoveling">Shoveling</string>
+    <string name="Skiing">Skiing</string>
+    <string name="Scootering">Scootering</string>
+    <string name="Photowalking">Photowalking</string>
+    <string name="KettlebellTraining">Kettlebell Training</string>
+    <string name="Bootcamp">Bootcamp</string>
+    <string name="Gym">Gym</string>
+    <string name="Skating">Skating</string>
+    <string name="Hockey">Hockey</string>
+    <string name="Swimming">Swimming</string>
+    <string name="ChasingPokemons">Chasing Pokemons</string>
+    <string name="Badminton">Badminton</string>
+    <string name="PickleBall">Pickle Ball</string>
+    <string name="Snowshoeing">Snowshoeing</string>
+    <string name="Sailing">Sailing</string>
+    <string name="Kayaking">Kayaking</string>
+    <string name="Volleyball">Volleyball</string>
+    <string name="Kidplay">Play with kids/grand kids</string>
+    <string name="HomeImprovement">Home Improvement</string>
+    <string name="YardWork">Yard Work</string>
+    <string name="kg_unit">kg</string>
+    <string name="cm_unit">cm</string>
+    <string name="lb_unit">lb</string>
+    <string name="ft_unit">ft</string>
+    <string name="in_unit">in</string>
+    <string name="min_activity_not_reached">You have not reached the minimum</string>
+    <string name="not_yet">activity yet</string>
+    <string name="yes_button">Yes</string>
+    <string name="no_button">No</string>
+    <string name="app_version_string">Actifit App Version</string>
+    <string name="unable_fetch_balance">Unable to fetch balance</string>
+    <string name="token_count_lbl">Token Count</string>
+    <string name="date_added_lbl">Date Added</string>
+    <string name="note_lbl">Note</string>
+    <string name="actifit_notification">Actifit Notification</string>
+    <string name="activity_view_details_button">Day Chart</string>
+    <string name="today_report_option">Today</string>
+    <string name="yesterday_report_option">Yesterday</string>
+    <string name="report_date_option_group_title">Activity Date</string>
+    <string name="fitbit_sync_again_notice">Please Re-Sync Your Fitbit Data</string>
+    <string name="actifit_crash_restarted">Actifit restarted after crash</string>
+    <string name="entry_view_details_button">Post Details</string>
+    <string name="language">Language</string>
+    <string-array name="supported_languages">
+        <item>English</item>
+        <item>Portuguese</item>
+        <item>Korean</item>
+        <item>Arabic</item>
+        <item>Yoruba</item>
+    </string-array>
 </resources>
