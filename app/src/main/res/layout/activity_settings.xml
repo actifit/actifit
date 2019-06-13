@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:text="@string/settings_title"
         android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
     <TextView
@@ -28,6 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:textSize="18dp"
         android:text="@string/activity_source_lbl" />
 
@@ -37,6 +39,7 @@
         android:paddingBottom="10dp"
         android:orientation="horizontal"
         android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:id="@+id/tracking_mode_radiogroup">
         <RadioButton
             android:id="@+id/device_sensors"
@@ -71,6 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
+                android:paddingRight="20dp"
                 android:textSize="18dp"
                 android:text="@string/background_move_track_lbl" />
 
@@ -86,6 +90,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
+                android:paddingRight="20dp"
                 android:paddingBottom="10dp"
                 android:textStyle="italic"
                 android:text="@string/aggr_mode_note" />
@@ -104,6 +109,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
+                android:paddingRight="20dp"
                 android:textSize="18dp"
                 android:text="@string/fitbit_settings_lbl" />
 
@@ -139,6 +145,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
         android:text="@string/steem_post_payout" />
@@ -148,7 +155,8 @@
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
         android:orientation="horizontal"
-        android:paddingLeft="20dp">
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp">
 
         <RadioButton
             android:id="@+id/sbd_sp_pay"
@@ -166,6 +174,36 @@
     </RadioGroup>
 
     <View
+        android:id="@+id/divider_lp"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/language_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
+        android:text="@string/language" />
+
+    <Spinner
+        android:id="@+id/language_picker"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:textSize="18dp"
+        android:spinnerMode="dropdown"
+        android:entries="@array/supported_languages"
+        android:background="@android:drawable/btn_dropdown" />
+
+
+    <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -176,6 +214,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
         android:text="@string/measure_system_lbl" />
@@ -184,8 +223,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
-            android:orientation="horizontal"
-            android:paddingLeft="20dp">
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp">
         <RadioButton
             android:id="@+id/metric_system"
             android:layout_width="wrap_content"
@@ -213,6 +253,7 @@
         android:layout_height="wrap_content"
         android:text="@string/donate_charity_lbl"
         android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
          />
@@ -235,6 +276,7 @@
         android:layout_height="wrap_content"
         android:text="@string/charity_options_lbl"
         android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingTop="10dp"
         android:textSize="14dp"
 
@@ -265,6 +307,7 @@
         android:layout_height="wrap_content"
         android:text="@string/charity_info_lbl"
         android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingTop="10dp"
         android:textSize="14dp"
 
@@ -295,6 +338,7 @@
         android:layout_height="wrap_content"
         android:text="@string/daily_post_reminder_lbl"
         android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
         />

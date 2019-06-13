@@ -13,6 +13,7 @@ android:orientation="vertical"
     android:layout_height="wrap_content"
     android:text="@string/activity_leaderboard_title"
     android:paddingLeft="10dp"
+    android:paddingRight="10dp"
     android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
 <ListView

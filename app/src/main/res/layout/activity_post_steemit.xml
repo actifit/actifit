@@ -169,6 +169,39 @@
                 app:layout_constraintTop_toBottomOf="@+id/full_afit_pay_lbl" />
 
             <TextView
+                android:id="@+id/report_date_option_group_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/report_date_option_group_title"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/full_afit_pay" />
+
+            <RadioGroup
+                android:id="@+id/report_date_option_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/report_date_option_group_title" >
+
+                <RadioButton
+                    android:id="@+id/report_today_option"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/today_report_option"
+                    android:checked="true" />
+
+                <RadioButton
+                    android:id="@+id/report_yesterday_option"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/yesterday_report_option" />
+
+            </RadioGroup>
+
+            <TextView
                 android:id="@+id/steemit_step_count_lbl"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -176,7 +209,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/full_afit_pay" />
+                app:layout_constraintTop_toBottomOf="@+id/report_date_option_group" />
 
 
             <LinearLayout
@@ -190,7 +223,7 @@
 
                 <EditText
                     android:id="@+id/steemit_step_count"
-                    android:layout_width="150dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:enabled="false"
@@ -201,10 +234,24 @@
 
                 <Button
                     android:id="@+id/fitbit_sync"
-                    android:layout_width="150dp"
+                    android:layout_width="120dp"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:text="@string/fitbit_sync_btn_lbl" />
+
+                <TextView
+                    android:id="@+id/fitbit_sync_notice"
+                    android:layout_width="120dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="top"
+                    android:layout_marginTop="5dp"
+                    android:ems="10"
+                    android:paddingTop="0dp"
+                    android:text="@string/fitbit_sync_again_notice"
+                    android:textColor="@color/actifitRed"
+                    android:textStyle="bold"
+                    android:visibility="invisible"
+                    app:layout_constraintTop_toTopOf="@+id/activity_data_section" />
 
             </LinearLayout>
 
