@@ -27,6 +27,8 @@ public class LocaleManager {
 
     public static final String LANGUAGE_KEY_YORUBA = "yo";
 
+    public static final String LANGUAGE_KEY_DUTCH = "nl";
+
     public static final String LANGUAGE_KEY_HINDI = "hi";
 
     public static final String LANGUAGE_KEY_SPANISH = "es";
@@ -116,6 +118,8 @@ public class LocaleManager {
             case LocaleManager.LANGUAGE_KEY_KOREAN: return 2;
             case LocaleManager.LANGUAGE_KEY_ARABIC: return 3;
             case LocaleManager.LANGUAGE_KEY_YORUBA: return 4;
+            case LocaleManager.LANGUAGE_KEY_DUTCH: return 5;
+            case LocaleManager.LANGUAGE_KEY_HINDI: return 6;
             default: return 0;
         }
     }
@@ -131,6 +135,10 @@ public class LocaleManager {
             case 3: LocaleManager.setNewLocale(context, LocaleManager.LANGUAGE_KEY_ARABIC);
                 break;
             case 4: LocaleManager.setNewLocale(context, LocaleManager.LANGUAGE_KEY_YORUBA);
+                break;
+            case 5: LocaleManager.setNewLocale(context, LocaleManager.LANGUAGE_KEY_DUTCH);
+                break;
+            case 6: LocaleManager.setNewLocale(context, LocaleManager.LANGUAGE_KEY_HINDI);
                 break;
         }
         SettingsActivity.languageModified = false;
