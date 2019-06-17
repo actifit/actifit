@@ -931,8 +931,8 @@ public class MainActivity extends BaseActivity{
                 startService(mServiceIntent);
 
                 //enable aggressive mode if set
-                String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",getString(R.string.aggr_back_tracking_off));
-                if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on))) {
+                String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",getString(R.string.aggr_back_tracking_off_ntt));
+                if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
                     //enable wake lock to ensure tracking functions in the background
                     PowerManager.WakeLock wl = ActivityMonitorService.getWakeLockInstance();
                     if (wl==null){

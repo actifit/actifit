@@ -134,7 +134,7 @@ public class SettingsActivity extends BaseActivity {
 
         //check which is the current active system
         //if the setting is manually set as US System or default Metric value (else)
-        if (currentSystem.equals(getString(R.string.us_system))){
+        if (currentSystem.equals(getString(R.string.us_system_ntt))){
             usSystemRadioBtn.setChecked(true);
         }else{
             metricSysRadioBtn.setChecked(true);
@@ -202,11 +202,11 @@ public class SettingsActivity extends BaseActivity {
         });
 
         //grab aggressive mode setting and update checkbox accordingly
-        String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",getString(R.string.aggr_back_tracking_off));
+        String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",getString(R.string.aggr_back_tracking_off_ntt));
         Log.d(MainActivity.TAG,">>>>[Actifit] Agg Mode:"+aggModeEnabled);
-        Log.d(MainActivity.TAG,">>>>[Actifit] Agg Mode Test:"+aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on)));
+        Log.d(MainActivity.TAG,">>>>[Actifit] Agg Mode Test:"+aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt)));
 
-        aggBgTrackingChckBox.setChecked(aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on)));
+        aggBgTrackingChckBox.setChecked(aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt)));
 
         //grab fitbit setting and update checkbox accordingly
         String fitbitMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on_ntt));
@@ -246,9 +246,9 @@ public class SettingsActivity extends BaseActivity {
 
                 //test for which option the user has set
                 if (metricSysRadioBtn.isChecked()) {
-                    editor.putString("activeSystem", getString(R.string.metric_system));
+                    editor.putString("activeSystem", getString(R.string.metric_system_ntt));
                 }else{
-                    editor.putString("activeSystem", getString(R.string.us_system));
+                    editor.putString("activeSystem", getString(R.string.us_system_ntt));
                 }
 
                 //store selected STEEM pay mode
@@ -288,10 +288,10 @@ public class SettingsActivity extends BaseActivity {
                 //we need to enable aggressive checking only if device sensors are functioning,
                 //otherwise it's pointless
                 if (aggBgTrackingChckBox.isChecked()){
-                    editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_on));
+                    editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_on_ntt));
 
                 }else{
-                    editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_off));
+                    editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_off_ntt));
                     //enable wake lock to ensure tracking functions in the background
                     if (wl!=null && wl.isHeld()) {
                         Log.d(MainActivity.TAG,">>>>[Actifit]Settings AGG MODE OFF");
@@ -321,7 +321,7 @@ public class SettingsActivity extends BaseActivity {
                 //unset any existing alarms first
                 alarmManager.cancel(alarmIntent);
 
-                //check if reminder setting is on
+                //check if reminder setting is on and only set it
                 if (reminderSetChckBox.isChecked()) {
                     editor.putString("selectedReminderHour", "" + hourOptions.getValue());
                     editor.putString("selectedReminderMin", "" + minOptions.getValue());
