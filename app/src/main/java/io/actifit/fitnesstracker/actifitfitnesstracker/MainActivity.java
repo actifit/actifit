@@ -27,6 +27,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
@@ -46,6 +47,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,7 +59,21 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import com.crashlytics.android.Crashlytics;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.scottyab.rootbeer.RootBeer;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,11 +81,16 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import io.fabric.sdk.android.Fabric;
 
 import static android.content.pm.PackageManager.GET_META_DATA;
 import static android.os.Environment.getExternalStoragePublicDirectory;
@@ -302,6 +323,8 @@ public class MainActivity extends BaseActivity{
 
         //let's make sure this is a smart phone device by checking SIM Card
 
+        //Crashlytics.getInstance().crash();
+
         if (!isSimAvailable()){
             //no valid active sim card detected
             Log.d(TAG,">>>>[Actifit] No valid SIM card detected");
@@ -371,7 +394,14 @@ public class MainActivity extends BaseActivity{
         //display current date
         displayDate();
 
+        //display user info
         displayUserAndRank();
+
+        //display today's chart data
+        displayDayChartData(true);
+
+        //display all historical data
+        displayChartData(true);
 
         //only display activity count from device if device mode is on
         if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
@@ -401,6 +431,11 @@ public class MainActivity extends BaseActivity{
             public void onReceive(Context context, Intent intent) {
                 int stepCount = intent.getIntExtra("move_count", 0);
                 stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
+                //display today's chart data
+                displayDayChartData(false);
+
+                //display all historical data
+                displayChartData(false);
             }
         };
 
@@ -538,6 +573,229 @@ public class MainActivity extends BaseActivity{
         date.setText(date_n);
     }
 
+    private void displayDayChartData(boolean animate){
+
+        //initializing date
+        Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String strDate = dateFormat.format(date);
+
+        ArrayList<ActivitySlot> mStepCountList = mStepsDBHelper.fetchDateTimeSlotActivity(strDate);
+
+        //connect to the chart and fill it with data
+        BarChart chart = findViewById(R.id.main_today_activity_chart);
+
+        List<BarEntry> entries = new ArrayList<>();
+
+        int data_id = 0;
+
+        //create a full day chart
+        int indHr;
+        int indMin;
+        int hoursInDay = 24;
+        int[] minInt = {0, 15, 30, 45};
+        int minSlots = minInt.length;
+
+        final String[] labels = new String[hoursInDay * minSlots];
+
+        //loop through whole day as hours
+        for (indHr = 0; indHr < hoursInDay; indHr++){
+            //loop through 15 mins breaks in hour
+            for (indMin = 0; indMin < minSlots; indMin++){
+                String slotLabel = "" + indHr;
+                if (indHr < 10){
+                    slotLabel = "0" + indHr;
+                }
+                labels[data_id] = slotLabel + ":";
+                if (minInt[indMin]<10){
+                    slotLabel += "0" + minInt[indMin];
+                    labels[data_id] += "0" + minInt[indMin];
+                }else{
+                    slotLabel += minInt[indMin];
+                    labels[data_id] += minInt[indMin];
+                }
+                int matchingSlot = -1;
+                matchingSlot = mStepCountList.indexOf(new ActivitySlot(slotLabel, 0));
+                if (matchingSlot > -1){
+                    //found match, assign values
+                    entries.add(new BarEntry(data_id, Float.parseFloat( "" + mStepCountList.get(matchingSlot).activityCount)));
+                }else{
+                    //default null value
+                    entries.add(new BarEntry(data_id, Float.parseFloat( "0")));
+                }
+
+                data_id+=1f;
+            }
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_details_lbl));
+
+        BarData barData = new BarData( dataSet);
+        // set custom bar width
+        barData.setBarWidth(0.8f);
+
+
+        //customize X-axis
+
+        IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return labels[(int) value];
+            }
+
+        };
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setGranularity(1f); // minimum axis-step (interval)
+        xAxis.setValueFormatter(formatter);
+
+        IValueFormatter yFormatter = new IValueFormatter() {
+
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                if (value < 1){
+                    return "";
+                }
+                return "" + (int)value;
+            }
+
+        };
+
+        //add limit lines to show marker of min 5K activity
+        //YAxis yAxis = chart.getAxisLeft();
+        barData.setValueFormatter(yFormatter);
+        //yAxis.setAxisMinimum(0);
+
+        //description field of chart
+        Description chartDescription = new Description();
+        chartDescription.setText(getString(R.string.activity_details_chart_title));
+        chart.setDescription(chartDescription);
+
+        //fill chart with data
+        chart.setData(barData);
+
+        //
+        //
+        if (animate){
+            //display data with cool animation
+            chart.animateXY(1500, 1500);
+        }else{
+            //render data
+            chart.invalidate();
+        }
+    }
+
+    private void displayChartData(boolean animate){
+
+        //read activity data
+        ArrayList<DateStepsModel> mStepCountList = mStepsDBHelper.readStepsEntries();
+
+        //initializing date conversion components
+        String dateDisplay;
+        //existing date format
+        SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
+        //output format
+        SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
+        SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
+
+
+        //connect to the chart and fill it with data
+        BarChart chart = findViewById(R.id.main_history_activity_chart);
+
+        List<BarEntry> entries = new ArrayList<BarEntry>();
+
+        final String[] labels = new String[mStepCountList.size()];
+
+        int data_id = 0;
+        //int data_id_int = 0;
+        try {
+            for (DateStepsModel data : mStepCountList) {
+
+                //grab date entry according to stored format
+                Date feedingDate = dateFormIn.parse(data.mDate);
+
+                //convert it to new format for display
+
+                dateDisplay = dateFormOut.format(feedingDate);
+
+                //if this is month 12, display year along with it
+                if (dateDisplay.substring(0,2).equals("01") || dateDisplay.substring(0,2).equals("12")){
+                    dateDisplay = dateFormOutFull.format(feedingDate);
+                }
+
+                labels[data_id] = dateDisplay;
+                entries.add(new BarEntry(data_id, Float.parseFloat(""+data.mStepCount)));
+                data_id+=1f;
+                //data_id_int++;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
+
+        BarData barData = new BarData( dataSet);
+        // set custom bar width
+        barData.setBarWidth(0.5f);
+
+
+        //customize X-axis
+
+        IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return labels[(int) value];
+            }
+
+        };
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setGranularity(1f); // minimum axis-step (interval)
+        xAxis.setValueFormatter(formatter);
+
+        //add limit lines to show marker of min 5K activity
+        YAxis yAxis = chart.getAxisLeft();
+
+        LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
+        line.enableDashedLine(10f, 10f, 10f);
+        line.setLineColor(Color.RED);
+        line.setLineWidth(2f);
+        line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+        line.setTextColor(Color.BLACK);
+        line.setTextSize(12f);
+
+        yAxis.addLimitLine(line);
+
+        //add Limit line for max rewarded activity
+        line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
+        line.setLineColor(Color.GREEN);
+        line.setLineWidth(2f);
+        line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+        line.setTextColor(Color.BLACK);
+        line.setTextSize(12f);
+
+
+        yAxis.addLimitLine(line);
+
+        //description field of chart
+        Description chartDescription = new Description();
+        chartDescription.setText(getString(R.string.activity_history_chart_title));
+        chart.setDescription(chartDescription);
+
+        //fill chart with data
+        chart.setData(barData);
+
+        if (animate){
+            //display data with cool animation
+            chart.animateXY(1500, 1500);
+        }else{
+            //render data
+            chart.invalidate();
+        }
+    }
+
     //handles fetching and displaying current user and rank
     private void displayUserAndRank(){
         //grab stored value, if any
@@ -547,6 +805,11 @@ public class MainActivity extends BaseActivity{
             //greet user if user identified
             final TextView welcomeUser = findViewById(R.id.welcome_user);
             final TextView userRankTV = findViewById(R.id.user_rank);
+
+            //display profile pic too
+            String userImgUrl = "https://steemitimages.com/u/" + username + "/avatar";
+            ImageView userProfilePic = findViewById(R.id.user_profile_pic);
+            Picasso.with(this).load(userImgUrl).into(userProfilePic);
 
             //grab user rank if it is already stored today
             String userRank = sharedPreferences.getString("userRank", "");
@@ -648,6 +911,8 @@ public class MainActivity extends BaseActivity{
         super.onResume();
         displayDate();
         displayUserAndRank();
+        displayDayChartData(true);
+        displayChartData(true);
 
         //update language in case it was adjusted
         if (SettingsActivity.languageModified) {
