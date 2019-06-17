@@ -45,7 +45,7 @@
     <string name="need_sync_fitbit_again">Het is een dag geleden sinds je voor het laatst je fitbit-data hebt gesynchroniseerd. Moet opnieuw synchroniseren.</string>
     <string name="fitbit_tracking_mode_active">Fitbit Tracking Mode aan</string>
     <string name="activity_history_chart_title">Activiteit Geschiedenis Grafiek</string>
-    <string name="activity_details_chart_title">Dag Activiteiten Details</string>
+    <string name="activity_details_chart_title">Activiteitendetails</string>
     <string name="activity_leaderboard_title">Dagelijkse Scorebord: Top Actifitters</string>
     <string name="post_to_steem_btn_txt">Plaats op Steem</string>
     <string name="snap_picture_btn_txt">Neem een Acti-Foto</string>
@@ -59,9 +59,9 @@
     <string name="report_title">Rapporttitel</string>
     <string name="full_report_AFIT_pay">Volledige Rapport Uitbetaling in AFIT</string>
     <string name="full_AFIT_checkbox">Maximaliseer AFIT-token Inkomsten</string>
-    <string name="activity_count_lbl">Activiteiten Aantal</string>
+    <string name="activity_count_lbl">Activiteit Aantal</string>
     <string name="activity_details_lbl">Activiteitendetails</string>
-    <string name="activity_type_lbl">Soort Activiteiten</string>
+    <string name="activity_type_lbl">Activiteitstype</string>
     <string name="track_measurements_lbl">Afmetingen Volgen</string>
     <string name="height_lbl">Lengte</string>
     <string name="weight_lbl">Gewicht</string>
@@ -96,7 +96,7 @@
     <string name="donate_charity_checkbox">Doneer Beloningen aan Goede Doelen</string>
     <string name="charity_options_lbl">Beschikbare Goede Doelen</string>
     <string name="charity_info_lbl">Goede Doel Info</string>
-    <string name="daily_post_reminder_lbl">Dagelijkse Bericht Herinnering</string>
+    <string name="daily_post_reminder_lbl">Dagelijkse Post Herinnering</string>
     <string name="post_reminder_checkbox">Herinner me om te posten</string>
     <string name="save_settings_btn_lbl">Instellingen Opslaan</string>
     <string name="activity_step_history_title">Activiteitengeschiedenis</string>
@@ -105,7 +105,7 @@
     <string name="get_balance_btn_lbl">Controleer Saldo</string>
     <string name="afit_token_balance">AFIT Tokens</string>
     <string name="actifit_transactions_lbl">Transacties</string>
-    <string name="actifit_transactions_error">Niet in staat om transacties op te halen</string>
+    <string name="actifit_transactions_error">Kan geen transacties ophalen</string>
     <string name="setting_shareNetworkAgreement">Netwerkbronnen delen</string>
     <string name="setting_shareNetworkAgreementDesc">Alleen actief wanneer apparaat is aangesloten en verbonden met een WiFi-netwerk</string>
     <string name="tot_activity_string">Totale activiteit:</string>
@@ -151,7 +151,7 @@
     <string name="Photowalking">Fotowandelen</string>
     <string name="KettlebellTraining">Kettlebell Trainen</string>
     <string name="Bootcamp">Bootcamp</string>
-    <string name="Gym">Sportschool</string>
+    <string name="Gym">Gymnastiek</string>
     <string name="Skating">Schaatsen</string>
     <string name="Hockey">Hockey</string>
     <string name="Swimming">Zwemmen</string>
@@ -175,7 +175,7 @@
     <string name="yes_button">Ja</string>
     <string name="no_button">Nee</string>
     <string name="app_version_string">Actifit App Versie</string>
-    <string name="unable_fetch_balance">Het saldo kan niet worden opgehaald</string>
+    <string name="unable_fetch_balance">Kan saldo niet ophalen</string>
     <string name="token_count_lbl">Aantal Tokens</string>
     <string name="date_added_lbl">Datum Toegevoegd</string>
     <string name="note_lbl">Omschrijving</string>
@@ -188,4 +188,10 @@
     <string name="actifit_crash_restarted">Actifit hergestart na crash</string>
     <string name="entry_view_details_button">Post Details</string>
     <string name="language">Taal</string>
+    <string-array name="supported_languages">
+        <item>Engels</item>
+        <item>Portugees</item>
+        <item>Koreaans</item>
+        <item>Arabisch</item>
+    </string-array>
 </resources>
