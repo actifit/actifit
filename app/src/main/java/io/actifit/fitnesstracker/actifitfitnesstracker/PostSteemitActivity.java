@@ -494,9 +494,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         steemitPostingKey.setText(sharedPreferences.getString("actifitPst",""));
 
         //grab current selection for measure system
-        String activeSystem = sharedPreferences.getString("activeSystem",getString(R.string.metric_system));
+        String activeSystem = sharedPreferences.getString("activeSystem",getString(R.string.metric_system_ntt));
         //adjust units accordingly
-        if (activeSystem.equals(getString(R.string.metric_system))){
+        if (activeSystem.equals(getString(R.string.metric_system_ntt))){
             weightSizeUnit.setText(getString(R.string.kg_unit));
             heightSizeUnit.setText(getString(R.string.cm_unit));
             waistSizeUnit.setText(getString(R.string.cm_unit));

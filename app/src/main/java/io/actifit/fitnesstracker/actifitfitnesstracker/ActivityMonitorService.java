@@ -103,10 +103,10 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
         sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
         String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking"
-                ,getString(R.string.aggr_back_tracking_off));
+                ,getString(R.string.aggr_back_tracking_off_ntt));
 
         //enable wake lock to ensure tracking functions in the background
-        if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on))) {
+        if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
             Log.d(MainActivity.TAG,">>>>[Actifit]AGG MODE ON");
             wl.acquire();
         }
@@ -261,10 +261,10 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         sensorManager.unregisterListener(ActivityMonitorService.this);
 
         String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking"
-                ,getString(R.string.aggr_back_tracking_off));
+                ,getString(R.string.aggr_back_tracking_off_ntt));
 
         //release wake lock now
-        if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on))) {
+        if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
             Log.d(MainActivity.TAG,">>>>[Actifit]AGG MODE ON - RELEASING LOCK");
             pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
