@@ -346,6 +346,10 @@ public class SettingsActivity extends BaseActivity {
                     //specify alarm interval to be every 24 hours at user defined slot
                     alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                             1000 * 60 * 60 * 24, alarmIntent);
+                }else{
+                    //cancellation case
+                    editor.putString("selectedReminderHour", "");
+                    editor.putString("selectedReminderMin", "");
                 }
 
                 //store fitbit setting to see if user wants to grab measurements too
