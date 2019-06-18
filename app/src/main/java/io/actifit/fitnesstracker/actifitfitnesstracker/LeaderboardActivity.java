@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -113,15 +114,15 @@ public class LeaderboardActivity extends BaseActivity {
         });
 
 
+        transactionRequest.setRetryPolicy(new DefaultRetryPolicy(15000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+
         // Add transaction request to be processed
         queue.add(transactionRequest);
 
         progress.setMessage(getString(R.string.fetching_leaderboard));
         progress.show();
 
-        //connect to the server via a thread to prevent application hangup
-        //and grab the data to be displayed in the list
-        //new LeaderboardActivity.LeaderboardDataRequest(leadership_post_context, currentActivity).execute();
     }
 
 }
