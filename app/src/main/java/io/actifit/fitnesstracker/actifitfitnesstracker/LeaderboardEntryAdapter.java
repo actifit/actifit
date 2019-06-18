@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -46,6 +47,7 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
         TextView userName = convertView.findViewById(R.id.userName);
         TextView entryCount = convertView.findViewById(R.id.activityCount);
         ImageView userProfilePic = convertView.findViewById(R.id.userProfilePic);
+        FrameLayout picFrame = convertView.findViewById(R.id.picFrame);
         Button detailsButton = convertView.findViewById(R.id.entryDetailsBtn);
 
         // Populate the data into the template view using the data object
@@ -58,6 +60,23 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
         //set proper image
 
         Picasso.with(leaderboardContext).load(postEntry.userProfilePic).into(userProfilePic);
+
+        //handle click on user profile
+        picFrame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openUserAccount(postEntry);
+            }
+
+        });
+
+        //handle click on username
+        userName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openUserAccount(postEntry);
+            }
+        });
 
         //highlight the user's entry in the list
         if (!currentUser.equals("") && currentUser.equals(postEntry.username) ){
@@ -105,5 +124,25 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
         });
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    private void openUserAccount(SinglePostModel postEntry){
+        final String username = postEntry.username;
+        if (username != "") {
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+            builder.setToolbarColor(getContext().getResources().getColor(R.color.actifitRed));
+
+            //animation for showing and closing fitbit authorization screen
+            builder.setStartAnimations(getContext(), R.anim.slide_in_right, R.anim.slide_out_left);
+
+            //animation for back button clicks
+            builder.setExitAnimations(getContext(), android.R.anim.slide_in_left,
+                    android.R.anim.slide_out_right);
+
+            CustomTabsIntent customTabsIntent = builder.build();
+
+            customTabsIntent.launchUrl(getContext(), Uri.parse(MainActivity.ACTIFIT_CORE_URL + '/' + username));
+        }
     }
 }

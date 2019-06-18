@@ -18,14 +18,15 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -35,18 +36,22 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.MediaStore;
+
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.hardware.SensorEventListener;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.telephony.TelephonyManager;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,7 +63,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import com.crashlytics.android.Crashlytics;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
@@ -80,6 +84,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -90,10 +95,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import io.fabric.sdk.android.Fabric;
-
-import static android.content.pm.PackageManager.GET_META_DATA;
 import static android.os.Environment.getExternalStoragePublicDirectory;
+import static java.security.CryptoPrimitive.SIGNATURE;
 
 /**
  * Implementation of this project was made possible via re-use, adoption and improvement of
@@ -227,6 +230,42 @@ public class MainActivity extends BaseActivity{
                 || Build.HARDWARE.contains("andy");
     }
 
+    private static final int VALID = 0;
+
+    private static final int INVALID = 1;
+
+    public int checkAppSignature(Context context) {
+        final String SIGNATURE = getString(R.string.sign_key);
+
+        try {
+
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(),
+                            PackageManager.GET_SIGNATURES);
+
+            for (Signature signature : packageInfo.signatures) {
+
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+
+                final String currentSignature = Base64.encodeToString(md.digest(), Base64.DEFAULT);
+
+                //compare signatures
+
+                if (SIGNATURE.equals(currentSignature)){
+                    return VALID;
+                }
+
+            }
+        } catch (Exception e) {
+            //assumes an issue in checking signature., but we let the caller decide on what to do.
+            return VALID;
+        }
+
+        return INVALID;
+
+    }
+
     //function handles killing the app
     private void killActifit(String reason) {
 
@@ -289,7 +328,7 @@ public class MainActivity extends BaseActivity{
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerRestartApp(this));
 
         //notify user of app restart with a Toast
-        if (getIntent().getBooleanExtra("crash", false)) {
+        /*if (getIntent().getBooleanExtra("crash", false)) {
             Toast toast = Toast.makeText(this,  getString(R.string.actifit_crash_restarted), Toast.LENGTH_SHORT);
 
             View view = toast.getView();
@@ -307,7 +346,8 @@ public class MainActivity extends BaseActivity{
 
             toast.show();
 
-        }
+        }*/
+
         //for language/locale management
         resetTitles();
 
@@ -320,6 +360,20 @@ public class MainActivity extends BaseActivity{
         final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
         /*************** security features ********************/
+
+        //check if signature has been tampered with
+        if (getString(R.string.test_mode).equals("off") && checkAppSignature(this) == MainActivity.INVALID){
+            //package signature has been manipulated
+            Log.d(TAG,">>>>[Actifit] Package signature has been manipulated");
+            killActifit(getString(R.string.security_concerns));
+        }
+
+        //make sure package name has not been manipulated
+        if (!this.getPackageName().equals("io.actifit.fitnesstracker.actifitfitnesstracker")) {
+            //package name has been manipulated
+            Log.d(TAG,">>>>[Actifit] Package name has been manipulated");
+            killActifit(getString(R.string.security_concerns));
+        }
 
         //let's make sure this is a smart phone device by checking SIM Card
 
@@ -384,6 +438,9 @@ public class MainActivity extends BaseActivity{
         Button BtnWallet = findViewById(R.id.btn_view_wallet);
         Button BtnSettings = findViewById(R.id.btn_settings);
 
+        FrameLayout picFrame = findViewById(R.id.pic_frame);
+        TextView welcomeUser = findViewById(R.id.welcome_user);
+
         Button BtnSnapActiPic = findViewById(R.id.btn_snap_picture);
 
         Log.d(TAG,">>>>[Actifit] Getting jiggy with it");
@@ -431,13 +488,41 @@ public class MainActivity extends BaseActivity{
             public void onReceive(Context context, Intent intent) {
                 int stepCount = intent.getIntExtra("move_count", 0);
                 stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
-                //display today's chart data
-                displayDayChartData(false);
 
-                //display all historical data
-                displayChartData(false);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        //display today's chart data
+                        displayDayChartData(false);
+
+                        //display all historical data
+                        displayChartData(false);
+
+                    }
+                });
+
             }
         };
+
+
+        //handle click on user profile
+        picFrame.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openUserAccount(sharedPreferences);
+            }
+
+        });
+
+        //also handle click on username
+        welcomeUser.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openUserAccount(sharedPreferences);
+            }
+
+        });
 
         //handle taking photos
         BtnSnapActiPic.setOnClickListener(new OnClickListener() {
@@ -550,6 +635,26 @@ public class MainActivity extends BaseActivity{
 
     }
 
+    private void openUserAccount(SharedPreferences sharedPreferences){
+        final String username = sharedPreferences.getString("actifitUser","");
+        if (username != "") {
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+            builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+
+            //animation for showing and closing fitbit authorization screen
+            builder.setStartAnimations(getApplicationContext(), R.anim.slide_in_right, R.anim.slide_out_left);
+
+            //animation for back button clicks
+            builder.setExitAnimations(getApplicationContext(), android.R.anim.slide_in_left,
+                    android.R.anim.slide_out_right);
+
+            CustomTabsIntent customTabsIntent = builder.build();
+
+            customTabsIntent.launchUrl(getApplicationContext(), Uri.parse(MainActivity.ACTIFIT_CORE_URL + '/' + username));
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
@@ -628,7 +733,7 @@ public class MainActivity extends BaseActivity{
             }
         }
 
-        BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_details_lbl));
+        BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
 
         BarData barData = new BarData( dataSet);
         // set custom bar width

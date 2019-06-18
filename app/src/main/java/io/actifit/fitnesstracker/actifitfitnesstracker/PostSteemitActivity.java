@@ -98,6 +98,43 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     //tracks whether user wants to post yesterday's data instead
     private static boolean yesterdayReport = false;
 
+    EditText steemitPostTitle;
+    EditText steemitUsername;
+    EditText steemitPostingKey;
+    EditText steemitStepCount;
+    TextView measureSectionLabel;
+
+    TextView heightSizeUnit;
+    TextView weightSizeUnit;
+    TextView waistSizeUnit;
+    TextView chestSizeUnit;
+    TextView thighsSizeUnit;
+
+    EditText steemitPostTags;
+
+    CheckBox fullAFITPay;
+
+    EditText heightSize;
+    EditText weightSize;
+    EditText bodyFat;
+    EditText chestSize;
+    EditText thighsSize;
+    EditText waistSize;
+
+    MarkedView mdView;
+
+    MultiSelectionSpinner activityTypeSelector;
+
+    String accountUsername, accountPostingKey, accountActivityCount, finalPostTitle, finalPostTags,
+        finalPostContent;
+    int selectedActivityCount;
+    String heightVal, weightVal, waistVal, chestVal, thighsVal, bodyFatVal,
+        heightUnit, weightUnit, waistUnit, chestUnit, thighsUnit;
+
+    String selectedActivitiesVal;
+
+    Boolean fullAFITPayVal;
+
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
         return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
@@ -317,19 +354,40 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
 
 
-        EditText steemitPostTitle = findViewById(R.id.steemit_post_title);
-        EditText steemitUsername = findViewById(R.id.steemit_username);
-        EditText steemitPostingKey = findViewById(R.id.steemit_posting_key);
+        steemitPostTitle = findViewById(R.id.steemit_post_title);
+        steemitUsername = findViewById(R.id.steemit_username);
+        steemitPostingKey = findViewById(R.id.steemit_posting_key);
         steemitPostContent = findViewById(R.id.steemit_post_text);
-        TextView measureSectionLabel = findViewById(R.id.measurements_section_lbl);
+        steemitStepCount = findViewById(R.id.steemit_step_count);
+        measureSectionLabel = findViewById(R.id.measurements_section_lbl);
 
-        TextView heightSizeUnit = findViewById(R.id.measurements_height_unit);
-        TextView weightSizeUnit = findViewById(R.id.measurements_weight_unit);
-        TextView waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
-        TextView chestSizeUnit = findViewById(R.id.measurements_chest_unit);
-        TextView thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
+        heightSizeUnit = findViewById(R.id.measurements_height_unit);
+        weightSizeUnit = findViewById(R.id.measurements_weight_unit);
+        waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
+        chestSizeUnit = findViewById(R.id.measurements_chest_unit);
+        thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
 
-        final MarkedView mdView = (MarkedView)findViewById(R.id.md_view);
+
+        //final EditText steemitPostContentInner = findViewById(R.id.steemit_post_text);
+        steemitPostTags = findViewById(R.id.steemit_post_tags);
+        activityTypeSelector = findViewById(R.id.steemit_activity_type);
+
+        fullAFITPay = findViewById(R.id.full_afit_pay);
+
+        heightSize = findViewById(R.id.measurements_height);
+        weightSize = findViewById(R.id.measurements_weight);
+        bodyFat = findViewById(R.id.measurements_bodyfat);
+        chestSize = findViewById(R.id.measurements_chest);
+        thighsSize = findViewById(R.id.measurements_thighs);
+        waistSize = findViewById(R.id.measurements_waistsize);
+
+        heightSizeUnit = findViewById(R.id.measurements_height_unit);
+        weightSizeUnit = findViewById(R.id.measurements_weight_unit);
+        waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
+        chestSizeUnit = findViewById(R.id.measurements_chest_unit);
+        thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
+
+        mdView = findViewById(R.id.md_view);
         // call from code
         // MarkedView mdView = new MarkedView(this);
 
@@ -487,7 +545,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         //sort options in alpha order
         Arrays.sort(activity_type);
 
-        MultiSelectionSpinner activityTypeSelector = findViewById(R.id.steemit_activity_type);
+        activityTypeSelector = findViewById(R.id.steemit_activity_type);
         activityTypeSelector.setItems(activity_type);
 
         steemitUsername.setText(sharedPreferences.getString("actifitUser",""));
@@ -709,37 +767,15 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 //disable button to prevent multiple clicks
                 //arg0.setEnabled(false);
 
-                EditText steemitPostTitle = findViewById(R.id.steemit_post_title);
-                EditText steemitUsername = findViewById(R.id.steemit_username);
-                EditText steemitPostingKey = findViewById(R.id.steemit_posting_key);
-                EditText steemitPostContent = findViewById(R.id.steemit_post_text);
-                EditText steemitPostTags = findViewById(R.id.steemit_post_tags);
-                EditText steemitStepCount = findViewById(R.id.steemit_step_count);
-                MultiSelectionSpinner activityTypeSelector = findViewById(R.id.steemit_activity_type);
-
-                CheckBox fullAFITPay = findViewById(R.id.full_afit_pay);
-
-                EditText heightSize = findViewById(R.id.measurements_height);
-                EditText weightSize = findViewById(R.id.measurements_weight);
-                EditText bodyFat = findViewById(R.id.measurements_bodyfat);
-                EditText chestSize = findViewById(R.id.measurements_chest);
-                EditText thighsSize = findViewById(R.id.measurements_thighs);
-                EditText waistSize = findViewById(R.id.measurements_waistsize);
-
-                TextView heightSizeUnit = findViewById(R.id.measurements_height_unit);
-                TextView weightSizeUnit = findViewById(R.id.measurements_weight_unit);
-                TextView waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
-                TextView chestSizeUnit = findViewById(R.id.measurements_chest_unit);
-                TextView thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
 
 
                 //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
                 SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 //skip on spaces, upper case, and @ symbols to properly match steem username patterns
-                editor.putString("actifitUser", steemitUsername.getText().toString()
+                editor.putString("actifitUser", accountUsername
                         .trim().toLowerCase().replace("@",""));
-                editor.putString("actifitPst", steemitPostingKey.getText().toString());
+                editor.putString("actifitPst", accountPostingKey);
                 editor.apply();
 
 
@@ -757,7 +793,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 //this runs only on live mode
                 if (getString(R.string.test_mode).equals("off")){
                     //make sure we have reached the min movement amount
-                    if (Integer.parseInt(steemitStepCount.getText().toString()) < min_step_limit) {
+                    if (Integer.parseInt(accountActivityCount) < min_step_limit) {
                         notification = getString(R.string.min_activity_not_reached) + " " +
                                 NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " " + getString(R.string.not_yet);
                         displayNotification(notification, progress, context, currentActivity, "");
@@ -766,7 +802,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     }
 
                     //make sure the post content has at least the min_char_count
-                    if (steemitPostContent.getText().toString().length()
+                    if (finalPostTitle.length()
                             <= min_char_count){
                         notification = getString(R.string.min_char_count_error)
                                 +" "+ min_char_count
@@ -793,7 +829,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 }
 
                 //let us check if user has selected activities yet
-                if (activityTypeSelector.getSelectedIndicies().size()<1){
+                if (selectedActivityCount < 1){
                     notification = getString(R.string.error_need_select_one_activity);
                     displayNotification(notification, progress, context, currentActivity, "");
 
@@ -831,31 +867,31 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 final JSONObject data = new JSONObject();
                 try {
                     //skip on spaces, upper case, and @ symbols to properly match steem username patterns
-                    data.put("author", steemitUsername.getText().toString()
+                    data.put("author", accountUsername
                             .trim().toLowerCase().replace("@",""));
-                    data.put("posting_key", steemitPostingKey.getText());
-                    data.put("title", steemitPostTitle.getText());
-                    data.put("content", steemitPostContent.getText());
-                    data.put("tags", steemitPostTags.getText());
-                    data.put("step_count", steemitStepCount.getText());
-                    data.put("activity_type", activityTypeSelector.getSelectedItemsAsString());
+                    data.put("posting_key", accountPostingKey);
+                    data.put("title", finalPostTitle);
+                    data.put("content", finalPostContent);
+                    data.put("tags", finalPostTags);
+                    data.put("step_count", accountActivityCount);
+                    data.put("activity_type", selectedActivitiesVal);
 
-                    if (fullAFITPay.isChecked()) {
+                    if (fullAFITPayVal) {
                         data.put("full_afit_pay", "on");
                     }
 
-                    data.put("height", heightSize.getText());
-                    data.put("weight", weightSize.getText());
-                    data.put("chest", chestSize.getText());
-                    data.put("waist", waistSize.getText());
-                    data.put("thighs", thighsSize.getText());
-                    data.put("bodyfat", bodyFat.getText());
+                    data.put("height", heightVal);
+                    data.put("weight", weightVal);
+                    data.put("chest", chestVal);
+                    data.put("waist", waistVal);
+                    data.put("thighs", thighsVal);
+                    data.put("bodyfat", bodyFatVal);
 
-                    data.put("heightUnit", heightSizeUnit.getText());
-                    data.put("weightUnit", weightSizeUnit.getText());
-                    data.put("chestUnit", chestSizeUnit.getText());
-                    data.put("waistUnit", waistSizeUnit.getText());
-                    data.put("thighsUnit", thighsSizeUnit.getText());
+                    data.put("heightUnit", heightUnit);
+                    data.put("weightUnit", weightUnit);
+                    data.put("chestUnit", chestUnit);
+                    data.put("waistUnit", waistUnit);
+                    data.put("thighsUnit", thighsUnit);
 
                     data.put("appType", "Android");
 
@@ -1039,6 +1075,32 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         final String currentCharity = sharedPreferences.getString("selectedCharity","");
         final String currentCharityDisplayName = sharedPreferences.getString("selectedCharityDisplayName","");
+
+        accountUsername = steemitUsername.getText().toString();
+        accountPostingKey = steemitPostingKey.getText().toString();
+        accountActivityCount = steemitStepCount.getText().toString();
+        finalPostTitle = steemitPostTitle.getText().toString();
+        selectedActivityCount = activityTypeSelector.getSelectedIndicies().size();
+
+        finalPostContent = steemitPostContent.getText().toString();
+        finalPostTags = steemitPostTags.getText().toString();
+
+        selectedActivitiesVal = activityTypeSelector.getSelectedItemsAsString();
+
+        fullAFITPayVal = fullAFITPay.isChecked();
+
+        heightVal = heightSize.getText().toString();
+        weightVal = weightSize.getText().toString();
+        chestVal = chestSize.getText().toString();
+        waistVal = waistSize.getText().toString();
+        thighsVal = thighsSize.getText().toString();
+        bodyFatVal = bodyFat.getText().toString();
+
+        heightUnit = heightSizeUnit.getText().toString();
+        weightUnit = weightSizeUnit.getText().toString();
+        chestUnit = chestSizeUnit.getText().toString();
+        waistUnit = waistSizeUnit.getText().toString();
+        thighsUnit = thighsSizeUnit.getText().toString();
 
         if (!currentCharity.equals("")){
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {

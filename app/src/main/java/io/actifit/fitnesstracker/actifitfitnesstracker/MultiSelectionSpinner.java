@@ -17,7 +17,7 @@ import java.util.List;
  * Created by Aneh Thakur on 5/7/2015.
  * original source: https://trinitytuts.com/tips/multiselect-spinner-item-in-android/
  */
-public class MultiSelectionSpinner extends Spinner implements
+public class MultiSelectionSpinner extends android.support.v7.widget.AppCompatSpinner implements
         OnMultiChoiceClickListener {
     String[] _items = null;
     boolean[] mSelection = null;
