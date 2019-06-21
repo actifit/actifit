@@ -64,6 +64,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.LimitLine;
@@ -73,8 +74,12 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.scottyab.rootbeer.RootBeer;
 import com.squareup.picasso.Picasso;
@@ -156,6 +161,8 @@ public class MainActivity extends BaseActivity{
     }
 
     static final int REQUEST_TAKE_PHOTO = 1;
+
+    PieChart btnPieChart;
 
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
@@ -362,7 +369,8 @@ public class MainActivity extends BaseActivity{
         /*************** security features ********************/
 
         //check if signature has been tampered with
-        if (getString(R.string.test_mode).equals("off") && checkAppSignature(this) == MainActivity.INVALID){
+        if ((getString(R.string.test_mode).equals("off") && getString(R.string.sec_check_signature).equals("on"))
+                && checkAppSignature(this) == MainActivity.INVALID){
             //package signature has been manipulated
             Log.d(TAG,">>>>[Actifit] Package signature has been manipulated");
             killActifit(getString(R.string.security_concerns));
@@ -477,6 +485,10 @@ public class MainActivity extends BaseActivity{
                 stepDisplay.setTextColor(getResources().getColor(android.R.color.tab_indicator_text));
             }
 
+            //display relevant chart
+            displayActivityChart(stepCount, true);
+
+
         }else{
             //inform user that fitbit mode is on
             stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
@@ -486,12 +498,15 @@ public class MainActivity extends BaseActivity{
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int stepCount = intent.getIntExtra("move_count", 0);
+                final int stepCount = intent.getIntExtra("move_count", 0);
                 stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        //display activity count chart
+                        displayActivityChart(stepCount, false);
 
                         //display today's chart data
                         displayDayChartData(false);
@@ -674,8 +689,62 @@ public class MainActivity extends BaseActivity{
     //handles display of local date on front end
     private void displayDate(){
         String date_n = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault()).format(new Date());
-        TextView date  = (TextView) findViewById(R.id.current_date);
+        TextView date  = findViewById(R.id.current_date);
         date.setText(date_n);
+    }
+
+    private void displayActivityChart(int stepCount, boolean animate){
+        btnPieChart = findViewById(R.id.step_pie_chart);
+        ArrayList<PieEntry> activityArray = new ArrayList();
+        activityArray.add(new PieEntry(stepCount, ""));
+
+        if (stepCount < 5000){
+            activityArray.add(new PieEntry(5000 - stepCount, ""));
+            activityArray.add(new PieEntry(5000, ""));
+        }else if (stepCount < 10000){
+            activityArray.add(new PieEntry(10000 - stepCount, ""));
+        }
+
+        PieDataSet dataSet = new PieDataSet(activityArray, "" );
+
+        PieData data = new PieData(dataSet);
+        btnPieChart.setData(data);
+//        Description chartDesc = new Description();
+//        chartDesc.setText(getString(R.string.activity_count_lbl));
+//        btnPieChart.setDescription(chartDesc);
+        btnPieChart.getDescription().setEnabled(false);
+        //chartDesc.setPosition(200, 0);
+        btnPieChart.setCenterText("" + (stepCount<0?0:stepCount));
+        btnPieChart.setCenterTextColor(getResources().getColor(R.color.actifitRed));
+        btnPieChart.setCenterTextSize(20f);
+        btnPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
+        btnPieChart.setDrawEntryLabels(false);
+        btnPieChart.getLegend().setEnabled(false);
+
+        //dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        //let's set proper color
+        if (stepCount < 5000){
+            //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
+            dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+        }else if (stepCount < 10000){
+            dataSet.setColors(getResources().getColor(R.color.actifitGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+        }else{
+            dataSet.setColors(getResources().getColor(R.color.actifitGreen));
+        }
+
+        //dataSet.setColors(ColorTemplate.rgb("00ff00"), ColorTemplate.rgb("00ffff"), ColorTemplate.rgb("00ffff"));
+
+        dataSet.setSliceSpace(1f);
+        dataSet.setHighlightEnabled(true);
+        dataSet.setValueTextSize(0f);
+        dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
+        dataSet.setValueTextColor(R.color.actifitRed);
+
+        if (animate) {
+            btnPieChart.animateXY(2000, 2000);
+        }else{
+            btnPieChart.invalidate();
+        }
     }
 
     private void displayDayChartData(boolean animate){
@@ -776,6 +845,7 @@ public class MainActivity extends BaseActivity{
         Description chartDescription = new Description();
         chartDescription.setText(getString(R.string.activity_details_chart_title));
         chart.setDescription(chartDescription);
+        chart.getLegend().setEnabled(false);
 
         //fill chart with data
         chart.setData(barData);
@@ -888,6 +958,7 @@ public class MainActivity extends BaseActivity{
         Description chartDescription = new Description();
         chartDescription.setText(getString(R.string.activity_history_chart_title));
         chart.setDescription(chartDescription);
+        chart.getLegend().setEnabled(false);
 
         //fill chart with data
         chart.setData(barData);
