@@ -188,10 +188,4 @@
     <string name="actifit_crash_restarted">Actifit riavviato dopo il crash</string>
     <string name="entry_view_details_button">Dettagli del Post</string>
     <string name="language">Lingua</string>
-    <string-array name="supported_languages">
-        <item>Inglese</item>
-        <item>Portoghese</item>
-        <item>Coreano</item>
-        <item>Arabo</item>
-    </string-array>
 </resources>
