@@ -4,4 +4,19 @@
     <string name="device_tracking_ntt" translatable="false">Device Tracking</string>
     <string name="fitbit_measurements_on_ntt" translatable="false">Fitbit Measurements On</string>
     <string name="fitbit_measurements_off_ntt" translatable="false">Fitbit Measurements Off</string>
+    <string name="aggr_back_tracking_on_ntt" translatable="false">On</string>
+    <string name="aggr_back_tracking_off_ntt" translatable="false"></string>
+    <string name="metric_system_ntt" translatable="false">Metric System</string>
+    <string name="us_system_ntt" translatable="false">US System</string>
+    <string-array name="supported_languages">
+        <item>English</item>
+        <item>Portuguesa</item>
+        <item>한국어</item>
+        <item>العربية</item>
+        <item>Yorùbá</item>
+        <item>Nederlands</item>
+        <item>हिंदी</item>
+        <item>Italiano</item>
+        <item>Deutsche</item>
+    </string-array>
 </resources>
