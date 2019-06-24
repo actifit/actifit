@@ -93,7 +93,7 @@ class NxFitbitHelper {
     private OAuth20Service createService() {
         return new ServiceBuilder(clientid)
                 .apiSecret(clientSecret)
-                .scope(apiScope)
+                .defaultScope(apiScope)
                 .callback(apiCallback)
                 .build(FitbitApi20.instance());
     }
