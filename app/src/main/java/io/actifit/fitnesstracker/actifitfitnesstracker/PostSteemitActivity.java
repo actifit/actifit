@@ -335,9 +335,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         setSupportActionBar(postToolbar);*/
 
 
-        //make sure help with PPKey link click works
+        //make sure PPKey link click works
         TextView ppHelpLink = findViewById(R.id.posting_key_link);
         ppHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView createAccountLink = findViewById(R.id.username_create_account_link);
+        createAccountLink.setMovementMethod(LinkMovementMethod.getInstance());
+
 
         //setting context
         this.steemit_post_context = this;
@@ -669,9 +673,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     //flag that we synced properly
                     fitbitSyncDone = 1;
 
-                    //store the returned activity count to the DB
-                    mStepsDBHelper.manualInsertStepsEntry(trackedActivityCount);
-
                     //store date of last sync to avoid improper use of older fitbit data
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("fitbitLastSyncDate",
@@ -802,7 +803,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     }
 
                     //make sure the post content has at least the min_char_count
-                    if (finalPostTitle.length()
+                    if (finalPostContent.length()
                             <= min_char_count){
                         notification = getString(R.string.min_char_count_error)
                                 +" "+ min_char_count
@@ -1066,6 +1067,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     return;
                 }
             }
+
+            EditText activityCount = findViewById(R.id.steemit_step_count);
+            int trackedActivityCount = Integer.parseInt(activityCount.getText().toString());
+
+            //store the returned activity count to the DB
+            mStepsDBHelper.manualInsertStepsEntry(trackedActivityCount);
 
         }
 
