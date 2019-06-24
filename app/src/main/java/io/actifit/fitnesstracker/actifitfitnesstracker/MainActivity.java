@@ -16,9 +16,11 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ActivityManager;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +33,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
@@ -163,6 +166,12 @@ public class MainActivity extends BaseActivity{
     static final int REQUEST_TAKE_PHOTO = 1;
 
     PieChart btnPieChart;
+
+    static boolean isActivityVisible = true;
+
+    private BarData chartBarData, dayBarData;
+
+    private BarChart dayChart, fullChart;
 
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
@@ -334,6 +343,8 @@ public class MainActivity extends BaseActivity{
         //hook up our standard thread catcher to allow auto-restart after crash
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerRestartApp(this));
 
+        this.isActivityVisible = true;
+
         //notify user of app restart with a Toast
         /*if (getIntent().getBooleanExtra("crash", false)) {
             Toast toast = Toast.makeText(this,  getString(R.string.actifit_crash_restarted), Toast.LENGTH_SHORT);
@@ -501,22 +512,17 @@ public class MainActivity extends BaseActivity{
                 final int stepCount = intent.getIntExtra("move_count", 0);
                 stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+                //display activity count chart
+                displayActivityChart(stepCount, false);
+                //to avoid system overload, only update activity charts when activity is visible
+                if (MainActivity.isActivityVisible) {
+                    //display today's chart data
+                    displayDayChartData(false);
 
-                        //display activity count chart
-                        displayActivityChart(stepCount, false);
+                    //display all historical data
+                    displayChartData(false);
 
-                        //display today's chart data
-                        displayDayChartData(false);
-
-                        //display all historical data
-                        displayChartData(false);
-
-                    }
-                });
-
+                }
             }
         };
 
@@ -658,15 +664,15 @@ public class MainActivity extends BaseActivity{
             builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
 
             //animation for showing and closing fitbit authorization screen
-            builder.setStartAnimations(getApplicationContext(), R.anim.slide_in_right, R.anim.slide_out_left);
+            builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
 
             //animation for back button clicks
-            builder.setExitAnimations(getApplicationContext(), android.R.anim.slide_in_left,
+            builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
                     android.R.anim.slide_out_right);
 
             CustomTabsIntent customTabsIntent = builder.build();
 
-            customTabsIntent.launchUrl(getApplicationContext(), Uri.parse(MainActivity.ACTIFIT_CORE_URL + '/' + username));
+            customTabsIntent.launchUrl(ctx, Uri.parse(MainActivity.ACTIFIT_CORE_URL + '/' + username));
         }
     }
 
@@ -693,283 +699,317 @@ public class MainActivity extends BaseActivity{
         date.setText(date_n);
     }
 
-    private void displayActivityChart(int stepCount, boolean animate){
-        btnPieChart = findViewById(R.id.step_pie_chart);
-        ArrayList<PieEntry> activityArray = new ArrayList();
-        activityArray.add(new PieEntry(stepCount, ""));
+    private void displayActivityChart(final int stepCount, final boolean animate){
 
-        if (stepCount < 5000){
-            activityArray.add(new PieEntry(5000 - stepCount, ""));
-            activityArray.add(new PieEntry(5000, ""));
-        }else if (stepCount < 10000){
-            activityArray.add(new PieEntry(10000 - stepCount, ""));
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
 
-        PieDataSet dataSet = new PieDataSet(activityArray, "" );
+                btnPieChart = findViewById(R.id.step_pie_chart);
+                ArrayList<PieEntry> activityArray = new ArrayList();
+                activityArray.add(new PieEntry(stepCount, ""));
 
-        PieData data = new PieData(dataSet);
-        btnPieChart.setData(data);
+                if (stepCount < 5000) {
+                    activityArray.add(new PieEntry(5000 - stepCount, ""));
+                    activityArray.add(new PieEntry(5000, ""));
+                } else if (stepCount < 10000) {
+                    activityArray.add(new PieEntry(10000 - stepCount, ""));
+                }
+
+                PieDataSet dataSet = new PieDataSet(activityArray, "");
+
+                PieData data = new PieData(dataSet);
+                btnPieChart.setData(data);
 //        Description chartDesc = new Description();
 //        chartDesc.setText(getString(R.string.activity_count_lbl));
 //        btnPieChart.setDescription(chartDesc);
-        btnPieChart.getDescription().setEnabled(false);
-        //chartDesc.setPosition(200, 0);
-        btnPieChart.setCenterText("" + (stepCount<0?0:stepCount));
-        btnPieChart.setCenterTextColor(getResources().getColor(R.color.actifitRed));
-        btnPieChart.setCenterTextSize(20f);
-        btnPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
-        btnPieChart.setDrawEntryLabels(false);
-        btnPieChart.getLegend().setEnabled(false);
+                btnPieChart.getDescription().setEnabled(false);
+                //chartDesc.setPosition(200, 0);
+                btnPieChart.setCenterText("" + (stepCount < 0 ? 0 : stepCount));
+                btnPieChart.setCenterTextColor(getResources().getColor(R.color.actifitRed));
+                btnPieChart.setCenterTextSize(20f);
+                btnPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
+                btnPieChart.setDrawEntryLabels(false);
+                btnPieChart.getLegend().setEnabled(false);
 
-        //dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-        //let's set proper color
-        if (stepCount < 5000){
-            //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
-            dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
-        }else if (stepCount < 10000){
-            dataSet.setColors(getResources().getColor(R.color.actifitGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
-        }else{
-            dataSet.setColors(getResources().getColor(R.color.actifitGreen));
-        }
+                //dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+                //let's set proper color
+                if (stepCount < 5000) {
+                    //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
+                    dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+                } else if (stepCount < 10000) {
+                    dataSet.setColors(getResources().getColor(R.color.actifitGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+                } else {
+                    dataSet.setColors(getResources().getColor(R.color.actifitGreen));
+                }
 
-        //dataSet.setColors(ColorTemplate.rgb("00ff00"), ColorTemplate.rgb("00ffff"), ColorTemplate.rgb("00ffff"));
+                //dataSet.setColors(ColorTemplate.rgb("00ff00"), ColorTemplate.rgb("00ffff"), ColorTemplate.rgb("00ffff"));
 
-        dataSet.setSliceSpace(1f);
-        dataSet.setHighlightEnabled(true);
-        dataSet.setValueTextSize(0f);
-        dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
-        dataSet.setValueTextColor(R.color.actifitRed);
+                dataSet.setSliceSpace(1f);
+                dataSet.setHighlightEnabled(true);
+                dataSet.setValueTextSize(0f);
+                dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
+                dataSet.setValueTextColor(R.color.actifitRed);
 
-        if (animate) {
-            btnPieChart.animateXY(2000, 2000);
-        }else{
-            btnPieChart.invalidate();
-        }
+                if (animate) {
+                    btnPieChart.animateXY(2000, 2000);
+                } else {
+                    btnPieChart.invalidate();
+                }
+
+            }
+
+        });
     }
 
-    private void displayDayChartData(boolean animate){
+    /* function handles displaying today's detailed chart data */
+    private void displayDayChartData(final boolean animate){
 
-        //initializing date
-        Date date = new Date();
-        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        String strDate = dateFormat.format(date);
-
-        ArrayList<ActivitySlot> mStepCountList = mStepsDBHelper.fetchDateTimeSlotActivity(strDate);
-
-        //connect to the chart and fill it with data
-        BarChart chart = findViewById(R.id.main_today_activity_chart);
-
-        List<BarEntry> entries = new ArrayList<>();
-
-        int data_id = 0;
-
-        //create a full day chart
-        int indHr;
-        int indMin;
-        int hoursInDay = 24;
-        int[] minInt = {0, 15, 30, 45};
-        int minSlots = minInt.length;
-
-        final String[] labels = new String[hoursInDay * minSlots];
-
-        //loop through whole day as hours
-        for (indHr = 0; indHr < hoursInDay; indHr++){
-            //loop through 15 mins breaks in hour
-            for (indMin = 0; indMin < minSlots; indMin++){
-                String slotLabel = "" + indHr;
-                if (indHr < 10){
-                    slotLabel = "0" + indHr;
-                }
-                labels[data_id] = slotLabel + ":";
-                if (minInt[indMin]<10){
-                    slotLabel += "0" + minInt[indMin];
-                    labels[data_id] += "0" + minInt[indMin];
-                }else{
-                    slotLabel += minInt[indMin];
-                    labels[data_id] += minInt[indMin];
-                }
-                int matchingSlot = -1;
-                matchingSlot = mStepCountList.indexOf(new ActivitySlot(slotLabel, 0));
-                if (matchingSlot > -1){
-                    //found match, assign values
-                    entries.add(new BarEntry(data_id, Float.parseFloat( "" + mStepCountList.get(matchingSlot).activityCount)));
-                }else{
-                    //default null value
-                    entries.add(new BarEntry(data_id, Float.parseFloat( "0")));
-                }
-
-                data_id+=1f;
-            }
-        }
-
-        BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
-
-        BarData barData = new BarData( dataSet);
-        // set custom bar width
-        barData.setBarWidth(0.8f);
-
-
-        //customize X-axis
-
-        IAxisValueFormatter formatter = new IAxisValueFormatter() {
-
+        //update ui on UI thread
+        runOnUiThread(new Runnable() {
             @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return labels[(int) value];
-            }
+            public void run() {
 
-        };
+                //initializing date
+                Date date = new Date();
+                DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                String strDate = dateFormat.format(date);
 
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setGranularity(1f); // minimum axis-step (interval)
-        xAxis.setValueFormatter(formatter);
+                ArrayList<ActivitySlot> mStepCountList = mStepsDBHelper.fetchDateTimeSlotActivity(strDate);
 
-        IValueFormatter yFormatter = new IValueFormatter() {
+                //connect to the chart and fill it with data
+                dayChart = findViewById(R.id.main_today_activity_chart);
 
-            @Override
-            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                if (value < 1){
-                    return "";
+                List<BarEntry> entries = new ArrayList<>();
+
+                int data_id = 0;
+
+                //create a full day chart
+                int indHr;
+                int indMin;
+                int hoursInDay = 24;
+                int[] minInt = {0, 15, 30, 45};
+                int minSlots = minInt.length;
+
+                final String[] labels = new String[hoursInDay * minSlots];
+
+                //loop through whole day as hours
+                for (indHr = 0; indHr < hoursInDay; indHr++) {
+                    //loop through 15 mins breaks in hour
+                    for (indMin = 0; indMin < minSlots; indMin++) {
+                        String slotLabel = "" + indHr;
+                        if (indHr < 10) {
+                            slotLabel = "0" + indHr;
+                        }
+                        labels[data_id] = slotLabel + ":";
+                        if (minInt[indMin] < 10) {
+                            slotLabel += "0" + minInt[indMin];
+                            labels[data_id] += "0" + minInt[indMin];
+                        } else {
+                            slotLabel += minInt[indMin];
+                            labels[data_id] += minInt[indMin];
+                        }
+                        int matchingSlot = -1;
+                        matchingSlot = mStepCountList.indexOf(new ActivitySlot(slotLabel, 0));
+                        if (matchingSlot > -1) {
+                            //found match, assign values
+                            entries.add(new BarEntry(data_id, Float.parseFloat("" + mStepCountList.get(matchingSlot).activityCount)));
+                        } else {
+                            //default null value
+                            entries.add(new BarEntry(data_id, Float.parseFloat("0")));
+                        }
+
+                        data_id += 1f;
+                    }
                 }
-                return "" + (int)value;
+
+                BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
+
+                dayBarData = new BarData(dataSet);
+                // set custom bar width
+                dayBarData.setBarWidth(0.8f);
+
+
+                //customize X-axis
+
+                IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+                    @Override
+                    public String getFormattedValue(float value, AxisBase axis) {
+                        return labels[(int) value];
+                    }
+
+                };
+
+                XAxis xAxis = dayChart.getXAxis();
+                xAxis.setGranularity(1f); // minimum axis-step (interval)
+                xAxis.setValueFormatter(formatter);
+
+                IValueFormatter yFormatter = new IValueFormatter() {
+
+                    @Override
+                    public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                        if (value < 1) {
+                            return "";
+                        }
+                        return "" + (int) value;
+                    }
+
+                };
+
+                //add limit lines to show marker of min 5K activity
+                //YAxis yAxis = chart.getAxisLeft();
+                dayBarData.setValueFormatter(yFormatter);
+                //yAxis.setAxisMinimum(0);
+
+
+                //description field of chart
+                Description chartDescription = new Description();
+                chartDescription.setText(getString(R.string.activity_details_chart_title));
+                dayChart.setDescription(chartDescription);
+                dayChart.getLegend().setEnabled(false);
+
+                //fill chart with data
+                dayChart.setData(dayBarData);
+
+                if (animate) {
+                    //display data with cool animation
+                    dayChart.animateXY(1500, 1500);
+                } else {
+                    //render data
+                    dayChart.invalidate();
+                }
+
             }
-
-        };
-
-        //add limit lines to show marker of min 5K activity
-        //YAxis yAxis = chart.getAxisLeft();
-        barData.setValueFormatter(yFormatter);
-        //yAxis.setAxisMinimum(0);
-
-        //description field of chart
-        Description chartDescription = new Description();
-        chartDescription.setText(getString(R.string.activity_details_chart_title));
-        chart.setDescription(chartDescription);
-        chart.getLegend().setEnabled(false);
-
-        //fill chart with data
-        chart.setData(barData);
-
-        //
-        //
-        if (animate){
-            //display data with cool animation
-            chart.animateXY(1500, 1500);
-        }else{
-            //render data
-            chart.invalidate();
-        }
+        });
+        
     }
 
-    private void displayChartData(boolean animate){
-
-        //read activity data
-        ArrayList<DateStepsModel> mStepCountList = mStepsDBHelper.readStepsEntries();
-
-        //initializing date conversion components
-        String dateDisplay;
-        //existing date format
-        SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
-        //output format
-        SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
-        SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
+    /* function handles displaying full chart data */
+    private void displayChartData(final boolean animate){
 
 
-        //connect to the chart and fill it with data
-        BarChart chart = findViewById(R.id.main_history_activity_chart);
+        //update ui on UI thread
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //read activity data
+                ArrayList<DateStepsModel> mStepCountList = mStepsDBHelper.readStepsEntries();
 
-        List<BarEntry> entries = new ArrayList<BarEntry>();
+                //initializing date conversion components
+                String dateDisplay;
+                //existing date format
+                SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
+                //output format
+                SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
+                SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
 
-        final String[] labels = new String[mStepCountList.size()];
 
-        int data_id = 0;
-        //int data_id_int = 0;
-        try {
-            for (DateStepsModel data : mStepCountList) {
+                //connect to the chart and fill it with data
+                fullChart = findViewById(R.id.main_history_activity_chart);
 
-                //grab date entry according to stored format
-                Date feedingDate = dateFormIn.parse(data.mDate);
+                List<BarEntry> entries = new ArrayList<BarEntry>();
 
-                //convert it to new format for display
+                final String[] labels = new String[mStepCountList.size()];
 
-                dateDisplay = dateFormOut.format(feedingDate);
+                int data_id = 0;
+                //int data_id_int = 0;
+                try {
+                    for (DateStepsModel data : mStepCountList) {
 
-                //if this is month 12, display year along with it
-                if (dateDisplay.substring(0,2).equals("01") || dateDisplay.substring(0,2).equals("12")){
-                    dateDisplay = dateFormOutFull.format(feedingDate);
+                        //grab date entry according to stored format
+                        Date feedingDate = dateFormIn.parse(data.mDate);
+
+                        //convert it to new format for display
+
+                        dateDisplay = dateFormOut.format(feedingDate);
+
+                        //if this is month 12, display year along with it
+                        if (dateDisplay.substring(0, 2).equals("01") || dateDisplay.substring(0, 2).equals("12")) {
+                            dateDisplay = dateFormOutFull.format(feedingDate);
+                        }
+
+                        labels[data_id] = dateDisplay;
+                        entries.add(new BarEntry(data_id, Float.parseFloat("" + data.mStepCount)));
+                        data_id += 1f;
+                        //data_id_int++;
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
 
-                labels[data_id] = dateDisplay;
-                entries.add(new BarEntry(data_id, Float.parseFloat(""+data.mStepCount)));
-                data_id+=1f;
-                //data_id_int++;
+                BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
+
+                chartBarData = new BarData(dataSet);
+                // set custom bar width
+                chartBarData.setBarWidth(0.5f);
+
+
+                //customize X-axis
+
+                IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+                    @Override
+                    public String getFormattedValue(float value, AxisBase axis) {
+                        return labels[(int) value];
+                    }
+
+                };
+
+                XAxis xAxis = fullChart.getXAxis();
+                xAxis.setGranularity(1f); // minimum axis-step (interval)
+                xAxis.setValueFormatter(formatter);
+
+                //add limit lines to show marker of min 5K activity
+                YAxis yAxis = fullChart.getAxisLeft();
+
+                if (yAxis.getLimitLines().size()==0) {
+
+                    LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
+                    line.enableDashedLine(10f, 10f, 10f);
+                    line.setLineColor(Color.RED);
+                    line.setLineWidth(2f);
+                    line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+                    line.setTextColor(Color.BLACK);
+                    line.setTextSize(12f);
+
+                    yAxis.addLimitLine(line);
+
+                    //add Limit line for max rewarded activity
+                    line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
+                    line.setLineColor(Color.GREEN);
+                    line.setLineWidth(2f);
+                    line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+                    line.setTextColor(Color.BLACK);
+                    line.setTextSize(12f);
+
+
+                    yAxis.addLimitLine(line);
+
+                }
+
+
+                //description field of chart
+                Description chartDescription = new Description();
+                chartDescription.setText(getString(R.string.activity_history_chart_title));
+
+                fullChart.setDescription(chartDescription);
+                fullChart.getLegend().setEnabled(false);
+
+                //fill chart with data
+                fullChart.setData(chartBarData);
+
+                if (animate) {
+                    //display data with cool animation
+                    fullChart.animateXY(1500, 1500);
+                } else {
+                    //render data
+                    fullChart.invalidate();
+                }
+
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        });
 
-        BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
-
-        BarData barData = new BarData( dataSet);
-        // set custom bar width
-        barData.setBarWidth(0.5f);
-
-
-        //customize X-axis
-
-        IAxisValueFormatter formatter = new IAxisValueFormatter() {
-
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return labels[(int) value];
-            }
-
-        };
-
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setGranularity(1f); // minimum axis-step (interval)
-        xAxis.setValueFormatter(formatter);
-
-        //add limit lines to show marker of min 5K activity
-        YAxis yAxis = chart.getAxisLeft();
-
-        LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
-        line.enableDashedLine(10f, 10f, 10f);
-        line.setLineColor(Color.RED);
-        line.setLineWidth(2f);
-        line.setTextStyle(Paint.Style.FILL_AND_STROKE);
-        line.setTextColor(Color.BLACK);
-        line.setTextSize(12f);
-
-        yAxis.addLimitLine(line);
-
-        //add Limit line for max rewarded activity
-        line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
-        line.setLineColor(Color.GREEN);
-        line.setLineWidth(2f);
-        line.setTextStyle(Paint.Style.FILL_AND_STROKE);
-        line.setTextColor(Color.BLACK);
-        line.setTextSize(12f);
-
-
-        yAxis.addLimitLine(line);
-
-        //description field of chart
-        Description chartDescription = new Description();
-        chartDescription.setText(getString(R.string.activity_history_chart_title));
-        chart.setDescription(chartDescription);
-        chart.getLegend().setEnabled(false);
-
-        //fill chart with data
-        chart.setData(barData);
-
-        if (animate){
-            //display data with cool animation
-            chart.animateXY(1500, 1500);
-        }else{
-            //render data
-            chart.invalidate();
-        }
     }
 
     //handles fetching and displaying current user and rank
@@ -1087,7 +1127,11 @@ public class MainActivity extends BaseActivity{
         super.onResume();
         displayDate();
         displayUserAndRank();
+
+        this.isActivityVisible = true;
+
         displayDayChartData(true);
+
         displayChartData(true);
 
         //update language in case it was adjusted
@@ -1138,6 +1182,14 @@ public class MainActivity extends BaseActivity{
     protected void onStop() {
         //LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         super.onStop();
+        this.isActivityVisible = false;
+    }
+
+    @Override
+    protected void onPause() {
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        super.onPause();
+        this.isActivityVisible = false;
     }
 
     /* preventing accidental single back button click leading to exiting the app and losing counter tracking */
@@ -1172,6 +1224,8 @@ public class MainActivity extends BaseActivity{
         }catch(Exception e){
             e.printStackTrace();
         }
+
+        this.isActivityVisible = false;
 
         super.onDestroy();
 
