@@ -6,7 +6,7 @@
     <string name="success_post">Il tuo post é stato inviato con successo alla blockchain di Steem</string>
     <string name="failed_post">C\'é stato un errore inviando il tuo post alla blockchain di Steem</string>
     <string name="connection_timeout">La connessione ai nodi di Steem ci ha messo troppo. Per favore riprova.</string>
-    <string name="default_post_title">La mia carta resoconto Actifit:</string>
+    <string name="default_post_title">Il mio Report Actifit:</string>
     <string name="error_need_select_one_activity">Devi selezionare almeno un tipo di attività per procedere</string>
     <string name="fetching_leaderboard">Aggiornando la classifica...</string>
     <string name="leader_no_results">Momentaneamente non ci sono utenti in classifica</string>
