@@ -1123,7 +1123,7 @@ public class MainActivity extends BaseActivity{
 
 
     @Override
-    protected void onResume() {
+    protected void onResume() {  // We will use the onResume method to implement our rootchecker class.
         super.onResume();
         displayDate();
         displayUserAndRank();
@@ -1176,6 +1176,33 @@ public class MainActivity extends BaseActivity{
         //LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
          //       new IntentFilter("ACTIFIT_SERVICE")
         //);
+        if(new RootChecker().isDeviceRooted()){ //If device fails test, or I guess, passes :P
+            new AlertDialog.Builder(this) //Create a new alert, displaying to the user that we do not allow root devices to use the app.
+                    .setIcon(android.R.drawable.ic_dialog_alert) //Icon to use in alert.
+                    .setTitle("Root Activity")  //Title
+                    .setMessage("Your Device Is Rooted. Please Unroot Your Device, and Try Again.") //Message to display
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() //code to run on click
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) { 
+                                    finish(); //closes application
+                                }
+
+
+
+                            }
+
+                    )
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            finish();//closes application
+                        }
+                    })
+
+
+                    .show() //launch alert.
+        } 
     }
 
     @Override
