@@ -794,13 +794,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 //this runs only on live mode
                 if (getString(R.string.test_mode).equals("off")){
                     //make sure we have reached the min movement amount
-                    if (Integer.parseInt(accountActivityCount) < min_step_limit) {
+                    /*if (Integer.parseInt(accountActivityCount) < min_step_limit) {
                         notification = getString(R.string.min_activity_not_reached) + " " +
                                 NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " " + getString(R.string.not_yet);
                         displayNotification(notification, progress, context, currentActivity, "");
 
                         return null;
-                    }
+                    }*/
 
                     //make sure the post content has at least the min_char_count
                     if (finalPostContent.length()
