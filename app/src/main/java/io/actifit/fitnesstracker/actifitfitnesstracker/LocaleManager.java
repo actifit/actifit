@@ -37,6 +37,10 @@ public class LocaleManager {
 
     public static final String LANGUAGE_KEY_SPANISH = "es";
 
+    public static final String LANGUAGE_KEY_TURKISH = "tr";
+
+    public static final String LANGUAGE_KEY_UKRAINIAN = "uk";
+
     public static final String LANGUAGE_KEY_BRAZIL = "br";
     /**
      *  SharedPreferences Key
@@ -126,6 +130,9 @@ public class LocaleManager {
             case LocaleManager.LANGUAGE_KEY_HINDI: return 6;
             case LocaleManager.LANGUAGE_KEY_ITALIAN: return 7;
             case LocaleManager.LANGUAGE_KEY_GERMAN: return 8;
+            case LocaleManager.LANGUAGE_KEY_SPANISH: return 9;
+            case LocaleManager.LANGUAGE_KEY_TURKISH: return 10;
+            case LocaleManager.LANGUAGE_KEY_UKRAINIAN: return 11;
             default: return 0;
         }
     }
@@ -149,6 +156,12 @@ public class LocaleManager {
             case 7: LocaleManager.setNewLocale(context, LocaleManager.LANGUAGE_KEY_ITALIAN);
                 break;
             case 8: LocaleManager.setNewLocale(context, LocaleManager.LANGUAGE_KEY_GERMAN);
+                break;
+            case 9: LocaleManager.setNewLocale(context, LocaleManager.LANGUAGE_KEY_SPANISH);
+                break;
+            case 10: LocaleManager.setNewLocale(context, LocaleManager.LANGUAGE_KEY_TURKISH);
+                break;
+            case 11: LocaleManager.setNewLocale(context, LocaleManager.LANGUAGE_KEY_UKRAINIAN);
                 break;
         }
         SettingsActivity.languageModified = false;
