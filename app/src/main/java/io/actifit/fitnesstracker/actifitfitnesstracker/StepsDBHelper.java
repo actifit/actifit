@@ -33,12 +33,14 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     public static final String DEVICE_SENSORS = "Device Sensors";
     public static final String FITBIT = "Fitbit";
 
+    private static SQLiteDatabase dbInstance;
+
 
     private static final String CREATE_TABLE_ACTIFIT = "CREATE TABLE "
             + TABLE_STEPS_SUMMARY
             + "(" + CREATION_DATE + " INTEGER PRIMARY KEY,"
-                + STEPS_COUNT + " INTEGER,"
-                + TRACKING_DEVICE + " TEXT"
+            + STEPS_COUNT + " INTEGER,"
+            + TRACKING_DEVICE + " TEXT"
             +")";
 
     private static final String CREATE_TABLE_ACTIVITY_DETAILS = "CREATE TABLE " +
@@ -50,6 +52,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     StepsDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        dbInstance = this.getWritableDatabase();
     }
 
     @Override
@@ -63,7 +66,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             // If the existing version is before v1 (on which we added the new field)
             case 1: db.execSQL("ALTER TABLE "+TABLE_STEPS_SUMMARY
                     +" ADD COLUMN "+TRACKING_DEVICE+" TEXT");
-                    break;
+                break;
             default:
                 throw new IllegalStateException(
                         "onUpgrade() with unknown oldVersion " + oldVersion);
@@ -85,7 +88,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         //grab step count for today, if exists
         int timeSlotStepCount = fetchTimeSlotStepCount(curTimeSlot);
         try {
-            SQLiteDatabase db = this.getWritableDatabase();
+            //SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(DATE_ENTRY, todaysDateString);
             values.put(TIME_SLOT, curTimeSlot);
@@ -95,19 +98,19 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                 timeSlotStepCount += incrementVal;
                 values.put(ACTIVITY_COUNT, timeSlotStepCount);
                 //updating entry with proper step count
-                db.update(TABLE_STEPS_DETAILS, values,
+                dbInstance.update(TABLE_STEPS_DETAILS, values,
                         DATE_ENTRY + "=" + todaysDateString + " AND "
                                 + TIME_SLOT + "=" + curTimeSlot , null);
-                db.close();
+                //db.close();
             }
             else
             {
                 //create entry with 1 step count as first entry
                 timeSlotStepCount = (incrementVal>-1?incrementVal:0);
                 values.put(ACTIVITY_COUNT, timeSlotStepCount);
-                db.insert(TABLE_STEPS_DETAILS, null,
+                dbInstance.insert(TABLE_STEPS_DETAILS, null,
                         values);
-                db.close();
+                //db.close();
             }
 
         } catch (Exception e) {
@@ -136,7 +139,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         int todayStepCount = fetchTodayStepCount();
         String todaysDateString = getTodayProperFormat();
         try {
-            SQLiteDatabase db = this.getWritableDatabase();
+            //SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(CREATION_DATE, getTodayProperFormat());
             //if we found a match
@@ -146,9 +149,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                 values.put(STEPS_COUNT, todayStepCount);
                 values.put(TRACKING_DEVICE, DEVICE_SENSORS);
                 //updating entry with proper step count
-                db.update(TABLE_STEPS_SUMMARY, values,
+                dbInstance.update(TABLE_STEPS_SUMMARY, values,
                         CREATION_DATE + "=" + todaysDateString, null);
-                db.close();
+                //db.close();
             }
             else
             {
@@ -156,9 +159,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                 todayStepCount = (incrementVal>-1?incrementVal:0);
                 values.put(STEPS_COUNT, todayStepCount);
                 values.put(TRACKING_DEVICE, DEVICE_SENSORS);
-                db.insert(TABLE_STEPS_SUMMARY, null,
+                dbInstance.insert(TABLE_STEPS_SUMMARY, null,
                         values);
-                db.close();
+                //db.close();
             }
 
         } catch (Exception e) {
@@ -181,8 +184,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + TABLE_STEPS_SUMMARY;
         try {
             //grab all entries
-            SQLiteDatabase db = this.getReadableDatabase();
-            Cursor c = db.rawQuery(selectQuery, null);
+            //SQLiteDatabase db = this.getReadableDatabase();
+            Cursor c = dbInstance.rawQuery(selectQuery, null);
             //String priorDate = "";
             if (c.moveToFirst()) {
                 do {
@@ -192,12 +195,13 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                     mDateStepsModel.mtrackingDevice = c.getString((c.getColumnIndex(TRACKING_DEVICE)));
                     //fix for the issue with multiple dates showing as row entries
                     //if (!mDateStepsModel.mDate.equals(priorDate)){
-                        //store the result only if this is a different display
-                        mStepCountList.add(mDateStepsModel);
-                   // }
+                    //store the result only if this is a different display
+                    mStepCountList.add(mDateStepsModel);
+                    // }
                 } while (c.moveToNext());
             }
-            db.close();
+            c.close();
+            //db.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -226,8 +230,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                 + TABLE_STEPS_DETAILS + " WHERE " + DATE_ENTRY +" = "+ targetDateString;
         try {
 
-            SQLiteDatabase db = this.getReadableDatabase();
-            Cursor c = db.rawQuery(selectQuery, null);
+            //SQLiteDatabase db = this.getReadableDatabase();
+            Cursor c = dbInstance.rawQuery(selectQuery, null);
             int i = 0;
             if (c.moveToFirst()) {
                 do {
@@ -244,7 +248,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
                 } while (c.moveToNext());
             }
-            db.close();
+            c.close();
+            //db.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -274,8 +279,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                 + TIME_SLOT + "=" + timeSlot;
         try {
 
-            SQLiteDatabase db = this.getReadableDatabase();
-            Cursor c = db.rawQuery(selectQuery, null);
+            //SQLiteDatabase db = this.getReadableDatabase();
+            Cursor c = dbInstance.rawQuery(selectQuery, null);
             if (c.moveToFirst()) {
                 do {
                     //grab the value returned matching today's date
@@ -286,7 +291,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                     break;
                 } while (c.moveToNext());
             }
-            db.close();
+            c.close();
+            //db.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -310,8 +316,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                 + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE +" = "+ dateString + "";
         try {
 
-            SQLiteDatabase db = this.getReadableDatabase();
-            Cursor c = db.rawQuery(selectQuery, null);
+            //SQLiteDatabase db = this.getReadableDatabase();
+            Cursor c = dbInstance.rawQuery(selectQuery, null);
             if (c.moveToFirst()) {
                 do {
                     //grab the value returned matching today's date
@@ -322,7 +328,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
                     break;
                 } while (c.moveToNext());
             }
-            db.close();
+            c.close();
+            //db.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -404,27 +411,33 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
         String todaysDateString = getTodayProperFormat();
         try {
-            SQLiteDatabase db = this.getWritableDatabase();
+            //SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(CREATION_DATE, getTodayProperFormat());
 
             values.put(STEPS_COUNT, activityCount);
             values.put(TRACKING_DEVICE, FITBIT);
             //updating entry with proper step count
-            int updatedRecords = db.update(TABLE_STEPS_SUMMARY, values,
-                        CREATION_DATE + "=" + todaysDateString, null);
+            int updatedRecords = dbInstance.update(TABLE_STEPS_SUMMARY, values,
+                    CREATION_DATE + "=" + todaysDateString, null);
 
             //if no records updated, create a new entry
             if (updatedRecords<1) {
-                db.insert(TABLE_STEPS_SUMMARY, null,
+                dbInstance.insert(TABLE_STEPS_SUMMARY, null,
                         values);
             }
-            db.close();
+            //db.close();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void closeConnection(){
+        if (dbInstance.isOpen()){
+            dbInstance.close();
+        }
     }
 
 }
