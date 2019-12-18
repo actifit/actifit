@@ -12,6 +12,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -93,42 +94,11 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     @Override
     public void onCreate(){
-
-
-        //initialize power manager and wake locks either way
-        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
-
-        //check if aggressive background tracking mode is enabled
-
-        sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking"
-                ,getString(R.string.aggr_back_tracking_off_ntt));
-
-        //enable wake lock to ensure tracking functions in the background
-        if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
-            Log.d(MainActivity.TAG,">>>>[Actifit]AGG MODE ON");
-            wl.acquire();
-        }
-
-        mStepsDBHelper = new StepsDBHelper(this);
-        // Get an instance of the SensorManager
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-
-        accSensor =
-                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
-        //for Android 8, need to initialize notifications first
-        createNotificationChannel(getString(R.string.actifit_channel_ID));
-
-        //initiate step detector and start tracking
-        simpleStepDetector = new SimpleStepDetector();
-        simpleStepDetector.registerListener(this);
-
-        sensorManager.registerListener(ActivityMonitorService.this, accSensor,
-                SensorManager.SENSOR_DELAY_FASTEST);
+        CreateAsyncTask createAsyncTask = new CreateAsyncTask();
+        createAsyncTask.execute();
 
     }
+
 
     /**
      * this is overriding the step function which only works in case of using accelerometer sensor
@@ -215,9 +185,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
      */
     @Override
     public void onSensorChanged(SensorEvent event) {
-
-            simpleStepDetector.updateAccel(
-                    event.timestamp, event.values[0], event.values[1], event.values[2]);
+        MonitorAsyncTask updateTask = new MonitorAsyncTask();
+        updateTask.execute(event);
 
     }
 
@@ -225,28 +194,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-
-        //grab activity count so far today
-        int curActivityCount = mStepsDBHelper.fetchTodayStepCount();
-
-        //create the service that will display as a notification on screen lock
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-        mBuilder = new
-                NotificationCompat.Builder(this, getString(R.string.actifit_channel_ID))
-                .setContentTitle(getString(R.string.actifit_notif_title))
-                .setContentText(getString(R.string.activity_today_string)+" "+(curActivityCount<0?0:curActivityCount))
-                .setSmallIcon(R.drawable.actifit_logo)
-                .setContentIntent(pendingIntent)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOnlyAlertOnce(true);
-
-        notificationManager = NotificationManagerCompat.from(this);
-
-        startForeground(notificationID,mBuilder.build());
+        InitializeAsyncTask initNotif = new InitializeAsyncTask();
+        initNotif.execute();
 
         return START_STICKY;
     }
@@ -272,10 +221,113 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                 wl.release();
             }
         }
+
+        mStepsDBHelper.closeConnection();
+
+        //mStepsDBHelper.closeConnection();
         //service destroyed, let's start it again
         //Intent broadcastIntent = new Intent(".MonitorRestart");
        // sendBroadcast(broadcastIntent);
 
     }
+
+    private class CreateAsyncTask extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //initialize power manager and wake locks either way
+            pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
+
+            //check if aggressive background tracking mode is enabled
+
+            sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+            String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking"
+                    ,getString(R.string.aggr_back_tracking_off_ntt));
+
+            //enable wake lock to ensure tracking functions in the background
+            if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
+                Log.d(MainActivity.TAG,">>>>[Actifit]AGG MODE ON");
+                if (!wl.isHeld()) {
+                    wl.acquire();
+                }
+            }
+
+            mStepsDBHelper = new StepsDBHelper(getApplicationContext());
+            // Get an instance of the SensorManager
+            sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+            accSensor =
+                    sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+            //for Android 8, need to initialize notifications first
+            createNotificationChannel(getString(R.string.actifit_channel_ID));
+
+            //initiate step detector and start tracking
+            simpleStepDetector = new SimpleStepDetector();
+            simpleStepDetector.registerListener(ActivityMonitorService.this);
+
+            sensorManager.registerListener(ActivityMonitorService.this, accSensor,
+                    SensorManager.SENSOR_DELAY_FASTEST);
+
+            return null;
+        }
+    }
+
+    private class InitializeAsyncTask extends AsyncTask<Void, Void, Integer> {
+
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            //grab activity count so far today
+            int curActivityCount = mStepsDBHelper.fetchTodayStepCount();
+            return curActivityCount;
+        }
+
+        @Override
+        protected void onPostExecute(Integer curActivityCount) {
+            super.onPostExecute(curActivityCount);
+
+
+            //create the service that will display as a notification on screen lock
+            Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+            PendingIntent pendingIntent =
+                    PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+
+            mBuilder = new
+                    NotificationCompat.Builder(getApplicationContext(), getString(R.string.actifit_channel_ID))
+                    .setContentTitle(getString(R.string.actifit_notif_title))
+                    .setContentText(getString(R.string.activity_today_string)+" "+(curActivityCount<0?0:curActivityCount))
+                    .setSmallIcon(R.drawable.actifit_logo)
+                    .setContentIntent(pendingIntent)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setOnlyAlertOnce(true);
+
+            notificationManager = NotificationManagerCompat.from(getApplicationContext());
+
+            startForeground(notificationID,mBuilder.build());
+        }
+    }
+
+
+    private class MonitorAsyncTask extends AsyncTask<SensorEvent, Void, Void> {
+
+
+        @Override
+        protected Void doInBackground(SensorEvent... event) {
+            simpleStepDetector.updateAccel(
+                    event[0].timestamp, event[0].values[0], event[0].values[1], event[0].values[2]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+    }
+
+
 
 }

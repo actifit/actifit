@@ -37,7 +37,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 
 import android.support.customtabs.CustomTabsIntent;
@@ -337,6 +339,25 @@ public class MainActivity extends BaseActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //if (DEVELOPER_MODE) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectAll()//.detectNetwork()   // or .detectAll() for all detectable problems
+                    .penaltyLog()
+                    .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+//                    .penaltyDeath()
+                    .build());
+       // }
+
+
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -374,81 +395,6 @@ public class MainActivity extends BaseActivity{
 
         ctx = this;
 
-        //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
-        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-
-        /*************** security features ********************/
-
-        //check if signature has been tampered with
-        if ((getString(R.string.test_mode).equals("off") && getString(R.string.sec_check_signature).equals("on"))
-                && checkAppSignature(this) == MainActivity.INVALID){
-            //package signature has been manipulated
-            Log.d(TAG,">>>>[Actifit] Package signature has been manipulated");
-            killActifit(getString(R.string.security_concerns));
-        }
-
-        //make sure package name has not been manipulated
-        if (!this.getPackageName().equals("io.actifit.fitnesstracker.actifitfitnesstracker")) {
-            //package name has been manipulated
-            Log.d(TAG,">>>>[Actifit] Package name has been manipulated");
-            killActifit(getString(R.string.security_concerns));
-        }
-
-        //let's make sure this is a smart phone device by checking SIM Card
-
-        //Crashlytics.getInstance().crash();
-
-        if (!isSimAvailable()){
-            //no valid active sim card detected
-            Log.d(TAG,">>>>[Actifit] No valid SIM card detected");
-            killActifit(getString(R.string.no_valid_sim));
-        }
-
-        //also let's try to detect if this is a known emulator
-        if (isEmulator()){
-            Log.d(TAG,">>>>[Actifit] Emulator detected");
-            killActifit(getString(R.string.emulator_device));
-        }
-
-        //check if device is rooted
-        RootBeer rootBeer = new RootBeer(this);
-        if(rootBeer.isRootedWithoutBusyBoxCheck()){
-            Log.d(TAG,">>>>[Actifit] Device is rooted");
-            killActifit(getString(R.string.device_rooted));
-        }
-
-        //check if user has a proper unique ID already, if not generate one
-        String actifitUserID = sharedPreferences.getString("actifitUserID","");
-        if (actifitUserID.equals("")) {
-            actifitUserID = UUID.randomUUID().toString();
-            try{
-                PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-                String version = pInfo.versionName;
-                actifitUserID += version;
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("actifitUserID", actifitUserID);
-            editor.apply();
-        }
-
-        //Log.d(TAG,"actifitUserID:"+actifitUserID);
-
-
-        
-            //initiate the monitoring service
-            mSensorService = new ActivityMonitorService(getCtx());
-            mServiceIntent = new Intent(getCtx(), mSensorService.getClass());
-//only start the tracking service if the device sensors is picked as tracking medium
-        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking_ntt));
-        if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
-
-            if (!isMyServiceRunning(mSensorService.getClass())) {
-                startService(mServiceIntent);
-            }
-        }
-
         //grab pointers to specific elements/buttons to be able to capture events and take action
         stepDisplay = findViewById(R.id.step_display);
         Button BtnViewHistory = findViewById(R.id.btn_view_history);
@@ -457,55 +403,45 @@ public class MainActivity extends BaseActivity{
         Button BtnWallet = findViewById(R.id.btn_view_wallet);
         Button BtnSettings = findViewById(R.id.btn_settings);
 
-        FrameLayout picFrame = findViewById(R.id.pic_frame);
-        TextView welcomeUser = findViewById(R.id.welcome_user);
-
         Button BtnSnapActiPic = findViewById(R.id.btn_snap_picture);
+
 
         Log.d(TAG,">>>>[Actifit] Getting jiggy with it");
 
-        mStepsDBHelper = new StepsDBHelper(this);
 
 
-        //display current date
-        displayDate();
+        //introduce the functionality under a separate thread to avoid ANRs
 
-        //display user info
-        displayUserAndRank();
+        PrepareGround prepareApp = new PrepareGround();
+        prepareApp.execute();
 
-        //display today's chart data
-        displayDayChartData(true);
 
-        //display all historical data
-        displayChartData(true);
+        final FrameLayout picFrame = findViewById(R.id.pic_frame);
+        final TextView welcomeUser = findViewById(R.id.welcome_user);
 
-        //only display activity count from device if device mode is on
-        if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
-            //set initial steps display value
-            int stepCount = mStepsDBHelper.fetchTodayStepCount();
-
-            //display step count while ensuring we don't display negative value if no steps tracked yet
-            stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
-
-            //adjust color of step account according to milestone achieved
-            if (stepCount >= 10000 ){
-                stepDisplay.setTextColor(getResources().getColor(R.color.actifitGreen));
-            }else if (stepCount >= 5000 ){
-                stepDisplay.setTextColor(getResources().getColor(R.color.actifitRed));
-            }else {
-                stepDisplay.setTextColor(getResources().getColor(android.R.color.tab_indicator_text));
+        //handle click on user profile
+        picFrame.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                openUserAccount(sharedPreferences);
             }
 
-            //display relevant chart
-            displayActivityChart(stepCount, true);
+        });
+
+        //also handle click on username
+        welcomeUser.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                openUserAccount(sharedPreferences);
+            }
+
+        });
 
 
-        }else{
-            //inform user that fitbit mode is on
-            stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
-        }
 
-        //connecting the activity to the service to receive proper updates on move count
+//connecting the activity to the service to receive proper updates on move count
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -517,33 +453,18 @@ public class MainActivity extends BaseActivity{
                 //to avoid system overload, only update activity charts when activity is visible
                 if (MainActivity.isActivityVisible) {
                     //display today's chart data
-                    displayDayChartData(false);
+                    //displayDayChartData(false);
+                    DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(false);
+                    dispChartData.execute(false);
 
                     //display all historical data
-                    displayChartData(false);
+                    //displayChartData(false);
+                    DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(false);
+                    dispCData.execute(false);
 
                 }
             }
         };
-
-
-        //handle click on user profile
-        picFrame.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openUserAccount(sharedPreferences);
-            }
-
-        });
-
-        //also handle click on username
-        welcomeUser.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openUserAccount(sharedPreferences);
-            }
-
-        });
 
         //handle taking photos
         BtnSnapActiPic.setOnClickListener(new OnClickListener() {
@@ -762,11 +683,142 @@ public class MainActivity extends BaseActivity{
         });
     }
 
+    private class DisplayDayChartDataAsyncTask extends AsyncTask<Boolean, Void, ArrayList<ActivitySlot>> {
+
+        Boolean animate = false;
+
+        public DisplayDayChartDataAsyncTask(Boolean _animate) {
+            animate = _animate;
+        }
+
+        @Override
+        protected ArrayList<ActivitySlot> doInBackground(Boolean... animate) {
+            //initializing date
+            Date date = new Date();
+            DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            String strDate = dateFormat.format(date);
+
+            ArrayList<ActivitySlot> mStepCountList = mStepsDBHelper.fetchDateTimeSlotActivity(strDate);
+            return mStepCountList;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ActivitySlot> mStepCountList) {
+            super.onPostExecute(mStepCountList);
+
+            //connect to the chart and fill it with data
+            dayChart = findViewById(R.id.main_today_activity_chart);
+
+            List<BarEntry> entries = new ArrayList<>();
+
+            int data_id = 0;
+
+            //create a full day chart
+            int indHr;
+            int indMin;
+            int hoursInDay = 24;
+            int[] minInt = {0, 15, 30, 45};
+            int minSlots = minInt.length;
+
+            final String[] labels = new String[hoursInDay * minSlots];
+
+            //loop through whole day as hours
+            for (indHr = 0; indHr < hoursInDay; indHr++) {
+                //loop through 15 mins breaks in hour
+                for (indMin = 0; indMin < minSlots; indMin++) {
+                    String slotLabel = "" + indHr;
+                    if (indHr < 10) {
+                        slotLabel = "0" + indHr;
+                    }
+                    labels[data_id] = slotLabel + ":";
+                    if (minInt[indMin] < 10) {
+                        slotLabel += "0" + minInt[indMin];
+                        labels[data_id] += "0" + minInt[indMin];
+                    } else {
+                        slotLabel += minInt[indMin];
+                        labels[data_id] += minInt[indMin];
+                    }
+                    int matchingSlot = -1;
+                    matchingSlot = mStepCountList.indexOf(new ActivitySlot(slotLabel, 0));
+                    if (matchingSlot > -1) {
+                        //found match, assign values
+                        entries.add(new BarEntry(data_id, Float.parseFloat("" + mStepCountList.get(matchingSlot).activityCount)));
+                    } else {
+                        //default null value
+                        entries.add(new BarEntry(data_id, Float.parseFloat("0")));
+                    }
+
+                    data_id += 1f;
+                }
+            }
+
+            BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
+
+            dayBarData = new BarData(dataSet);
+            // set custom bar width
+            dayBarData.setBarWidth(0.8f);
+
+
+            //customize X-axis
+
+            IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+                @Override
+                public String getFormattedValue(float value, AxisBase axis) {
+                    return labels[(int) value];
+                }
+
+            };
+
+            XAxis xAxis = dayChart.getXAxis();
+            xAxis.setGranularity(1f); // minimum axis-step (interval)
+            xAxis.setValueFormatter(formatter);
+
+            IValueFormatter yFormatter = new IValueFormatter() {
+
+                @Override
+                public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                    if (value < 1) {
+                        return "";
+                    }
+                    return "" + (int) value;
+                }
+
+            };
+
+            //add limit lines to show marker of min 5K activity
+            //YAxis yAxis = chart.getAxisLeft();
+            dayBarData.setValueFormatter(yFormatter);
+            //yAxis.setAxisMinimum(0);
+
+
+            //description field of chart
+            Description chartDescription = new Description();
+            chartDescription.setText(getString(R.string.activity_details_chart_title));
+            dayChart.setDescription(chartDescription);
+            dayChart.getLegend().setEnabled(false);
+
+            //fill chart with data
+            dayChart.setData(dayBarData);
+
+            if (animate) {
+                //display data with cool animation
+                dayChart.animateXY(1500, 1500);
+            } else {
+                //render data
+                dayChart.invalidate();
+            }
+        }
+    }
+
     /* function handles displaying today's detailed chart data */
     private void displayDayChartData(final boolean animate){
 
         //update ui on UI thread
         runOnUiThread(new Runnable() {
+
+        /*Handler uiHandler = new Handler(Looper.getMainLooper());
+        uiHandler.post(new Runnable(){*/
             @Override
             public void run() {
 
@@ -882,10 +934,142 @@ public class MainActivity extends BaseActivity{
 
             }
         });
-        
     }
 
-    /* function handles displaying full chart data */
+    private class DisplayChartDataAsyncTask extends AsyncTask<Boolean, Void, ArrayList<DateStepsModel>> {
+
+        Boolean animate = false;
+
+        public DisplayChartDataAsyncTask(Boolean _animate) {
+            animate = _animate;
+        }
+
+        @Override
+        protected ArrayList<DateStepsModel> doInBackground(Boolean... animate) {
+            //read activity data
+            ArrayList<DateStepsModel> mStepCountList = mStepsDBHelper.readStepsEntries();
+            return mStepCountList;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<DateStepsModel> mStepCountList) {
+            super.onPostExecute(mStepCountList);
+
+            //initializing date conversion components
+            String dateDisplay;
+            //existing date format
+            SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
+            //output format
+            SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
+            SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
+
+
+            //connect to the chart and fill it with data
+            fullChart = findViewById(R.id.main_history_activity_chart);
+
+            List<BarEntry> entries = new ArrayList<BarEntry>();
+
+            final String[] labels = new String[mStepCountList.size()];
+
+            int data_id = 0;
+            //int data_id_int = 0;
+            try {
+                for (DateStepsModel data : mStepCountList) {
+
+                    //grab date entry according to stored format
+                    Date feedingDate = dateFormIn.parse(data.mDate);
+
+                    //convert it to new format for display
+
+                    dateDisplay = dateFormOut.format(feedingDate);
+
+                    //if this is month 12, display year along with it
+                    if (dateDisplay.substring(0, 2).equals("01") || dateDisplay.substring(0, 2).equals("12")) {
+                        dateDisplay = dateFormOutFull.format(feedingDate);
+                    }
+
+                    labels[data_id] = dateDisplay;
+                    entries.add(new BarEntry(data_id, Float.parseFloat("" + data.mStepCount)));
+                    data_id += 1f;
+                    //data_id_int++;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
+
+            chartBarData = new BarData(dataSet);
+            // set custom bar width
+            chartBarData.setBarWidth(0.5f);
+
+
+            //customize X-axis
+
+            IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+                @Override
+                public String getFormattedValue(float value, AxisBase axis) {
+                    return labels[(int) value];
+                }
+
+            };
+
+            XAxis xAxis = fullChart.getXAxis();
+            xAxis.setGranularity(1f); // minimum axis-step (interval)
+            xAxis.setValueFormatter(formatter);
+
+            //add limit lines to show marker of min 5K activity
+            YAxis yAxis = fullChart.getAxisLeft();
+
+            if (yAxis.getLimitLines().size()==0) {
+
+                LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
+                line.enableDashedLine(10f, 10f, 10f);
+                line.setLineColor(Color.RED);
+                line.setLineWidth(2f);
+                line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+                line.setTextColor(Color.BLACK);
+                line.setTextSize(12f);
+
+                yAxis.addLimitLine(line);
+
+                //add Limit line for max rewarded activity
+                line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
+                line.setLineColor(Color.GREEN);
+                line.setLineWidth(2f);
+                line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+                line.setTextColor(Color.BLACK);
+                line.setTextSize(12f);
+
+
+                yAxis.addLimitLine(line);
+
+            }
+
+
+            //description field of chart
+            Description chartDescription = new Description();
+            chartDescription.setText(getString(R.string.activity_history_chart_title));
+
+            fullChart.setDescription(chartDescription);
+            fullChart.getLegend().setEnabled(false);
+
+            //fill chart with data
+            fullChart.setData(chartBarData);
+
+            if (animate) {
+                //display data with cool animation
+                fullChart.animateXY(1500, 1500);
+            } else {
+                //render data
+                fullChart.invalidate();
+            }
+
+        }
+    }
+
+            /* function handles displaying full chart data */
     private void displayChartData(final boolean animate){
 
 
@@ -1023,9 +1207,21 @@ public class MainActivity extends BaseActivity{
             final TextView userRankTV = findViewById(R.id.user_rank);
 
             //display profile pic too
-            String userImgUrl = "https://steemitimages.com/u/" + username + "/avatar";
-            ImageView userProfilePic = findViewById(R.id.user_profile_pic);
-            Picasso.with(this).load(userImgUrl).into(userProfilePic);
+            final String userImgUrl = "https://steemitimages.com/u/" + username + "/avatar";
+            final ImageView userProfilePic = findViewById(R.id.user_profile_pic);
+
+
+            Handler uiHandler = new Handler(Looper.getMainLooper());
+            uiHandler.post(new Runnable(){
+                @Override
+                public void run() {
+                    Picasso.with(ctx)
+                            .load(userImgUrl)
+                            .into(userProfilePic);
+                }
+            });
+
+            //Picasso.with(ctx).load(userImgUrl).into(userProfilePic);
 
             //grab user rank if it is already stored today
             String userRank = sharedPreferences.getString("userRank", "");
@@ -1125,57 +1321,33 @@ public class MainActivity extends BaseActivity{
     @Override
     protected void onResume() {
         super.onResume();
-        displayDate();
-        displayUserAndRank();
 
-        this.isActivityVisible = true;
+        new Thread(new Runnable() {
+            public void run() {
 
-        displayDayChartData(true);
+                displayDate();
+                displayUserAndRank();
 
-        displayChartData(true);
+                MainActivity.isActivityVisible = true;
 
-        //update language in case it was adjusted
-        if (SettingsActivity.languageModified) {
-            updateLang(SettingsActivity.langChoice);
-        }
+                //displayDayChartData(true);
+                DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
+                dispChartData.execute(true);
 
-        //ensure our tracking is active particularly after leaving settings
-        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                //displayChartData(true);
+                DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
+                dispCData.execute(true);
 
-        //only start the tracking service if the device sensors is picked as tracking medium
-        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking_ntt));
-        if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
 
-            if (!isMyServiceRunning(mSensorService.getClass())) {
-                //initiate the monitoring service
-                startService(mServiceIntent);
+                ResumeAsyncTask resumeAsyncTask = new ResumeAsyncTask();
+                resumeAsyncTask.execute();
 
-                //enable aggressive mode if set
-                String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",getString(R.string.aggr_back_tracking_off_ntt));
-                if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
-                    //enable wake lock to ensure tracking functions in the background
-                    PowerManager.WakeLock wl = ActivityMonitorService.getWakeLockInstance();
-                    if (wl==null){
-                        //initialize power manager and wake locks either way
-                        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
-                    }
-                    if (!wl.isHeld()) {
-                        Log.d(MainActivity.TAG, ">>>>[Actifit]Settings AGG MODE ON");
-                        wl.acquire();
-                    }
-                }
+
+                //LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
+                //       new IntentFilter("ACTIFIT_SERVICE")
+                //);
             }
-        }else{
-            stepDisplay = findViewById(R.id.step_display);
-            //inform user that fitbit mode is on
-            stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
-        }
-
-
-        //LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
-         //       new IntentFilter("ACTIFIT_SERVICE")
-        //);
+        }).start();
     }
 
     @Override
@@ -1227,10 +1399,212 @@ public class MainActivity extends BaseActivity{
 
         this.isActivityVisible = false;
 
+        mStepsDBHelper.closeConnection();
+
+        //mStepsDBHelper.closeConnection();
+
         super.onDestroy();
 
         Log.d(TAG,">>>> Actifit destroy state");
     }
 
+    private class ResumeAsyncTask extends AsyncTask<Void, Void, String[]> {
+        @Override
+        protected String[] doInBackground(Void... voids) {
+
+
+            //ensure our tracking is active particularly after leaving settings
+            final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+
+            //only start the tracking service if the device sensors is picked as tracking medium
+            String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
+            String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_off_ntt));
+            String [] result = {dataTrackingSystem, aggModeEnabled};
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String[] result) {
+            super.onPostExecute(result);
+
+            if (result[0].equals(getString(R.string.device_tracking_ntt))) {
+
+                if (!isMyServiceRunning(mSensorService.getClass())) {
+                    //initiate the monitoring service
+                    if (mSensorService == null){
+                        mSensorService = new ActivityMonitorService(getCtx());
+                    }
+                    if (mServiceIntent == null){
+                        mServiceIntent = new Intent(getCtx(), mSensorService.getClass());
+                    }
+                    startService(mServiceIntent);
+
+                    //enable aggressive mode if set
+                    String aggModeEnabled = result[1];
+                    if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
+                        //enable wake lock to ensure tracking functions in the background
+                        PowerManager.WakeLock wl = ActivityMonitorService.getWakeLockInstance();
+                        if (wl == null) {
+                            //initialize power manager and wake locks either way
+                            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
+                        }
+                        if (!wl.isHeld()) {
+                            Log.d(MainActivity.TAG, ">>>>[Actifit]Settings AGG MODE ON");
+                            wl.acquire();
+                        }
+                    }
+                }
+            }else {
+                stepDisplay = findViewById(R.id.step_display);
+                //inform user that fitbit mode is on
+                stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
+            }
+
+            //update language in case it was adjusted
+            if (SettingsActivity.languageModified) {
+                updateLang(SettingsActivity.langChoice);
+            }
+
+        }
+
+    }
+
+    private class PrepareGround extends AsyncTask<Void, Void, Void> {
+        String dataTrackingSystem;
+        int stepCount = 0;
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+
+            mStepsDBHelper = new StepsDBHelper(ctx);
+
+            //initiate the monitoring service
+            mSensorService = new ActivityMonitorService(getCtx());
+            mServiceIntent = new Intent(getCtx(), mSensorService.getClass());
+
+            //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
+            final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+            /*************** security features ********************/
+
+            //check if signature has been tampered with
+            if ((getString(R.string.test_mode).equals("off") && getString(R.string.sec_check_signature).equals("on"))
+                    && checkAppSignature(ctx) == MainActivity.INVALID){
+                //package signature has been manipulated
+                Log.d(TAG,">>>>[Actifit] Package signature has been manipulated");
+                killActifit(getString(R.string.security_concerns));
+            }
+
+            //make sure package name has not been manipulated
+            if (!ctx.getPackageName().equals("io.actifit.fitnesstracker.actifitfitnesstracker")) {
+                //package name has been manipulated
+                Log.d(TAG,">>>>[Actifit] Package name has been manipulated");
+                killActifit(getString(R.string.security_concerns));
+            }
+
+            //let's make sure this is a smart phone device by checking SIM Card
+
+            //Crashlytics.getInstance().crash();
+
+            if (!isSimAvailable()){
+                //no valid active sim card detected
+                Log.d(TAG,">>>>[Actifit] No valid SIM card detected");
+                killActifit(getString(R.string.no_valid_sim));
+            }
+
+            //also let's try to detect if this is a known emulator
+            if (isEmulator()){
+                Log.d(TAG,">>>>[Actifit] Emulator detected");
+                killActifit(getString(R.string.emulator_device));
+            }
+
+            //check if device is rooted
+            RootBeer rootBeer = new RootBeer(ctx);
+            if(getString(R.string.test_mode).equals("off") && rootBeer.isRootedWithoutBusyBoxCheck()){
+                Log.d(TAG,">>>>[Actifit] Device is rooted");
+                killActifit(getString(R.string.device_rooted));
+            }
+
+            //check if user has a proper unique ID already, if not generate one
+            String actifitUserID = sharedPreferences.getString("actifitUserID","");
+            if (actifitUserID.equals("")) {
+                actifitUserID = UUID.randomUUID().toString();
+                try{
+                    PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                    String version = pInfo.versionName;
+                    actifitUserID += version;
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("actifitUserID", actifitUserID);
+                editor.apply();
+            }
+
+            //Log.d(TAG,"actifitUserID:"+actifitUserID);
+
+
+            //only start the tracking service if the device sensors is picked as tracking medium
+            dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking_ntt));
+            if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
+
+                if (!isMyServiceRunning(mSensorService.getClass())) {
+                    startService(mServiceIntent);
+                }
+
+                stepCount = mStepsDBHelper.fetchTodayStepCount();
+            }
+
+
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(Void param) {
+            super.onPostExecute(param);
+
+            //display current date
+            displayDate();
+
+            //display user info
+            displayUserAndRank();
+
+            //display today's chart data
+            DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
+            dispChartData.execute(true);
+
+            //display all historical data
+            DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
+            dispCData.execute(true);
+
+            //only display activity count from device if device mode is on
+            if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
+
+                //display step count while ensuring we don't display negative value if no steps tracked yet
+                stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
+
+                //adjust color of step account according to milestone achieved
+                if (stepCount >= 10000 ){
+                    stepDisplay.setTextColor(getResources().getColor(R.color.actifitGreen));
+                }else if (stepCount >= 5000 ){
+                    stepDisplay.setTextColor(getResources().getColor(R.color.actifitRed));
+                }else {
+                    stepDisplay.setTextColor(getResources().getColor(android.R.color.tab_indicator_text));
+                }
+
+                //display relevant chart
+                displayActivityChart(stepCount, true);
+
+
+            }else{
+                //inform user that fitbit mode is on
+                stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
+            }
+
+        }
+    }
 
 }
