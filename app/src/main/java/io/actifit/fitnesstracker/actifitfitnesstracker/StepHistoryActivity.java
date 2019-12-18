@@ -1,6 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -32,42 +33,8 @@ public class StepHistoryActivity extends BaseActivity {
         //mStepFinalList = new ArrayList<String>();
         mStepFinalList = new ArrayList<>();
 
-        //grab the data to be displayed in the list
-        getDataForList();
-
-        //initializing date conversion components
-        String dateDisplay;
-        //existing date format
-        SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
-        //output format
-        SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd/yyyy");
-
-        //loop through the data to prepare it for proper display
-        for (int position=0;position<mStepCountList.size();position++){
-            try {
-                //grab date entry according to stored format
-                Date feedingDate = dateFormIn.parse((mStepCountList.get(position)).mDate);
-                //convert it to new format for display
-                dateDisplay = dateFormOut.format(feedingDate);
-
-                //initiate a new entry
-                DateStepsModel newEntry = new DateStepsModel(dateDisplay, mStepCountList.get(position).mStepCount, mStepCountList.get(position).mtrackingDevice);
-
-                mStepFinalList.add(newEntry);
-
-            }catch(ParseException txtEx){
-                Log.d(MainActivity.TAG,txtEx.toString());
-                txtEx.printStackTrace();
-            }
-        }
-        //reverse the list for descending display
-        Collections.reverse(mStepFinalList);
-
-        // Create the adapter to convert the array to views
-        listingAdapter = new ActivityEntryAdapter(this, mStepFinalList);
-
-
-        mStepsListView.setAdapter(listingAdapter);
+        StepHistoryAsyncTask stepHistoryAsyncTask = new StepHistoryAsyncTask();
+        stepHistoryAsyncTask.execute();
 
         //hook chart activity button
         Button BtnViewChart = findViewById(R.id.chart_view);
@@ -91,5 +58,56 @@ public class StepHistoryActivity extends BaseActivity {
     public void getDataForList() {
         mStepsDBHelper = new StepsDBHelper(this);
         mStepCountList = mStepsDBHelper.readStepsEntries();
+    }
+
+    private class StepHistoryAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            //grab the data to be displayed in the list
+            getDataForList();
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            //initializing date conversion components
+            String dateDisplay;
+            //existing date format
+            SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
+            //output format
+            SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd/yyyy");
+
+            //loop through the data to prepare it for proper display
+            for (int position=0;position<mStepCountList.size();position++){
+                try {
+                    //grab date entry according to stored format
+                    Date feedingDate = dateFormIn.parse((mStepCountList.get(position)).mDate);
+                    //convert it to new format for display
+                    dateDisplay = dateFormOut.format(feedingDate);
+
+                    //initiate a new entry
+                    DateStepsModel newEntry = new DateStepsModel(dateDisplay, mStepCountList.get(position).mStepCount, mStepCountList.get(position).mtrackingDevice);
+
+                    mStepFinalList.add(newEntry);
+
+                }catch(ParseException txtEx){
+                    Log.d(MainActivity.TAG,txtEx.toString());
+                    txtEx.printStackTrace();
+                }
+            }
+            //reverse the list for descending display
+            Collections.reverse(mStepFinalList);
+
+            // Create the adapter to convert the array to views
+            listingAdapter = new ActivityEntryAdapter(getApplicationContext(), mStepFinalList);
+
+
+            mStepsListView.setAdapter(listingAdapter);
+
+        }
     }
 }
