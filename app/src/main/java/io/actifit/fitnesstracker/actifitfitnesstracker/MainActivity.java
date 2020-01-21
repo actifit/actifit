@@ -341,7 +341,7 @@ public class MainActivity extends BaseActivity{
     protected void onCreate(Bundle savedInstanceState) {
 
         //if (DEVELOPER_MODE) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+            /*StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectDiskReads()
                     .detectDiskWrites()
                     .detectAll()//.detectNetwork()   // or .detectAll() for all detectable problems
@@ -352,7 +352,7 @@ public class MainActivity extends BaseActivity{
                     .detectLeakedClosableObjects()
                     .penaltyLog()
 //                    .penaltyDeath()
-                    .build());
+                    .build());*/
        // }
 
 
