@@ -16,12 +16,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
-import java.util.Calendar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import android.util.Log;
 
 
 /**
@@ -207,7 +207,12 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(Service.STOP_FOREGROUND_REMOVE);
         }
-        sensorManager.unregisterListener(ActivityMonitorService.this);
+
+        try {
+            sensorManager.unregisterListener(ActivityMonitorService.this);
+        }catch(Exception e ){
+            Log.d(MainActivity.TAG,"error unregisterig listener");
+        }
 
         String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking"
                 ,getString(R.string.aggr_back_tracking_off_ntt));

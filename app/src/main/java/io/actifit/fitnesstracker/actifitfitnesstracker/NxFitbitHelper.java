@@ -1,10 +1,9 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.StrictMode;
-import android.support.customtabs.CustomTabsIntent;
+import androidx.browser.customtabs.CustomTabsIntent;
 import android.util.Log;
 
 import com.github.scribejava.apis.FitbitApi20;

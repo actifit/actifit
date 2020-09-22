@@ -16,11 +16,8 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.ActivityManager;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -39,12 +36,13 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 
-import android.support.customtabs.CustomTabsIntent;
-import android.support.v4.content.FileProvider;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.FileProvider;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.os.Bundle;
 import android.hardware.SensorEventListener;
 import android.hardware.Sensor;
@@ -55,7 +53,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -106,7 +103,8 @@ import java.util.Locale;
 import java.util.UUID;
 
 import static android.os.Environment.getExternalStoragePublicDirectory;
-import static java.security.CryptoPrimitive.SIGNATURE;
+import static androidx.localbroadcastmanager.content.LocalBroadcastManager.*;
+
 
 /**
  * Implementation of this project was made possible via re-use, adoption and improvement of
@@ -333,6 +331,10 @@ public class MainActivity extends BaseActivity{
         //throw new NullPointerException();
         //killActifit(getString(R.string.no_valid_sim));
         Crashlytics.getInstance().crash();
+
+        //new syntax:
+        FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+        crashlytics.someAction();
     }*/
 
 
@@ -1305,7 +1307,7 @@ public class MainActivity extends BaseActivity{
     @Override
     protected void onStart() {
         super.onStart();
-        LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
+        getInstance(this).registerReceiver((receiver),
                 new IntentFilter("ACTIFIT_SERVICE")
         );
 
