@@ -9,7 +9,8 @@
         android:logo="@mipmap/actifit_launcher"
         android:roundIcon="@mipmap/actifit_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name=".ActifitApplication">
 
         <!-- [START fcm_default_icon] -->
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
@@ -70,7 +71,7 @@
         </service>
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="io.actifit.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -111,6 +112,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- required as of Android 9 (API level 28) for startforeground service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
 </manifest>
