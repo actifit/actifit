@@ -87,6 +87,7 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
 
 
                 intent.putExtra(DailyDetailedActivity.detailedActivityParam, dateDisplay);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getContext().startActivity(intent);
             }
         });

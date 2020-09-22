@@ -4,8 +4,12 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+//import org.jetbrains.annotations.Nullable;
+import androidx.annotation.Nullable;
+
 
 import static android.content.pm.PackageManager.GET_META_DATA;
 

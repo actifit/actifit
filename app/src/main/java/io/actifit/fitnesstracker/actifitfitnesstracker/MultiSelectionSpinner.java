@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 import java.util.Arrays;
@@ -17,7 +16,7 @@ import java.util.List;
  * Created by Aneh Thakur on 5/7/2015.
  * original source: https://trinitytuts.com/tips/multiselect-spinner-item-in-android/
  */
-public class MultiSelectionSpinner extends android.support.v7.widget.AppCompatSpinner implements
+public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSpinner implements
         OnMultiChoiceClickListener {
     String[] _items = null;
     boolean[] mSelection = null;
