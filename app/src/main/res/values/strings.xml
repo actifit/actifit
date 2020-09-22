@@ -1,15 +1,15 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Actifit Fitness Tracker</string>
-    <string name="sending_post">Sending your post to the Steem blockchain...</string>
-    <string name="success_post">Your post has been successfully submitted to the Steem blockchain</string>
-    <string name="failed_post">There was an error submitting your post to the Steem blockchain</string>
-    <string name="connection_timeout">Connecting to the Steem node took too long. Please try again.</string>
+    <string name="sending_post">Sending your post...</string>
+    <string name="success_post">Your post has been successfully submitted</string>
+    <string name="failed_post">There was an error submitting your post</string>
+    <string name="connection_timeout">Connecting took too long. Please try again.</string>
     <string name="default_post_title">My Actifit Report Card:</string>
     <string name="error_need_select_one_activity">You need to select at least one Activity Type to proceed</string>
     <string name="fetching_leaderboard">Updating the leaderboard...</string>
     <string name="leader_no_results">There are no users on the leaderboard now</string>
     <string name="leader_error">An error occurred trying to fetch leaderboard list. Please Try again later.</string>
-    <string name="username_missing">Please provide a proper existing Steem username</string>
+    <string name="username_missing">Please provide a proper existing username</string>
     <string name="fetching_user_balance">Grabbing user balance...</string>
     <string name="metric_system">Metric System</string>
     <string name="us_system">US System</string>
@@ -27,21 +27,21 @@
     <string name="actifit_channel_5k_notice" translatable="false">Actifit_Notif_Channel_3</string>
     <string name="actifit_channel_10k_notice" translatable="false">Actifit_Notif_Channel_4</string>
     <string name="actifit_fcm_msg_channel_id" translatable="false">Actifit_FCM_Msg_Chan_1</string>
-    <string name="aggr_back_tracking_on">On</string>
-    <string name="aggr_back_tracking_off"></string>
     <string name="aggr_mode_note">*Enable this setting if you are facing issues with app tracking your movement while screen is locked. The setting may possibly drain your battery faster.</string>
     <string name="one_post_per_day_error">You can only post once per day</string>
     <string name="min_char_count_error">You need to describe your activity in at least </string>
     <string name="characters_plural_label">characters</string>
     <string name="current_workout_going_charity">Your current activity rewards will go to charity </string>
     <string name="current_workout_settings_based">based on your settings choice. Are you sure you want to proceed? </string>
-    <string name="steemit_url">https://www.steemit.com/</string>
+    <string name="steemit_url">https://www.actifit.io/</string>
     <string name="actifit_usermedia_url">https://usermedia.actifit.io/</string>
-    <string name="actifit_find_posting_key_vid"><a href="https://d.tube/#!/v/raserrano/h7rze7he">Help me find my Private Posting Key</a></string>
+    <string name="actifit_find_posting_key_vid"><a href="https://actifit.io/password">Help me find my Private Posting Key</a></string>
+    <string name="create_account_link" translatable="false"><a href="https://actifit.io/signup">Create an account</a></string>
     <string name="welcome_user">Welcome USER_NAME USER_RANK</string>
     <string name="daily_post_reminder_title">Actifit Reminder!</string>
     <string name="daily_post_reminder">You haven\'t posted today\'s activity report!</string>
     <string name="update_google_play">Please update Google Play services app on your device.</string>
+    <string name="security_concerns">There are security concerns over your installation. Actifit cannot run.</string>
     <string name="device_rooted">Your device is rooted. Actifit can only run on non-rooted devices.</string>
     <string name="emulator_device">You appear to be running Actifit on an emulator. Actifit can only run on authentic phone devices.</string>
     <string name="no_valid_sim">We could not detect a valid SIM card. If you have a DUAL SIM ensure SIM is in first slot and set as default.</string>
@@ -50,15 +50,15 @@
     <string name="activity_history_chart_title">Activity History Chart</string>
     <string name="activity_details_chart_title">Activity Day Details</string>
     <string name="activity_leaderboard_title">Daily Leaderboard: Top Actifitters</string>
-    <string name="post_to_steem_btn_txt">Post to Steem</string>
+    <string name="post_to_steem_btn_txt">Send Post</string>
     <string name="snap_picture_btn_txt">Snap an Acti Pic</string>
     <string name="view_history_btn_txt">View Tracking History</string>
     <string name="daily_leaderboard_btn_txt">View Daily Leaderboard</string>
     <string name="view_wallet_btn_txt">View Wallet</string>
     <string name="settings_btn_txt">Settings</string>
     <string name="settings_title">Settings</string>
-    <string name="steem_username_lbl">Steem Username</string>
-    <string name="steem_pvt_posting_key">Steem Private Posting Key (NOT the password)</string>
+    <string name="steem_username_lbl">Username</string>
+    <string name="steem_pvt_posting_key">Private Posting Key (NOT the password)</string>
     <string name="report_title">Report Title</string>
     <string name="full_report_AFIT_pay">Full Report Payout in AFIT</string>
     <string name="full_AFIT_checkbox">Maximize AFIT Token Earnings</string>
@@ -83,13 +83,13 @@
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">Activity Data Source</string>
     <string name="device_sensors_option_lbl">Phone Sensors</string>
-    <string name="fitbit_option_lbl">Fitbit</string>
+    <string name="fitbit_option_lbl">3rd Party</string>
     <string name="background_move_track_lbl">Background Movement Tracking</string>
     <string name="enable_agg_mode_checkbox">Enable Aggressive Background Tracking*</string>
     <string name="fitbit_settings_lbl">Fitbit Settings</string>
     <string name="fitbit_measurements_lbl">Fetch Measurements</string>
     <string name="fitbit_fetch_steps">Fetch Steps</string>
-    <string name="steem_post_payout">STEEM Post Payout</string>
+    <string name="steem_post_payout">Post Payout</string>
     <string name="pay_option_50_50">50% SBD - 50% SP</string>
     <string name="pay_option_full_sp">100% SP</string>
     <string name="measure_system_lbl">Measurement System</string>
@@ -168,6 +168,7 @@
     <string name="Kidplay">Play with kids/grand kids</string>
     <string name="HomeImprovement">Home Improvement</string>
     <string name="YardWork">Yard Work</string>
+    <string name="MountainClimbing">Mountain Climbing</string>
     <string name="kg_unit">kg</string>
     <string name="cm_unit">cm</string>
     <string name="lb_unit">lb</string>
@@ -191,11 +192,9 @@
     <string name="actifit_crash_restarted">Actifit restarted after crash</string>
     <string name="entry_view_details_button">Post Details</string>
     <string name="language">Language</string>
-    <string-array name="supported_languages">
-        <item>English</item>
-        <item>Portuguese</item>
-        <item>Korean</item>
-        <item>Arabic</item>
-        <item>Yoruba</item>
-    </string-array>
+    <string name="actifit_logo_desc">Actifit Logo</string>
+    <string name="profile">Profile</string>
+    <string name="post">Post</string>
+    <string name="wallet" tools:ignore="MissingTranslation">Wallet</string>
+    <string name="leaderboard">Leaderboard</string>
 </resources>
