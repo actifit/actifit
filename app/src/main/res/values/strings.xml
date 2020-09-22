@@ -168,7 +168,9 @@
     <string name="Kidplay">Play with kids/grand kids</string>
     <string name="HomeImprovement">Home Improvement</string>
     <string name="YardWork">Yard Work</string>
-    <string name="MountainClimbing">Mountain Climbing</string>
+    <string name="StairClimbing">Stair Climbing</string>
+    <string name="Yoga">Yoga</string>
+    <string name="Stretching">Stretching</string>
     <string name="kg_unit">kg</string>
     <string name="cm_unit">cm</string>
     <string name="lb_unit">lb</string>
