@@ -1,4 +1,4 @@
-# Actifit (Android Version)
+# Actifit Android Version
 Actifit: An Innovative Dapp That Rewards Your Everyday Activity!
 
 
