@@ -30,6 +30,7 @@
         android:inputType="textPersonName" />
 
     <Button
+        style="@style/AppTheme.ActifitButton"
         android:id="@+id/btn_get_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

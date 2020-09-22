@@ -6,6 +6,21 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:actionMenuTextColor">@color/colorWhite</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="NoToolbarTheme" parent="@style/Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.ActifitButton" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/actifitRed</item>
+        <item name="android:textColor">@color/colorWhite</item>
     </style>
 
 </resources>
