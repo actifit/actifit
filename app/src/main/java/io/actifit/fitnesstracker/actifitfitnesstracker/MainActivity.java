@@ -38,6 +38,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.MediaStore;
 
+import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.FileProvider;
 
@@ -83,6 +84,11 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.scottyab.rootbeer.RootBeer;
 import com.squareup.picasso.Picasso;
 
@@ -122,6 +128,8 @@ import static androidx.localbroadcastmanager.content.LocalBroadcastManager.*;
 
 public class MainActivity extends BaseActivity{
     public static SensorManager sensorManager;
+    public static String username;
+    public static String commToken;
     private TextView stepDisplay;
 
     //tracks a reference to an instance of this class
@@ -368,6 +376,66 @@ public class MainActivity extends BaseActivity{
 
         this.isActivityVisible = true;
 
+        //script to receive notifications in background mode
+        if (getIntent().getExtras() != null) {
+            // Call your NotificationActivity here..
+            if (getIntent().getExtras().containsKey("url")) {
+                String targetUrl = getIntent().getExtras().get("url").toString();
+                /*Intent intent = new Intent(this, MainActivity.class);
+                intent.setData(Uri.parse(targetUrl));
+                startActivity(intent);*/
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+                builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+
+                //animation for showing and closing fitbit authorization screen
+                builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left);
+
+                //animation for back button clicks
+                builder.setExitAnimations(this, android.R.anim.slide_in_left,
+                        android.R.anim.slide_out_right);
+
+                CustomTabsIntent customTabsIntent = builder.build();
+
+                customTabsIntent.launchUrl(this, Uri.parse(targetUrl));
+            }
+        }
+        /*if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                Object value = getIntent().getExtras().get(key);
+                Log.d("MainActivity: ", "Key: " + key + " Value: " + value);
+            }
+        }*/
+
+        //check if user had unsuscribed from notifications
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        Boolean currentNotifStatus = (sharedPreferences.getBoolean(getString(R.string.notification_status),true));
+
+        //if not set as subscribed by default
+        if (currentNotifStatus) {
+            FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.actif_def_not_topic));
+        }
+        /*****   Script below for fetching new app communication token *******/
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        commToken = task.getResult().getToken();
+
+                        // Log and toast
+                        //String msg = getString(R.string.msg_, token);
+                        Log.d(TAG, commToken);
+                        //Log.d(TAG, msg);
+                        //Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
         //notify user of app restart with a Toast
         /*if (getIntent().getBooleanExtra("crash", false)) {
             Toast toast = Toast.makeText(this,  getString(R.string.actifit_crash_restarted), Toast.LENGTH_SHORT);
@@ -580,7 +648,7 @@ public class MainActivity extends BaseActivity{
     }
 
     private void openUserAccount(SharedPreferences sharedPreferences){
-        final String username = sharedPreferences.getString("actifitUser","");
+        username = sharedPreferences.getString("actifitUser","");
         if (username != "") {
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
@@ -1202,7 +1270,7 @@ public class MainActivity extends BaseActivity{
     private void displayUserAndRank(){
         //grab stored value, if any
         final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        final String username = sharedPreferences.getString("actifitUser","");
+        username = sharedPreferences.getString("actifitUser","");
         if (username != "") {
             //greet user if user identified
             final TextView welcomeUser = findViewById(R.id.welcome_user);

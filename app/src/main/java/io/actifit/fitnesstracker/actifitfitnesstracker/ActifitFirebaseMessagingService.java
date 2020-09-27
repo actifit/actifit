@@ -21,6 +21,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -30,16 +32,52 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
 public class ActifitFirebaseMessagingService extends FirebaseMessagingService {
 
-    /**
-     * Called when message is received.
-     *
-     * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
-     */
+
+    /*
+    @Override
+    public void handleIntent(Intent intent)
+    {
+        try
+        {
+            if (intent.getExtras() != null)
+            {
+                RemoteMessage.Builder builder = new RemoteMessage.Builder("ActifitFirebaseMessagingService");
+
+                for (String key : intent.getExtras().keySet())
+                {
+                    builder.addData(key, intent.getExtras().get(key).toString());
+                }
+
+                onMessageReceived(builder.build());
+            }
+            else
+            {
+                super.handleIntent(intent);
+            }
+        }
+        catch (Exception e)
+        {
+            super.handleIntent(intent);
+        }
+    }*/
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+
+
         Log.d(MainActivity.TAG, remoteMessage.getFrom());
 
         // Check if message contains a data payload.
@@ -63,6 +101,30 @@ public class ActifitFirebaseMessagingService extends FirebaseMessagingService {
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
+
+        sendNotification(remoteMessage);
+    }
+
+    //helps generate a bitmap from sent url
+    public Bitmap getBitmapfromUrl(Uri imageUrl) {
+        if (imageUrl == null || imageUrl.toString()==""){
+            return null;
+        }
+        try {
+            URL url = new URL(imageUrl.toString());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap bitmap = BitmapFactory.decodeStream(input);
+            return bitmap;
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+
+        }
     }
 
     /**
@@ -77,7 +139,8 @@ public class ActifitFirebaseMessagingService extends FirebaseMessagingService {
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
         // Instance ID token to your app server.
-        sendRegistrationToServer(token);
+        MainActivity.commToken = token;
+        //sendRegistrationToServer(token);
     }
     // [END on_new_token]
 
@@ -99,39 +162,58 @@ public class ActifitFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(MainActivity.TAG, "Short lived task is done.");
     }
 
-    /**
-     * Persist token to third-party servers.
-     *
-     * Modify this method to associate the user's FCM InstanceID token with any server-side account
-     * maintained by your application.
-     *
-     * @param token The new token.
-     */
-    private void sendRegistrationToServer(String token) {
-        // TODO: Implement this method to send token to your app server.
-    }
+
 
     /**
      * Create and show a simple notification containing the received FCM message.
      *
-     * @param messageBody FCM message body received.
+     * @param remoteMessage FCM message received.
      */
-    private void sendNotification(String messageBody) {
+    private void sendNotification(RemoteMessage remoteMessage) {
+        String message = remoteMessage.getNotification().getBody();
+        String title = remoteMessage.getNotification().getTitle();
+        Uri imageUri = remoteMessage.getNotification().getImageUrl();
+
+        Bitmap image = getBitmapfromUrl(imageUri);
+
+        String targetUrl = "";
+        if (remoteMessage.getData().containsKey("url")) {
+            targetUrl = remoteMessage.getData().get("url");
+            Log.d(MainActivity.TAG, "targetUrl:"+targetUrl);
+        }
+
         Intent intent = new Intent(this, MainActivity.class);
+
+
+        if (targetUrl != "") {
+            intent.setData(Uri.parse(targetUrl));
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
+
 
         String channelId = getString(R.string.actifit_fcm_msg_channel_id);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.drawable.actifit_logo)
-                        .setContentTitle(getString(R.string.actifit_notification))
-                        .setContentText(messageBody)
+                        .setContentTitle(title)
+                        .setContentText(message)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent);
+        if (image != null){
+            NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle();
+            style.bigPicture(image);
+
+            notificationBuilder.setLargeIcon(image);
+            notificationBuilder.setStyle(style);
+        }
+
+
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
