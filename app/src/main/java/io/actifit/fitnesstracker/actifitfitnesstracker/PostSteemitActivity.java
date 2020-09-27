@@ -774,6 +774,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 editor.apply();
 
 
+                //if (1==1) return null;
+
                 //set proper target date
                 Calendar mCalendar = Calendar.getInstance();
 
@@ -966,6 +968,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 if (result.equals("success")) {
                     notification = getString(R.string.success_post);
 
+
+
+                    //send out server notification registration with username and token
+                    sendRegistrationToServer();
+
                     //store date of last successful post to prevent multiple posts per day
 
                     //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
@@ -1130,6 +1137,42 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             //connect to the server via a thread to prevent application hangup
             new PostSteemitRequest(steemit_post_context, currentActivity).execute();
         }
+    }
+
+    /**
+     * Persist token to third-party servers.
+     *
+     * Modify this method to associate the user's FCM InstanceID token with any server-side account
+     * maintained by your application.
+     *
+     */
+    private void sendRegistrationToServer() {
+        String urlStr = getString(R.string.live_server) + getString(R.string.register_user_token_notifications);
+        Log.d(MainActivity.TAG, "sendRegistrationToServer - urlStr:"+urlStr);
+        ArrayList<String[]> headers = new ArrayList<>();
+        headers.add(new String[]{"Content-Type", "application/json"});
+        HttpResultHelper httpResult = new HttpResultHelper();
+
+        final JSONObject data = new JSONObject();
+        try {
+            data.put("token", MainActivity.commToken);
+            data.put("user", MainActivity.username);
+            data.put("app", "Android");
+
+            String inputLine;
+            String result = "";
+            httpResult = httpResult.httpPost(urlStr, null, null, data.toString(), headers, 20000);
+            BufferedReader in = new BufferedReader(new InputStreamReader(httpResult.getResponse()));
+            while ((inputLine = in.readLine()) != null) {
+                result += inputLine;
+            }
+
+            Log.d(MainActivity.TAG,">>>test:" + result);
+        } catch (JSONException | IOException e) {
+            //e.printStackTrace();
+            Log.e(MainActivity.TAG, e.getMessage());
+        }
+
     }
 
 

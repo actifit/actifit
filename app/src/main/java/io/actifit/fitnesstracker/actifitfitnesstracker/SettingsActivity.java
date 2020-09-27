@@ -21,25 +21,34 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SettingsActivity extends BaseActivity {
 
@@ -50,6 +59,18 @@ public class SettingsActivity extends BaseActivity {
     private String sbdSPPay = "50_50_SBD_SP_Pay";
     public static boolean languageModified = false;
     public static int langChoice = -1;
+    private RequestQueue queue;
+    public static JSONObject userServerSettings;
+
+    private ListView notifListView;
+    public JSONArray notificationTypes;
+    private NotificationTypeEntryAdapter notificationAdapter;
+    private ArrayList<SingleNotificationModel> finalList;
+    private Context cntxt = this;
+
+    private int notifSettingsHeight = 0;
+
+    private String accessToken;
 
     /*@Bind(R.id.main_toolbar)
     Toolbar toolbar;*/
@@ -72,24 +93,13 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.activity_settings);
 
 
-        //oxylabs preferences
-        /*SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        prefs.edit().putBoolean("shared_network", com.exerpic.si.aar.Activity.isEnabled()).apply();
-        PreferenceManager.addPreferencesFromResource(R.xml.prefs);*/
-
-        //display version number
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            String version = pInfo.versionName;
-            TextView version_info = findViewById(R.id.version_info);
-            version_info.setText(getString(R.string.app_version_string) + " :" + version);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
 
         //grab instances of settings components
         final RadioButton metricSysRadioBtn = findViewById(R.id.metric_system);
         final RadioButton usSystemRadioBtn = findViewById(R.id.us_system);
+
+        final RadioButton notificationsActive = findViewById(R.id.notifications_active);
+        final RadioButton notificationsInactive = findViewById(R.id.notifications_inactive);
 
         final CheckBox aggBgTrackingChckBox = findViewById(R.id.background_tracking);
 
@@ -109,11 +119,237 @@ public class SettingsActivity extends BaseActivity {
 
         final Spinner languageSelected = findViewById(R.id.language_picker);
 
+        final RadioButton hiveSteemOptionRadioBtn = findViewById(R.id.hive_steem_option);
+        final RadioButton hiveOnlyOptionRadioBtn = findViewById(R.id.hive_only_option);
 
         Spinner charitySelected = findViewById(R.id.charity_options);
 
+        finalList = new ArrayList<>();
+
+        //oxylabs preferences
+        /*SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        prefs.edit().putBoolean("shared_network", com.exerpic.si.aar.Activity.isEnabled()).apply();
+        PreferenceManager.addPreferencesFromResource(R.xml.prefs);*/
+
+        //display version number
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            String version = pInfo.versionName;
+            TextView version_info = findViewById(R.id.version_info);
+            version_info.setText(getString(R.string.app_version_string) + " :" + version);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        //grab charity list
+        // Instantiate the RequestQueue.
+        queue = Volley.newRequestQueue(this);
+
+        //if there is an assigned user, fetch his settings
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        final String username = sharedPreferences.getString("actifitUser","");
+
+        if (!username.equals("")) {
+            //fetch user global settings - server based
+
+            String pkey = sharedPreferences.getString("actifitPst","");
+
+            //authorize user login based on credentials if user is already verified
+            if (!pkey.equals("")) {
+                String loginAuthUrl = getString(R.string.live_server)
+                        + getString(R.string.login_auth);
+
+
+                JSONObject loginSettings = new JSONObject();
+                try {
+                    loginSettings.put(getString(R.string.username_param), username);
+                    loginSettings.put(getString(R.string.pkey_param), pkey);
+                    loginSettings.put(getString(R.string.bchain_param), "HIVE");//default always HIVE
+                    loginSettings.put(getString(R.string.keeploggedin_param), true);//TODO make dynamic
+                } catch (JSONException e) {
+                    Log.e(MainActivity.TAG, e.getMessage());
+                }
+
+                //grab auth token for logged in user
+                JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST,
+                        loginAuthUrl, loginSettings,
+                        new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                //store token for reuse when saving settings
+                                try {
+                                    if (response.has("success")) {
+                                        Log.d(MainActivity.TAG, response.toString());
+                                        accessToken = response.getString(getString(R.string.login_token));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // error
+                                Log.d(MainActivity.TAG, error.getMessage());
+                            }
+                        });
+
+                queue.add(loginRequest);
+
+            }
+
+
+            // This holds the url to connect to the API and grab the settings.
+            String notTypeUrl = getString(R.string.live_server)
+                    + getString(R.string.notification_types);
+
+            JsonArrayRequest notificationTypeRequest = new JsonArrayRequest(Request.Method.GET,
+                    notTypeUrl, null, new Response.Listener<JSONArray>() {
+
+                @Override
+                public void onResponse(JSONArray _notificationTypes) {
+                    notificationTypes = _notificationTypes;
+                    Log.d(MainActivity.TAG, "Fetched notification types");
+                    Log.d(MainActivity.TAG, notificationTypes.toString());
+
+                    //populate adapter for proper display
+                    // Handle the result
+                    try {
+
+                        notifListView = findViewById(R.id.notif_settings_list);
+
+                        for (int i = 0; i < _notificationTypes.length(); i++) {
+                            JSONObject jsonObject = _notificationTypes.getJSONObject(i);
+                            SingleNotificationModel notfEntry = new SingleNotificationModel(jsonObject, false);
+                            finalList.add(notfEntry);
+                        }
+
+                        // Create the adapter to convert the array to views
+                        notificationAdapter = new NotificationTypeEntryAdapter(cntxt, finalList);
+
+                        // This holds the url to connect to the API and grab the settings.
+                        String settingsUrl = getString(R.string.live_server)
+                                + getString(R.string.fetch_settings)
+                                +"/" + username;
+
+                        JsonObjectRequest settingsRequest = new JsonObjectRequest(Request.Method.GET,
+                                settingsUrl, null, new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject settingsList) {
+                                userServerSettings = settingsList;
+                                Log.d(MainActivity.TAG, "Fetched settings");
+                                Log.d(MainActivity.TAG, userServerSettings.toString());
+
+                                JSONObject setgs = null;
+                                try {
+                                    setgs = userServerSettings.getJSONObject("settings");
+
+                                    if (setgs != null){
+                                        try {
+                                            if (setgs.has("notifications_active") && !setgs.getBoolean("notifications_active")){
+                                                notificationsInactive.setChecked(true);
+                                                notifListView.setVisibility(View.GONE);
+                                            }else{
+                                                notificationsActive.setChecked(true);
+                                                notifListView.setVisibility(View.VISIBLE);
+                                            }
+                                        } catch (JSONException ex) {
+                                            ex.printStackTrace();
+                                        }
+
+
+                                        try {
+                                            if (setgs.has("post_target_bchain") && setgs.getString("post_target_bchain").equals("HIVE")){
+                                                hiveOnlyOptionRadioBtn.setChecked(true);
+                                            } else {
+                                                hiveSteemOptionRadioBtn.setChecked(true);
+                                            }
+                                        } catch (JSONException ex) {
+                                            ex.printStackTrace();
+                                        }
+                                    }
+
+                                    //adjust height to fit content
+
+                                    int desiredWidth = View.MeasureSpec.makeMeasureSpec(notifListView.getWidth(), View.MeasureSpec.AT_MOST);
+                                    for (int i = 0; i < notificationAdapter.getCount(); i++) {
+                                        SingleNotificationModel entry = notificationAdapter.getItem(i);
+
+                                        View listItem = notificationAdapter.getView(i, null, notifListView);
+                                        //TextView optionVal = listItem.findViewById(R.id.notification_type);
+                                        String notifCat = entry.type;
+                                        Boolean isSel = true;
+                                        //set as off only if set by user, otherwise turn on
+                                        if (setgs != null){
+                                            Log.d(MainActivity.TAG, notifCat);
+                                            try {
+                                                if (setgs.has(notifCat) && !setgs.getBoolean(notifCat)) {
+                                                    isSel = false;
+                                                }
+                                            }catch(JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                        entry.isChecked = isSel;
+
+                                        listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+                                        notifSettingsHeight += listItem.getMeasuredHeight();
+                                    }
+
+                                    ViewGroup.LayoutParams params = notifListView.getLayoutParams();
+                                    params.height = notifSettingsHeight + (notifListView.getDividerHeight() * (notificationAdapter.getCount() - 1));
+                                    notifListView.setLayoutParams(params);
+                                    //notifListView.requestLayout();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+
+                                //set as ready view adapter for rendering
+                                notifListView.setAdapter(notificationAdapter);
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // TODO: Handle error
+                                Log.e(MainActivity.TAG, error.getMessage());
+                            }
+                        });
+
+                        // Add request to be processed
+                        queue.add(settingsRequest);
+
+
+
+                        //notifListView.requestLayout();
+
+                    } catch (Exception error) {
+                        Log.e(MainActivity.TAG, error.getMessage());
+
+
+                    }
+                }
+            }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // TODO: Handle error
+                    Log.e(MainActivity.TAG, error.getMessage());
+                }
+            });
+
+            // Add request to be processed
+            queue.add(notificationTypeRequest);
+        }
+
+
         //retrieving prior settings if already saved before
-        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        //SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
         String currentSystem = (sharedPreferences.getString("activeSystem",""));
 
@@ -125,6 +361,16 @@ public class SettingsActivity extends BaseActivity {
             metricSysRadioBtn.setChecked(true);
         }
 
+        //set proper selection for notification status
+        /*
+        Boolean currentNotifStatus = (sharedPreferences.getBoolean(getString(R.string.notification_status),true));
+
+        if (currentNotifStatus){
+            notificationsActive.setChecked(true);
+        }else{
+            notificationsInactive.setChecked(true);
+        }
+        */
         //select proper language
 
         languageSelected.setSelection(LocaleManager.getSelectedLang(this));
@@ -182,6 +428,20 @@ public class SettingsActivity extends BaseActivity {
                 }else{
                     aggModeSection.setVisibility(View.INVISIBLE);
                     fitbitSettingsSection.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        //capture change event for radiobutton group to reflect on user available options
+        notificationsActive.setOnCheckedChangeListener(new RadioButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton group, boolean checked) {
+
+                if (notificationsActive.isChecked()){
+                    notifListView.setVisibility(View.VISIBLE);
+                }else{
+                    notifListView.setVisibility(View.GONE);
                 }
             }
         });
@@ -345,7 +605,138 @@ public class SettingsActivity extends BaseActivity {
                     editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_off_ntt));
                 }
 
+                //adjust notification status
+                if (notificationsActive.isChecked()){
+                    FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.actif_def_not_topic));
+                    editor.putBoolean(getString(R.string.notification_status), true);
+                }else{
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(getString(R.string.actif_def_not_topic));
+                    editor.putBoolean(getString(R.string.notification_status), false);
+                }
+
+                //commit to server
+
                 editor.apply();
+
+                //store to user's settings
+                if (!username.equals("")) {
+
+
+                    //build up settings data to be sent
+                    JSONObject innerSettingsData = new JSONObject();
+
+                    //check bchain posting preferences
+                    try {
+                        if (hiveSteemOptionRadioBtn.isChecked()) {
+                            innerSettingsData.put("post_target_bchain", "BOTH");
+                        } else {
+                            innerSettingsData.put("post_target_bchain", "HIVE");
+                        }
+                    }catch(JSONException e){
+                        Log.e(MainActivity.TAG, e.getMessage());
+                    }
+
+                    //check standard notification preferences
+                    try {
+                        if (notificationsActive.isChecked()){
+                            innerSettingsData.put("notifications_active", true);
+                        }else{
+                            innerSettingsData.put("notifications_active", false);
+                        }
+                    }catch(JSONException e){
+                        Log.e(MainActivity.TAG, e.getMessage());
+                    }
+
+                    for (int i = 0; i < notificationAdapter.getCount(); i++) {
+                        SingleNotificationModel entry = notificationAdapter.getItem(i);
+                        //Toast.makeText(cntxt, entry.type + " " + entry.isChecked,Toast.LENGTH_LONG);
+                        try {
+                            innerSettingsData.put(entry.type, entry.isChecked);
+                        } catch (JSONException e) {
+                            Log.e(MainActivity.TAG, e.getMessage());
+                        }
+
+                    }
+                    //innerSettingsData.
+                    try{
+                        //check if we already have the user's settings data
+                        if (userServerSettings == null){
+                            userServerSettings.put("user",username);
+                        }else{
+                            if (userServerSettings.has("settings")){
+                                userServerSettings.remove("settings");
+                            }
+                        }
+                        userServerSettings.put("settings", innerSettingsData);
+
+                    }catch(JSONException e){
+                        Log.e(MainActivity.TAG, e.getMessage());
+                    }
+
+                    // This holds the url to connect to the API and grab the settings.
+                    String saveSettingsUrl = getString(R.string.live_server)
+                            + getString(R.string.save_settings) + "?user=" + username
+                            + "&settings=" + innerSettingsData.toString();
+
+
+                    //save settings
+                    JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.GET,
+                            saveSettingsUrl, null,
+                            new Response.Listener<JSONObject>() {
+
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            Log.d(MainActivity.TAG, response.toString());
+
+                        }
+
+                    },
+                    new Response.ErrorListener()
+                    {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // error
+                            Log.d( MainActivity.TAG, error.getMessage());
+                        }
+                    }) {
+                        @NonNull
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            final Map<String, String> params = new HashMap<>();
+                            params.put("Content-Type", "application/json");
+                            params.put(getString(R.string.validation_header), getString(R.string.validation_pre_data) + " " + accessToken);
+                            return params;
+                        }
+
+/*
+                        @Override
+                        public byte[] getBody() {
+                            try {
+                                String mRequestBody = userServerSettings.toString();
+                                return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
+                            } catch (UnsupportedEncodingException uee) {
+                                Log.e(MainActivity.TAG, "Unsupported Encoding while trying to get the bytes ");
+                                return null;
+                            }
+
+                        }
+*/
+                    };
+                    /*{
+                        @Override
+                        protected Map<String, String> getParams()
+                        {
+                            Map<String, String>  params = new HashMap<String, String>();
+                            params.put("name", "vv");
+                            params.put("domain", "fff");
+
+                            return params;
+                        }
+                    };*/
+
+                    queue.add(postRequest);
+                }
 
                 currentActivity.finish();
 
@@ -354,7 +745,7 @@ public class SettingsActivity extends BaseActivity {
 
         //grab charity list
         // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
+        //queue = Volley.newRequestQueue(this);
 
         // This holds the url to connect to the API and grab the balance.
         String charityUrl = getString(R.string.charity_list_api_url);
