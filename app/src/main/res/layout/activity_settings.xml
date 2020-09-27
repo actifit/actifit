@@ -141,6 +141,45 @@
         android:background="?android:attr/listDivider" />
 
     <TextView
+        android:id="@+id/post_target_bchain_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
+        android:text="@string/post_target_bchain" />
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp">
+
+        <RadioButton
+            android:id="@+id/hive_steem_option"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/post_hive_steem"
+            android:checked="true"
+            />
+
+        <RadioButton
+            android:id="@+id/hive_only_option"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/post_hive_only" />
+
+    </RadioGroup>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
         android:id="@+id/steem_post_payout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -207,6 +246,52 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/notifications_status_lbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
+        android:text="@string/notifications_status_lbl" />
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp">
+        <RadioButton
+            android:id="@+id/notifications_active"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/active" />
+
+        <RadioButton
+            android:id="@+id/notifications_inactive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/inactive"
+            />
+
+    </RadioGroup>
+
+    <ListView
+        android:id="@+id/notif_settings_list"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:dividerHeight="0.1dp"
+        android:divider="#0000CC"
+        />
+
+    <View
+        android:id="@+id/divideropt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="?android:attr/listDivider" />
 
     <TextView
