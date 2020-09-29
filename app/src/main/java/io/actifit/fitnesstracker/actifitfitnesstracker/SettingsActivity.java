@@ -122,6 +122,8 @@ public class SettingsActivity extends BaseActivity {
         final RadioButton hiveSteemOptionRadioBtn = findViewById(R.id.hive_steem_option);
         final RadioButton hiveOnlyOptionRadioBtn = findViewById(R.id.hive_only_option);
 
+        notifListView = findViewById(R.id.notif_settings_list);
+
         Spinner charitySelected = findViewById(R.id.charity_options);
 
         finalList = new ArrayList<>();
@@ -136,7 +138,7 @@ public class SettingsActivity extends BaseActivity {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             String version = pInfo.versionName;
             TextView version_info = findViewById(R.id.version_info);
-            version_info.setText(getString(R.string.app_version_string) + " :" + version);
+            version_info.setText(getString(R.string.app_version_string) + " " + version);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -165,7 +167,7 @@ public class SettingsActivity extends BaseActivity {
                     loginSettings.put(getString(R.string.username_param), username);
                     loginSettings.put(getString(R.string.pkey_param), pkey);
                     loginSettings.put(getString(R.string.bchain_param), "HIVE");//default always HIVE
-                    loginSettings.put(getString(R.string.keeploggedin_param), true);//TODO make dynamic
+                    loginSettings.put(getString(R.string.keeploggedin_param), false);//TODO make dynamic
                 } catch (JSONException e) {
                     Log.e(MainActivity.TAG, e.getMessage());
                 }
@@ -219,7 +221,7 @@ public class SettingsActivity extends BaseActivity {
                     // Handle the result
                     try {
 
-                        notifListView = findViewById(R.id.notif_settings_list);
+
 
                         for (int i = 0; i < _notificationTypes.length(); i++) {
                             JSONObject jsonObject = _notificationTypes.getJSONObject(i);
