@@ -269,7 +269,8 @@
             android:id="@+id/notifications_active"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/active" />
+            android:text="@string/active"
+            android:checked="true"/>
 
         <RadioButton
             android:id="@+id/notifications_inactive"
@@ -471,8 +472,21 @@
         android:autoLink="web"
         android:textStyle="italic"
         android:text=""
+        android:textSize="14dp"/>
+
+    <TextView
+        android:id="@+id/no_affiliate_notice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:autoLink="web"
+        android:textStyle="italic"
+        android:text="@string/app_no_affiliation_notice"
         android:textSize="14dp"
         />
+
 
     <Button
         style="@style/AppTheme.ActifitButton"
