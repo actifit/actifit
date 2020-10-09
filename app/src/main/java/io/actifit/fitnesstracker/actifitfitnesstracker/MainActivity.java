@@ -59,6 +59,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -124,6 +125,12 @@ import static androidx.localbroadcastmanager.content.LocalBroadcastManager.*;
  * - additional help and code has been utilized from
  * https://fabcirablog.weebly.com/blog/creating-a-never-ending-background-service-in-android
  * to help with services, but also relying on official Android documentation
+ */
+
+/**
+ * attributions:
+ * success alert image: <a href="https://www.freeiconspng.com/img/23186">Success Hd Icon</a>
+ * error alert image: <a href="https://www.freeiconspng.com/img/25248">sign error icon</a>
  */
 
 public class MainActivity extends BaseActivity{
@@ -291,29 +298,44 @@ public class MainActivity extends BaseActivity{
     }
 
     //function handles killing the app
-    private void killActifit(String reason) {
+    private void killActifit(final String reason) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            //display notification to user
+            Toast toast = Toast.makeText(getCtx(), reason,
+                    Toast.LENGTH_LONG);
 
-        //display notification to user
-        Toast toast = Toast.makeText(getApplicationContext(), reason,
-                Toast.LENGTH_LONG);
+            View view = toast.getView();
 
-        View view = toast.getView();
+            TextView text = view.findViewById(android.R.id.message);
 
-        TextView text = view.findViewById(android.R.id.message);
+            try {
+                //Gets the actual oval background of the Toast then sets the colour filter
+                view.getBackground().setColorFilter(getResources().getColor(R.color.actifitRed), PorterDuff.Mode.SRC_IN);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
 
-        try {
-            //Gets the actual oval background of the Toast then sets the colour filter
-            view.getBackground().setColorFilter(getResources().getColor(R.color.actifitRed), PorterDuff.Mode.SRC_IN);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            text.setTextColor(Color.WHITE);
 
-        text.setTextColor(Color.WHITE);
+            toast.show();
+            finish();
+            /*System.exit(0);
+            //kill gracefully after waiting for toast
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
 
-        toast.show();
 
-        //kill gracefully
-        finish();
+
+                }
+            }, 3000);
+            */
+
+        //((MainActivity)getCtx()).finish();
+            }
+        });
     }
 
 
@@ -370,9 +392,6 @@ public class MainActivity extends BaseActivity{
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //hook up our standard thread catcher to allow auto-restart after crash
-        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerRestartApp(this));
 
         this.isActivityVisible = true;
 
@@ -508,6 +527,12 @@ public class MainActivity extends BaseActivity{
             }
 
         });
+
+        //hook up our standard thread catcher to allow auto-restart after crash
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerRestartApp(this));
+
+        //this is now needed for proper image upload to AWS
+        getApplicationContext().startService(new Intent(getApplicationContext(), TransferService.class));
 
 
 
@@ -1285,7 +1310,8 @@ public class MainActivity extends BaseActivity{
             uiHandler.post(new Runnable(){
                 @Override
                 public void run() {
-                    Picasso.with(ctx)
+                    //Picasso.with(ctx)
+                    Picasso.get()
                             .load(userImgUrl)
                             .into(userProfilePic);
                 }
@@ -1361,7 +1387,8 @@ public class MainActivity extends BaseActivity{
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 //hide dialog
-                                error.printStackTrace();
+                                //error.printStackTrace();
+                                Log.e(MainActivity.TAG, "error fetching rank");
                             }
                         });
 
@@ -1375,7 +1402,7 @@ public class MainActivity extends BaseActivity{
     @Override
     protected void onStart() {
         super.onStart();
-        getInstance(this).registerReceiver((receiver),
+        LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
                 new IntentFilter("ACTIFIT_SERVICE")
         );
 
@@ -1471,6 +1498,12 @@ public class MainActivity extends BaseActivity{
 
         mStepsDBHelper.closeConnection();
 
+        PowerManager.WakeLock wl = ActivityMonitorService.getWakeLockInstance();
+        if (wl!=null && wl.isHeld()) {
+            Log.d(MainActivity.TAG,">>>>[Actifit]Settings AGG MODE OFF");
+            wl.release();
+        }
+
         //mStepsDBHelper.closeConnection();
 
         super.onDestroy();
@@ -1517,7 +1550,7 @@ public class MainActivity extends BaseActivity{
                         if (wl == null) {
                             //initialize power manager and wake locks either way
                             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
+                            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.actifit_wake_lock_tag));
                         }
                         if (!wl.isHeld()) {
                             Log.d(MainActivity.TAG, ">>>>[Actifit]Settings AGG MODE ON");
@@ -1548,6 +1581,7 @@ public class MainActivity extends BaseActivity{
         protected Void doInBackground(Void... voids) {
 
 
+            //Looper.prepare();
             mStepsDBHelper = new StepsDBHelper(ctx);
 
             //initiate the monitoring service

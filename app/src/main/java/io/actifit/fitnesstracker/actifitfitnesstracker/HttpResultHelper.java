@@ -55,7 +55,7 @@ public class HttpResultHelper {
                 sc.init(null, null, new java.security.SecureRandom());
                 ((HttpsURLConnection)conn).setSSLSocketFactory(sc.getSocketFactory());
             } catch (Exception e) {
-                Log.d(MainActivity.TAG,"Failed to construct SSL object" + e.getMessage());
+                Log.d(MainActivity.TAG,"Failed to construct SSL object");
             }
         }
 

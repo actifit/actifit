@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class SettingsActivity extends BaseActivity {
 
@@ -168,8 +169,9 @@ public class SettingsActivity extends BaseActivity {
                     loginSettings.put(getString(R.string.pkey_param), pkey);
                     loginSettings.put(getString(R.string.bchain_param), "HIVE");//default always HIVE
                     loginSettings.put(getString(R.string.keeploggedin_param), false);//TODO make dynamic
+                    loginSettings.put(getString(R.string.login_source), getString(R.string.android) + BuildConfig.VERSION_NAME);
                 } catch (JSONException e) {
-                    Log.e(MainActivity.TAG, e.getMessage());
+                    //Log.e(MainActivity.TAG, e.getMessage());
                 }
 
                 //grab auth token for logged in user
@@ -195,7 +197,7 @@ public class SettingsActivity extends BaseActivity {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 // error
-                                Log.d(MainActivity.TAG, error.getMessage());
+                                Log.e(MainActivity.TAG, "Login error");
                             }
                         });
 
@@ -319,7 +321,7 @@ public class SettingsActivity extends BaseActivity {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 // TODO: Handle error
-                                Log.e(MainActivity.TAG, error.getMessage());
+                                Log.e(MainActivity.TAG, "error connecting");
                             }
                         });
 
@@ -331,7 +333,7 @@ public class SettingsActivity extends BaseActivity {
                         //notifListView.requestLayout();
 
                     } catch (Exception error) {
-                        Log.e(MainActivity.TAG, error.getMessage());
+                        //Log.e(MainActivity.TAG, error.getMessage());
 
 
                     }
@@ -341,7 +343,7 @@ public class SettingsActivity extends BaseActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     // TODO: Handle error
-                    Log.e(MainActivity.TAG, error.getMessage());
+                    Log.e(MainActivity.TAG, "network error");
                 }
             });
 
@@ -635,7 +637,7 @@ public class SettingsActivity extends BaseActivity {
                             innerSettingsData.put("post_target_bchain", "HIVE");
                         }
                     }catch(JSONException e){
-                        Log.e(MainActivity.TAG, e.getMessage());
+                        //Log.e(MainActivity.TAG, e.getMessage());
                     }
 
                     //check standard notification preferences
@@ -646,7 +648,7 @@ public class SettingsActivity extends BaseActivity {
                             innerSettingsData.put("notifications_active", false);
                         }
                     }catch(JSONException e){
-                        Log.e(MainActivity.TAG, e.getMessage());
+                        //Log.e(MainActivity.TAG, e.getMessage());
                     }
 
                     for (int i = 0; i < notificationAdapter.getCount(); i++) {
@@ -655,7 +657,7 @@ public class SettingsActivity extends BaseActivity {
                         try {
                             innerSettingsData.put(entry.type, entry.isChecked);
                         } catch (JSONException e) {
-                            Log.e(MainActivity.TAG, e.getMessage());
+                            //Log.e(MainActivity.TAG, e.getMessage());
                         }
 
                     }
@@ -663,6 +665,7 @@ public class SettingsActivity extends BaseActivity {
                     try{
                         //check if we already have the user's settings data
                         if (userServerSettings == null){
+                            userServerSettings = new JSONObject();
                             userServerSettings.put("user",username);
                         }else{
                             if (userServerSettings.has("settings")){
@@ -672,7 +675,7 @@ public class SettingsActivity extends BaseActivity {
                         userServerSettings.put("settings", innerSettingsData);
 
                     }catch(JSONException e){
-                        Log.e(MainActivity.TAG, e.getMessage());
+                        //Log.e(MainActivity.TAG, e.getMessage());
                     }
 
                     // This holds the url to connect to the API and grab the settings.
@@ -699,7 +702,7 @@ public class SettingsActivity extends BaseActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // error
-                            Log.d( MainActivity.TAG, error.getMessage());
+                            Log.d( MainActivity.TAG, "save settings error");
                         }
                     }) {
                         @NonNull
@@ -813,7 +816,7 @@ public class SettingsActivity extends BaseActivity {
 
                     //actifitTransactions.setText("Response is: "+ response);
                 }catch (Exception e) {
-                    Log.d(MainActivity.TAG,">>>>[Actifit]: Volley error"+e.getMessage());
+                    Log.d(MainActivity.TAG,">>>>[Actifit]: Volley error");
                     e.printStackTrace();
                 }
 
@@ -821,8 +824,8 @@ public class SettingsActivity extends BaseActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(MainActivity.TAG,">>>>[Actifit]: Volley response error"+error.getMessage());
-                error.printStackTrace();
+                Log.d(MainActivity.TAG,">>>>[Actifit]: Volley response error");
+                //error.printStackTrace();
             }
         });
 
