@@ -90,13 +90,20 @@
     <string name="fitbit_measurements_lbl">Fetch Measurements</string>
     <string name="fitbit_fetch_steps">Fetch Steps</string>
     <string name="steem_post_payout">Post Payout</string>
-    <string name="pay_option_50_50">50% SBD - 50% SP</string>
-    <string name="pay_option_full_sp">100% SP</string>
+    <string name="pay_option_50_50">50% HBD/SBD - 50% HP/SP</string>
+    <string name="pay_option_full_sp">100% HP/SP</string>
     <string name="measure_system_lbl">Measurement System</string>
+    <string name="notifications_status_lbl">Notification Status</string>
+    <string name="post_target_bchain">Post To</string>
+    <string name="post_hive_only">Hive Only</string>
+    <string name="post_hive_steem">Hive + Steem</string>
+    <string name="active">Active</string>
+    <string name="inactive">Disabled</string>
     <string name="metric_system_option_lbl">Metric</string>
     <string name="us_system_option_lbl">US System</string>
     <string name="donate_charity_lbl">Donate to Charity</string>
     <string name="donate_charity_checkbox">Donate Rewards to Charity</string>
+    <string name="notification_type">Type</string>
     <string name="charity_options_lbl">Available Charities</string>
     <string name="charity_info_lbl">Charity Info</string>
     <string name="daily_post_reminder_lbl">Daily Post Reminder</string>
@@ -181,6 +188,7 @@
     <string name="yes_button">Yes</string>
     <string name="no_button">No</string>
     <string name="app_version_string">Actifit App Version</string>
+    <string name="app_no_affiliation_notice">Actifit has no affiliation with or sponsorship by IFIT and/or ICON Health &amp; Fitness (ifit.com).</string>
     <string name="unable_fetch_balance">Unable to fetch balance</string>
     <string name="token_count_lbl">Token Count</string>
     <string name="date_added_lbl">Date Added</string>
@@ -199,4 +207,7 @@
     <string name="post">Post</string>
     <string name="wallet" tools:ignore="MissingTranslation">Wallet</string>
     <string name="leaderboard">Leaderboard</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="clear_button">Clear</string>
 </resources>

@@ -8,6 +8,9 @@
     <string name="aggr_back_tracking_off_ntt" translatable="false"></string>
     <string name="metric_system_ntt" translatable="false">Metric System</string>
     <string name="us_system_ntt" translatable="false">US System</string>
+    <string name="actif_def_not_topic" translatable="false">actidefnots</string>
+    <string name="notification_status" translatable="false">notificationstatus</string>
+    <string name="actifit_wake_lock_tag" translatable="false">ACTIFIT:ACTIFIT_SPECIAL_LOCK</string>
     <string-array name="supported_languages">
         <item>English</item>
         <item>Portuguesa</item>
