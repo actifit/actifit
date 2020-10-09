@@ -59,7 +59,8 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
 
         //set proper image
 
-        Picasso.with(leaderboardContext).load(postEntry.userProfilePic).into(userProfilePic);
+        Picasso.get().load(postEntry.userProfilePic).into(userProfilePic);
+        //Picasso.with(leaderboardContext).load(postEntry.userProfilePic).into(userProfilePic);
 
         //handle click on user profile
         picFrame.setOnClickListener(new View.OnClickListener() {

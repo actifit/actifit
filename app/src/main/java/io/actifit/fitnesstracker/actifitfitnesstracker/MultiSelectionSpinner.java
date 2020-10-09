@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 
@@ -55,6 +56,29 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
     public boolean performClick() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMultiChoiceItems(_items, mSelection, this);
+        builder.setPositiveButton( getContext().getString(R.string.ok_button),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                        /*if (success.equals("success")) {
+                            //close current screen
+                            Log.d(MainActivity.TAG,">>>Finish");
+                            currentActivity.finish();
+                        }*/
+                    }
+                });
+        builder.setNegativeButton( getContext().getString(R.string.clear_button),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        setSelection(-1);
+                        dialog.cancel();
+                        /*if (success.equals("success")) {
+                            //close current screen
+                            Log.d(MainActivity.TAG,">>>Finish");
+                            currentActivity.finish();
+                        }*/
+                    }
+                });
         builder.show();
         return true;
     }
@@ -112,10 +136,12 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
         }
         if (index >= 0 && index < mSelection.length) {
             mSelection[index] = true;
-        } else {
+        }
+        //do not make any selection if out of bounds
+        /*else {
             throw new IllegalArgumentException("Index " + index
                     + " is out of bounds.");
-        }
+        }*/
         simple_adapter.clear();
         simple_adapter.add(buildSelectedItemString());
     }

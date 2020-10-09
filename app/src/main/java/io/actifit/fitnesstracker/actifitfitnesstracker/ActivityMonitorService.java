@@ -213,7 +213,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         }catch(Exception e ){
             Log.d(MainActivity.TAG,"error unregisterig listener");
         }
-
+        sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
         String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking"
                 ,getString(R.string.aggr_back_tracking_off_ntt));
 
@@ -221,14 +221,14 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
             Log.d(MainActivity.TAG,">>>>[Actifit]AGG MODE ON - RELEASING LOCK");
             pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
+            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.actifit_wake_lock_tag));
             if (wl.isHeld()) {
                 wl.release();
             }
         }
-
-        mStepsDBHelper.closeConnection();
-
+        if (mStepsDBHelper != null) {
+            mStepsDBHelper.closeConnection();
+        }
         //mStepsDBHelper.closeConnection();
         //service destroyed, let's start it again
         //Intent broadcastIntent = new Intent(".MonitorRestart");
@@ -243,7 +243,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             //initialize power manager and wake locks either way
             pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ACTIFIT:ACTIFIT_SPECIAL_LOCK");
+            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.actifit_wake_lock_tag));
 
             //check if aggressive background tracking mode is enabled
 

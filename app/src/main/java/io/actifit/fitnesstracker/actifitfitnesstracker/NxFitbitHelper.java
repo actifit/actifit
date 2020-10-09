@@ -7,6 +7,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import android.util.Log;
 
 import com.github.scribejava.apis.FitbitApi20;
+import com.github.scribejava.apis.fitbit.FitBitOAuth2AccessToken;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthRequest;
@@ -56,6 +57,10 @@ class NxFitbitHelper {
         apiCallback = ctxt.getString(R.string.fitbit_apicb);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+    }
+
+    public String getUserId(){
+        return ((FitBitOAuth2AccessToken)this.accessToken).getUserId();
     }
 
     //function handles redirecting user to proper authorization url via customtabs

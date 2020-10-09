@@ -19,13 +19,18 @@ import android.os.Environment;
 import android.os.StrictMode;
 
 import android.provider.MediaStore;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import android.os.Bundle;
 import android.text.Editable;
+
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -55,13 +60,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-
 import com.mittsu.markedview.MarkedView;
 
 
@@ -90,6 +95,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     //tracks whether user wants to post yesterday's data instead
     private static boolean yesterdayReport = false;
+
+    private String fitbitUserId;
 
     EditText steemitPostTitle;
     EditText steemitUsername;
@@ -186,7 +193,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                 uploadProgress.dismiss();
                             }
                         }catch (Exception ex){
-                            Log.d(MainActivity.TAG,ex.getMessage());
+                            //Log.d(MainActivity.TAG,ex.getMessage());
                         }
 
                         Toast.makeText(getApplicationContext(), getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
@@ -227,6 +234,34 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 }
 
             });
+
+            // If your upload does not trigger the onStateChanged method inside your
+            // TransferListener, you can directly check the transfer state as shown here.
+            if (TransferState.COMPLETED == uploadObserver.getState()) {
+                // Handle a completed upload.
+                try {
+                    if (uploadProgress != null && uploadProgress.isShowing()) {
+                        uploadProgress.dismiss();
+                    }
+                }catch (Exception ex){
+                    //Log.d(MainActivity.TAG,ex.getMessage());
+                }
+
+                Toast.makeText(getApplicationContext(), getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
+
+                String full_img_url = getString(R.string.actifit_usermedia_url)+fileName;
+                String img_markdown_text = "![]("+full_img_url+")";
+
+                //append the uploaded image url to the text as markdown
+                //if there is any particular selection, replace it too
+
+                int start = Math.max(steemitPostContent.getSelectionStart(), 0);
+                int end = Math.max(steemitPostContent.getSelectionEnd(), 0);
+                steemitPostContent.getText().replace(Math.min(start, end), Math.max(start, end),
+                        img_markdown_text, 0, img_markdown_text.length());
+
+                file.delete();
+            }
         }
     }
 
@@ -385,17 +420,20 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
 
         mdView = findViewById(R.id.md_view);
+
         // call from code
         // MarkedView mdView = new MarkedView(this);
 
-        // set markdown text pattern. ('contents' object is markdown text)
-        mdView.setMDText(steemitPostContent.getText().toString());
+
 
         //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
         final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
         //try to load editor content if it was stored previously
         steemitPostContent.setText(sharedPreferences.getString("steemPostContent",""));
+
+        // set markdown text pattern. ('contents' object is markdown text)
+        mdView.setMDText(steemitPostContent.getText().toString());
 
         //hook change event for report content preview and saving the text to prevent data loss
         steemitPostContent.addTextChangedListener(new TextWatcher() {
@@ -419,6 +457,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     editor.putString("steemPostContent",
                             steemitPostContent.getText().toString());
                     editor.apply();
+
                 }
             }
         });
@@ -627,6 +666,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 //check to see if settings allows fetching measurements - default true
                 String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on_ntt));
                 if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt))) {
+                    //grab userId
+                    fitbitUserId = fitbit.getUserId();
                     //grab and update user weight
                     TextView weight = findViewById(R.id.measurements_weight);
                     weight.setText(fitbit.getFieldFromProfile("weight"));
@@ -711,8 +752,16 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 /*spinner=findViewById(R.id.progressBar);
                 spinner.setVisibility(View.GONE);*/
 
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                final AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
                 builder1.setMessage(notification);
+
+                if (success.equals("success")){
+                    builder1.setIcon(getResources().getDrawable(R.drawable.success_icon));
+                    builder1.setTitle("Actifit Success");
+                }else{
+                    builder1.setIcon(getResources().getDrawable(R.drawable.error_icon));
+                    builder1.setTitle("Actifit Error");
+                }
 
                 builder1.setCancelable(true);
 
@@ -733,7 +782,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     AlertDialog alert11 = builder1.create();
                     alert11.show();
                 }catch(Exception e){
-                    Log.e(MainActivity.TAG, e.getMessage());
+                    //Log.e(MainActivity.TAG, e.getMessage());
                 }
             }
         });
@@ -933,6 +982,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     //if there was a Fitbit sync, also need to send out that this is Fitbit data
                     if (fitbitSyncDone == 1){
                         data.put("dataTrackingSource", getString(R.string.fitbit_tracking_ntt));
+
+                        //also append encrypted user identifier
+                        MessageDigest md = MessageDigest.getInstance(getString(R.string.fitbit_user_enc));
+                        byte[] digest = md.digest(fitbitUserId.getBytes());
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < digest.length; i++) {
+                            sb.append(Integer.toString((digest[i] & 0xff) + 0x100, 16).substring(1));
+                        }
+                        System.out.println(sb);
+
+                        data.put("fitbitUserId", sb.toString());
                     }else {
                         data.put("dataTrackingSource", sharedPreferences.getString("dataTrackingSystem", ""));
                     }
@@ -996,7 +1056,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 notification = getString(R.string.failed_post);
                 displayNotification(notification, progress, context, currentActivity, "");
 
-                Log.d(MainActivity.TAG,"Error connecting:"+e.getMessage());
+                Log.d(MainActivity.TAG,"Error connecting");
                 e.printStackTrace();
             }
             return null;
@@ -1170,7 +1230,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             Log.d(MainActivity.TAG,">>>test:" + result);
         } catch (JSONException | IOException e) {
             //e.printStackTrace();
-            Log.e(MainActivity.TAG, e.getMessage());
+            Log.e(MainActivity.TAG, "error sending registration data");
         }
 
     }
