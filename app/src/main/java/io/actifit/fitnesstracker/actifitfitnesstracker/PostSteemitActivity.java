@@ -660,14 +660,19 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             // Get user profile using helper function
             try {
                 JSONObject responseProfile = fitbit.getUserProfile();
-                Log.d(MainActivity.TAG, "From JSON encodedId: " + responseProfile.getJSONObject("user").getString("encodedId"));
-                Log.d(MainActivity.TAG, "From JSON fullName: " + responseProfile.getJSONObject("user").getString("fullName"));
+                //Log.d(MainActivity.TAG, "From JSON encodedId: " + responseProfile.getJSONObject("user"));
+                //Log.d(MainActivity.TAG, "From JSON fullName: " + responseProfile.getJSONObject("user").getString("fullName"));
+
+                //essential for capability to fetch measurements
+                responseProfile.getJSONObject("user");
+
+                //grab userId
+                fitbitUserId = fitbit.getUserId();
 
                 //check to see if settings allows fetching measurements - default true
                 String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on_ntt));
                 if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt))) {
-                    //grab userId
-                    fitbitUserId = fitbit.getUserId();
+
                     //grab and update user weight
                     TextView weight = findViewById(R.id.measurements_weight);
                     weight.setText(fitbit.getFieldFromProfile("weight"));
