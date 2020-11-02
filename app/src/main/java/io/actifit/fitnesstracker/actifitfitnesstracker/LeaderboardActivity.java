@@ -25,6 +25,7 @@ public class LeaderboardActivity extends BaseActivity {
     private ArrayList<SinglePostModel> mAccountsFinalList ;
     private Context leadership_post_context;
     private LeaderboardEntryAdapter listingAdapter;
+    private ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +47,7 @@ public class LeaderboardActivity extends BaseActivity {
             urlStr = getString(R.string.test_leaderboard_v2_url);
         }
 
-        final ProgressDialog progress = new ProgressDialog(this);
+        progress = new ProgressDialog(this);
 
         // Request the transactions of the user first via JsonArrayRequest
         // according to our data format
@@ -103,6 +104,23 @@ public class LeaderboardActivity extends BaseActivity {
         progress.setMessage(getString(R.string.fetching_leaderboard));
         progress.show();
 
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        if ( progress!=null){
+            progress.dismiss();
+        }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if ( progress!=null){
+            progress.dismiss();
+        }
     }
 
 }

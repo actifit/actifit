@@ -34,6 +34,8 @@ import java.util.ArrayList;
 
 public class WalletActivity extends BaseActivity {
 
+    private ProgressDialog progress;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +92,7 @@ public class WalletActivity extends BaseActivity {
             actifitTransactionsError.setVisibility(View.INVISIBLE);
 
             //initialize progress dialog
-            final ProgressDialog progress = new ProgressDialog(callerContext);
+            progress = new ProgressDialog(callerContext);
 
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(callerActivity);
@@ -223,6 +225,23 @@ public class WalletActivity extends BaseActivity {
             displayNotification(getString(R.string.username_missing),null,
                     callerContext, callerActivity, false);
 
+        }
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        if ( progress!=null){
+            progress.dismiss();
+        }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if ( progress!=null){
+            progress.dismiss();
         }
     }
 
