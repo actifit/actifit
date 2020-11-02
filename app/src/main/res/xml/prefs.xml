@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="false"
+        android:key="shared_network"
+        android:summary="@string/setting_shareNetworkAgreementDesc"
+        android:title="@string/setting_shareNetworkAgreement" />
+</PreferenceScreen>
