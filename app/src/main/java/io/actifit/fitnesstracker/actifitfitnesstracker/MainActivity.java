@@ -156,6 +156,7 @@ public class MainActivity extends BaseActivity{
     public static String ACCEL_SENSOR = "ACCEL_SENSOR";
     public static String STEP_SENSOR = "STEP_SENSOR";
     public static String ACTIFIT_CORE_URL = "https://actifit.io";
+    public static String ACTIFIT_RANK_URL = "https://actifit.io/userrank";
 
     //enforcing active sensor by default as ACC
     public static String activeSensor = MainActivity.ACCEL_SENSOR;
@@ -233,11 +234,12 @@ public class MainActivity extends BaseActivity{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         //File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        //File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
-                storageDir      /* directory */
+                getApplicationContext().getFilesDir()
+                //storageDir      /* directory */
         );
 
         // Save a file: path for use with ACTION_VIEW intents
@@ -507,6 +509,7 @@ public class MainActivity extends BaseActivity{
 
         final FrameLayout picFrame = findViewById(R.id.pic_frame);
         final TextView welcomeUser = findViewById(R.id.welcome_user);
+        final TextView userRankTV = findViewById(R.id.user_rank);
 
         //handle click on user profile
         picFrame.setOnClickListener(new OnClickListener() {
@@ -524,6 +527,16 @@ public class MainActivity extends BaseActivity{
             public void onClick(View view) {
                 final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
                 openUserAccount(sharedPreferences);
+            }
+
+        });
+
+        //also handle click on rank
+        userRankTV.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                openUserRank(sharedPreferences);
             }
 
         });
@@ -597,12 +610,15 @@ public class MainActivity extends BaseActivity{
                       }
                       // Continue only if the File was successfully created
                       if (photoFile != null) {
-
-                          Uri photoURI = FileProvider.getUriForFile(ctx,
-                                  "io.actifit.fileprovider",
-                                  photoFile);
-                          takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                          startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                          try {
+                              Uri photoURI = FileProvider.getUriForFile(ctx,
+                                      "io.actifit.fileprovider",
+                                      photoFile);
+                              takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                              startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                          }catch (Exception myExc){
+                              myExc.printStackTrace();
+                          }
                       }
                   }
               }
@@ -689,6 +705,26 @@ public class MainActivity extends BaseActivity{
             CustomTabsIntent customTabsIntent = builder.build();
 
             customTabsIntent.launchUrl(ctx, Uri.parse(MainActivity.ACTIFIT_CORE_URL + '/' + username));
+        }
+    }
+
+    private void openUserRank(SharedPreferences sharedPreferences){
+        username = sharedPreferences.getString("actifitUser","");
+        if (username != "") {
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+            builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+
+            //animation for showing and closing fitbit authorization screen
+            builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
+
+            //animation for back button clicks
+            builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
+                    android.R.anim.slide_out_right);
+
+            CustomTabsIntent customTabsIntent = builder.build();
+
+            customTabsIntent.launchUrl(ctx, Uri.parse(MainActivity.ACTIFIT_RANK_URL));
         }
     }
 
@@ -1343,7 +1379,7 @@ public class MainActivity extends BaseActivity{
             if (!fetchNewRankVal){
                 //we already have the rank, display the message and the rank
                 //welcomeUser.setText(getString(R.string.welcome_user).replace("USER_NAME", username).replace("USER_RANK","("+userRank+")"));
-                userRankTV.setText(userRank+"/100");
+                userRankTV.setText(userRank+"");
 
             }else {
                 //need to fetch user rank data from API
@@ -1376,7 +1412,7 @@ public class MainActivity extends BaseActivity{
                                     editor.commit();
 
                                     //welcomeUser.setText(getString(R.string.welcome_user).replace("USER_NAME", username).replace("USER_RANK", "(" + userRank + ")"));
-                                    userRankTV.setText(userRank+"/100");
+                                    userRankTV.setText(userRank+"");
                                 } catch (JSONException e) {
                                     //hide dialog
                                     e.printStackTrace();
