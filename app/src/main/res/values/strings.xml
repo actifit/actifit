@@ -172,6 +172,7 @@
     <string name="Sailing">Sailing</string>
     <string name="Kayaking">Kayaking</string>
     <string name="Volleyball">Volleyball</string>
+    <string name="Plogging">Plogging</string>
     <string name="Kidplay">Play with kids/grand kids</string>
     <string name="HomeImprovement">Home Improvement</string>
     <string name="YardWork">Yard Work</string>
@@ -184,7 +185,7 @@
     <string name="ft_unit">ft</string>
     <string name="in_unit">in</string>
     <string name="min_activity_not_reached">You have not reached the minimum</string>
-    <string name="not_yet">activity yet</string>
+    <string name="not_yet">activity count yet</string>
     <string name="yes_button">Yes</string>
     <string name="no_button">No</string>
     <string name="app_version_string">Actifit App Version</string>
@@ -210,4 +211,5 @@
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
     <string name="clear_button">Clear</string>
+    <string name="error_fitbit_fecth" tools:ignore="MissingTranslation">There was a problem syncing your Fitbit. Please try again later.</string>
 </resources>
