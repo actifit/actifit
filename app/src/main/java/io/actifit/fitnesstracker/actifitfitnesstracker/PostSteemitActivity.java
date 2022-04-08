@@ -61,10 +61,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.security.MessageDigest;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import com.mittsu.markedview.MarkedView;
@@ -74,7 +77,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     private StepsDBHelper mStepsDBHelper;
     private String notification = "";
-    private int min_step_limit = 1000;
+    private int min_step_limit = 500;
     private int min_char_count = 100;
     private Context steemit_post_context;
 
@@ -159,8 +162,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             //create unique image file name
             final String fileName = UUID.randomUUID().toString();
 
-            final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                    "/" + fileName);
+            // final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+            final File file = new File(getApplicationContext().getFilesDir(), fileName);
 
             createFile(getApplicationContext(), fileUri, file);
 
@@ -576,7 +579,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 getString(R.string.ChasingPokemons), getString(R.string.Badminton), getString(R.string.PickleBall),
                 getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking), getString(R.string.Kidplay),
                 getString(R.string.HomeImprovement), getString(R.string.YardWork), getString(R.string.StairClimbing),
-                getString(R.string.Yoga), getString(R.string.Stretching)
+                getString(R.string.Yoga), getString(R.string.Stretching), getString(R.string.Plogging)
         };
 
         //sort options in alpha order
@@ -654,79 +657,84 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         //retrieve resulting data from fitbit sync (parameter from the Intent)
         Uri returnUrl = getIntent().getData();
         if (returnUrl != null) {
-            NxFitbitHelper fitbit = new NxFitbitHelper(getApplicationContext());
-            fitbit.requestAccessTokenFromIntent(returnUrl);
-
-            // Get user profile using helper function
             try {
-                JSONObject responseProfile = fitbit.getUserProfile();
-                //Log.d(MainActivity.TAG, "From JSON encodedId: " + responseProfile.getJSONObject("user"));
-                //Log.d(MainActivity.TAG, "From JSON fullName: " + responseProfile.getJSONObject("user").getString("fullName"));
+                NxFitbitHelper fitbit = new NxFitbitHelper(getApplicationContext());
+                fitbit.requestAccessTokenFromIntent(returnUrl);
 
-                //essential for capability to fetch measurements
-                responseProfile.getJSONObject("user");
+                // Get user profile using helper function
+                try {
+                    JSONObject responseProfile = fitbit.getUserProfile();
+                    //Log.d(MainActivity.TAG, "From JSON encodedId: " + responseProfile.getJSONObject("user"));
+                    //Log.d(MainActivity.TAG, "From JSON fullName: " + responseProfile.getJSONObject("user").getString("fullName"));
 
-                //grab userId
-                fitbitUserId = fitbit.getUserId();
+                    //essential for capability to fetch measurements
+                    responseProfile.getJSONObject("user");
 
-                //check to see if settings allows fetching measurements - default true
-                String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on_ntt));
-                if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt))) {
+                    //grab userId
+                    fitbitUserId = fitbit.getUserId();
 
-                    //grab and update user weight
-                    TextView weight = findViewById(R.id.measurements_weight);
-                    weight.setText(fitbit.getFieldFromProfile("weight"));
+                    //check to see if settings allows fetching measurements - default true
+                    String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements", getString(R.string.fitbit_measurements_on_ntt));
+                    if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt))) {
 
-                    //grab and update user height
-                    TextView height = findViewById(R.id.measurements_height);
-                    height.setText(fitbit.getFieldFromProfile("height"));
-                }
+                        //grab and update user weight
+                        TextView weight = findViewById(R.id.measurements_weight);
+                        weight.setText(fitbit.getFieldFromProfile("weight"));
 
-            } catch (JSONException | InterruptedException | ExecutionException | IOException e){
-                e.printStackTrace();
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-
-            try {
-                String soughtInfo = "steps";
-                String targetDate = "today";
-                //fetch yesterday data in case this is yesterday's option
-                if (yesterdayReport){
-                    targetDate = new SimpleDateFormat("yyyy-MM-dd").format(mCalendar.getTime());
-                }
-                JSONObject stepActivityList = fitbit.getActivityByDate(soughtInfo, targetDate);
-                JSONArray stepActivityArray = stepActivityList.getJSONArray("activities-tracker-"+soughtInfo);
-                Log.d(MainActivity.TAG, "From JSON distance:" + stepActivityArray.length() );
-                int trackedActivityCount = 0;
-                if (stepActivityArray.length()>0){
-                    Log.d(MainActivity.TAG, "we found matching records");
-                    //loop through records adding up recorded steps
-                    for (int i=0;i<stepActivityArray.length();i++){
-                        trackedActivityCount += Integer.parseInt(stepActivityArray.getJSONObject(i).getString("value"));
+                        //grab and update user height
+                        TextView height = findViewById(R.id.measurements_height);
+                        height.setText(fitbit.getFieldFromProfile("height"));
                     }
 
-                    //update value according to activity we were able to grab
-                    EditText activityCount = findViewById(R.id.steemit_step_count);
-                    activityCount.setText("" + trackedActivityCount);
-
-                    //flag that we synced properly
-                    fitbitSyncDone = 1;
-
-                    //store date of last sync to avoid improper use of older fitbit data
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("fitbitLastSyncDate",
-                            new SimpleDateFormat("yyyyMMdd").format(
-                                    mCalendar.getTime()));
-                    editor.apply();
-                }else{
-                    Log.d(MainActivity.TAG, "No auto-tracked activity found for today" );
+                } catch (JSONException | InterruptedException | ExecutionException | IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
-            } catch (JSONException | InterruptedException | ExecutionException | IOException e){
-                e.printStackTrace();
-            } catch (Exception e){
-                e.printStackTrace();
+                try {
+                    String soughtInfo = "steps";
+                    String targetDate = "today";
+                    //fetch yesterday data in case this is yesterday's option
+                    if (yesterdayReport) {
+                        targetDate = new SimpleDateFormat("yyyy-MM-dd").format(mCalendar.getTime());
+                    }
+                    JSONObject stepActivityList = fitbit.getActivityByDate(soughtInfo, targetDate);
+                    JSONArray stepActivityArray = stepActivityList.getJSONArray("activities-tracker-" + soughtInfo);
+                    Log.d(MainActivity.TAG, "From JSON distance:" + stepActivityArray.length());
+                    int trackedActivityCount = 0;
+                    if (stepActivityArray.length() > 0) {
+                        Log.d(MainActivity.TAG, "we found matching records");
+                        //loop through records adding up recorded steps
+                        for (int i = 0; i < stepActivityArray.length(); i++) {
+                            trackedActivityCount += Integer.parseInt(stepActivityArray.getJSONObject(i).getString("value"));
+                        }
+
+                        //update value according to activity we were able to grab
+                        EditText activityCount = findViewById(R.id.steemit_step_count);
+                        activityCount.setText("" + trackedActivityCount);
+
+                        //flag that we synced properly
+                        fitbitSyncDone = 1;
+
+                        //store date of last sync to avoid improper use of older fitbit data
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("fitbitLastSyncDate",
+                                new SimpleDateFormat("yyyyMMdd").format(
+                                        mCalendar.getTime()));
+                        editor.apply();
+                    } else {
+                        Log.d(MainActivity.TAG, "No auto-tracked activity found for today");
+                    }
+
+                } catch (JSONException | InterruptedException | ExecutionException | IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }catch(Exception myExc){
+                myExc.printStackTrace();
+                Toast.makeText(getApplicationContext(), getString(R.string.error_fitbit_fecth), Toast.LENGTH_SHORT).show();
             }
 
         } else {
@@ -842,15 +850,15 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         mCalendar.getTime());
 
                 //this runs only on live mode
-                if (getString(R.string.test_mode).equals("off")){
+                //if (getString(R.string.test_mode).equals("off")){
                     //make sure we have reached the min movement amount
-                    /*if (Integer.parseInt(accountActivityCount) < min_step_limit) {
+                    if (Integer.parseInt(accountActivityCount) < min_step_limit) {
                         notification = getString(R.string.min_activity_not_reached) + " " +
                                 NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " " + getString(R.string.not_yet);
                         displayNotification(notification, progress, context, currentActivity, "");
 
                         return null;
-                    }*/
+                    }
 
                     //make sure the post content has at least the min_char_count
                     if (finalPostContent.length()
@@ -877,7 +885,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         }
                     }
 
-                }
+                //}
 
                 //let us check if user has selected activities yet
                 if (selectedActivityCount < 1){
@@ -951,6 +959,25 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     //appending security param values
                     data.put( getString(R.string.sec_param), getString(R.string.sec_param_val));
+
+                    //append user timezone
+                    /*Date dt = new Date();
+                    Calendar cal = Calendar.getInstance();
+
+                    TimeZone tz = cal.getTimeZone();
+                    tz.getRawOffset();*/
+                    try {
+                        TimeZone tz = TimeZone.getDefault();
+                        Calendar cal = Calendar.getInstance(tz);
+                        int offsetInMillis = tz.getOffset(cal.getTimeInMillis());
+
+                        String offset = String.format("%02d:%02d", Math.abs(offsetInMillis / 3600000), Math.abs((offsetInMillis / 60000) % 60));
+                        offset = "GMT" + (offsetInMillis >= 0 ? "+" : "-") + offset;
+
+                        data.put("timeZone", offset);
+                    }catch  (Exception e){
+                        e.printStackTrace();
+                    }
 
                     //grab app version number
                     try {
