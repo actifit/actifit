@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="actifit_images" path="." />
+    <!--<external-path name="actifit_images" path="." />-->
+    <files-path name="actifit_images"
+        path="." />
 </paths>
