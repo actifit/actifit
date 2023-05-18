@@ -11,6 +11,7 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="@string/activity_history_chart_title"
+        android:textColor="@color/actifitRed"
         android:paddingLeft="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 

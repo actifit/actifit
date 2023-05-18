@@ -14,6 +14,7 @@ android:orientation="vertical"
     android:text="@string/activity_leaderboard_title"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
+    android:textColor="@color/actifitRed"
     android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
 <ListView

@@ -1,0 +1,179 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<LinearLayout xmlns:android = "http://schemas.android.com/apk/res/android"
+    android:layout_width = "match_parent"
+    android:gravity = "center"
+    android:layout_height = "wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/referral_description"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/daily_rewards_description"
+        android:paddingTop="10dp"
+        android:textStyle="bold"
+        android:paddingBottom="10dp"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/daily_free_reward"
+            android:textStyle="bold"
+            android:paddingRight="5dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/free_daily_rewards_description" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/daily_5k_reward"
+            android:textStyle="bold"
+            android:paddingRight="5dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/daily_5k_rewards_description" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/daily_7k_reward"
+            android:textStyle="bold"
+            android:paddingRight="5dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/daily_7k_rewards_description" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/daily_10k_reward"
+            android:textStyle="bold"
+            android:paddingRight="5dp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/daily_10k_rewards_description"
+            android:paddingBottom="10dp"/>
+
+    </LinearLayout>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:rowCount="2"
+        android:columnCount="2"
+        android:layout_gravity="center|fill_horizontal"
+        android:foregroundGravity="center">
+
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/daily_free_reward"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:minHeight="80dp"
+            android:layout_gravity="center"
+            android:text="@string/daily_free_reward"
+            android:layout_weight="1"
+            />
+
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/daily_5k_reward"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:minHeight="80dp"
+            android:layout_gravity="center"
+            android:text="@string/daily_5k_reward"
+            android:layout_weight="1"
+            />
+
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/daily_7k_reward"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:minHeight="80dp"
+            android:text="@string/daily_7k_reward"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            />
+
+
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/daily_10k_reward"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:minHeight="80dp"
+            android:text="@string/daily_10k_reward"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            />
+
+    </GridLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/daily_reward_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="&#127873;"
+            android:textSize="20dp"
+            android:textStyle="bold"
+
+            />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

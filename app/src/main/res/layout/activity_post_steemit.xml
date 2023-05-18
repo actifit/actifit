@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:id="@+id/post_steemit_container"
-    >
+    >-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:id="@+id/post_steemit_container">
 
     <!--<include
         android:id="@+id/post_toolbar"
         layout="@layout/toolbar_post_steemit"
         />-->
 
-    <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    <LinearLayout
         android:id="@+id/titlebar_section"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:background="#00ffffff"
         android:elevation="2dp"
         android:gravity="center"
@@ -54,10 +63,7 @@
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
-        android:layout_weight="5"
         android:paddingLeft="10dp"
-        android:paddingTop="10dp"
         android:paddingRight="10dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -67,95 +73,24 @@
             android:paddingBottom="50dp"
             android:scrollbars="vertical">
 
-
             <TextView
-                android:id="@+id/steemit_username_lbl"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/steem_username_lbl"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/username_create_account_link"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="@string/create_account_link"
-                android:textSize="14sp"
-                android:textStyle="italic"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_username_lbl" />
-
-            <EditText
-                android:id="@+id/steemit_username"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textPersonName"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/username_create_account_link" />
-
-
-            <TextView
-                android:id="@+id/steemit_posting_key_lbl"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="45dp"
-                android:text="@string/steem_pvt_posting_key"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/steemit_username" />
-
-            <TextView
-                android:id="@+id/posting_key_link"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="@string/actifit_find_posting_key_vid"
-                android:textSize="14sp"
-                android:textStyle="italic"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_posting_key_lbl" />
-
-            <EditText
-                android:id="@+id/steemit_posting_key"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textPassword"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/posting_key_link" />
-
-            <TextView
                 android:id="@+id/steemit_post_title_lbl"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
                 android:text="@string/report_title"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/steemit_posting_key" />
+                android:textSize="20dp"
+                tools:ignore="MissingConstraints" />
 
             <EditText
                 android:id="@+id/steemit_post_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:ems="10"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/steemit_post_title_lbl" />
@@ -166,13 +101,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/full_report_AFIT_pay"
-                android:textStyle="bold"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/steemit_post_title" />
 
             <CheckBox
                 android:id="@+id/full_afit_pay"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/full_AFIT_checkbox"
@@ -185,7 +121,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/report_date_option_group_title"
-                android:textStyle="bold"
+                android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/full_afit_pay" />
@@ -218,7 +154,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/activity_count_lbl"
-                android:textStyle="bold"
+                android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/report_date_option_group" />
@@ -274,7 +210,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
                 android:text="@string/activity_type_lbl"
-                android:textStyle="bold"
+                android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/activity_data_section" />
@@ -295,7 +231,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
                 android:text="@string/track_measurements_lbl"
-                android:textStyle="bold"
+                android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/steemit_activity_type" />
@@ -495,7 +431,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
                 android:text="@string/report_tags_lbl"
-                android:textStyle="bold"
+                android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/measurements_chest_unit" />
@@ -509,12 +445,24 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/steemit_post_tags_lbl" />
 
-            <TextView
+            <!--<TextView
                 android:id="@+id/image_section_lbl"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/report_images_lbl"
                 android:textStyle="bold"
+                android:textSize="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/steemit_post_tags" />
+-->
+
+            <TextView
+                android:id="@+id/steemit_post_content_lbl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/report_content_lbl"
+                android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/steemit_post_tags" />
@@ -522,24 +470,15 @@
             <Button
                 style="@style/AppTheme.ActifitButton"
                 android:id="@+id/btn_choose_file"
-                android:layout_width="0dp"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/insert_img_btn_lbl"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/image_section_lbl" />
+                app:layout_constraintTop_toBottomOf="@+id/steemit_post_content_lbl" />
 
 
-            <TextView
-                android:id="@+id/steemit_post_content_lbl"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/report_content_lbl"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_choose_file" />
 
             <TextView
                 android:id="@+id/steemit_post_content_note"
@@ -549,7 +488,7 @@
                 android:textStyle="italic"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_post_content_lbl" />
+                app:layout_constraintTop_toBottomOf="@+id/btn_choose_file" />
 
             <EditText
                 android:id="@+id/steemit_post_text"
@@ -569,7 +508,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/report_preview_lbl"
-                android:textStyle="bold"
+                android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/steemit_post_text" />
@@ -589,4 +528,5 @@
 
     </androidx.core.widget.NestedScrollView>
 
-</RelativeLayout>
+</LinearLayout>
+<!--</RelativeLayout>-->

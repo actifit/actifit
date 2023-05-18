@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        tools:ignore="ContentDescription,MissingConstraints"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:scaleType="centerCrop"
+        android:id="@+id/news_featured_image"
+        android:src="@drawable/default_pic" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        app:srcCompat="@drawable/slider_background"
+        app:layout_constraintBottom_toBottomOf="@+id/news_featured_image"
+        tools:ignore="ContentDescription"
+        android:id="@+id/slider_background"/>
+
+    <TextView
+        android:id="@+id/my_caption_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textStyle="bold|italic"
+        android:text="The Caption Title"
+        android:textColor="@color/actifitRed"
+        android:textSize="26sp"
+        android:background="@android:color/white"
+        android:alpha="0.6"
+        tools:layout_editor_absoluteX="51dp"
+        tools:layout_editor_absoluteY="100dp"
+        tools:ignore="MissingConstraints" />
+</androidx.constraintlayout.widget.ConstraintLayout>
