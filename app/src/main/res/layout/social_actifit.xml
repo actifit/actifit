@@ -1,0 +1,103 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<LinearLayout xmlns:android = "http://schemas.android.com/apk/res/android"
+    android:layout_width = "match_parent"
+    android:gravity = "center"
+    android:layout_gravity="center"
+    android:layout_height = "wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <GridLayout
+        xmlns:android = "http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:rowCount="3"
+        android:columnCount="3"
+
+        >
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/facebook_actifit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/font_awesome_6_brands"
+        android:text="\uf09a"
+        />
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/twitter_actifit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/font_awesome_6_brands"
+        android:text="\uf099"
+        />
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/discord_actifit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/font_awesome_6_brands"
+        android:text="\uf392"
+        />
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/telegram_actifit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/font_awesome_6_brands"
+        android:text="\uf2c6"
+        />
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/youtube_actifit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/font_awesome_6_brands"
+        android:text="\uf167"
+        />
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/instagram_actifit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/font_awesome_6_brands"
+        android:text="\uf16d"
+        />
+
+
+    <!--<Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/medium_actifit"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/font_awesome_6_brands"
+        android:text="\u"
+        />-->
+
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/linkedin_actifit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/font_awesome_6_brands"
+        android:text="\uf08c"
+        />
+
+    </GridLayout>
+
+</LinearLayout>

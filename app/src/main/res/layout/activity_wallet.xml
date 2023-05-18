@@ -13,51 +13,311 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/actifitRed"
         android:text="@string/your_wallet_title"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-    <TextView
-        android:id="@+id/steemit_username_lbl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/steem_username_lbl" />
 
-    <EditText
-        android:id="@+id/steemit_username"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName" />
+        android:orientation="horizontal"
+        >
 
-    <Button
+        <info.androidhive.fontawesome.FontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fa_wallet_solid"
+            app:solid_icon="true"
+            android:textColor="@color/actifitRed"
+            />
+
+        <TextView
+            android:id="@+id/balance_lbl"
+            android:paddingLeft="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text="@string/balance_lbl"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+        <TextView
+            android:id="@+id/btn_refresh_balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf2f1"
+            android:textSize="20dp"
+            android:padding="10dp"
+            />
+
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        >
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/actifit_logo"
+            />
+
+        <TextView
+            android:id="@+id/actifit_balance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="" />
+
+    </LinearLayout>
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/hive"
+            />
+
+        <TextView
+            android:id="@+id/hive_balance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="" />
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/steem"
+            />
+        <TextView
+            android:id="@+id/steem_balance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="" />
+
+    </LinearLayout>
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/blurt"
+            />
+        <TextView
+            android:id="@+id/blurt_balance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="" />
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/sports"
+            android:visibility="gone"
+            />
+        <TextView
+            android:id="@+id/sports_balance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:text="" />
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <info.androidhive.fontawesome.FontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fa_coins_solid"
+            app:solid_icon="true"
+            android:textColor="@color/actifitRed"
+            />
+
+        <TextView
+            android:id="@+id/claimable_rewards_lbl"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text="@string/claimable_rewards_lbl"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+        <TextView
+            android:id="@+id/btn_claim_pending_rewards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf81d"
+            android:textSize="20dp"
+            android:padding="10dp"
+            />
+
+        <TextView
+            android:id="@+id/btn_get_pending_rewards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf254"
+            android:textSize="20dp"
+            android:padding="10dp"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/hive"
+            />
+
+        <TextView
+            android:id="@+id/hive_rewards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="" />
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/steem"
+            />
+        <TextView
+            android:id="@+id/steem_rewards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="" />
+
+    </LinearLayout>
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/blurt"
+            />
+        <TextView
+            android:id="@+id/blurt_rewards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="" />
+
+    </LinearLayout>
+
+
+
+    <!--<LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
         style="@style/AppTheme.ActifitButton"
-        android:id="@+id/btn_get_balance"
+        android:id="@+id/btn_claim_pending_rewards"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/get_balance_btn_lbl" />
+        android:text="@string/claim_pending_rewards_btn_lbl" />
 
-    <TextView
-        android:id="@+id/actifit_balance_lbl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/afit_token_balance"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:visibility="invisible"/>
 
-    <TextView
-        android:id="@+id/actifit_balance"
+        <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/btn_get_pending_rewards"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:text="" />
+        android:text="@string/get_pending_rewards_btn_lbl" />
+
+    </LinearLayout>-->
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <info.androidhive.fontawesome.FontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fa_file"
+            app:solid_icon="true"
+            android:textColor="@color/actifitRed"
+            />
 
     <TextView
         android:id="@+id/actifit_transactions_lbl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textSize="16dp"
+        android:padding="10dp"
         android:text="@string/actifit_transactions_lbl"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/actifit_transactions_error"
@@ -65,7 +325,7 @@
         android:layout_height="wrap_content"
         android:text="@string/actifit_transactions_error"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:visibility="invisible"/>
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/actifit_transactions"
@@ -73,6 +333,7 @@
         android:layout_height="fill_parent"
         android:dividerHeight="0.1dp"
         android:divider="#0000CC"
+        android:paddingLeft="10dp"
         />
 
 

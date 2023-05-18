@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:text="@string/activity_details_chart_title"
         android:paddingLeft="10dp"
+        android:textColor="@color/actifitRed"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
     <TextView
