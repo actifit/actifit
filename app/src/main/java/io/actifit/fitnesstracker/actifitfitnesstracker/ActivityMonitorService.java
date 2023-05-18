@@ -152,8 +152,12 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             }
 
             Intent notifyIntent = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
-
+            PendingIntent pendingIntent;
+            if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+                pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
+            }else{
+                pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
+            }
             //prepare notification details
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
                     context.getString(R.string.actifit_channel_remind_ID))
@@ -275,6 +279,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             sensorManager.registerListener(ActivityMonitorService.this, accSensor,
                     SensorManager.SENSOR_DELAY_FASTEST);
+                    //SensorManager.SENSOR_DELAY_GAME);
 
             return null;
         }
@@ -298,9 +303,15 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             //create the service that will display as a notification on screen lock
             Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
 
-            PendingIntent pendingIntent =
-                    PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+            PendingIntent pendingIntent;
+            if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+                pendingIntent =
+                        PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
+            }else {
+                pendingIntent =
+                        PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+            }
             mBuilder = new
                     NotificationCompat.Builder(getApplicationContext(), getString(R.string.actifit_channel_ID))
                     .setContentTitle(getString(R.string.actifit_notif_title))

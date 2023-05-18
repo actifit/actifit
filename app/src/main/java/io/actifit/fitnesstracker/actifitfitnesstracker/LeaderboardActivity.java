@@ -49,6 +49,9 @@ public class LeaderboardActivity extends BaseActivity {
 
         progress = new ProgressDialog(this);
 
+        progress.setMessage(getString(R.string.fetching_leaderboard));
+        progress.show();
+
         // Request the transactions of the user first via JsonArrayRequest
         // according to our data format
         JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.POST,
@@ -56,8 +59,6 @@ public class LeaderboardActivity extends BaseActivity {
 
             @Override
             public void onResponse(JSONArray transactionListArray) {
-                //hide dialog
-                progress.hide();
 
                 // Handle the result
                 try {
@@ -75,6 +76,9 @@ public class LeaderboardActivity extends BaseActivity {
                     listingAdapter = new LeaderboardEntryAdapter(leadership_post_context, mAccountsFinalList);
 
                     mAccountsListView.setAdapter(listingAdapter);
+
+                    //hide dialog
+                    progress.hide();
                     //actifitTransactions.setText("Response is: "+ response);
                 }catch (Exception e) {
                     //hide dialog
@@ -100,9 +104,6 @@ public class LeaderboardActivity extends BaseActivity {
 
         // Add transaction request to be processed
         queue.add(transactionRequest);
-
-        progress.setMessage(getString(R.string.fetching_leaderboard));
-        progress.show();
 
     }
 

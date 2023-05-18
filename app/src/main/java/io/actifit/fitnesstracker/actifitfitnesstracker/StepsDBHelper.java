@@ -434,6 +434,19 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         return false;
     }
 
+    public boolean isConnected(){
+        if (dbInstance==null) {
+            return false;
+        }
+        return dbInstance.isOpen();
+    }
+
+    public void reConnect(){
+        if (dbInstance==null || !dbInstance.isOpen()) {
+            dbInstance = this.getWritableDatabase();
+        }
+    }
+
     public void closeConnection(){
         if (dbInstance.isOpen()){
             dbInstance.close();

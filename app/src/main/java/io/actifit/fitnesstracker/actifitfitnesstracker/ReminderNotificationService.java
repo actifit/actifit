@@ -44,8 +44,12 @@ public class ReminderNotificationService extends BroadcastReceiver {
         createNotificationChannel(context);
 
         Intent notifyIntent = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
-
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
+        }else{
+            pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
+        }
         //prepare notification details
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
                 context.getString(R.string.actifit_channel_remind_ID))

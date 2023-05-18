@@ -16,57 +16,73 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ActivityManager;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.MediaStore;
-
-import androidx.annotation.NonNull;
-import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.core.content.FileProvider;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import android.os.Bundle;
-import android.hardware.SensorEventListener;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.telephony.TelephonyManager;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.FileProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.viewpager.widget.ViewPager;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -85,32 +101,52 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.OnUserEarnedRewardListener;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.ads.rewarded.ServerSideVerificationOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.JsonObject;
 import com.scottyab.rootbeer.RootBeer;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
+import java.util.TimerTask;
 import java.util.UUID;
 
-import static android.os.Environment.getExternalStoragePublicDirectory;
-import static androidx.localbroadcastmanager.content.LocalBroadcastManager.*;
+import info.androidhive.fontawesome.FontTextView;
 
 
 /**
@@ -135,14 +171,39 @@ import static androidx.localbroadcastmanager.content.LocalBroadcastManager.*;
 
 public class MainActivity extends BaseActivity{
     public static SensorManager sensorManager;
-    public static String username;
+    public static String username = "";
     public static String commToken;
-    private TextView stepDisplay;
+    //private TextView stepDisplay;
+    private LinearLayout thirdPartyTracking;
+    private LinearLayout gadgetsll;
 
     //tracks a reference to an instance of this class
     public static SensorEventListener mainActivitySensorList;
 
     public static final String TAG = "Actifit";
+
+    private Double blurtPrice = 0.02;
+
+    public static int connectTimeout = 10000;
+    public static int connectMaxRetries = 3;
+    public static int connectSubsequentRetryDelay = 2; //backoffmultiplier
+
+
+    private AlertDialog.Builder pendingRewardsDialogBuilder;
+    private AlertDialog pendingRewardsDialog;
+    private JSONObject innerRewards = new JSONObject();
+
+    private AlertDialog.Builder earningsDialogBuilder;
+    private AlertDialog earningsDialog;
+
+    private AlertDialog.Builder gadgetsDialogBuilder;
+    private AlertDialog gadgetsDialog;
+
+    private AlertDialog.Builder afitBuyDialogBuilder;
+    private AlertDialog afitBuyDialog;
+    JSONArray afitMarkets, dailyTip;
+
+    TextView giftLoader;
 
     //tracks if listener is active
     public static boolean isListenerActive = false;
@@ -163,7 +224,7 @@ public class MainActivity extends BaseActivity{
 
     /* items related to batch data capturing */
 
-    private int curStepCount = 0;
+    //private int curStepCount = 0;
     private static final String BUNDLE_LISTENER = "listener";
 
     private static Intent mServiceIntent;
@@ -181,6 +242,8 @@ public class MainActivity extends BaseActivity{
 
     static final int REQUEST_TAKE_PHOTO = 1;
 
+    String checkMark = "&#10003;";
+
     PieChart btnPieChart;
 
     static boolean isActivityVisible = true;
@@ -188,6 +251,43 @@ public class MainActivity extends BaseActivity{
     private BarData chartBarData, dayBarData;
 
     private BarChart dayChart, fullChart;
+
+    public static Double userFullBalance = 0.0;
+    public static String userRank = "0.0";//default 0
+    public boolean hasSteemAccount = false;
+    public boolean hasBlurtAccount = false;
+    public Double blurtBalance = 0.0;
+
+    public static Double minTokenCount;
+    TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText;
+    LinearLayout loginContainer, userGadgets, accountRCContainer, votingStatusContainer;
+    GridLayout topIconsContainer;
+    FontTextView BtnSettings;
+
+    JSONArray productsList;
+    JSONArray activeProducts;
+    JSONArray userReferrals;
+
+    private RewardedAd rewardedAd;
+    private Button dailyRewardButton;
+    private Button freeRewardButton, fivekRewardButton, sevenkRewardButton, tenkRewardButton;
+    private boolean dailyRewardClaimed = false, fivekRewardClaimed = false, sevenkRewardClaimed = false, tenkRewardClaimed = false;
+    private boolean isAdLoading;
+
+    Button fullChartButton, dayChartButton;
+
+    RotateAnimation rotate;
+
+    ScaleAnimation scaler;
+    Button BtnPostSteemit;
+
+    /* news tab related variables */
+
+    private List<Slider_Items_Model_Class> listItems;
+    private ViewPager newsPage;
+    private TabLayout newsTabLayout;
+
+    //ProgressDialog progress;
 
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
@@ -369,7 +469,149 @@ public class MainActivity extends BaseActivity{
         crashlytics.someAction();
     }*/
 
+    // slide the view from below itself to the current position
+    public void slideRight(View view){
+        view.setVisibility(View.VISIBLE);
+        TranslateAnimation animate = new TranslateAnimation(
+                view.getWidth(),                 // fromXDelta
+                0,                 // toXDelta
+                0,  // fromYDelta
+                0);                // toYDelta
+        animate.setDuration(500);
+        animate.setFillAfter(true);
+        view.startAnimation(animate);
+    }
 
+    // slide the view from its current position to below itself
+    public void slideLeft(View view){
+        view.setVisibility(View.GONE);
+        TranslateAnimation animate = new TranslateAnimation(
+                0,                 // fromXDelta
+                view.getWidth(),                 // toXDelta
+                0,                 // fromYDelta
+                0); // toYDelta
+        animate.setDuration(500);
+        animate.setFillAfter(true);
+        view.startAnimation(animate);
+
+    }
+
+    /*handles auto-revolving news tab at the top*/
+    public class Slide_timer extends TimerTask {
+        @Override
+        public void run() {
+
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (newsPage.getCurrentItem()< listItems.size()-1) {
+                        newsPage.setCurrentItem(newsPage.getCurrentItem()+1);
+                    }
+                    else
+                        newsPage.setCurrentItem(0);
+                }
+            });
+        }
+    }
+
+    //handles initiating and filling newsslider data
+    //SLIDER SETUP INFO: //https://www.section.io/engineering-education/how-to-create-an-automatic-slider-in-android-studio/
+    private void loadNewsSlider(){
+
+        newsPage = findViewById(R.id.news_pager) ;
+
+        newsTabLayout = findViewById(R.id.news_tablayout);
+
+        listItems = new ArrayList<>() ;
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String newsArticlesUrl = getString(R.string.news_articles);
+
+
+        JsonArrayRequest newsArticlesReq = new JsonArrayRequest(Request.Method.GET,
+                newsArticlesUrl, null, listArray -> {
+            //hide dialog
+            //progress.hide();
+
+            // Handle the result
+            try {
+                if (listArray!=null && listArray.length()>0){
+                    for(int i=0;i<listArray.length();i++){
+                        listItems.add(new Slider_Items_Model_Class(listArray.getJSONObject(i)));
+                    }
+
+                    Slider_items_Pager_Adapter itemsPager_adapter = new Slider_items_Pager_Adapter(this, listItems);
+                    newsPage.setAdapter(itemsPager_adapter);
+
+                    newsTabLayout.setupWithViewPager(newsPage,true);
+
+                    // The_slide_timer
+                    java.util.Timer timer = new java.util.Timer();
+                    timer.scheduleAtFixedRate(new Slide_timer(),2000,3000);
+                    newsTabLayout.setupWithViewPager(newsPage,true);
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }, error -> {
+        });
+
+        queue.add(newsArticlesReq);
+
+        //test data for slider
+        /*
+
+        //listItems.add(new Slider_Items_Model_Class(R.drawable.default_pic,"Slider 1 Title"));
+        //listItems.add(new Slider_Items_Model_Class(R.drawable.default_pic,"Slider 2 Title"));
+        //listItems.add(new Slider_Items_Model_Class(R.drawable.default_pic,"Slider 3 Title"));
+        listItems.add(new Slider_Items_Model_Class("https://actifit.io/img/actifit_hive_fest_4th_anniversary.png", "New Event", "https://actifit.io"));
+        listItems.add(new Slider_Items_Model_Class("https://actifit.io/img/actifit_hive_fest_4th_anniversary.png", "Eventto", "https://actifit.io"));
+        listItems.add(new Slider_Items_Model_Class("https://actifit.io/img/actifit_hive_fest_4th_anniversary.png", "Uno Event", "https://actifit.io"));
+         */
+
+        /***********************/
+
+    }
+
+    /**
+     * Persist token to third-party servers.
+     *
+     * Modify this method to associate the user's FCM InstanceID token with any server-side account
+     * maintained by your application.
+     *
+     */
+    private void sendRegistrationToServer() {
+        if (!username.equals("")) {
+            String urlStr = getString(R.string.live_server) + getString(R.string.register_user_token_notifications);
+            Log.d(MainActivity.TAG, "sendRegistrationToServer - urlStr:" + urlStr);
+            ArrayList<String[]> headers = new ArrayList<>();
+            headers.add(new String[]{"Content-Type", "application/json"});
+            HttpResultHelper httpResult = new HttpResultHelper();
+
+            final JSONObject data = new JSONObject();
+            try {
+                data.put("token", commToken);
+                data.put("user", username);
+                data.put("app", "Android");
+
+                String inputLine;
+                String result = "";
+                httpResult = httpResult.httpPost(urlStr, null, null, data.toString(), headers, 20000);
+                BufferedReader in = new BufferedReader(new InputStreamReader(httpResult.getResponse()));
+                while ((inputLine = in.readLine()) != null) {
+                    result += inputLine;
+                }
+
+                Log.d(MainActivity.TAG, ">>>test:" + result);
+            } catch (JSONException | IOException e) {
+                //e.printStackTrace();
+                Log.e(MainActivity.TAG, "error sending registration data");
+            }
+        }
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -389,38 +631,40 @@ public class MainActivity extends BaseActivity{
                     .build());*/
        // }
 
-
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        //short rotate animation
+        rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        rotate.setDuration(2000);
+        rotate.setInterpolator(new LinearInterpolator());
+
+        logoutLink = findViewById(R.id.logout_action);
+        loginLink = findViewById(R.id.login_action);
+        signupLink = findViewById(R.id.signup_action);
+        loginContainer = findViewById(R.id.login_container);
+        accountRCValue = findViewById(R.id.account_rc);
+        topIconsContainer = findViewById(R.id.top_icons_container);
+
+        //accountRCContainer = findViewById(R.id.rc_container);
+
+        votingStatusText = findViewById(R.id.voting_status_text);
+        votingStatusContainer = findViewById(R.id.voting_status_container);
+
+        fullChartButton = findViewById(R.id.daily_chart_btn);
+        dayChartButton = findViewById(R.id.hourly_chart_btn);
+
+        //allow opening signup link
+        signupLink.setMovementMethod(LinkMovementMethod.getInstance());
+        signupLink.setPaintFlags(signupLink.getPaintFlags() & (~ Paint.UNDERLINE_TEXT_FLAG));
+
+
+
         this.isActivityVisible = true;
 
-        //script to receive notifications in background mode
-        if (getIntent().getExtras() != null) {
-            // Call your NotificationActivity here..
-            if (getIntent().getExtras().containsKey("url")) {
-                String targetUrl = getIntent().getExtras().get("url").toString();
-                /*Intent intent = new Intent(this, MainActivity.class);
-                intent.setData(Uri.parse(targetUrl));
-                startActivity(intent);*/
-                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
-                builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
 
-                //animation for showing and closing fitbit authorization screen
-                builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left);
-
-                //animation for back button clicks
-                builder.setExitAnimations(this, android.R.anim.slide_in_left,
-                        android.R.anim.slide_out_right);
-
-                CustomTabsIntent customTabsIntent = builder.build();
-
-                customTabsIntent.launchUrl(this, Uri.parse(targetUrl));
-            }
-        }
         /*if (getIntent().getExtras() != null) {
             for (String key : getIntent().getExtras().keySet()) {
                 Object value = getIntent().getExtras().get(key);
@@ -428,7 +672,7 @@ public class MainActivity extends BaseActivity{
             }
         }*/
 
-        //check if user had unsuscribed from notifications
+        //check if user had unsubscribed from notifications
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
         Boolean currentNotifStatus = (sharedPreferences.getBoolean(getString(R.string.notification_status),true));
 
@@ -452,6 +696,22 @@ public class MainActivity extends BaseActivity{
                         // Log and toast
                         //String msg = getString(R.string.msg_, token);
                         Log.d(TAG, commToken);
+
+
+                        Thread thread = new Thread(new Runnable(){
+                            @Override
+                            public void run() {
+                                try {
+                                    //send out server notification registration with username and token
+                                    sendRegistrationToServer();
+                                } catch (Exception e) {
+                                    Log.e(TAG, e.getMessage());
+                                }
+                            }
+                        });
+                        thread.start();
+
+
                         //Log.d(TAG, msg);
                         //Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
                     }
@@ -486,20 +746,243 @@ public class MainActivity extends BaseActivity{
 
         ctx = this;
 
+        loadNewsSlider();
+
         //grab pointers to specific elements/buttons to be able to capture events and take action
-        stepDisplay = findViewById(R.id.step_display);
-        Button BtnViewHistory = findViewById(R.id.btn_view_history);
-        Button BtnPostSteemit = findViewById(R.id.btn_post_steemit);
-        Button BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
-        Button BtnWallet = findViewById(R.id.btn_view_wallet);
-        Button BtnSettings = findViewById(R.id.btn_settings);
+        //stepDisplay = findViewById(R.id.step_display);
+        thirdPartyTracking = findViewById(R.id.third_party_active);
 
-        Button BtnSnapActiPic = findViewById(R.id.btn_snap_picture);
 
+        FontTextView BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
+        FontTextView BtnViewHistory = findViewById(R.id.btn_view_history);
+        FontTextView BtnWallet = findViewById(R.id.btn_view_wallet);
+        LinearLayout BtnWalletAltContainer = findViewById(R.id.wallet_alt_container);
+
+        FontTextView BtnSnapActiPic = findViewById(R.id.btn_snap_picture);
+        BtnSettings = findViewById(R.id.btn_settings);
+        TextView BtnMarket = findViewById(R.id.btn_view_market);
+        TextView BtnSocials = findViewById(R.id.btn_socials);
+        Button BtnSwitchSettings = findViewById(R.id.switchSettings);
+
+
+
+        BtnPostSteemit = findViewById(R.id.btn_post_steemit);
+        Button BtnBuyAFIT = findViewById(R.id.btn_buy_afit);
+        Button BtnReferFriend = findViewById(R.id.refer_friend_button);
+
+        scaler = new ScaleAnimation(1f, 0.95f, 1f,0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        scaler.setDuration(400);
+        scaler.setRepeatMode(Animation.REVERSE);
+        scaler.setRepeatCount(Animation.INFINITE);
+
+
+        dayChartButton.setOnClickListener(view -> {
+
+            slideRight(dayChart);
+            slideLeft(fullChart);
+            dayChartButton.setVisibility(View.GONE);
+            fullChartButton.setVisibility(View.VISIBLE);
+            /*fullChart.animate()
+                    .translationXBy(fullChart.getWidth())
+                    .alpha(0.0f);
+
+            dayChart.animate()
+                    .translationXBy(dayChart.getWidth())
+                    .alpha(1.0f)
+                    .setListener(null);*/
+            /*fullChart.animate()
+                    .translationX(0)
+                    .alpha(1.0f)
+                    .setListener(null);*/
+
+        });
+
+        fullChartButton.setOnClickListener(view -> {
+            slideLeft(dayChart);
+            slideRight(fullChart);
+            dayChartButton.setVisibility(View.VISIBLE);
+            fullChartButton.setVisibility(View.GONE);
+            /*dayChart.animate()
+                    .translationX(dayChart.getWidth() * -1)
+                    .alpha(0.0f);
+
+            fullChart.animate()
+                    .translationXBy(fullChart.getWidth() * -1)
+                    .alpha(1.0f)
+                    .setListener(null);
+            /*fullChart.animate()
+                    .translationX(0)
+                    .alpha(1.0f)
+                    .setListener(null);*/
+
+        });
+
+        BtnSocials.setOnClickListener(view -> {
+            AlertDialog.Builder socialDialogBuilder = new AlertDialog.Builder(ctx);
+            View socialLayout = getLayoutInflater().inflate(R.layout.social_actifit, null);
+            socialLayout.findViewById(R.id.facebook_actifit).setOnClickListener(view1 -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.facebook_actifit))));
+                }catch(Exception e){
+                    Log.e(MainActivity.TAG, "error opening social media");
+                }
+            });
+            socialLayout.findViewById(R.id.twitter_actifit).setOnClickListener(view1 -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.twitter_actifit))));
+                }catch(Exception e){
+                    Log.e(MainActivity.TAG, "error opening social media");
+                }
+            });
+            socialLayout.findViewById(R.id.telegram_actifit).setOnClickListener(view1 -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.telegram_actifit))));
+                }catch(Exception e){
+                    Log.e(MainActivity.TAG, "error opening social media");
+                }
+            });
+            socialLayout.findViewById(R.id.discord_actifit).setOnClickListener(view1 -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.discord_actifit))));
+                }catch(Exception e){
+                    Log.e(MainActivity.TAG, "error opening social media");
+                }
+            });
+            socialLayout.findViewById(R.id.instagram_actifit).setOnClickListener(view1 -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.instagram_actifit))));
+                }catch(Exception e){
+                    Log.e(MainActivity.TAG, "error opening social media");
+                }
+            });
+            socialLayout.findViewById(R.id.linkedin_actifit).setOnClickListener(view1 -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.linkedin_actifit))));
+                }catch(Exception e){
+                    Log.e(MainActivity.TAG, "error opening social media");
+                }
+            });
+            socialLayout.findViewById(R.id.youtube_actifit).setOnClickListener(view1 -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.youtube_actifit))));
+                }catch(Exception e){
+                    Log.e(MainActivity.TAG, "error opening social media");
+                }
+            });
+
+            //set style for dialog
+            //socialDialogBuilder. getWindow()
+
+
+            AlertDialog pointer = socialDialogBuilder.setView(socialLayout)
+                    .setTitle(getString(R.string.socials_note))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button),null).create();
+
+            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+            pointer.show();
+
+        });
+
+        BtnReferFriend.setOnClickListener(view -> {
+
+            AlertDialog.Builder referDialogBuilder = new AlertDialog.Builder(ctx);
+            final View referLayout = getLayoutInflater().inflate(R.layout.refer_friend, null);
+            EditText refLink = referLayout.findViewById(R.id.referralLink);
+            refLink.setText(getString(R.string.referrals_format)+username);
+
+            TextView referralDescription = referLayout.findViewById(R.id.referral_description);
+            referralDescription.setText(Html.fromHtml(getString(R.string.referrals_details)));
+
+            TextView successfulReferral = referLayout.findViewById(R.id.success_referrals);
+
+            if (userReferrals!=null && userReferrals.length() > 0) {
+
+
+                successfulReferral.setTextColor(ctx.getResources().getColor(R.color.actifitDarkGreen));
+                successfulReferral.setText(Html.fromHtml(checkMark + userReferrals.length()));
+            }
+
+            TextView copyButton = referLayout.findViewById(R.id.copyButton);
+            copyButton.setOnClickListener(view12 -> {
+                copyButton.startAnimation(rotate);
+                copyText(refLink);
+            });
+
+            TextView shareButton = referLayout.findViewById(R.id.shareButton);
+            shareButton.setOnClickListener(view1 -> {
+                //copyText(refLink);
+                shareButton.startAnimation(rotate);
+                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                String shareSubject = getString(R.string.referral_title);
+                String shareBody = getString(R.string.referral_description);
+                shareBody += " "+getString(R.string.referral_join_link).replace("_URL_",refLink.getText().toString());
+
+                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
+                sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+
+                MainActivity.this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
+
+            });
+
+            //display referrals count
+            //Html.fromHtml(checkMark +userReferrals.length());
+
+            AlertDialog pointer = referDialogBuilder.setView(referLayout)
+                    .setTitle(getString(R.string.referrals_note))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button),null).create();
+
+            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+            pointer.show();
+
+        });
+
+
+        LinearLayout EarningsPanel = findViewById(R.id.earnings_panel);
+
+        minTokenCount = Double.parseDouble(getString(R.string.min_afit_reward_balance));
 
         Log.d(TAG,">>>>[Actifit] Getting jiggy with it");
 
 
+        EarningsPanel.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //display alert dialog about pending rewards
+                earningsDialogBuilder = new AlertDialog.Builder(ctx);
+
+
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //cancel
+                                break;
+                        }
+                    }
+                };
+
+                String msg = grabEarningsPanelNote();
+
+
+                earningsDialog = earningsDialogBuilder.setMessage(Html.fromHtml(msg))
+                        .setTitle(getString(R.string.earnings_pane_title))
+                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                        .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
+                earningsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                earningsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+                earningsDialog.show();
+
+
+            }
+
+        });
 
         //introduce the functionality under a separate thread to avoid ANRs
 
@@ -507,37 +990,165 @@ public class MainActivity extends BaseActivity{
         prepareApp.execute();
 
 
+        //prepare ads
+        prepareAds();
+
+        // Create the "show" button, which shows a rewarded video if one is loaded.
+        dailyRewardButton = findViewById(R.id.daily_reward);
+
+
+        //showVideoButton.setVisibility(View.INVISIBLE);
+        //dailyRewardButton.setText(Html.fromHtml(getString(R.string.daily_reward)));
+        dailyRewardButton.setOnClickListener(view -> {
+
+            if (username == null || username.length() <1) {
+                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            //show popup for rewards
+            AlertDialog.Builder rewardsDialogBuilder = new AlertDialog.Builder(ctx);
+            final View rewardsLayout = getLayoutInflater().inflate(R.layout.reward_popup, null);
+
+            giftLoader = rewardsLayout.findViewById(R.id.daily_reward_icon);
+
+
+            freeRewardButton = rewardsLayout.findViewById(R.id.daily_free_reward);
+            fivekRewardButton = rewardsLayout.findViewById(R.id.daily_5k_reward);
+            sevenkRewardButton = rewardsLayout.findViewById(R.id.daily_7k_reward);
+            tenkRewardButton = rewardsLayout.findViewById(R.id.daily_10k_reward);
+
+            freeRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 1));
+            fivekRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 2));
+            sevenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 3));
+            tenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 4));
+
+            //fetch existing reward status
+
+            Date date = new Date();
+            DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            int curDate = Integer.parseInt(dateFormat.format(date));
+
+            String strDate = sharedPreferences.getString(getString(R.string.daily_free_reward), "");
+            if (!strDate.equals("")){
+                if (curDate<=Integer.parseInt(strDate)){
+                    //user has already received reward
+                    dailyRewardClaimed = true;
+                }
+            }
+
+            strDate = sharedPreferences.getString(getString(R.string.daily_5k_reward), "");
+            if (!strDate.equals("")){
+                if (curDate<=Integer.parseInt(strDate)){
+                    //user has already received reward
+                    fivekRewardClaimed = true;
+                }
+            }
+
+            strDate = sharedPreferences.getString(getString(R.string.daily_7k_reward), "");
+            if (!strDate.equals("")){
+                if (curDate<=Integer.parseInt(strDate)){
+                    //user has already received reward
+                    sevenkRewardClaimed = true;
+                }
+            }
+
+            strDate = sharedPreferences.getString(getString(R.string.daily_10k_reward), "");
+            if (!strDate.equals("")){
+                if (curDate<=Integer.parseInt(strDate)){
+                    //user has already received reward
+                    tenkRewardClaimed = true;
+                }
+            }
+
+            if (!dailyRewardClaimed){
+                freeRewardButton.setAnimation(scaler);
+            }else{
+                Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+ sharedPreferences.getString("freerewardedValue","")+" AFIT "+checkMark);
+                freeRewardButton.setText(text);
+            }
+
+            int curStepCount = mStepsDBHelper.fetchTodayStepCount();
+
+            if (!fivekRewardClaimed && curStepCount >= 5000){
+                fivekRewardButton.setAnimation(scaler);
+            }else if (fivekRewardClaimed){
+                Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+sharedPreferences.getString("5krewardedValue","")+" AFIT "+checkMark);
+                fivekRewardButton.setText(text);
+            }
+
+            if (!sevenkRewardClaimed && curStepCount >= 7000){
+                sevenkRewardButton.setAnimation(scaler);
+            }else if (fivekRewardClaimed){
+                Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+sharedPreferences.getString("7krewardedValue","")+" AFIT "+checkMark);
+                sevenkRewardButton.setText(text);
+            }
+
+            if (!tenkRewardClaimed && curStepCount >= 10000){
+                tenkRewardButton.setAnimation(scaler);
+            }else if (tenkRewardClaimed){
+                Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+sharedPreferences.getString("10krewardedValue","")+" AFIT "+checkMark);
+                tenkRewardButton.setText(text);
+            }
+
+            AlertDialog pointer = rewardsDialogBuilder.setView(rewardsLayout)
+                    .setTitle(getString(R.string.rewards_note))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button),null)
+                    .create();
+            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+            //pointer.getWindow().getDecorView().setBackgroundResource(android.R.color.transparent);
+
+            pointer.show();
+        });
+
+        dailyRewardButton.startAnimation(scaler);
+
         final FrameLayout picFrame = findViewById(R.id.pic_frame);
         final TextView welcomeUser = findViewById(R.id.welcome_user);
         final TextView userRankTV = findViewById(R.id.user_rank);
 
         //handle click on user profile
-        picFrame.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-                openUserAccount(sharedPreferences);
-            }
-
+        picFrame.setOnClickListener(view -> {
+            final SharedPreferences sharedPreferences1 = getSharedPreferences("actifitSets",MODE_PRIVATE);
+            openUserAccount(sharedPreferences1);
         });
 
         //also handle click on username
-        welcomeUser.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-                openUserAccount(sharedPreferences);
-            }
-
+        welcomeUser.setOnClickListener(view -> {
+            final SharedPreferences sharedPreferences12 = getSharedPreferences("actifitSets",MODE_PRIVATE);
+            openUserAccount(sharedPreferences12);
         });
 
         //also handle click on rank
-        userRankTV.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-                openUserRank(sharedPreferences);
-            }
+        userRankTV.setOnClickListener(view -> {
+            //final SharedPreferences sharedPreferences13 = getSharedPreferences("actifitSets",MODE_PRIVATE);
+            //openUserRank(sharedPreferences13);
+            String msg = getString(R.string.user_rank_description)+getString(R.string.user_rank_description_2);
+
+            DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                switch (which) {
+                    case DialogInterface.BUTTON_NEUTRAL:
+                        //cancel
+                        openUserRank();
+                        break;
+                }
+            };
+
+            //display alert dialog about pending rewards
+            AlertDialog.Builder userRankDialogBuilder = new AlertDialog.Builder(ctx);
+
+            AlertDialog pointer = userRankDialogBuilder.setMessage(Html.fromHtml(msg))
+                    .setTitle(getString(R.string.user_rank_title))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button), null)
+                    .setNeutralButton(getString(R.string.user_rank_web), dialogClickListener)
+                    .create();
+
+            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+            pointer.show();
 
         });
 
@@ -549,12 +1160,17 @@ public class MainActivity extends BaseActivity{
 
 
 
-//connecting the activity to the service to receive proper updates on move count
+        //connecting the activity to the service to receive proper updates on move count
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final int stepCount = intent.getIntExtra("move_count", 0);
-                stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
+                //stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
+                //stepDisplay.setVisibility(View.GONE);
+
+                //if (!mStepsDBHelper.isConnected()){
+//                    mStepsDBHelper.reConnect();
+                //}
 
                 //display activity count chart
                 displayActivityChart(stepCount, false);
@@ -575,78 +1191,178 @@ public class MainActivity extends BaseActivity{
         };
 
         //handle taking photos
-        BtnSnapActiPic.setOnClickListener(new OnClickListener() {
-              @Override
-              public void onClick(View view) {
+        BtnSnapActiPic.setOnClickListener(view -> {
 
-                  //make sure we have a cam on device
-                  PackageManager pm = ctx.getPackageManager();
+            //make sure we have a cam on device
+            PackageManager pm = ctx.getPackageManager();
 
-                  //if no cam, notify and leave
-                  if (!pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-                      Toast.makeText(getApplicationContext(),getString(R.string.device_has_no_cam), Toast.LENGTH_SHORT).show();
-                      return;
-                  }
+            //if no cam, notify and leave
+            if (!pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+                Toast.makeText(getApplicationContext(),getString(R.string.device_has_no_cam), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                  //ensure we have proper permissions for image upload
-                  if (shouldAskPermissions()) {
-                      String[] permissions = {
-                              "android.permission.READ_EXTERNAL_STORAGE",
-                              "android.permission.WRITE_EXTERNAL_STORAGE"
-                      };
-                      askPermissions(permissions);
-                  }
+            //ensure we have proper permissions for image upload
+            if (shouldAskPermissions()) {
+                String[] permissions = {
+                        "android.permission.READ_EXTERNAL_STORAGE",
+                        "android.permission.WRITE_EXTERNAL_STORAGE"
+                };
+                askPermissions(permissions);
+            }
 
-                  Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                  // Ensure that there's a camera activity to handle the intent
-                  if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                      // Create the File where the photo should go
-                      File photoFile = null;
-                      try {
-                          photoFile = createImageFile();
-                      } catch (IOException ex) {
-                          // Error occurred while creating the File
-                          ex.printStackTrace();
-                      }
-                      // Continue only if the File was successfully created
-                      if (photoFile != null) {
-                          try {
-                              Uri photoURI = FileProvider.getUriForFile(ctx,
-                                      "io.actifit.fileprovider",
-                                      photoFile);
-                              takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                              startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                          }catch (Exception myExc){
-                              myExc.printStackTrace();
-                          }
-                      }
-                  }
-              }
-          }
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            // Ensure that there's a camera activity to handle the intent
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                // Create the File where the photo should go
+                File photoFile = null;
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                    ex.printStackTrace();
+                }
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
+                    try {
+                        Uri photoURI = FileProvider.getUriForFile(ctx,
+                                "io.actifit.fileprovider",
+                                photoFile);
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                        startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                    }catch (Exception myExc){
+                        myExc.printStackTrace();
+                    }
+                }
+            }
+        }
         );
 
         //handle activity to move to step history screen
-        BtnViewHistory.setOnClickListener(new OnClickListener() {
+        BtnViewHistory.setOnClickListener(arg0 -> {
 
-            @Override
-            public void onClick(View arg0) {
+            Intent intent = new Intent(MainActivity.this, StepHistoryActivity.class);
+            MainActivity.this.startActivity(intent);
 
-                Intent intent = new Intent(MainActivity.this, StepHistoryActivity.class);
-                MainActivity.this.startActivity(intent);
-
-            }
         });
 
         //handle activity to move to post to steemit screen
-        BtnPostSteemit.setOnClickListener(new OnClickListener() {
+        BtnPostSteemit.setOnClickListener(arg0 -> {
 
-            @Override
-            public void onClick(View arg0) {
-
+            if (username == null || username.length() <1){
+                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+            }else {
                 Intent intent = new Intent(MainActivity.this, PostSteemitActivity.class);
                 MainActivity.this.startActivity(intent);
-
             }
+
+        });
+
+        //load AFIT markets
+        //handles sending out API query requests
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String afitMarketsUrl = getString(R.string.afit_markets);
+
+
+        JsonArrayRequest afitMarketsReq = new JsonArrayRequest(Request.Method.GET,
+                afitMarketsUrl, null, listArray -> {
+                    //hide dialog
+                    //progress.hide();
+
+                    // Handle the result
+                    try {
+                        afitMarkets = listArray;
+                        //actifitTransactions.setText("Response is: "+ response);
+                    }catch (Exception e) {
+                        //hide dialog
+                        //progress.hide();
+                        //actifitTransactionsError.setVisibility(View.VISIBLE);
+                        e.printStackTrace();
+                    }
+
+                }, error -> {
+                    //hide dialog
+                    //progress.hide();
+                    //actifitTransactionsView.setText("Unable to fetch balance");
+                    //actifitTransactionsError.setVisibility(View.VISIBLE);
+                });
+
+        queue.add(afitMarketsReq);
+
+        //load daily tip
+        displayDailyTip();
+
+        //load user gadgets
+        displayUserGadgets();
+
+        //load referral count
+        loadReferrals(queue);
+
+        BtnBuyAFIT.setOnClickListener(arg0 -> {
+
+            afitBuyDialogBuilder = new AlertDialog.Builder(ctx);
+
+            String msg = "";
+            msg += getString(R.string.afit_buy_note) + "<br />";
+
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which) {
+                         case DialogInterface.BUTTON_NEGATIVE:
+                            //cancel
+                            break;
+                    }
+                }
+            };
+
+            List<String> listItems = new ArrayList<String>();
+            for (int i=0;i<afitMarkets.length();i++){
+                try {
+                    listItems.add(afitMarkets.getJSONObject(i).getString("exchange"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            CharSequence[] marketBtns = listItems.toArray(new CharSequence[listItems.size()]);
+
+
+            afitBuyDialog = afitBuyDialogBuilder
+                    //.setMessage(Html.fromHtml(msg))
+                    .setTitle(getString(R.string.afit_buy_title))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button), dialogClickListener)
+                    .setItems(marketBtns,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+                            builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+
+                            //animation for showing and closing screen
+                            builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
+
+                            //animation for back button clicks
+                            builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
+                                    android.R.anim.slide_out_right);
+
+                            CustomTabsIntent customTabsIntent = builder.build();
+
+                            try {
+                                customTabsIntent.launchUrl(ctx, Uri.parse(afitMarkets.getJSONObject(which).getString("link")));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }).create();
+
+            afitBuyDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            afitBuyDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+            afitBuyDialog.show();
+
         });
 
         //handle activity to move over to the Leaderboard screen
@@ -661,36 +1377,488 @@ public class MainActivity extends BaseActivity{
             }
         });
 
-        //handle activity to move over to the Wallet screen
-        BtnWallet.setOnClickListener(new OnClickListener() {
 
+
+
+        BtnWalletAltContainer.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                BtnWallet.performClick();
+            }
+        });
+
+        //handle activity to move over to the Wallet screen
+        BtnWallet.setOnClickListener(arg0 -> {
+            if (username == null || username.length() <1){
+                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+            }else {
 
                 Intent intent = new Intent(MainActivity.this, WalletActivity.class);
                 MainActivity.this.startActivity(intent);
+            }
+        });
+
+
+        //handle activity to move over to the Settings screen
+        BtnSettings.setOnClickListener(arg0 -> {
+
+            if (username == null || username.length() <1){
+                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+            }else {
+                //sensorManager.unregisterListener(MainActivity.this);
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                MainActivity.this.startActivity(intent);
+            }
+        });
+
+
+
+        BtnMarket.setOnClickListener(arg0 -> {
+
+            /*if (username == null || username.length() <1){
+                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+            }else {*/
+
+                //sensorManager.unregisterListener(MainActivity.this);
+                Intent intent = new Intent(MainActivity.this, MarketActivity.class);
+                MainActivity.this.startActivity(intent);
+            //}
+        });
+
+
+        userGadgets = findViewById(R.id.user_gadgets);
+
+        userGadgets.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //display alert dialog about pending rewards
+                gadgetsDialogBuilder = new AlertDialog.Builder(ctx);
+
+
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_NEUTRAL:
+                                BtnMarket.performClick();
+                                break;
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //cancel
+                                break;
+                        }
+                    }
+                };
+
+                String msg = "";
+                if (activeProducts == null || activeProducts.length() < 1){
+                    msg += "<b>"+getString(R.string.active_gadgets_note_1) + " <br />";
+                }
+                msg += getString(R.string.active_gadgets_note_2) + "<br />";
+                msg += getString(R.string.active_gadgets_note_3)+ "<br />";
+
+                gadgetsDialog = gadgetsDialogBuilder.setMessage(Html.fromHtml(msg))
+                        .setTitle(getString(R.string.gadgets_earning_title))
+                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                        .setNeutralButton(getString(R.string.head_market), dialogClickListener)
+                        .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
+
+                gadgetsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                gadgetsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+                gadgetsDialog.show();
 
             }
         });
 
-        //handle activity to move over to the Settings screen
-        BtnSettings.setOnClickListener(new OnClickListener() {
+        BtnSwitchSettings.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
 
-                //sensorManager.unregisterListener(MainActivity.this);
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                MainActivity.this.startActivity(intent);
+                if (username == null || username.length() <1){
+                    Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+                }else {
+
+                    //sensorManager.unregisterListener(MainActivity.this);
+                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    MainActivity.this.startActivity(intent);
+                }
+            }
+        });
+
+        checkBatteryOptimization();
+
+
+        //redirect user to url of notification
+        //script to receive notifications in background mode
+        if (getIntent().getExtras() != null) {
+            // Call your NotificationActivity here..
+            if (getIntent().getExtras().containsKey("url")) {
+                String targetUrl = getIntent().getExtras().get("url").toString();
+                /*Intent intent = new Intent(this, MainActivity.class);
+                intent.setData(Uri.parse(targetUrl));
+                startActivity(intent);*/
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+                builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+
+                //animation for showing and closing fitbit authorization screen
+                builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left);
+
+                //animation for back button clicks
+                builder.setExitAnimations(this, android.R.anim.slide_in_left,
+                        android.R.anim.slide_out_right);
+
+                CustomTabsIntent customTabsIntent = builder.build();
+
+                customTabsIntent.launchUrl(this, Uri.parse(targetUrl));
+
+                return;
+            }
+        }
+
+
+    }
+
+    private void copyText(EditText src){
+        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+        android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", src.getText().toString());
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(MainActivity.this, getString(R.string.copy_success), Toast.LENGTH_SHORT)
+                .show();
+    }
+
+    // for extra ad related documentation : https://developers.google.com/admob/android/rewarded
+    private void prepareAds(){
+
+        //initialize ads
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
 
             }
         });
 
+        loadRewardedAd();
     }
+
+    private void loadRewardedAd(){
+        if (rewardedAd == null) {
+            isAdLoading = true;
+            AdRequest adRequest = new AdRequest.Builder().build();
+
+
+            RewardedAd.load(this, getString(R.string.admob_ad_unit_1),
+                    adRequest, new RewardedAdLoadCallback() {
+                        @Override
+                        public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                            // Handle the error.
+                            Log.d(TAG, loadAdError.toString());
+                            MainActivity.this.rewardedAd = null;
+                            MainActivity.this.isAdLoading = false;
+                        }
+
+                        @Override
+                        public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
+                            MainActivity.this.rewardedAd = rewardedAd;
+                            Log.d(TAG, "Ad was loaded.");
+                            MainActivity.this.isAdLoading = false;
+                        }
+                    });
+        }
+    }
+
+    private void showRewardedVideo(View view, int tier) {
+        int curStepCount = mStepsDBHelper.fetchTodayStepCount();
+        giftLoader.startAnimation(rotate);
+        if (getString(R.string.test_mode).equals("off")) {
+            switch (view.getId()) {
+                case R.id.daily_free_reward:
+                    if (dailyRewardClaimed) {
+                        //bail out, user already rewarded
+                        Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
+                                .show();
+                        return;
+                    }
+                    break;
+
+                case R.id.daily_5k_reward:
+                    if (fivekRewardClaimed) {
+                        Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
+                                .show();
+                        return;
+                    }
+                    if (curStepCount < 5000) {
+                        Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
+                                .show();
+                        return;
+                    }
+                    break;
+
+                case R.id.daily_7k_reward:
+                    if (sevenkRewardClaimed) {
+                        Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
+                                .show();
+                        return;
+                    }
+                    if (curStepCount < 7000) {
+                        Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
+                                .show();
+                        return;
+                    }
+                    break;
+
+                case R.id.daily_10k_reward:
+                    if (tenkRewardClaimed) {
+                        Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
+                                .show();
+                        return;
+                    }
+                    if (curStepCount < 10000) {
+                        Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
+                                .show();
+                        return;
+                    }
+                    break;
+            }
+        }
+
+        if (rewardedAd == null) {
+            Log.d("TAG", "The rewarded ad wasn't ready yet.");
+            loadRewardedAd();
+            return;
+        }
+
+        //calculate random reward value
+        double rewardValue = 0;
+
+        switch(tier){
+            case 1:
+                rewardValue = generateRandomVal(Float.parseFloat(getString(R.string.tier_one_reward_max)), Float.parseFloat(getString(R.string.tier_one_reward_min)));
+                break;
+
+            case 2:
+                rewardValue = generateRandomVal(Float.parseFloat(getString(R.string.tier_two_reward_max)), Float.parseFloat(getString(R.string.tier_two_reward_min)));
+                break;
+
+            case 3:
+                rewardValue = generateRandomVal(Float.parseFloat(getString(R.string.tier_three_reward_max)), Float.parseFloat(getString(R.string.tier_three_reward_min)));
+                break;
+
+            case 4:
+                rewardValue = generateRandomVal(Float.parseFloat(getString(R.string.tier_four_reward_max)), Float.parseFloat(getString(R.string.tier_four_reward_min)));
+                break;
+        }
+
+        rewardValue = Math.floor(rewardValue * 1000) / 1000;
+
+        Button myBtn = (Button)view;
+        //prepare SSV for proper server side validation
+        ServerSideVerificationOptions options = new ServerSideVerificationOptions.Builder()
+                //custom data format: user|AFIT|tier|buttontitle
+                //.setCustomData("Tier:"+tier+"rewardedAFIT:"+rewardValue)
+                .setCustomData(username+"_"+ rewardValue +"_"+ tier + "_" + Uri.encode(myBtn.getText().toString()))
+                .build();
+
+        rewardedAd.setServerSideVerificationOptions(options);
+
+        //showVideoButton.setVisibility(View.INVISIBLE);
+
+        rewardedAd.setFullScreenContentCallback(
+                new FullScreenContentCallback() {
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        // Called when ad is shown.
+                        Log.d(TAG, "onAdShowedFullScreenContent");
+                        //hide animation
+
+//                        Toast.makeText(MainActivity.this, "onAdShowedFullScreenContent", Toast.LENGTH_SHORT)
+//                                .show();
+                    }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        // Called when ad fails to show.
+                        Log.d(TAG, "onAdFailedToShowFullScreenContent");
+                        // Don't forget to set the ad reference to null so you
+                        // don't show the ad a second time.
+                        rewardedAd = null;
+                        giftLoader.clearAnimation();
+//                        Toast.makeText(
+//                                MainActivity.this, "onAdFailedToShowFullScreenContent", Toast.LENGTH_SHORT)
+//                                .show();
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        // Called when ad is dismissed.
+                        // Don't forget to set the ad reference to null so you
+                        // don't show the ad a second time.
+                        rewardedAd = null;
+                        Log.d(TAG, "onAdDismissedFullScreenContent");
+//                        Toast.makeText(MainActivity.this, "onAdDismissedFullScreenContent", Toast.LENGTH_SHORT)
+//                                .show();
+                        // Preload the next rewarded ad.
+                        MainActivity.this.loadRewardedAd();
+                    }
+                });
+        Activity activityContext = MainActivity.this;
+        double finalRewardValue = rewardValue;
+        rewardedAd.show(
+                activityContext,
+                new OnUserEarnedRewardListener() {
+                    @Override
+                    public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+                        // Handle the reward.
+                        Log.d("TAG", "The user earned the reward.");
+                        Toast.makeText(MainActivity.this, getString(R.string.ad_reward_success).replace("_VAL_", finalRewardValue+""), Toast.LENGTH_SHORT)
+                                .show();
+                        //give out the reward
+
+//                        int rewardAmount = rewardItem.getAmount();
+//                        String rewardType = rewardItem.getType();
+
+                        giftLoader.clearAnimation();
+
+                        //store locally for validation
+                        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                        Date date = new Date();
+                        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                        String strDate = dateFormat.format(date);
+
+
+                        switch (view.getId()){
+                            case R.id.daily_free_reward:
+                                dailyRewardClaimed = true;
+                                editor.putString(getString(R.string.daily_free_reward), strDate);
+                                editor.putString("freerewardedValue",finalRewardValue+"");
+                                editor.commit();
+                                break;
+
+                            case R.id.daily_5k_reward:
+                                fivekRewardClaimed = true;
+                                editor.putString(getString(R.string.daily_5k_reward), strDate);
+                                editor.putString("5krewardedValue",finalRewardValue+"");
+                                editor.commit();
+                                break;
+
+                            case R.id.daily_7k_reward:
+                                sevenkRewardClaimed = true;
+                                editor.putString(getString(R.string.daily_7k_reward), strDate);
+                                editor.putString("7krewardedValue",finalRewardValue+"");
+                                editor.commit();
+                                break;
+
+                            case R.id.daily_10k_reward:
+                                tenkRewardClaimed = true;
+                                editor.putString(getString(R.string.daily_10k_reward), strDate);
+                                editor.putString("10krewardedValue",finalRewardValue+"");
+                                editor.commit();
+                                break;
+                        }
+                        //adjust button text
+                        ((Button) view).setText(Html.fromHtml (((Button) view).getText()+"<br/> "+finalRewardValue+" AFIT "+checkMark));
+                        adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
+                    }
+                });
+    }
+
+    private float generateRandomVal(float max, float min){
+        float randomVal = 0;
+        Random rand = new Random();
+        //bias towards lower values
+        float finalVal = rand.nextFloat() * (max - min) + min;
+        //run 5 iterations and grab lowest val
+        for (int i=0;i<5;i++) {
+            randomVal = rand.nextFloat() * (max - min) + min;
+            //always save lowest value
+            if (randomVal < finalVal){
+                finalVal = randomVal;
+            }
+        }
+        if (finalVal < min){
+            finalVal = min;
+        }
+        if (finalVal > max){
+            finalVal = max;
+        }
+        return finalVal;
+    }
+
+    private String grabEarningsPanelNote(){
+        String msg = "";
+        boolean showNotice = false;
+        if (userFullBalance < minTokenCount){
+            msg += "<b>"+getString(R.string.not_earning_afit) + " " + getString(R.string.min_afit_reward_balance) + " AFIT. <br /></b>";
+            showNotice = true;
+        }
+        if (!hasSteemAccount){
+            msg += "<b>"+getString(R.string.not_earning_steem) + "<br /></b>";
+            showNotice = true;
+        }
+        if (!hasBlurtAccount){
+            msg += "<b>"+getString(R.string.not_earning_blurt) + "<br /></b>";
+            showNotice = true;
+        }else if (blurtBalance < Double.parseDouble(getString(R.string.min_blurt_reward_balance))){
+            msg += "<b>"+getString(R.string.not_earning_blurt_balance) + "<br /></b>";
+            showNotice = true;
+        }
+        msg += "<i>"+getString(R.string.earnings_pane_note_0) + "<br />";
+        msg += getString(R.string.earnings_pane_note_1)+ "<br /></i>";
+        msg += getString(R.string.earnings_pane_note_2)+ "<br /></i>";
+
+        FontTextView ftv = findViewById(R.id.token_notice);
+        if (showNotice){
+            ftv.setVisibility(View.VISIBLE);
+        }else{
+            ftv.setVisibility(View.GONE);
+        }
+
+        return msg;
+    }
+
+    //check and notify user about battery optimization
+    @TargetApi(23)
+    private void checkBatteryOptimization() {
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (!pm.isIgnoringBatteryOptimizations("io.actifit.fitnesstracker.actifitfitnesstracker")) {
+            //notify user
+
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which) {
+                        case DialogInterface.BUTTON_POSITIVE:
+                            //cancel
+                            break;
+                    }
+                }
+            };
+
+            String msg = getString(R.string.device_ignore_battery_optimization);
+            msg += getString(R.string.device_app_launch);
+
+            //display alert dialog about pending rewards
+            AlertDialog.Builder batteryDialogBuilder = new AlertDialog.Builder(ctx);
+
+            AlertDialog pointer = batteryDialogBuilder.setMessage(Html.fromHtml(msg))
+                    .setTitle(getString(R.string.battery_optimization_setting))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
+
+            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+            pointer.show();
+        }
+    }
+
+
 
     private void openUserAccount(SharedPreferences sharedPreferences){
         username = sharedPreferences.getString("actifitUser","");
-        if (username != "") {
+        if (!username.equals("")) {
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
             builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
@@ -708,9 +1876,9 @@ public class MainActivity extends BaseActivity{
         }
     }
 
-    private void openUserRank(SharedPreferences sharedPreferences){
-        username = sharedPreferences.getString("actifitUser","");
-        if (username != "") {
+    private void openUserRank(){
+        //username = sharedPreferences.getString("actifitUser","");
+        //if (username != "") {
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
             builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
@@ -725,11 +1893,13 @@ public class MainActivity extends BaseActivity{
             CustomTabsIntent customTabsIntent = builder.build();
 
             customTabsIntent.launchUrl(ctx, Uri.parse(MainActivity.ACTIFIT_RANK_URL));
-        }
+        //}
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //TODO double check
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             galleryAddPic();
         }
@@ -751,6 +1921,225 @@ public class MainActivity extends BaseActivity{
         date.setText(date_n);
     }
 
+    private void displayUserBalance(){
+        /***************** Fetch user full balance ********************/
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        username = sharedPreferences.getString("actifitUser","");
+
+        // This holds the url to connect to the API and grab the balance.
+        // We append to it the username
+        if (username.equals("") || username.length()<2) return;
+        String balanceUrl = getString(R.string.user_balance_api_url)+username+"?fullBalance=1";
+
+        //display header
+        //actifitBalanceLbl.setVisibility(View.VISIBLE);
+        // Request the balance of the user while expecting a JSON response
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JsonObjectRequest balanceRequest = new JsonObjectRequest
+                (Request.Method.GET, balanceUrl, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //hide dialog
+                        //progress.hide();
+                        // Display the result
+                        try {
+                            //grab current token count
+                            userFullBalance = response.getDouble("tokens");
+
+                            TextView tv =  findViewById(R.id.bal_display);
+                            tv.setText(""+ formatValue(userFullBalance)  +" AFIT");
+
+                            //TextView tvTokens = findViewById(R.id.bal_display_note);
+                            //tvTokens.setText();
+
+                            //LinearLayout ll = findViewById(R.id.posting_key_link);
+
+                            FontTextView ftvWallet = findViewById(R.id.token_notice_wallet);
+                            String msg = "";
+
+                            if (userFullBalance < minTokenCount){
+                                //display warning about earning AFIT tokens
+                                ImageView iv = findViewById(R.id.afit_logo);
+                                iv.setColorFilter(Color.rgb( 210, 215, 211));// @color/cardview_dark_background);
+
+                                //ftv.setVisibility(View.VISIBLE);
+                                //ftvWallet.setVisibility(View.VISIBLE);
+
+                            }else{
+                                //ftv.setVisibility(View.GONE);
+                                //ftvWallet.setVisibility(View.GONE);
+                            }
+
+                            if (earningsDialog != null && earningsDialog.isShowing()) {
+
+                                msg = grabEarningsPanelNote();
+
+                                earningsDialog.setMessage(Html.fromHtml(msg));
+                            }
+
+                            /*
+                            //start animations
+                            ImageView hiveLogo = findViewById(R.id.hive_logo);
+                            ImageView steemLogo = findViewById(R.id.steem_logo);
+                            ImageView sportsLogo = findViewById(R.id.sports_logo);
+                            hiveLogo.clearAnimation();
+                            Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
+                            animation.setRepeatCount(Animation.INFINITE);
+                            //animation.setRepeatMode(Animation.RESTART);
+                            //animation.setDuration(1000);
+                            //animation.setRepeatCount(200);
+
+                            //hiveLogo.startAnimation(animation);
+                            hiveLogo.setAnimation(animation);
+                            hiveLogo.animate();
+
+                            steemLogo.setAnimation(animation);
+                            steemLogo.animate();
+
+                            sportsLogo.setAnimation(animation);
+                            sportsLogo.animate();*/
+
+                        }catch(JSONException e){
+                            //hide dialog
+                            //progress.hide();
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //hide dialog
+                        //progress.hide();
+                        //actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
+                        error.printStackTrace();
+                    }
+                });
+
+        // Add balance request to be processed
+        queue.add(balanceRequest);
+
+        //grab account RC value
+        String accountRCUrl = getString(R.string.get_account_rc)+username;
+        // Request the balance of the user while expecting a JSON response
+        JsonObjectRequest accountRCRequest = new JsonObjectRequest
+                (Request.Method.GET, accountRCUrl, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //hide dialog
+                        //progress.hide();
+                        try {
+                            //validate if account exists on the chains
+                            if (response.has("currentRC")) {
+                                String rcVal = response.get("currentRC").toString();
+                                accountRCValue.setText(rcVal + "%");
+                                //accountRCValue.setVisibility(View.VISIBLE);
+                                //accountRCContainer.setVisibility(View.VISIBLE);
+                            }else{
+                                //accountRCContainer.setVisibility(View.GONE);
+                            }
+
+                        } catch (Exception ex) {
+
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //hide dialog
+
+                    }
+                });
+
+        queue.add(accountRCRequest);
+
+        //handle RC click
+        accountRCValue.setOnClickListener(new View.OnClickListener() {
+        //accountRCContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                AlertDialog.Builder rcDialogBuilder = new AlertDialog.Builder(ctx);
+                String msg = getString(R.string.rc_note);
+                AlertDialog pointer = rcDialogBuilder.setMessage(Html.fromHtml(msg))
+                        .setTitle(getString(R.string.rc_note_title))
+                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                        .setNegativeButton(getString(R.string.close_button), null).create();
+
+                pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+                pointer.show();
+            }
+
+        });
+
+        //check if user has accounts across all chains
+
+        // This holds the url to connect to the API and grab the balance.
+        // We append to it the username
+        String accountDataUrl = getString(R.string.get_account_api_url)+username;
+
+        //display header
+        // Request the balance of the user while expecting a JSON response
+        JsonObjectRequest userDataRequest = new JsonObjectRequest
+                (Request.Method.GET, accountDataUrl, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //hide dialog
+                        //progress.hide();
+                        try {
+                            //validate if account exists on the chains
+                            if (!response.has("STEEM")){
+                                ImageView iv = findViewById(R.id.steem_logo);
+                                iv.setColorFilter(Color.rgb( 210, 215, 211));
+                                hasSteemAccount = false;
+                            }else{
+                                hasSteemAccount = true;
+                            }
+
+                            if (!response.has("BLURT")){
+                                ImageView iv = findViewById(R.id.blurt_logo);
+                                iv.setColorFilter(Color.rgb( 210, 215, 211));
+                                hasBlurtAccount = false;
+                            }else{
+                                hasBlurtAccount = true;
+                                JSONObject blurtData = response.getJSONObject("BLURT");
+                                String blurtBalanceStr = blurtData.getString("balance");
+                                String [] parts = blurtBalanceStr.split(" ");
+                                blurtBalance = Double.parseDouble(parts[0]);
+                                if (blurtBalance < Double.parseDouble(getString(R.string.min_blurt_reward_balance))){
+                                    ImageView iv = findViewById(R.id.blurt_logo);
+                                    iv.setColorFilter(Color.rgb( 210, 215, 211));
+                                }
+
+                            }
+
+                        } catch (Exception ex) {
+
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //hide dialog
+
+                    }
+                });
+
+        queue.add(userDataRequest);
+
+    }
+
+    public static String formatValue(double value) {
+        DecimalFormat df = new DecimalFormat("###,###,###.###");
+        return df.format(value);
+    }
+
     private void displayActivityChart(final int stepCount, final boolean animate){
 
         runOnUiThread(new Runnable() {
@@ -765,6 +2154,14 @@ public class MainActivity extends BaseActivity{
                     activityArray.add(new PieEntry(5000 - stepCount, ""));
                     activityArray.add(new PieEntry(5000, ""));
                 } else if (stepCount < 10000) {
+                    //enable animation on post & earn button
+                    //ensure animation is running
+                    if (BtnPostSteemit!=null && scaler!=null) {
+                        if (BtnPostSteemit.getAnimation()==null || BtnPostSteemit.getAnimation().hasStarted()) {
+                            BtnPostSteemit.startAnimation(scaler);
+                        }
+                    }
+
                     activityArray.add(new PieEntry(10000 - stepCount, ""));
                 }
 
@@ -790,10 +2187,15 @@ public class MainActivity extends BaseActivity{
                     //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
                     dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
                 } else if (stepCount < 10000) {
-                    dataSet.setColors(getResources().getColor(R.color.actifitGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+                    dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+                    //enable second level reward
+                    //fivekRewardButton.setEnabled(true);
                 } else {
-                    dataSet.setColors(getResources().getColor(R.color.actifitGreen));
+                    dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen));
+                    //enable third level reward
                 }
+
+                adjustRewardButtonsStatus(stepCount);
 
                 //dataSet.setColors(ColorTemplate.rgb("00ff00"), ColorTemplate.rgb("00ffff"), ColorTemplate.rgb("00ffff"));
 
@@ -812,6 +2214,35 @@ public class MainActivity extends BaseActivity{
             }
 
         });
+    }
+
+    private void adjustRewardButtonsStatus(int stepCount){
+        if (freeRewardButton!=null && fivekRewardButton!=null && tenkRewardButton!=null ) {
+            if (dailyRewardClaimed) {
+                freeRewardButton.clearAnimation();
+            } else if (freeRewardButton.getAnimation() == null || !freeRewardButton.getAnimation().hasStarted()) {
+                freeRewardButton.setAnimation(scaler);
+                //dailyRewardButton
+            }
+            if (fivekRewardClaimed) {
+                fivekRewardButton.clearAnimation();
+            } else if (stepCount >= 5000 && (fivekRewardButton.getAnimation() == null || !fivekRewardButton.getAnimation().hasStarted())) {
+                fivekRewardButton.setAnimation(scaler);
+                //dailyRewardButton
+            }
+            if (sevenkRewardClaimed) {
+                sevenkRewardButton.clearAnimation();
+            } else if (stepCount >= 7000 && (sevenkRewardButton.getAnimation() == null || !sevenkRewardButton.getAnimation().hasStarted())) {
+                sevenkRewardButton.setAnimation(scaler);
+                //dailyRewardButton
+            }
+            if (tenkRewardClaimed) {
+                tenkRewardButton.clearAnimation();
+            } else if (stepCount >= 10000 && (tenkRewardButton.getAnimation() == null || !tenkRewardButton.getAnimation().hasStarted())) {
+                tenkRewardButton.setAnimation(scaler);
+                //dailyRewardButton
+            }
+        }
     }
 
     private class DisplayDayChartDataAsyncTask extends AsyncTask<Boolean, Void, ArrayList<ActivitySlot>> {
@@ -1327,6 +2758,537 @@ public class MainActivity extends BaseActivity{
 
     }
 
+    //handles fetching and displaying pending user rewards
+    public void displayPendingRewards(){
+
+        //check if user does not wish to see this notification
+
+        //grab stored value, if any
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+        Boolean skipShowingRewards = (sharedPreferences.getBoolean(getString(R.string.donotshowrewards),false));
+        if (skipShowingRewards){
+            return;
+        }
+
+        username = sharedPreferences.getString("actifitUser","");
+
+
+
+        if (username != "") {
+
+            //handles sending out API query requests
+            RequestQueue queue = Volley.newRequestQueue(this);
+
+            //fetch blurt price
+            String blurtPriceUrl = getString(R.string.coingecko_price).replace("CURRENCY", "BLURT");
+
+                        // Request the rank of the user while expecting a JSON response
+            JsonObjectRequest blurtPriceReq = new JsonObjectRequest
+                    (Request.Method.GET, blurtPriceUrl, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            // Display the result
+                            try {
+                                blurtPrice = response.getJSONObject("blurt").getDouble("usd");
+                                if (pendingRewardsDialog != null && pendingRewardsDialog.isShowing()){
+                                    String hiveRewards = parseRewards(innerRewards, "HIVE", "HBD", 1.0);
+                                    String steemRewards = parseRewards(innerRewards, "STEEM", "SBD", 1.0);
+                                    String blurtRewards = parseRewards(innerRewards, "BLURT", "BLURT", blurtPrice);
+                                    //update the text message as dialog is already showing
+                                    String msg = "";
+
+                                    msg += !hiveRewards.equals("") ? hiveRewards:"";
+                                    msg += !steemRewards.equals("") ? steemRewards:"";
+                                    msg += !blurtRewards.equals("") ? blurtRewards:"";
+                                    if (!msg.equals("")){
+                                        //we have some pending rewards, show popup
+                                        msg = getString(R.string.pending_rewards_header) + "\r\n" + msg;
+
+                                        msg += "\r\n";
+                                        msg += getString(R.string.pending_rewards_note);
+                                        pendingRewardsDialogBuilder.setMessage(Html.fromHtml(msg));
+                                    }
+                                }
+                            } catch (JSONException jsex) {
+                                jsex.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                //hide dialog
+                                //error.printStackTrace();
+                                Log.e(MainActivity.TAG, "error fetching blurt price");
+                            }
+            });
+
+            queue.add(blurtPriceReq);
+
+            //fetch user pending rewards and display notification
+
+            // This holds the url to connect to the API and grab the pending rewards.
+            // We append to it the username
+            String userPendingRewardsUrl = getString(R.string.user_pending_rewards_url) + username;
+
+            // Request the rank of the user while expecting a JSON response
+            JsonObjectRequest pendRewardsRequest = new JsonObjectRequest
+                    (Request.Method.GET, userPendingRewardsUrl, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            // Display the result
+                            try {
+                                innerRewards = response.getJSONObject("pendingRewards");
+
+                                //display alert dialog about pending rewards
+                                pendingRewardsDialogBuilder = new AlertDialog.Builder(ctx);
+                                String msg = "";
+
+                                String hiveRewards = parseRewards(innerRewards, "HIVE", "HBD", 1.0);
+                                String steemRewards = parseRewards(innerRewards, "STEEM", "SBD", 1.0);
+                                String blurtRewards = parseRewards(innerRewards, "BLURT", "BLURT", blurtPrice);
+                                //update the text message as dialog is already showing
+
+                                msg += !hiveRewards.equals("") ? hiveRewards:"";
+                                msg += !steemRewards.equals("") ? steemRewards:"";
+                                msg += !blurtRewards.equals("") ? blurtRewards:"";
+
+
+                                if (!msg.equals("")){
+                                    //we have some pending rewards, show popup
+                                    msg = getString(R.string.pending_rewards_header) + "\r\n" + msg;
+
+                                    msg += "\r\n";
+                                    msg += getString(R.string.pending_rewards_note);
+
+                                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            switch (which) {
+                                                case DialogInterface.BUTTON_POSITIVE:
+                                                    //take user to activity list on web
+
+                                                    //private void openUserRank(SharedPreferences sharedPreferences){
+                                                    username = sharedPreferences.getString("actifitUser", "");
+                                                    if (username != "") {
+                                                        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+                                                        builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+
+                                                        //animation for showing and closing fitbit authorization screen
+                                                        builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
+
+                                                        //animation for back button clicks
+                                                        builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
+                                                                android.R.anim.slide_out_right);
+
+                                                        CustomTabsIntent customTabsIntent = builder.build();
+
+                                                        customTabsIntent.launchUrl(ctx, Uri.parse(MainActivity.ACTIFIT_CORE_URL + "/" + getString(R.string.activity_url_link) + "/" + username));
+                                                    }
+                                                    //}
+
+                                                    break;
+
+                                                case DialogInterface.BUTTON_NEUTRAL:
+                                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                                    editor.putBoolean(getString(R.string.donotshowrewards), true);
+                                                    editor.commit();
+
+                                                case DialogInterface.BUTTON_NEGATIVE:
+                                                    //cancel
+                                                    break;
+                                            }
+                                        }
+                                    };
+
+
+
+                                    AlertDialog pointer = pendingRewardsDialogBuilder.setMessage(Html.fromHtml(msg))
+                                            .setTitle(getString(R.string.pending_rewards_title))
+                                            .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                                            .setPositiveButton(getString(R.string.my_activity_button), dialogClickListener)
+                                            .setNegativeButton(getString(R.string.close_button), dialogClickListener)
+                                            .setNeutralButton(getString(R.string.do_not_show_again), dialogClickListener).create();
+
+                                    pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                                    pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+                                    //if (pointer.getWindow().isActive()) {
+                                    pointer.show();
+
+                                }
+
+
+
+                            }catch (JSONException e) {
+                                //hide dialog
+                                e.printStackTrace();
+                            }catch (Exception ex){
+                                ex.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //hide dialog
+                            //error.printStackTrace();
+                            Log.e(MainActivity.TAG, "error fetching pending rewards");
+                        }
+                    });
+
+            queue.add(pendRewardsRequest);
+
+        }
+    }
+
+    private void loadReferrals(RequestQueue queue){
+
+        String usersReferralsUrl = getString(R.string.user_referrals_url) + username;
+
+
+        JsonArrayRequest referralDataRequest = new JsonArrayRequest(Request.Method.GET,
+                usersReferralsUrl, null, new Response.Listener<JSONArray>(){
+
+            @Override
+            public void onResponse(JSONArray listArray) {
+
+                // Handle the result
+                try {
+                    userReferrals = listArray;
+                    /*if (userReferrals!=null && userReferrals.length() > 0) {
+                        TextView successfulReferral = findViewById(R.id.success_referrals);
+
+                        successfulReferral.setTextColor(ctx.getResources().getColor(R.color.actifitDarkGreen));
+                        successfulReferral.setText(Html.fromHtml(checkMark +userReferrals.length()));
+                    }*/
+                }catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+
+        queue.add(referralDataRequest);
+    }
+
+    private void displayDailyTip() {
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+        Boolean skipShowingTips = (sharedPreferences.getBoolean(getString(R.string.donotshowtips), false));
+        if (skipShowingTips){
+            return;
+        }
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        //load all product details
+        String dailyTipUrl = getString(R.string.daily_tip_url);
+
+        JsonArrayRequest productsListReq = new JsonArrayRequest(Request.Method.GET,
+                dailyTipUrl, null, new Response.Listener<JSONArray>(){
+
+            @Override
+            public void onResponse(JSONArray listArray) {
+                //hide dialog
+                //progress.hide();
+
+                // Handle the result
+                try {
+                    dailyTip = listArray;
+                    //show tip dialog
+
+                    //grab random tip
+                    if (dailyTip!=null && dailyTip.length()>0) {
+                        Random rand = new Random();
+
+                        JSONObject tipData = dailyTip.getJSONObject(rand.nextInt(dailyTip.length()));
+                        if (tipData.has("tip")) {
+
+                            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+
+                                        case DialogInterface.BUTTON_NEUTRAL:
+                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                                            editor.putBoolean(getString(R.string.donotshowtips), true);
+                                            editor.commit();
+
+                                    }
+                                }
+                            };
+
+                            AlertDialog.Builder tipDialogBuilder = new AlertDialog.Builder(ctx);
+                            View tipLayout = getLayoutInflater().inflate(R.layout.daily_tip, null);
+                            TextView tipContent = tipLayout.findViewById(R.id.tip_content);
+                            tipContent.setText(tipData.getString("tip"));
+                            AlertDialog pointer = tipDialogBuilder
+                                    .setView(tipLayout)
+                                    //.setMessage(tipData.getString("tip"))
+                                    .setTitle(getString(R.string.random_tip))
+                                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                                    .setNeutralButton(getString(R.string.do_not_show_again), dialogClickListener)
+                                    .setPositiveButton(getString(R.string.close_button), null).create();
+                            Button nextBtn = tipLayout.findViewById(R.id.nextButton);
+                            nextBtn.setOnClickListener(view ->{
+                                try {
+                                    Random randInner = new Random();
+                                    JSONObject tipInnerData = dailyTip.getJSONObject(randInner.nextInt(dailyTip.length()));
+                                    tipContent.setText(tipInnerData.getString("tip"));
+                                }catch(Exception ex){
+
+                                }
+                            });
+
+                            tipLayout.findViewById(R.id.previousButton).setOnClickListener(view ->{
+                                nextBtn.performClick();
+                            });
+
+                            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                            pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+                            //if (pointer.getWindow().isActive()) {
+                                pointer.show();
+                            //}
+                        }
+                    }
+
+                    //actifitTransactions.setText("Response is: "+ response);
+                }catch (Exception e) {
+                    //hide dialog
+                    //progress.hide();
+                    //actifitTransactionsError.setVisibility(View.VISIBLE);
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //hide dialog
+                //progress.hide();
+                //actifitTransactionsView.setText("Unable to fetch balance");
+                //actifitTransactionsError.setVisibility(View.VISIBLE);
+            }
+        });
+
+        queue.add(productsListReq);
+
+    }
+
+    //handles fetching and displaying current user and rank
+    private void displayUserGadgets(){
+        //grab stored value, if any
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        username = sharedPreferences.getString("actifitUser","");
+        if (username != "") {
+
+            RequestQueue queue = Volley.newRequestQueue(this);
+
+            //load all product details
+            String productsUrl = getString(R.string.products_link);
+
+            JsonArrayRequest productsListReq = new JsonArrayRequest(Request.Method.GET,
+                    productsUrl, null, new Response.Listener<JSONArray>(){
+
+                @Override
+                public void onResponse(JSONArray listArray) {
+                    //hide dialog
+                    //progress.hide();
+
+                    // Handle the result
+                    try {
+                        productsList = listArray;
+
+                        //attempt to populate in case this gets executed later
+                        populateActiveProducts();
+                        //actifitTransactions.setText("Response is: "+ response);
+                    }catch (Exception e) {
+                        //hide dialog
+                        //progress.hide();
+                        //actifitTransactionsError.setVisibility(View.VISIBLE);
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //hide dialog
+                    //progress.hide();
+                    //actifitTransactionsView.setText("Unable to fetch balance");
+                    //actifitTransactionsError.setVisibility(View.VISIBLE);
+                }
+            });
+
+            queue.add(productsListReq);
+
+            //username="pjansen";
+
+            String activeGadgetsListUrl = getString(R.string.active_gadgets_url) + username;
+
+            // Request the user's active gadgets list
+            JsonObjectRequest activeGadgetsRequest = new JsonObjectRequest
+                    (Request.Method.GET, activeGadgetsListUrl, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            // Display the result
+                            try {
+                                //grab current user rank
+                                if (response.has("own")) {
+                                    activeProducts = response.getJSONArray("own");
+
+                                    //display images of active products alongside count
+
+                                    //List<String> listItems = new ArrayList<String>();
+                                    populateActiveProducts();
+
+                                }
+
+                            } catch (JSONException e) {
+                                //hide dialog
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //hide dialog
+                            //error.printStackTrace();
+                            Log.e(MainActivity.TAG, "error fetching gadgets");
+                        }
+                    });
+
+            // Add balance request to be processed
+            queue.add(activeGadgetsRequest);
+
+
+
+        }else{
+            //display text no gadgets loaded
+            //LinearLayout noActiveGadgets = findViewById(R.id.missing_active_gadgets_container);
+            TextView noActiveGadgets = findViewById(R.id.missing_active_gadgets);
+            noActiveGadgets.setVisibility(View.VISIBLE);
+
+        }
+
+    }
+
+    private void populateActiveProducts(){
+        if (activeProducts!=null && productsList!=null &&
+                activeProducts.length()>0 && productsList.length()>0) {
+
+            if (gadgetsll!=null){
+                userGadgets.removeView(gadgetsll);
+            }
+
+            gadgetsll = new LinearLayout(getApplicationContext());
+
+            userGadgets.addView(gadgetsll);
+
+            //hide no gadgets display as we do have active gadgets
+            //LinearLayout noActiveGadgets = findViewById(R.id.missing_active_gadgets_container);
+            TextView noActiveGadgets = findViewById(R.id.missing_active_gadgets);
+            noActiveGadgets.setVisibility(View.GONE);
+            for (int i = 0; i < activeProducts.length(); i++) {
+                try {
+                    //find matching image
+                    JSONObject curProd = activeProducts.getJSONObject(i);
+                    if (curProd.has("gadget")) {
+
+
+                        String imgUrl = findMatchingProductImage(curProd.getString("gadget"), "_id", productsList, "image");
+
+                        if (!imgUrl.equals("")) {
+
+                            //LinearLayout pll = new LinearLayout(getApplicationContext());
+
+                            FrameLayout fl = new FrameLayout(getApplicationContext());
+
+                            //add image
+                            ImageView iv = new ImageView(getApplicationContext());
+                            iv.setScaleType(ImageView.ScaleType.CENTER);
+                            //fl.setOrientation(LinearLayout.VERTICAL);
+                            fl.addView(iv);
+
+
+                            //add level
+                            TextView tv = new TextView(getApplicationContext());
+                            tv.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
+
+                            tv.setText(curProd.getString("gadget_level"));
+                            tv.setHeight(10);
+                            tv.setWidth(10);
+                            tv.setTextSize(10);
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                //tv.setBackgroundColor(getColor(R.color.actifitRed));
+                                tv.setTextColor(getColor(R.color.actifitRed));
+                            }
+                            fl.addView(tv);
+
+                            //pll.addView(fl);
+
+                            //add layout to container
+                            //userGadgets.addView(fl);
+                            gadgetsll.addView(fl);
+                            /*
+                            ImageView iv = new ImageView(ctx);
+                            //iv.setImage
+
+                            //append extra image url on actifit
+                            //imgUrl = getString(R.string.actifit_gadget_image)+imgUrl;
+
+                            userGadgets.addView(iv);*/
+
+                            Handler uiHandler = new Handler(Looper.getMainLooper());
+                            uiHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //Picasso.with(ctx)
+                                    Picasso.get()
+                                            .load(getString(R.string.actifit_gadget_image) + imgUrl)
+                                            .into(iv);
+                                }
+                            });
+                        }
+
+                        //listItems.add(afitMarkets.getJSONObject(i).getString("exchange"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+    public String findMatchingProductImage(String needle, String matchfield, JSONArray haystack, String returnfield){
+        if (haystack!=null && haystack.length()>0) {
+            for (int i = 0; i < haystack.length(); i++) {
+                try {
+                    JSONObject match = haystack.getJSONObject(i);
+                    if (match.has(matchfield) && match.getString(matchfield).equals(needle) && match.has(returnfield)) {
+                        return match.getString(returnfield);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "";
+    }
+
     //handles fetching and displaying current user and rank
     private void displayUserAndRank(){
         //grab stored value, if any
@@ -1336,6 +3298,17 @@ public class MainActivity extends BaseActivity{
             //greet user if user identified
             final TextView welcomeUser = findViewById(R.id.welcome_user);
             final TextView userRankTV = findViewById(R.id.user_rank);
+
+            LinearLayout userRankContainer = findViewById(R.id.rank_container);
+            userRankContainer.setVisibility(View.VISIBLE);
+
+            //hide login, show logout
+            //logoutLink.setVisibility(View.VISIBLE);
+            topIconsContainer.setVisibility(View.VISIBLE);
+
+            //loginLink.setVisibility(View.GONE);
+            loginContainer.setVisibility(View.GONE);
+
 
             //display profile pic too
             final String userImgUrl = "https://steemitimages.com/u/" + username + "/avatar";
@@ -1347,16 +3320,54 @@ public class MainActivity extends BaseActivity{
                 @Override
                 public void run() {
                     //Picasso.with(ctx)
+                    //load user image
                     Picasso.get()
                             .load(userImgUrl)
                             .into(userProfilePic);
                 }
             });
 
+
+            //TODO: check on implementation of background for actifit. This is ready to go, just need proper images
+            /*
+            Handler uiAltHandler = new Handler(Looper.getMainLooper());
+            uiAltHandler.post(new Runnable(){
+                @Override
+                public void run() {
+                    //Picasso.with(ctx)
+                    //load custom background image
+                    String url = "https://actifit.io/img/header-4.png";
+                    LinearLayout mainLayout = MainActivity.this.findViewById(R.id.main_layout_container);
+                    Picasso.get()
+                            .load(url)
+                            //.placeholder()
+                            .into(new Target() {
+                                @Override
+                                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                    mainLayout.setBackground(new BitmapDrawable(bitmap));
+                                    mainLayout.refreshDrawableState();
+                                }
+
+                                @Override
+                                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                                    Toast.makeText(MainActivity.this, "Error : loading wallpaper", Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                                }
+                            });
+
+                }
+            });
+*/
+
+
             //Picasso.with(ctx).load(userImgUrl).into(userProfilePic);
 
             //grab user rank if it is already stored today
-            String userRank = sharedPreferences.getString("userRank", "");
+            userRank = sharedPreferences.getString("userRank", "");
             String userRankUpdateDate =
                     sharedPreferences.getString("userRankUpdateDate", "");
             Boolean fetchNewRankVal = false;
@@ -1376,6 +3387,7 @@ public class MainActivity extends BaseActivity{
             //set username
             welcomeUser.setText("@"+username);
 
+
             if (!fetchNewRankVal){
                 //we already have the rank, display the message and the rank
                 //welcomeUser.setText(getString(R.string.welcome_user).replace("USER_NAME", username).replace("USER_RANK","("+userRank+")"));
@@ -1383,14 +3395,16 @@ public class MainActivity extends BaseActivity{
 
             }else {
                 //need to fetch user rank data from API
+
+                //handles sending out API query requests
                 RequestQueue queue = Volley.newRequestQueue(this);
 
-                // This holds the url to connect to the API and grab the balance.
+                // This holds the url to connect to the API and grab the user rank.
                 // We append to it the username
                 String userRankUrl = getString(R.string.user_rank_api_url) + username;
 
                 // Request the rank of the user while expecting a JSON response
-                JsonObjectRequest balanceRequest = new JsonObjectRequest
+                JsonObjectRequest rankRequest = new JsonObjectRequest
                         (Request.Method.GET, userRankUrl, null, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
@@ -1429,10 +3443,100 @@ public class MainActivity extends BaseActivity{
                         });
 
                 // Add balance request to be processed
-                queue.add(balanceRequest);
+                queue.add(rankRequest);
+
+
+            }
+        }else{
+            //hide logout, show login
+            //logoutLink.setVisibility(View.GONE);
+            topIconsContainer.setVisibility(View.GONE);
+            loginContainer.setVisibility(View.VISIBLE);
+        }
+        loginLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //validate input values
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                MainActivity.this.startActivity(intent);
+
             }
 
+        });
+        /*logoutLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //remove logged in credentials
+                final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.remove("actifitUser");
+                editor.remove("actifitPst");
+
+                editor.remove("userRank");
+                editor.remove("userRankUpdateDate");
+                editor.remove("actvKey");
+
+                editor.apply();
+                LoginActivity.accessToken = "";
+                MainActivity.username = "";
+                MainActivity.userRank = "";
+                MainActivity.userFullBalance = 0.0;
+                LoginActivity.accessToken = "";
+                finish();
+                overridePendingTransition( 0, 0);
+                //startActivity(getIntent());
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                MainActivity.this.startActivity(intent);
+                overridePendingTransition( 0, 0);
+
+            }
+
+        });*/
+
+        signupLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+                builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+
+                //animation for showing and closing fitbit authorization screen
+                builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
+
+                //animation for back button clicks
+                builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
+                        android.R.anim.slide_out_right);
+
+                CustomTabsIntent customTabsIntent = builder.build();
+
+                customTabsIntent.launchUrl(ctx, Uri.parse(getString(R.string.signup_link)));
+            }
+
+        });
+    }
+
+
+
+
+    public static String parseRewards(JSONObject innerRewards, String chain, String currency, Double price){
+        try {
+            if (innerRewards.has(chain) ){
+                JSONObject rewards = innerRewards.getJSONObject(chain);
+                if (rewards.has("amount")){
+                    Double value = Double.parseDouble(rewards.getString("amount")) * price;
+                    //String imgUrl = getString(R.string.actifit_image) + chain.toUpperCase() +".png";
+                    //return "<li> $"+value.toString()+" ("+rewards.getString("amount") + " "+currency+" <img src="+imgUrl + " width='20px' height='20px' style='width: 20px; height: 20px;' />)</li>";
+                    if (value>0) {
+                        return "<li> $" + formatValue(value) + " (" + rewards.getString("amount") + " in " + currency + " )</li>";
+                    }else{
+                        return "";
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        return "";
     }
 
     @Override
@@ -1450,6 +3554,74 @@ public class MainActivity extends BaseActivity{
         recreate();
     }
 
+    private void displayVotingStatus(){
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        //grab reward distribution status/timer
+        String votingStatusUrl = getString(R.string.voting_api_url);
+        // Request the balance of the user while expecting a JSON response
+        JsonObjectRequest votingStatusRequest = new JsonObjectRequest
+                (Request.Method.GET, votingStatusUrl, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //hide dialog
+                        //progress.hide();
+                        try {
+                            //validate if account exists on the chains
+                            if (response.has("status")) {
+                                JSONObject status = response.getJSONObject("status");
+
+                                if (status.has("is_voting")) {
+                                    if (!status.getBoolean("is_voting") && response.has("reward_start")){
+                                        votingStatusText.setText(response.getString("reward_start"));
+                                        votingStatusText.setSelected(false);
+                                    }else if (status.getBoolean("is_voting")){
+                                        votingStatusText.setText(getString( R.string.rewards_processing));
+                                        votingStatusText.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+                                        votingStatusText.setMarqueeRepeatLimit(-1);
+                                        votingStatusText.setSelected(true);
+                                    }
+                                }
+                            }else{
+                                //accountRCContainer.setVisibility(View.GONE);
+                            }
+
+                        } catch (Exception ex) {
+
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //hide dialog
+
+                    }
+                });
+
+        queue.add(votingStatusRequest);
+
+        //handle RC click
+        votingStatusContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                AlertDialog.Builder rcDialogBuilder = new AlertDialog.Builder(ctx);
+                String msg = getString(R.string.reward_cycle_description);
+                AlertDialog pointer = rcDialogBuilder.setMessage(Html.fromHtml(msg))
+                        .setTitle(getString(R.string.reward_cycle_title))
+                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                        .setNegativeButton(getString(R.string.close_button), null).create();
+
+                pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+                pointer.show();
+
+            }
+
+        });
+    }
 
     @Override
     protected void onResume() {
@@ -1460,8 +3632,16 @@ public class MainActivity extends BaseActivity{
 
                 displayDate();
                 displayUserAndRank();
+                displayUserBalance();
+                displayVotingStatus();
+
+                displayUserGadgets();
 
                 MainActivity.isActivityVisible = true;
+
+                //if (!mStepsDBHelper.isConnected()){
+//                    mStepsDBHelper.reConnect();
+                //}
 
                 //displayDayChartData(true);
                 DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
@@ -1521,7 +3701,7 @@ public class MainActivity extends BaseActivity{
     @Override
     protected void onDestroy(){
         //sensorManager.unregisterListener(this);
-        isListenerActive = false;
+        /*isListenerActive = false;
         try{
             if (mServiceIntent!=null) {
                 stopService(mServiceIntent);
@@ -1538,7 +3718,7 @@ public class MainActivity extends BaseActivity{
         if (wl!=null && wl.isHeld()) {
             Log.d(MainActivity.TAG,">>>>[Actifit]Settings AGG MODE OFF");
             wl.release();
-        }
+        }*/
 
         //mStepsDBHelper.closeConnection();
 
@@ -1576,7 +3756,13 @@ public class MainActivity extends BaseActivity{
                     if (mServiceIntent == null){
                         mServiceIntent = new Intent(getCtx(), mSensorService.getClass());
                     }
-                    startService(mServiceIntent);
+                    //startService(mServiceIntent);
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(mServiceIntent);
+                    }
+                    else {
+                        startService(mServiceIntent);
+                    }
 
                     //enable aggressive mode if set
                     String aggModeEnabled = result[1];
@@ -1594,10 +3780,15 @@ public class MainActivity extends BaseActivity{
                         }
                     }
                 }
+                thirdPartyTracking.setVisibility(View.GONE);
+                dayChartButton.setVisibility(View.GONE);
+                fullChartButton.setVisibility(View.VISIBLE);
             }else {
-                stepDisplay = findViewById(R.id.step_display);
+                //stepDisplay = findViewById(R.id.step_display);
                 //inform user that fitbit mode is on
-                stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
+                //stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
+                //thirdPartyTracking.setVisibility(View.VISIBLE);
+                hideCharts();
             }
 
             //update language in case it was adjusted
@@ -1630,42 +3821,46 @@ public class MainActivity extends BaseActivity{
             /*************** security features ********************/
 
             //check if signature has been tampered with
-            if ((getString(R.string.test_mode).equals("off") && getString(R.string.sec_check_signature).equals("on"))
-                    && checkAppSignature(ctx) == MainActivity.INVALID){
-                //package signature has been manipulated
-                Log.d(TAG,">>>>[Actifit] Package signature has been manipulated");
-                killActifit(getString(R.string.security_concerns));
+
+            if (getString(R.string.sec_check_signature).equals("on")) {
+                if ((getString(R.string.test_mode).equals("off"))
+                        && checkAppSignature(ctx) == MainActivity.INVALID) {
+                    //package signature has been manipulated
+                    Log.d(TAG, ">>>>[Actifit] Package signature has been manipulated");
+                    killActifit(getString(R.string.security_concerns));
+                }
             }
 
-            //make sure package name has not been manipulated
-            if (!ctx.getPackageName().equals("io.actifit.fitnesstracker.actifitfitnesstracker")) {
-                //package name has been manipulated
-                Log.d(TAG,">>>>[Actifit] Package name has been manipulated");
-                killActifit(getString(R.string.security_concerns));
-            }
+                //make sure package name has not been manipulated
+                if (!ctx.getPackageName().equals("io.actifit.fitnesstracker.actifitfitnesstracker")) {
+                    //package name has been manipulated
+                    Log.d(TAG, ">>>>[Actifit] Package name has been manipulated");
+                    killActifit(getString(R.string.security_concerns));
+                }
 
-            //let's make sure this is a smart phone device by checking SIM Card
+                //let's make sure this is a smart phone device by checking SIM Card
 
-            //Crashlytics.getInstance().crash();
+                //Crashlytics.getInstance().crash();
 
-            if (!isSimAvailable()){
-                //no valid active sim card detected
-                Log.d(TAG,">>>>[Actifit] No valid SIM card detected");
-                killActifit(getString(R.string.no_valid_sim));
-            }
+                if (!isSimAvailable()) {
+                    //no valid active sim card detected
+                    Log.d(TAG, ">>>>[Actifit] No valid SIM card detected");
+                    killActifit(getString(R.string.no_valid_sim));
+                }
 
-            //also let's try to detect if this is a known emulator
-            if (isEmulator()){
-                Log.d(TAG,">>>>[Actifit] Emulator detected");
-                killActifit(getString(R.string.emulator_device));
-            }
+                //also let's try to detect if this is a known emulator
+                if (isEmulator()) {
+                    Log.d(TAG, ">>>>[Actifit] Emulator detected");
+                    killActifit(getString(R.string.emulator_device));
+                }
 
-            //check if device is rooted
-            RootBeer rootBeer = new RootBeer(ctx);
-            if(getString(R.string.test_mode).equals("off") && rootBeer.isRootedWithoutBusyBoxCheck()){
-                Log.d(TAG,">>>>[Actifit] Device is rooted");
-                killActifit(getString(R.string.device_rooted));
-            }
+                //check if device is rooted
+                RootBeer rootBeer = new RootBeer(ctx);
+                if (getString(R.string.test_mode).equals("off") && rootBeer.isRootedWithoutBusyBoxCheck()) {
+                    Log.d(TAG, ">>>>[Actifit] Device is rooted");
+                    killActifit(getString(R.string.device_rooted));
+                }
+
 
             //check if user has a proper unique ID already, if not generate one
             String actifitUserID = sharedPreferences.getString("actifitUserID","");
@@ -1691,12 +3886,17 @@ public class MainActivity extends BaseActivity{
             if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
 
                 if (!isMyServiceRunning(mSensorService.getClass())) {
-                    startService(mServiceIntent);
+                    //startService(mServiceIntent);
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(mServiceIntent);
+                    }
+                    else {
+                        startService(mServiceIntent);
+                    }
                 }
 
                 stepCount = mStepsDBHelper.fetchTodayStepCount();
             }
-
 
             return null;
 
@@ -1712,6 +3912,16 @@ public class MainActivity extends BaseActivity{
             //display user info
             displayUserAndRank();
 
+            displayUserBalance();
+
+            displayVotingStatus();
+
+            displayPendingRewards();
+
+            //if (!mStepsDBHelper.isConnected()){
+//                mStepsDBHelper.reConnect();
+            //}
+
             //display today's chart data
             DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
             dispChartData.execute(true);
@@ -1724,6 +3934,7 @@ public class MainActivity extends BaseActivity{
             if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
 
                 //display step count while ensuring we don't display negative value if no steps tracked yet
+                /*
                 stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
 
                 //adjust color of step account according to milestone achieved
@@ -1733,7 +3944,7 @@ public class MainActivity extends BaseActivity{
                     stepDisplay.setTextColor(getResources().getColor(R.color.actifitRed));
                 }else {
                     stepDisplay.setTextColor(getResources().getColor(android.R.color.tab_indicator_text));
-                }
+                }*/
 
                 //display relevant chart
                 displayActivityChart(stepCount, true);
@@ -1741,10 +3952,24 @@ public class MainActivity extends BaseActivity{
 
             }else{
                 //inform user that fitbit mode is on
-                stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
+                //stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
+                hideCharts();
             }
 
         }
+    }
+
+
+    private void hideCharts(){
+        dayChart = findViewById(R.id.main_today_activity_chart);
+        btnPieChart = findViewById(R.id.step_pie_chart);
+        dayChart.setVisibility(View.GONE);
+        btnPieChart.setVisibility(View.GONE);
+        fullChart = findViewById(R.id.main_history_activity_chart);
+        fullChart.setVisibility(View.GONE);
+        dayChartButton.setVisibility(View.GONE);
+        fullChartButton.setVisibility(View.GONE);
+        thirdPartyTracking.setVisibility(View.VISIBLE);
     }
 
 }

@@ -4,14 +4,18 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
@@ -22,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
@@ -45,6 +50,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -73,6 +79,10 @@ public class SettingsActivity extends BaseActivity {
 
     private String accessToken;
 
+    private EditText activeKey;
+
+    TextView logoutLink;
+
     /*@Bind(R.id.main_toolbar)
     Toolbar toolbar;*/
 
@@ -93,7 +103,7 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-
+        activeKey = findViewById(R.id.activeKey);
 
         //grab instances of settings components
         final RadioButton metricSysRadioBtn = findViewById(R.id.metric_system);
@@ -120,14 +130,74 @@ public class SettingsActivity extends BaseActivity {
 
         final Spinner languageSelected = findViewById(R.id.language_picker);
 
-        final RadioButton hiveSteemOptionRadioBtn = findViewById(R.id.hive_steem_option);
-        final RadioButton hiveOnlyOptionRadioBtn = findViewById(R.id.hive_only_option);
+        //final RadioButton hiveSteemOptionRadioBtn = findViewById(R.id.hive_steem_option);
+        //final RadioButton hiveOnlyOptionRadioBtn = findViewById(R.id.hive_only_option);
+        final CheckBox hiveOptionCheckbox = findViewById(R.id.hive_option);
+        final CheckBox steemOptionCheckbox = findViewById(R.id.steem_option);
+        final CheckBox blurtOptionCheckbox = findViewById(R.id.blurt_option);
+
+        final CheckBox showPendingRewardsCheckbox = findViewById(R.id.show_pending_rewards_main);
+
+        final CheckBox showDailyTipsCheckbox = findViewById(R.id.show_daily_tips_main);
+
+        logoutLink = findViewById(R.id.logout_action);
 
         notifListView = findViewById(R.id.notif_settings_list);
 
         Spinner charitySelected = findViewById(R.id.charity_options);
 
         finalList = new ArrayList<>();
+
+        logoutLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //remove logged in credentials
+
+                if (!MainActivity.username.equals("")) {
+
+                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    //cancel
+                                    final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.remove("actifitUser");
+                                    editor.remove("actifitPst");
+
+                                    editor.remove("userRank");
+                                    editor.remove("userRankUpdateDate");
+                                    editor.remove("actvKey");
+
+                                    editor.apply();
+                                    LoginActivity.accessToken = "";
+                                    MainActivity.username = "";
+                                    MainActivity.userRank = "";
+                                    MainActivity.userFullBalance = 0.0;
+                                    LoginActivity.accessToken = "";
+                                    finish();
+                                    overridePendingTransition(0, 0);
+                                    //startActivity(getIntent());
+                                    Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+                                    SettingsActivity.this.startActivity(intent);
+                                    overridePendingTransition(0, 0);
+                                    break;
+                            }
+                        }
+                    };
+
+                    //verify with user first
+                    AlertDialog.Builder builder = new AlertDialog.Builder(cntxt);
+                    builder.setMessage(getString(R.string.logout_confirmation) + " ")
+                            .setPositiveButton(getString(R.string.yes_button), dialogClickListener)
+                            .setNegativeButton(getString(R.string.no_button), dialogClickListener).show();
+
+                }
+
+            }
+
+        });
 
         //oxylabs preferences
         /*SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -151,6 +221,13 @@ public class SettingsActivity extends BaseActivity {
         //if there is an assigned user, fetch his settings
         final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
         final String username = sharedPreferences.getString("actifitUser","");
+
+        activeKey.setText(sharedPreferences.getString("actvKey", ""));
+
+        //display whether user has elected not to get main screen earnings notification
+        showPendingRewardsCheckbox.setChecked( !(sharedPreferences.getBoolean(getString(R.string.donotshowrewards),true)));
+
+        showDailyTipsCheckbox.setChecked( !(sharedPreferences.getBoolean(getString(R.string.donotshowtips),true)));
 
         if (!username.equals("")) {
             //fetch user global settings - server based
@@ -267,10 +344,39 @@ public class SettingsActivity extends BaseActivity {
 
 
                                         try {
-                                            if (setgs.has("post_target_bchain") && setgs.getString("post_target_bchain").equals("HIVE")){
-                                                hiveOnlyOptionRadioBtn.setChecked(true);
-                                            } else {
-                                                hiveSteemOptionRadioBtn.setChecked(true);
+                                            //hive posting always enabled
+                                            hiveOptionCheckbox.setChecked(true);
+
+                                            if (setgs.has("post_target_bchain") ){
+
+                                                if (setgs.getString("post_target_bchain").equals("BOTH")) {
+                                                    //Array chainArray = setgs.getJSONArray("post_target_bchain");
+                                                    //&& (Array)(setgs.getString("post_target_bchain")){
+                                                    steemOptionCheckbox.setChecked(true);
+                                                    blurtOptionCheckbox.setChecked(true);
+                                                }else{
+                                                    if (setgs.getString("post_target_bchain").contains("Steem")
+                                                        || setgs.getString("post_target_bchain").contains("STEEM") ) {
+                                                        steemOptionCheckbox.setChecked(true);
+                                                    }else{
+                                                        steemOptionCheckbox.setChecked(false);
+                                                    }
+                                                    if (setgs.getString("post_target_bchain").contains("Blurt")
+                                                            || setgs.getString("post_target_bchain").contains("BLURT") ) {
+                                                        blurtOptionCheckbox.setChecked(true);
+                                                    }else{
+                                                        blurtOptionCheckbox.setChecked(false);
+                                                    }
+                                                }
+                                                /*if (setgs.getString("post_target_bchain").equals("HIVE")) {
+                                                    hiveOnlyOptionRadioBtn.setChecked(true);
+                                                } else {
+                                                    hiveSteemOptionRadioBtn.setChecked(true);
+                                                }*/
+                                            }else{
+                                                //default all enabled
+                                                steemOptionCheckbox.setChecked(true);
+                                                blurtOptionCheckbox.setChecked(true);
                                             }
                                         } catch (JSONException ex) {
                                             ex.printStackTrace();
@@ -500,6 +606,11 @@ public class SettingsActivity extends BaseActivity {
                     editor.putString("activeSystem", getString(R.string.us_system_ntt));
                 }
 
+                //store whether user wants to get rewards popup notification on main screen
+                editor.putBoolean(getString(R.string.donotshowrewards), !showPendingRewardsCheckbox.isChecked());
+
+                editor.putBoolean(getString(R.string.donotshowtips), !showDailyTipsCheckbox.isChecked());
+
                 //store selected STEEM pay mode
 
                 //check which pay mode for reports to be used and store it
@@ -508,6 +619,9 @@ public class SettingsActivity extends BaseActivity {
                 }else{
                     editor.putString("reportSTEEMPayMode", sbdSPPay);
                 }
+
+                //store active key to use where and if needed
+                editor.putString("actvKey",activeKey.getText().toString());
 
                 //update language
 
@@ -564,9 +678,13 @@ public class SettingsActivity extends BaseActivity {
                 alarmManager = (AlarmManager) getApplicationContext()
                         .getSystemService(Context.ALARM_SERVICE);
                 Intent intent = new Intent(getApplicationContext(), ReminderNotificationService.class);
-                alarmIntent = PendingIntent.getService(getApplicationContext()
-                        , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+                if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+                    alarmIntent = PendingIntent.getService(getApplicationContext()
+                            , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_MUTABLE);
+                }else {
+                    alarmIntent = PendingIntent.getService(getApplicationContext()
+                            , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
                 //unset any existing alarms first
                 alarmManager.cancel(alarmIntent);
 
@@ -586,8 +704,13 @@ public class SettingsActivity extends BaseActivity {
 
                     Log.d(MainActivity.TAG,">>>>[Actifit]: set alarm manager"+hourOptions.getValue()+" "+minOptions.getValue());
 
-                    alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
-                            , 0, intent, 0);
+                    if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+                        alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
+                                , 0, intent, PendingIntent.FLAG_MUTABLE);
+                    }else{
+                        alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
+                                , 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    }
 
                     alarmManager = (AlarmManager) getApplicationContext()
                             .getSystemService(Context.ALARM_SERVICE);
@@ -631,12 +754,26 @@ public class SettingsActivity extends BaseActivity {
 
                     //check bchain posting preferences
                     try {
-                        if (hiveSteemOptionRadioBtn.isChecked()) {
+                        String chain_selection = "['HIVE'";
+                        if (steemOptionCheckbox.isChecked()){
+                            chain_selection += ",'STEEM'";
+                        }
+                        if (blurtOptionCheckbox.isChecked()){
+                            chain_selection += ",'BLURT'";
+                        }
+                        chain_selection += "]";
+                        innerSettingsData.put("post_target_bchain", chain_selection);
+                        /*Array chains = new Array();
+                        if (hiveOptionCheckbox.isChecked()){
+                            chains[] = 'HIVE';
+                        }
+                        innerSettingsData.put("post_target_bchain", Array)*/
+                        /*if (hiveSteemOptionRadioBtn.isChecked()) {
                             innerSettingsData.put("post_target_bchain", "BOTH");
                         } else {
                             innerSettingsData.put("post_target_bchain", "HIVE");
-                        }
-                    }catch(JSONException e){
+                        }*/
+                    }catch(Exception e){
                         //Log.e(MainActivity.TAG, e.getMessage());
                     }
 
@@ -744,6 +881,12 @@ public class SettingsActivity extends BaseActivity {
                 }
 
                 currentActivity.finish();
+                /*finish();
+                overridePendingTransition( 0, 0);
+                //startActivity(getIntent());
+                Intent mainIntent = new Intent(SettingsActivity.this, MainActivity.class);
+                SettingsActivity.this.startActivity(mainIntent);
+                overridePendingTransition( 0, 0);*/
 
             }
         });
