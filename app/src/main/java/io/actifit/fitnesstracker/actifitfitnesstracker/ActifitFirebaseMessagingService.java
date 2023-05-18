@@ -182,18 +182,24 @@ public class ActifitFirebaseMessagingService extends FirebaseMessagingService {
             Log.d(MainActivity.TAG, "targetUrl:"+targetUrl);
         }
 
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
 
 
         if (targetUrl != "") {
             intent.setData(Uri.parse(targetUrl));
+            intent.putExtra("url", targetUrl);
         }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
-
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT);
+        }else {
+            pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+                    PendingIntent.FLAG_ONE_SHOT);
+        }
 
         String channelId = getString(R.string.actifit_fcm_msg_channel_id);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

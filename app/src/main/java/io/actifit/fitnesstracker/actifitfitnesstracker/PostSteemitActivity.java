@@ -12,29 +12,29 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
 import android.os.StrictMode;
 
 import android.provider.MediaStore;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import android.os.Bundle;
 import android.text.Editable;
 
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -47,19 +47,17 @@ import com.amazonaws.mobileconnectors.s3.transferutility.*;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.util.IOUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -70,6 +68,15 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+
+import com.amazonaws.util.IOUtils;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.mittsu.markedview.MarkedView;
 
 
@@ -102,8 +109,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     private String fitbitUserId;
 
     EditText steemitPostTitle;
-    EditText steemitUsername;
-    EditText steemitPostingKey;
+    //EditText steemitUsername;
+    //EditText steemitPostingKey;
     EditText steemitStepCount;
     TextView measureSectionLabel;
 
@@ -115,7 +122,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     EditText steemitPostTags;
 
-    CheckBox fullAFITPay;
+    //CheckBox fullAFITPay;
 
     EditText heightSize;
     EditText weightSize;
@@ -136,8 +143,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     String selectedActivitiesVal;
 
-    Boolean fullAFITPayVal;
+    //Boolean fullAFITPayVal;
 
+    Double userFullBalance = 0.0;
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
         return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
@@ -153,6 +161,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         requestPermissions(permissions, requestCode);
     }
 
+
+    /*************************************/
 
     //implementing file upload functionality
     private void uploadFile() {
@@ -339,7 +349,70 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         image_preview.setImageBitmap(bitmap);
     }
 
+
+    public static void copyExif(InputStream originalPath, String newPath) throws IOException {
+
+        String[] attributes = new String[]
+                {
+                        ExifInterface.TAG_DATETIME,
+                        ExifInterface.TAG_DATETIME_DIGITIZED,
+                        ExifInterface.TAG_EXPOSURE_TIME,
+                        ExifInterface.TAG_FLASH,
+                        ExifInterface.TAG_FOCAL_LENGTH,
+                        ExifInterface.TAG_GPS_ALTITUDE,
+                        ExifInterface.TAG_GPS_ALTITUDE_REF,
+                        ExifInterface.TAG_GPS_DATESTAMP,
+                        ExifInterface.TAG_GPS_LATITUDE,
+                        ExifInterface.TAG_GPS_LATITUDE_REF,
+                        ExifInterface.TAG_GPS_LONGITUDE,
+                        ExifInterface.TAG_GPS_LONGITUDE_REF,
+                        ExifInterface.TAG_GPS_PROCESSING_METHOD,
+                        ExifInterface.TAG_GPS_TIMESTAMP,
+                        ExifInterface.TAG_MAKE,
+                        ExifInterface.TAG_MODEL,
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.TAG_SUBSEC_TIME,
+                        ExifInterface.TAG_WHITE_BALANCE
+                };
+
+        ExifInterface oldExif = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            oldExif = new ExifInterface(originalPath);
+        }
+        ExifInterface newExif = new ExifInterface(newPath);
+
+        if (attributes.length > 0) {
+            for (int i = 0; i < attributes.length; i++) {
+                String value = oldExif.getAttribute(attributes[i]);
+                if (value != null)
+                    newExif.setAttribute(attributes[i], value);
+            }
+            newExif.saveAttributes();
+        }
+    }
+
+    //Compression Based Update
+
     private void createFile(Context context, Uri srcUri, File dstFile) {
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
+            if (inputStream == null) return;
+
+            OutputStream outputStream = new FileOutputStream(dstFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);
+
+            //special copyexif from stream to file
+            copyExif(inputStream, dstFile.getAbsolutePath());
+
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //OLD version no compression
+    /*private void createFile(Context context, Uri srcUri, File dstFile) {
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
             if (inputStream == null) return;
@@ -350,7 +423,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -364,15 +437,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         /*Toolbar postToolbar = findViewById(R.id.post_toolbar);
         setSupportActionBar(postToolbar);*/
-
-
-        //make sure PPKey link click works
-        TextView ppHelpLink = findViewById(R.id.posting_key_link);
-        ppHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
-
-        TextView createAccountLink = findViewById(R.id.username_create_account_link);
-        createAccountLink.setMovementMethod(LinkMovementMethod.getInstance());
-
 
         //setting context
         this.steemit_post_context = this;
@@ -389,9 +453,15 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
 
 
+        //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+        accountUsername = sharedPreferences.getString("actifitUser","");
+
+        accountPostingKey = sharedPreferences.getString("actifitPst","");
+
         steemitPostTitle = findViewById(R.id.steemit_post_title);
-        steemitUsername = findViewById(R.id.steemit_username);
-        steemitPostingKey = findViewById(R.id.steemit_posting_key);
+
         steemitPostContent = findViewById(R.id.steemit_post_text);
         steemitStepCount = findViewById(R.id.steemit_step_count);
         measureSectionLabel = findViewById(R.id.measurements_section_lbl);
@@ -407,7 +477,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         steemitPostTags = findViewById(R.id.steemit_post_tags);
         activityTypeSelector = findViewById(R.id.steemit_activity_type);
 
-        fullAFITPay = findViewById(R.id.full_afit_pay);
+        //fullAFITPay = findViewById(R.id.full_afit_pay);
 
         heightSize = findViewById(R.id.measurements_height);
         weightSize = findViewById(R.id.measurements_weight);
@@ -429,8 +499,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
 
 
-        //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
-        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
 
         //try to load editor content if it was stored previously
         steemitPostContent.setText(sharedPreferences.getString("steemPostContent",""));
@@ -579,7 +648,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 getString(R.string.ChasingPokemons), getString(R.string.Badminton), getString(R.string.PickleBall),
                 getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking), getString(R.string.Kidplay),
                 getString(R.string.HomeImprovement), getString(R.string.YardWork), getString(R.string.StairClimbing),
-                getString(R.string.Yoga), getString(R.string.Stretching), getString(R.string.Plogging)
+                getString(R.string.Yoga), getString(R.string.Stretching), getString(R.string.Plogging), getString(R.string.Crossfit)
         };
 
         //sort options in alpha order
@@ -587,9 +656,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         activityTypeSelector = findViewById(R.id.steemit_activity_type);
         activityTypeSelector.setItems(activity_type);
-
-        steemitUsername.setText(sharedPreferences.getString("actifitUser",""));
-        steemitPostingKey.setText(sharedPreferences.getString("actifitPst",""));
 
         //grab current selection for measure system
         String activeSystem = sharedPreferences.getString("activeSystem",getString(R.string.metric_system_ntt));
@@ -621,6 +687,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         });
 
+        ScaleAnimation scaler = new ScaleAnimation(1f, 0.98f, 1f,0.98f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        scaler.setDuration(300);
+        scaler.setRepeatMode(Animation.REVERSE);
+        scaler.setRepeatCount(Animation.INFINITE);
+
+        BtnSubmitSteemit.setAnimation(scaler);
+
         /* fixing scrollability of content within the post content section */
 
         steemitPostContent.setOnTouchListener(new View.OnTouchListener() {
@@ -639,6 +712,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 return false;
             }
         });
+
+
+
 
 
         /***************** Fitbit Sync Implementation ****************/
@@ -672,6 +748,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     //grab userId
                     fitbitUserId = fitbit.getUserId();
+                    //if (getString(R.string.test_mode).equals("on"))
+                    //fitbitUserId = "6Z6D7T";
 
                     //check to see if settings allows fetching measurements - default true
                     String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements", getString(R.string.fitbit_measurements_on_ntt));
@@ -746,10 +824,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     /**
      * function handling the display of popup notification
      * @param notification
+     * @param permLink
      */
     void displayNotification(final String notification, final ProgressDialog progress,
                              final Context context, final Activity currentActivity,
-                             final String success){
+                             final String success, final String permLink){
         //render result
         currentActivity.runOnUiThread(new Runnable() {
             @Override
@@ -771,6 +850,56 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 if (success.equals("success")){
                     builder1.setIcon(getResources().getDrawable(R.drawable.success_icon));
                     builder1.setTitle("Actifit Success");
+                    builder1.setNeutralButton(getString(R.string.view_post_button),
+                            (dialog, id) -> {
+
+                                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+                                builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+
+                                //animation for showing and closing screen
+                                builder.setStartAnimations(steemit_post_context, R.anim.slide_in_right, R.anim.slide_out_left);
+
+                                //animation for back button clicks
+                                builder.setExitAnimations(steemit_post_context, android.R.anim.slide_in_left,
+                                        android.R.anim.slide_out_right);
+
+                                CustomTabsIntent customTabsIntent = builder.build();
+                                customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                                try {
+                                    customTabsIntent.launchUrl(steemit_post_context, Uri.parse(getString(R.string.actifit_url)+accountUsername+"/"+permLink));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                if (success.equals("success")) {
+                                    //close current screen
+                                    Log.d(MainActivity.TAG,">>>Finish");
+                                    currentActivity.finish();
+                                }
+                                //dialog.cancel();
+                            });
+
+                    builder1.setNegativeButton(getString(R.string.share_post_button),
+                            (dialog, id) -> {
+                                //dialog.cancel();
+
+                                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                                sharingIntent.setType("text/plain");
+                                String shareSubject = getString(R.string.post_title);
+                                String shareBody = getString(R.string.post_description);
+                                shareBody += getString(R.string.post_title) + " "+getString(R.string.actifit_url)+accountUsername+"/"+permLink;
+
+                                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
+                                sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+
+                                PostSteemitActivity.this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
+                                if (success.equals("success")) {
+                                    //close current screen
+                                    Log.d(MainActivity.TAG,">>>Finish");
+                                    currentActivity.finish();
+                                }
+                            });
                 }else{
                     builder1.setIcon(getResources().getDrawable(R.drawable.error_icon));
                     builder1.setTitle("Actifit Error");
@@ -790,6 +919,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                 }
                             }
                         });
+
+
                 //create and display alert window
                 try {
                     AlertDialog alert11 = builder1.create();
@@ -827,13 +958,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
 
                 //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
-                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
+                final SharedPreferences[] sharedPreferences = {getSharedPreferences("actifitSets", MODE_PRIVATE)};
+                final SharedPreferences.Editor[] editor = {sharedPreferences[0].edit()};
                 //skip on spaces, upper case, and @ symbols to properly match steem username patterns
-                editor.putString("actifitUser", accountUsername
+                editor[0].putString("actifitUser", accountUsername
                         .trim().toLowerCase().replace("@",""));
-                editor.putString("actifitPst", accountPostingKey);
-                editor.apply();
+                editor[0].putString("actifitPst", accountPostingKey);
+                editor[0].apply();
 
 
                 //if (1==1) return null;
@@ -850,53 +981,52 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         mCalendar.getTime());
 
                 //this runs only on live mode
-                //if (getString(R.string.test_mode).equals("off")){
+                if (getString(R.string.test_mode).equals("off")) {
                     //make sure we have reached the min movement amount
                     if (Integer.parseInt(accountActivityCount) < min_step_limit) {
                         notification = getString(R.string.min_activity_not_reached) + " " +
                                 NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " " + getString(R.string.not_yet);
-                        displayNotification(notification, progress, context, currentActivity, "");
+                        displayNotification(notification, progress, context, currentActivity, "", "");
 
                         return null;
                     }
 
                     //make sure the post content has at least the min_char_count
                     if (finalPostContent.length()
-                            <= min_char_count){
+                            <= min_char_count) {
                         notification = getString(R.string.min_char_count_error)
-                                +" "+ min_char_count
-                                +" "+ getString(R.string.characters_plural_label);
-                        displayNotification(notification, progress, context, currentActivity, "");
+                                + " " + min_char_count
+                                + " " + getString(R.string.characters_plural_label);
+                        displayNotification(notification, progress, context, currentActivity, "", "");
 
                         return null;
                     }
 
                     //make sure the user has not posted today already,
                     //and also avoid potential abuse of changing phone clock via comparing to older dates
-                    String lastPostDate = sharedPreferences.getString("actifitLastPostDate","");
+                    String lastPostDate = sharedPreferences[0].getString("actifitLastPostDate", "");
 
-                    Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastPostDate);
-                    Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+targetDate);
-                    if (!lastPostDate.equals("")){
+                    Log.d(MainActivity.TAG, ">>>>[Actifit]lastPostDate:" + lastPostDate);
+                    Log.d(MainActivity.TAG, ">>>>[Actifit]currentDate:" + targetDate);
+                    if (!lastPostDate.equals("")) {
                         if (Integer.parseInt(lastPostDate) >= Integer.parseInt(targetDate)) {
                             notification = getString(R.string.one_post_per_day_error);
-                            displayNotification(notification, progress, context, currentActivity, "");
+                            displayNotification(notification, progress, context, currentActivity, "", "");
                             return null;
                         }
                     }
 
-                //}
 
-                //let us check if user has selected activities yet
-                if (selectedActivityCount < 1){
-                    notification = getString(R.string.error_need_select_one_activity);
-                    displayNotification(notification, progress, context, currentActivity, "");
+                    //let us check if user has selected activities yet
+                    if (selectedActivityCount < 1) {
+                        notification = getString(R.string.error_need_select_one_activity);
+                        displayNotification(notification, progress, context, currentActivity, "", "");
 
-                    //reset to enabled
-                    //arg0.setEnabled(true);
-                    return null;
+                        //reset to enabled
+                        //arg0.setEnabled(true);
+                        return null;
+                    }
                 }
-
                 //prepare relevant day detailed data
                 ArrayList<ActivitySlot> timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDate);
 
@@ -935,9 +1065,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     data.put("step_count", accountActivityCount);
                     data.put("activity_type", selectedActivitiesVal);
 
-                    if (fullAFITPayVal) {
+                    /*if (fullAFITPayVal) {
                         data.put("full_afit_pay", "on");
-                    }
+                    }*/
 
                     data.put("height", heightVal);
                     data.put("weight", weightVal);
@@ -999,16 +1129,16 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     //choose a charity if one is already selected before
 
-                    sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                    sharedPreferences[0] = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
-                    final String currentCharity = (sharedPreferences.getString("selectedCharity",""));
+                    final String currentCharity = (sharedPreferences[0].getString("selectedCharity",""));
 
                     if (!currentCharity.equals("")){
                         data.put("charity", currentCharity);
                     }
 
                     //append user ID
-                    data.put("actifitUserID", sharedPreferences.getString("actifitUserID",""));
+                    data.put("actifitUserID", sharedPreferences[0].getString("actifitUserID",""));
 
                     //append data tracking source to see if this is a device reading or a fitbit one
                     //if there was a Fitbit sync, also need to send out that this is Fitbit data
@@ -1026,24 +1156,87 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                         data.put("fitbitUserId", sb.toString());
                     }else {
-                        data.put("dataTrackingSource", sharedPreferences.getString("dataTrackingSystem", ""));
+                        data.put("dataTrackingSource", sharedPreferences[0].getString("dataTrackingSystem", ""));
                     }
                     //append report STEEM payout type
-                    data.put("reportSTEEMPayMode",sharedPreferences.getString("reportSTEEMPayMode",""));
+                    data.put("reportSTEEMPayMode", sharedPreferences[0].getString("reportSTEEMPayMode",""));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                String inputLine;
-                String result = "";
+                //String inputLine;
+                final String[] result = {""};
                 //use test url only if testing mode is on
                 String urlStr = getString(R.string.test_api_url);
                 if (getString(R.string.test_mode).equals("off")) {
-                    urlStr = getString(R.string.api_url);
+                    urlStr = getString(R.string.api_url_new);
                 }
+
+                RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+
+                JsonObjectRequest sendPostRequest = new JsonObjectRequest
+                        (Request.Method.POST, urlStr, data, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                //hide dialog
+                                //progress.hide();
+                                // Display the result
+                                try {
+                                    //check result of action
+                                    if (response.has("status") && response.getString("status").equals("success")) {
+                                        notification = getString(R.string.success_post);
+
+                                        //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
+                                        sharedPreferences[0] = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                                        editor[0] = sharedPreferences[0].edit();
+                                        editor[0].putString("actifitLastPostDate", targetDate);
+                                        //also clear editor text content
+                                        editor[0].putString("steemPostContent", "");
+                                        editor[0].apply();
+                                        result[0] = response.getString("status");
+                                    } else {
+                                        // notification = getString(R.string.failed_post);
+                                        notification = response.getString("msg");//result;
+                                    }
+
+                                    //display proper notification
+                                    String permlink = (response.has("permlink"))?response.getString("permlink"):"";
+                                    displayNotification(notification, progress, context, currentActivity, result[0], permlink);
+
+                                }catch (Exception e){
+
+                                    //display proper notification
+                                    notification = getString(R.string.failed_post);
+                                    displayNotification(notification, progress, context, currentActivity, "", "");
+
+                                    Log.d(MainActivity.TAG,"Error connecting");
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                //hide dialog
+                                //progress.hide();
+                                //actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
+                                error.printStackTrace();
+                            }
+                        });
+
+                //make sure sent only once
+                sendPostRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        0,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                // Add balance request to be processed
+                queue.add(sendPostRequest);
+
+
+
                 // Headers
-                ArrayList<String[]> headers = new ArrayList<>();
+                /*ArrayList<String[]> headers = new ArrayList<>();
 
                 headers.add(new String[]{"Content-Type", "application/json"});
                 HttpResultHelper httpResult = new HttpResultHelper();
@@ -1057,40 +1250,35 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 Log.d(MainActivity.TAG,">>>test:" + result);
 
                 //check result of action
-                if (result.equals("success")) {
-                    notification = getString(R.string.success_post);
+            if (result.equals("success")) {
+                notification = getString(R.string.success_post);
 
+                //store date of last successful post to prevent multiple posts per day
 
+                //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
+                sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                editor = sharedPreferences.edit();
+                editor.putString("actifitLastPostDate", targetDate);
+                //also clear editor text content
+                editor.putString("steemPostContent", "");
+                editor.apply();
+            } else {
+                // notification = getString(R.string.failed_post);
+                notification = result;
+            }*/
 
-                    //send out server notification registration with username and token
-                    sendRegistrationToServer();
+            //display proper notification
+//            displayNotification(notification, progress, context, currentActivity, result);
 
-                    //store date of last successful post to prevent multiple posts per day
+        }catch (Exception e){
 
-                    //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
-                    sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
-                    editor = sharedPreferences.edit();
-                    editor.putString("actifitLastPostDate", targetDate);
-                    //also clear editor text content
-                    editor.putString("steemPostContent", "");
-                    editor.apply();
-                } else {
-                    // notification = getString(R.string.failed_post);
-                    notification = result;
-                }
+            //display proper notification
+//            notification = getString(R.string.failed_post);
+//            displayNotification(notification, progress, context, currentActivity, "");
 
-                //display proper notification
-                displayNotification(notification, progress, context, currentActivity, result);
-
-            }catch (Exception e){
-
-                //display proper notification
-                notification = getString(R.string.failed_post);
-                displayNotification(notification, progress, context, currentActivity, "");
-
-                Log.d(MainActivity.TAG,"Error connecting");
-                e.printStackTrace();
-            }
+            Log.d(MainActivity.TAG,"Error connecting");
+            e.printStackTrace();
+        }
             return null;
         }
     }
@@ -1121,6 +1309,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
     }
 */
+
+    String currentCharityDisplayName="";
+
     private void ProcessPost(){
 
         //only if we haven't grabbed fitbit data, we need to grab new sensor data
@@ -1156,7 +1347,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     ProgressDialog progress = new ProgressDialog(steemit_post_context);
                     progress.setMessage(notification);
                     progress.show();
-                    displayNotification(notification, progress, steemit_post_context, currentActivity, "");
+                    displayNotification(notification, progress, steemit_post_context, currentActivity, "", "");
                     return;
                 }
             }
@@ -1174,10 +1365,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
         final String currentCharity = sharedPreferences.getString("selectedCharity","");
-        final String currentCharityDisplayName = sharedPreferences.getString("selectedCharityDisplayName","");
+        currentCharityDisplayName = sharedPreferences.getString("selectedCharityDisplayName","");
 
-        accountUsername = steemitUsername.getText().toString();
-        accountPostingKey = steemitPostingKey.getText().toString();
+        //accountUsername = steemitUsername.getText().toString();
+        //accountPostingKey = steemitPostingKey.getText().toString();
         accountActivityCount = steemitStepCount.getText().toString();
         finalPostTitle = steemitPostTitle.getText().toString();
         selectedActivityCount = activityTypeSelector.getSelectedIndicies().size();
@@ -1187,7 +1378,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         selectedActivitiesVal = activityTypeSelector.getSelectedItemsAsString();
 
-        fullAFITPayVal = fullAFITPay.isChecked();
+        //fullAFITPayVal = fullAFITPay.isChecked();
 
         heightVal = heightSize.getText().toString();
         weightVal = weightSize.getText().toString();
@@ -1202,6 +1393,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         waistUnit = waistSizeUnit.getText().toString();
         thighsUnit = thighsSizeUnit.getText().toString();
 
+        //make sure user has proper balance to earn AFIT rewards, and notify them accordingly
+
+
+        processPostFinal(currentCharity);
+    }
+
+    private void processPostFinal(String currentCharity){
         if (!currentCharity.equals("")){
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                 @Override
@@ -1229,42 +1427,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             //connect to the server via a thread to prevent application hangup
             new PostSteemitRequest(steemit_post_context, currentActivity).execute();
         }
-    }
-
-    /**
-     * Persist token to third-party servers.
-     *
-     * Modify this method to associate the user's FCM InstanceID token with any server-side account
-     * maintained by your application.
-     *
-     */
-    private void sendRegistrationToServer() {
-        String urlStr = getString(R.string.live_server) + getString(R.string.register_user_token_notifications);
-        Log.d(MainActivity.TAG, "sendRegistrationToServer - urlStr:"+urlStr);
-        ArrayList<String[]> headers = new ArrayList<>();
-        headers.add(new String[]{"Content-Type", "application/json"});
-        HttpResultHelper httpResult = new HttpResultHelper();
-
-        final JSONObject data = new JSONObject();
-        try {
-            data.put("token", MainActivity.commToken);
-            data.put("user", MainActivity.username);
-            data.put("app", "Android");
-
-            String inputLine;
-            String result = "";
-            httpResult = httpResult.httpPost(urlStr, null, null, data.toString(), headers, 20000);
-            BufferedReader in = new BufferedReader(new InputStreamReader(httpResult.getResponse()));
-            while ((inputLine = in.readLine()) != null) {
-                result += inputLine;
-            }
-
-            Log.d(MainActivity.TAG,">>>test:" + result);
-        } catch (JSONException | IOException e) {
-            //e.printStackTrace();
-            Log.e(MainActivity.TAG, "error sending registration data");
-        }
-
     }
 
 

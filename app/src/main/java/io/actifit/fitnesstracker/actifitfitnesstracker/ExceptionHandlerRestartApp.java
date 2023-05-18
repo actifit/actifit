@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 
 /*
@@ -26,7 +27,12 @@ public class ExceptionHandlerRestartApp implements Thread.UncaughtExceptionHandl
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK
                 | Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(ActifitApplication.getInstance().getBaseContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity(ActifitApplication.getInstance().getBaseContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT);
+        }else {
+            pendingIntent = PendingIntent.getActivity(ActifitApplication.getInstance().getBaseContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        }
         AlarmManager mgr = (AlarmManager) ActifitApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
 

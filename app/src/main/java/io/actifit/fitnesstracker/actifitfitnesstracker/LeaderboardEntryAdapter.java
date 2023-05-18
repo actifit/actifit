@@ -93,7 +93,7 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
 
         //render some visual effects for step count
         if (postEntry.activityCount >= 10000 ){
-            entryCount.setTextColor(getContext().getResources().getColor(R.color.actifitGreen));
+            entryCount.setTextColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
         }else if (postEntry.activityCount >= 5000 ){
             entryCount.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
         }else {
