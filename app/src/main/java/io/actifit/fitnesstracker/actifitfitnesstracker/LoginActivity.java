@@ -339,7 +339,7 @@ public class LoginActivity extends BaseActivity {
 
                 //reset access token
                 accessToken = "";
-                queryAPI(userEntry.getText().toString(), keyEntry.getText().toString(), false);
+                queryAPI(userEntry.getText().toString().toLowerCase().trim(), keyEntry.getText().toString(), false);
             }
 
         });
