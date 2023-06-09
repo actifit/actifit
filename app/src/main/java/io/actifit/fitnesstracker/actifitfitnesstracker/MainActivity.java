@@ -762,6 +762,7 @@ public class MainActivity extends BaseActivity{
         BtnSettings = findViewById(R.id.btn_settings);
         TextView BtnMarket = findViewById(R.id.btn_view_market);
         TextView BtnSocials = findViewById(R.id.btn_socials);
+        TextView BtnPosts = findViewById(R.id.btn_view_social);
         Button BtnSwitchSettings = findViewById(R.id.switchSettings);
 
 
@@ -1422,6 +1423,18 @@ public class MainActivity extends BaseActivity{
                 //sensorManager.unregisterListener(MainActivity.this);
                 Intent intent = new Intent(MainActivity.this, MarketActivity.class);
                 MainActivity.this.startActivity(intent);
+            //}
+        });
+
+        BtnPosts.setOnClickListener(arg0 -> {
+
+            /*if (username == null || username.length() <1){
+                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+            }else {*/
+
+            //sensorManager.unregisterListener(MainActivity.this);
+            Intent intent = new Intent(MainActivity.this, SocialActivity.class);
+            MainActivity.this.startActivity(intent);
             //}
         });
 
@@ -3311,7 +3324,7 @@ public class MainActivity extends BaseActivity{
 
 
             //display profile pic too
-            final String userImgUrl = "https://steemitimages.com/u/" + username + "/avatar";
+            final String userImgUrl = getString(R.string.hive_image_host_url).replace("USERNAME", username);
             final ImageView userProfilePic = findViewById(R.id.user_profile_pic);
 
 
