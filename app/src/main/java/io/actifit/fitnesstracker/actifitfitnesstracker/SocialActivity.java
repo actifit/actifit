@@ -4,7 +4,9 @@ import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -25,7 +27,8 @@ public class SocialActivity extends BaseActivity {
 
     private ListView socialView;
     private ArrayList<SingleHivePostModel> posts;
-    private ProgressDialog progress;
+    private ProgressBar progress;
+    //private ProgressDialog progress;
     private PostAdapter postAdapter;
 
     public static Double afitBalance = 0.0;
@@ -39,7 +42,9 @@ public class SocialActivity extends BaseActivity {
         if (queue==null){
             queue = Volley.newRequestQueue(this);
         }
-        loadBalance(queue);
+        progress.setVisibility(View.VISIBLE);
+        //progress.show();
+        //loadBalance(queue);
     }
 
     private void loadBalance(RequestQueue queue){
@@ -57,7 +62,8 @@ public class SocialActivity extends BaseActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         //hide dialog
-                        progress.hide();
+                        progress.setVisibility(View.GONE);
+                        //progress.hide();
                         // Display the result
                         try {
                             //grab current token count
@@ -86,6 +92,9 @@ public class SocialActivity extends BaseActivity {
         setContentView(R.layout.social_page);
 
         socialView = findViewById(R.id.postList);
+
+        progress = findViewById(R.id.loader);
+
         posts = new ArrayList<SingleHivePostModel>();
 
         // Instantiate the RequestQueue.
@@ -180,10 +189,14 @@ public class SocialActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-        progress = new ProgressDialog(this);
 
-        progress.setMessage(getString(R.string.loading));
-        progress.show();
+        //progress = new ProgressBar(this);
+            // progress = new ProgressDialog(this);
+        progress.setVisibility(View.VISIBLE);
+            //progress.show();
+
+        // progress.setMessage(getString(R.string.loading));
+        //progress.show();
 
 
         // Request the transactions of the user first via JsonArrayRequest
@@ -217,13 +230,15 @@ public class SocialActivity extends BaseActivity {
                         socialView.setAdapter(postAdapter);
 
                         //hide dialog
-                        progress.hide();
+                        //progress.setVisibility(View.GONE);
+                        //progress.hide();
                         //actifitTransactions.setText("Response is: "+ response);
 
 
                     }catch (Exception e) {
                         //hide dialog
-                        progress.hide();
+                        progress.setVisibility(View.GONE);
+                        //progress.hide();
                         //actifitTransactionsError.setVisibility(View.VISIBLE);
                         e.printStackTrace();
                     }
@@ -232,7 +247,8 @@ public class SocialActivity extends BaseActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 //hide dialog
-                progress.hide();
+                progress.setVisibility(View.GONE);
+                //progress.hide();
                 //actifitTransactionsView.setText("Unable to fetch balance");
                 //actifitTransactionsError.setVisibility(View.VISIBLE);
             }
@@ -278,15 +294,25 @@ public class SocialActivity extends BaseActivity {
     {
         super.onPause();
         if ( progress!=null){
-            progress.dismiss();
+            progress.setVisibility(View.GONE);
+            //progress.hide();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        progress.setVisibility(View.VISIBLE);
+        //progress.show();
+        // The activity is about to become visible to the user
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
         if ( progress!=null){
-            progress.dismiss();
+            progress.setVisibility(View.GONE);
+            //progress.hide();
         }
     }
 
