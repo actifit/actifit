@@ -466,7 +466,8 @@
                     android:id="@+id/steem_logo"
                     android:src="@drawable/steem"
                     android:layout_height="25dp"
-                    android:layout_width="25dp"
+                    android:layout_width="0dp"
+                    android:visibility="invisible"
                     />
                 <ImageView
                     android:id="@+id/blurt_logo"
@@ -774,6 +775,16 @@
             android:fontFamily="@font/font_awesome_6_solid"
             android:textColor="@color/actifitRed"
             android:text="\uf54e"
+            android:textSize="25dp"
+            android:padding="10dp"
+            />
+        <TextView
+            android:id="@+id/btn_view_social"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\ue068"
             android:textSize="25dp"
             android:padding="10dp"
             />

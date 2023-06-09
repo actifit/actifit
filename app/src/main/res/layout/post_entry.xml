@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.cardview.widget.CardView
+    android:id="@+id/entryContainer"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardElevation="10dp"
+    app:cardCornerRadius="10dp"
+    android:layout_margin="10dp"
+    app:cardBackgroundColor="@color/ic_launcher_background"
+    app:cardMaxElevation="12dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true">
+
+
+    <LinearLayout
+        android:paddingTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp">
+
+
+
+            <TextView
+                android:id="@+id/title"
+                android:text="title_placeholder"
+                android:paddingLeft="0dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:paddingBottom="20dp">
+
+            <FrameLayout android:id="@+id/author_pic_container"
+                android:layout_width="36dp"
+                android:layout_height="match_parent"
+                android:paddingTop="0dp"
+                >
+
+                <ImageView android:id="@+id/author_pic"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/actifit_logo" />
+
+                <ImageView android:id="@+id/circle_crop"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/circle_crop" />
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/author"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+
+                android:gravity="start"
+                android:textColor="@color/actifitRed"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:id="@+id/rank_container"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                android:visibility="invisible"
+                android:paddingTop="5dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:textColor="@color/actifitRed"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf091"
+                    android:textSize="20sp"
+                    android:paddingRight="5dp"
+                    />
+
+                <TextView android:id="@+id/user_rank"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="20sp"
+                    />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+
+                android:gravity="start"
+                android:textColor="@color/actifitRed"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <ImageView android:id="@+id/post_image"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:src="@drawable/actifit_logo"
+            android:scaleType="fitCenter"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp">
+
+
+            <com.mittsu.markedview.MarkedView
+                android:id="@+id/md_view"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginBottom="20dp"
+                android:paddingBottom="20dp"
+                android:background="@color/colorWhite"
+
+               />
+
+
+            <!--<TextView
+                android:id="@+id/body"
+                android:text="body_placeholder"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                />-->
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            >
+
+
+            <!--<TextView
+                android:id="@+id/permlink"
+                android:text="permlink_placeholder"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />-->
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+
+
+
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/upvote_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14dp"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf164"
+                android:layout_weight="1"
+                />
+
+            <TextView
+                android:id="@+id/upvote_count"
+                android:text="0"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/comment_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14dp"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf086"
+                android:layout_weight="1"
+                />
+
+            <TextView
+                android:id="@+id/comment_count"
+                android:text="0"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/expand_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14dp"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf103"
+                android:layout_weight="1"
+                />
+
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/retract_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14dp"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf102"
+                android:layout_weight="1"
+                android:visibility="invisible"
+                />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
