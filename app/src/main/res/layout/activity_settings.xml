@@ -174,9 +174,10 @@
 
         <CheckBox
             android:id="@+id/steem_option"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/post_steem" />
+            android:text="@string/post_steem"
+            android:visibility="invisible"/>
 
         <CheckBox
             android:id="@+id/blurt_option"
