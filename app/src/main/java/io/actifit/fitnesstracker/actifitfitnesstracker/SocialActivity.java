@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
@@ -23,6 +25,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
+
 public class SocialActivity extends BaseActivity {
 
     private ListView socialView;
@@ -35,6 +39,17 @@ public class SocialActivity extends BaseActivity {
 
     JSONObject afitPrice;
     RequestQueue queue = null;
+    Button loadMoreBtn;
+
+    //fetch posts directly from chain
+    String hiveRPCUrl;
+    String productsCall;
+
+    String sort = "created";
+    String tag;
+
+    String start_author = "";
+    String start_permlink = "";
 
     @Override
     protected void onResume() {
@@ -43,8 +58,19 @@ public class SocialActivity extends BaseActivity {
             queue = Volley.newRequestQueue(this);
         }
         progress.setVisibility(View.VISIBLE);
+
+
         //progress.show();
         //loadBalance(queue);
+    }
+
+    @Override
+    protected void onPostResume(){
+        super.onPostResume();
+        if (posts.size() > 0){
+            //already loaded, hide
+            progress.setVisibility(View.GONE);
+        }
     }
 
     private void loadBalance(RequestQueue queue){
@@ -70,7 +96,7 @@ public class SocialActivity extends BaseActivity {
                             afitBalance = Double.parseDouble(response.getString("tokens"));
                         }catch(JSONException e){
                             //hide dialog
-                            Log.e(MainActivity.TAG, "AFIT balance load error");
+                            Log.e(TAG, "AFIT balance load error");
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -78,7 +104,7 @@ public class SocialActivity extends BaseActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         //hide dialog
-                        Log.e(MainActivity.TAG, "AFIT balance load error");
+                        Log.e(TAG, "AFIT balance load error");
                     }
                 });
 
@@ -86,7 +112,7 @@ public class SocialActivity extends BaseActivity {
         queue.add(balanceRequest);
     }
 
-        @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.social_page);
@@ -95,12 +121,45 @@ public class SocialActivity extends BaseActivity {
 
         progress = findViewById(R.id.loader);
 
+        loadMoreBtn = findViewById(R.id.load_more);
+
         posts = new ArrayList<SingleHivePostModel>();
+
+        //initialize needed query
+        hiveRPCUrl = getString(R.string.hive_default_node);
+        productsCall = getString(R.string.get_ranked_posts);
+        tag = getString(R.string.actifit_community);
 
         // Instantiate the RequestQueue.
         queue = Volley.newRequestQueue(this);
 
         final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+        //set load more functionality
+        loadMoreBtn.setOnClickListener(view -> {
+            loadPosts(false);
+        });
+
+        //capture scroll event to bottom
+
+        socialView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                // Not needed for this implementation
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (postAdapter != null  && postAdapter.Size() > 0) {
+                    if (socialView.getLastVisiblePosition() == totalItemCount - 1
+                            && socialView.getChildAt(socialView.getChildCount() - 1).getBottom() <= socialView.getHeight()) {
+                        // Scrolled to the bottom
+                        // Perform your action here
+                        loadMoreBtn.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        });
 
         //refresh user login
         if (!MainActivity.username.equals("")) {
@@ -133,7 +192,7 @@ public class SocialActivity extends BaseActivity {
                                 //store token for reuse when saving settings
                                 try {
                                     if (response.has("success")) {
-                                        Log.d(MainActivity.TAG, response.toString());
+                                        Log.d(TAG, response.toString());
                                         LoginActivity.accessToken = response.getString(getString(R.string.login_token));
                                     }
                                 } catch (JSONException e) {
@@ -146,7 +205,7 @@ public class SocialActivity extends BaseActivity {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 // error
-                                Log.e(MainActivity.TAG, "Login error");
+                                Log.e(TAG, "Login error");
                             }
                         });
 
@@ -158,16 +217,13 @@ public class SocialActivity extends BaseActivity {
 
 
         }
+        //load posts for first time
+        loadPosts(true);
 
-        //fetch posts directly from chain
-        String hiveRPCUrl = getString(R.string.hive_default_node);
-        String productsCall = getString(R.string.get_ranked_posts);
+    }
 
-        String sort = "created";
-        String tag = getString(R.string.actifit_community);
 
-        String start_author = "";
-        String start_permlink = "";
+    public void loadPosts(Boolean showFullProgress){
         JSONObject jsonRequest = new JSONObject();
 
         try {
@@ -191,11 +247,10 @@ public class SocialActivity extends BaseActivity {
 
 
         //progress = new ProgressBar(this);
-            // progress = new ProgressDialog(this);
-        progress.setVisibility(View.VISIBLE);
-            //progress.show();
-
-        // progress.setMessage(getString(R.string.loading));
+        // progress = new ProgressDialog(this);
+        if (showFullProgress) {
+            progress.setVisibility(View.VISIBLE);
+        }
         //progress.show();
 
 
@@ -204,50 +259,101 @@ public class SocialActivity extends BaseActivity {
         JsonObjectRequest postsRequest = new JsonObjectRequest(Request.Method.POST,
                 hiveRPCUrl, null, postArray -> {
 
-                    // Handle the result
-                    try {
+            // Handle the result
+            try {
 
-                        //grab array from result
-                        JSONArray result = postArray.getJSONArray("result");
+                //grab array from result
+                JSONArray result = postArray.getJSONArray("result");
+                SingleHivePostModel lastPost = null;
 
-                        for (int i = 0; i < result.length(); i++) {
-                            // Retrieve each JSON object within the JSON array
-                            //JSONObject jsonObject = new JSONObject()
+                for (int i = 0; i < result.length(); i++) {
+                    // Retrieve each JSON object within the JSON array
+                    //JSONObject jsonObject = new JSONObject()
 
-                            SingleHivePostModel postEntry = new SingleHivePostModel((result.getJSONObject(i)));
+                    SingleHivePostModel postEntry = new SingleHivePostModel((result.getJSONObject(i)));
+                    lastPost = postEntry;
+                    posts.add(postEntry);
+                    //grab post AFIT rewards
 
-                            //append post
-                            posts.add(postEntry);
+                    Thread thread = new Thread(() -> {
+                        try {
+                            //send out server notification registration with username and token
+                            String reqUrl = getString(R.string.post_rewards_api_url).replace("_USER_", postEntry.author).replace("_URL_",postEntry.url);
 
+                            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, reqUrl, null,
+                                    response -> {
+                                        try {
+                                            //Double afitRewards = Double.parseDouble();
+                                            postEntry.afitRewards = Double.parseDouble(response.getDouble("token_count")+"");
+                                            //callback.onSuccess(response.getString(soughtVal));
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    },
+                                    error -> Log.e(TAG,error.getMessage()));
+
+                            // Add the request to the request queue
+                            // (Assuming you have a RequestQueue instance named "requestQueue")
+                            queue.add(request);
+
+                            //postEntry.afitRewards = Double.parseDouble(afitRewards);
+                        } catch (Exception e) {
+                            Log.e(TAG, e.getMessage());
                         }
+                    });
+                    thread.start();
 
-                        //Collections.sort(posts);
-                        // Create the adapter to convert the array to views
-                        String pkey = sharedPreferences.getString("actifitPst", "");
-                        postAdapter = new PostAdapter(getApplicationContext(), posts,
-                                MainActivity.username, pkey);
+                }
 
-                        socialView.setAdapter(postAdapter);
+                //update last loaded post author and permlink for pagination purposes
+                if (lastPost != null ) {
+                    start_author = lastPost.author;
+                    start_permlink = lastPost.permlink;
+                }
+                //Collections.sort(posts);
+                // Create the adapter to convert the array to views
+                //String pkey = sharedPreferences.getString("actifitPst", "");
+                postAdapter = new PostAdapter(getApplicationContext(), posts);
 
-                        //hide dialog
-                        //progress.setVisibility(View.GONE);
-                        //progress.hide();
-                        //actifitTransactions.setText("Response is: "+ response);
+                if (!showFullProgress) {
+                    //case for maintaining scroll position upon append
+                    int currentPosition = socialView.getFirstVisiblePosition();
+                    View v = socialView.getChildAt(0);
+                    int topOffset = (v == null) ? 0 : v.getTop();
+
+                    // Set the new adapter
+                    socialView.setAdapter(postAdapter);
+
+                    // Restore the scroll position
+                    socialView.setSelectionFromTop(currentPosition, topOffset);
+                }else{
+                    socialView.setAdapter(postAdapter);
+                }
+
+                //hide dialog
+                progress.setVisibility(View.GONE);
+
+                //hide load more button
+                loadMoreBtn.setVisibility(View.INVISIBLE);
+                //progress.hide();
+                //actifitTransactions.setText("Response is: "+ response);
 
 
-                    }catch (Exception e) {
-                        //hide dialog
-                        progress.setVisibility(View.GONE);
-                        //progress.hide();
-                        //actifitTransactionsError.setVisibility(View.VISIBLE);
-                        e.printStackTrace();
-                    }
+            }catch (Exception e) {
+                //hide dialog
+                progress.setVisibility(View.GONE);
+                //progress.hide();
+                //actifitTransactionsError.setVisibility(View.VISIBLE);
+                e.printStackTrace();
+            }
 
-                }, new Response.ErrorListener() {
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 //hide dialog
                 progress.setVisibility(View.GONE);
+                System.out.println(error.getMessage());
+                Log.d(TAG, ">>>test:" + error.getMessage());
                 //progress.hide();
                 //actifitTransactionsView.setText("Unable to fetch balance");
                 //actifitTransactionsError.setVisibility(View.VISIBLE);
@@ -286,7 +392,6 @@ public class SocialActivity extends BaseActivity {
 
         // Add transaction request to be processed
         queue.add(postsRequest);
-
     }
 
     @Override

@@ -23,11 +23,14 @@ public class SingleHivePostModel{
     public String pending_payout_value;
     public String author_payout_value;
     public String curator_payout_value;
+    public String total_payout_value;
 
     public JSONObject stats;
 
     public JSONArray beneficiaries;
     public JSONArray active_votes;
+
+    public Double afitRewards = 0.0;
 
 
     public SingleHivePostModel(JSONObject jsonObject) {
