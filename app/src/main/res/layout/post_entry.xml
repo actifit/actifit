@@ -119,7 +119,7 @@
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:src="@drawable/actifit_logo"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             />
 
         <LinearLayout
@@ -176,9 +176,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center">
-
-
-
 
             <Button
                 style="@style/AppTheme.ActifitButton"
@@ -242,6 +239,46 @@
                 android:layout_weight="1"
                 android:visibility="invisible"
                 />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/payout_val"
+                android:text="0"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+
+
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/hive"
+                />
+
+            <TextView
+                android:id="@+id/afit_rewards"
+                android:text="0"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/actifit_logo" />
+
 
 
         </LinearLayout>
