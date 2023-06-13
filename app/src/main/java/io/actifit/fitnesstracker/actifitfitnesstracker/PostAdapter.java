@@ -53,11 +53,19 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     //JSONArray consumedProducts;
     ProgressDialog progress;
     Context ctx;
+    ArrayList<SingleHivePostModel> postArray;
 
-    public PostAdapter(Context context, ArrayList<SingleHivePostModel> post,
-                       String username, String pkey){
-        super(context, 0, post);
 
+    public int Size(){
+        if (postArray !=null && postArray.size()>0) {
+            return postArray.size();
+        }
+        return 0;
+    }
+
+    public PostAdapter(Context context, ArrayList<SingleHivePostModel> postArray){
+        super(context, 0, postArray);
+        this.postArray = postArray;
 
     }
 
@@ -88,6 +96,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             TextView commentCount = convertView.findViewById(R.id.comment_count);
             Button expandButton = convertView.findViewById(R.id.expand_button);
             Button retractButton = convertView.findViewById(R.id.retract_button);
+            TextView afitRewards= convertView.findViewById(R.id.afit_rewards);
+            TextView payoutVal = convertView.findViewById(R.id.payout_val);
 
             // Populate the data into the template view using the data object
 
@@ -115,7 +125,9 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             mdView.setMDText(finalShortenedContent);
 
+            afitRewards.setText(postEntry.afitRewards+"");
 
+            payoutVal.setText(grabPostPayout(postEntry));
 
 
             author.setText('@'+postEntry.author);
@@ -428,6 +440,13 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    private String grabPostPayout(SingleHivePostModel postEntry) {
+        if (postEntry.total_payout_value != null && Double.parseDouble(postEntry.total_payout_value.replaceAll("[^\\d.]", "")) != 0) return postEntry.total_payout_value;
+        if (postEntry.author_payout_value != null && Double.parseDouble(postEntry.author_payout_value.replaceAll("[^\\d.]", "")) != 0) return postEntry.author_payout_value;
+        if (postEntry.pending_payout_value != null && Double.parseDouble(postEntry.pending_payout_value.replaceAll("[^\\d.]", "")) != 0) return postEntry.pending_payout_value;
+        return "";
     }
 
 }
