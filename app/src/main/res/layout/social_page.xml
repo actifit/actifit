@@ -29,6 +29,11 @@
         android:progress="@integer/material_motion_duration_long_1"
         android:visibility="visible" />
 
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <ListView
         android:id="@+id/postList"
         android:layout_width="fill_parent"
@@ -36,6 +41,23 @@
         android:dividerHeight="0dp"
         android:divider="#0000CC"
         />
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/load_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        android:layout_gravity="center"
+        android:elevation="20dp"
+        android:text="Load More"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+
+        />
+
+    </RelativeLayout>
 
 
 </LinearLayout>
