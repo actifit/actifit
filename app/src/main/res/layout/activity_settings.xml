@@ -294,7 +294,28 @@
         android:text="@string/show_daily_tip_main" />
 
     <View
-        android:id="@+id/divider_lp"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
+        android:text="@string/battery_optimization_popup" />
+
+
+    <CheckBox
+        android:id="@+id/show_battery_optimization_tip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="@string/show_battery_opt_tip_main" />
+
+    <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="?android:attr/listDivider" />

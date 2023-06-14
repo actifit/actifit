@@ -373,13 +373,31 @@
                         android:text="@string/switch_settings"
                         />
                 </LinearLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/step_pie_chart"
-                    android:layout_width="180dp"
-                    android:layout_height="200sp"
-                    android:gravity="center"
-                    />
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:id="@+id/step_pie_chart"
+                        android:layout_width="180dp"
+                        android:layout_height="200sp"
+                        android:gravity="center"
+                        />
+
+                    <info.androidhive.fontawesome.FontTextView
+                        android:id="@+id/battery_notice"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:textColor="@color/actifitRed"
+                        android:textSize="20dp"
+                        android:text="@string/fa_exclamation_circle_solid"
+                        app:solid_icon="true"
+                        android:layout_alignBottom="@+id/step_pie_chart"
+                        android:layout_alignLeft="@+id/step_pie_chart"
+                        android:gravity="center"
+                        />
+
+                </RelativeLayout>
 
             </LinearLayout>
 
