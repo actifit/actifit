@@ -140,6 +140,8 @@ public class SettingsActivity extends BaseActivity {
 
         final CheckBox showDailyTipsCheckbox = findViewById(R.id.show_daily_tips_main);
 
+        final CheckBox showBatteryOptimizationTipCheckbox = findViewById(R.id.show_battery_optimization_tip);
+
         logoutLink = findViewById(R.id.logout_action);
 
         notifListView = findViewById(R.id.notif_settings_list);
@@ -228,6 +230,8 @@ public class SettingsActivity extends BaseActivity {
         showPendingRewardsCheckbox.setChecked( !(sharedPreferences.getBoolean(getString(R.string.donotshowrewards),true)));
 
         showDailyTipsCheckbox.setChecked( !(sharedPreferences.getBoolean(getString(R.string.donotshowtips),true)));
+
+        showBatteryOptimizationTipCheckbox.setChecked( !(sharedPreferences.getBoolean(getString(R.string.donotshowbatteryoptimization),true)));
 
         if (!username.equals("")) {
             //fetch user global settings - server based
@@ -610,6 +614,8 @@ public class SettingsActivity extends BaseActivity {
                 editor.putBoolean(getString(R.string.donotshowrewards), !showPendingRewardsCheckbox.isChecked());
 
                 editor.putBoolean(getString(R.string.donotshowtips), !showDailyTipsCheckbox.isChecked());
+
+                editor.putBoolean(getString(R.string.donotshowbatteryoptimization), !showBatteryOptimizationTipCheckbox.isChecked());
 
                 //store selected STEEM pay mode
 
