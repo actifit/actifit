@@ -1499,7 +1499,7 @@ public class MainActivity extends BaseActivity{
             }
         });
 
-        checkBatteryOptimization();
+        checkBatteryOptimization(false);
 
 
         //redirect user to url of notification
@@ -1834,37 +1834,77 @@ public class MainActivity extends BaseActivity{
 
     //check and notify user about battery optimization
     @TargetApi(23)
-    private void checkBatteryOptimization() {
+    private void checkBatteryOptimization(Boolean forceShow) {
+        //we should only check batter optimization if user has not disabled this notification and/or
+        //if he does not have 3rd party setting enabled
+
+        //grab stored value, if any
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+
+        Boolean skipShowingRewards = (sharedPreferences.getBoolean(getString(R.string.donotshowbatteryoptimization),false));
+
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem","");
+        if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))){
+            skipShowingRewards = true;
+
+        }
+
+        if (forceShow){
+            skipShowingRewards = false;
+        }
+
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if (!pm.isIgnoringBatteryOptimizations("io.actifit.fitnesstracker.actifitfitnesstracker")) {
-            //notify user
+            //display related button
+            FontTextView batteryNotif = findViewById(R.id.battery_notice);
+            batteryNotif.setOnClickListener(view -> {
 
-            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE:
-                            //cancel
-                            break;
-                    }
-                }
-            };
+                showBatteryNotice();
+            });
 
-            String msg = getString(R.string.device_ignore_battery_optimization);
-            msg += getString(R.string.device_app_launch);
+            //notify user if not skipping
+            if (skipShowingRewards){
+                return;
+            }
 
-            //display alert dialog about pending rewards
-            AlertDialog.Builder batteryDialogBuilder = new AlertDialog.Builder(ctx);
 
-            AlertDialog pointer = batteryDialogBuilder.setMessage(Html.fromHtml(msg))
-                    .setTitle(getString(R.string.battery_optimization_setting))
-                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                    .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
-
-            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-            pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-            pointer.show();
+            showBatteryNotice();
         }
+    }
+
+    private void showBatteryNotice(){
+        String msg = getString(R.string.device_ignore_battery_optimization);
+        msg += getString(R.string.device_app_launch);
+
+        //display alert dialog about pending rewards
+        AlertDialog.Builder batteryDialogBuilder = new AlertDialog.Builder(ctx);
+
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    //cancel
+                    break;
+
+
+                case DialogInterface.BUTTON_NEUTRAL:
+                    SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(getString(R.string.donotshowbatteryoptimization), true);
+                    editor.commit();
+                    break;
+            }
+        };
+
+        AlertDialog pointer = batteryDialogBuilder.setMessage(Html.fromHtml(msg))
+                .setTitle(getString(R.string.battery_optimization_setting))
+                .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                .setPositiveButton(getString(R.string.close_button), dialogClickListener)
+                .setNeutralButton(getString(R.string.do_not_show_again), dialogClickListener)
+                .create();
+
+        pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+        pointer.show();
     }
 
 
@@ -2070,10 +2110,8 @@ public class MainActivity extends BaseActivity{
         queue.add(accountRCRequest);
 
         //handle RC click
-        accountRCValue.setOnClickListener(new View.OnClickListener() {
         //accountRCContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        accountRCValue.setOnClickListener(view -> {
 
                 AlertDialog.Builder rcDialogBuilder = new AlertDialog.Builder(ctx);
                 String msg = getString(R.string.rc_note);
@@ -2085,9 +2123,7 @@ public class MainActivity extends BaseActivity{
                 pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                 pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
                 pointer.show();
-            }
-
-        });
+            });
 
         //check if user has accounts across all chains
 
