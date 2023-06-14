@@ -1,91 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.actifit.fitnesstracker.actifitfitnesstracker">
+package="io.actifit.fitnesstracker.actifitfitnesstracker">
 
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/actifit_launcher"
-        android:label="@string/app_name"
-        android:logo="@mipmap/actifit_launcher"
-        android:roundIcon="@mipmap/actifit_launcher_round"
-        android:supportsRtl="true"
-        android:networkSecurityConfig="@xml/network_security_config"
-        android:theme="@style/AppTheme"
-        android:name=".ActifitApplication"
-        android:requestLegacyExternalStorage="true" >
-        <!-- request legacy is temporary measure for supporting current image upload/save
+<application
+    android:allowBackup="true"
+    android:icon="@mipmap/actifit_launcher"
+    android:label="@string/app_name"
+    android:logo="@mipmap/actifit_launcher"
+    android:roundIcon="@mipmap/actifit_launcher_round"
+    android:supportsRtl="true"
+    android:networkSecurityConfig="@xml/network_security_config"
+    android:theme="@style/AppTheme"
+    android:name=".ActifitApplication"
+    android:requestLegacyExternalStorage="true"
+    android:usesCleartextTraffic="true"
+    >
+    <!-- request legacy is temporary measure for supporting current image upload/save
         till moving to new android 11 -->
 
-        <!-- [START fcm_default_icon] -->
-        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
+    <!-- [START fcm_default_icon] -->
+    <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
      See README(https://goo.gl/l4GJaQ) for more. -->
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/actifit_logo" />
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_icon"
+        android:resource="@drawable/actifit_logo" />
+    <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
              notification message. See README(https://goo.gl/6BKBk7) for more. -->
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_color"
+        android:resource="@color/actifitRed" />
+
+    <!-- [END fcm_default_icon] -->
+    <!-- [START fcm_default_channel] -->
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_channel_id"
+        android:value="@string/actifit_fcm_msg_channel_id" />
+    <!-- [END fcm_default_channel] -->
+
+    <activity android:name=".LoginActivity"
+        android:theme="@style/Theme.App.Starting"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+
+    <activity android:name=".MainActivity">
+
+    </activity>
+    <activity android:name=".StepHistoryActivity" />
+    <activity
+        android:name=".PostSteemitActivity"
+        android:theme="@style/NoToolbarTheme"
+        android:exported="true"
+        >
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+
+            <data
+                android:host="fitbitcallback"
+                android:scheme="actifitcb" />
+        </intent-filter>
+    </activity>
+    <activity android:name=".SettingsActivity" />
+    <activity android:name=".LeaderboardActivity" />
+    <activity android:name=".WalletActivity" />
+    <activity android:name=".NotificationsActivity" />
+    <activity android:name=".DailyDetailedActivity" />
+    <activity android:name=".HistoryChartActivity" />
+    <activity android:name=".MarketActivity" android:windowSoftInputMode="adjustPan" />
+    <activity android:name=".SocialActivity" android:windowSoftInputMode="adjustPan" />
+
+    <service
+        android:name=".ActivityMonitorService"
+        android:enabled="true"
+        android:exported="false"
+        android:description="@string/actifit_service_desc">
+
+    </service>
+    <service
+        android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
+        android:enabled="true" />
+
+    <service
+        android:name=".ActifitFirebaseMessagingService"
+        android:exported="false"
+        android:directBootAware="true">
+        <intent-filter>
+            <action android:name="com.google.firebase.MESSAGING_EVENT" />
+        </intent-filter>
+    </service>
+
+    <provider
+        android:name="androidx.core.content.FileProvider"
+        android:authorities="io.actifit.fileprovider"
+        android:exported="false"
+        android:grantUriPermissions="true">
         <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/actifitRed" />
-
-        <!-- [END fcm_default_icon] -->
-        <!-- [START fcm_default_channel] -->
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="@string/actifit_fcm_msg_channel_id" />
-        <!-- [END fcm_default_channel] -->
-
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".StepHistoryActivity"></activity>
-        <activity android:name=".PostSteemitActivity"
-            android:theme="@style/NoToolbarTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:host="fitbitcallback"
-                    android:scheme="actifitcb"/>
-            </intent-filter>
-        </activity>
-        <activity android:name=".SettingsActivity"></activity>
-        <activity android:name=".LeaderboardActivity"></activity>
-        <activity android:name=".WalletActivity"></activity>
-        <activity android:name=".DailyDetailedActivity"></activity>
-        <activity android:name=".HistoryChartActivity"></activity>
-
-        <service android:name=".ActivityMonitorService"
-            android:enabled="true"
-            android:exported="false"
-            android:description="@string/actifit_service_desc">
-
-        </service>
-        <service android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
-            android:enabled="true" />
-
-        <service
-            android:name=".ActifitFirebaseMessagingService"
-            android:exported="false"
-            android:directBootAware="true">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="io.actifit.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
-        </provider>
-        <!--<receiver
+            android:name="android.support.FILE_PROVIDER_PATHS"
+            android:resource="@xml/file_paths"></meta-data>
+    </provider>
+    <!--<receiver
             android:name=".MonitorRestartBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
@@ -98,29 +117,38 @@
             </intent-filter>
         </receiver>
         -->
-        <receiver android:name=".ReminderNotificationService"
-            android:enabled="true"
-            android:exported="false"
-            android:description="@string/actifit_reminder_service_desc">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
-            </intent-filter>
-        </receiver>
+    <receiver
+        android:name=".ReminderNotificationService"
+        android:enabled="true"
+        android:exported="false"
+        android:description="@string/actifit_reminder_service_desc">
+        <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+        </intent-filter>
+    </receiver>
 
-    </application>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+    <meta-data
+        android:name="com.google.android.gms.ads.APPLICATION_ID"
+        android:value="@string/admob_app_id"/>
 
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+</application>
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!-- required as of Android 9 (API level 28) for startforeground service -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+<uses-feature
+    android:name="android.hardware.camera"
+    android:required="false" />
+
+<!-- required as of Android 9 (API level 28) for startforeground service -->
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
 </manifest>
