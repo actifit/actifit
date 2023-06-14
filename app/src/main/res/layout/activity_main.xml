@@ -132,55 +132,66 @@
             <GridLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:columnCount="2"
+                android:columnCount="3"
                 android:rowCount="2"
+                android:layout_gravity="right"
                 android:id="@+id/top_icons_container">
 
                 <info.androidhive.fontawesome.FontTextView
                     android:id="@+id/btn_settings"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="35dp"
+                    android:layout_height="30dp"
                     android:textColor="@color/actifitRed"
                     android:textSize="25dp"
                     android:text="\uf013"
                     android:layout_gravity="left"
-                    android:gravity="start"
-                    android:paddingRight="5dp"
+                    android:gravity="left"
+                    app:solid_icon="true" />
+
+                <info.androidhive.fontawesome.FontTextView
+                    android:id="@+id/btn_view_notifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="25dp"
+                    android:text="\uf0f3"
+                    android:gravity="center"
+                    android:paddingRight="30dp"
+                    android:layout_gravity="right"
                     app:solid_icon="true" />
 
                 <info.androidhive.fontawesome.FontTextView
                     android:id="@+id/btn_view_wallet"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="35dp"
+                    android:layout_height="30dp"
                     android:textColor="@color/actifitRed"
                     android:textSize="25dp"
                     android:layout_gravity="right"
-                    android:gravity="right"
                     android:text="@string/fa_wallet_solid"
-                    android:paddingLeft="5dp"
                     android:paddingRight="5dp"
                     app:solid_icon="true" />
 
+
+
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_width="35dp"
+                    android:layout_height="30dp"
                     android:textColor="@color/actifitRed"
-                    android:textSize="20dp"
+                    android:textSize="25dp"
                     android:paddingTop="5dp"
                     android:paddingRight="5dp"
-                    android:layout_gravity="center"
-
+                    android:layout_gravity="left"
+                    android:gravity="left"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf624"
                     />
 
                 <TextView android:id="@+id/account_rc"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="30dp"
                     android:paddingTop="5dp"
                     android:paddingRight="5dp"
-                    android:gravity="end"
+                    android:layout_gravity="right"
                     android:textColor="@color/actifitRed"
                     android:textSize="20sp"
                     />
