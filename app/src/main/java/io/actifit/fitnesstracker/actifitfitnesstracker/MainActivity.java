@@ -756,6 +756,7 @@ public class MainActivity extends BaseActivity{
         FontTextView BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         FontTextView BtnViewHistory = findViewById(R.id.btn_view_history);
         FontTextView BtnWallet = findViewById(R.id.btn_view_wallet);
+        FontTextView BtnViewNotifications = findViewById(R.id.btn_view_notifications);
         LinearLayout BtnWalletAltContainer = findViewById(R.id.wallet_alt_container);
 
         FontTextView BtnSnapActiPic = findViewById(R.id.btn_snap_picture);
@@ -1381,12 +1382,7 @@ public class MainActivity extends BaseActivity{
 
 
 
-        BtnWalletAltContainer.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                BtnWallet.performClick();
-            }
-        });
+        BtnWalletAltContainer.setOnClickListener(arg0 -> BtnWallet.performClick());
 
         //handle activity to move over to the Wallet screen
         BtnWallet.setOnClickListener(arg0 -> {
@@ -1395,6 +1391,19 @@ public class MainActivity extends BaseActivity{
             }else {
 
                 Intent intent = new Intent(MainActivity.this, WalletActivity.class);
+                MainActivity.this.startActivity(intent);
+            }
+        });
+
+        BtnViewNotifications.setOnClickListener(arg0 -> BtnWallet.performClick());
+
+        //handle activity to move over to the Wallet screen
+        BtnWallet.setOnClickListener(arg0 -> {
+            if (username == null || username.length() <1){
+                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+            }else {
+
+                Intent intent = new Intent(MainActivity.this, NotificationsActivity.class);
                 MainActivity.this.startActivity(intent);
             }
         });

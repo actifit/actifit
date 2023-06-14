@@ -43,9 +43,9 @@ public class LeaderboardActivity extends BaseActivity {
 
         //connect to our leaderboard API
         String urlStr = getString(R.string.leaderboard_v2_url);
-        if (!getString(R.string.test_mode).equals("off")){
+        /*if (!getString(R.string.test_mode).equals("off")){
             urlStr = getString(R.string.test_leaderboard_v2_url);
-        }
+        }*/
 
         progress = new ProgressDialog(this);
 
@@ -55,47 +55,40 @@ public class LeaderboardActivity extends BaseActivity {
         // Request the transactions of the user first via JsonArrayRequest
         // according to our data format
         JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.POST,
-                urlStr, null, new Response.Listener<JSONArray>(){
+                urlStr, null, transactionListArray -> {
 
-            @Override
-            public void onResponse(JSONArray transactionListArray) {
+                    // Handle the result
+                    try {
 
-                // Handle the result
-                try {
+                        for (int i = 0; i < transactionListArray.length(); i++) {
+                            // Retrieve each JSON object within the JSON array
+                            JSONObject jsonObject = transactionListArray.getJSONObject(i);
 
-                    for (int i = 0; i < transactionListArray.length(); i++) {
-                        // Retrieve each JSON object within the JSON array
-                        JSONObject jsonObject = transactionListArray.getJSONObject(i);
+                            SinglePostModel postEntry = new SinglePostModel(jsonObject);
 
-                        SinglePostModel postEntry = new SinglePostModel(jsonObject);
+                            mAccountsFinalList.add(postEntry);
 
-                        mAccountsFinalList.add(postEntry);
+                        }
+                        // Create the adapter to convert the array to views
+                        listingAdapter = new LeaderboardEntryAdapter(leadership_post_context, mAccountsFinalList);
 
+                        mAccountsListView.setAdapter(listingAdapter);
+
+                        //hide dialog
+                        progress.hide();
+                        //actifitTransactions.setText("Response is: "+ response);
+                    }catch (Exception e) {
+                        //hide dialog
+                        progress.hide();
+                        //actifitTransactionsError.setVisibility(View.VISIBLE);
+                        e.printStackTrace();
                     }
-                    // Create the adapter to convert the array to views
-                    listingAdapter = new LeaderboardEntryAdapter(leadership_post_context, mAccountsFinalList);
 
-                    mAccountsListView.setAdapter(listingAdapter);
-
-                    //hide dialog
-                    progress.hide();
-                    //actifitTransactions.setText("Response is: "+ response);
-                }catch (Exception e) {
-                    //hide dialog
-                    progress.hide();
-                    //actifitTransactionsError.setVisibility(View.VISIBLE);
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //hide dialog
-                progress.hide();
-                //actifitTransactionsView.setText("Unable to fetch balance");
-                //actifitTransactionsError.setVisibility(View.VISIBLE);
-            }
+                }, error -> {
+            //hide dialog
+            progress.hide();
+            //actifitTransactionsView.setText("Unable to fetch balance");
+            //actifitTransactionsError.setVisibility(View.VISIBLE);
         });
 
 

@@ -729,17 +729,14 @@ public class WalletActivity extends BaseActivity {
                         BtnCheckBalance.clearAnimation();
                     }
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    //hide dialog
-                    progress.hide();
-                    //actifitTransactionsView.setText("Unable to fetch balance");
-                    actifitTransactionsError.setVisibility(View.VISIBLE);
-                    queriesFetched +=1;
-                    if (queriesFetched >= totalQueryCount){
-                        BtnCheckBalance.clearAnimation();
-                    }
+            }, error -> {
+                //hide dialog
+                progress.hide();
+                //actifitTransactionsView.setText("Unable to fetch balance");
+                actifitTransactionsError.setVisibility(View.VISIBLE);
+                queriesFetched +=1;
+                if (queriesFetched >= totalQueryCount){
+                    BtnCheckBalance.clearAnimation();
                 }
             });
 
