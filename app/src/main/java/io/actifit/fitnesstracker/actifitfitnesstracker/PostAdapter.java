@@ -2,6 +2,7 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Image;
 import android.os.Handler;
@@ -18,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,11 +51,12 @@ import java.util.Map;
 
 public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
-    String username, pkey;
     //JSONArray consumedProducts;
     ProgressDialog progress;
     Context ctx;
     ArrayList<SingleHivePostModel> postArray;
+    ListView socialView;
+    Context socialActivContext;
 
 
     public int Size(){
@@ -63,10 +66,11 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         return 0;
     }
 
-    public PostAdapter(Context context, ArrayList<SingleHivePostModel> postArray){
+    public PostAdapter(Context context, ArrayList<SingleHivePostModel> postArray, ListView socialView, Context socialActivContext){
         super(context, 0, postArray);
         this.postArray = postArray;
-
+        this.socialView = socialView;
+        this.socialActivContext = socialActivContext;
     }
 
     @Override
@@ -74,11 +78,13 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
         try {
 
+            ctx = getContext();
+
             // Get the data item for this position
             final SingleHivePostModel postEntry = getItem(position);
             // Check if an existing view is being reused, otherwise inflate the view
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.post_entry, parent, false);
+                convertView = LayoutInflater.from(ctx).inflate(R.layout.post_entry, parent, false);
             }
 
             // Lookup view for data population
@@ -98,14 +104,39 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             Button retractButton = convertView.findViewById(R.id.retract_button);
             TextView afitRewards= convertView.findViewById(R.id.afit_rewards);
             TextView payoutVal = convertView.findViewById(R.id.payout_val);
+            TextView activityType = convertView.findViewById(R.id.activity_type_list);
+            TextView activityCount = convertView.findViewById(R.id.activity_count);
+            LinearLayout activityTypeContainer = convertView.findViewById(R.id.activity_type_container);
+            LinearLayout activityCountContainer = convertView.findViewById(R.id.activity_count_container);
+            Button shareSocialButton = convertView.findViewById(R.id.share_social);
+
+            shareSocialButton.setOnClickListener(view -> {
+                shareSocial(postEntry);
+            });
+
+            TextView payoutIcon = convertView.findViewById(R.id.payout_icon);
+            payoutIcon.setOnClickListener(view -> {
+                Toast.makeText(ctx, ctx.getString(R.string.payout_details),Toast.LENGTH_SHORT).show();
+            });
+
+            TextView hivePayoutIcon = convertView.findViewById(R.id.payout_val);
+            hivePayoutIcon.setOnClickListener(view -> {
+                Toast.makeText(ctx, ctx.getString(R.string.hive_payout_details),Toast.LENGTH_SHORT).show();
+            });
+
+            TextView afitPayoutIcon = convertView.findViewById(R.id.afit_rewards);
+            afitPayoutIcon.setOnClickListener(view -> {
+                Toast.makeText(ctx, ctx.getString(R.string.afit_payout_details),Toast.LENGTH_SHORT).show();
+            });
 
             // Populate the data into the template view using the data object
 
             //checkmark
             String checkMark = "&#10003;";//"&#9989;";//"✅";
             String xMark = "&#10006;";//"&#10060;";//"❌";
-            int colorSuccess = getContext().getResources().getColor(R.color.actifitDarkGreen);
-            int colorFail = getContext().getResources().getColor(R.color.actifitRed);
+            String hourglass = "&#8987;";
+            int colorSuccess = ctx.getResources().getColor(R.color.actifitDarkGreen);
+            int colorPending = ctx.getResources().getColor(R.color.actifitRed);
 
 
             //map post content
@@ -125,9 +156,50 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             mdView.setMDText(finalShortenedContent);
 
-            afitRewards.setText(postEntry.afitRewards+"");
+            String activityTypeStr = postEntry.getActivityType();
+            activityType.setText(activityTypeStr);
+            if (activityTypeStr==""){
+                activityTypeContainer.setVisibility(View.GONE);
+            }else{
+                activityTypeContainer.setVisibility(View.VISIBLE);
+            }
 
-            payoutVal.setText(grabPostPayout(postEntry));
+            String activityCountStr = postEntry.getActivityCount(true);
+
+
+            if (activityCountStr==""){
+                activityCountContainer.setVisibility(View.GONE);
+            }else{
+                activityCountContainer.setVisibility(View.VISIBLE);
+
+                //only display AFIT rewards on content with activity count
+                //afitRewards.setText (Html.fromHtml(postEntry.afitRewards+" AFIT" + (postEntry.afitRewards>0?checkMark:hourglass)));
+                afitRewards.setText (Html.fromHtml(postEntry.afitRewards+" AFIT"));
+
+                //also adjust formatting of activity count
+                String activityCountStrNfmt = postEntry.getActivityCount(false);
+                Integer actiCountNo = Integer.parseInt(activityCountStrNfmt);
+                activityCount.setText(activityCountStr);
+                if (actiCountNo >= 10000 ){
+                    activityCount.setTextColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
+                }else if (actiCountNo >= 5000 ){
+                    activityCount.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
+                }else {
+                    activityCount.setTextColor(getContext().getResources().getColor(android.R.color.tab_indicator_text));
+                }
+
+            }
+
+
+
+
+            payoutVal.setText(Html.fromHtml(grabPostPayout(postEntry) + (isPaid(postEntry)?checkMark:hourglass)));
+
+            if (isPaid(postEntry)){
+                payoutVal.setTextColor(colorSuccess);
+            }else{
+                payoutVal.setTextColor(colorPending);
+            }
 
 
             author.setText('@'+postEntry.author);
@@ -137,7 +209,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             commentCount.setText(postEntry.children+"");
 
             //profile pic
-            final String userImgUrl = getContext().getString(R.string.hive_image_host_url).replace("USERNAME", postEntry.author);
+            final String userImgUrl = ctx.getString(R.string.hive_image_host_url).replace("USERNAME", postEntry.author);
 
 
             //fetch main post image
@@ -181,27 +253,35 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             scaler.setRepeatCount(Animation.INFINITE);
 
 
-            expandButton.setOnClickListener(view -> {
-                //expand text visibility
-                expandButton.setVisibility(View.INVISIBLE);
-                retractButton.setVisibility(View.VISIBLE);
-                mdView.setMDText(Utils.sanitizeContent(postEntry.body, true));
-
-                ViewGroup.LayoutParams layoutParams = mdView.getLayoutParams();
-                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-
-                mdView.setLayoutParams(layoutParams);
-
-                mainImage.setVisibility(View.GONE);
+            mainImage.setOnClickListener(view -> {
+                if (expandButton.getVisibility() == View.VISIBLE) {
+                    expandPost(expandButton, retractButton, mdView, mainImage, postEntry);
+                }else{
+                    retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent);
+                }
             });
 
-            retractButton.setOnClickListener(view -> {
-                //retract text visibility
-                expandButton.setVisibility(View.VISIBLE);
-                retractButton.setVisibility(View.INVISIBLE);
+            mdView.setOnClickListener(view -> {
+                if (expandButton.getVisibility() == View.VISIBLE) {
+                    expandPost(expandButton, retractButton, mdView, mainImage, postEntry);
+                }else{
+                    retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent);
+                }
+            });
 
-                mdView.setMDText(finalShortenedContent);
-                mainImage.setVisibility(View.VISIBLE);
+            expandButton.setOnClickListener(view -> {
+                if (expandButton.getVisibility() == View.VISIBLE) {
+                    expandPost(expandButton, retractButton, mdView, mainImage, postEntry);
+                }else{
+                    retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent);
+                }
+            });
+
+
+
+            retractButton.setOnClickListener(view -> {
+                retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent);
+
             });
 
             //activate gadget functionality
@@ -440,6 +520,59 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    void shareSocial(SingleHivePostModel postEntry){
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        String shareSubject = ctx.getString(R.string.post_title_other);
+        String shareBody = ctx.getString(R.string.post_description);
+        shareBody += ctx.getString(R.string.post_title_other) + " "+ctx.getString(R.string.actifit_url)+postEntry.author+"/"+postEntry.permlink;
+
+        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+
+        socialActivContext.startActivity(Intent.createChooser(sharingIntent, ctx.getString(R.string.share_via)));
+
+    }
+
+    void expandPost(Button expandButton, Button retractButton, MarkedView mdView, ImageView mainImage, SingleHivePostModel postEntry){
+        //expand text visibility
+        expandButton.setVisibility(View.GONE);
+        retractButton.setVisibility(View.VISIBLE);
+        mdView.setMDText(Utils.sanitizeContent(postEntry.body, true));
+
+        ViewGroup.LayoutParams layoutParams = mdView.getLayoutParams();
+        layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+        mdView.setLayoutParams(layoutParams);
+
+        mainImage.setVisibility(View.GONE);
+    }
+
+    void retractPost(Button expandButton, Button retractButton, MarkedView mdView, ImageView mainImage, String finalShortenedContent){
+        //retract text visibility
+        expandButton.setVisibility(View.VISIBLE);
+        retractButton.setVisibility(View.GONE);
+
+        //maintain current position after close
+        int currentPosition = socialView.getFirstVisiblePosition();
+        View v = socialView.getChildAt(0);
+        int topOffset = (v == null) ? 0 : v.getTop();
+
+        // Restore the scroll position
+        socialView.setSelectionFromTop(currentPosition, topOffset);
+
+        mdView.setMDText(finalShortenedContent);
+        mainImage.setVisibility(View.VISIBLE);
+    }
+
+    private Boolean isPaid(SingleHivePostModel postEntry){
+        if (postEntry.is_paidout){
+            return true;
+        }
+        return false;
     }
 
     private String grabPostPayout(SingleHivePostModel postEntry) {

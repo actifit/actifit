@@ -313,9 +313,10 @@ public class SocialActivity extends BaseActivity {
                 //Collections.sort(posts);
                 // Create the adapter to convert the array to views
                 //String pkey = sharedPreferences.getString("actifitPst", "");
-                postAdapter = new PostAdapter(getApplicationContext(), posts);
+                postAdapter = new PostAdapter(getApplicationContext(), posts, socialView, SocialActivity.this);
 
                 if (!showFullProgress) {
+
                     //case for maintaining scroll position upon append
                     int currentPosition = socialView.getFirstVisiblePosition();
                     View v = socialView.getChildAt(0);
@@ -326,6 +327,7 @@ public class SocialActivity extends BaseActivity {
 
                     // Restore the scroll position
                     socialView.setSelectionFromTop(currentPosition, topOffset);
+
                 }else{
                     socialView.setAdapter(postAdapter);
                 }
