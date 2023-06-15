@@ -52,7 +52,7 @@
 
             <FrameLayout android:id="@+id/author_pic_container"
                 android:layout_width="36dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:paddingTop="0dp"
                 >
 
@@ -123,6 +123,7 @@
             />
 
         <LinearLayout
+            android:id="@+id/post_preview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp">
@@ -169,23 +170,146 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
 
+            <LinearLayout
+                android:id="@+id/activity_type_container"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="left">
+
+                <TextView
+                    android:id="@+id/activity_type"
+                    android:text="@string/activity_type_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    />
+
+                <TextView
+                    android:id="@+id/activity_type_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/activity_count_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="right"
+                android:gravity="right">
+
+                <TextView
+                    android:id="@+id/steemit_step_count_lbl"
+                    android:text="@string/activity_count_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    />
+
+                <TextView
+                    android:id="@+id/activity_count"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="left"
+            android:paddingLeft="10dp">
+
+
+
+            <TextView
+                android:id="@+id/payout_icon"
+                android:layout_width="45dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:textColor="@color/actifitRed"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf3d1"
+                android:textSize="35dp"
+
+                android:paddingLeft="5dp"
+                />
+
+
+            <TextView
+                android:id="@+id/payout_val"
+                android:text="0"
+                android:paddingLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                />
+
+
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/hive"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:gravity="right">
+
+
+
+                <TextView
+                    android:id="@+id/afit_rewards"
+                    android:text="0"
+                    android:paddingLeft="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    />
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/actifit_logo" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:paddingLeft="10dp">
 
             <Button
                 style="@style/AppTheme.ActifitButton"
                 android:id="@+id/upvote_button"
-                android:layout_width="wrap_content"
+                android:layout_width="45dp"
                 android:layout_height="wrap_content"
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf164"
                 android:layout_weight="1"
+                android:paddingRight="5dp"
                 />
 
             <TextView
@@ -200,7 +324,7 @@
             <Button
                 style="@style/AppTheme.ActifitButton"
                 android:id="@+id/comment_button"
-                android:layout_width="wrap_content"
+                android:layout_width="45dp"
                 android:layout_height="wrap_content"
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
@@ -220,7 +344,7 @@
             <Button
                 style="@style/AppTheme.ActifitButton"
                 android:id="@+id/expand_button"
-                android:layout_width="wrap_content"
+                android:layout_width="45dp"
                 android:layout_height="wrap_content"
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
@@ -231,7 +355,7 @@
             <Button
                 style="@style/AppTheme.ActifitButton"
                 android:id="@+id/retract_button"
-                android:layout_width="wrap_content"
+                android:layout_width="45dp"
                 android:layout_height="wrap_content"
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
@@ -240,48 +364,20 @@
                 android:visibility="invisible"
                 />
 
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/share_social"
+                android:layout_width="45dp"
+                android:layout_height="wrap_content"
+                android:textSize="14dp"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf1e0"
+                android:layout_weight="1"
+                />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
 
-            <TextView
-                android:id="@+id/payout_val"
-                android:text="0"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
-
-
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/hive"
-                />
-
-            <TextView
-                android:id="@+id/afit_rewards"
-                android:text="0"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
-
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/actifit_logo" />
-
-
-
-        </LinearLayout>
 
     </LinearLayout>
 
