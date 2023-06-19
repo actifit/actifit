@@ -15,9 +15,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.AnticipateInterpolator;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -316,41 +318,36 @@ public class LoginActivity extends BaseActivity {
         loginBtn = findViewById(R.id.loginButton);
         skipBtn = findViewById(R.id.skipButton);
 
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //validate input values
-                if (userEntry.length()==0){
-                    userEntry.setError(getString(R.string.field_required));
-                }
-                if (keyEntry.length()==0){
-                    keyEntry.setError(getString(R.string.field_required));
-                }
-                try {
-                    //show progress
-                    progress = new ProgressDialog(ctx);
-                    progress.setMessage(getString(R.string.validating_credentials));
-                    //if (progress.getWindow().isActive()) {
-                    progress.show();
-                    //}
-                }catch(Exception excp){
-                    Log.e(MainActivity.TAG, "Dialog error login");
-                }
 
-                //reset access token
-                accessToken = "";
-                queryAPI(userEntry.getText().toString().toLowerCase().trim(), keyEntry.getText().toString(), false);
+        //handle enter keys in username/key fields
+        userEntry.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL){
+                    //event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                handleLoginCase();
+                // Return true to indicate that the event has been handled
+                return true;
             }
-
+            // Return false if the event should propagate to other listeners
+            return false;
         });
 
-        skipBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                proceedMain();
+        keyEntry.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL){
+                    //event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                handleLoginCase();
+                // Return true to indicate that the event has been handled
+                return true;
             }
-
+            // Return false if the event should propagate to other listeners
+            return false;
         });
+
+        //handle login button click
+        loginBtn.setOnClickListener(view -> {
+            handleLoginCase();
+        });
+
+        skipBtn.setOnClickListener(view -> proceedMain());
 
 
 
@@ -365,5 +362,32 @@ public class LoginActivity extends BaseActivity {
         LinearLayout loginContainer = findViewById(R.id.loginContainer);
         loginContainer.setVisibility(View.VISIBLE);
 
+    }
+
+    private void handleLoginCase(){
+        //validate input values
+        if (userEntry.length()==0){
+            userEntry.setError(getString(R.string.field_required));
+            return;
+        }
+        if (keyEntry.length()==0){
+            keyEntry.setError(getString(R.string.field_required));
+            return;
+        }
+        try {
+            //show progress
+            progress = new ProgressDialog(ctx);
+            progress.setMessage(getString(R.string.validating_credentials));
+            //if (progress.getWindow().isActive()) {
+            progress.show();
+            //}
+        }catch(Exception excp){
+            Log.e(MainActivity.TAG, "Dialog error login");
+            return;
+        }
+
+        //reset access token
+        accessToken = "";
+        queryAPI(userEntry.getText().toString().toLowerCase().trim(), keyEntry.getText().toString(), false);
     }
 }
