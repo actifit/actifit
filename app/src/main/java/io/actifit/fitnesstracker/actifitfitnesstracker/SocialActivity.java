@@ -232,120 +232,136 @@ public class SocialActivity extends BaseActivity {
 
         HiveRequests hiveReq = new HiveRequests(this);
 
-        try {
-            JSONObject params = new JSONObject();
-            params.put("sort", sort);
-            params.put("tag", tag);
-            params.put("start_author",start_author);
-            params.put("start_permlink",start_permlink);
+        Thread thread = new Thread(() -> {
 
-            //progress = new ProgressBar(this);
-            // progress = new ProgressDialog(this);
-            if (showFullProgress) {
-                progress.setVisibility(View.VISIBLE);
-            }
+            try {
+                JSONObject params = new JSONObject();
+                params.put("sort", sort);
+                params.put("tag", tag);
+                params.put("start_author", start_author);
+                params.put("start_permlink", start_permlink);
 
-            CompletableFuture<JSONArray> future = hiveReq.getRankedPosts(params);
+                //progress = new ProgressBar(this);
+                // progress = new ProgressDialog(this);
+                if (showFullProgress) {
+                    progress.setVisibility(View.VISIBLE);
+                }
+
+            /*CompletableFuture<JSONArray> future = hiveReq.getRankedPosts(params);
 
             future.thenAccept(result -> {
                 // Handle the array response here
                 // Handle the result
                 try {
-
-                    //grab array from result
-
-                    SingleHivePostModel lastPost = null;
-
-                    for (int i = 0; i < result.length(); i++) {
-                        // Retrieve each JSON object within the JSON array
-                        //JSONObject jsonObject = new JSONObject()
-
-                        SingleHivePostModel postEntry = new SingleHivePostModel((result.getJSONObject(i)));
-                        lastPost = postEntry;
-                        posts.add(postEntry);
-                        //grab post AFIT rewards
-
-                        Thread thread = new Thread(() -> {
-                            try {
-                                //send out server notification registration with username and token
-                                String reqUrl = getString(R.string.post_rewards_api_url).replace("_USER_", postEntry.author).replace("_URL_",postEntry.url);
-
-                                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, reqUrl, null,
-                                        response -> {
-                                            try {
-                                                //Double afitRewards = Double.parseDouble();
-                                                postEntry.afitRewards = Double.parseDouble(response.getDouble("token_count")+"");
-                                                //callback.onSuccess(response.getString(soughtVal));
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        },
-                                        error -> Log.e(TAG,error.getMessage()));
-
-                                // Add the request to the request queue
-                                // (Assuming you have a RequestQueue instance named "requestQueue")
-                                queue.add(request);
-
-                                //postEntry.afitRewards = Double.parseDouble(afitRewards);
-                            } catch (Exception e) {
-                                Log.e(TAG, e.getMessage());
-                            }
-                        });
-                        thread.start();
-
-                    }
-
-                    //update last loaded post author and permlink for pagination purposes
-                    if (lastPost != null ) {
-                        start_author = lastPost.author;
-                        start_permlink = lastPost.permlink;
-                    }
-                    //Collections.sort(posts);
-                    // Create the adapter to convert the array to views
-                    //String pkey = sharedPreferences.getString("actifitPst", "");
-                    postAdapter = new PostAdapter(getApplicationContext(), posts, socialView, SocialActivity.this);
-
-                    if (!showFullProgress) {
-
-                        //case for maintaining scroll position upon append
-                        int currentPosition = socialView.getFirstVisiblePosition();
-                        View v = socialView.getChildAt(0);
-                        int topOffset = (v == null) ? 0 : v.getTop();
-
-                        // Set the new adapter
-                        socialView.setAdapter(postAdapter);
-
-                        // Restore the scroll position
-                        socialView.setSelectionFromTop(currentPosition, topOffset);
-
-                    }else{
-                        socialView.setAdapter(postAdapter);
-                    }
-
-                    //hide dialog
-                    progress.setVisibility(View.GONE);
-
-                    //hide load more button
-                    loadMoreBtn.setVisibility(View.INVISIBLE);
-                    //progress.hide();
-                    //actifitTransactions.setText("Response is: "+ response);
+*/
 
 
-                }catch (Exception e) {
-                    //hide dialog
-                    progress.setVisibility(View.GONE);
-                    //progress.hide();
-                    //actifitTransactionsError.setVisibility(View.VISIBLE);
-                    e.printStackTrace();
+                //grab array from result
+                JSONArray result = hiveReq.getRankedPosts(params);
+                SingleHivePostModel lastPost = null;
+
+                for (int i = 0; i < result.length(); i++) {
+                    // Retrieve each JSON object within the JSON array
+                    //JSONObject jsonObject = new JSONObject()
+
+                    SingleHivePostModel postEntry = new SingleHivePostModel((result.getJSONObject(i)));
+                    lastPost = postEntry;
+                    posts.add(postEntry);
+                    //grab post AFIT rewards
+
+                    //Thread thread = new Thread(() -> {
+                        try {
+                            //send out server notification registration with username and token
+                            String reqUrl = getString(R.string.post_rewards_api_url).replace("_USER_", postEntry.author).replace("_URL_", postEntry.url);
+
+                            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, reqUrl, null,
+                                    response -> {
+                                        try {
+                                            //Double afitRewards = Double.parseDouble();
+                                            postEntry.afitRewards = Double.parseDouble(response.getDouble("token_count") + "");
+                                            //callback.onSuccess(response.getString(soughtVal));
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    },
+                                    error -> Log.e(TAG, error.getMessage()));
+
+                            // Add the request to the request queue
+                            // (Assuming you have a RequestQueue instance named "requestQueue")
+                            queue.add(request);
+
+                            //postEntry.afitRewards = Double.parseDouble(afitRewards);
+                        } catch (Exception e) {
+                            Log.e(TAG, e.getMessage());
+                        }
+                    //});
+                    //thread.start();
+
                 }
 
-            }).exceptionally(error -> {
+                //update last loaded post author and permlink for pagination purposes
+                if (lastPost != null) {
+                    start_author = lastPost.author;
+                    start_permlink = lastPost.permlink;
+                }
+                //Collections.sort(posts);
+                // Create the adapter to convert the array to views
+                //String pkey = sharedPreferences.getString("actifitPst", "");
+                postAdapter = new PostAdapter(getApplicationContext(), posts, socialView, SocialActivity.this);
+
+                // Execute UI-related code on the main thread
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                if (!showFullProgress) {
+
+                    //case for maintaining scroll position upon append
+                    int currentPosition = socialView.getFirstVisiblePosition();
+                    View v = socialView.getChildAt(0);
+                    int topOffset = (v == null) ? 0 : v.getTop();
+
+                    // Set the new adapter
+                    socialView.setAdapter(postAdapter);
+
+                    // Restore the scroll position
+                    socialView.setSelectionFromTop(currentPosition, topOffset);
+
+                } else {
+                    socialView.setAdapter(postAdapter);
+                }
+
+                //hide dialog
+                progress.setVisibility(View.GONE);
+
+                //hide load more button
+                loadMoreBtn.setVisibility(View.INVISIBLE);
+                //progress.hide();
+                //actifitTransactions.setText("Response is: "+ response);
+                    }
+                });
+
+
+            } catch (Exception e) {
+                //hide dialog
+                progress.setVisibility(View.GONE);
+                //progress.hide();
+                //actifitTransactionsError.setVisibility(View.VISIBLE);
+                e.printStackTrace();
+            }
+
+
+
+        });
+        thread.start();
+
+           /* }).exceptionally(error -> {
                 // Handle the error response here
                 progress.setVisibility(View.GONE);
                 System.out.println(error.getMessage());
                 Log.d(TAG, ">>>test:" + error.getMessage());
                 return null;
-            });
+            });*/
 
 
 
@@ -355,9 +371,9 @@ public class SocialActivity extends BaseActivity {
 
 
 
-        } catch (JSONException e) {
+        /*} catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
 
 
     }
