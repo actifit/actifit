@@ -6,55 +6,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardBackgroundColor="@color/ic_launcher_background"
     app:cardElevation="10dp"
-    app:cardCornerRadius="4dp"
-    android:layout_marginLeft="4dp"
-    app:cardUseCompatPadding="true"
-    >
-    <!--
-
     app:cardCornerRadius="10dp"
     android:layout_margin="10dp"
-
+    app:cardBackgroundColor="@color/ic_launcher_background"
     app:cardMaxElevation="12dp"
     app:cardPreventCornerOverlap="true"
-    app:cardUseCompatPadding="true"
-    -->
-
+    app:cardUseCompatPadding="true">
 
 
     <LinearLayout
-        android:id="@+id/post_entry_container"
+        android:id="@+id/comment_entry_container"
         android:paddingTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="10dp">
-
-
-
-            <TextView
-                android:id="@+id/title"
-                android:text="title_placeholder"
-                android:paddingLeft="0dp"
-                android:paddingRight="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textSize="20dp"
-                />
-
-        </LinearLayout>
 
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="10dp"
@@ -80,9 +52,9 @@
 
             <TextView
                 android:id="@+id/author"
-                android:layout_width="wrap_content"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:maxWidth="150dp"
+
                 android:gravity="start"
                 android:textColor="@color/actifitRed"
                 android:textSize="16sp" />
@@ -117,22 +89,14 @@
 
             <TextView
                 android:id="@+id/date"
-                android:layout_width="match_parent"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:maxWidth="150dp"
-                android:gravity="end"
+
+                android:gravity="start"
                 android:textColor="@color/actifitRed"
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <ImageView android:id="@+id/post_image"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:src="@drawable/actifit_logo"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            />
 
         <LinearLayout
             android:id="@+id/post_preview"
@@ -152,15 +116,6 @@
                />
 
 
-            <!--<TextView
-                android:id="@+id/body"
-                android:text="body_placeholder"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                />-->
 
         </LinearLayout>
 
@@ -182,63 +137,7 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp">
 
-            <LinearLayout
-                android:id="@+id/activity_type_container"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="left">
-
-                <TextView
-                    android:id="@+id/activity_type"
-                    android:text="@string/activity_type_lbl"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    />
-
-                <TextView
-                    android:id="@+id/activity_type_list"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/activity_count_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="right"
-                android:gravity="right">
-
-                <TextView
-                    android:id="@+id/steemit_step_count_lbl"
-                    android:text="@string/activity_count_lbl"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    />
-
-                <TextView
-                    android:id="@+id/activity_count"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
-            </LinearLayout>
-
-
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -297,7 +196,6 @@
                     />
 
                 <ImageView
-                    android:id="@+id/afit_logo"
                     android:layout_width="35dp"
                     android:layout_height="match_parent"
                     android:src="@drawable/actifit_logo" />
@@ -390,17 +288,15 @@
 
         </LinearLayout>
 
-        <ListView
-            android:id="@+id/comments_list"
+        <LinearLayout
+            android:id="@+id/comments_container"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:dividerHeight="0dp"
-            android:divider="#0000CC"
-            android:visibility="gone"
-            android:paddingLeft="10dp"
-            />
+            android:layout_height="wrap_content"
+
+            android:orientation="vertical">
 
 
+        </LinearLayout>
 
     </LinearLayout>
 
