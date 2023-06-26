@@ -313,18 +313,20 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
                 final String mainImageUrl = fetchedImageUrl;
 
-                Handler uiHandler = new Handler(Looper.getMainLooper());
-                uiHandler.post(() -> {
-                    //load user image
-                    Picasso.get()
-                            .load(userImgUrl)
-                            .into(userProfilePic);
+                    Handler uiHandler = new Handler(Looper.getMainLooper());
+                    uiHandler.post(() -> {
+                        //load user image
+                        Picasso.get()
+                                .load(userImgUrl)
+                                .into(userProfilePic);
+                        if (mainImageUrl!="") {
+                            Picasso.get()
+                                    .load(mainImageUrl)
+                                    .into(mainImage);
+                            mainImage.setVisibility(View.VISIBLE);
+                        }
+                    });
 
-                    Picasso.get()
-                            .load(mainImageUrl)
-                            .into(mainImage);
-                    mainImage.setVisibility(View.VISIBLE);
-                });
                 afitLogo.setVisibility(View.VISIBLE);
             }else{
                 //hide post only sections
