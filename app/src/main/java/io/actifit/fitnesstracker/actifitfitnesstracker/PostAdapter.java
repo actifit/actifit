@@ -1,15 +1,18 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Image;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -24,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 
 import com.android.volley.AuthFailureError;
@@ -48,6 +52,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+
 
 public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
@@ -57,7 +63,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     ArrayList<SingleHivePostModel> postArray;
     ListView socialView;
     Context socialActivContext;
-
+    ListView commentsList;
+    Boolean isComment;//flag whether this is a post or a comment
 
     public int Size(){
         if (postArray !=null && postArray.size()>0) {
@@ -66,13 +73,16 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         return 0;
     }
 
-    public PostAdapter(Context context, ArrayList<SingleHivePostModel> postArray, ListView socialView, Context socialActivContext){
+    public PostAdapter(Context context, ArrayList<SingleHivePostModel> postArray, ListView socialView, Context socialActivContext, Boolean isComment){
         super(context, 0, postArray);
         this.postArray = postArray;
         this.socialView = socialView;
         this.socialActivContext = socialActivContext;
+        this.isComment = isComment;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -103,29 +113,65 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             Button expandButton = convertView.findViewById(R.id.expand_button);
             Button retractButton = convertView.findViewById(R.id.retract_button);
             TextView afitRewards= convertView.findViewById(R.id.afit_rewards);
+            ImageView afitLogo = convertView.findViewById(R.id.afit_logo);
             TextView payoutVal = convertView.findViewById(R.id.payout_val);
             TextView activityType = convertView.findViewById(R.id.activity_type_list);
             TextView activityCount = convertView.findViewById(R.id.activity_count);
             LinearLayout activityTypeContainer = convertView.findViewById(R.id.activity_type_container);
             LinearLayout activityCountContainer = convertView.findViewById(R.id.activity_count_container);
             Button shareSocialButton = convertView.findViewById(R.id.share_social);
+            Button commentButton = convertView.findViewById(R.id.comment_button);
+            Button upvoteButton = convertView.findViewById(R.id.upvote_button);
+            commentsList = convertView.findViewById(R.id.comments_list);
 
-            shareSocialButton.setOnClickListener(view -> {
-                shareSocial(postEntry);
+            if (postEntry.commentsExpanded){
+                commentsList.setVisibility(View.VISIBLE);
+            }else{
+                commentsList.setVisibility(View.GONE);
+            }
+
+
+            View finalConvertView = convertView;
+
+            upvoteButton.setOnClickListener(view ->{
+                //open modal for voting, passing the currently selected post/comment for vote
+
             });
+
+            commentButton.setOnClickListener(view -> {
+                //if it is already visible, hide it
+                commentsList = finalConvertView.findViewById(R.id.comments_list);
+                if (commentsList.getVisibility() == View.VISIBLE){
+                    commentsList.setVisibility(View.GONE);
+                    postEntry.commentsExpanded = false;
+                }else {
+                    Thread thread = new Thread(() -> {
+                        //load data
+                        postEntry.comments = loadComments(postEntry);
+                        runOnUiThread(() -> {
+
+                            PostAdapter commentAdapter = new PostAdapter(ctx, postEntry.comments, socialView, socialActivContext, true);
+                            commentsList.setAdapter(commentAdapter);
+                            commentsList.setVisibility(View.VISIBLE);
+                            postEntry.commentsExpanded = true;
+                        });
+                    });
+                    thread.start();
+                }
+            });
+
+            shareSocialButton.setOnClickListener(view -> shareSocial(postEntry));
 
             TextView payoutIcon = convertView.findViewById(R.id.payout_icon);
             payoutIcon.setOnClickListener(view -> {
                 Toast.makeText(ctx, ctx.getString(R.string.payout_details),Toast.LENGTH_SHORT).show();
             });
 
-            TextView hivePayoutIcon = convertView.findViewById(R.id.payout_val);
-            hivePayoutIcon.setOnClickListener(view -> {
+            payoutVal.setOnClickListener(view -> {
                 Toast.makeText(ctx, ctx.getString(R.string.hive_payout_details),Toast.LENGTH_SHORT).show();
             });
 
-            TextView afitPayoutIcon = convertView.findViewById(R.id.afit_rewards);
-            afitPayoutIcon.setOnClickListener(view -> {
+            afitRewards.setOnClickListener(view -> {
                 Toast.makeText(ctx, ctx.getString(R.string.afit_payout_details),Toast.LENGTH_SHORT).show();
             });
 
@@ -208,31 +254,67 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             upvoteCount.setText(postEntry.active_votes.length()+"");
             commentCount.setText(postEntry.children+"");
 
-            //profile pic
-            final String userImgUrl = ctx.getString(R.string.hive_image_host_url).replace("USERNAME", postEntry.author);
+            //show comment content
+            /*PostAdapter commentAdapter = new PostAdapter(ctx, postEntry.comments, socialView, this.socialActivContext, false);
+
+            // Execute UI-related code on the main thread
+            commentsList = convertView.findViewById(R.id.comments_list);
+            commentsList.setAdapter(commentAdapter);
+            commentsList.setMinimumHeight(200);
 
 
-            //fetch main post image
-            String fetchedImageUrl = "";
-            try {
-                JSONObject jsonMetadata = postEntry.json_metadata;
-                if (jsonMetadata.has("image")) {
-                    JSONArray imageArray = jsonMetadata.getJSONArray("image");
-                    if (imageArray.length() > 0) {
-                        fetchedImageUrl = imageArray.getString(0);
+            commentsList.setVisibility(View.VISIBLE);*/
+            commentsList = convertView.findViewById(R.id.comments_list);
+
+            //ensure proper scrollability under each post/comment/subcomment list
+            commentsList.setOnTouchListener((v, event) -> {
+                ListView parentListView = Utils.findParentListView(v);
+                if (parentListView != null) {
+                    int action = event.getActionMasked();
+
+                    switch (action) {
+                        case MotionEvent.ACTION_DOWN:
+                            // Disable parent ListView scrolling on touch down
+                            parentListView.requestDisallowInterceptTouchEvent(true);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                        case MotionEvent.ACTION_CANCEL:
+                            // Enable parent ListView scrolling on touch up or cancel
+                            parentListView.requestDisallowInterceptTouchEvent(false);
+                            break;
                     }
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+                // Handle touch events for the nested ListView
+                return false;
+            });
 
-            final String mainImageUrl = fetchedImageUrl;
+            //only show this under no comments to save phone space
+            if (!this.isComment) {
+                //show title
+                title.setVisibility(View.VISIBLE);
+                afitRewards.setVisibility(View.VISIBLE);
+                //profile pic
+                final String userImgUrl = ctx.getString(R.string.hive_image_host_url).replace("USERNAME", postEntry.author);
 
-            Handler uiHandler = new Handler(Looper.getMainLooper());
-            uiHandler.post(new Runnable(){
-                @Override
-                public void run() {
-                    //Picasso.with(ctx)
+
+                //fetch main post image
+                String fetchedImageUrl = "";
+                try {
+                    JSONObject jsonMetadata = postEntry.json_metadata;
+                    if (jsonMetadata.has("image")) {
+                        JSONArray imageArray = jsonMetadata.getJSONArray("image");
+                        if (imageArray.length() > 0) {
+                            fetchedImageUrl = imageArray.getString(0);
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                final String mainImageUrl = fetchedImageUrl;
+
+                Handler uiHandler = new Handler(Looper.getMainLooper());
+                uiHandler.post(() -> {
                     //load user image
                     Picasso.get()
                             .load(userImgUrl)
@@ -241,10 +323,17 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     Picasso.get()
                             .load(mainImageUrl)
                             .into(mainImage);
-                }
-            });
-
-
+                    mainImage.setVisibility(View.VISIBLE);
+                });
+                afitLogo.setVisibility(View.VISIBLE);
+            }else{
+                //hide post only sections
+                mainImage.setVisibility(View.GONE);
+                title.setVisibility(View.GONE);
+                afitRewards.setVisibility(View.GONE);
+                expandButton.setVisibility(View.GONE);
+                afitLogo.setVisibility(View.GONE);
+            }
 
             ScaleAnimation scaler;
             scaler = new ScaleAnimation(1f, 0.8f, 1f,0.8f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
@@ -253,7 +342,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             scaler.setRepeatCount(Animation.INFINITE);
 
 
-            mainImage.setOnClickListener(view -> {
+            /*mainImage.setOnClickListener(view -> {
                 if (expandButton.getVisibility() == View.VISIBLE) {
                     expandPost(expandButton, retractButton, mdView, mainImage, postEntry);
                 }else{
@@ -267,7 +356,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 }else{
                     retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent);
                 }
-            });
+            });*/
 
             expandButton.setOnClickListener(view -> {
                 if (expandButton.getVisibility() == View.VISIBLE) {
@@ -279,10 +368,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
 
 
-            retractButton.setOnClickListener(view -> {
-                retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent);
-
-            });
+            retractButton.setOnClickListener(view -> retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent));
 
             //activate gadget functionality
             /*
@@ -522,6 +608,30 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         return convertView;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    ArrayList<SingleHivePostModel> loadComments(SingleHivePostModel postEntry){
+        HiveRequests hiveReq = new HiveRequests(ctx);
+        ArrayList<SingleHivePostModel> commentList = new ArrayList<>();
+        //Thread thread = new Thread(() -> {
+            try {
+                JSONObject params = new JSONObject();
+                params.put("author", postEntry.author);
+                params.put("permlink", postEntry.permlink);
+                JSONArray result = hiveReq.getComments(params);
+                for (int i = 0; i < result.length(); i++) {
+                    //comments are basically like posts under hive
+                    SingleHivePostModel commentEntry = new SingleHivePostModel((result.getJSONObject(i)));
+                    commentList.add(commentEntry);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return commentList;
+        //});
+        //thread.start();
+
+    }
+
     void shareSocial(SingleHivePostModel postEntry){
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
@@ -569,8 +679,10 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     }
 
     private Boolean isPaid(SingleHivePostModel postEntry){
-        if (postEntry.is_paidout){
-            return true;
+        if (postEntry!=null){
+            if (postEntry.is_paidout) {
+                return true;
+            }
         }
         return false;
     }
@@ -579,7 +691,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         if (postEntry.total_payout_value != null && Double.parseDouble(postEntry.total_payout_value.replaceAll("[^\\d.]", "")) != 0) return postEntry.total_payout_value;
         if (postEntry.author_payout_value != null && Double.parseDouble(postEntry.author_payout_value.replaceAll("[^\\d.]", "")) != 0) return postEntry.author_payout_value;
         if (postEntry.pending_payout_value != null && Double.parseDouble(postEntry.pending_payout_value.replaceAll("[^\\d.]", "")) != 0) return postEntry.pending_payout_value;
-        return "";
+        return "0.0";
     }
 
 }
