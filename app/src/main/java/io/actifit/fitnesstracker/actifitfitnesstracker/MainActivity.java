@@ -69,6 +69,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.FileProvider;
@@ -116,6 +117,12 @@ import com.google.android.gms.ads.rewarded.ServerSideVerificationOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.ump.ConsentDebugSettings;
+import com.google.android.ump.ConsentForm;
+import com.google.android.ump.ConsentInformation;
+import com.google.android.ump.ConsentRequestParameters;
+import com.google.android.ump.FormError;
+import com.google.android.ump.UserMessagingPlatform;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -280,6 +287,9 @@ public class MainActivity extends BaseActivity{
 
     ScaleAnimation scaler;
     Button BtnPostSteemit;
+
+    private ConsentInformation consentInformation;
+    private ConsentForm consentForm;
 
     /* news tab related variables */
 
@@ -1561,7 +1571,8 @@ public class MainActivity extends BaseActivity{
             }
         });
 
-        loadRewardedAd();
+        //loadRewardedAd();
+        loadConsentData(true);
     }
 
     private void loadRewardedAd(){
@@ -1569,6 +1580,7 @@ public class MainActivity extends BaseActivity{
             isAdLoading = true;
             AdRequest adRequest = new AdRequest.Builder().build();
 
+            //check if we are good to load ads based on consent data
 
             RewardedAd.load(this, getString(R.string.admob_ad_unit_1),
                     adRequest, new RewardedAdLoadCallback() {
@@ -1647,7 +1659,9 @@ public class MainActivity extends BaseActivity{
 
         if (rewardedAd == null) {
             Log.d("TAG", "The rewarded ad wasn't ready yet.");
-            loadRewardedAd();
+            //loadRewardedAd();
+            //check for consent and load ad
+            loadConsentData(true);
             return;
         }
 
@@ -3920,6 +3934,10 @@ public class MainActivity extends BaseActivity{
                 }
 
 
+            //require now for GDPR and ad display
+            loadConsentData(false);
+
+
             //check if user has a proper unique ID already, if not generate one
             String actifitUserID = sharedPreferences.getString("actifitUserID","");
             if (actifitUserID.equals("")) {
@@ -4029,5 +4047,94 @@ public class MainActivity extends BaseActivity{
         fullChartButton.setVisibility(View.GONE);
         thirdPartyTracking.setVisibility(View.VISIBLE);
     }
+
+
+    public void showConsentForm(){
+        consentForm.show(
+                MainActivity.this,
+                formError -> {
+                    // Handle dismissal by reloading form.
+                    loadForm(false);
+                });
+    }
+
+    private void loadConsentData(Boolean goForAds){
+
+        ConsentDebugSettings debugSettings = new ConsentDebugSettings.Builder(this)
+                .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
+                .addTestDeviceHashedId(getString(R.string.test_app_id))
+                .build();
+
+        // Set tag for under age of consent. false means users are not under
+        // age.
+        ConsentRequestParameters params = new ConsentRequestParameters
+                .Builder()
+        //testing purposes
+        //        .setConsentDebugSettings(debugSettings)
+                .setTagForUnderAgeOfConsent(false)
+                .build();
+
+        consentInformation = UserMessagingPlatform.getConsentInformation(this);
+
+        //testing purposes
+        //consentInformation.reset();
+
+
+        consentInformation.requestConsentInfoUpdate(
+                this,
+                params,
+                () -> {
+                    // The consent information state was updated.
+                    // You are now ready to check if a form is available.
+                    if (consentInformation.isConsentFormAvailable()) {
+                        loadForm(goForAds);
+                    //no form is available, load ads
+                    }else if (goForAds){
+                        loadRewardedAd();
+                    }
+                },
+                formError -> {
+                    // Handle the error.
+                    //Log.e(MainActivity.TAG, formError.getMessage());
+                    if (goForAds){
+                        loadRewardedAd();
+                    }
+                });
+    }
+
+
+
+    public void loadForm(Boolean goForAds) {
+        // Loads a consent form. Must be called on the main thread.
+        UserMessagingPlatform.loadConsentForm(
+                this,
+                consentForm -> {
+                    MainActivity.this.consentForm = consentForm;
+                    if (consentInformation.getConsentStatus() == ConsentInformation.ConsentStatus.REQUIRED) {
+                        consentForm.show(
+                                MainActivity.this,
+                                formError -> {
+                                    if (consentInformation.getConsentStatus() == ConsentInformation.ConsentStatus.OBTAINED) {
+                                        // App can start requesting ads.
+                                        //Log.e(MainActivity.TAG, formError);
+                                        if (goForAds){
+                                            loadRewardedAd();
+                                        }
+                                    }
+                                    // Handle dismissal by reloading form.
+                                    loadForm(goForAds);
+                                });
+                    }
+                },
+                formError -> {
+                    // Handle Error.
+                    //Log.e(MainActivity.TAG, formError.getMessage());
+                    if (goForAds){
+                        loadRewardedAd();
+                    }
+                }
+        );
+    }
+
 
 }
