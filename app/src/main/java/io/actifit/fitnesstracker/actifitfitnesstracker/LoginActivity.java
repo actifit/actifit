@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.core.splashscreen.SplashScreen;
 
 import com.android.volley.BuildConfig;
@@ -37,6 +38,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.ump.ConsentDebugSettings;
+import com.google.android.ump.ConsentForm;
+import com.google.android.ump.ConsentInformation;
+import com.google.android.ump.ConsentRequestParameters;
+import com.google.android.ump.FormError;
+import com.google.android.ump.UserMessagingPlatform;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -94,6 +101,8 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.login_page);
+
+
 
         //installSplashScreen(this);
         //androidx.core.splashscreen.R.
@@ -210,6 +219,7 @@ public class LoginActivity extends BaseActivity {
         queryAPI(username, pkey, true);
 
     }
+
 
     private void queryAPI(final String userParam, final String pstKeyParam, boolean firstLoad){
         if (userParam.equals("") || pstKeyParam.equals("")){
