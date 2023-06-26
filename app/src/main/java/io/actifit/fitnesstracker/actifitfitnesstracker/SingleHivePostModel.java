@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class SingleHivePostModel{
@@ -20,7 +21,7 @@ public class SingleHivePostModel{
     public JSONObject json_metadata;
     public String created;
     public int children;
-    public Boolean is_paidout;
+    public Boolean is_paidout = false;
 
     public String pending_payout_value;
     public String author_payout_value;
@@ -34,6 +35,8 @@ public class SingleHivePostModel{
 
     public Double afitRewards = 0.0;
     NumberFormat numberFormat;
+    public ArrayList<SingleHivePostModel> comments;
+    public Boolean commentsExpanded = false;
 
 
     public SingleHivePostModel(JSONObject jsonObject) {
@@ -41,6 +44,7 @@ public class SingleHivePostModel{
             numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
             this.fillObjectFromJson(this, jsonObject);
             System.out.println(this.title);
+            comments = new ArrayList<>();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,9 +109,18 @@ public class SingleHivePostModel{
                 if (jsonObject.has(fieldName)) {
                     // Get the value from the JSON object
                     Object value = jsonObject.get(fieldName);
-
-                    // Set the value to the field
-                    field.set(object, value);
+                    try{
+                        // Set the value to the field
+                        field.set(object, value);
+                    } catch (IllegalArgumentException e) {
+                        try {
+                            //attempt to parse JSONObject
+                            JSONObject tmpObj = new JSONObject((String) jsonObject.get(fieldName));
+                            field.set(object, tmpObj);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
                 }
             }
         } catch (JSONException e) {

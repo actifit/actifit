@@ -307,37 +307,37 @@ public class SocialActivity extends BaseActivity {
                 //Collections.sort(posts);
                 // Create the adapter to convert the array to views
                 //String pkey = sharedPreferences.getString("actifitPst", "");
-                postAdapter = new PostAdapter(getApplicationContext(), posts, socialView, SocialActivity.this);
+                postAdapter = new PostAdapter(getApplicationContext(), posts, socialView, SocialActivity.this, false);
 
                 // Execute UI-related code on the main thread
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
-                if (!showFullProgress) {
+                        if (!showFullProgress) {
 
-                    //case for maintaining scroll position upon append
-                    int currentPosition = socialView.getFirstVisiblePosition();
-                    View v = socialView.getChildAt(0);
-                    int topOffset = (v == null) ? 0 : v.getTop();
+                            //case for maintaining scroll position upon append
+                            int currentPosition = socialView.getFirstVisiblePosition();
+                            View v = socialView.getChildAt(0);
+                            int topOffset = (v == null) ? 0 : v.getTop();
 
-                    // Set the new adapter
-                    socialView.setAdapter(postAdapter);
+                            // Set the new adapter
+                            socialView.setAdapter(postAdapter);
 
-                    // Restore the scroll position
-                    socialView.setSelectionFromTop(currentPosition, topOffset);
+                            // Restore the scroll position
+                            socialView.setSelectionFromTop(currentPosition, topOffset);
 
-                } else {
-                    socialView.setAdapter(postAdapter);
-                }
+                        } else {
+                            socialView.setAdapter(postAdapter);
+                        }
 
-                //hide dialog
-                progress.setVisibility(View.GONE);
+                        //hide dialog
+                        progress.setVisibility(View.GONE);
 
-                //hide load more button
-                loadMoreBtn.setVisibility(View.INVISIBLE);
-                //progress.hide();
-                //actifitTransactions.setText("Response is: "+ response);
+                        //hide load more button
+                        loadMoreBtn.setVisibility(View.INVISIBLE);
+                        //progress.hide();
+                        //actifitTransactions.setText("Response is: "+ response);
                     }
                 });
 
@@ -354,27 +354,6 @@ public class SocialActivity extends BaseActivity {
 
         });
         thread.start();
-
-           /* }).exceptionally(error -> {
-                // Handle the error response here
-                progress.setVisibility(View.GONE);
-                System.out.println(error.getMessage());
-                Log.d(TAG, ">>>test:" + error.getMessage());
-                return null;
-            });*/
-
-
-
-
-        //progress.show();
-
-
-
-
-        /*} catch (JSONException e) {
-            e.printStackTrace();
-        }*/
-
 
     }
 

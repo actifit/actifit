@@ -46,23 +46,30 @@ public class HiveRequests {
             }
         }
     }
-/*
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public CompletableFuture<JSONArray> getComments(JSONObject params) {
-        JsonObjectRequest request;
 
-    }*/
-@RequiresApi(api = Build.VERSION_CODES.N)
-    public JSONArray getRankedPosts(JSONObject params){
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public JSONArray getComments(JSONObject params) {
         JSONArray outcome = new JSONArray();
-        CompletableFuture<JSONArray> future = this.processRequest(params);
+        CompletableFuture<JSONArray> future = this.processRequest(ctx.getString(R.string.get_post_comments), params);
         try {
             JSONArray result = future.join(); // Waits for the future to complete and returns the result
             return result;
         } catch (Exception e) {
             e.printStackTrace();
             return outcome;
-            // Handle the exception
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public JSONArray getRankedPosts(JSONObject params){
+        JSONArray outcome = new JSONArray();
+        CompletableFuture<JSONArray> future = this.processRequest(ctx.getString(R.string.get_ranked_posts), params);
+        try {
+            JSONArray result = future.join(); // Waits for the future to complete and returns the result
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return outcome;
         }
             /*future.thenAccept(new Consumer<JSONObject>() {
                 @Override
@@ -90,7 +97,7 @@ public class HiveRequests {
             //return outcome;
     }
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public CompletableFuture<JSONArray> processRequest(JSONObject params) {
+    public CompletableFuture<JSONArray> processRequest(String method, JSONObject params) {
         CompletableFuture<JSONArray> future = new CompletableFuture<>();
         JsonObjectRequest request;
         try {
@@ -113,7 +120,7 @@ public class HiveRequests {
             }){
                 @Override
                 public byte[] getBody() {
-                    return prepareJSONReq(ctx.getString(R.string.get_ranked_posts), params);
+                    return prepareJSONReq(method, params);
                 }
                 @Override
                 public String getBodyContentType() {

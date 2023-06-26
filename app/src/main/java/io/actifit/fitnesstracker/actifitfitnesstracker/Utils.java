@@ -1,4 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
+import android.view.View;
+import android.widget.ListView;
+
 import com.github.rjeschke.txtmark.Processor;
 
 import org.jsoup.Jsoup;
@@ -112,6 +115,17 @@ public class Utils {
             e.printStackTrace();
         }
         return "";
+    }
+
+    // Recursive method to find the parent ListView
+    public static ListView findParentListView(View view) {
+        if (view.getParent() instanceof ListView) {
+            return (ListView) view.getParent();
+        } else if (view.getParent() instanceof View) {
+            return findParentListView((View) view.getParent());
+        } else {
+            return null;
+        }
     }
 
 }
