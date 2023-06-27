@@ -316,7 +316,8 @@
             <Button
                 style="@style/AppTheme.ActifitButton"
                 android:id="@+id/upvote_button"
-                android:layout_width="45dp"
+                android:layout_width="wrap_content"
+                android:minWidth="45dp"
                 android:layout_height="wrap_content"
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
@@ -337,7 +338,8 @@
             <Button
                 style="@style/AppTheme.ActifitButton"
                 android:id="@+id/comment_button"
-                android:layout_width="45dp"
+                android:layout_width="wrap_content"
+                android:minWidth="45dp"
                 android:layout_height="wrap_content"
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
@@ -357,7 +359,8 @@
             <Button
                 style="@style/AppTheme.ActifitButton"
                 android:id="@+id/expand_button"
-                android:layout_width="45dp"
+                android:layout_width="wrap_content"
+                android:minWidth="45dp"
                 android:layout_height="wrap_content"
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
@@ -380,7 +383,8 @@
             <Button
                 style="@style/AppTheme.ActifitButton"
                 android:id="@+id/share_social"
-                android:layout_width="45dp"
+                android:layout_width="wrap_content"
+                android:minWidth="45dp"
                 android:layout_height="wrap_content"
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
