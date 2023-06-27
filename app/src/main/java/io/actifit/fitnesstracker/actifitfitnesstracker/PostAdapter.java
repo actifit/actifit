@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 
 import com.android.volley.AuthFailureError;
@@ -52,7 +54,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+import androidx.fragment.app.DialogFragment;
+
 
 
 public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
@@ -62,6 +67,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     Context ctx;
     ArrayList<SingleHivePostModel> postArray;
     ListView socialView;
+    ListView votersView;
     Context socialActivContext;
     ListView commentsList;
     Boolean isComment;//flag whether this is a post or a comment
@@ -79,6 +85,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         this.socialView = socialView;
         this.socialActivContext = socialActivContext;
         this.isComment = isComment;
+        this.ctx = context;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -88,7 +95,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
         try {
 
-            ctx = getContext();
+            //ctx = getContext();
 
             // Get the data item for this position
             final SingleHivePostModel postEntry = getItem(position);
@@ -135,7 +142,73 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             upvoteButton.setOnClickListener(view ->{
                 //open modal for voting, passing the currently selected post/comment for vote
+                    //AlertDialog.Builder voteDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(ctx, R.style.Theme_AppCompat_Dialog));//(ctx);
 
+                //need to grab context of parent container as initiating under current context crashes the app
+                Context mainContext = ((ListView)finalConvertView.getParent()).getContext();
+
+                AlertDialog.Builder voteDialogBuilder = new AlertDialog.Builder(mainContext);
+                final View voteModalLayout = LayoutInflater.from(ctx).inflate(R.layout.vote_modal, null);
+                TextView author_txt = voteModalLayout.findViewById(R.id.vote_author);
+                author_txt.setText(author.getText()+"'s content");
+
+                Button voters_list_btn = voteModalLayout.findViewById(R.id.voters_list_btn);
+                ArrayList<VoteEntryAdapter.VoteEntry> voters = new ArrayList<>();
+
+                voters_list_btn.setOnClickListener(subview -> {
+
+                    //grab array from result
+                    JSONArray actVotes = postEntry.active_votes;
+
+                    final View votersListLayout = LayoutInflater.from(ctx).inflate(R.layout.voters_page, null);
+                    final ListView votersListItem = votersListLayout.findViewById(R.id.votersList);
+                    postEntry.voteRshares = 0;
+
+                    //calculate payout total value
+                    postEntry.calculateVoteRshares();
+                    postEntry.calculateSumPayout();
+                    postEntry.calculateRatio();
+
+                    for (int i = 0; i < actVotes.length(); i++) {
+                        try {
+                            VoteEntryAdapter.VoteEntry vEntry = new VoteEntryAdapter.VoteEntry((actVotes.getJSONObject(i)), postEntry.ratio);
+                            voters.add(vEntry);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+
+                    VoteEntryAdapter voteAdapter = new VoteEntryAdapter(getContext(), voters);
+
+                    //votersView = subview.findViewById(R.id.votersList);
+
+                    votersListItem.setAdapter(voteAdapter);
+
+                    final View votersListView = LayoutInflater.from(ctx).inflate(R.layout.voters_page, null);
+                    AlertDialog.Builder votersListDialogBldr = new AlertDialog.Builder(mainContext);
+                    AlertDialog pointer = votersListDialogBldr.setView(votersListLayout)
+                            .setTitle(ctx.getString(R.string.voters_list_title))
+                            .setIcon(ctx.getResources().getDrawable(R.drawable.actifit_logo))
+                            .setPositiveButton(ctx.getString(R.string.close_button), null).create();
+
+                    pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                    pointer.getWindow().getDecorView().setBackground(ctx.getDrawable(R.drawable.dialog_shape));
+                    pointer.show();
+                });
+
+                //runOnUiThread(() -> {
+                AlertDialog pointer = voteDialogBuilder.setView(voteModalLayout)
+                        .setTitle(ctx.getString(R.string.voting_note))
+                        .setIcon(ctx.getResources().getDrawable(R.drawable.actifit_logo))
+                        .setPositiveButton(ctx.getString(R.string.close_button), null).create();
+
+                pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                pointer.getWindow().getDecorView().setBackground(ctx.getDrawable(R.drawable.dialog_shape));
+                pointer.show();
+
+                //});
             });
 
             commentButton.setOnClickListener(view -> {
