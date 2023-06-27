@@ -1,0 +1,106 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width = "match_parent"
+    android:gravity = "center"
+    android:layout_height = "wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:textAlignment="center">
+
+        <TextView
+            android:id="@+id/vote_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/voting_on"
+            android:textSize="20dp"
+            android:paddingTop="10dp"
+            android:textStyle="bold"
+            android:paddingBottom="10dp"
+            />
+
+        <TextView
+            android:id="@+id/vote_author"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="20dp"
+            android:paddingTop="10dp"
+            android:textStyle="bold"
+            android:paddingBottom="10dp"
+            />
+
+        <TextView
+            android:id="@+id/vote_permlink"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+
+            android:paddingTop="10dp"
+            android:textStyle="bold"
+            android:paddingBottom="10dp"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:gravity="center">
+
+        <EditText
+            android:layout_width="70dp"
+            android:layout_height="45dp"
+            android:inputType="number"
+            android:background="@drawable/edittextbackground"></EditText>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="%"
+            android:paddingTop="10dp"
+            android:paddingLeft="5dp"
+            android:textStyle="bold"
+            android:paddingBottom="10dp"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/proceed_vote_btn"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center"
+            android:text="@string/vote_action"
+
+
+            />
+
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/voters_list_btn"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="@string/voters_list"
+            android:layout_gravity="center"
+
+
+            />
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
