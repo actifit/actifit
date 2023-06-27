@@ -23,15 +23,18 @@ public class SingleHivePostModel{
     public int children;
     public Boolean is_paidout = false;
 
-    public String pending_payout_value;
-    public String author_payout_value;
-    public String curator_payout_value;
-    public String total_payout_value;
+    public String pending_payout_value = "0";
+    public String author_payout_value = "0";
+    public String curator_payout_value = "0";
+    public String total_payout_value = "0";
 
     public JSONObject stats;
 
     public JSONArray beneficiaries;
     public JSONArray active_votes;
+    public float voteRshares = 0;
+    public float sumPayout = 0;
+    public float ratio = 0;
 
     public Double afitRewards = 0.0;
     NumberFormat numberFormat;
@@ -42,13 +45,69 @@ public class SingleHivePostModel{
     public SingleHivePostModel(JSONObject jsonObject) {
         try {
             numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
+            //load data
             this.fillObjectFromJson(this, jsonObject);
-            System.out.println(this.title);
+
+            //initialize comments
             comments = new ArrayList<>();
+
+            //calculate rshares
+            this.calculateVoteRshares();
+            //calculate total payout
+            this.calculateSumPayout();
+            //calculate ratio
+            this.calculateRatio();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+
+    public float calculateRatio(){
+        if (this.voteRshares == 0) {
+            this.ratio = this.voteRshares;
+        }else {
+            this.ratio = this.sumPayout / this.voteRshares;
+        }
+        return this.ratio;
+    }
+
+    public Float calculateVoteRshares(){
+        for (int i = 0; i < this.active_votes.length(); i++) {
+            try {
+                VoteEntryAdapter.VoteEntry vEntry = new VoteEntryAdapter.VoteEntry((this.active_votes.getJSONObject(i)), 0);
+                this.voteRshares += vEntry.rshares;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return this.voteRshares;
+    }
+
+    public Float calculateSumPayout(){
+        this.sumPayout = 0;
+        try{
+            sumPayout += Float.parseFloat(this.total_payout_value.replaceAll("[^\\d.]", ""));
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        try{
+            sumPayout += Float.parseFloat(this.pending_payout_value.replaceAll("[^\\d.]", ""));
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        try{
+            sumPayout += Float.parseFloat(this.curator_payout_value.replaceAll("[^\\d.]", ""));
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        try{
+            sumPayout += Float.parseFloat(this.author_payout_value.replaceAll("[^\\d.]", ""));
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return sumPayout;
     }
 
     public String getActivityType(){

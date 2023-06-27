@@ -6,12 +6,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -73,7 +75,7 @@ public class SocialActivity extends BaseActivity {
         super.onPostResume();
         if (posts.size() > 0){
             //already loaded, hide
-            progress.setVisibility(View.GONE);
+            //progress.setVisibility(View.GONE);
         }
     }
 
@@ -92,7 +94,7 @@ public class SocialActivity extends BaseActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         //hide dialog
-                        progress.setVisibility(View.GONE);
+                        //progress.setVisibility(View.GONE);
                         //progress.hide();
                         // Display the result
                         try {
@@ -128,7 +130,7 @@ public class SocialActivity extends BaseActivity {
 
         loadMoreBtn = findViewById(R.id.load_more);
 
-        posts = new ArrayList<SingleHivePostModel>();
+        posts = new ArrayList<>();
 
         //initialize needed query
         tag = getString(R.string.actifit_community);
@@ -163,6 +165,11 @@ public class SocialActivity extends BaseActivity {
                 }
             }
         });
+
+        /*socialView.post(() -> {
+            // Delayed task to be executed after rendering is complete
+            progress.setVisibility(View.GONE); // Hide the ProgressBar
+        });*/
 
         //refresh user login
         if (!MainActivity.username.equals("")) {
@@ -247,14 +254,6 @@ public class SocialActivity extends BaseActivity {
                     progress.setVisibility(View.VISIBLE);
                 }
 
-            /*CompletableFuture<JSONArray> future = hiveReq.getRankedPosts(params);
-
-            future.thenAccept(result -> {
-                // Handle the array response here
-                // Handle the result
-                try {
-*/
-
 
                 //grab array from result
                 JSONArray result = hiveReq.getRankedPosts(params);
@@ -307,44 +306,52 @@ public class SocialActivity extends BaseActivity {
                 //Collections.sort(posts);
                 // Create the adapter to convert the array to views
                 //String pkey = sharedPreferences.getString("actifitPst", "");
-                postAdapter = new PostAdapter(getApplicationContext(), posts, socialView, SocialActivity.this, false);
+                postAdapter = new PostAdapter(getBaseContext(), posts, socialView, SocialActivity.this, false);
 
                 // Execute UI-related code on the main thread
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+                runOnUiThread(() -> {
 
-                        if (!showFullProgress) {
+                    if (!showFullProgress) {
 
-                            //case for maintaining scroll position upon append
-                            int currentPosition = socialView.getFirstVisiblePosition();
-                            View v = socialView.getChildAt(0);
-                            int topOffset = (v == null) ? 0 : v.getTop();
+                        //case for maintaining scroll position upon append
+                        int currentPosition = socialView.getFirstVisiblePosition();
+                        View v = socialView.getChildAt(0);
+                        int topOffset = (v == null) ? 0 : v.getTop();
 
-                            // Set the new adapter
-                            socialView.setAdapter(postAdapter);
+                        // Set the new adapter
+                        socialView.setAdapter(postAdapter);
 
-                            // Restore the scroll position
-                            socialView.setSelectionFromTop(currentPosition, topOffset);
+                        // Restore the scroll position
+                        socialView.setSelectionFromTop(currentPosition, topOffset);
 
-                        } else {
-                            socialView.setAdapter(postAdapter);
-                        }
-
-                        //hide dialog
-                        progress.setVisibility(View.GONE);
-
-                        //hide load more button
-                        loadMoreBtn.setVisibility(View.INVISIBLE);
-                        //progress.hide();
-                        //actifitTransactions.setText("Response is: "+ response);
+                    } else {
+                        socialView.setAdapter(postAdapter);
                     }
+
+                    socialView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            // Remove the listener to avoid multiple callbacks
+                            socialView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                            // Delayed task to be executed after rendering is complete
+                            progress.setVisibility(View.GONE); // Hide the ProgressBar
+                        }
+                    });
+
+                    //hide dialog
+                    //progress.setVisibility(View.GONE);
+
+                    //hide load more button
+                    loadMoreBtn.setVisibility(View.INVISIBLE);
+                    //progress.hide();
+                    //actifitTransactions.setText("Response is: "+ response);
                 });
 
 
             } catch (Exception e) {
                 //hide dialog
-                progress.setVisibility(View.GONE);
+                //progress.setVisibility(View.GONE);
                 //progress.hide();
                 //actifitTransactionsError.setVisibility(View.VISIBLE);
                 e.printStackTrace();
@@ -362,7 +369,7 @@ public class SocialActivity extends BaseActivity {
     {
         super.onPause();
         if ( progress!=null){
-            progress.setVisibility(View.GONE);
+            //progress.setVisibility(View.GONE);
             //progress.hide();
         }
     }
@@ -379,7 +386,7 @@ public class SocialActivity extends BaseActivity {
     public void onDestroy(){
         super.onDestroy();
         if ( progress!=null){
-            progress.setVisibility(View.GONE);
+            //progress.setVisibility(View.GONE);
             //progress.hide();
         }
     }
