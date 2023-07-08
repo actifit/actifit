@@ -11,11 +11,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.squareup.picasso.Picasso;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.List;
 

@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -24,11 +25,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 
@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.view.View.VISIBLE;
 import static androidx.core.content.ContentProviderCompat.requireContext;
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 import androidx.fragment.app.DialogFragment;
@@ -88,8 +89,22 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         this.ctx = context;
     }
 
+
+    private void grabHiveGlobProperties(){
+        HiveRequests hiveReq = new HiveRequests(ctx);
+        JSONObject hiveProps;
+        //Thread thread = new Thread(() -> {
+        try {
+            hiveReq.getGlobalProps();//hiveReq.getGlobalDynamicProperties();
+            Log.e(MainActivity.TAG, "global props");
+            //Log.e(MainActivity.TAG, hiveProps.toString());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -129,10 +144,23 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             Button shareSocialButton = convertView.findViewById(R.id.share_social);
             Button commentButton = convertView.findViewById(R.id.comment_button);
             Button upvoteButton = convertView.findViewById(R.id.upvote_button);
+
+            //upvoteButton.setBackground();
+            //Button testButton = convertView.findViewById(R.id.test_button);
+
             commentsList = convertView.findViewById(R.id.comments_list);
 
+            //check if user has voted for this post
+            if (Utils.userVotedPost(MainActivity.username, postEntry.active_votes)){
+                //upvoteButton.setBackgroundColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
+                upvoteButton.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
+            }else{
+                //upvoteButton.setBackgroundColor(getContext().getResources().getColor(R.color.actifitRed));
+                upvoteButton.setTextColor(getContext().getResources().getColor(R.color.colorWhite));
+            }
+
             if (postEntry.commentsExpanded){
-                commentsList.setVisibility(View.VISIBLE);
+                commentsList.setVisibility(VISIBLE);
             }else{
                 commentsList.setVisibility(View.GONE);
             }
@@ -140,7 +168,16 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             View finalConvertView = convertView;
 
+
+            /*testButton.setOnClickListener(view -> {
+
+                //test fetching hive global properties
+                grabHiveGlobProperties();
+
+            });*/
+
             upvoteButton.setOnClickListener(view ->{
+
                 //open modal for voting, passing the currently selected post/comment for vote
                     //AlertDialog.Builder voteDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(ctx, R.style.Theme_AppCompat_Dialog));//(ctx);
 
@@ -150,7 +187,56 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 AlertDialog.Builder voteDialogBuilder = new AlertDialog.Builder(mainContext);
                 final View voteModalLayout = LayoutInflater.from(ctx).inflate(R.layout.vote_modal, null);
                 TextView author_txt = voteModalLayout.findViewById(R.id.vote_author);
-                author_txt.setText(author.getText()+"'s content");
+                author_txt.setText("@"+postEntry.author+" 's content");
+
+                EditText vote_weight = voteModalLayout.findViewById(R.id.vote_weight);
+
+                Button proceed_vote_btn = voteModalLayout.findViewById(R.id.proceed_vote_btn);
+
+                ProgressBar taskProgress = voteModalLayout.findViewById(R.id.loader);
+
+                AlertDialog pointer = voteDialogBuilder.setView(voteModalLayout)
+                        .setTitle(ctx.getString(R.string.voting_note))
+                        .setIcon(ctx.getResources().getDrawable(R.drawable.actifit_logo))
+                        .setPositiveButton(ctx.getString(R.string.close_button), null).create();
+
+                proceed_vote_btn.setOnClickListener(subview ->{
+                    if (!TextUtils.isDigitsOnly(vote_weight.getText())){
+                        Toast.makeText(ctx, ctx.getString(R.string.vote_percent_incorrect),Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    taskProgress.setVisibility(VISIBLE);
+
+                    //run on its own thread to avoid hiccups
+                    Thread voteThread = new Thread(() -> {
+                        //runOnUiThread(() -> {
+                        try {
+                            JSONObject cstm_params = new JSONObject();
+                            cstm_params.put("voter", MainActivity.username);
+                            cstm_params.put("author", postEntry.author);
+                            cstm_params.put("permlink", postEntry.permlink);
+                            cstm_params.put("weight", Integer.parseInt(String.valueOf(vote_weight.getText())) * 100);
+
+                            //display loader
+
+                            Utils.queryAPI(getContext(), MainActivity.username, "vote", cstm_params, pointer, taskProgress);
+                    /*
+                    * let cstm_params = {
+                      "voter": this.user.account.name,
+                      "author": this.postToVote.author,
+                      "permlink": this.postToVote.permlink,
+                      "weight": this.voteWeight * 100
+                    };
+
+                    let res = await this.processTrxFunc('vote', cstm_params, this.cur_bchain);
+                    * */
+                        } catch (Exception exc) {
+                            exc.printStackTrace();
+                        }
+                    });
+                    voteThread.start();
+                    //});
+                });
 
                 Button voters_list_btn = voteModalLayout.findViewById(R.id.voters_list_btn);
                 ArrayList<VoteEntryAdapter.VoteEntry> voters = new ArrayList<>();
@@ -188,25 +274,27 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
                     final View votersListView = LayoutInflater.from(ctx).inflate(R.layout.voters_page, null);
                     AlertDialog.Builder votersListDialogBldr = new AlertDialog.Builder(mainContext);
-                    AlertDialog pointer = votersListDialogBldr.setView(votersListLayout)
+                    AlertDialog newpointer = votersListDialogBldr.setView(votersListLayout)
                             .setTitle(ctx.getString(R.string.voters_list_title))
                             .setIcon(ctx.getResources().getDrawable(R.drawable.actifit_logo))
-                            .setPositiveButton(ctx.getString(R.string.close_button), null).create();
+                            .setPositiveButton(ctx.getString(R.string.close_button), null)
+                            .create();
 
-                    pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-                    pointer.getWindow().getDecorView().setBackground(ctx.getDrawable(R.drawable.dialog_shape));
-                    pointer.show();
+                    votersListDialogBldr.show();
+                    //TODO: double check
+                    //pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                    //pointer.getWindow().getDecorView().setBackground(ctx.getDrawable(R.drawable.dialog_shape));
+                    //pointer.show();
                 });
 
                 //runOnUiThread(() -> {
-                AlertDialog pointer = voteDialogBuilder.setView(voteModalLayout)
-                        .setTitle(ctx.getString(R.string.voting_note))
-                        .setIcon(ctx.getResources().getDrawable(R.drawable.actifit_logo))
-                        .setPositiveButton(ctx.getString(R.string.close_button), null).create();
 
-                pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-                pointer.getWindow().getDecorView().setBackground(ctx.getDrawable(R.drawable.dialog_shape));
-                pointer.show();
+
+                voteDialogBuilder.show();
+                //TODO: double check
+                //pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                //pointer.getWindow().getDecorView().setBackground(ctx.getDrawable(R.drawable.dialog_shape));
+                //pointer.show();
 
                 //});
             });
@@ -214,7 +302,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             commentButton.setOnClickListener(view -> {
                 //if it is already visible, hide it
                 commentsList = finalConvertView.findViewById(R.id.comments_list);
-                if (commentsList.getVisibility() == View.VISIBLE){
+                if (commentsList.getVisibility() == VISIBLE){
                     commentsList.setVisibility(View.GONE);
                     postEntry.commentsExpanded = false;
                 }else {
@@ -225,7 +313,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
                             PostAdapter commentAdapter = new PostAdapter(ctx, postEntry.comments, socialView, socialActivContext, true);
                             commentsList.setAdapter(commentAdapter);
-                            commentsList.setVisibility(View.VISIBLE);
+                            commentsList.setVisibility(VISIBLE);
                             postEntry.commentsExpanded = true;
                         });
                     });
@@ -280,7 +368,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             if (activityTypeStr==""){
                 activityTypeContainer.setVisibility(View.GONE);
             }else{
-                activityTypeContainer.setVisibility(View.VISIBLE);
+                activityTypeContainer.setVisibility(VISIBLE);
             }
 
             String activityCountStr = postEntry.getActivityCount(true);
@@ -289,7 +377,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             if (activityCountStr==""){
                 activityCountContainer.setVisibility(View.GONE);
             }else{
-                activityCountContainer.setVisibility(View.VISIBLE);
+                activityCountContainer.setVisibility(VISIBLE);
 
                 //only display AFIT rewards on content with activity count
                 //afitRewards.setText (Html.fromHtml(postEntry.afitRewards+" AFIT" + (postEntry.afitRewards>0?checkMark:hourglass)));
@@ -364,8 +452,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             //only show this under no comments to save phone space
             if (!this.isComment) {
                 //show title
-                title.setVisibility(View.VISIBLE);
-                afitRewards.setVisibility(View.VISIBLE);
+                title.setVisibility(VISIBLE);
+                afitRewards.setVisibility(VISIBLE);
                 //profile pic
                 final String userImgUrl = ctx.getString(R.string.hive_image_host_url).replace("USERNAME", postEntry.author);
 
@@ -396,11 +484,11 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                             Picasso.get()
                                     .load(mainImageUrl)
                                     .into(mainImage);
-                            mainImage.setVisibility(View.VISIBLE);
+                            mainImage.setVisibility(VISIBLE);
                         }
                     });
 
-                afitLogo.setVisibility(View.VISIBLE);
+                afitLogo.setVisibility(VISIBLE);
             }else{
                 //hide post only sections
                 mainImage.setVisibility(View.GONE);
@@ -434,246 +522,14 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             });*/
 
             expandButton.setOnClickListener(view -> {
-                if (expandButton.getVisibility() == View.VISIBLE) {
+                if (expandButton.getVisibility() == VISIBLE) {
                     expandPost(expandButton, retractButton, mdView, mainImage, postEntry);
                 }else{
                     retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent);
                 }
             });
 
-
-
             retractButton.setOnClickListener(view -> retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent));
-
-            //activate gadget functionality
-            /*
-            activateGadget.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-
-                    if (username == null || username.length() <1){
-                        Toast.makeText(getContext(), getContext().getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    activateGadget.startAnimation(scaler);
-                    //buyAFIT.animate().scaleX(0.5f).scaleY(0.5f).setDuration(3000).;
-                    //buyAFIT.animate().scaleXBy(1).setDuration(3000); //.startAnimation();
-
-                    //progress.setMessage(getContext().getString(R.string.processingBuyGadget));
-                    //progress.show();
-
-                    RequestQueue queue = Volley.newRequestQueue(getContext());
-
-                    //first make sure if user is properly logged in as we need to connect to server
-                    if (LoginActivity.accessToken.equals("")){
-
-                        //authorize user login based on credentials if user is already verified
-                        if (!pkey.equals("")) {
-                            String loginAuthUrl = getContext().getString(R.string.live_server)
-                                    + getContext().getString(R.string.login_auth);
-
-
-                            JSONObject loginSettings = new JSONObject();
-                            try {
-                                loginSettings.put(getContext().getString(R.string.username_param), MainActivity.username);
-                                loginSettings.put(getContext().getString(R.string.pkey_param), pkey);
-                                loginSettings.put(getContext().getString(R.string.bchain_param), "HIVE");//default always HIVE
-                                loginSettings.put(getContext().getString(R.string.keeploggedin_param), false);//TODO make dynamic
-                                loginSettings.put(getContext().getString(R.string.login_source), getContext().getString(R.string.android) + BuildConfig.VERSION_NAME);
-                            } catch (JSONException e) {
-                                //Log.e(MainActivity.TAG, e.getMessage());
-                            }
-
-                            //grab auth token for logged in user
-                            JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST,
-                                    loginAuthUrl, loginSettings,
-                                    new Response.Listener<JSONObject>() {
-
-                                        @Override
-                                        public void onResponse(JSONObject response) {
-                                            //store token for reuse when saving settings
-                                            try {
-                                                if (response.has("success")) {
-                                                    Log.d(MainActivity.TAG, response.toString());
-                                                    LoginActivity.accessToken = response.getString(getContext().getString(R.string.login_token));
-                                                }
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-
-                                    },
-                                    new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            // error
-                                            Log.e(MainActivity.TAG, "Login error");
-                                        }
-                                    });
-
-                            queue.add(loginRequest);
-
-                        }
-
-
-                    }
-
-                    //prepare query and broadcast to bchain
-
-                    //param 1
-                    String op_name = "custom_json";
-
-                    //param 2
-                    JSONObject cstm_params = new JSONObject();
-                    try {
-
-                        JSONArray required_auths= new JSONArray();
-
-                        JSONArray required_posting_auths = new JSONArray();
-                        required_posting_auths.put(MainActivity.username);
-
-                        //cstm_params.put("required_auths", "[]");
-                        cstm_params.put("required_auths", required_auths);
-                        cstm_params.put("required_posting_auths", required_posting_auths);
-                        cstm_params.put("id", "actifit");
-                        //cstm_params.put("json", json_op_details);
-                        if (!postEntry.isFriendRewarding){
-                            cstm_params.put("json", "{\"transaction\": \"activate-gadget\" , \"gadget\": \"" + postEntry.id + "\"}");
-                        }else{
-                            String friendBenefic = friendBeneficiary.getText().toString();
-                            if (friendBenefic.equals("")){
-                                //send out error
-                                Toast.makeText(getContext(), getContext().getString(R.string.error_activate_product_benefic),  Toast.LENGTH_LONG).show();
-                                activateGadget.clearAnimation();
-                                return;
-                            }
-                            cstm_params.put("json", "{\"transaction\": \"activate-gadget\" , \"gadget\": \"" + postEntry.id + "\" , \"benefic\": \"" + friendBenefic + "\"}");
-                        }
-
-                        JSONArray operation = new JSONArray();
-                        operation.put(0, op_name);
-                        operation.put(1, cstm_params);
-
-                        String bcastUrl = getContext().getString(R.string.perform_trx_link) +
-                                MainActivity.username +
-                                "&operation=[" + operation + "]" +
-                                "&bchain=HIVE";//hardcoded for now
-                        ;
-
-
-                        //send out transaction
-                        JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
-                                bcastUrl, null,
-                                new Response.Listener<JSONObject>() {
-
-                                    @Override
-                                    public void onResponse(JSONObject response) {
-
-                                        Log.d(MainActivity.TAG, response.toString());
-                                        //
-                                        if (response.has("success")){
-                                            //successfully wrote to chain gadget purchase
-                                            try {
-                                                JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
-
-
-
-                                                String buyUrl = getContext().getString(R.string.activate_gadget_link)+
-                                                        MainActivity.username+"/"+
-                                                        postEntry.id+"/"+
-                                                        bcastRes.get("ref_block_num")+"/"+
-                                                        bcastRes.get("id")+"/"+
-                                                        "HIVE";
-
-                                                if (postEntry.isFriendRewarding){
-                                                    //append friend beneficiary
-                                                    buyUrl += "/"+ friendBeneficiary.getText().toString();
-                                                }
-
-
-                                                //send out transaction
-                                                JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
-                                                        buyUrl, null,
-                                                        new Response.Listener<JSONObject>() {
-
-                                                            @Override
-                                                            public void onResponse(JSONObject response) {
-                                                                //progress.dismiss();
-                                                                activateGadget.clearAnimation();
-                                                                Log.d(MainActivity.TAG, response.toString());
-                                                                //
-                                                                if (!response.has("error")) {
-                                                                    //showActivateButton(postEntry, finalConvertView);
-                                                                    postEntry.nonConsumedCopy = SingleProductModel.ACTIVECOPY;
-                                                                    friendBeneficiary.setVisibility(View.GONE);
-                                                                    activateGadget.setVisibility(View.GONE);
-                                                                    deactivateGadget.setVisibility(View.VISIBLE);
-                                                                    //successfully bought product
-                                                                    Toast.makeText(getContext(), getContext().getString(R.string.success_activate_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
-                                                                } else {
-                                                                    Toast.makeText(getContext(), getContext().getString(R.string.error_activate_product), Toast.LENGTH_LONG).show();
-                                                                }
-                                                            }
-                                                        },
-                                                        new Response.ErrorListener() {
-                                                            @Override
-                                                            public void onErrorResponse(VolleyError error) {
-                                                                // error
-                                                                Log.d(MainActivity.TAG, "Error querying blockchain");
-                                                                //progress.dismiss();
-                                                                activateGadget.clearAnimation();
-                                                                Toast.makeText(getContext(), getContext().getString(R.string.error_activate_product), Toast.LENGTH_LONG).show();
-                                                            }
-                                                        });
-
-                                                queue.add(buyRequest);
-
-
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }else{
-                                            //progress.dismiss();
-                                            activateGadget.clearAnimation();
-                                            Toast.makeText(getContext(), getContext().getString(R.string.error_activate_product), Toast.LENGTH_LONG).show();
-                                        }
-
-                                    }
-
-                                },
-                                new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                        // error
-                                        Log.d(MainActivity.TAG, "Error querying blockchain");
-                                        //progress.dismiss();
-                                        activateGadget.clearAnimation();
-                                        Toast.makeText(getContext(), getContext().getString(R.string.error_activate_product), Toast.LENGTH_LONG).show();
-                                    }
-                                }) {
-                            @NonNull
-                            @Override
-                            public Map<String, String> getHeaders() throws AuthFailureError {
-                                final Map<String, String> params = new HashMap<>();
-                                params.put("Content-Type", "application/json");
-                                params.put(getContext().getString(R.string.validation_header), getContext().getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
-                                return params;
-                            }
-                        };
-
-                        queue.add(transRequest);
-                    }  catch (Exception excep) {
-                        excep.printStackTrace();
-                    }
-
-                }
-            });
-
-            */
-
-
 
         }catch(Exception exp){
             exp.printStackTrace();
@@ -683,7 +539,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         return convertView;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     ArrayList<SingleHivePostModel> loadComments(SingleHivePostModel postEntry){
         HiveRequests hiveReq = new HiveRequests(ctx);
         ArrayList<SingleHivePostModel> commentList = new ArrayList<>();
@@ -725,7 +581,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     void expandPost(Button expandButton, Button retractButton, MarkedView mdView, ImageView mainImage, SingleHivePostModel postEntry){
         //expand text visibility
         expandButton.setVisibility(View.GONE);
-        retractButton.setVisibility(View.VISIBLE);
+        retractButton.setVisibility(VISIBLE);
         mdView.setMDText(Utils.sanitizeContent(postEntry.body, true));
 
         ViewGroup.LayoutParams layoutParams = mdView.getLayoutParams();
@@ -738,7 +594,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
     void retractPost(Button expandButton, Button retractButton, MarkedView mdView, ImageView mainImage, String finalShortenedContent){
         //retract text visibility
-        expandButton.setVisibility(View.VISIBLE);
+        expandButton.setVisibility(VISIBLE);
         retractButton.setVisibility(View.GONE);
 
         //maintain current position after close
@@ -750,7 +606,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         socialView.setSelectionFromTop(currentPosition, topOffset);
 
         mdView.setMDText(finalShortenedContent);
-        mainImage.setVisibility(View.VISIBLE);
+        mainImage.setVisibility(VISIBLE);
     }
 
     private Boolean isPaid(SingleHivePostModel postEntry){

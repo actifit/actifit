@@ -1,9 +1,26 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
+import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.github.rjeschke.txtmark.Processor;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Cleaner;
@@ -12,7 +29,11 @@ import org.jsoup.safety.Safelist;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 public class Utils {
 
@@ -128,4 +149,116 @@ public class Utils {
         }
     }
 
+    //checks if a user has an active vote on a post
+    public static Boolean userVotedPost(String voter, JSONArray actVotes ){
+        for (int i = 0; i < actVotes.length(); i++) {
+            try {
+                VoteEntryAdapter.VoteEntry vEntry = new VoteEntryAdapter.VoteEntry((actVotes.getJSONObject(i)), 0);//second param not needed here
+                if (vEntry.voter.equals(voter)){
+                    return true;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    //perform calls to API
+    public static void queryAPI(Context ctx, String user, String op_name,
+                                JSONObject cstm_params, final AlertDialog modal,
+                                final ProgressBar taskProgress) {
+
+        RequestQueue queue = Volley.newRequestQueue(ctx);
+
+        if (user.equals("") || op_name.equals("") || cstm_params == null) {
+
+            Log.e(MainActivity.TAG, "missing params");
+            runOnUiThread(() -> {
+                taskProgress.setVisibility(View.GONE);
+            });
+        } else {
+            try {
+
+                JSONArray operation = new JSONArray();
+                operation.put(0, op_name);
+                operation.put(1, cstm_params);
+
+                String bcastUrl = ctx.getString(R.string.perform_trx_link);
+                bcastUrl += user +
+                            "&operation=[" + operation + "]" +
+                            "&bchain=HIVE";
+                ;
+
+
+                //send out transaction
+                JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
+                        bcastUrl, null,
+                        new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                runOnUiThread(() -> {
+                                    taskProgress.setVisibility(View.GONE);
+                                    Log.d(MainActivity.TAG, response.toString());
+                                    //
+                                    if (response.has("success")) {
+                                        //successfully wrote to chain gadget purchase
+                                        try {
+                                            JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
+                                            Toast.makeText(ctx, ctx.getString(R.string.vote_success), Toast.LENGTH_LONG).show();
+                                            //if (modal.getListView().getVisibility() == View.VISIBLE) {
+                                                modal.dismiss();
+                                            //}
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else {
+                                        Log.d(MainActivity.TAG, "Error querying blockchain");
+                                        Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
+                                        //progress.dismiss();
+                                        //deactivateGadget.clearAnimation();
+                                        //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                            }
+
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // error
+                                runOnUiThread(() -> {
+                                            taskProgress.setVisibility(View.GONE);
+                                            Log.d(MainActivity.TAG, "Error querying blockchain");
+                                            Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
+                                        });
+                                //progress.dismiss();
+                                //deactivateGadget.clearAnimation();
+                                //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
+                            }
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        final Map<String, String> params = new HashMap<>();
+                        params.put("Content-Type", "application/json");
+                        params.put(ctx.getString(R.string.validation_header), ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
+                        return params;
+                    }
+                };
+
+                //to enable waiting for longer time with extra retry
+                transRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        MainActivity.connectTimeout,
+                        MainActivity.connectMaxRetries,
+                        MainActivity.connectSubsequentRetryDelay));
+
+                queue.add(transRequest);
+            } catch (Exception excep) {
+                excep.printStackTrace();
+            }
+
+        }
+    }
 }

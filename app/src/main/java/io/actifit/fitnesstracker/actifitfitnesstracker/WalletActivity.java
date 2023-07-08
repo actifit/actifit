@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
 
@@ -237,7 +236,6 @@ public class WalletActivity extends BaseActivity {
                                     claimRewards.clearAnimation();
                                 }
                             }) {
-                                @NonNull
 
                                 @Override
                                 public Map<String, String> getHeaders() throws AuthFailureError {
@@ -311,7 +309,7 @@ public class WalletActivity extends BaseActivity {
                             try {
                                 blurtPrice = response.getJSONObject("blurt").getDouble("usd");
                                 //update text as dialog should already be showing in case call returns after
-                                if (pendingRewardsDialog != null && pendingRewardsDialog.isShowing()){
+                                if (pendingRewardsDialog != null){// && pendingRewardsDialog.isShowing()){
                                     String hiveRewards = MainActivity.parseRewards(innerRewards, "HIVE", "HBD", 1.0);
                                     String steemRewards = MainActivity.parseRewards(innerRewards, "STEEM", "SBD", 1.0);
                                     String blurtRewards = MainActivity.parseRewards(innerRewards, "BLURT", "BLURT", blurtPrice);
@@ -431,10 +429,14 @@ public class WalletActivity extends BaseActivity {
                                             .setPositiveButton(getString(R.string.my_activity_button), dialogClickListener)
                                             .setNegativeButton(getString(R.string.close_button), dialogClickListener).create();
 
+                                    pendingRewardsDialogBuilder.show();
+                                    /*
                                     pendingRewardsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                                     pendingRewardsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
                                     //if (pointer.getWindow().isActive()) {
                                     pendingRewardsDialog.show();
+
+                                     */
 
                                 }else{
                                     if (progress!=null &&  progress.isShowing()) {
@@ -914,7 +916,7 @@ public class WalletActivity extends BaseActivity {
                         });
                 //create and display alert window
                 AlertDialog alert11 = builder1.create();
-                alert11.show();
+                builder1.show();
             }
         });
 
