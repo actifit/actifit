@@ -68,8 +68,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.FileProvider;
@@ -131,6 +129,7 @@ import com.scottyab.rootbeer.RootBeer;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -159,7 +158,7 @@ import info.androidhive.fontawesome.FontTextView;
 /**
  * Implementation of this project was made possible via re-use, adoption and improvement of
  * following tutorials and resources:
- * - http://file.allitebooks.com/20170511/Android%20Sensor%20Programming%20By%20Example.pdf
+ * - http://file.allitebooks.com/20170511/Android%20Sensor%20Programming%20By%20Example.pdf.
  * - google's simple-pedometer github work licensed under Apache License
  * https://github.com/google/simple-pedometer (I initially found it under
  * http://gadgetsaint.com/android/create-pedometer-step-counter-android/ who seems to have
@@ -891,9 +890,13 @@ public class MainActivity extends BaseActivity{
                     .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                     .setPositiveButton(getString(R.string.close_button),null).create();
 
+            socialDialogBuilder.show();
+            /*
             pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
             pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
             pointer.show();
+            */
+
 
         });
 
@@ -947,9 +950,13 @@ public class MainActivity extends BaseActivity{
                     .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                     .setPositiveButton(getString(R.string.close_button),null).create();
 
+            referDialogBuilder.show();
+            /*
             pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
             pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
             pointer.show();
+
+             */
 
         });
 
@@ -987,9 +994,14 @@ public class MainActivity extends BaseActivity{
                         .setTitle(getString(R.string.earnings_pane_title))
                         .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                         .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
+
+                earningsDialogBuilder.show();
+                /*
                 earningsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                 earningsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
                 earningsDialog.show();
+
+                 */
 
 
             }
@@ -1108,11 +1120,13 @@ public class MainActivity extends BaseActivity{
                     .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                     .setPositiveButton(getString(R.string.close_button),null)
                     .create();
+            rewardsDialogBuilder.show();
+            /*
             pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
             pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
             //pointer.getWindow().getDecorView().setBackgroundResource(android.R.color.transparent);
 
-            pointer.show();
+            pointer.show();*/
         });
 
         dailyRewardButton.startAnimation(scaler);
@@ -1157,11 +1171,11 @@ public class MainActivity extends BaseActivity{
                     .setPositiveButton(getString(R.string.close_button), null)
                     .setNeutralButton(getString(R.string.user_rank_web), dialogClickListener)
                     .create();
-
-            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            userRankDialogBuilder.show();
+            /*pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
             pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
             pointer.show();
-
+            */
         });
 
         //hook up our standard thread catcher to allow auto-restart after crash
@@ -1370,10 +1384,10 @@ public class MainActivity extends BaseActivity{
 
                         }
                     }).create();
-
-            afitBuyDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            afitBuyDialogBuilder.show();
+            /*afitBuyDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
             afitBuyDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-            afitBuyDialog.show();
+            afitBuyDialog.show();*/
 
         });
 
@@ -1406,18 +1420,6 @@ public class MainActivity extends BaseActivity{
         });
 
         BtnViewNotifications.setOnClickListener(arg0 -> BtnWallet.performClick());
-
-        //handle activity to move over to the Wallet screen
-        BtnWallet.setOnClickListener(arg0 -> {
-            if (username == null || username.length() <1){
-                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            }else {
-
-                Intent intent = new Intent(MainActivity.this, NotificationsActivity.class);
-                MainActivity.this.startActivity(intent);
-            }
-        });
-
 
         //handle activity to move over to the Settings screen
         BtnSettings.setOnClickListener(arg0 -> {
@@ -1494,11 +1496,11 @@ public class MainActivity extends BaseActivity{
                         .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                         .setNeutralButton(getString(R.string.head_market), dialogClickListener)
                         .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
-
-                gadgetsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                gadgetsDialogBuilder.show();
+                /*gadgetsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                 gadgetsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
                 gadgetsDialog.show();
-
+                */
             }
         });
 
@@ -1924,10 +1926,10 @@ public class MainActivity extends BaseActivity{
                 .setPositiveButton(getString(R.string.close_button), dialogClickListener)
                 .setNeutralButton(getString(R.string.do_not_show_again), dialogClickListener)
                 .create();
-
-        pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        batteryDialogBuilder.show();
+        /*pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-        pointer.show();
+        pointer.show();*/
     }
 
 
@@ -2047,11 +2049,15 @@ public class MainActivity extends BaseActivity{
                                 //ftvWallet.setVisibility(View.GONE);
                             }
 
-                            if (earningsDialog != null && earningsDialog.isShowing()) {
+                            try {
+                                if (earningsDialog != null){// && earningsDialog.isShowing()) {
 
-                                msg = grabEarningsPanelNote();
+                                    msg = grabEarningsPanelNote();
 
-                                earningsDialog.setMessage(Html.fromHtml(msg));
+                                    earningsDialog.setMessage(Html.fromHtml(msg));
+                                }
+                            }catch(Exception ex){
+
                             }
 
                             /*
@@ -2143,9 +2149,10 @@ public class MainActivity extends BaseActivity{
                         .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                         .setNegativeButton(getString(R.string.close_button), null).create();
 
-                pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                rcDialogBuilder.show();
+                /*pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                 pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-                pointer.show();
+                pointer.show();*/
             });
 
         //check if user has accounts across all chains
@@ -2864,7 +2871,7 @@ public class MainActivity extends BaseActivity{
                             // Display the result
                             try {
                                 blurtPrice = response.getJSONObject("blurt").getDouble("usd");
-                                if (pendingRewardsDialog != null && pendingRewardsDialog.isShowing()){
+                                if (pendingRewardsDialog != null){// && pendingRewardsDialog.isShowing()){
                                     String hiveRewards = parseRewards(innerRewards, "HIVE", "HBD", 1.0);
                                     String steemRewards = parseRewards(innerRewards, "STEEM", "SBD", 1.0);
                                     String blurtRewards = parseRewards(innerRewards, "BLURT", "BLURT", blurtPrice);
@@ -2986,10 +2993,11 @@ public class MainActivity extends BaseActivity{
                                             .setNegativeButton(getString(R.string.close_button), dialogClickListener)
                                             .setNeutralButton(getString(R.string.do_not_show_again), dialogClickListener).create();
 
-                                    pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                                    pendingRewardsDialogBuilder.show();
+                                    /*pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                                     pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
                                     //if (pointer.getWindow().isActive()) {
-                                    pointer.show();
+                                    pointer.show();*/
 
                                 }
 
@@ -3125,11 +3133,15 @@ public class MainActivity extends BaseActivity{
                                 nextBtn.performClick();
                             });
 
+                            tipDialogBuilder.show();
+                            /*
                             pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                             pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
                             //if (pointer.getWindow().isActive()) {
                                 pointer.show();
                             //}
+
+                             */
                         }
                     }
 
@@ -3686,10 +3698,11 @@ public class MainActivity extends BaseActivity{
                         .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                         .setNegativeButton(getString(R.string.close_button), null).create();
 
-                pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                rcDialogBuilder.show();
+                /*pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                 pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
                 pointer.show();
-
+                */
             }
 
         });

@@ -20,7 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+
 import androidx.cardview.widget.CardView;
 
 import com.android.volley.AuthFailureError;
@@ -551,7 +551,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                                     Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
                                 }
                             }) {
-                                @NonNull
+
                                 @Override
                                 public Map<String, String> getHeaders() throws AuthFailureError {
                                     final Map<String, String> params = new HashMap<>();
@@ -776,7 +776,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                                         Toast.makeText(getContext(), getContext().getString(R.string.error_activate_product), Toast.LENGTH_LONG).show();
                                     }
                                 }) {
-                            @NonNull
+
                             @Override
                             public Map<String, String> getHeaders() throws AuthFailureError {
                                 final Map<String, String> params = new HashMap<>();
@@ -989,7 +989,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                                         Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
                                     }
                                 }) {
-                            @NonNull
+
                             @Override
                             public Map<String, String> getHeaders() throws AuthFailureError {
                                 final Map<String, String> params = new HashMap<>();
@@ -1213,7 +1213,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                                         Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
                                     }
                                 }) {
-                            @NonNull
+
                             @Override
                             public Map<String, String> getHeaders() throws AuthFailureError {
                                 final Map<String, String> params = new HashMap<>();
