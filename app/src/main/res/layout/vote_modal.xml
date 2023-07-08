@@ -1,49 +1,46 @@
 <?xml version = "1.0" encoding = "utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width = "match_parent"
-    android:gravity = "center"
-    android:layout_height = "wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:id="@+id/vote_modal_container"
+    android:gravity="center">
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:textAlignment="center">
+        android:layout_gravity = "center"
+        >
 
         <TextView
             android:id="@+id/vote_title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/voting_on"
-            android:textSize="20dp"
+            android:textSize="16dp"
             android:paddingTop="10dp"
+            android:paddingLeft = "10dp"
             android:textStyle="bold"
             android:paddingBottom="10dp"
+
             />
 
         <TextView
             android:id="@+id/vote_author"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textSize="20dp"
+            android:textSize="16dp"
             android:paddingTop="10dp"
+            android:paddingLeft = "10dp"
             android:textStyle="bold"
             android:paddingBottom="10dp"
             />
 
-        <TextView
-            android:id="@+id/vote_permlink"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-
-            android:paddingTop="10dp"
-            android:textStyle="bold"
-            android:paddingBottom="10dp"
-            />
     </LinearLayout>
 
     <LinearLayout
@@ -54,15 +51,19 @@
         android:gravity="center">
 
         <EditText
+            android:id="@+id/vote_weight"
             android:layout_width="70dp"
             android:layout_height="45dp"
             android:inputType="number"
-            android:background="@drawable/edittextbackground"></EditText>
+            android:gravity="center"
+            android:text="10"
+            android:background="@drawable/edittextbackground" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="%"
+
             android:paddingTop="10dp"
             android:paddingLeft="5dp"
             android:textStyle="bold"
@@ -88,17 +89,24 @@
             />
 
         <Button
-            style="@style/AppTheme.ActifitButton"
             android:id="@+id/voters_list_btn"
+            style="@style/AppTheme.ActifitButton"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:text="@string/voters_list"
             android:layout_gravity="center"
-
-
+            android:text="@string/voters_list"
             />
 
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/loader"
+        android:layout_width="25dp"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:progress="@integer/material_motion_duration_long_1"
+        android:visibility="gone" />
 
 
 
