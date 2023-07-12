@@ -20,7 +20,6 @@ import android.os.StrictMode;
 
 import android.provider.MediaStore;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
 
@@ -748,8 +747,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     //grab userId
                     fitbitUserId = fitbit.getUserId();
-                    //if (getString(R.string.test_mode).equals("on"))
-                    //fitbitUserId = "6Z6D7T";
 
                     //check to see if settings allows fetching measurements - default true
                     String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements", getString(R.string.fitbit_measurements_on_ntt));
@@ -924,7 +921,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 //create and display alert window
                 try {
                     AlertDialog alert11 = builder1.create();
-                    alert11.show();
+                    //alert11.show();
+                    builder1.show();
                 }catch(Exception e){
                     //Log.e(MainActivity.TAG, e.getMessage());
                 }
@@ -948,6 +946,14 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             progress.setMessage(getString(R.string.sending_post));
             progress.show();
         }
+
+        /*protected void onPostExecute(Void result){
+            if (progress != null){
+                if (progress.isShowing()){
+                    progress.hide();
+                }
+            }
+        }*/
         protected Void doInBackground(String... params) {
             try {
                 Log.d(MainActivity.TAG,"click");
@@ -1027,28 +1033,33 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         return null;
                     }
                 }
-                //prepare relevant day detailed data
-                ArrayList<ActivitySlot> timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDate);
 
+                //no need to send detailed step data if this is a fitbit sync
                 String stepDataString = "";
+                if (fitbitSyncDone == 0) {
+                    //prepare relevant day detailed data
+                    ArrayList<ActivitySlot> timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDate);
 
-                //loop through the data to prepare it for proper display
-                for (int position = 0; position < timeSlotActivity.size(); position++) {
-                    try {
-                        //grab date entry according to stored format
-                        String slotTime = (timeSlotActivity.get(position)).slot;
-                        String slotEntryFormat = slotTime;
-                        if (slotTime.length()<4){
-                            //no leading zero, add leading zero
-                            slotEntryFormat = "0" + slotTime;
+
+
+                    //loop through the data to prepare it for proper display
+                    for (int position = 0; position < timeSlotActivity.size(); position++) {
+                        try {
+                            //grab date entry according to stored format
+                            String slotTime = (timeSlotActivity.get(position)).slot;
+                            String slotEntryFormat = slotTime;
+                            if (slotTime.length() < 4) {
+                                //no leading zero, add leading zero
+                                slotEntryFormat = "0" + slotTime;
+                            }
+
+                            //append to display
+                            stepDataString += slotEntryFormat + (timeSlotActivity.get(position)).activityCount + "|";
+
+                        } catch (Exception ex) {
+                            Log.d(MainActivity.TAG, ex.toString());
+                            ex.printStackTrace();
                         }
-
-                        //append to display
-                        stepDataString += slotEntryFormat + (timeSlotActivity.get(position)).activityCount + "|";
-
-                    } catch (Exception ex) {
-                        Log.d(MainActivity.TAG, ex.toString());
-                        ex.printStackTrace();
                     }
                 }
 
@@ -1142,8 +1153,15 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     //append data tracking source to see if this is a device reading or a fitbit one
                     //if there was a Fitbit sync, also need to send out that this is Fitbit data
+                    //if (1 == 1){
                     if (fitbitSyncDone == 1){
                         data.put("dataTrackingSource", getString(R.string.fitbit_tracking_ntt));
+                        if (fitbitUserId == null || fitbitUserId.equals("")){
+                            //missing permission to fitbit
+                            notification = getString(R.string.fitbit_permissions_missing);
+                            displayNotification(notification, progress, context, currentActivity, "", "");
+                            return null;
+                        }
 
                         //also append encrypted user identifier
                         MessageDigest md = MessageDigest.getInstance(getString(R.string.fitbit_user_enc));
@@ -1176,53 +1194,52 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
                 JsonObjectRequest sendPostRequest = new JsonObjectRequest
-                        (Request.Method.POST, urlStr, data, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                //hide dialog
-                                //progress.hide();
-                                // Display the result
-                                try {
-                                    //check result of action
-                                    if (response.has("status") && response.getString("status").equals("success")) {
-                                        notification = getString(R.string.success_post);
+                        (Request.Method.POST, urlStr, data, response -> {
+                            //hide dialog
+                            //progress.hide();
+                            // Display the result
+                            /*if (1==1) {
+                                throw new RuntimeException("This is an error message");
+                            }*/
+                            try {
+                                //check result of action
+                                if (response.has("status") && response.getString("status").equals("success")) {
+                                    notification = getString(R.string.success_post);
 
-                                        //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
-                                        sharedPreferences[0] = getSharedPreferences("actifitSets", MODE_PRIVATE);
-                                        editor[0] = sharedPreferences[0].edit();
-                                        editor[0].putString("actifitLastPostDate", targetDate);
-                                        //also clear editor text content
-                                        editor[0].putString("steemPostContent", "");
-                                        editor[0].apply();
-                                        result[0] = response.getString("status");
-                                    } else {
-                                        // notification = getString(R.string.failed_post);
-                                        notification = response.getString("msg");//result;
-                                    }
-
-                                    //display proper notification
-                                    String permlink = (response.has("permlink"))?response.getString("permlink"):"";
-                                    displayNotification(notification, progress, context, currentActivity, result[0], permlink);
-
-                                }catch (Exception e){
-
-                                    //display proper notification
-                                    notification = getString(R.string.failed_post);
-                                    displayNotification(notification, progress, context, currentActivity, "", "");
-
-                                    Log.d(MainActivity.TAG,"Error connecting");
-                                    e.printStackTrace();
+                                    //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
+                                    sharedPreferences[0] = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                                    editor[0] = sharedPreferences[0].edit();
+                                    editor[0].putString("actifitLastPostDate", targetDate);
+                                    //also clear editor text content
+                                    editor[0].putString("steemPostContent", "");
+                                    editor[0].apply();
+                                    result[0] = response.getString("status");
+                                } else {
+                                    // notification = getString(R.string.failed_post);
+                                    notification = response.getString("msg");//result;
                                 }
-                            }
-                        }, new Response.ErrorListener() {
 
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                //hide dialog
-                                //progress.hide();
-                                //actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
-                                error.printStackTrace();
+                                //display proper notification
+                                String permlink = (response.has("permlink"))?response.getString("permlink"):"";
+                                displayNotification(notification, progress, context, currentActivity, result[0], permlink);
+
+                            }catch (Exception e){
+
+                                //display proper notification
+                                notification = getString(R.string.failed_post);
+                                displayNotification(notification, progress, context, currentActivity, "", "");
+
+                                Log.d(MainActivity.TAG,"Error connecting");
+                                e.printStackTrace();
                             }
+                        }, error -> {
+                            //hide dialog
+                            //progress.hide();
+                            //actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
+                            //notification = getString(R.string.failed_post);
+                            notification = error.getMessage();
+                            displayNotification(notification, progress, context, currentActivity, "", "");
+                            error.printStackTrace();
                         });
 
                 //make sure sent only once
@@ -1233,52 +1250,19 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 // Add balance request to be processed
                 queue.add(sendPostRequest);
 
+            }catch (Exception e){
 
-
-                // Headers
-                /*ArrayList<String[]> headers = new ArrayList<>();
-
-                headers.add(new String[]{"Content-Type", "application/json"});
-                HttpResultHelper httpResult = new HttpResultHelper();
-
-                httpResult = httpResult.httpPost(urlStr, null, null, data.toString(), headers, 20000);
-                BufferedReader in = new BufferedReader(new InputStreamReader(httpResult.getResponse()));
-                while ((inputLine = in.readLine()) != null) {
-                    result += inputLine;
+                //display proper notification
+    //            notification = getString(R.string.failed_post);
+    //            displayNotification(notification, progress, context, currentActivity, "");
+                try {
+                    displayNotification(e.getMessage(), progress, context, currentActivity, "", "");
+                }catch(Exception inner){
+                    displayNotification("unknown error", progress, context, currentActivity, "", "");
                 }
-
-                Log.d(MainActivity.TAG,">>>test:" + result);
-
-                //check result of action
-            if (result.equals("success")) {
-                notification = getString(R.string.success_post);
-
-                //store date of last successful post to prevent multiple posts per day
-
-                //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
-                sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
-                editor = sharedPreferences.edit();
-                editor.putString("actifitLastPostDate", targetDate);
-                //also clear editor text content
-                editor.putString("steemPostContent", "");
-                editor.apply();
-            } else {
-                // notification = getString(R.string.failed_post);
-                notification = result;
-            }*/
-
-            //display proper notification
-//            displayNotification(notification, progress, context, currentActivity, result);
-
-        }catch (Exception e){
-
-            //display proper notification
-//            notification = getString(R.string.failed_post);
-//            displayNotification(notification, progress, context, currentActivity, "");
-
-            Log.d(MainActivity.TAG,"Error connecting");
-            e.printStackTrace();
-        }
+                Log.d(MainActivity.TAG,"Error connecting");
+                e.printStackTrace();
+            }
             return null;
         }
     }
