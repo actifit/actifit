@@ -67,6 +67,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -773,6 +774,7 @@ public class MainActivity extends BaseActivity{
         TextView BtnMarket = findViewById(R.id.btn_view_market);
         TextView BtnSocials = findViewById(R.id.btn_socials);
         TextView BtnPosts = findViewById(R.id.btn_view_social);
+        TextView BtnHelp = findViewById(R.id.btn_help);
         Button BtnSwitchSettings = findViewById(R.id.switchSettings);
 
 
@@ -825,6 +827,65 @@ public class MainActivity extends BaseActivity{
                     .translationX(0)
                     .alpha(1.0f)
                     .setListener(null);*/
+
+        });
+
+        //preload tutorial vid url
+        Handler uiAltHandler = new Handler(Looper.getMainLooper());
+        String vidFetchUrl = getString(R.string.tut_vid_url);
+        final String[] tutVidUrl = {""};
+
+        // Request the rank of the user while expecting a JSON response
+        JsonObjectRequest vidUrlRequest = new JsonObjectRequest
+                (Request.Method.GET, vidFetchUrl, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        uiAltHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (response.has("vidUrl")) {
+                                    try {
+                                        tutVidUrl[0] = response.getString("vidUrl");
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.e(MainActivity.TAG, "Load image error");
+
+                    }
+                });
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        queue.add(vidUrlRequest);
+
+        BtnHelp.setOnClickListener(view -> {
+
+            VideoDialogFragment dialogFragment = VideoDialogFragment.newInstance(tutVidUrl[0]);
+            dialogFragment.show(getSupportFragmentManager(), "video_dialog");
+
+            /*AlertDialog.Builder helpDialogBuilder = new AlertDialog.Builder(ctx);
+            View helpLayout = getLayoutInflater().inflate(R.layout.help_actifit, null);
+
+            VideoView videoView = helpLayout.findViewById(R.id.videoView);
+            videoView.setVideoURI(Uri.parse(tutVidUrl[0]));
+            videoView.start();
+
+
+            AlertDialog pointer = helpDialogBuilder.setView(helpLayout)
+                    .setTitle(getString(R.string.socials_note))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button),null).create();
+
+            helpDialogBuilder.show();*/
 
         });
 
@@ -1120,6 +1181,7 @@ public class MainActivity extends BaseActivity{
                     .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                     .setPositiveButton(getString(R.string.close_button),null)
                     .create();
+
             rewardsDialogBuilder.show();
             /*
             pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
@@ -1286,7 +1348,7 @@ public class MainActivity extends BaseActivity{
 
         //load AFIT markets
         //handles sending out API query requests
-        RequestQueue queue = Volley.newRequestQueue(this);
+        //RequestQueue queue = Volley.newRequestQueue(this);
 
         String afitMarketsUrl = getString(R.string.afit_markets);
 

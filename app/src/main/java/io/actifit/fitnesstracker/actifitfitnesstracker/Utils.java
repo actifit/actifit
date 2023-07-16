@@ -37,6 +37,8 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 
 public class Utils {
 
+    public static JSONArray extraVotesList;
+
     //removes any tags that do not match predefined list
     public static String sanitizeContent(String htmlContent, Boolean minimal) {
         // Parse the HTML content
@@ -150,7 +152,8 @@ public class Utils {
     }
 
     //checks if a user has an active vote on a post
-    public static Boolean userVotedPost(String voter, JSONArray actVotes ){
+    public static Boolean userVotedPost(String voter, JSONArray actVotes , int post_id){
+
         for (int i = 0; i < actVotes.length(); i++) {
             try {
                 VoteEntryAdapter.VoteEntry vEntry = new VoteEntryAdapter.VoteEntry((actVotes.getJSONObject(i)), 0);//second param not needed here
@@ -166,8 +169,9 @@ public class Utils {
 
     //perform calls to API
     public static void queryAPI(Context ctx, String user, String op_name,
-                                JSONObject cstm_params, final AlertDialog modal,
-                                final ProgressBar taskProgress) {
+                                JSONObject cstm_params,
+                                final ProgressBar taskProgress,
+                                final APIResponseListener listener) {
 
         RequestQueue queue = Volley.newRequestQueue(ctx);
 
@@ -194,50 +198,42 @@ public class Utils {
                 //send out transaction
                 JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
                         bcastUrl, null,
-                        new Response.Listener<JSONObject>() {
+                        response -> runOnUiThread(() -> {
+                            taskProgress.setVisibility(View.GONE);
+                            Log.d(MainActivity.TAG, response.toString());
 
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                runOnUiThread(() -> {
-                                    taskProgress.setVisibility(View.GONE);
-                                    Log.d(MainActivity.TAG, response.toString());
-                                    //
-                                    if (response.has("success")) {
-                                        //successfully wrote to chain gadget purchase
-                                        try {
-                                            JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
-                                            Toast.makeText(ctx, ctx.getString(R.string.vote_success), Toast.LENGTH_LONG).show();
-                                            //if (modal.getListView().getVisibility() == View.VISIBLE) {
-                                                modal.dismiss();
-                                            //}
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    } else {
-                                        Log.d(MainActivity.TAG, "Error querying blockchain");
-                                        Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
-                                        //progress.dismiss();
-                                        //deactivateGadget.clearAnimation();
-                                        //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
+                            //
+                            if (response.has("success")) {
+                                //successfully wrote to chain gadget purchase
+                                try {
+                                    JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
+
+
+                                    if (listener != null) {
+                                        listener.onResponse(true);
                                     }
-                                });
 
-                            }
-
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // error
-                                runOnUiThread(() -> {
-                                            taskProgress.setVisibility(View.GONE);
-                                            Log.d(MainActivity.TAG, "Error querying blockchain");
-                                            Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
-                                        });
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                Log.d(MainActivity.TAG, "Error querying blockchain");
+                                if (listener != null) {
+                                    listener.onResponse(false);
+                                }
                                 //progress.dismiss();
                                 //deactivateGadget.clearAnimation();
                                 //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
                             }
+                        }),
+                        error -> {
+                            // error
+                            if (listener != null) {
+                                listener.onResponse(false);
+                            }
+                            //progress.dismiss();
+                            //deactivateGadget.clearAnimation();
+                            //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
                         }) {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
@@ -260,5 +256,14 @@ public class Utils {
             }
 
         }
+    }
+    //to handle multiple successive calls
+    public interface APIResponseListener {
+        //void onResponse(byte[] serializedTransaction);
+        void onError(String errorMessage);
+
+        //void onResponse(JSONObject result);
+
+        void onResponse(boolean success);
     }
 }

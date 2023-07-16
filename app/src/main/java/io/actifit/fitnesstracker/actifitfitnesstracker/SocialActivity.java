@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.Request;
@@ -75,7 +74,7 @@ public class SocialActivity extends BaseActivity {
         super.onPostResume();
         if (posts.size() > 0){
             //already loaded, hide
-            //progress.setVisibility(View.GONE);
+            progress.setVisibility(View.GONE);
         }
     }
 
@@ -90,35 +89,27 @@ public class SocialActivity extends BaseActivity {
         //actifitBalanceLbl.setVisibility(View.VISIBLE);
         // Request the balance of the user while expecting a JSON response
         JsonObjectRequest balanceRequest = new JsonObjectRequest
-                (Request.Method.GET, balanceUrl, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        //hide dialog
-                        //progress.setVisibility(View.GONE);
-                        //progress.hide();
-                        // Display the result
-                        try {
-                            //grab current token count
-                            afitBalance = Double.parseDouble(response.getString("tokens"));
-                        }catch(JSONException e){
-                            //hide dialog
-                            Log.e(TAG, "AFIT balance load error");
-                        }
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
+                (Request.Method.GET, balanceUrl, null, response -> {
+                    //hide dialog
+                    //progress.setVisibility(View.GONE);
+                    //progress.hide();
+                    // Display the result
+                    try {
+                        //grab current token count
+                        afitBalance = Double.parseDouble(response.getString("tokens"));
+                    }catch(JSONException e){
                         //hide dialog
                         Log.e(TAG, "AFIT balance load error");
                     }
+                }, error -> {
+                    //hide dialog
+                    Log.e(TAG, "AFIT balance load error");
                 });
 
         // Add balance request to be processed
         queue.add(balanceRequest);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -233,7 +224,7 @@ public class SocialActivity extends BaseActivity {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     public void loadPosts(Boolean showFullProgress){
 
 
@@ -306,7 +297,9 @@ public class SocialActivity extends BaseActivity {
                 //Collections.sort(posts);
                 // Create the adapter to convert the array to views
                 //String pkey = sharedPreferences.getString("actifitPst", "");
+
                 postAdapter = new PostAdapter(getBaseContext(), posts, socialView, SocialActivity.this, false);
+                //postAdapter = new PostAdapter(getApplicationContext(), posts, socialView, SocialActivity.this, false);
 
                 // Execute UI-related code on the main thread
                 runOnUiThread(() -> {
@@ -328,6 +321,7 @@ public class SocialActivity extends BaseActivity {
                         socialView.setAdapter(postAdapter);
                     }
 
+                    //only hide after ready to render
                     socialView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
                         public void onGlobalLayout() {
@@ -339,19 +333,15 @@ public class SocialActivity extends BaseActivity {
                         }
                     });
 
-                    //hide dialog
-                    //progress.setVisibility(View.GONE);
-
                     //hide load more button
                     loadMoreBtn.setVisibility(View.INVISIBLE);
-                    //progress.hide();
-                    //actifitTransactions.setText("Response is: "+ response);
+
                 });
 
 
             } catch (Exception e) {
                 //hide dialog
-                //progress.setVisibility(View.GONE);
+                progress.setVisibility(View.GONE);
                 //progress.hide();
                 //actifitTransactionsError.setVisibility(View.VISIBLE);
                 e.printStackTrace();
@@ -369,7 +359,7 @@ public class SocialActivity extends BaseActivity {
     {
         super.onPause();
         if ( progress!=null){
-            //progress.setVisibility(View.GONE);
+            progress.setVisibility(View.GONE);
             //progress.hide();
         }
     }
@@ -386,7 +376,7 @@ public class SocialActivity extends BaseActivity {
     public void onDestroy(){
         super.onDestroy();
         if ( progress!=null){
-            //progress.setVisibility(View.GONE);
+            progress.setVisibility(View.GONE);
             //progress.hide();
         }
     }
