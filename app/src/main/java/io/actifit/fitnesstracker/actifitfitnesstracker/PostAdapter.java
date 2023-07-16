@@ -3,14 +3,20 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.media.Image;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -30,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.android.volley.AuthFailureError;
@@ -50,28 +57,31 @@ import org.w3c.dom.Text;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static android.view.View.VISIBLE;
 import static androidx.core.content.ContentProviderCompat.requireContext;
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 import androidx.fragment.app.DialogFragment;
-
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 
 public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
-    //JSONArray consumedProducts;
-    ProgressDialog progress;
     Context ctx;
     ArrayList<SingleHivePostModel> postArray;
     ListView socialView;
-    ListView votersView;
     Context socialActivContext;
     ListView commentsList;
     Boolean isComment;//flag whether this is a post or a comment
+    static JSONArray extraVotesList;
+    static Context keyMainContext;
 
     public int Size(){
         if (postArray !=null && postArray.size()>0) {
@@ -89,18 +99,25 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         this.ctx = context;
     }
 
+    private boolean userNewlyVotedPost(String voter, int post_id){
+        if (extraVotesList != null && extraVotesList.length() > 0) {
+            for (int j=0;j<extraVotesList.length();j++) {
+                try {
+                    JSONObject entry = extraVotesList.getJSONObject(j);
+                    String entVoter = entry.optString("voter");
+                    int entPostId = entry.optInt("post_id");
 
-    private void grabHiveGlobProperties(){
-        HiveRequests hiveReq = new HiveRequests(ctx);
-        JSONObject hiveProps;
-        //Thread thread = new Thread(() -> {
-        try {
-            hiveReq.getGlobalProps();//hiveReq.getGlobalDynamicProperties();
-            Log.e(MainActivity.TAG, "global props");
-            //Log.e(MainActivity.TAG, hiveProps.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
+                    // Perform your search or comparison here
+                    if (voter.equals(entVoter) && post_id == entPostId) {
+                        // Found the desired entry
+                        return true;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        return false;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -144,14 +161,16 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             Button shareSocialButton = convertView.findViewById(R.id.share_social);
             Button commentButton = convertView.findViewById(R.id.comment_button);
             Button upvoteButton = convertView.findViewById(R.id.upvote_button);
+            Button replyButton = convertView.findViewById(R.id.reply_button);
 
-            //upvoteButton.setBackground();
-            //Button testButton = convertView.findViewById(R.id.test_button);
 
             commentsList = convertView.findViewById(R.id.comments_list);
 
+            boolean isExtraVote = userNewlyVotedPost(MainActivity.username, postEntry.post_id);
+
             //check if user has voted for this post
-            if (Utils.userVotedPost(MainActivity.username, postEntry.active_votes)){
+            if (Utils.userVotedPost(MainActivity.username, postEntry.active_votes, postEntry.post_id)
+                || isExtraVote){
                 //upvoteButton.setBackgroundColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
                 upvoteButton.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
             }else{
@@ -169,134 +188,186 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             View finalConvertView = convertView;
 
 
-            /*testButton.setOnClickListener(view -> {
 
+            replyButton.setOnClickListener(view -> {
+
+                //show and highlight reply box
                 //test fetching hive global properties
-                grabHiveGlobProperties();
-
-            });*/
-
-            upvoteButton.setOnClickListener(view ->{
-
+                //grabHiveGlobProperties();
                 //open modal for voting, passing the currently selected post/comment for vote
-                    //AlertDialog.Builder voteDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(ctx, R.style.Theme_AppCompat_Dialog));//(ctx);
+                //AlertDialog.Builder voteDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(ctx, R.style.Theme_AppCompat_Dialog));//(ctx);
 
                 //need to grab context of parent container as initiating under current context crashes the app
-                Context mainContext = ((ListView)finalConvertView.getParent()).getContext();
+                //Context mainContext = ((ListView)finalConvertView.getParent()).getContext();
+                if (!this.isComment) {
+                    PostAdapter.keyMainContext = ((ListView)finalConvertView.getParent()).getContext();
+                }
 
-                AlertDialog.Builder voteDialogBuilder = new AlertDialog.Builder(mainContext);
-                final View voteModalLayout = LayoutInflater.from(ctx).inflate(R.layout.vote_modal, null);
-                TextView author_txt = voteModalLayout.findViewById(R.id.vote_author);
+                AlertDialog.Builder replyDialogBuilder = new AlertDialog.Builder(PostAdapter.keyMainContext);
+                //AlertDialog.Builder replyDialogBuilder = new AlertDialog.Builder(mainContext);
+                final View replyModalLayout = LayoutInflater.from(ctx).inflate(R.layout.comment_modal, null);
+                TextView author_txt = replyModalLayout.findViewById(R.id.reply_author);
                 author_txt.setText("@"+postEntry.author+" 's content");
 
-                EditText vote_weight = voteModalLayout.findViewById(R.id.vote_weight);
+                EditText replyText = replyModalLayout.findViewById(R.id.reply_text);
+                MarkedView mdReplyView = replyModalLayout.findViewById(R.id.reply_preview);
 
-                Button proceed_vote_btn = voteModalLayout.findViewById(R.id.proceed_vote_btn);
 
-                ProgressBar taskProgress = voteModalLayout.findViewById(R.id.loader);
+                //Button proceedCommentBtn = replyModalLayout.findViewById(R.id.proceed_comment_btn);
 
-                AlertDialog pointer = voteDialogBuilder.setView(voteModalLayout)
-                        .setTitle(ctx.getString(R.string.voting_note))
-                        .setIcon(ctx.getResources().getDrawable(R.drawable.actifit_logo))
-                        .setPositiveButton(ctx.getString(R.string.close_button), null).create();
+                //mdReplyView.setMDText(replyText.getText().toString());
+                //default content for preview
+                mdReplyView.setMDText(ctx.getString(R.string.comment_preview_lbl));
 
-                proceed_vote_btn.setOnClickListener(subview ->{
-                    if (!TextUtils.isDigitsOnly(vote_weight.getText())){
-                        Toast.makeText(ctx, ctx.getString(R.string.vote_percent_incorrect),Toast.LENGTH_SHORT).show();
+
+                AlertDialog pointer;
+
+                //proceed with positive action
+                DialogInterface.OnClickListener handleCommentAction = (dialogInterface, which) -> {
+
+                    String commentStr = replyText.getText().toString();
+                    if (commentStr.length() < 1){
+                        Toast.makeText(ctx, ctx.getString(R.string.no_empty_comment),Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    ProgressBar taskProgress = replyModalLayout.findViewById(R.id.loader);
+
                     taskProgress.setVisibility(VISIBLE);
 
                     //run on its own thread to avoid hiccups
-                    Thread voteThread = new Thread(() -> {
-                        //runOnUiThread(() -> {
+                    Thread trxThread = new Thread(() -> {
                         try {
+
+                            String op_name = "comment";
+
+                            String comment_perm = MainActivity.username.replace(".", "-") + "-re-" + postEntry.author.replace(".", "-") + "-" + postEntry.permlink + new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.US).format(new Date());
+                            comment_perm = comment_perm.replaceAll("[^a-zA-Z0-9]+", "").toLowerCase();
+
                             JSONObject cstm_params = new JSONObject();
-                            cstm_params.put("voter", MainActivity.username);
-                            cstm_params.put("author", postEntry.author);
-                            cstm_params.put("permlink", postEntry.permlink);
-                            cstm_params.put("weight", Integer.parseInt(String.valueOf(vote_weight.getText())) * 100);
+                            cstm_params.put("author", MainActivity.username);
+                            cstm_params.put("permlink", comment_perm);
+                            cstm_params.put("title", "");
+                            cstm_params.put("body", replyText.getText());
+                            cstm_params.put("parent_author", postEntry.author);
+                            cstm_params.put("parent_permlink", postEntry.permlink);
 
-                            //display loader
+                            JSONObject metaData = new JSONObject();
 
-                            Utils.queryAPI(getContext(), MainActivity.username, "vote", cstm_params, pointer, taskProgress);
-                    /*
-                    * let cstm_params = {
-                      "voter": this.user.account.name,
-                      "author": this.postToVote.author,
-                      "permlink": this.postToVote.permlink,
-                      "weight": this.voteWeight * 100
-                    };
+                            metaData.put("tags","['hive-193552', 'actifit']");
+                            metaData.put("app","actifit");
 
-                    let res = await this.processTrxFunc('vote', cstm_params, this.cur_bchain);
-                    * */
+                            //grab app version number
+                            try {
+                                PackageInfo pInfo = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
+                                String version = pInfo.versionName;
+                                metaData.put("appVersion",version);
+                            } catch (PackageManager.NameNotFoundException e) {
+                                e.printStackTrace();
+                            }
+
+                            cstm_params.put("json_metadata", metaData.toString());
+
+                            Utils.queryAPI(getContext(), MainActivity.username, op_name, cstm_params, taskProgress,
+                                    new Utils.APIResponseListener() {
+                                        @Override
+                                        public void onResponse(boolean success) {
+                                            runOnUiThread(() -> {
+                                                taskProgress.setVisibility(View.GONE);
+                                                Log.e(MainActivity.TAG, "response");
+                                                if (success) {
+                                                    Toast.makeText(ctx, ctx.getString(R.string.comment_success), Toast.LENGTH_LONG).show();
+                                                } else {
+                                                    Toast.makeText(ctx, ctx.getString(R.string.comment_error), Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+
+                                        }
+
+                                        @Override
+                                        public void onError(String errorMessage) {
+                                            // Handle the error
+                                            runOnUiThread(() -> {
+                                                taskProgress.setVisibility(View.GONE);
+                                                Toast.makeText(ctx, ctx.getString(R.string.comment_error), Toast.LENGTH_LONG).show();
+                                            });
+                                            Log.e(MainActivity.TAG, errorMessage);
+                                        }
+                                    });
+
                         } catch (Exception exc) {
                             exc.printStackTrace();
                         }
                     });
-                    voteThread.start();
-                    //});
-                });
+                    trxThread.start();
+                };
 
-                Button voters_list_btn = voteModalLayout.findViewById(R.id.voters_list_btn);
-                ArrayList<VoteEntryAdapter.VoteEntry> voters = new ArrayList<>();
+                pointer = replyDialogBuilder.setView(replyModalLayout)
+                        .setTitle(ctx.getString(R.string.reply))
+                        .setIcon(ctx.getResources().getDrawable(R.drawable.actifit_logo))
+                        .setPositiveButton(ctx.getString(R.string.reply_action), handleCommentAction)
+                        .setNegativeButton(ctx.getString(R.string.cancel_action), null)
+                        .create();
 
-                voters_list_btn.setOnClickListener(subview -> {
 
-                    //grab array from result
-                    JSONArray actVotes = postEntry.active_votes;
+                replyDialogBuilder.show();
 
-                    final View votersListLayout = LayoutInflater.from(ctx).inflate(R.layout.voters_page, null);
-                    final ListView votersListItem = votersListLayout.findViewById(R.id.votersList);
-                    postEntry.voteRshares = 0;
+                //give focus to the edit text area
+                replyText.requestFocus();
+                replyText.setSelection(replyText.getText().length());
 
-                    //calculate payout total value
-                    postEntry.calculateVoteRshares();
-                    postEntry.calculateSumPayout();
-                    postEntry.calculateRatio();
 
-                    for (int i = 0; i < actVotes.length(); i++) {
-                        try {
-                            VoteEntryAdapter.VoteEntry vEntry = new VoteEntryAdapter.VoteEntry((actVotes.getJSONObject(i)), postEntry.ratio);
-                            voters.add(vEntry);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                replyText.addTextChangedListener(new TextWatcher() {
+
+                    @Override
+                    public void afterTextChanged(Editable s) {}
+
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start,
+                                                  int count, int after) {
                     }
 
+                    @Override
+                    public void onTextChanged(CharSequence s, int start,
+                                              int before, int count) {
+                        if(s.length() != 0) {
+                            mdReplyView.setMDText(replyText.getText().toString());
 
-
-                    VoteEntryAdapter voteAdapter = new VoteEntryAdapter(getContext(), voters);
-
-                    //votersView = subview.findViewById(R.id.votersList);
-
-                    votersListItem.setAdapter(voteAdapter);
-
-                    final View votersListView = LayoutInflater.from(ctx).inflate(R.layout.voters_page, null);
-                    AlertDialog.Builder votersListDialogBldr = new AlertDialog.Builder(mainContext);
-                    AlertDialog newpointer = votersListDialogBldr.setView(votersListLayout)
-                            .setTitle(ctx.getString(R.string.voters_list_title))
-                            .setIcon(ctx.getResources().getDrawable(R.drawable.actifit_logo))
-                            .setPositiveButton(ctx.getString(R.string.close_button), null)
-                            .create();
-
-                    votersListDialogBldr.show();
-                    //TODO: double check
-                    //pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-                    //pointer.getWindow().getDecorView().setBackground(ctx.getDrawable(R.drawable.dialog_shape));
-                    //pointer.show();
+                            //store current text
+                        /*    SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("steemPostContent",
+                                    steemitPostContent.getText().toString());
+                            editor.apply();
+                            */
+                        }else{
+                            mdReplyView.setMDText(ctx.getString(R.string.comment_preview_lbl));
+                        }
+                    }
                 });
 
-                //runOnUiThread(() -> {
+                ProgressBar taskProgress = replyModalLayout.findViewById(R.id.loader);
 
+                String shortenedContent = Utils.parseMarkdown(postEntry.body);
+                //removed extra tags
+                shortenedContent = Utils.sanitizeContent(shortenedContent, false);
 
-                voteDialogBuilder.show();
-                //TODO: double check
-                //pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-                //pointer.getWindow().getDecorView().setBackground(ctx.getDrawable(R.drawable.dialog_shape));
-                //pointer.show();
+                shortenedContent = Utils.trimText(shortenedContent, Constants.trimmedTextSize);
 
-                //});
+                //to be used when setting value upon content retract
+                final String finalShortenedContent = shortenedContent;
+
+                mdView.setMDText(finalShortenedContent);
+
+            });
+
+            upvoteButton.setOnClickListener(view ->{
+                if (!this.isComment) {
+                    PostAdapter.keyMainContext = ((ListView)finalConvertView.getParent()).getContext();
+                }
+                VoteModalDialogFragment dialogFragment =
+                        new VoteModalDialogFragment(PostAdapter.keyMainContext, postEntry,
+                                extraVotesList, socialView);
+                FragmentManager fmgr = ((AppCompatActivity) PostAdapter.keyMainContext).getSupportFragmentManager();
+                dialogFragment.show(fmgr, "vote_modal");
             });
 
             commentButton.setOnClickListener(view -> {
@@ -306,18 +377,28 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     commentsList.setVisibility(View.GONE);
                     postEntry.commentsExpanded = false;
                 }else {
+                    //show loader
+
+                    ProgressBar loader = finalConvertView.findViewById(R.id.loader);
                     Thread thread = new Thread(() -> {
                         //load data
-                        postEntry.comments = loadComments(postEntry);
                         runOnUiThread(() -> {
+                            loader.setVisibility(VISIBLE);
+                        });
+                        postEntry.comments = loadComments(postEntry);
 
-                            PostAdapter commentAdapter = new PostAdapter(ctx, postEntry.comments, socialView, socialActivContext, true);
+
+                        PostAdapter commentAdapter = new PostAdapter(ctx, postEntry.comments, socialView, socialActivContext, true);
+                        runOnUiThread(() -> {
                             commentsList.setAdapter(commentAdapter);
                             commentsList.setVisibility(VISIBLE);
                             postEntry.commentsExpanded = true;
+
+                            loader.setVisibility(View.GONE);
                         });
                     });
                     thread.start();
+
                 }
             });
 
@@ -411,8 +492,11 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             author.setText('@'+postEntry.author);
             date.setText(Utils.getTimeDifference(postEntry.created));
-
-            upvoteCount.setText(postEntry.active_votes.length()+"");
+            int voteCount = postEntry.active_votes.length();
+            if (isExtraVote) {
+                voteCount += 1;
+            }
+            upvoteCount.setText(voteCount + "");
             commentCount.setText(postEntry.children+"");
 
             //show comment content
@@ -538,6 +622,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         // Return the completed view to render on screen
         return convertView;
     }
+
+
 
 
     ArrayList<SingleHivePostModel> loadComments(SingleHivePostModel postEntry){
