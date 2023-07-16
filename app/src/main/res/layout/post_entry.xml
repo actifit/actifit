@@ -315,6 +315,18 @@
 
             <Button
                 style="@style/AppTheme.ActifitButton"
+                android:id="@+id/reply_button"
+                android:layout_width="wrap_content"
+                android:minWidth="45dp"
+                android:layout_height="45dp"
+                android:textSize="14dp"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf3e5"
+                android:gravity="center"
+                />
+
+            <Button
+                style="@style/AppTheme.ActifitButton"
                 android:id="@+id/upvote_button"
                 android:layout_width="wrap_content"
                 android:minWidth="45dp"
@@ -373,7 +385,7 @@
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf102"
-                android:visibility="invisible"
+                android:visibility="gone"
                 />
 
             <!--<Button
@@ -401,6 +413,15 @@
 
 
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/loader"
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:progress="@integer/material_motion_duration_long_1"
+            android:visibility="gone" />
 
         <ListView
             android:id="@+id/comments_list"

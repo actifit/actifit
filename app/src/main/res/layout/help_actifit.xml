@@ -1,0 +1,45 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+
+<LinearLayout xmlns:android = "http://schemas.android.com/apk/res/android"
+    android:layout_width = "match_parent"
+    android:gravity = "top"
+    android:layout_gravity="top"
+    android:layout_height = "match_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:padding="16dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:text="@string/tutorial_title"
+        android:drawableStart="@drawable/actifit_logo" /> <!-- Add your icon drawable here -->
+
+
+    <WebView
+
+        android:id="@+id/youtubePlayerView"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+    <!--android:layout_height="300dp"
+        android:minHeight="200dp"-->
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/closeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:padding="16dp"
+        android:text="@string/close_button" />
+
+
+</LinearLayout>
