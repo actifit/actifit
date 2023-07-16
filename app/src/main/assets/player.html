@@ -1,0 +1,58 @@
+<iframe id="player-iframe" frameborder="0"></iframe>
+<!--
+//width="240" height="360"
+        //src="https://www.youtube.com/embed/M7lc1UVf-VE?enablejsapi=1"
+        //style="border: solid 4px #37474F"
+
+-->
+
+<script type="text/javascript">
+  var tag = document.createElement('script');
+  tag.id = 'iframe-demo';
+  tag.src = 'https://www.youtube.com/iframe_api';
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+  var player;
+  document.getElementById('player-iframe').src=getVideoUrlFromWebView();
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player-iframe', {
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+    });
+  }
+  function onPlayerReady(event) {
+    //document.getElementById('player-iframe').style.borderColor = '#FF6D00';
+    event.target.playVideo();
+  }
+
+  /*function changeBorderColor(playerStatus) {
+    var color;
+    if (playerStatus == -1) {
+      color = "#37474F"; // unstarted = gray
+    } else if (playerStatus == 0) {
+      color = "#FFFF00"; // ended = yellow
+    } else if (playerStatus == 1) {
+      color = "#33691E"; // playing = green
+    } else if (playerStatus == 2) {
+      color = "#DD2C00"; // paused = red
+    } else if (playerStatus == 3) {
+      color = "#AA00FF"; // buffering = purple
+    } else if (playerStatus == 5) {
+      color = "#FF6DOO"; // video cued = orange
+    }
+    if (color) {
+      document.getElementById('player-iframe').style.borderColor = color;
+    }
+  }*/
+
+  function onPlayerStateChange(event) {
+    //changeBorderColor(event.data);
+  }
+
+  function getVideoUrlFromWebView() {
+        return window.android.getVideoUrl();
+    }
+</script>
