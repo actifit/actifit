@@ -7,7 +7,21 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:id="@+id/vote_modal_container"
+    android:layout_gravity="center"
     android:gravity="center">
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:padding="16dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:text="@string/voting_note"
+        android:drawableStart="@drawable/actifit_logo" /> <!-- Add your icon drawable here -->
 
 
     <LinearLayout
@@ -15,6 +29,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity = "center"
+        android:gravity = "center"
         >
 
         <TextView
@@ -22,23 +37,23 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/voting_on"
-            android:textSize="16dp"
             android:paddingTop="10dp"
-            android:paddingLeft = "10dp"
             android:textStyle="bold"
             android:paddingBottom="10dp"
-
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
             />
 
         <TextView
             android:id="@+id/vote_author"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textSize="16dp"
             android:paddingTop="10dp"
             android:paddingLeft = "10dp"
             android:textStyle="bold"
             android:paddingBottom="10dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
             />
 
     </LinearLayout>
@@ -77,24 +92,37 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/close_btn"
             style="@style/AppTheme.ActifitButton"
-            android:id="@+id/proceed_vote_btn"
-            android:layout_width="120dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
-
             android:layout_gravity="center"
-            android:text="@string/vote_action"
-
-
+            android:textSize="12sp"
+            android:text="@string/close_button"
             />
+
+
 
         <Button
             android:id="@+id/voters_list_btn"
             style="@style/AppTheme.ActifitButton"
-            android:layout_width="120dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:textSize="12sp"
             android:text="@string/voters_list"
+            />
+
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/proceed_vote_btn"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_gravity="center"
+            android:text="@string/vote_action"
+
+
             />
 
     </LinearLayout>

@@ -754,6 +754,17 @@
         android:layout_weight="1"
         >
 
+        <TextView
+            android:id="@+id/btn_view_social"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\ue068"
+            android:textSize="25dp"
+            android:padding="10dp"
+            />
+
         <info.androidhive.fontawesome.FontTextView
             android:id="@+id/btn_snap_picture"
             android:layout_width="wrap_content"
@@ -807,13 +818,14 @@
             android:textSize="25dp"
             android:padding="10dp"
             />
+
         <TextView
-            android:id="@+id/btn_view_social"
+            android:id="@+id/btn_help"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/font_awesome_6_solid"
             android:textColor="@color/actifitRed"
-            android:text="\ue068"
+            android:text="?"
             android:textSize="25dp"
             android:padding="10dp"
             />
