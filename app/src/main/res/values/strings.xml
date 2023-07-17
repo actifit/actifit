@@ -82,6 +82,8 @@
     <string name="report_content_lbl">Report Content (Describe your day\'s activity)</string>
     <string name="markdown_content_note">Markdown Content Accepted</string>
     <string name="report_preview_lbl">Report Preview</string>
+    <string name="comment_preview_lbl">Comment Preview</string>
+    <string name="fitbit_permissions_missing">Please provide full permissions for proper Fitbit sync</string>
     <string name="fitbit_sync_btn_lbl">FITBIT SYNC</string>
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">Activity Data Source</string>
@@ -95,6 +97,8 @@
     <string name="steem_post_payout">Post Payout</string>
     <string name="pay_option_50_50">50% HBD - 50% HP</string>
     <string name="pay_option_full_sp">100% HP</string>
+    <string name="pay_option_liquid">Liquid HBD/HP</string>
+    <string name="pay_option_decline">Decline Payout</string>
     <string name="measure_system_lbl">Measurement System</string>
     <string name="notifications_status_lbl">Notification Status</string>
     <string name="post_target_bchain">Post To</string>
@@ -266,9 +270,11 @@
     <string name="field_required">This field is required</string>
     <string name="incorrect_credentials">You have provided incorrect credentials. Please check and try to login again.</string>
     <string name="payout_details">Details of the post payouts</string>
-    <string name="vote_percent_incorrect">Please provide a proper percent value for the vote (0-100)</string>
+    <string name="vote_percent_incorrect">Please provide a proper percent value for the vote (1-100)</string>
+    <string name="no_empty_comment">Please type some content</string>
     <string name="hive_payout_details">Post HIVE payout</string>
     <string name="afit_payout_details">Post AFIT payout</string>
+    <string name="tutorial_title">Actifit Video Tutorial</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="signup">Signup</string>
@@ -313,6 +319,9 @@
     <string name="error_deactivate_product">There was a problem deactivating the product </string>
     <string name="vote_success">Successfully voted!</string>
     <string name="vote_error">There was an error casting your vote</string>
+    <string name="comment_success">Comment Sent Successfully!</string>
+    <string name="comment_hint">Reply with something cooool!</string>
+    <string name="comment_error">There was an error sending your comment</string>
     <string name="error_activate_product_benefic">You need to provide the name of a recipient for the gadget boost rewards </string>
     <string name="available_lbl">Available</string>
     <string name="requirements_lbl">Requirements</string>
@@ -348,6 +357,7 @@
     <string name="refer_friend">Refer Friend</string>
     <string name="referrals_note">Actifit rewards you for referring friends!</string>
     <string name="voting_note">Upvote to reward</string>
+    <string name="reply">Reply</string>
     <string name="socials_note">Connect With Actifit</string>
     <string name="random_tip">Random Actifit Tip</string>
     <string name="rewards_note">Earn Extra Prizes Daily</string>
@@ -374,6 +384,9 @@
     <string name="daily_10k_reward">10K Extra Reward</string>
     <string name="voting_on">Voting</string>
     <string name="voters_list">Voters List</string>
+    <string name="reply_action">Reply</string>
+    <string name="cancel_action">Cancel</string>
+    <string name="reply_to">Replying to</string>
     <string name="referrals_details">For every referral that signs up to actifit using your referral link, you earn: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;One time AFIT amount equal to 20% of the AFIT rewards your referral earns upon successful signup! (usually minimum 20 AFIT) &lt;/li&gt;&lt;li&gt; Up to 35% of your referral\'s actifit report rewards for one month, across all tokens rewarded (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
     <string name="daily_rewards_description">You can earn daily extra rewards by clicking on the bonus buttons below.</string>
     <string name="free_daily_rewards_description">Free bonus can be claimed once daily. Earn extra random reward up to 3 AFIT</string>
