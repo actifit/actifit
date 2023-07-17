@@ -203,25 +203,54 @@
         android:text="@string/steem_post_payout" />
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingLeft="20dp"
         android:paddingRight="20dp">
 
-        <RadioButton
-            android:id="@+id/sbd_sp_pay"
-            android:layout_width="wrap_content"
+        <GridLayout
+            android:id="@+id/gridLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pay_option_50_50"
-            />
+            android:rowCount="2"
+            android:columnCount="2"
+            android:orientation="horizontal"
+            android:layout_gravity="center">
 
-        <RadioButton
-            android:id="@+id/full_sp_pay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pay_option_full_sp" />
+            <RadioButton
+                android:id="@+id/sbd_sp_pay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pay_option_50_50"
+                android:padding="10sp"
+                />
+
+            <RadioButton
+                android:id="@+id/full_sp_pay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pay_option_full_sp"
+                android:padding="10sp"/>
+
+            <RadioButton
+                android:id="@+id/liquid_pay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pay_option_liquid"
+                android:padding="10sp"
+                />
+
+            <RadioButton
+                android:id="@+id/decline_pay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pay_option_decline"
+                android:padding="10sp"
+                />
+
+        </GridLayout>
 
     </RadioGroup>
 
