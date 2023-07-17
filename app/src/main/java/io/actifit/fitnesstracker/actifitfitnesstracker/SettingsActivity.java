@@ -65,6 +65,8 @@ public class SettingsActivity extends BaseActivity {
     private PendingIntent alarmIntent;
     private String fullSPPay = "full_SP_Pay";
     private String sbdSPPay = "50_50_SBD_SP_Pay";
+    private String liquidPay = "liquid_Pay";
+    private String declinePay = "decline_Pay";
     public static boolean languageModified = false;
     public static int langChoice = -1;
     private RequestQueue queue;
@@ -128,6 +130,8 @@ public class SettingsActivity extends BaseActivity {
 
         final RadioButton fullSPayRadioBtn = findViewById(R.id.full_sp_pay);
         final RadioButton sbdSPPayRadioBtn = findViewById(R.id.sbd_sp_pay);
+        final RadioButton liquidPayRadioBtn = findViewById(R.id.liquid_pay);
+        final RadioButton declinePayRadioBtn = findViewById(R.id.decline_pay);
 
         final Spinner languageSelected = findViewById(R.id.language_picker);
 
@@ -508,7 +512,12 @@ public class SettingsActivity extends BaseActivity {
         String reportPayMode = sharedPreferences.getString("reportSTEEMPayMode",sbdSPPay);
         if (reportPayMode.equals(fullSPPay)){
             fullSPayRadioBtn.setChecked(true);
+        }else if (reportPayMode.equals(liquidPay)){
+            liquidPayRadioBtn.setChecked(true);
+        }else if (reportPayMode.equals(declinePay)){
+            declinePayRadioBtn.setChecked(true);
         }else{
+            //default
             sbdSPPayRadioBtn.setChecked(true);
         }
 
@@ -623,9 +632,16 @@ public class SettingsActivity extends BaseActivity {
                 //check which pay mode for reports to be used and store it
                 if (fullSPayRadioBtn.isChecked()){
                     editor.putString("reportSTEEMPayMode", fullSPPay);
+                }else if (liquidPayRadioBtn.isChecked()){
+                    editor.putString("reportSTEEMPayMode", liquidPay);
+                }else if (declinePayRadioBtn.isChecked()){
+                    editor.putString("reportSTEEMPayMode", declinePay);
                 }else{
+                    //default
                     editor.putString("reportSTEEMPayMode", sbdSPPay);
                 }
+
+
 
                 //store active key to use where and if needed
                 editor.putString("actvKey",activeKey.getText().toString());

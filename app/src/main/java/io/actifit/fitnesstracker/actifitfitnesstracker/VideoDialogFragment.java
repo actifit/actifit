@@ -31,7 +31,7 @@ public class VideoDialogFragment extends DialogFragment {
 
     private static final String ARG_VIDEO_URL = "videoUrl";
 
-    WebView webView;
+    WebView webView;se
 
     public VideoDialogFragment() {
         // Required empty public constructor
@@ -137,6 +137,8 @@ public class VideoDialogFragment extends DialogFragment {
             super.onPageFinished(view, url);
             try {
                 // Adjust the WebView width dynamically based on the DialogFragment width
+
+                /*
                 int dialogWidth = getResources().getDisplayMetrics().widthPixels;
                 view.setLayoutParams(new LinearLayout.LayoutParams(dialogWidth, LinearLayout.LayoutParams.WRAP_CONTENT));
                 view.invalidate();
@@ -154,6 +156,8 @@ public class VideoDialogFragment extends DialogFragment {
                         webView.evaluateJavascript(js, null);
                     }
                 });
+
+                 */
             }catch(Exception genEx){
                 genEx.printStackTrace();
             }
