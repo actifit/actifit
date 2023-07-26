@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/@hiveio/dhive@latest/dist/dhive.js"></script>
+
+    <!--<script src="https://chat.peakd.com/stwidget.js"></script>-->
+    <script src="file:///android_asset/stwidget.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script>
+      /*var client = new dhive.Client(["https://api.hive.blog", "https://api.hivekings.com", "https://anyx.io", "https://api.openhive.network"]);
+      client.database
+        .getDiscussions("trending", { tag: "writing", limit: 1 })
+        .then(function(discussions) {
+          document.body.innerHTML += "<h1>" + discussions[0].title + "</h1>";
+          document.body.innerHTML += "<h2>by " + discussions[0].author + "</h2>";
+          document.body.innerHTML +=
+            '<pre style="white-space: pre-wrap">' + discussions[0].body + "</pre>";
+        });*/
+
+    function getUserFromWebView(){
+        return window.android.getUser();
+    }
+
+     function getPstKeyFromWebView() {
+        return window.android.getPstKey();
+    }
+
+        // Function to give focus to the element with the specified ID
+    function giveFocusToElement(elementId) {
+        var element = document.getElementById(elementId);
+        if (element) {
+            console.log('give focus');
+            element.focus();
+        }
+    }
+
+    </script>
+</head>
+
+<body>
+    <div id="chatDiv"></div>
+    <script>
+        var stwidget = new StWidget('https://chat.peakd.com/t/hive-193552/0');
+        stwidget.properties = { "requireLogin": false,
+                                "showSidebar": true,
+                                "sidebar": 2,
+                                "sidebar2enableSharedView": false,
+                                "sidebarToggleByChannelNameOnDirectGroup": true,
+                                "streambarExpand": true,
+                                "streambarMode": 1,
+                                "sidebarAddButton": 1,
+                                "communityChannelNameFormat": "<title>/<name>",
+                                "messageIconFlexClass": "block text-justify lg:text-left sm:flex",
+                                "messageIconClass": "iconFloat",
+                                "--appCommunityIconFontSize": "18px",
+                                "--appCommunityIconSize": "42px",
+                                "homeTabCommunities": true,
+                                "homeTabPreferences": true,
+                                "homeTabThemes": false,
+                                "onlyPrependCommunities": false,
+                                "prependCommunities": [
+                                    "hive-193552"
+                                ],
+                                "defaultTheme": {"bg0":"#ff112d","bg1":"#ff112d","bg2":"#ffffff","bg3":"#ffffff","bgbtn1":"#2e8336","bgbtn2":"#d9d9d7","bgowner":"#007b00","bgadmin":"#2368d5","bgmod":"#2e8336","bgconote":"#ff112d","bgunote":"#ff112d"},
+                                "--appFontFamily": "'Arial'",
+                                "--appFontSize": "16px",
+                                "--appMessageFontFamily": "''New Heterodox Mono',monospace'",
+                                "--appMessageFontSize": "16px"
+                                };
+        stwidget.setUser(getUserFromWebView());
+        stwidget.setPostingKey(getPstKeyFromWebView(), dhive);
+        let defaultWidth = 450;
+        if (screen.width < 750){
+			defaultWidth = screen.width - 90;
+        }
+        let defaultHeight = 500;
+        if (screen.height < 520){
+            defaultHeight = screen.height - 60;
+        }
+        var element = stwidget.createElement(defaultWidth+'px', defaultHeight+'px', false/*overlay*/, false /*resizable*/);
+
+        document.getElementById("chatDiv").appendChild(element);
+
+        //set focus
+        window.onload = function() {
+            giveFocusToElement('.scrollBoxContent');
+        };
+        //setInterval(giveFocusToElement('#app'), 3000);
+
+    </script>
+
+    <style>
+        #app{
+            overflow: scroll;
+        }
+        .h-screen.flex.flex-col.appbg0.appfg0.border-r-1.sidebar{
+            background-color: #ff112d !important;
+        }
+    </style>
+</body>
+
+</html>
