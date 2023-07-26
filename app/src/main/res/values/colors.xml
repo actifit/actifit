@@ -2,8 +2,9 @@
 <resources>
     <color name="colorPrimary">#FF112D</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="actifitRed">#FF4081</color>
+    <color name="colorAccent">#FF112D</color>
+    <color name="actifitRed">#FF112D</color>
     <color name="actifitGreen">#00FF00</color>
+    <color name="actifitDarkGreen">#006400</color>
     <color name="colorWhite">#FFFFFF</color>
 </resources>
