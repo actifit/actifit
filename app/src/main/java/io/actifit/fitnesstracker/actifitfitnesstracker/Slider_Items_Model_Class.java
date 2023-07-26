@@ -7,6 +7,7 @@ public class Slider_Items_Model_Class {
     private String featured_image_url;
     private String news_title;
     private String link_url;
+    private boolean main_announce;
 
     public Slider_Items_Model_Class(JSONObject entry) {
         if (entry!=null){
@@ -14,6 +15,7 @@ public class Slider_Items_Model_Class {
                 this.featured_image_url = (entry.has("featured_image_url")?entry.getString("featured_image_url"):"") ;
                 this.news_title = (entry.has("news_title")?entry.getString("news_title"):"") ;
                 this.link_url = (entry.has("link_url")?entry.getString("link_url"):"") ;
+                this.main_announce = (entry.has("main_announce")?entry.getBoolean("main_announce"):false) ;
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -38,6 +40,8 @@ public class Slider_Items_Model_Class {
     public String getLink_url(){
         return this.link_url;
     }
+
+    public boolean isMain_announce(){ return this.main_announce; }
 
     public void setFeatured_image_url(String featured_image_url) {
         this.featured_image_url = featured_image_url;

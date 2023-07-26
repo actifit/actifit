@@ -266,7 +266,7 @@ public class MainActivity extends BaseActivity{
     public Double blurtBalance = 0.0;
 
     public static Double minTokenCount;
-    TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText;
+    TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText, newbieLink;
     LinearLayout loginContainer, userGadgets, accountRCContainer, votingStatusContainer;
     GridLayout topIconsContainer;
     FontTextView BtnSettings;
@@ -538,17 +538,23 @@ public class MainActivity extends BaseActivity{
 
         String newsArticlesUrl = getString(R.string.news_articles);
 
+        //also set and popup any mainAnnounce news
+
 
         JsonArrayRequest newsArticlesReq = new JsonArrayRequest(Request.Method.GET,
                 newsArticlesUrl, null, listArray -> {
             //hide dialog
             //progress.hide();
-
+            Slider_Items_Model_Class mainAnnounce = null;
             // Handle the result
             try {
                 if (listArray!=null && listArray.length()>0){
                     for(int i=0;i<listArray.length();i++){
-                        listItems.add(new Slider_Items_Model_Class(listArray.getJSONObject(i)));
+                        Slider_Items_Model_Class entry = new Slider_Items_Model_Class(listArray.getJSONObject(i));
+                        listItems.add(entry);
+                        if (entry.isMain_announce()){
+                            mainAnnounce = entry;
+                        }
                     }
 
                     Slider_items_Pager_Adapter itemsPager_adapter = new Slider_items_Pager_Adapter(this, listItems);
@@ -560,6 +566,22 @@ public class MainActivity extends BaseActivity{
                     java.util.Timer timer = new java.util.Timer();
                     timer.scheduleAtFixedRate(new Slide_timer(),2000,3000);
                     newsTabLayout.setupWithViewPager(newsPage,true);
+
+                    //show popup with mainAnnounce, with pseudo-ranom display every 5 times
+                    SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                    int announceViews = (sharedPreferences.getInt(getString(R.string.main_announce_view),0));
+                    announceViews += 1;
+                    if (announceViews > 4) announceViews = 1;
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt(getString(R.string.main_announce_view), announceViews);
+                    editor.commit();
+
+                    if (mainAnnounce !=null && announceViews <=1) {
+                        //show mainAnnounce if there exists one
+                        MainAnnounceFragment mainAnnounceDialog = new MainAnnounceFragment(ctx, mainAnnounce);
+                        mainAnnounceDialog.show(getSupportFragmentManager(), "main_announce");
+                    }
                 }
             }catch (Exception e) {
                 e.printStackTrace();
@@ -656,6 +678,7 @@ public class MainActivity extends BaseActivity{
         loginContainer = findViewById(R.id.login_container);
         accountRCValue = findViewById(R.id.account_rc);
         topIconsContainer = findViewById(R.id.top_icons_container);
+        newbieLink = findViewById(R.id.verify_newbie);
 
         //accountRCContainer = findViewById(R.id.rc_container);
 
@@ -775,6 +798,7 @@ public class MainActivity extends BaseActivity{
         TextView BtnSocials = findViewById(R.id.btn_socials);
         TextView BtnPosts = findViewById(R.id.btn_view_social);
         TextView BtnHelp = findViewById(R.id.btn_help);
+        TextView BtnChat = findViewById(R.id.btn_chat);
         Button BtnSwitchSettings = findViewById(R.id.switchSettings);
 
 
@@ -866,6 +890,12 @@ public class MainActivity extends BaseActivity{
         RequestQueue queue = Volley.newRequestQueue(this);
 
         queue.add(vidUrlRequest);
+
+
+        BtnChat.setOnClickListener(view -> {
+            ChatDialogFragment chatDialog = ChatDialogFragment.newInstance(getCtx());
+            chatDialog.show(getSupportFragmentManager(), "chat_dialog");
+        });
 
         BtnHelp.setOnClickListener(view -> {
 
@@ -1481,7 +1511,16 @@ public class MainActivity extends BaseActivity{
             }
         });
 
-        BtnViewNotifications.setOnClickListener(arg0 -> BtnWallet.performClick());
+        //BtnViewNotifications.setOnClickListener(arg0 -> BtnWallet.performClick());
+        BtnViewNotifications.setOnClickListener(arg0 -> {
+            if (username == null || username.length() <1){
+                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+            }else {
+
+                Intent intent = new Intent(MainActivity.this, NotificationsActivity.class);
+                MainActivity.this.startActivity(intent);
+            }
+        });
 
         //handle activity to move over to the Settings screen
         BtnSettings.setOnClickListener(arg0 -> {
@@ -2209,13 +2248,75 @@ public class MainActivity extends BaseActivity{
                 AlertDialog pointer = rcDialogBuilder.setMessage(Html.fromHtml(msg))
                         .setTitle(getString(R.string.rc_note_title))
                         .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                        .setNegativeButton(getString(R.string.close_button), null).create();
+                        .setCancelable(true)
+                        .setNegativeButton(getString(R.string.close_button), (dialog, id) -> dialog.dismiss()).create();
 
                 rcDialogBuilder.show();
                 /*pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                 pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
                 pointer.show();*/
             });
+
+        newbieLink.setOnClickListener(iew -> {
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ctx);
+            String msg = getString(R.string.verify_newbie_note);
+
+            dialogBuilder.setMessage(msg);
+
+
+            dialogBuilder.setTitle(getString(R.string.verify_newbie_title));
+            dialogBuilder.setNegativeButton(getString(R.string.discord),
+                        (dialog, id) -> {
+
+                            try {
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.discord_actifit))));
+                            }catch(Exception e){
+                                Log.e(MainActivity.TAG, "error opening social media");
+                            }
+
+                        });
+
+            dialogBuilder.setPositiveButton(getString(R.string.share_post_button),
+                        (dialog, id) -> {
+                            //dialog.cancel();
+
+                            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                            sharingIntent.setType("text/plain");
+                            String shareSubject = getString(R.string.newbie_share_socials);
+                            String shareBody = getString(R.string.newbie_share_socials);
+                            shareBody += " " + getString(R.string.actifit_url);
+
+                            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
+                            sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+
+                            MainActivity.this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
+
+                        });
+
+
+            dialogBuilder.setCancelable(true);
+
+            dialogBuilder.setNeutralButton(
+                    getString(R.string.dismiss_button),
+                    (dialog, id) -> dialog.cancel());
+
+
+            //create and display alert window
+            try {
+                AlertDialog alert11 = dialogBuilder.create();
+                //alert11.show();
+                dialogBuilder.show();
+            }catch(Exception e){
+                //Log.e(MainActivity.TAG, e.getMessage());
+            }
+
+
+            //dialogBuilder.show();
+                /*pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+                pointer.show();*/
+        });
 
         //check if user has accounts across all chains
 
