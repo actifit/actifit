@@ -138,6 +138,7 @@
     <string name="dismiss_button">Dismiss</string>
     <string name="view_post_button">View Post</string>
     <string name="share_post_button">Share</string>
+    <string name="discord">Discord</string>
     <string name="device_has_no_cam">Your device does not have a camera</string>
     <string name="start_upload">Uploading...0%</string>
     <string name="upload_complete">Upload Completed!</string>
@@ -207,6 +208,7 @@
     <string name="no_button">No</string>
     <string name="my_activity_button">My Activity</string>
     <string name="close_button">Close</string>
+    <string name="details_button">Details</string>
     <string name="do_not_show_again">Don\'t show again</string>
     <string name="app_version_string">Actifit App Version</string>
     <string name="app_no_affiliation_notice">Actifit has no affiliation with or sponsorship by IFIT and/or ICON Health &amp; Fitness (ifit.com).</string>
@@ -275,6 +277,9 @@
     <string name="hive_payout_details">Post HIVE payout</string>
     <string name="afit_payout_details">Post AFIT payout</string>
     <string name="tutorial_title">Actifit Video Tutorial</string>
+    <string name="chat_title">Let\'s Chit Chat!</string>
+    <string name="announce_title">Actifit Announcement</string>
+    <string name="comment_note"><br/>Comment Posted via Actifit Android App.<br/>[Download Here](https://links.actifit.io/android)</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="signup">Signup</string>
@@ -347,6 +352,8 @@
     <string name="total_consumed">Total Consumed</string>
     <string name="remaining_boosts">Remaining Boosts</string>
     <string name="rc_note">This value represents your account\'s RC (Resource Credits). &lt;br /&gt; RC credits allow you to transact on Hive chain, on which Actifit mainly runs. &lt;br /&gt;It is recommended to maintain a value above 50%. &lt;br /&gt;If your RC gets to a critical low level, you might not be able to create an actifit report, and will need to wait for a day or two till your RC replenishes. &lt;br /&gt; You can also power up more HIVE to replenish your RC </string>
+    <string name="verify_newbie_note">As a newbie who has not created more than 20 actifit reports, you are eligible to multiply your rewards for up to 60 days by tweeting about Actifit on twitter or other socials. Simply click the share button below. Once done, head to our discord and share the link to get verified by one of our team members. Let\'s go!</string>
+    <string name="verify_newbie_title">Earn Multiples As Newbie</string>
     <string name="rc_note_title">Resource Credits</string>
     <string name="reward_cycle_title">Actifit Reward Cycle</string>
     <string name="reward_cycle_description">Actifit distributes rewards via reward cycles. Normally cycles are run every 24 hours. &lt;br /&gt; The timer represents the time till next cycle. If the status says "processing" this means reward cycle is running, and if you have any eligible entry for rewards, it will receive rewards prior to next cycle. </string>
@@ -367,9 +374,10 @@
     <string name="referral_link_txt">Your Referral Link</string>
     <string name="referrals_format">https://actifit.io/signup?referrer=</string>
     <string name="referral_title">Join Actifit NOW - The Social Move2Earn Project!</string>
-    <string name="referral_description">Actifit rewards you for tracking your daily activity, earning multiple crypto assets across several blockchains.</string>
+    <string name="referral_description">Actifit rewards you for tracking your daily activity, earning multiple crypto assets.</string>
     <string name="post_title">Check out my cool new post on actifit, the social Move2Earn Project!</string>
     <string name="post_title_other">Check out this cool post on actifit, the social Move2Earn Project!</string>
+    <string name="newbie_share_socials">I started using this amazing project called Actifit. Check it out. It pays to move! #actifit @actifit_fitness</string>
     <string name="post_description"></string>
     <string name="referral_join_link">Join today &amp; start earning NOW! _URL_</string>
     <string name="copy_success">Copied Successfully!</string>
