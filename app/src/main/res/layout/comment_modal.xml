@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:id="@+id/comment_modal_container"
-    android:layout_gravity="bottom"
+    android:layout_gravity="center"
     android:gravity="center">
 
 
@@ -58,33 +58,43 @@
             android:id="@+id/reply_text"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-
             android:textSize="16dp"
             android:gravity="top"
             android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
             android:maxLines="6"
-            android:minHeight="120dp"
+            android:minHeight="100dp"
+            android:paddingLeft="10dp"
             android:hint="@string/comment_hint"
             /><!--android:layout_weight="1"-->
 
         <com.mittsu.markedview.MarkedView
             android:id="@+id/reply_preview"
-            android:layout_height="match_parent"
+            android:layout_height="100dp"
             android:layout_width="match_parent"
             android:text="@string/comment_preview_lbl"
             android:hint="@string/comment_preview_lbl"
             android:textSize="16dp"
-            android:minHeight="120dp"/>
+            android:minHeight="100dp"/>
 
     <!--</LinearLayout>-->
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:orientation="horizontal"
+        android:minHeight="50dp"
         >
 
-        <!--<Button
+        <Button
+            android:id="@+id/close_btn"
+            style="@style/AppTheme.ActifitButton"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/cancel_action"
+            />
+
+        <Button
             style="@style/AppTheme.ActifitButton"
             android:id="@+id/proceed_comment_btn"
             android:layout_width="120dp"
@@ -94,21 +104,14 @@
             android:text="@string/reply_action"
             />
 
-        <Button
-            android:id="@+id/cancel_btn"
-            style="@style/AppTheme.ActifitButton"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/cancel_action"
-            />-->
+
 
     </LinearLayout>
 
     <ProgressBar
         android:id="@+id/loader"
         android:layout_width="25dp"
-        android:layout_height="match_parent"
+        android:layout_height="25dp"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:progress="@integer/material_motion_duration_long_1"

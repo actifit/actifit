@@ -15,11 +15,12 @@
         android:textSize="18sp"
         android:textColor="@android:color/black"
         android:padding="16dp"
-        android:gravity="left"
+        android:gravity="center"
 
         android:layout_gravity="center"
-        android:text="@string/tutorial_title"
+        android:text="@string/chat_title"
         android:drawableStart="@drawable/actifit_logo" /> <!-- Add your icon drawable here -->
+
 
     <ProgressBar
         android:id="@+id/loader"
@@ -32,7 +33,7 @@
 
     <WebView
 
-        android:id="@+id/youtubePlayerView"
+        android:id="@+id/chatContainer"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
