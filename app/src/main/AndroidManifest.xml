@@ -2,7 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 package="io.actifit.fitnesstracker.actifitfitnesstracker">
 
-<application
+    <!-- required by android 13 / post notifications permission  -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- required by android 13 /  for high sensor usage  -->
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS"/>
+
+    <application
     android:allowBackup="true"
     android:icon="@mipmap/actifit_launcher"
     android:label="@string/app_name"
@@ -150,5 +155,6 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
 <!-- required as of Android 9 (API level 28) for startforeground service -->
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
 </manifest>
