@@ -25,15 +25,13 @@
     <string name="actifit_channel_ID">액티핏 알림 채널 1</string>
     <string name="actifit_channel_remind_ID">액티핏 알림 채널 2</string>
     <string name="actifit_fcm_msg_channel_id">액티핏 Fcm 메세지 채널 1</string>
-    <string name="aggr_back_tracking_on">켜짐</string>
-    <string name="aggr_back_tracking_off"></string>
     <string name="aggr_mode_note">스크린이 잠겨 있을때 당신의 움직임을 기록하는 앱에 문제가 발생한다면 이 설정을 하세요. 이 설정은 당신의 뱃터리을 더 빨리 소모시킬 수도 있습니다.</string>
     <string name="one_post_per_day_error">하루에 한번만 포스팅할 수 있습니다.</string>
     <string name="min_char_count_error">오늘의 활동에 대해 최소한으로 적어야 합니다. </string>
     <string name="characters_plural_label">특징</string>
     <string name="current_workout_going_charity">당신의 현재 활동에 대한 보상은 자선 기금을 사용됩니다 </string>
     <string name="current_workout_settings_based">이 설정으로 계속 진행하시겠습니까? </string>
-    <string name="steemit_url">https://www.steemit.com/</string>
+    <string name="steemit_url">https://www.hive.blog/</string>
     <string name="actifit_usermedia_url">https://usermedia.actifit.io/</string>
     <string name="actifit_find_posting_key_vid"><a href="https://d.tube/#!/v/raserrano/h7rze7he">개인키를 찾는 것을 도와주세요</a></string>
     <string name="welcome_user">환영합니다 USER_NAME USER_RANK</string>

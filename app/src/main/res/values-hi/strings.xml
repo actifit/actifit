@@ -24,15 +24,13 @@
     <string name="activity_today_tenk_milestone">10 हजार के मुकाम तक पहुंचने पर बधाई। बहुत बढ़िया</string>
     <string name="actifit_notif_channel">एक्टिफिट अधिसूचना चैनल</string>
     <string name="actifit_notif_description">एक्टीफिट ऐप के नोटिफिकेशन भेजने के लिए चैनल उपयोग किया जाता है</string>
-    <string name="aggr_back_tracking_on">पर</string>
-    <string name="aggr_back_tracking_off"></string>
     <string name="aggr_mode_note">यदि स्क्रीन लॉक है और आप अपने मूवमेंट को ट्रैक करने मे समस्याओं का सामना कर रहे हैं, तो इस सेटिंग को सक्षम करें। सेटिंग संभवत: आपकी बैटरी को तेजी से समाप्त कर सकती है।</string>
     <string name="one_post_per_day_error">आप प्रति दिन केवल एक बार पोस्ट कर सकते हैं</string>
     <string name="min_char_count_error">आपको कम से कम अपनी गतिविधि का वर्णन करने की आवश्यकता है </string>
     <string name="characters_plural_label">वर्ण</string>
     <string name="current_workout_going_charity">आपकी वर्तमान गतिविधि पुरस्कार चैरिटी में जाएगी </string>
     <string name="current_workout_settings_based">आपकी सेटिंग पसंद के आधार पर। क्या आप सुनिश्चित रूप से आगे बढ़ना चाहते हैं? </string>
-    <string name="steemit_url">https://www.steemit.com/</string>
+    <string name="steemit_url">https://www.hive.blog/</string>
     <string name="actifit_usermedia_url">https://usermedia.actifit.io/</string>
     <string name="actifit_find_posting_key_vid"><a href="https://d.tube/#//v/raserrano/h7rze7he"> मेरी निजी पोस्टिंग कुंजी खोजने में मेरी सहायता करें </a></string>
     <string name="welcome_user">आपका स्वागत है उपयोगकर्ता नाम उपयोगकर्ता रैंक</string>
@@ -87,8 +85,8 @@
     <string name="fitbit_measurements_lbl">माप डाले</string>
     <string name="fitbit_fetch_steps">लायें कदम</string>
     <string name="steem_post_payout">स्टीम पोस्ट पेआउट</string>
-    <string name="pay_option_50_50">५०% SBD और ५०% SP</string>
-    <string name="pay_option_full_sp">१००% SP</string>
+    <string name="pay_option_50_50">५०% HBD और ५०% HP</string>
+    <string name="pay_option_full_sp">१००% HP</string>
     <string name="measure_system_lbl">माप प्रणाली</string>
     <string name="metric_system_option_lbl">मीट्रिक</string>
     <string name="us_system_option_lbl">यूएस प्रणाली</string>
