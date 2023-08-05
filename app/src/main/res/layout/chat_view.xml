@@ -1,12 +1,21 @@
 <?xml version = "1.0" encoding = "utf-8"?>
 
+
 <LinearLayout xmlns:android = "http://schemas.android.com/apk/res/android"
+    android:id="@+id/chatParentContainer"
     android:layout_width = "match_parent"
     android:gravity = "top"
     android:layout_gravity="top"
     android:layout_height = "match_parent"
     android:orientation="vertical"
     android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width = "match_parent"
+        android:layout_height = "wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        >
 
     <TextView
         android:id="@+id/titleTextView"
@@ -21,6 +30,19 @@
         android:text="@string/chat_title"
         android:drawableStart="@drawable/actifit_logo" /> <!-- Add your icon drawable here -->
 
+
+    <TextView
+        android:id="@+id/chat_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/actifitRed"
+        android:text="\uf05a"
+        android:textSize="20dp"
+        android:padding="7dp"
+        />
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/loader"
@@ -52,3 +74,4 @@
 
 
 </LinearLayout>
+

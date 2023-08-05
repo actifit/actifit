@@ -8,6 +8,7 @@
     android:id="@+id/nestedScrollView"
     >-->
 
+
 <LinearLayout android:id="@+id/main_layout_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -196,6 +197,19 @@
                     android:textSize="20sp"
                     />
 
+                <TextView android:id="@+id/verify_newbie"
+                    android:layout_width="40dp"
+                    android:layout_height="30dp"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="25dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="5dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf2c1"
+                    />
+
             </GridLayout>
 
            <!-- <LinearLayout
@@ -275,6 +289,23 @@
             </LinearLayout>-->
         </LinearLayout>
     </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+    <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
 
     <LinearLayout
         android:id="@+id/main_center"
@@ -363,11 +394,12 @@
                     android:orientation="vertical"
                     android:visibility="gone"
                     android:layout_margin="20dp"
+                    android:layout_gravity="bottom"
                     >
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="80dp"
+                        android:layout_height="150dp"
                         android:gravity="center"
                         android:textSize="18sp"
                         android:text="@string/third_party_enabled"
@@ -381,6 +413,8 @@
 
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
+                        android:gravity="center"
+                        android:layout_gravity="end"
                         android:text="@string/switch_settings"
                         />
                 </LinearLayout>
@@ -665,7 +699,8 @@
             android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:minHeight="130dp"
             android:orientation="horizontal">
 
             <com.github.mikephil.charting.charts.BarChart
@@ -711,48 +746,21 @@
 
         </LinearLayout>
 
-        <!--<LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:weightSum="1.0"
-            android:gravity="center"
-            android:layout_weight="1">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/success_referrals"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:textSize="15dp"
-                    android:textColor="@color/actifitRed"
-                    android:visibility="gone"
-                    android:text="0"/>
-
-            </LinearLayout>
-
-
-
-        </LinearLayout>-->
-
-
-
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/main_footer"
         android:orientation="horizontal"
         android:gravity="bottom|center"
-        android:layout_gravity="end"
+        android:layout_gravity="bottom"
+        android:minHeight="50dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
+
         >
+<!--
+android:layout_gravity="end"
+android:layout_weight="1"-->
 
         <TextView
             android:id="@+id/btn_view_social"
@@ -762,7 +770,7 @@
             android:textColor="@color/actifitRed"
             android:text="\ue068"
             android:textSize="25dp"
-            android:padding="10dp"
+            android:padding="7dp"
             />
 
         <info.androidhive.fontawesome.FontTextView
@@ -773,7 +781,7 @@
             android:textSize="25dp"
             android:text="@string/fa_camera_retro_solid"
             app:solid_icon="true"
-            android:padding="10dp"/>
+            android:padding="7dp"/>
 
         <info.androidhive.fontawesome.FontTextView
             android:id="@+id/btn_view_history"
@@ -783,7 +791,7 @@
             android:textSize="25dp"
             android:text="@string/fa_history_solid"
             app:solid_icon="true"
-            android:padding="10dp"/>
+            android:padding="7dp"/>
 
         <info.androidhive.fontawesome.FontTextView
             android:id="@+id/btn_view_leaderboard"
@@ -793,7 +801,7 @@
             android:textSize="25dp"
             android:text="\uf0cb"
             app:solid_icon="true"
-            android:padding="10dp"/>
+            android:padding="7dp"/>
 
         <!-- android:text="@string/fa_list_solid" -->
 
@@ -805,7 +813,7 @@
             android:textColor="@color/actifitRed"
             android:text="\ue4e2"
             android:textSize="25dp"
-            android:padding="10dp"
+            android:padding="7dp"
             />
 
         <TextView
@@ -816,7 +824,7 @@
             android:textColor="@color/actifitRed"
             android:text="\uf54e"
             android:textSize="25dp"
-            android:padding="10dp"
+            android:padding="7dp"
             />
 
         <TextView
@@ -827,11 +835,25 @@
             android:textColor="@color/actifitRed"
             android:text="?"
             android:textSize="25dp"
-            android:padding="10dp"
+            android:padding="7dp"
             />
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/btn_chat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf086"
+            android:textSize="25dp"
+            android:padding="7dp"
+            />
 
+        </LinearLayout>
+    </LinearLayout>
+    </ScrollView>
+    </LinearLayout>
 </LinearLayout>
+
 
 <!--</androidx.core.widget.NestedScrollView>-->
