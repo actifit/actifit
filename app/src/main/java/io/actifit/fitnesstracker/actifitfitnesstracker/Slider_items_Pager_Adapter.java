@@ -76,7 +76,11 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        container.removeView((View)object);
+        try {
+            container.removeView((View) object);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -11,6 +12,7 @@ import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -29,6 +31,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
+
+import info.androidhive.fontawesome.FontTextView;
 
 import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
 
@@ -134,6 +138,21 @@ public class SocialActivity extends BaseActivity {
         //set load more functionality
         loadMoreBtn.setOnClickListener(view -> {
             loadPosts(false);
+        });
+
+
+        //set modal for social info
+        TextView modalBtn = findViewById(R.id.social_info);
+        modalBtn.setOnClickListener(v -> {
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+
+            AlertDialog pointer = dialogBuilder.setMessage(Html.fromHtml(getString(R.string.social_description)))
+                    .setTitle(getString(R.string.social_title))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button), null)
+                    .create();
+
+            dialogBuilder.show();
         });
 
         //capture scroll event to bottom

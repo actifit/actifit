@@ -191,6 +191,11 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             replyButton.setOnClickListener(view -> {
 
+                if (MainActivity.username == null || MainActivity.username.length() <1) {
+                    Toast.makeText(ctx, ctx.getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 //show and highlight reply box
                 //test fetching hive global properties
                 //grabHiveGlobProperties();
@@ -211,6 +216,10 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             });
 
             upvoteButton.setOnClickListener(view ->{
+                if (MainActivity.username == null || MainActivity.username.length() <1) {
+                    Toast.makeText(ctx, ctx.getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+                    return;
+                }
                 if (!this.isComment) {
                     PostAdapter.keyMainContext = ((ListView)finalConvertView.getParent()).getContext();
                 }
@@ -400,7 +409,15 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     if (jsonMetadata.has("image")) {
                         JSONArray imageArray = jsonMetadata.getJSONArray("image");
                         if (imageArray.length() > 0) {
-                            fetchedImageUrl = imageArray.getString(0);
+
+                            //fetch first non-empty image
+                            for (int j=0;j<imageArray.length();j++){
+                                fetchedImageUrl = imageArray.getString(j);
+                                if (fetchedImageUrl.startsWith("http")){
+                                    break;
+                                }
+                            }
+
                         }
                     }
                 } catch (JSONException e) {
@@ -415,11 +432,17 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                         Picasso.get()
                                 .load(userImgUrl)
                                 .into(userProfilePic);
-                        if (mainImageUrl!="") {
-                            Picasso.get()
-                                    .load(mainImageUrl)
-                                    .into(mainImage);
-                            mainImage.setVisibility(VISIBLE);
+                        try {
+                            //also load main post image
+                            if (mainImageUrl != "") {
+                                Picasso.get()
+                                        .load(mainImageUrl)
+                                        .into(mainImage);
+                                mainImage.setVisibility(VISIBLE);
+                            }
+                        }catch(Exception err){
+                            System.out.println(err);
+                            mainImage.setVisibility(View.GONE);
                         }
                     });
 

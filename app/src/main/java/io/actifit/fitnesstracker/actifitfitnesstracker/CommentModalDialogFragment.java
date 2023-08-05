@@ -1,11 +1,19 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -23,6 +31,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.mittsu.markedview.MarkedView;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -31,17 +46,29 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
+import static android.app.Activity.RESULT_OK;
 import static android.view.View.VISIBLE;
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+import static io.actifit.fitnesstracker.actifitfitnesstracker.PostSteemitActivity.copyExif;
 
 public class CommentModalDialogFragment extends DialogFragment {
     public Context ctx;
     SingleHivePostModel postEntry;
+    //View mainView;
+    EditText replyText;
+
+    private static final int COMMENT_IMAGE_REQUEST = 1129;
 
     public CommentModalDialogFragment() {
 
@@ -71,6 +98,7 @@ public class CommentModalDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.comment_modal, container, false);
+        //View mainView = view;
         //View voteModalLayout = LayoutInflater.from(ctx).inflate(R.layout.vote_modal, null);
         renderCommentContent(view);
 
@@ -87,10 +115,15 @@ public class CommentModalDialogFragment extends DialogFragment {
         //MarkedView mdView = view.findViewById(R.id.md_view);
         author_txt.setText("@"+postEntry.author+" 's content");
 
-        EditText replyText = view.findViewById(R.id.reply_text);
+        //EditText
+        replyText = view.findViewById(R.id.reply_text);
         MarkedView mdReplyView = view.findViewById(R.id.reply_preview);
 
+        Button insertImage = view.findViewById(R.id.insert_image_comment);
 
+        insertImage.setOnClickListener(v ->{
+            showChoosingFile();
+        });
         //Button proceedCommentBtn = replyModalLayout.findViewById(R.id.proceed_comment_btn);
 
         //mdReplyView.setMDText(replyText.getText().toString());
@@ -243,5 +276,195 @@ public class CommentModalDialogFragment extends DialogFragment {
         closeButton.setOnClickListener(v -> {
             dismiss(); // Dismiss the DialogFragment when the close button is clicked
         });
+    }
+
+    //required function to ask for proper read/write permissions on later Android versions
+    protected boolean shouldAskPermissions() {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
+    @TargetApi(23)
+    protected void askPermissions() {
+        String[] permissions = {
+                "android.permission.READ_EXTERNAL_STORAGE",
+                "android.permission.WRITE_EXTERNAL_STORAGE"
+        };
+        int requestCode = 200;
+        requestPermissions(permissions, requestCode);
+    }
+
+
+    /*************************************/
+    private Uri fileUri;
+    private Bitmap bitmap;
+
+    private void createFile(Context context, Uri srcUri, File dstFile) {
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
+            if (inputStream == null) return;
+
+            OutputStream outputStream = new FileOutputStream(dstFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);
+
+            //special copyexif from stream to file
+            copyExif(inputStream, dstFile.getAbsolutePath());
+
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //implementing file upload functionality
+    private void uploadFile() {
+        final ProgressDialog uploadProgress;
+        if (fileUri != null) {
+
+            AWSMobileClient.getInstance().initialize(ctx).execute();
+
+            //create unique image file name
+            final String fileName = UUID.randomUUID().toString();
+
+            // final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+            final File file = new File(ctx.getFilesDir(), fileName);
+
+            createFile(ctx, fileUri, file);
+
+            TransferUtility transferUtility =
+                    TransferUtility.builder()
+                            .context(ctx)
+                            .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+                            .s3Client(new AmazonS3Client(AWSMobileClient.getInstance().getCredentialsProvider()))
+                            .build();
+
+            //specify content type to be image to be properly recognizable upon rendering
+            ObjectMetadata imgMetaData = new ObjectMetadata();
+            imgMetaData.setContentType("image/jpeg");
+
+            TransferObserver uploadObserver =
+                    transferUtility.upload(fileName, file, imgMetaData);
+
+            //create a new progress dialog to show action is underway
+            uploadProgress = new ProgressDialog(ctx);
+            uploadProgress.setMessage(getString(R.string.start_upload));
+            uploadProgress.show();
+
+            uploadObserver.setTransferListener(new TransferListener() {
+
+                @Override
+                public void onStateChanged(int id, TransferState state) {
+                    if (TransferState.COMPLETED == state) {
+                        try {
+                            if (uploadProgress != null && uploadProgress.isShowing()) {
+                                uploadProgress.dismiss();
+                            }
+                        }catch (Exception ex){
+                            //Log.d(MainActivity.TAG,ex.getMessage());
+                        }
+
+                        Toast.makeText(ctx, getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
+
+                        String full_img_url = getString(R.string.actifit_usermedia_url)+fileName;
+                        String img_markdown_text = "![]("+full_img_url+")";
+
+                        //append the uploaded image url to the text as markdown
+                        //if there is any particular selection, replace it too
+
+                        int start = Math.max(replyText.getSelectionStart(), 0);
+                        int end = Math.max(replyText.getSelectionEnd(), 0);
+                        replyText.getText().replace(Math.min(start, end), Math.max(start, end),
+                                img_markdown_text, 0, img_markdown_text.length());
+
+                        file.delete();
+
+                    } else if (TransferState.FAILED == state) {
+                        Toast toast = Toast.makeText(ctx, getString(R.string.upload_failed), Toast.LENGTH_SHORT);
+                        TextView v = toast.getView().findViewById(android.R.id.message);
+                        v.setTextColor(Color.RED);
+                        toast.show();
+                        file.delete();
+                    }
+                }
+
+                @Override
+                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                    float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
+                    int percentDone = (int) percentDonef;
+                    uploadProgress.setMessage(getString(R.string.uploading) + percentDone + "%");
+                    //tvFileName.setText("ID:" + id + "|bytesCurrent: " + bytesCurrent + "|bytesTotal: " + bytesTotal + "|" + percentDone + "%");
+                }
+
+                @Override
+                public void onError(int id, Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            });
+
+            // If your upload does not trigger the onStateChanged method inside your
+            // TransferListener, you can directly check the transfer state as shown here.
+            if (TransferState.COMPLETED == uploadObserver.getState()) {
+                // Handle a completed upload.
+                try {
+                    if (uploadProgress != null && uploadProgress.isShowing()) {
+                        uploadProgress.dismiss();
+                    }
+                }catch (Exception ex){
+                    //Log.d(MainActivity.TAG,ex.getMessage());
+                }
+
+                Toast.makeText(ctx, getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
+
+                String full_img_url = getString(R.string.actifit_usermedia_url)+fileName;
+                String img_markdown_text = "![]("+full_img_url+")";
+
+                //append the uploaded image url to the text as markdown
+                //if there is any particular selection, replace it too
+
+                int start = Math.max(replyText.getSelectionStart(), 0);
+                int end = Math.max(replyText.getSelectionEnd(), 0);
+                replyText.getText().replace(Math.min(start, end), Math.max(start, end),
+                        img_markdown_text, 0, img_markdown_text.length());
+
+                file.delete();
+            }
+        }
+    }
+
+
+    //handles the display of image selection
+    private void showChoosingFile() {
+
+        //ensure we have proper permissions for image upload
+        if (shouldAskPermissions()) {
+            askPermissions();
+        }
+
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_img_title)), COMMENT_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (bitmap != null) {
+            bitmap.recycle();
+        }
+
+        if (requestCode == COMMENT_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            fileUri = data.getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), fileUri);
+
+                uploadFile();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

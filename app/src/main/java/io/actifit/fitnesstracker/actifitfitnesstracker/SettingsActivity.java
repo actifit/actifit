@@ -34,6 +34,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -853,6 +854,9 @@ public class SettingsActivity extends BaseActivity {
                         public void onResponse(JSONObject response) {
 
                             Log.d(MainActivity.TAG, response.toString());
+                            overridePendingTransition(0,0);
+                            currentActivity.finish();
+                            overridePendingTransition(0,0);
 
                         }
 
@@ -863,6 +867,7 @@ public class SettingsActivity extends BaseActivity {
                         public void onErrorResponse(VolleyError error) {
                             // error
                             Log.d( MainActivity.TAG, "save settings error");
+                            Toast.makeText(getApplicationContext(), getString(R.string.error_saving_settings),Toast.LENGTH_LONG);
                         }
                     }) {
                         @NonNull
@@ -901,9 +906,12 @@ public class SettingsActivity extends BaseActivity {
                     };*/
 
                     queue.add(postRequest);
+                }else{
+                    overridePendingTransition(0,0);
+                    currentActivity.finish();
+                    overridePendingTransition(0,0);
                 }
 
-                currentActivity.finish();
                 /*finish();
                 overridePendingTransition( 0, 0);
                 //startActivity(getIntent());
@@ -1046,6 +1054,19 @@ public class SettingsActivity extends BaseActivity {
             metricSysRadioBtn.setChecked(true);
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // Apply custom fade-out animation when navigating back to the main activity
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
 
