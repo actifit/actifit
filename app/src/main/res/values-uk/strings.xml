@@ -1,15 +1,15 @@
 <resources>
     <string name="app_name">Actifit Фітнес-трекер</string>
-    <string name="sending_post">Надсилання вашої публікації в блокчейн Steem...</string>
-    <string name="success_post">Ваше повідомлення успішно надіслано в блокчейн Steem</string>
-    <string name="failed_post">Під час надсилання вашої публікації у блокчейн Steem сталася помилка</string>
-    <string name="connection_timeout">Підключення до вузла Steem зайняло занадто багато часу. Будь ласка спробуйте ще раз.</string>
+    <string name="sending_post">Надсилання вашої публікації в блокчейн Hive...</string>
+    <string name="success_post">Ваше повідомлення успішно надіслано в блокчейн Hive</string>
+    <string name="failed_post">Під час надсилання вашої публікації у блокчейн Hive сталася помилка</string>
+    <string name="connection_timeout">Підключення до вузла Hive зайняло занадто багато часу. Будь ласка спробуйте ще раз.</string>
     <string name="default_post_title">Моя картка звіту Actifit:</string>
     <string name="error_need_select_one_activity">Щоб продовжити, потрібно вибрати принаймні один тип діяльності</string>
     <string name="fetching_leaderboard">Оновлення таблиці лідерів ...</string>
     <string name="leader_no_results">Зараз у таблиці лідерів немає користувачів</string>
     <string name="leader_error">Під час отримання списку лідерів виникла помилка. Будь-ласка спробуйте пізніше.</string>
-    <string name="username_missing">Укажіть належне ім\'я користувача Steem</string>
+    <string name="username_missing">Укажіть належне ім\'я користувача Hive</string>
     <string name="fetching_user_balance">Захоплення балансу користувачів...</string>
     <string name="metric_system">Метрична система</string>
     <string name="us_system">Система США</string>
@@ -33,7 +33,7 @@
     <string name="characters_plural_label">characters</string>
     <string name="current_workout_going_charity">Ваші поточні нагороди за активність підуть на благодійність </string>
     <string name="current_workout_settings_based">грунтуючись на виборі налаштувань. Ви впевнені, що хочете продовжити? </string>
-    <string name="steemit_url">https://www.steemit.com/</string>
+    <string name="steemit_url">https://www.hive.blog/</string>
     <string name="actifit_usermedia_url">https://usermedia.actifit.io/</string>
     <string name="actifit_find_posting_key_vid"><a href="https://d.tube/#!/v/raserrano/h7rze7he">Допоможіть мені знайти cвій Приватний Дописовий(Private Posting) ключ</a></string>
     <string name="welcome_user">Вітаю, USER_NAME USER_RANK!</string>
@@ -48,15 +48,15 @@
     <string name="activity_history_chart_title">Діаграма історії діяльності</string>
     <string name="activity_details_chart_title">Подробиці дня активності</string>
     <string name="activity_leaderboard_title">Щоденна таблиця лідерів: Найкращих Рухливчиків</string>
-    <string name="post_to_steem_btn_txt">Опублікувати в Steem</string>
+    <string name="post_to_steem_btn_txt">Опублікувати в Hive</string>
     <string name="snap_picture_btn_txt">Прив’язати Acti Pic</string>
     <string name="view_history_btn_txt">Переглянути історію Активності</string>
     <string name="daily_leaderboard_btn_txt">Переглянути щоденну таблицю лідерів</string>
     <string name="view_wallet_btn_txt">Переглянути гаманець</string>
     <string name="settings_btn_txt">Налаштування</string>
     <string name="settings_title">Налаштування</string>
-    <string name="steem_username_lbl">Ім\'я користувача Steem</string>
-    <string name="steem_pvt_posting_key">Steem Private Posting ключ (НЕ пароль)</string>
+    <string name="steem_username_lbl">Ім\'я користувача Hive</string>
+    <string name="steem_pvt_posting_key">Hive Private Posting ключ (НЕ пароль)</string>
     <string name="report_title">Назва звіту</string>
     <string name="full_report_AFIT_pay">Повна виплата звіту в AFIT</string>
     <string name="full_AFIT_checkbox">Максимізуйте прибуток від токена AFIT</string>
@@ -87,9 +87,9 @@
     <string name="fitbit_settings_lbl">Налаштування Fitbit</string>
     <string name="fitbit_measurements_lbl">Отримати вимірювання</string>
     <string name="fitbit_fetch_steps">Кроки</string>
-    <string name="steem_post_payout">Якою буде виплата в STEEM?</string>
-    <string name="pay_option_50_50">50% SBD - 50% SP</string>
-    <string name="pay_option_full_sp">100% SP</string>
+    <string name="steem_post_payout">Якою буде виплата в Hive?</string>
+    <string name="pay_option_50_50">50% HBD - 50% HP</string>
+    <string name="pay_option_full_sp">100% HP</string>
     <string name="measure_system_lbl">Система вимірювання</string>
     <string name="metric_system_option_lbl">Метричний</string>
     <string name="us_system_option_lbl">Система США</string>
@@ -140,7 +140,7 @@
     <string name="Treadmill">Бігова доріжка</string>
     <string name="StairMill">Сходи млин</string>
     <string name="Elliptical">Еліптичний</string>
-      <string name="Hiking">Піші прогулянки</string>
+    <string name="Hiking">Піші прогулянки</string>
     <string name="Gardening">Садівництво</string>
     <string name="Rollerblading">Роликові котки</string>
     <string name="Cricket">Крикет</string>
