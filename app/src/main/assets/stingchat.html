@@ -69,8 +69,14 @@
                                 "--appMessageFontFamily": "''New Heterodox Mono',monospace'",
                                 "--appMessageFontSize": "16px"
                                 };
-        stwidget.setUser(getUserFromWebView());
-        stwidget.setPostingKey(getPstKeyFromWebView(), dhive);
+
+        const curUser = getUserFromWebView();
+        if (curUser != null && curUser != ''){
+            stwidget.setUser(curUser);
+            stwidget.setPostingKey(getPstKeyFromWebView(), dhive);
+        }else{
+            stwidget.setUser('');
+        }
         let defaultWidth = 450;
         if (screen.width < 750){
 			defaultWidth = screen.width - 90;
