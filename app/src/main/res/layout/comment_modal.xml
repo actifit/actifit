@@ -54,10 +54,19 @@
         android:paddingBottom="5dp"
         >-->
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity = "center"
+        android:gravity = "center"
+        >
+
         <EditText
             android:id="@+id/reply_text"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
             android:textSize="16dp"
             android:gravity="top"
             android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
@@ -66,6 +75,18 @@
             android:paddingLeft="10dp"
             android:hint="@string/comment_hint"
             /><!--android:layout_weight="1"-->
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/insert_image_comment"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:textSize="16dp"
+            android:fontFamily="@font/font_awesome_6_regular"
+            android:text="\uf03e"
+            />
+
+
+    </LinearLayout>
 
         <com.mittsu.markedview.MarkedView
             android:id="@+id/reply_preview"
