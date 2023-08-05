@@ -1,6 +1,9 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.content.Context;
+import android.transition.Slide;
+import android.transition.Transition;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -153,7 +156,8 @@ public class Utils {
 
     //checks if a user has an active vote on a post
     public static Boolean userVotedPost(String voter, JSONArray actVotes , int post_id){
-
+        //no logged in user case
+        if (voter == null || voter == "" || voter.length() < 1) return false;
         for (int i = 0; i < actVotes.length(); i++) {
             try {
                 VoteEntryAdapter.VoteEntry vEntry = new VoteEntryAdapter.VoteEntry((actVotes.getJSONObject(i)), 0);//second param not needed here
@@ -265,5 +269,11 @@ public class Utils {
         //void onResponse(JSONObject result);
 
         void onResponse(boolean success);
+    }
+
+    public static Transition createSlideTransition(Context ctx) {
+        Slide slide = new Slide(Gravity.END);
+        slide.setDuration(ctx.getResources().getInteger(android.R.integer.config_longAnimTime));
+        return slide;
     }
 }

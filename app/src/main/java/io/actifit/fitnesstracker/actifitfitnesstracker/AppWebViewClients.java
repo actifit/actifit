@@ -1,19 +1,30 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+
+import androidx.fragment.app.DialogFragment;
 
 import static android.view.View.VISIBLE;
 
 public class AppWebViewClients extends WebViewClient {
 
     private ProgressBar taskProgress;
+    private ChatDialogFragment parentDialog = null;
 
     public AppWebViewClients(ProgressBar taskProgress) {
         this.taskProgress = taskProgress;
+        this.parentDialog = parentDialog;
+    }
+
+    public AppWebViewClients(ProgressBar taskProgress, ChatDialogFragment parentDialog) {
+        this.taskProgress = taskProgress;
+        this.parentDialog = parentDialog;
     }
 
     @Override
@@ -48,6 +59,9 @@ public class AppWebViewClients extends WebViewClient {
         //give focus
         view.requestFocus();
         try {
+            if (this.parentDialog!=null) {
+                //this.parentDialog.measureWebViewAndResize();
+            }
             // Adjust the WebView width dynamically based on the DialogFragment width
 
                 /*
@@ -70,6 +84,7 @@ public class AppWebViewClients extends WebViewClient {
                 });
 
                  */
+
         }catch(Exception genEx){
             genEx.printStackTrace();
         }

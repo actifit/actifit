@@ -5,20 +5,28 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.transition.Slide;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -34,7 +42,13 @@ public class ChatDialogFragment extends DialogFragment {
     private static final String ARG_USER = "user";
     private static final String ARG_PST_KEY = "pstKey";
 
+
     WebView webView;
+    private int origWebViewHeight = 0;
+    static Context ctx;
+//    LinearLayout parentLayout;
+    //ScrollView scrollView;
+
 
     public ChatDialogFragment() {
         // Required empty public constructor
@@ -53,6 +67,8 @@ public class ChatDialogFragment extends DialogFragment {
         //videoId = videoId.replace("watch?v=","embed/");//watch values need to be replace with embed to function
         //args.putString(ARG_PST_KEY, videoId);
         fragment.setArguments(args);
+        ChatDialogFragment.ctx = ctx;
+
         return fragment;
     }
 
@@ -70,6 +86,13 @@ public class ChatDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
+        //WORKS BELOW
+        //dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        //fix display to fit keyboard
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        //dialog.getWindow().setEnterTransition(Utils.createSlideTransition(ChatDialogFragment.ctx));
+        //dialog.getWindow().setExitTransition(Utils.createSlideTransition(ChatDialogFragment.ctx));
         //dialog.getWindow().requestFeature(STYLE_NO_TITLE);
         return dialog;
     }
@@ -87,8 +110,12 @@ public class ChatDialogFragment extends DialogFragment {
 
         webView = view.findViewById(R.id.chatContainer);
 
+        //parentLayout = view.findViewById(R.id.chatParentContainer);
+
+        //scrollView = view.findViewById(R.id.chatSVContainer);
+
         //pass loader as param
-        webView.setWebViewClient(new AppWebViewClients(view.findViewById(R.id.loader)));
+        webView.setWebViewClient(new AppWebViewClients(view.findViewById(R.id.loader), this));
 
         /*webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -132,9 +159,103 @@ public class ChatDialogFragment extends DialogFragment {
             }
         });
 
+
+        //set modal for additional info
+        TextView modalBtn = view.findViewById(R.id.chat_info);
+        modalBtn.setOnClickListener(v -> {
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this.getContext());
+
+            AlertDialog pointer = dialogBuilder.setMessage(Html.fromHtml(getString(R.string.chat_description)))
+                    .setTitle(getString(R.string.chat_title_desc))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button), null)
+                    .create();
+            dialogBuilder.show();
+        });
+
+/*
+        view.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        //measureWebViewAndResize();
+
+
+                    }
+
+
+                });
+*/
+
+
+
         return view;
     }
 
+    /*public void measureWebViewAndResize() {
+
+        if (webViewHeight == 0) {
+            // WebView has not been measured yet, get its width
+            int width = webView.getMeasuredWidth();
+            int height = webView.getContentHeight();
+            if (width > 0 && height > 0) {
+                webViewHeight = height;
+                getDialog().getWindow().setLayout(width, height);
+            }
+        }
+    }*/
+
+    /*
+    public void measureWebViewAndResize() {
+
+        if (getView() == null) return;
+
+        View view = getView();
+        WebView webView = view.findViewById(R.id.chatContainer);
+
+        int webViewHeight = webView.getContentHeight();
+        int webViewWidth = webView.getWidth();
+        System.out.println(">><<>>measureWebView webViewHeight:"+webViewHeight);
+        System.out.println(">><<>>measureWebView webViewWidth:"+webViewWidth);
+        Rect r = new Rect();
+        view.getWindowVisibleDisplayFrame(r);
+        int screenHeight = view.getRootView().getHeight();
+        System.out.println(">><<>>measureWebView screenHeight:"+screenHeight);
+        int keypadHeight = screenHeight - r.bottom;
+        System.out.println(">><<>>measureWebView keypadHeight:"+keypadHeight);
+        if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad visible
+            // Keyboard is visible, adjust dialog size
+            int newHeight = screenHeight - keypadHeight;
+            System.out.println(">><<>>measureWebView newHeight:"+newHeight);
+            if (newHeight > 0) {
+                Dialog dialog = getDialog();
+                if (dialog != null) {
+                    dialog.getWindow().setLayout(webViewWidth, newHeight);
+                    //parentLayout.scrollTo(0, screenHeight);
+                    //scrollView.smoothScrollTo(0, scrollView.getBottom());
+                }
+            }
+        }else{
+            Dialog dialog = getDialog();
+            if (dialog != null) {
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            }
+            //restoreOriginalDimensions();
+        }
+    }
+
+    // Method to restore the original dimensions
+    public void restoreOriginalDimensions() {
+        Dialog dialog = getDialog();
+        if (dialog != null) {
+            ViewGroup.LayoutParams params = dialog.getWindow().getAttributes();
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            //dialog.getWindow().setAttributes(params);
+        }
+    }
+
+*/
     private class JavaScriptInterface {
         @JavascriptInterface
         public String getPstKey() {

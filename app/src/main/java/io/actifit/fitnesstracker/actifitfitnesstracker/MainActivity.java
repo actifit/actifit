@@ -152,8 +152,11 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import info.androidhive.fontawesome.FontTextView;
+
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 
 /**
@@ -194,6 +197,9 @@ public class MainActivity extends BaseActivity{
     public static int connectTimeout = 10000;
     public static int connectMaxRetries = 3;
     public static int connectSubsequentRetryDelay = 2; //backoffmultiplier
+
+    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
+
 
 
     private AlertDialog.Builder pendingRewardsDialogBuilder;
@@ -418,7 +424,7 @@ public class MainActivity extends BaseActivity{
             Toast toast = Toast.makeText(getCtx(), reason,
                     Toast.LENGTH_LONG);
 
-            View view = toast.getView();
+            /*View view = toast.getView();
 
             TextView text = view.findViewById(android.R.id.message);
 
@@ -429,7 +435,7 @@ public class MainActivity extends BaseActivity{
                 e.printStackTrace();
             }
 
-            text.setTextColor(Color.WHITE);
+            text.setTextColor(Color.WHITE);*/
 
             toast.show();
             finish();
@@ -1106,7 +1112,7 @@ public class MainActivity extends BaseActivity{
 
 
         //prepare ads
-        prepareAds();
+        //prepareAds();
 
         // Create the "show" button, which shows a rewarded video if one is loaded.
         dailyRewardButton = findViewById(R.id.daily_reward);
@@ -1144,7 +1150,15 @@ public class MainActivity extends BaseActivity{
             DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
             int curDate = Integer.parseInt(dateFormat.format(date));
 
+            //Toast.makeText(getApplicationContext(),"date"+curDate, Toast.LENGTH_LONG).show();
+
             String strDate = sharedPreferences.getString(getString(R.string.daily_free_reward), "");
+            //reinitialize rewards claimed status
+            dailyRewardClaimed = false;
+            fivekRewardClaimed = false;
+            sevenkRewardClaimed = false;
+            tenkRewardClaimed = false;
+
             if (!strDate.equals("")){
                 if (curDate<=Integer.parseInt(strDate)){
                     //user has already received reward
@@ -1529,8 +1543,11 @@ public class MainActivity extends BaseActivity{
                 Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
             }else {
                 //sensorManager.unregisterListener(MainActivity.this);
+
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                //overridePendingTransition(0,0);
                 MainActivity.this.startActivity(intent);
+                //overridePendingTransition(0,0);
             }
         });
 
@@ -1666,16 +1683,23 @@ public class MainActivity extends BaseActivity{
     // for extra ad related documentation : https://developers.google.com/admob/android/rewarded
     private void prepareAds(){
 
-        //initialize ads
+        if (isMobileAdsInitializeCalled.getAndSet(true)) {
+
+        }else {
+            //initialize ads
+            MobileAds.initialize(this);
+        }
+        /*
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
 
             }
         });
+        */
 
-        //loadRewardedAd();
-        loadConsentData(true);
+        loadRewardedAd();
+        //loadConsentData(true);
     }
 
     private void loadRewardedAd(){
@@ -1693,12 +1717,15 @@ public class MainActivity extends BaseActivity{
                             Log.d(TAG, loadAdError.toString());
                             MainActivity.this.rewardedAd = null;
                             MainActivity.this.isAdLoading = false;
+                            Toast.makeText(
+                                    MainActivity.this, getString( R.string.err_load_ad), Toast.LENGTH_SHORT)
+                                    .show();
                         }
 
                         @Override
                         public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
                             MainActivity.this.rewardedAd = rewardedAd;
-                            Log.d(TAG, "Ad was loaded.");
+                            //Log.d(TAG, "Ad was loaded.");
                             MainActivity.this.isAdLoading = false;
                         }
                     });
@@ -1711,6 +1738,8 @@ public class MainActivity extends BaseActivity{
         if (getString(R.string.test_mode).equals("off")) {
             switch (view.getId()) {
                 case R.id.daily_free_reward:
+                    //Toast.makeText(MainActivity.this, "test message", Toast.LENGTH_LONG)
+                    //        .show();
                     if (dailyRewardClaimed) {
                         //bail out, user already rewarded
                         Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
@@ -1761,12 +1790,19 @@ public class MainActivity extends BaseActivity{
         }
 
         if (rewardedAd == null) {
-            Log.d("TAG", "The rewarded ad wasn't ready yet.");
+            Log.d("TAG", getString(R.string.ad_not_ready));
+            try {
+                Toast.makeText(ctx, getString(R.string.ad_not_ready), Toast.LENGTH_LONG);
+            }catch(Exception ex){
+                ex.printStackTrace();
+            }
             //loadRewardedAd();
             //check for consent and load ad
             loadConsentData(true);
             return;
         }
+
+        //Toast.makeText(ctx, "calculate reward value", Toast.LENGTH_LONG);
 
         //calculate random reward value
         double rewardValue = 0;
@@ -1791,6 +1827,9 @@ public class MainActivity extends BaseActivity{
 
         rewardValue = Math.floor(rewardValue * 1000) / 1000;
 
+        //Toast.makeText(MainActivity.this, "potential reward value: "+rewardValue, Toast.LENGTH_LONG)
+        //        .show();
+
         Button myBtn = (Button)view;
         //prepare SSV for proper server side validation
         ServerSideVerificationOptions options = new ServerSideVerificationOptions.Builder()
@@ -1809,6 +1848,8 @@ public class MainActivity extends BaseActivity{
                     public void onAdShowedFullScreenContent() {
                         // Called when ad is shown.
                         Log.d(TAG, "onAdShowedFullScreenContent");
+                        //Toast.makeText(MainActivity.this, "ad is shown", Toast.LENGTH_LONG)
+                        //        .show();
                         //hide animation
 
 //                        Toast.makeText(MainActivity.this, "onAdShowedFullScreenContent", Toast.LENGTH_SHORT)
@@ -1823,9 +1864,9 @@ public class MainActivity extends BaseActivity{
                         // don't show the ad a second time.
                         rewardedAd = null;
                         giftLoader.clearAnimation();
-//                        Toast.makeText(
-//                                MainActivity.this, "onAdFailedToShowFullScreenContent", Toast.LENGTH_SHORT)
-//                                .show();
+                        //Toast.makeText(
+                        //        MainActivity.this, "adfailedshow:"+adError.toString(), Toast.LENGTH_SHORT)
+                        //        .show();
                     }
 
                     @Override
@@ -1835,6 +1876,9 @@ public class MainActivity extends BaseActivity{
                         // don't show the ad a second time.
                         rewardedAd = null;
                         Log.d(TAG, "onAdDismissedFullScreenContent");
+                        //Toast.makeText(
+                        //        MainActivity.this, "addismissed:", Toast.LENGTH_SHORT)
+                        //        .show();
 //                        Toast.makeText(MainActivity.this, "onAdDismissedFullScreenContent", Toast.LENGTH_SHORT)
 //                                .show();
                         // Preload the next rewarded ad.
@@ -1845,62 +1889,59 @@ public class MainActivity extends BaseActivity{
         double finalRewardValue = rewardValue;
         rewardedAd.show(
                 activityContext,
-                new OnUserEarnedRewardListener() {
-                    @Override
-                    public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
-                        // Handle the reward.
-                        Log.d("TAG", "The user earned the reward.");
-                        Toast.makeText(MainActivity.this, getString(R.string.ad_reward_success).replace("_VAL_", finalRewardValue+""), Toast.LENGTH_SHORT)
-                                .show();
-                        //give out the reward
+                rewardItem -> {
+                    // Handle the reward.
+                    Log.d("TAG", "The user earned the reward.");
+                    Toast.makeText(MainActivity.this, getString(R.string.ad_reward_success).replace("_VAL_", finalRewardValue+""), Toast.LENGTH_SHORT)
+                            .show();
+                    //give out the reward
 
 //                        int rewardAmount = rewardItem.getAmount();
 //                        String rewardType = rewardItem.getType();
 
-                        giftLoader.clearAnimation();
+                    giftLoader.clearAnimation();
 
-                        //store locally for validation
-                        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                    //store locally for validation
+                    SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                        Date date = new Date();
-                        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-                        String strDate = dateFormat.format(date);
+                    Date date = new Date();
+                    DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                    String strDate = dateFormat.format(date);
 
 
-                        switch (view.getId()){
-                            case R.id.daily_free_reward:
-                                dailyRewardClaimed = true;
-                                editor.putString(getString(R.string.daily_free_reward), strDate);
-                                editor.putString("freerewardedValue",finalRewardValue+"");
-                                editor.commit();
-                                break;
+                    switch (view.getId()){
+                        case R.id.daily_free_reward:
+                            dailyRewardClaimed = true;
+                            editor.putString(getString(R.string.daily_free_reward), strDate);
+                            editor.putString("freerewardedValue",finalRewardValue+"");
+                            editor.commit();
+                            break;
 
-                            case R.id.daily_5k_reward:
-                                fivekRewardClaimed = true;
-                                editor.putString(getString(R.string.daily_5k_reward), strDate);
-                                editor.putString("5krewardedValue",finalRewardValue+"");
-                                editor.commit();
-                                break;
+                        case R.id.daily_5k_reward:
+                            fivekRewardClaimed = true;
+                            editor.putString(getString(R.string.daily_5k_reward), strDate);
+                            editor.putString("5krewardedValue",finalRewardValue+"");
+                            editor.commit();
+                            break;
 
-                            case R.id.daily_7k_reward:
-                                sevenkRewardClaimed = true;
-                                editor.putString(getString(R.string.daily_7k_reward), strDate);
-                                editor.putString("7krewardedValue",finalRewardValue+"");
-                                editor.commit();
-                                break;
+                        case R.id.daily_7k_reward:
+                            sevenkRewardClaimed = true;
+                            editor.putString(getString(R.string.daily_7k_reward), strDate);
+                            editor.putString("7krewardedValue",finalRewardValue+"");
+                            editor.commit();
+                            break;
 
-                            case R.id.daily_10k_reward:
-                                tenkRewardClaimed = true;
-                                editor.putString(getString(R.string.daily_10k_reward), strDate);
-                                editor.putString("10krewardedValue",finalRewardValue+"");
-                                editor.commit();
-                                break;
-                        }
-                        //adjust button text
-                        ((Button) view).setText(Html.fromHtml (((Button) view).getText()+"<br/> "+finalRewardValue+" AFIT "+checkMark));
-                        adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
+                        case R.id.daily_10k_reward:
+                            tenkRewardClaimed = true;
+                            editor.putString(getString(R.string.daily_10k_reward), strDate);
+                            editor.putString("10krewardedValue",finalRewardValue+"");
+                            editor.commit();
+                            break;
                     }
+                    //adjust button text
+                    ((Button) view).setText(Html.fromHtml (((Button) view).getText()+"<br/> "+finalRewardValue+" AFIT "+checkMark));
+                    adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
                 });
     }
 
@@ -1980,9 +2021,10 @@ public class MainActivity extends BaseActivity{
         }
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        FontTextView batteryNotif = findViewById(R.id.battery_notice);
         if (!pm.isIgnoringBatteryOptimizations("io.actifit.fitnesstracker.actifitfitnesstracker")) {
             //display related button
-            FontTextView batteryNotif = findViewById(R.id.battery_notice);
+            batteryNotif.setVisibility(View.VISIBLE);
             batteryNotif.setOnClickListener(view -> {
 
                 showBatteryNotice();
@@ -1995,6 +2037,8 @@ public class MainActivity extends BaseActivity{
 
 
             showBatteryNotice();
+        }else{
+            batteryNotif.setVisibility(View.GONE);
         }
     }
 
@@ -3877,32 +3921,37 @@ public class MainActivity extends BaseActivity{
 
         new Thread(new Runnable() {
             public void run() {
+                runOnUiThread(() -> {
+                      displayDate();
 
-                displayDate();
-                displayUserAndRank();
-                displayUserBalance();
-                displayVotingStatus();
+                      displayUserAndRank();
 
-                displayUserGadgets();
+                      displayUserBalance();
 
-                MainActivity.isActivityVisible = true;
+                      displayVotingStatus();
 
-                //if (!mStepsDBHelper.isConnected()){
+                      displayUserGadgets();
+
+                      MainActivity.isActivityVisible =true;
+
+                                  //if (!mStepsDBHelper.isConnected()){
 //                    mStepsDBHelper.reConnect();
-                //}
+                                  //}
 
-                //displayDayChartData(true);
-                DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
-                dispChartData.execute(true);
+                                  //displayDayChartData(true);
+                      DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
+                      dispChartData.execute(true);
 
-                //displayChartData(true);
-                DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
-                dispCData.execute(true);
+                                  //displayChartData(true);
+                      DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
+                      dispCData.execute(true);
 
 
-                ResumeAsyncTask resumeAsyncTask = new ResumeAsyncTask();
-                resumeAsyncTask.execute();
+                      ResumeAsyncTask resumeAsyncTask = new ResumeAsyncTask();
+                      resumeAsyncTask.execute();
 
+                      checkBatteryOptimization(false);
+                  });
 
                 //LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
                 //       new IntentFilter("ACTIFIT_SERVICE")
@@ -4077,7 +4126,7 @@ public class MainActivity extends BaseActivity{
                     Log.d(TAG, ">>>>[Actifit] Package signature has been manipulated");
                     killActifit(getString(R.string.security_concerns));
                 }
-            }
+
 
                 //make sure package name has not been manipulated
                 if (!ctx.getPackageName().equals("io.actifit.fitnesstracker.actifitfitnesstracker")) {
@@ -4109,7 +4158,7 @@ public class MainActivity extends BaseActivity{
                     killActifit(getString(R.string.device_rooted));
                 }
 
-
+            }
             //require now for GDPR and ad display
             loadConsentData(false);
 
@@ -4246,15 +4295,14 @@ public class MainActivity extends BaseActivity{
         ConsentRequestParameters params = new ConsentRequestParameters
                 .Builder()
         //testing purposes
-        //        .setConsentDebugSettings(debugSettings)
+                .setConsentDebugSettings(debugSettings)
                 .setTagForUnderAgeOfConsent(false)
                 .build();
 
         consentInformation = UserMessagingPlatform.getConsentInformation(this);
 
         //testing purposes
-        //consentInformation.reset();
-
+        consentInformation.reset();
 
         consentInformation.requestConsentInfoUpdate(
                 this,
@@ -4262,12 +4310,38 @@ public class MainActivity extends BaseActivity{
                 () -> {
                     // The consent information state was updated.
                     // You are now ready to check if a form is available.
+                    UserMessagingPlatform.loadAndShowConsentFormIfRequired(
+                            this,
+                            (ConsentForm.OnConsentFormDismissedListener) loadAndShowError -> {
+                                if (loadAndShowError != null) {
+                                    // Consent gathering failed.
+                                    Log.w(TAG, String.format("%s: %s",
+                                            loadAndShowError.getErrorCode(),
+                                            loadAndShowError.getMessage()));
+                                }
+
+                                // Consent has been gathered.
+                                if (consentInformation.canRequestAds()) {
+                                    //initializeMobileAdsSdk();
+                                    prepareAds();
+                                }
+                            }
+                    );
+
+                    // Check if you can initialize the Google Mobile Ads SDK in parallel
+                    // while checking for new consent information. Consent obtained in
+                    // the previous session can be used to request ads.
+                    if (consentInformation.canRequestAds()) {
+                        prepareAds();
+                    }
+
+                    /*
                     if (consentInformation.isConsentFormAvailable()) {
                         loadForm(goForAds);
                     //no form is available, load ads
                     }else if (goForAds){
                         loadRewardedAd();
-                    }
+                    }*/
                 },
                 formError -> {
                     // Handle the error.
