@@ -32,6 +32,10 @@
     <string name="one_post_per_day_error">You can only post once per day</string>
     <string name="min_char_count_error">You need to describe your activity in at least </string>
     <string name="characters_plural_label">characters</string>
+    <string name="social_title_desc">Social Actifit Reports</string>
+    <string name="social_description">Engage with the actifit community via their daily reports. <br/>Motivate yourself and others. <br/>Increase your rewards by interacting via comments &amp; upvotes. <br/>Create your ultimate social backing. </string>
+    <string name="chat_title_desc">Chit Chat</string>
+    <string name="chat_description">Chat with other actifitters and other hive communities on the go. <br/>Have fun while walking or at your leisure.</string>
     <string name="current_workout_going_charity">Your current activity rewards will go to charity </string>
     <string name="current_workout_settings_based">based on your settings choice. Are you sure you want to proceed? </string>
     <string name="actifit_url">https://actifit.io/</string>
@@ -121,6 +125,7 @@
     <string name="post_reminder_checkbox">Remind me to Post</string>
     <string name="save_settings_btn_lbl">Save Settings</string>
     <string name="activity_step_history_title">Activity History</string>
+    <string name="error_saving_settings">There was an error saving settings!</string>
     <string name="view_chart_btn_lbl">History Chart</string>
     <string name="your_wallet_title">Your Wallet</string>
     <string name="your_notifications_title">Your Notifications</string>
@@ -360,7 +365,7 @@
     <string name="user_rank_title">User Rank</string>
     <string name="user_rank_web">User Rank Details</string>
     <string name="user_rank_description">Your user rank plays a role in your daily actifit rewards, as well as provides extra access to gadgets and cool things around Actifit ecosystem. &lt;br /&gt;</string>
-    <string name="user_rank_description_2">User Rank determines 25% of the total reward value. The ranking system is scaled from 0 (lowest) to 100+ , and is affected by a multitude of factors, while making it a dynamic system, as follows:&lt;br/&gt;&lt;li&gt;Amount of Delegated Steem/HIVE Power (SP/HP)&lt;/li&gt;&lt;li&gt;Amount of Held AFIT Tokens&lt;/li&gt;&lt;li&gt;Total Activity Rewarded&lt;/li&gt;&lt;li&gt;Last 10 Days Activity Count&lt;/li&gt;&lt;li&gt;Amount of AFITX held on Hive-Engine, Steem-Engine and on BSC, whether liquid or locked as liquidity vs BNB or BUSD&lt;/li&gt;&lt;br/&gt;</string>
+    <string name="user_rank_description_2">User Rank determines 25% of the total reward value. The ranking system is scaled from 0 (lowest) to 100+ , and is affected by a multitude of factors, while making it a dynamic system, as follows:&lt;br/&gt;&lt;li&gt;Amount of Delegated HIVE Power (HP)&lt;/li&gt;&lt;li&gt;Amount of Held AFIT Tokens&lt;/li&gt;&lt;li&gt;Total Activity Rewarded&lt;/li&gt;&lt;li&gt;Last 10 Days Activity Count&lt;/li&gt;&lt;li&gt;Amount of AFITX held on Hive-Engine and on BSC, whether liquid or locked as liquidity vs BNB or BUSD&lt;/li&gt;&lt;br/&gt;</string>
     <string name="refer_friend">Refer Friend</string>
     <string name="referrals_note">Actifit rewards you for referring friends!</string>
     <string name="voting_note">Upvote to reward</string>
@@ -418,4 +423,6 @@
     <string name="logout_confirmation">Are you sure you want to logout?</string>
     <string name="gadgets_description">Virtual gadgets allow you to boost your daily earnings. By purchasing and activating gadgets, you can earn extra diverse types of rewards to yourself (or your friend) across actifit rewards.</string>
     <string name="default_login_img">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
+    <string name="ad_not_ready">The rewarded ad wasn\'t ready yet.</string>
+    <string name="err_load_ad">error loading ad</string>
 </resources>
