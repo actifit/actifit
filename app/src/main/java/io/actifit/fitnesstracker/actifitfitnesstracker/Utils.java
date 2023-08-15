@@ -29,6 +29,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Safelist;
 
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -194,7 +195,7 @@ public class Utils {
 
                 String bcastUrl = ctx.getString(R.string.perform_trx_link);
                 bcastUrl += user +
-                            "&operation=[" + operation + "]" +
+                            "&operation=[" + URLEncoder.encode(String.valueOf(operation), "UTF-8") + "]" +
                             "&bchain=HIVE";
                 ;
 
