@@ -161,7 +161,7 @@ public class CommentModalDialogFragment extends DialogFragment {
                     cstm_params.put("permlink", comment_perm);
                     cstm_params.put("title", "");
                     //include comment alongside comment source (android app)
-                    cstm_params.put("body", replyText.getText() + getString(R.string.comment_note));
+                    cstm_params.put("body", replyText.getText() + " <br />" + getString(R.string.comment_note));
                     cstm_params.put("parent_author", postEntry.author);
                     cstm_params.put("parent_permlink", postEntry.permlink);
 
