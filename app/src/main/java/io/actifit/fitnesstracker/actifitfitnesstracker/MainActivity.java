@@ -4295,14 +4295,14 @@ public class MainActivity extends BaseActivity{
         ConsentRequestParameters params = new ConsentRequestParameters
                 .Builder()
         //testing purposes
-                .setConsentDebugSettings(debugSettings)
+        //        .setConsentDebugSettings(debugSettings)
                 .setTagForUnderAgeOfConsent(false)
                 .build();
 
         consentInformation = UserMessagingPlatform.getConsentInformation(this);
 
         //testing purposes
-        consentInformation.reset();
+        //consentInformation.reset();
 
         consentInformation.requestConsentInfoUpdate(
                 this,
