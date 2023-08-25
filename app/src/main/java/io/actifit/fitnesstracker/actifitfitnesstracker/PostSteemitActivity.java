@@ -22,6 +22,7 @@ import android.provider.MediaStore;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.widget.NestedScrollView;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -91,6 +92,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     private static final int CHOOSING_IMAGE_REQUEST = 1234;
 
     private EditText steemitPostContent;
+    private NestedScrollView nestedScrollView;
 
     private Uri fileUri;
     private Bitmap bitmap;
@@ -465,6 +467,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         steemitStepCount = findViewById(R.id.steemit_step_count);
         measureSectionLabel = findViewById(R.id.measurements_section_lbl);
 
+        nestedScrollView = findViewById(R.id.nestedScrollView);
+
         heightSizeUnit = findViewById(R.id.measurements_height_unit);
         weightSizeUnit = findViewById(R.id.measurements_weight_unit);
         waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
@@ -816,6 +820,32 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             Log.d(MainActivity.TAG, "Something is wrong with the return value from Fitbit. getIntent().getData() is NULL?");
         }
 
+        focusTitle();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        focusTitle();
+
+    }
+
+    void focusTitle(){
+        if (steemitPostTitle != null){
+            steemitPostTitle.requestFocus();
+        }
+    }
+
+    void focusContent(){
+        if (steemitPostContent != null && currentActivity != null){
+            currentActivity.runOnUiThread(() -> {
+                steemitPostContent.requestFocus();
+                if (nestedScrollView != null) {
+                    nestedScrollView.scrollTo(0, steemitPostContent.getBottom());
+                }
+            });
+        }
     }
 
     /**
@@ -1004,6 +1034,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                 + " " + min_char_count
                                 + " " + getString(R.string.characters_plural_label);
                         displayNotification(notification, progress, context, currentActivity, "", "");
+
+                        focusContent();
 
                         return null;
                     }
