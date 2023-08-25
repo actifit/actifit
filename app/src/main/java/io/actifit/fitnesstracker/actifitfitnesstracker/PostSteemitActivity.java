@@ -79,6 +79,9 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.mittsu.markedview.MarkedView;
 
+import static java.lang.Integer.parseInt;
+import static org.bitcoinj.core.TransactionBroadcast.random;
+
 
 public class PostSteemitActivity extends BaseActivity implements View.OnClickListener{
 
@@ -505,7 +508,20 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
 
         //try to load editor content if it was stored previously
-        steemitPostContent.setText(sharedPreferences.getString("steemPostContent",""));
+        String priorContent = sharedPreferences.getString("steemPostContent","");
+        if (!priorContent.trim().equals("")) {
+            steemitPostContent.setText(priorContent);
+        }else{
+            //pick random hint
+            // Generate a random integer between 1 and 6
+            int minValue = 1;
+            int maxValue = parseInt(getString(R.string.report_text_hint_count));
+            int randomNumber = random.nextInt(maxValue - minValue + 1) + minValue;
+            String resourceName = "report_text_hint_" + randomNumber;
+            int resourceId = getResources().getIdentifier(resourceName, "string", getPackageName());
+
+            steemitPostContent.setHint(getString(resourceId));
+        }
 
         // set markdown text pattern. ('contents' object is markdown text)
         mdView.setMDText(steemitPostContent.getText().toString());
@@ -555,7 +571,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         String lastPostDate = sharedPreferences.getString("actifitLastPostDate","");
 
         if (!lastPostDate.equals("")){
-            if (Integer.parseInt(lastPostDate) >= Integer.parseInt(currentDate)) {
+            if (parseInt(lastPostDate) >= parseInt(currentDate)) {
                 //need to disable yesterday's option
                 RadioButton yesterdayOption = findViewById(R.id.report_yesterday_option);
                 yesterdayOption.setEnabled(false);
@@ -786,7 +802,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         Log.d(MainActivity.TAG, "we found matching records");
                         //loop through records adding up recorded steps
                         for (int i = 0; i < stepActivityArray.length(); i++) {
-                            trackedActivityCount += Integer.parseInt(stepActivityArray.getJSONObject(i).getString("value"));
+                            trackedActivityCount += parseInt(stepActivityArray.getJSONObject(i).getString("value"));
                         }
 
                         //update value according to activity we were able to grab
@@ -1019,7 +1035,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 //this runs only on live mode
                 if (getString(R.string.test_mode).equals("off")) {
                     //make sure we have reached the min movement amount
-                    if (Integer.parseInt(accountActivityCount) < min_step_limit) {
+                    if (parseInt(accountActivityCount) < min_step_limit) {
                         notification = getString(R.string.min_activity_not_reached) + " " +
                                 NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " " + getString(R.string.not_yet);
                         displayNotification(notification, progress, context, currentActivity, "", "");
@@ -1047,7 +1063,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     Log.d(MainActivity.TAG, ">>>>[Actifit]lastPostDate:" + lastPostDate);
                     Log.d(MainActivity.TAG, ">>>>[Actifit]currentDate:" + targetDate);
                     if (!lastPostDate.equals("")) {
-                        if (Integer.parseInt(lastPostDate) >= Integer.parseInt(targetDate)) {
+                        if (parseInt(lastPostDate) >= parseInt(targetDate)) {
                             notification = getString(R.string.one_post_per_day_error);
                             displayNotification(notification, progress, context, currentActivity, "", "");
                             return null;
@@ -1358,7 +1374,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastSyncDate);
             Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+targetDate);
             if (!lastSyncDate.equals("")){
-                if (Integer.parseInt(lastSyncDate) < Integer.parseInt(targetDate)) {
+                if (parseInt(lastSyncDate) < parseInt(targetDate)) {
                     notification = getString(R.string.need_sync_fitbit_again);
                     ProgressDialog progress = new ProgressDialog(steemit_post_context);
                     progress.setMessage(notification);
@@ -1369,7 +1385,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             }
 
             EditText activityCount = findViewById(R.id.steemit_step_count);
-            int trackedActivityCount = Integer.parseInt(activityCount.getText().toString());
+            int trackedActivityCount = parseInt(activityCount.getText().toString());
 
             //store the returned activity count to the DB
             mStepsDBHelper.manualInsertStepsEntry(trackedActivityCount);
