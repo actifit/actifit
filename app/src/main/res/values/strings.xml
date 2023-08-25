@@ -425,4 +425,12 @@
     <string name="default_login_img">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
     <string name="ad_not_ready">The rewarded ad wasn\'t ready yet.</string>
     <string name="err_load_ad">error loading ad</string>
+    <string name="report_text_hint_1">Describe your day\'s activity using original content in as little as a few sentences. The more the merrier!</string>
+    <string name="report_text_hint_2">What did you do today?</string>
+    <string name="report_text_hint_3">Got some cool content to share?</string>
+    <string name="report_text_hint_4">The more original content you write, the better the potential rewards!</string>
+    <string name="report_text_hint_5">Did you cross some milestones today? tell the world about it!</string>
+    <string name="report_text_hint_6">How\'s your fitness journey going? share it with other actifitters</string>
+    <string name="report_text_hint_7">You got cool pics from your walk/jog/workout/...? Let\'s go</string>
+    <string name="report_text_hint_count">7</string>
 </resources>
