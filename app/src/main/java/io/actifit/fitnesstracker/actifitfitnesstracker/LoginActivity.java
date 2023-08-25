@@ -27,10 +27,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.core.splashscreen.SplashScreen;
+import androidx.multidex.BuildConfig;
 
-import com.android.volley.BuildConfig;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -216,7 +215,21 @@ public class LoginActivity extends BaseActivity {
         pkey = sharedPreferences.getString("actifitPst","");
 
 
+        if (userEntry != null){
+            userEntry.requestFocus();
+        }
+
         queryAPI(username, pkey, true);
+
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (userEntry != null){
+            userEntry.requestFocus();
+        }
 
     }
 
