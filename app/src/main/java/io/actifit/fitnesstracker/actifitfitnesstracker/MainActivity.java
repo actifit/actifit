@@ -1717,9 +1717,18 @@ public class MainActivity extends BaseActivity{
                             Log.d(TAG, loadAdError.toString());
                             MainActivity.this.rewardedAd = null;
                             MainActivity.this.isAdLoading = false;
-                            Toast.makeText(
-                                    MainActivity.this, getString( R.string.err_load_ad), Toast.LENGTH_SHORT)
-                                    .show();
+                            if (getString(R.string.sec_check_signature).equals("off")) {
+                                //specific error notice for debugging
+                                Toast.makeText(
+                                        MainActivity.this, loadAdError.getMessage(), Toast.LENGTH_SHORT)
+                                        .show();
+
+                            }else {
+                                //generic error notice
+                                Toast.makeText(
+                                        MainActivity.this, getString(R.string.err_load_ad), Toast.LENGTH_SHORT)
+                                        .show();
+                            }
                         }
 
                         @Override

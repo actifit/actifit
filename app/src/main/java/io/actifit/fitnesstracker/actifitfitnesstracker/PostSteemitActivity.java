@@ -118,6 +118,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     EditText steemitStepCount;
     TextView measureSectionLabel;
 
+    //references to the new points system in post
+    TextView titleCountRef, dateCountRef, activityCountRef, activityTypeCountRef, tagsCountRef, contentCountRef;
+
     TextView heightSizeUnit;
     TextView weightSizeUnit;
     TextView waistSizeUnit;
@@ -478,6 +481,14 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         chestSizeUnit = findViewById(R.id.measurements_chest_unit);
         thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
 
+        //fill in point references
+        titleCountRef = findViewById(R.id.titleCount);
+        dateCountRef = findViewById(R.id.dateCount);
+        activityCountRef = findViewById(R.id.activityCount);
+        activityTypeCountRef = findViewById(R.id.activityTypeCount);
+        tagsCountRef = findViewById(R.id.tagsCount);
+        contentCountRef = findViewById(R.id.contentCount);
+
 
         //final EditText steemitPostContentInner = findViewById(R.id.steemit_post_text);
         steemitPostTags = findViewById(R.id.steemit_post_tags);
@@ -507,24 +518,56 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
 
 
-        //try to load editor content if it was stored previously
-        String priorContent = sharedPreferences.getString("steemPostContent","");
-        if (!priorContent.trim().equals("")) {
-            steemitPostContent.setText(priorContent);
-        }else{
-            //pick random hint
-            // Generate a random integer between 1 and 6
-            int minValue = 1;
-            int maxValue = parseInt(getString(R.string.report_text_hint_count));
-            int randomNumber = random.nextInt(maxValue - minValue + 1) + minValue;
-            String resourceName = "report_text_hint_" + randomNumber;
-            int resourceId = getResources().getIdentifier(resourceName, "string", getPackageName());
+        //hook to event of adjusting color of the title point
+        steemitPostTitle.addTextChangedListener(new TextWatcher() {
 
-            steemitPostContent.setHint(getString(resourceId));
-        }
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-        // set markdown text pattern. ('contents' object is markdown text)
-        mdView.setMDText(steemitPostContent.getText().toString());
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String title = steemitPostTitle.getText().toString();
+                if (title.trim().length() < 1){
+                    titleCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
+                }else{
+                    titleCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
+                }
+            }
+        });
+
+        //hook to event of adjusting tag content for the post
+        steemitPostTags.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String text = steemitPostTags.getText().toString();
+                if (text.trim().length() < 1){
+                    tagsCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
+                }else{
+                    tagsCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
+                }
+            }
+        });
+
+
+
 
         //hook change event for report content preview and saving the text to prevent data loss
         steemitPostContent.addTextChangedListener(new TextWatcher() {
@@ -550,8 +593,37 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     editor.apply();
 
                 }
+                if(s.length() < min_char_count) {
+                    contentCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
+                }else{
+                    contentCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
+                }
             }
         });
+
+
+
+        //try to load editor content if it was stored previously
+        String priorContent = sharedPreferences.getString("steemPostContent","");
+        if (!priorContent.trim().equals("")) {
+            steemitPostContent.setText(priorContent);
+
+        }else{
+            //pick random hint
+            // Generate a random integer between 1 and 6
+            int minValue = 1;
+            int maxValue = parseInt(getString(R.string.report_text_hint_count));
+            int randomNumber = random.nextInt(maxValue - minValue + 1) + minValue;
+            String resourceName = "report_text_hint_" + randomNumber;
+            int resourceId = getResources().getIdentifier(resourceName, "string", getPackageName());
+
+            steemitPostContent.setHint(getString(resourceId));
+
+        }
+
+
+        // set markdown text pattern. ('contents' object is markdown text)
+        mdView.setMDText(steemitPostContent.getText().toString());
 
         //hooking to date change event for activity
 
@@ -674,6 +746,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         Arrays.sort(activity_type);
 
         activityTypeSelector = findViewById(R.id.steemit_activity_type);
+        activityTypeSelector.setHighlighterView(activityTypeCountRef);
         activityTypeSelector.setItems(activity_type);
 
         //grab current selection for measure system

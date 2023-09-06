@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -23,10 +24,13 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
     boolean[] mSelection = null;
 
     ArrayAdapter<String> simple_adapter;
+    TextView highlighterView;
+    Context ctx;
+
 
     public MultiSelectionSpinner(Context context) {
         super(context);
-
+        ctx = context;
         simple_adapter = new ArrayAdapter<String>(context,
                 android.R.layout.simple_spinner_item);
         super.setAdapter(simple_adapter);
@@ -34,10 +38,14 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
 
     public MultiSelectionSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
-
+        ctx = context;
         simple_adapter = new ArrayAdapter<String>(context,
                 android.R.layout.simple_spinner_item);
         super.setAdapter(simple_adapter);
+    }
+
+    public void setHighlighterView(TextView textView){
+        highlighterView = textView;
     }
 
     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -59,6 +67,13 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
         builder.setPositiveButton( getContext().getString(R.string.ok_button),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        if (highlighterView!=null) {
+                            if (getSelectedIndicies().size() < 1) {
+                                highlighterView.setTextColor(getResources().getColor(R.color.actifitRed));
+                            }else{
+                                highlighterView.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
+                            }
+                        }
                         dialog.cancel();
                         /*if (success.equals("success")) {
                             //close current screen
@@ -142,6 +157,13 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
             throw new IllegalArgumentException("Index " + index
                     + " is out of bounds.");
         }*/
+        if (highlighterView!=null) {
+            if (index < 0) {
+                highlighterView.setTextColor(getResources().getColor(R.color.actifitRed));
+            }else{
+                highlighterView.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
+            }
+        }
         simple_adapter.clear();
         simple_adapter.add(buildSelectedItemString());
     }
