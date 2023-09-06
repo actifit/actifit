@@ -58,7 +58,8 @@ public class MarketActivity extends BaseActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         //hide dialog
-                        progress.hide();
+                        if (progress != null && progress.isShowing())
+                            progress.hide();
                         // Display the result
                         try {
                             //grab current token count
@@ -108,6 +109,7 @@ public class MarketActivity extends BaseActivity {
                         //store token for reuse when saving settings
                         Log.d(MainActivity.TAG, response.toString());
                         afitPrice = response;
+                        proceedLoading();
                     }
 
                 },
@@ -116,10 +118,16 @@ public class MarketActivity extends BaseActivity {
                     public void onErrorResponse(VolleyError error) {
                         // error
                         Log.e(MainActivity.TAG, "AFIT price load error");
+                        proceedLoading();
                     }
                 });
 
         queue.add(afitPriceReq);
+
+
+    }
+
+    private void proceedLoading(){
 
         final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
 
@@ -386,7 +394,10 @@ public class MarketActivity extends BaseActivity {
 
                             //only append product if it is active and is a gaming product
                             //if (postEntry.active && postEntry.type.equals(getString(R.string.gameGadget))) {
-                            productList.add(postEntry);
+                            //skip products that are event specific
+                            if (!postEntry.specialevent) {
+                                productList.add(postEntry);
+                            }
                         }
                     }
 
@@ -427,7 +438,6 @@ public class MarketActivity extends BaseActivity {
 
         // Add transaction request to be processed
         queue.add(transactionRequest);
-
     }
 
     @Override
