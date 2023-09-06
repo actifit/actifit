@@ -648,6 +648,47 @@
                     app:layout_constraintTop_toBottomOf="@+id/post_content_container"
                     android:visibility="gone"/>
 
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="right"
+                android:gravity="right"
+                >
+
+
+                <TextView
+                    android:id="@+id/charCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:gravity="right"
+                    android:text="0"
+
+                    />
+
+                <TextView
+                    android:id="@+id/minCharCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="/100"
+                    android:padding="7dp"
+                    />
+
+                <TextView
+                    android:id="@+id/charInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="\uf05a"
+                    android:textSize="20dp"
+                    android:padding="7dp"
+                    />
+
+                </LinearLayout>
+
             </LinearLayout>
 
 
