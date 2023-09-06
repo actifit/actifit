@@ -27,6 +27,7 @@ import androidx.core.widget.NestedScrollView;
 import android.os.Bundle;
 import android.text.Editable;
 
+import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 
@@ -119,7 +120,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     TextView measureSectionLabel;
 
     //references to the new points system in post
-    TextView titleCountRef, dateCountRef, activityCountRef, activityTypeCountRef, tagsCountRef, contentCountRef;
+    TextView titleCountRef, dateCountRef, activityCountRef, activityTypeCountRef, tagsCountRef,
+            contentCountRef, charCount, minCharCount, charInfo;
 
     TextView heightSizeUnit;
     TextView weightSizeUnit;
@@ -488,6 +490,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         activityTypeCountRef = findViewById(R.id.activityTypeCount);
         tagsCountRef = findViewById(R.id.tagsCount);
         contentCountRef = findViewById(R.id.contentCount);
+        charCount = findViewById(R.id.charCount);
+        minCharCount = findViewById(R.id.minCharCount);
+        charInfo = findViewById(R.id.charInfo);
 
 
         //final EditText steemitPostContentInner = findViewById(R.id.steemit_post_text);
@@ -595,9 +600,15 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 }
                 if(s.length() < min_char_count) {
                     contentCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
+                    charCount.setTextColor(getResources().getColor(R.color.actifitRed));
                 }else{
                     contentCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
+                    charCount.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
                 }
+                //set text count
+                charCount.setText(s.length()+"");
+
+
             }
         });
 
@@ -766,18 +777,28 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             thighsSizeUnit.setText(getString(R.string.in_unit));
         }
 
+        //popup display about min chat count requirement
+        charInfo.setOnClickListener(view -> {
+
+            AlertDialog.Builder dBuilder = new AlertDialog.Builder(steemit_post_context);
+            String msg = getString(R.string.min_content_requirement);
+            AlertDialog pointer = dBuilder.setMessage(Html.fromHtml(msg))
+                    .setTitle(getString(R.string.content_requirement))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setCancelable(true)
+                    .setNegativeButton(getString(R.string.close_button), (dialog, id) -> dialog.dismiss()).create();
+
+            dBuilder.show();
+                /*pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+                pointer.show();*/
+        });
+
         currentActivity = this;
 
         //capturing steemit post submission
         Button BtnSubmitSteemit = findViewById(R.id.post_to_steem_btn);
-        BtnSubmitSteemit.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(final View arg0) {
-                ProcessPost();
-            }
-
-        });
+        BtnSubmitSteemit.setOnClickListener(arg0 -> ProcessPost());
 
         ScaleAnimation scaler = new ScaleAnimation(1f, 0.98f, 1f,0.98f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         scaler.setDuration(300);
