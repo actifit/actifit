@@ -11,7 +11,9 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.fragment.app.FragmentManager;
 
 import android.text.Html;
 import android.util.Log;
@@ -64,9 +66,10 @@ public class WalletActivity extends BaseActivity {
     private String username;
     private String accessToken;
 
-    TextView BtnCheckBalance, loadPendingRewards, claimRewards;
+    TextView BtnCheckBalance, loadPendingRewards, claimRewards, sendAFIT, sendToken;
 
     RotateAnimation rotate;
+    String afitBal = "";
 
 
     @Override
@@ -150,6 +153,7 @@ public class WalletActivity extends BaseActivity {
                                     if (response.has("success")) {
                                         Log.d(MainActivity.TAG, response.toString());
                                         accessToken = response.getString(getString(R.string.login_token));
+                                        LoginActivity.accessToken = accessToken;
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -169,87 +173,107 @@ public class WalletActivity extends BaseActivity {
 
             }
 
+            //handles sending AFIT tokens
+            sendAFIT = findViewById(R.id.btn_send_afit);
+
+            sendAFIT.setOnClickListener(arg0 -> {
+
+                SendAFITModalDialogFragment dialogFragment =
+                        new SendAFITModalDialogFragment(this, afitBal, queue);
+                FragmentManager fmgr = ((AppCompatActivity) this).getSupportFragmentManager();
+                dialogFragment.show(fmgr, "send_afit");
+
+            });
+
+            //handles sending HIVE/HBD tokens
+            sendToken = findViewById(R.id.btn_send_token);
+
+            sendToken.setOnClickListener(arg0 -> {
+
+                SendTokenModalDialogFragment dialogFragment =
+                        new SendTokenModalDialogFragment(this, afitBal, queue);
+                FragmentManager fmgr = ((AppCompatActivity) this).getSupportFragmentManager();
+                dialogFragment.show(fmgr, "send_token");
+
+            });
+
             claimRewards = findViewById(R.id.btn_claim_pending_rewards);
 
-            claimRewards.setOnClickListener(new View.OnClickListener() {
+            claimRewards.setOnClickListener(arg0 -> {
 
-                @Override
-                public void onClick(View arg0) {
+                progress = new ProgressDialog(callerContext);
+                progress.setMessage(getString(R.string.claiming_rewards));
+                progress.show();
 
-                    progress = new ProgressDialog(callerContext);
-                    progress.setMessage(getString(R.string.claiming_rewards));
-                    progress.show();
+                claimRewards.startAnimation(rotate);
 
-                    claimRewards.startAnimation(rotate);
+                RequestQueue queue1 = Volley.newRequestQueue(callerContext);
 
-                    RequestQueue queue = Volley.newRequestQueue(callerContext);
+                //fetch blurt price
+                String claimRewardsUrl = getString(R.string.claim_rewards_url) + username;
+                final String success_notification = getString(R.string.rewards_claimed_successfully);
+                final String error_notification = getString(R.string.rewards_claim_error);
 
-                    //fetch blurt price
-                    String claimRewardsUrl = getString(R.string.claim_rewards_url) + username;
-                    final String success_notification = getString(R.string.rewards_claimed_successfully);
-                    final String error_notification = getString(R.string.rewards_claim_error);
+                // Process claim rewards request
+                JsonObjectRequest claimRewardsReq = new JsonObjectRequest
+                        (Request.Method.GET, claimRewardsUrl, null, new Response.Listener<JSONObject>() {
+                            JSONObject hiveClaim;
+                            @Override
+                            public void onResponse(JSONObject response) {
 
-                    // Process claim rewards request
-                    JsonObjectRequest claimRewardsReq = new JsonObjectRequest
-                            (Request.Method.GET, claimRewardsUrl, null, new Response.Listener<JSONObject>() {
-                                JSONObject hiveClaim;
-                                @Override
-                                public void onResponse(JSONObject response) {
+                                // Display the result
+                                try {
+                                    //hive is main claim indicator
+                                    hiveClaim = response.getJSONObject("hive");
+                                    if (hiveClaim.has("success")) {
+                                        displayNotification(success_notification, null, callerContext, callerActivity, false);
 
-                                    // Display the result
-                                    try {
-                                        //hive is main claim indicator
-                                        hiveClaim = response.getJSONObject("hive");
-                                        if (hiveClaim.has("success")) {
-                                            displayNotification(success_notification, null, callerContext, callerActivity, false);
-
-                                            //update all balances after 5 seconds
-                                            new android.os.Handler().postDelayed(
-                                                    new Runnable() {
-                                                        public void run() {
-                                                            loadAccountBalance(username, callerActivity, callerContext);
-                                                        }
-                                                    }, 5000);
-                                        } else if (!hiveClaim.getString("error").equals("")) {
-                                            displayNotification(hiveClaim.getString("error"), null, callerContext, callerActivity, false);
-                                        } else {
-                                            displayNotification(error_notification, null, callerContext, callerActivity, false);
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        //update all balances after 5 seconds
+                                        new android.os.Handler().postDelayed(
+                                                new Runnable() {
+                                                    public void run() {
+                                                        loadAccountBalance(username, callerActivity, callerContext);
+                                                    }
+                                                }, 5000);
+                                    } else if (!hiveClaim.getString("error").equals("")) {
+                                        displayNotification(hiveClaim.getString("error"), null, callerContext, callerActivity, false);
+                                    } else {
                                         displayNotification(error_notification, null, callerContext, callerActivity, false);
                                     }
-
-                                    if (progress!=null &&  progress.isShowing()) {
-                                        progress.dismiss();
-                                    }
-                                    claimRewards.clearAnimation();
-                                }
-                            }, new Response.ErrorListener() {
-
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    //hide dialog
-                                    //error.printStackTrace();
-                                    Log.e(MainActivity.TAG, "error claiming rewards");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                     displayNotification(error_notification, null, callerContext, callerActivity, false);
-                                    claimRewards.clearAnimation();
                                 }
-                            }) {
 
-                                @Override
-                                public Map<String, String> getHeaders() throws AuthFailureError {
-                                    final Map<String, String> params = new HashMap<>();
-                                    params.put("Content-Type", "application/json");
-                                    params.put(getString(R.string.validation_header), getString(R.string.validation_pre_data) + " " + accessToken);
-                                    return params;
+                                if (progress!=null &&  progress.isShowing()) {
+                                    progress.dismiss();
                                 }
-                    };
+                                claimRewards.clearAnimation();
+                            }
+                        }, new Response.ErrorListener() {
 
-                    queue.add(claimRewardsReq);
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                //hide dialog
+                                //error.printStackTrace();
+                                Log.e(MainActivity.TAG, "error claiming rewards");
+                                displayNotification(error_notification, null, callerContext, callerActivity, false);
+                                claimRewards.clearAnimation();
+                            }
+                        }) {
+
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                final Map<String, String> params = new HashMap<>();
+                                params.put("Content-Type", "application/json");
+                                params.put(getString(R.string.validation_header), getString(R.string.validation_pre_data) + " " + accessToken);
+                                return params;
+                            }
+                };
+
+                queue1.add(claimRewardsReq);
 
 
-                }
             });
 
 
@@ -553,8 +577,9 @@ public class WalletActivity extends BaseActivity {
                             progress.hide();
                             // Display the result
                             try {
+                                afitBal = response.getString("tokens");
                                 //grab current token count
-                                actifitBalance.setText(" " + response.getString("tokens")+" AFIT");
+                                actifitBalance.setText(" " + afitBal +" AFIT");
                             }catch(JSONException e){
                                 //hide dialog
                                 progress.hide();
