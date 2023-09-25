@@ -1,0 +1,141 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:id="@+id/modal_container"
+    android:layout_gravity="center"
+    android:gravity="center">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity = "top"
+        android:gravity = "center"
+        >
+
+        <TextView
+            android:id="@+id/send_afit_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/send_afit"
+            android:textSize="16dp"
+            android:paddingTop="10dp"
+            android:paddingLeft = "10dp"
+            android:textStyle="bold"
+            android:paddingBottom="10dp"
+            android:drawableStart="@drawable/actifit_logo"
+            />
+
+
+    </LinearLayout>
+
+    <!--<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:weightSum="2"
+        android:paddingBottom="5dp"
+        >-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity = "top"
+        android:gravity = "center"
+        >
+
+        <EditText
+            android:id="@+id/recipient"
+            android:layout_height="40dp"
+            android:layout_width="200dp"
+            android:gravity="left"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingLeft="5dp"
+            android:hint="@string/recipient"
+            />
+
+        <EditText
+            android:id="@+id/amount"
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:inputType="number"
+            android:gravity="left"
+            android:text=""
+            android:hint="@string/amount"
+            />
+
+        <EditText
+            android:id="@+id/note"
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:inputType="text"
+            android:gravity="left"
+            android:text=""
+            android:hint="@string/note"
+            />
+
+        <TextView
+            android:id="@+id/send_afit_note"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/send_afit_note"
+            android:textSize="16dp"
+            android:padding = "15dp"
+            android:textStyle="bold"
+            />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:minHeight="50dp"
+        >
+
+        <Button
+            android:id="@+id/close_btn"
+            style="@style/AppTheme.ActifitButton"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/cancel_action"
+            />
+
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/proceed_send_btn"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center"
+            android:text="@string/send"
+            />
+
+
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/loader"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:progress="@integer/material_motion_duration_long_1"
+        android:visibility="gone" />
+
+
+
+
+</LinearLayout>
