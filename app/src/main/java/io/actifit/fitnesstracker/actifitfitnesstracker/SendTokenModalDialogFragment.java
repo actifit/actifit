@@ -107,6 +107,16 @@ public class SendTokenModalDialogFragment extends DialogFragment {
                 Toast.makeText(ctx, ctx.getString(R.string.vote_percent_incorrect), Toast.LENGTH_SHORT).show();
                 return;
             }*/
+
+            final SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
+            String activKeyVal = sharedPreferences.getString("actvKey", "");
+
+            if (activKeyVal.equals("")){
+                Toast.makeText(ctx, ctx.getString(R.string.activ_key_error), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
             if (String.valueOf(amount.getText()).trim().equals("")){
                 Toast.makeText(ctx, ctx.getString(R.string.send_token_range_error), Toast.LENGTH_SHORT).show();
                 return;
@@ -129,14 +139,6 @@ public class SendTokenModalDialogFragment extends DialogFragment {
                 return;
             }
 
-            final SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
-            String fundsPassVal = sharedPreferences.getString("fundsPass", "");
-
-            /*if (fundsPassVal.equals("")){
-                Toast.makeText(ctx, ctx.getString(R.string.funds_pass_error), Toast.LENGTH_SHORT).show();
-                return;
-            }*/
-
             String memoVal = memo.getText().toString();
 
             taskProgress.setVisibility(VISIBLE);
@@ -158,15 +160,23 @@ public class SendTokenModalDialogFragment extends DialogFragment {
                     //cstm_params.put("json", json_op_details);
 
                     //no need to wait for response
-                    Utils.queryAPIPost(getContext(), MainActivity.username, op_name, cstm_params, taskProgress,
+                    Utils.queryAPIPost(getContext(), MainActivity.username, activKeyVal,
+                            op_name, cstm_params, taskProgress,
                         new Utils.APIResponseListener() {
                             @Override
                             public void onResponse(boolean success) {
                                 Log.e(MainActivity.TAG, "custom json complete:"+success);
                                 runOnUiThread(() -> {
-                                    Toast.makeText(ctx, ctx.getString(R.string.trx_success), Toast.LENGTH_LONG).show();
-                                    taskProgress.setVisibility(View.GONE);
-                                    dismiss();
+
+                                    if (success) {
+
+                                        Toast.makeText(ctx, ctx.getString(R.string.trx_success), Toast.LENGTH_LONG).show();
+                                        taskProgress.setVisibility(View.GONE);
+                                        dismiss();
+                                    }else{
+                                        Toast.makeText(ctx, ctx.getString(R.string.trx_error), Toast.LENGTH_LONG).show();
+                                        taskProgress.setVisibility(View.GONE);
+                                    }
                                 });
                                 // Step 5: Perform another API call
                                 /*runOnUiThread(() -> {
