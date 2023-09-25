@@ -262,6 +262,113 @@ public class Utils {
 
         }
     }
+
+
+    //perform calls to API
+    public static void queryAPIPost(Context ctx, String user, String op_name,
+                                JSONObject cstm_params,
+                                final ProgressBar taskProgress,
+                                final APIResponseListener listener) {
+
+        RequestQueue queue = Volley.newRequestQueue(ctx);
+
+        if (user.equals("") || op_name.equals("") || cstm_params == null) {
+
+            Log.e(MainActivity.TAG, "missing params");
+            runOnUiThread(() -> {
+                taskProgress.setVisibility(View.GONE);
+            });
+        } else {
+            try {
+
+
+                String bcastUrl = ctx.getString(R.string.perform_trx_post_link);
+                bcastUrl += user +
+                        "&bchain=HIVE";
+                ;
+
+
+                //send out transaction
+                JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.POST,
+                        bcastUrl, null,
+                        response -> runOnUiThread(() -> {
+                            taskProgress.setVisibility(View.GONE);
+                            Log.d(MainActivity.TAG, response.toString());
+
+                            //
+                            if (response.has("success")) {
+                                //successfully wrote to chain gadget purchase
+                                try {
+                                    JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
+
+
+                                    if (listener != null) {
+                                        listener.onResponse(true);
+                                    }
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                Log.d(MainActivity.TAG, "Error querying blockchain");
+                                if (listener != null) {
+                                    listener.onResponse(false);
+                                }
+                                //progress.dismiss();
+                                //deactivateGadget.clearAnimation();
+                                //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
+                            }
+                        }),
+                        error -> {
+                            // error
+                            if (listener != null) {
+                                listener.onResponse(false);
+                            }
+                            //progress.dismiss();
+                            //deactivateGadget.clearAnimation();
+                            //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        final Map<String, String> params = new HashMap<>();
+                        params.put("Content-Type", "application/json");
+                        params.put(ctx.getString(R.string.validation_header), ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
+                        return params;
+                    }
+
+                    @Override
+                    protected Map<String, String> getParams() {
+
+                        JSONArray operation = new JSONArray();
+                        try {
+                            operation.put(0, op_name);
+                            operation.put(1, cstm_params);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        Map<String, String> params = new HashMap<>();
+                        //"&operation=[" + URLEncoder.encode(String.valueOf(operation), "UTF-8") + "]" +
+                        params.put("operation", operation.toString());
+                        // Add other key-value pairs as needed
+                        return params;
+                    }
+                };
+
+                //to enable waiting for longer time with extra retry
+                transRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        MainActivity.connectTimeout,
+                        MainActivity.connectMaxRetries,
+                        MainActivity.connectSubsequentRetryDelay));
+
+                queue.add(transRequest);
+            } catch (Exception excep) {
+                excep.printStackTrace();
+            }
+
+        }
+    }
+
     //to handle multiple successive calls
     public interface APIResponseListener {
         //void onResponse(byte[] serializedTransaction);
