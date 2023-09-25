@@ -12,10 +12,9 @@
 
     <TextView
         android:id="@+id/titleTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:textColor="@android:color/black"
         android:padding="16dp"
         android:gravity="center"
         android:textStyle="bold"
@@ -41,7 +40,6 @@
             android:textStyle="bold"
             android:paddingBottom="10dp"
             android:textSize="16sp"
-            android:textColor="@android:color/black"
             />
 
         <TextView
@@ -53,7 +51,6 @@
             android:textStyle="bold"
             android:paddingBottom="10dp"
             android:textSize="16sp"
-            android:textColor="@android:color/black"
             />
 
     </LinearLayout>

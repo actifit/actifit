@@ -282,6 +282,30 @@
         android:paddingRight="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
+        android:text="@string/fundsPassword" />
+
+
+    <EditText
+        android:id="@+id/fundsPassword"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inputType="textPassword"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="40dp"
+        android:hint="@string/fundsPassword"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
         android:text="@string/pending_rewards_popup" />
 
 
