@@ -185,76 +185,6 @@ public class MarketActivity extends BaseActivity {
 
             loadBalance(queue);
 
-            //load non-consumed products
-            String nonConsumedProductsUrl = getString(R.string.non_consumed_gadgets_link) + MainActivity.username;
-            JsonArrayRequest nonConsumedProductsReq = new JsonArrayRequest(Request.Method.GET,
-                    nonConsumedProductsUrl, null, new Response.Listener<JSONArray>() {
-
-                @Override
-                public void onResponse(JSONArray productListArray) {
-
-                    // Handle the result
-                    try {
-                        nonConsumedProducts = productListArray;
-                        // Create the adapter to convert the array to views
-                        //actifitTransactions.setText("Response is: "+ response);
-                    } catch (Exception e) {
-                        //hide dialog
-                        //progress.hide();
-                        //actifitTransactionsError.setVisibility(View.VISIBLE);
-                        e.printStackTrace();
-                    }
-
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    //hide dialog
-                    //progress.hide();
-                    //actifitTransactionsView.setText("Unable to fetch balance");
-                    //actifitTransactionsError.setVisibility(View.VISIBLE);
-                }
-            });
-
-
-            queue.add(nonConsumedProductsReq);
-
-
-            //load consumed products
-            String consumedProductsUrl = getString(R.string.consumed_gadgets_link) + MainActivity.username;
-            JsonArrayRequest consumedProductsReq = new JsonArrayRequest(Request.Method.GET,
-                    consumedProductsUrl, null, new Response.Listener<JSONArray>() {
-
-                @Override
-                public void onResponse(JSONArray productListArray) {
-
-                    // Handle the result
-                    try {
-                        consumedProducts = productListArray;
-                        // Create the adapter to convert the array to views
-                        //actifitTransactions.setText("Response is: "+ response);
-                    } catch (Exception e) {
-                        //hide dialog
-                        //progress.hide();
-                        //actifitTransactionsError.setVisibility(View.VISIBLE);
-                        e.printStackTrace();
-                    }
-
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    //hide dialog
-                    //progress.hide();
-                    //actifitTransactionsView.setText("Unable to fetch balance");
-                    //actifitTransactionsError.setVisibility(View.VISIBLE);
-                }
-            });
-
-
-            queue.add(consumedProductsReq);
-        }
-
         //connect to our products API
         String productsUrl = getString(R.string.products_link);
 
@@ -434,10 +364,90 @@ public class MarketActivity extends BaseActivity {
         });
 
 
+
+            //load consumed products
+            String consumedProductsUrl = getString(R.string.consumed_gadgets_link) + MainActivity.username;
+            JsonArrayRequest consumedProductsReq = new JsonArrayRequest(Request.Method.GET,
+                    consumedProductsUrl, null, new Response.Listener<JSONArray>() {
+
+                @Override
+                public void onResponse(JSONArray productListArray) {
+
+                    // Handle the result
+                    try {
+                        consumedProducts = productListArray;
+
+                        //when consumed products have been loaded, then load the product list
+
+                        // Add transaction request to be processed
+                        queue.add(transactionRequest);
+
+
+                        // Create the adapter to convert the array to views
+                        //actifitTransactions.setText("Response is: "+ response);
+                    } catch (Exception e) {
+                        //hide dialog
+                        //progress.hide();
+                        //actifitTransactionsError.setVisibility(View.VISIBLE);
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //hide dialog
+                    //progress.hide();
+                    //actifitTransactionsView.setText("Unable to fetch balance");
+                    //actifitTransactionsError.setVisibility(View.VISIBLE);
+                }
+            });
+
+
+            //load non-consumed products
+            String nonConsumedProductsUrl = getString(R.string.non_consumed_gadgets_link) + MainActivity.username;
+            JsonArrayRequest nonConsumedProductsReq = new JsonArrayRequest(Request.Method.GET,
+                    nonConsumedProductsUrl, null, new Response.Listener<JSONArray>() {
+
+                @Override
+                public void onResponse(JSONArray productListArray) {
+
+                    // Handle the result
+                    try {
+                        nonConsumedProducts = productListArray;
+
+                        //after we have loaded  the nonconsumed products list, load the consumed ones
+
+                        queue.add(consumedProductsReq);
+
+                        // Create the adapter to convert the array to views
+                        //actifitTransactions.setText("Response is: "+ response);
+                    } catch (Exception e) {
+                        //hide dialog
+                        //progress.hide();
+                        //actifitTransactionsError.setVisibility(View.VISIBLE);
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //hide dialog
+                    //progress.hide();
+                    //actifitTransactionsView.setText("Unable to fetch balance");
+                    //actifitTransactionsError.setVisibility(View.VISIBLE);
+                }
+            });
+
+
+            queue.add(nonConsumedProductsReq);
+
+
+        }
+
         //transactionRequest.setRetryPolicy(new DefaultRetryPolicy(15000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
-        // Add transaction request to be processed
-        queue.add(transactionRequest);
     }
 
     @Override
