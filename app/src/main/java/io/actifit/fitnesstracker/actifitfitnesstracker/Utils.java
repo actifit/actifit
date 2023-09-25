@@ -265,7 +265,7 @@ public class Utils {
 
 
     //perform calls to API
-    public static void queryAPIPost(Context ctx, String user, String op_name,
+    public static void queryAPIPost(Context ctx, String user, String actvKey, String op_name,
                                 JSONObject cstm_params,
                                 final ProgressBar taskProgress,
                                 final APIResponseListener listener) {
@@ -287,10 +287,23 @@ public class Utils {
                         "&bchain=HIVE";
                 ;
 
+                JSONArray operation = new JSONArray();
+                operation.put(0, op_name);
+                operation.put(1, cstm_params);
+
+                JSONArray op_array = new JSONArray();
+                op_array.put(operation);
+
+                //sending post data
+                JSONObject body = new JSONObject();
+
+                body.put("operation", op_array.toString());
+                body.put("active", actvKey);
+
 
                 //send out transaction
                 JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.POST,
-                        bcastUrl, null,
+                        bcastUrl, body,
                         response -> runOnUiThread(() -> {
                             taskProgress.setVisibility(View.GONE);
                             Log.d(MainActivity.TAG, response.toString());
@@ -336,6 +349,7 @@ public class Utils {
                         return params;
                     }
 
+                    /*
                     @Override
                     protected Map<String, String> getParams() {
 
@@ -353,6 +367,8 @@ public class Utils {
                         // Add other key-value pairs as needed
                         return params;
                     }
+
+                     */
                 };
 
                 //to enable waiting for longer time with extra retry
