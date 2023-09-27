@@ -281,6 +281,7 @@
     <string name="send_afit_range_error">Please provide a proper AFIT amount within range (0-10,000)</string>
     <string name="send_token_range_error">Please provide a proper positive amount within balance</string>
     <string name="recipient_empty">Recipient cannot be empty</string>
+    <string name="quick_survey">Quick Poll</string>
     <string name="recipient_same_user">Cannot send funds to self</string>
     <string name="within_balance_error">Cannot send more than your current balance</string>
     <string name="funds_pass_error">Please make sure to set your funds password under settings</string>
@@ -453,4 +454,6 @@
     <string name="report_text_hint_6">How\'s your fitness journey going? share it with other actifitters</string>
     <string name="report_text_hint_7">You got cool pics from your walk/jog/workout/...? Let\'s go</string>
     <string name="report_text_hint_count">7</string>
+    <string name="survey_vote">Vote</string>
+    <string name="survey_reward_temp">Taking part in Actifit polls allows you to earn extra AFIT. There is a one time _REWARD_ for answering this poll. There is No correct or incorrect answer.</string>
 </resources>
