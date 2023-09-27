@@ -1,5 +1,8 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.util.Log;
@@ -104,6 +107,34 @@ public class Utils {
         //processedText = processedText.replaceAll("\\s+$", "");
 
         return processedText;
+    }
+
+    public static Date getFormattedDate(String dateParam){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+        try {
+            Date paramDate = format.parse(dateParam);
+            return paramDate;
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return new Date();
+    }
+
+    public static boolean isPastTime(String dateParam){
+        Date localDate = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+        try {
+            Date paramDate = format.parse(dateParam);
+            long currentDate = System.currentTimeMillis();
+            long difference = paramDate.getTime() - currentDate - localDate.getTimezoneOffset() * 60000;
+            if (difference < 0)
+                return true;
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return false;
     }
 
     //handles displaying the post date/time in "ago" format
@@ -400,4 +431,43 @@ public class Utils {
         slide.setDuration(ctx.getResources().getInteger(android.R.integer.config_longAnimTime));
         return slide;
     }
+
+    static void displayNotification(final String notification, final ProgressDialog progress,
+                             final Context context, final Activity currentActivity,
+                             final Boolean closeScreen){
+        //render result
+        currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //hide the progressDialog
+                if (progress!=null) {
+                    progress.dismiss();
+                }
+
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                builder1.setMessage(notification);
+
+                builder1.setCancelable(true);
+
+                builder1.setPositiveButton(
+                        context.getString(R.string.dismiss_button),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                                //if we need to close current Activity
+                                if (closeScreen) {
+                                    //close current screen
+                                    Log.d(MainActivity.TAG,">>>Finish");
+                                    currentActivity.finish();
+                                }
+                            }
+                        });
+                //create and display alert window
+                AlertDialog alert11 = builder1.create();
+                builder1.show();
+            }
+        });
+
+    }
+
 }
