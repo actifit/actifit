@@ -530,17 +530,80 @@ public class MainActivity extends BaseActivity{
         }
     }
 
+    //handles displaying any available surveys
+    private void loadSurvey(RequestQueue queue){
+        String newsArticlesUrl = getString(R.string.surveys);
+
+        //also set and popup any mainAnnounce news
+
+
+        JsonArrayRequest req = new JsonArrayRequest(Request.Method.GET,
+                newsArticlesUrl, null, listArray -> {
+            Survey_Entry_Class activSurvey = null;
+            try {
+                if (listArray != null && listArray.length() > 0) {
+                    //grab first
+                    Survey_Entry_Class surv = new Survey_Entry_Class(listArray.getJSONObject(0));
+                    if (surv.isIs_survey_active()){
+                        activSurvey = surv;
+                    }
+                }
+            }catch(Exception ex){
+                ex.printStackTrace();
+            }
+
+            if (activSurvey !=null) {
+
+                //check if user voted on survey already, if not show it
+                Survey_Entry_Class finalActivSurvey = activSurvey;
+                String voteStatusUrl = getString(R.string.user_voted_survey).replace("_USER_", MainActivity.username)
+                        .replace("_ID_", activSurvey.getId());
+                JsonObjectRequest voteReq = new JsonObjectRequest
+                        (Request.Method.GET, voteStatusUrl, null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    if (response.has("voted") && !response.getBoolean("voted")){
+
+                                        //show mainAnnounce if there exists one
+                                        SurveyFragment survDialog = new SurveyFragment(ctx, finalActivSurvey, LoginActivity.accessToken);
+                                        survDialog.show(getSupportFragmentManager(), "survey_announce");
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                //hide dialog
+                                //error.printStackTrace();
+                                Log.e(MainActivity.TAG, "error fetching vote status");
+                            }
+                        });
+
+                // Add balance request to be processed
+                queue.add(voteReq);
+
+            }
+
+        }, error -> {
+
+        });
+
+        queue.add(req);
+    }
+
     //handles initiating and filling newsslider data
     //SLIDER SETUP INFO: //https://www.section.io/engineering-education/how-to-create-an-automatic-slider-in-android-studio/
-    private void loadNewsSlider(){
+    private void loadNewsSlider(RequestQueue queue){
 
         newsPage = findViewById(R.id.news_pager) ;
 
         newsTabLayout = findViewById(R.id.news_tablayout);
 
         listItems = new ArrayList<>() ;
-
-        RequestQueue queue = Volley.newRequestQueue(this);
 
         String newsArticlesUrl = getString(R.string.news_articles);
 
@@ -785,7 +848,11 @@ public class MainActivity extends BaseActivity{
 
         ctx = this;
 
-        loadNewsSlider();
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        loadNewsSlider(queue);
+
+        loadSurvey(queue);
 
         //grab pointers to specific elements/buttons to be able to capture events and take action
         //stepDisplay = findViewById(R.id.step_display);
@@ -893,7 +960,7 @@ public class MainActivity extends BaseActivity{
                     }
                 });
 
-        RequestQueue queue = Volley.newRequestQueue(this);
+        //queue = Volley.newRequestQueue(this);
 
         queue.add(vidUrlRequest);
 

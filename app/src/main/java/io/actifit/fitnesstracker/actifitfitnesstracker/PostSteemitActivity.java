@@ -172,6 +172,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
 
     /*************************************/
+    //implementing 3speak upload functionality
+    private void uploadVideo(){
+
+
+    }
+
+    /*************************************/
 
     //implementing file upload functionality
     private void uploadFile() {
@@ -293,9 +300,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         if (i == R.id.btn_choose_file) {
             showChoosingFile();
-        } /*else if (i == R.id.btn_upload) {
-            uploadFile();
-        }*/
+        } else if (i == R.id.btn_video) {
+            //uploadFile();
+            uploadVideo();
+        }
     }
 
     //handles the display of image selection
@@ -715,6 +723,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         //initialize AWS settings and configuration
 
         findViewById(R.id.btn_choose_file).setOnClickListener(this);
+
+        findViewById(R.id.btn_video).setOnClickListener(this);
 
         AWSMobileClient.getInstance().initialize(this).execute();
 
