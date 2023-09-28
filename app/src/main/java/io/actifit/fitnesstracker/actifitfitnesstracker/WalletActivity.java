@@ -711,8 +711,11 @@ public class WalletActivity extends BaseActivity {
                             // Build output
                             String transactionString = "";
                             // Capture individual values
+
                             transactionString += jsonObject.has("reward_activity") ? getString(R.string.activity_type_lbl) + ": " + jsonObject.getString("reward_activity") + "\n":"";
                             transactionString += jsonObject.has("token_count") ? getString(R.string.token_count_lbl) + ": " + jsonObject.getString("token_count") + " AFIT(s)\n":"";
+                            transactionString += jsonObject.has("user") ? getString(R.string.user_lbl) + ": " + jsonObject.getString("user") + "\n":"";
+                            transactionString += jsonObject.has("recipient") ? getString(R.string.recipient_lbl) + ": " + jsonObject.getString("recipient") + "\n":"";
                             transactionString += jsonObject.has("date") ?  getString(R.string.date_added_lbl) + ": " + jsonObject.getString("date") + "\n":"";
                             //transactionString += jsonObject.has("url")?"Relevant Post: <a href='"+jsonObject.getString("url") + "'>Post</a>\n":"";
                             transactionString += jsonObject.has("note") ? getString(R.string.note_lbl) + ": " +jsonObject.getString("note") + "\n":"";
