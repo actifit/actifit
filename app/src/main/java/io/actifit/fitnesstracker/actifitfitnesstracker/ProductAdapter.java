@@ -464,92 +464,77 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     //send out transaction
                     JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
                             bcastUrl, null,
-                            new Response.Listener<JSONObject>() {
+                            response -> {
 
-                                @Override
-                                public void onResponse(JSONObject response) {
-
-                                    Log.d(MainActivity.TAG, response.toString());
-                                    //
-                                    if (response.has("success")){
-                                        //successfully wrote to chain gadget purchase
-                                        try {
-                                            JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
+                                Log.d(MainActivity.TAG, response.toString());
+                                //
+                                if (response.has("success")){
+                                    //successfully wrote to chain gadget purchase
+                                    try {
+                                        JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
 
 
 
-                                            String buyUrl = getContext().getString(R.string.buy_gadget_link)+
-                                                    MainActivity.username+"/"+
-                                                    postEntry.id+"/"+
-                                                    bcastRes.get("ref_block_num")+"/"+
-                                                    bcastRes.get("id")+"/"+
-                                                    "HIVE";
+                                        String buyUrl = getContext().getString(R.string.buy_gadget_link)+
+                                                MainActivity.username+"/"+
+                                                postEntry.id+"/"+
+                                                bcastRes.get("ref_block_num")+"/"+
+                                                bcastRes.get("id")+"/"+
+                                                "HIVE";
 
 
-                                            //send out transaction
-                                            JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
-                                                    buyUrl, null,
-                                                    new Response.Listener<JSONObject>() {
+                                        //send out transaction
+                                        JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
+                                                buyUrl, null,
+                                                response1 -> {
+                                                    //progress.dismiss();
+                                                    buyAFIT.clearAnimation();
+                                                    Log.d(MainActivity.TAG, response1.toString());
+                                                    //
+                                                    if (!response1.has("error")) {
+                                                        //showActivateButton(postEntry, finalConvertView);
 
-                                                        @Override
-                                                        public void onResponse(JSONObject response) {
-                                                            //progress.dismiss();
-                                                            buyAFIT.clearAnimation();
-                                                            Log.d(MainActivity.TAG, response.toString());
-                                                            //
-                                                            if (!response.has("error")) {
-                                                                //showActivateButton(postEntry, finalConvertView);
-
-                                                                if (postEntry.isFriendRewarding){
-                                                                    //also show friend beneficiary to direct rewards over
-                                                                    friendBeneficiary.setVisibility(View.VISIBLE);
-                                                                }
-                                                                buyAFIT.setVisibility(View.GONE);
-                                                                buyHIVE.setVisibility(View.GONE);
-                                                                deactivateGadget.setVisibility(View.GONE);
-                                                                activateGadget.setVisibility(View.VISIBLE);
-                                                                //successfully bought product
-                                                                Toast.makeText(getContext(), getContext().getString(R.string.success_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
-                                                            } else {
-                                                                Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
-                                                            }
+                                                        if (postEntry.isFriendRewarding){
+                                                            //also show friend beneficiary to direct rewards over
+                                                            friendBeneficiary.setVisibility(View.VISIBLE);
                                                         }
-                                                    },
-                                                    new Response.ErrorListener() {
-                                                        @Override
-                                                        public void onErrorResponse(VolleyError error) {
-                                                            // error
-                                                            Log.d(MainActivity.TAG, "Error querying blockchain");
-                                                            //progress.dismiss();
-                                                            buyAFIT.clearAnimation();
-                                                            Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
-                                                        }
-                                                    });
+                                                        buyAFIT.setVisibility(View.GONE);
+                                                        buyHIVE.setVisibility(View.GONE);
+                                                        deactivateGadget.setVisibility(View.GONE);
+                                                        activateGadget.setVisibility(View.VISIBLE);
+                                                        //successfully bought product
+                                                        Toast.makeText(getContext(), getContext().getString(R.string.success_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
+                                                    }
+                                                },
+                                                error -> {
+                                                    // error
+                                                    Log.d(MainActivity.TAG, "Error querying blockchain");
+                                                    //progress.dismiss();
+                                                    buyAFIT.clearAnimation();
+                                                    Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
+                                                });
 
-                                            queue.add(buyRequest);
+                                        queue.add(buyRequest);
 
 
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }else{
-                                        //progress.dismiss();
-                                        buyAFIT.clearAnimation();
-                                        Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-
-                                }
-
-                            },
-                            new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    // error
-                                    Log.d(MainActivity.TAG, "Error querying blockchain");
+                                }else{
                                     //progress.dismiss();
                                     buyAFIT.clearAnimation();
                                     Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
                                 }
+
+                            },
+                            error -> {
+                                // error
+                                Log.d(MainActivity.TAG, "Error querying blockchain");
+                                //progress.dismiss();
+                                buyAFIT.clearAnimation();
+                                Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)+ " " +postEntry.name, Toast.LENGTH_LONG).show();
                             }) {
 
                                 @Override

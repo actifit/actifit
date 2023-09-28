@@ -295,6 +295,65 @@ public class Utils {
     }
 
 
+    //marks a notification as read
+    public static void markNotifRead(Context ctx, String user, String notifId){
+        try {
+            RequestQueue queue = Volley.newRequestQueue(ctx);
+
+            String bcastUrl = ctx.getString(R.string.mark_notif_read);
+            bcastUrl += notifId + "/?user=" + user;
+
+
+            //send out transaction
+            JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
+                    bcastUrl, null,
+                    response -> runOnUiThread(() -> {
+                        /*Log.d(MainActivity.TAG, response.toString());
+                        try{
+                            //
+                            if (response.has("status") && response.getString("status").equals("success")) {
+                                //successfully marked as read
+                                try {
+                                    //JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
+                                    displayNotification(ctx.getString(R.string.trx_success), null, ctx, null, false);
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    displayNotification(ctx.getString(R.string.trx_error), null, ctx, null, false);
+                                }
+                            } else {
+                                Log.d(MainActivity.TAG, "Error querying blockchain");
+                                displayNotification(ctx.getString(R.string.trx_error), null, ctx, null, false);
+                            }
+                        }catch(Exception exca){
+                            exca.printStackTrace();
+                        }*/
+                    }),
+                    error -> {
+                        // error
+
+                    }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    final Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/json");
+                    params.put(ctx.getString(R.string.validation_header), ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
+                    return params;
+                }
+            };
+
+            //to enable waiting for longer time with extra retry
+            transRequest.setRetryPolicy(new DefaultRetryPolicy(
+                    MainActivity.connectTimeout,
+                    MainActivity.connectMaxRetries,
+                    MainActivity.connectSubsequentRetryDelay));
+
+            queue.add(transRequest);
+        } catch (Exception excep) {
+            excep.printStackTrace();
+        }
+    }
+
     //perform calls to API
     public static void queryAPIPost(Context ctx, String user, String actvKey, String op_name,
                                 JSONObject cstm_params,
@@ -358,9 +417,6 @@ public class Utils {
                                 if (listener != null) {
                                     listener.onResponse(false);
                                 }
-                                //progress.dismiss();
-                                //deactivateGadget.clearAnimation();
-                                //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
                             }
                         }),
                         error -> {
@@ -368,9 +424,6 @@ public class Utils {
                             if (listener != null) {
                                 listener.onResponse(false);
                             }
-                            //progress.dismiss();
-                            //deactivateGadget.clearAnimation();
-                            //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
                         }) {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
@@ -379,27 +432,6 @@ public class Utils {
                         params.put(ctx.getString(R.string.validation_header), ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
                         return params;
                     }
-
-                    /*
-                    @Override
-                    protected Map<String, String> getParams() {
-
-                        JSONArray operation = new JSONArray();
-                        try {
-                            operation.put(0, op_name);
-                            operation.put(1, cstm_params);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        Map<String, String> params = new HashMap<>();
-                        //"&operation=[" + URLEncoder.encode(String.valueOf(operation), "UTF-8") + "]" +
-                        params.put("operation", operation.toString());
-                        // Add other key-value pairs as needed
-                        return params;
-                    }
-
-                     */
                 };
 
                 //to enable waiting for longer time with extra retry

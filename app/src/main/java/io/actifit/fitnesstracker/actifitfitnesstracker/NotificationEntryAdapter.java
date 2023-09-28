@@ -90,6 +90,10 @@ public class NotificationEntryAdapter extends ArrayAdapter<NotificationModel> {
         //associate proper action with button
         detailsButton.setOnClickListener(arg0 -> {
 
+            //mark as read
+            Utils.markNotifRead(ctx, MainActivity.username, notifEntry._id);
+
+
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
             builder.setToolbarColor( ctx.getResources().getColor(R.color.actifitRed));
