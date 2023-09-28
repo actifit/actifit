@@ -272,7 +272,7 @@ public class MainActivity extends BaseActivity{
     public Double blurtBalance = 0.0;
 
     public static Double minTokenCount;
-    TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText, newbieLink;
+    TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText, newbieLink, notifCount;
     LinearLayout loginContainer, userGadgets, accountRCContainer, votingStatusContainer;
     GridLayout topIconsContainer;
     FontTextView BtnSettings;
@@ -748,6 +748,7 @@ public class MainActivity extends BaseActivity{
         accountRCValue = findViewById(R.id.account_rc);
         topIconsContainer = findViewById(R.id.top_icons_container);
         newbieLink = findViewById(R.id.verify_newbie);
+        notifCount = findViewById(R.id.notif_count);
 
         //accountRCContainer = findViewById(R.id.rc_container);
 
@@ -3677,6 +3678,11 @@ public class MainActivity extends BaseActivity{
             loginContainer.setVisibility(View.GONE);
 
 
+
+            //load unread notification count
+            RequestQueue queue = Volley.newRequestQueue(ctx);
+            loadNotifCount(queue);
+
             //display profile pic too
             final String userImgUrl = getString(R.string.hive_image_host_url).replace("USERNAME", username);
             final ImageView userProfilePic = findViewById(R.id.user_profile_pic);
@@ -3764,7 +3770,7 @@ public class MainActivity extends BaseActivity{
                 //need to fetch user rank data from API
 
                 //handles sending out API query requests
-                RequestQueue queue = Volley.newRequestQueue(this);
+                //RequestQueue queue = Volley.newRequestQueue(this);
 
                 // This holds the url to connect to the API and grab the user rank.
                 // We append to it the username
@@ -4334,6 +4340,29 @@ public class MainActivity extends BaseActivity{
             }
 
         }
+    }
+    
+    private void loadNotifCount(RequestQueue queue){
+        String notificationsUrl = getString(R.string.user_active_notifications_url)+MainActivity.username;
+        notifCount.setText("");
+        notifCount.setVisibility(View.GONE);
+        // Request the transactions of the user first via JsonArrayRequest
+        // according to our data format
+        JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET,
+                notificationsUrl, null, notificationsListArray -> {
+            //set proper notif count
+            if (notificationsListArray !=null && notificationsListArray.length() > 0) {
+                String count = notificationsListArray.length() <1000 ? notificationsListArray.length()+"" : "999+";
+                notifCount.setText(Html.fromHtml("<sup><small>"+count+"</small></sup>"));
+                notifCount.setVisibility(View.VISIBLE);
+            }
+        }, error -> {
+
+        });
+
+
+        // Add transaction request to be processed
+        queue.add(transactionRequest);
     }
 
 
