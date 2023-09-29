@@ -15,6 +15,9 @@
  */
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -55,6 +58,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
@@ -271,8 +275,11 @@ public class MainActivity extends BaseActivity{
     public boolean hasBlurtAccount = false;
     public Double blurtBalance = 0.0;
 
+    int lastChatCount = 0;
+
     public static Double minTokenCount;
-    TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText, newbieLink, notifCount;
+    TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText, newbieLink,
+            notifCount, chatNotifCount;
     LinearLayout loginContainer, userGadgets, accountRCContainer, votingStatusContainer;
     GridLayout topIconsContainer;
     FontTextView BtnSettings;
@@ -292,6 +299,8 @@ public class MainActivity extends BaseActivity{
     RotateAnimation rotate;
 
     ScaleAnimation scaler;
+    ValueAnimator valueAnimator;
+
     Button BtnPostSteemit;
 
     private ConsentInformation consentInformation;
@@ -749,6 +758,7 @@ public class MainActivity extends BaseActivity{
         topIconsContainer = findViewById(R.id.top_icons_container);
         newbieLink = findViewById(R.id.verify_newbie);
         notifCount = findViewById(R.id.notif_count);
+        chatNotifCount = findViewById(R.id.chat_notif_count);
 
         //accountRCContainer = findViewById(R.id.rc_container);
 
@@ -967,6 +977,13 @@ public class MainActivity extends BaseActivity{
 
 
         BtnChat.setOnClickListener(view -> {
+
+            //store that user has opened chat to avoid showing notifications predating this event
+
+            storeNotifDate(new Date(), "");
+            storeNotifCount(lastChatCount);
+
+            //open chat
             ChatDialogFragment chatDialog = ChatDialogFragment.newInstance(getCtx());
             chatDialog.show(getSupportFragmentManager(), "chat_dialog");
         });
@@ -3683,6 +3700,9 @@ public class MainActivity extends BaseActivity{
             RequestQueue queue = Volley.newRequestQueue(ctx);
             loadNotifCount(queue);
 
+            //load chat notifications
+            loadChatNotif(queue);
+
             //display profile pic too
             final String userImgUrl = getString(R.string.hive_image_host_url).replace("USERNAME", username);
             final ImageView userProfilePic = findViewById(R.id.user_profile_pic);
@@ -4341,7 +4361,198 @@ public class MainActivity extends BaseActivity{
 
         }
     }
-    
+
+    private void renderChatData(){
+        chatNotifCount.setVisibility(View.VISIBLE);
+
+        // Create a new ValueAnimator object.
+        if (valueAnimator == null) {
+            valueAnimator = new ValueAnimator();
+
+            // Set the duration of the animation.
+            valueAnimator.setDuration(1000);
+            valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            valueAnimator.setRepeatMode(ValueAnimator.REVERSE);
+
+            // Set the valueFrom and valueTo properties of the ValueAnimator object.
+            //valueAnimator.setFloatValues(Color.RED, Color.parseColor("#FFFFFF"), Color.RED);
+            valueAnimator.setFloatValues(getResources().getColor(R.color.actifitRed), getResources().getColor(R.color.colorWhite));//Color.parseColor("#FFFFFF"));
+
+
+            // Add an AnimatorUpdateListener to the ValueAnimator object.
+            valueAnimator.addUpdateListener(animator -> {
+                // Set the background color of the TextView object to the current value of the ValueAnimator object.
+                int animatedValue = (int) (float) animator.getAnimatedValue();
+
+                chatNotifCount.setTextColor(animatedValue);
+            });
+        }
+
+// Start the ValueAnimator object.
+        if (!valueAnimator.isRunning()) {
+            valueAnimator.start();
+        }
+
+    }
+
+    private void hideChatData(){
+        chatNotifCount.setVisibility(View.GONE);
+        if (valueAnimator != null && valueAnimator.isRunning()) {
+            valueAnimator.cancel();
+        }
+    }
+
+    //check community notifications
+    private void loadCommunityNotif(RequestQueue queue, String lastChatDate, int commChatCount){
+
+        String notificationsUrl = getString(R.string.sting_chat_query_comm);
+
+        // Request the transactions of the user first via JsonArrayRequest
+        // according to our data format
+        JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET,
+                notificationsUrl, null, notificationsListArray -> {
+                try {
+                    JSONObject todayObj = null;
+                    if (notificationsListArray.length() > 0) {
+                        //today's stats
+                        todayObj = notificationsListArray.getJSONArray(1).getJSONArray(0).getJSONObject(6);//dual array structure
+                        //we have new messages today
+                        if (todayObj.has(getString(R.string.actifit_comm))){
+                            //new messages today, notify user
+                            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
+                            String todayDate = outputFormat.format(new Date());
+                            lastChatCount = todayObj.getInt(getString(R.string.actifit_comm));
+                            storeNotifCount(lastChatCount);
+                            if ((Integer.parseInt(todayDate) > Integer.parseInt(lastChatDate))){
+                                //storeNotifDate(null, notifDate);
+                                renderChatData();
+                            }else if ((Integer.parseInt(todayDate) == Integer.parseInt(lastChatDate))
+                                    && lastChatCount > commChatCount){
+                                renderChatData();
+                            }
+                        }
+                    }
+
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+            }, error -> {
+                //hide dialog
+                error.printStackTrace();
+
+            });
+
+        // Add transaction request to be processed
+        queue.add(transactionRequest);
+    }
+
+    private void loadChatNotif(RequestQueue queue){
+        //start by hiding notifier
+        hideChatData();
+
+        //for testing, set custom date
+        /*
+        storeNotifDate(null, "20230924");
+        storeNotifCount(0);
+
+         */
+        //grab last stored update date for sting chat notifications
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        String lastChatDate = sharedPreferences.getString(getString(R.string.sting_chat_update),"");
+        int commChatCount = sharedPreferences.getInt(getString(R.string.sting_chat_comm_count),0);
+        if (!lastChatDate.equals("")){//(false){//
+            //we have a stored date, grab it
+
+            // This holds the url to connect to the API and grab the transactions.
+            // We append to it the username
+            String notificationsUrl = getString(R.string.sting_chat_query_user).replace("_USER_", username);
+
+            // Request the transactions of the user first via JsonArrayRequest
+            // according to our data format
+            JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET,
+                    notificationsUrl, null, notificationsListArray -> {
+
+                boolean foundNew = false;
+                // Handle the result
+                try {
+                    JSONArray innerArray = null;
+                    if (notificationsListArray.length() > 0  ){
+                        innerArray = notificationsListArray.getJSONArray(1);
+                    }
+                    for (int i = 0; i < innerArray.length(); i++) {
+                        try{
+                            // Retrieve each JSON object within the JSON array
+                            JSONObject jsonObject = innerArray.getJSONObject(i);
+
+                            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+                            Date date = inputFormat.parse(jsonObject.getString("date"));
+
+                            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
+                            String notifDate = outputFormat.format(date);
+                            if ((Integer.parseInt(notifDate) > Integer.parseInt(lastChatDate))){
+                                //storeNotifDate(null, notifDate);
+                                renderChatData();
+                                foundNew = true;
+                                break;
+                            }
+                        }catch(Exception exc){
+                            exc.printStackTrace();
+                        }
+                    }
+                    if (!foundNew){
+                        //check community notifications
+                        loadCommunityNotif(queue, lastChatDate, commChatCount);
+                    }
+
+                    //actifitTransactions.setText("Response is: "+ response);
+                }catch (Exception e) {
+                    //hide dialog
+
+                    e.printStackTrace();
+                }
+            }, error -> {
+                //hide dialog
+                error.printStackTrace();
+
+            });
+
+
+            // Add transaction request to be processed
+            queue.add(transactionRequest);
+
+        }else{
+            //default case
+            renderChatData();
+        }
+
+    }
+
+    private void storeNotifCount(int commCount){
+        SharedPreferences shPrefs = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        SharedPreferences.Editor editor = shPrefs.edit();
+        editor.putInt(getString(R.string.sting_chat_comm_count), commCount);
+        editor.commit();
+    }
+
+    private void storeNotifDate(Date date, String dateStr){
+        SharedPreferences shPrefs = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        SharedPreferences.Editor editor = shPrefs.edit();
+
+        //Date date = new Date();
+        String strDate = "";
+        if (!dateStr.equals("")){
+            strDate = dateStr;
+        }else{
+            DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            strDate = dateFormat.format(date);
+        }
+
+        //String strDate = dateFormat.format(date);
+
+        editor.putString(getString(R.string.sting_chat_update), strDate);
+        editor.commit();
+    }
+
     private void loadNotifCount(RequestQueue queue){
         String notificationsUrl = getString(R.string.user_active_notifications_url)+MainActivity.username;
         notifCount.setText("");
