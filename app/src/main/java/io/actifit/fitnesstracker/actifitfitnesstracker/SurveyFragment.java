@@ -115,13 +115,18 @@ public class SurveyFragment extends DialogFragment {
         ProgressBar loader = view.findViewById(R.id.loader);
         //final Activity activRef = this;
         voteButton.setOnClickListener(v -> {
-            Toast.makeText(this.ctx,"test"+radioGroup.getCheckedRadioButtonId(), Toast.LENGTH_LONG);
+            //Toast.makeText(this.ctx,"test"+radioGroup.getCheckedRadioButtonId(), Toast.LENGTH_LONG);
+
+            if (radioGroup.getCheckedRadioButtonId() == -1){
+                Utils.displayNotification(ctx.getString(R.string.select_option), null, ctx, getActivity(), false);
+                return;
+            }
 
             RequestQueue queue = Volley.newRequestQueue(this.ctx);
 
             loader.setVisibility(View.VISIBLE);
 
-            //fetch blurt price
+
             String voteSurveyUrl = getString(R.string.vote_survey_url).replace("_USER_", MainActivity.username)
                     .replace("_ID_", this.survey.getId())
                     .replace("_OPTION_",radioGroup.getCheckedRadioButtonId()+"");
