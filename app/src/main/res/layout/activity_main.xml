@@ -158,9 +158,9 @@
 
                     <TextView android:id="@+id/notif_count"
                         android:layout_width="wrap_content"
-                        android:layout_height="15dp"
+                        android:layout_height="18dp"
                         android:layout_gravity="top"
-                        android:paddingTop="2dp"
+                        android:padding="4dp"
                         android:textColor="@color/colorWhite"
                         android:textSize="16sp"
                         android:background="@color/actifitRed"
@@ -865,6 +865,20 @@ android:layout_weight="1"-->
             android:text="\uf086"
             android:textSize="25dp"
             android:padding="7dp"
+            />
+
+
+        <TextView android:id="@+id/chat_notif_count"
+            android:layout_width="wrap_content"
+            android:layout_height="15dp"
+            android:layout_gravity="top|left"
+            android:gravity="left"
+            android:paddingTop="2dp"
+            android:textColor="@color/actifitRed"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:text="\uf111"
+            android:textSize="10sp"
+            android:visibility="gone"
             />
 
         </LinearLayout>
