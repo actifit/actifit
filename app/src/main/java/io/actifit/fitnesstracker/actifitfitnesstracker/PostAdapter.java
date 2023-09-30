@@ -437,6 +437,14 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                             if (mainImageUrl != "") {
                                 Picasso.get()
                                         .load(mainImageUrl)
+                                        .error(R.drawable.ic_launcher_background)
+                                        //added those to fix issues with large images, although they delay loading images a bit yet useful
+                                        //to avoid any crashes. In particular the fit function call
+                                        //https://futurestud.io/tutorials/picasso-image-resizing-scaling-and-fit
+
+                                        .fit()
+                                        .centerCrop()
+                                        //.resize(mainImage.getLayoutParams().width, mainImage.getLayoutParams().height)
                                         .into(mainImage);
                                 mainImage.setVisibility(VISIBLE);
                             }
