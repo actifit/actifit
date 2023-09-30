@@ -4422,12 +4422,12 @@ public class MainActivity extends BaseActivity{
                             SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
                             String todayDate = outputFormat.format(new Date());
                             lastChatCount = todayObj.getInt(getString(R.string.actifit_comm));
-                            storeNotifCount(lastChatCount);
                             if ((Integer.parseInt(todayDate) > Integer.parseInt(lastChatDate))){
                                 //storeNotifDate(null, notifDate);
                                 renderChatData();
                             }else if ((Integer.parseInt(todayDate) == Integer.parseInt(lastChatDate))
                                     && lastChatCount > commChatCount){
+                                storeNotifCount(lastChatCount);
                                 renderChatData();
                             }
                         }
