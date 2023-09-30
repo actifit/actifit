@@ -75,6 +75,16 @@
 
         />
 
+        <ProgressBar
+            android:id="@+id/loaderMore"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:progress="@integer/material_motion_duration_long_1"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+             />
+
     </RelativeLayout>
 
 
