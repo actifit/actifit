@@ -2,6 +2,7 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
+import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -34,13 +35,14 @@ import java.util.concurrent.CompletableFuture;
 
 import info.androidhive.fontawesome.FontTextView;
 
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
 
 public class SocialActivity extends BaseActivity {
 
     private ListView socialView;
     private ArrayList<SingleHivePostModel> posts;
-    private ProgressBar progress;
+    private ProgressBar progress, progressMore;
     //private ProgressDialog progress;
     private PostAdapter postAdapter;
 
@@ -122,6 +124,7 @@ public class SocialActivity extends BaseActivity {
         socialView = findViewById(R.id.postList);
 
         progress = findViewById(R.id.loader);
+        progressMore = findViewById(R.id.loaderMore);
 
         loadMoreBtn = findViewById(R.id.load_more);
 
@@ -137,6 +140,8 @@ public class SocialActivity extends BaseActivity {
 
         //set load more functionality
         loadMoreBtn.setOnClickListener(view -> {
+            loadMoreBtn.setVisibility(View.GONE);
+            //progressMore.setVisibility(View.VISIBLE);
             loadPosts(false);
         });
 
@@ -260,9 +265,13 @@ public class SocialActivity extends BaseActivity {
 
                 //progress = new ProgressBar(this);
                 // progress = new ProgressDialog(this);
-                if (showFullProgress) {
-                    progress.setVisibility(View.VISIBLE);
-                }
+                runOnUiThread(() -> {
+                            if (showFullProgress) {
+                                progress.setVisibility(View.VISIBLE);
+                            } else {
+                                progressMore.setVisibility(View.VISIBLE);
+                            }
+                        });
 
 
                 //grab array from result
@@ -349,6 +358,7 @@ public class SocialActivity extends BaseActivity {
 
                             // Delayed task to be executed after rendering is complete
                             progress.setVisibility(View.GONE); // Hide the ProgressBar
+                            progressMore.setVisibility(View.GONE);
                         }
                     });
 
@@ -361,6 +371,7 @@ public class SocialActivity extends BaseActivity {
             } catch (Exception e) {
                 //hide dialog
                 progress.setVisibility(View.GONE);
+                progressMore.setVisibility(View.GONE);
                 //progress.hide();
                 //actifitTransactionsError.setVisibility(View.VISIBLE);
                 e.printStackTrace();
