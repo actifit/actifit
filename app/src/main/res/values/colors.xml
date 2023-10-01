@@ -7,4 +7,5 @@
     <color name="actifitGreen">#00FF00</color>
     <color name="actifitDarkGreen">#006400</color>
     <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#000000</color>
 </resources>

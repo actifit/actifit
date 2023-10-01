@@ -72,6 +72,8 @@
     <string name="activity_count_lbl">Activity Count</string>
     <string name="activity_details_lbl">Activity Details</string>
     <string name="activity_type_lbl">Activity Type</string>
+    <string name="user_lbl">User</string>
+    <string name="recipient_lbl">Recipient</string>
     <string name="track_measurements_lbl">Track Measurements</string>
     <string name="height_lbl">Height</string>
     <string name="weight_lbl">Weight</string>
@@ -416,7 +418,10 @@
     <string name="daily_5k_reward">5K Extra Reward</string>
     <string name="daily_7k_reward">7K Extra Reward</string>
     <string name="daily_10k_reward">10K Extra Reward</string>
+    <string name="sting_chat_update">Sting_chat_update</string>
+    <string name="sting_chat_comm_count">Sting_chat_comm_count</string>
     <string name="voting_on">Voting</string>
+    <string name="select_option">Please select an option first</string>
     <string name="voters_list">Voters List</string>
     <string name="reply_action">Reply</string>
     <string name="cancel_action">Cancel</string>
