@@ -68,6 +68,7 @@ import io.noties.markwon.LinkResolver;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.MarkwonConfiguration;
 
+import io.noties.markwon.html.HtmlPlugin;
 import io.noties.markwon.image.AsyncDrawable;
 import io.noties.markwon.image.AsyncDrawableLoader;
 import io.noties.markwon.image.ImageSize;
@@ -342,16 +343,24 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             //removed extra tags
             shortenedContent = Utils.sanitizeContent(shortenedContent, false);
 
-            shortenedContent = Utils.trimText(shortenedContent, Constants.trimmedTextSize);
+            //shorten content only for posts, comments usually are shorter in nature
+            if (!this.isComment){
+                shortenedContent = Utils.trimText(shortenedContent, Constants.trimmedTextSize);
+                shortenedContent += "..." ;//append 3 dots for extra content
+            }else{
+                shortenedContent = Utils.sanitizeContent(postEntry.body, true);
+            }
 
             //to be used when setting value upon content retract
-            final String finalShortenedContent = shortenedContent + "..." ;//append 3 dots for extra content
+            final String finalShortenedContent = shortenedContent;
 
             //mdView.setMDText(finalShortenedContent);
             // parse markdown and create styled text
 
             this.markwon = Markwon.builder(ctx)
                     //.usePlugin(ImagesPlugin.create())
+                    //support HTML
+                    .usePlugin(HtmlPlugin.create())
 
                     //for handling link clicks
                     .usePlugin(new AbstractMarkwonPlugin() {
@@ -417,6 +426,13 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
                     .build();
 
+            //if (this.isComment){
+                //expand to fit
+                ViewGroup.LayoutParams layoutParams = body.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+                body.setLayoutParams(layoutParams);
+            //}
 
             final Spanned markdown = markwon.toMarkdown(finalShortenedContent);
             // use it on a TextView
@@ -511,13 +527,21 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 return false;
             });
 
+
+            //profile pic
+            final String userImgUrl = ctx.getString(R.string.hive_image_host_url).replace("USERNAME", postEntry.author);
+            Handler uiHandler = new Handler(Looper.getMainLooper());
+            uiHandler.post(() -> {
+                        //load user image
+                        Picasso.get()
+                                .load(userImgUrl)
+                                .into(userProfilePic);
+                    });
             //only show this under no comments to save phone space
             if (!this.isComment) {
                 //show title
                 title.setVisibility(VISIBLE);
                 afitRewards.setVisibility(VISIBLE);
-                //profile pic
-                final String userImgUrl = ctx.getString(R.string.hive_image_host_url).replace("USERNAME", postEntry.author);
 
 
                 //fetch main post image
@@ -544,12 +568,9 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
                 final String mainImageUrl = fetchedImageUrl;
 
-                    Handler uiHandler = new Handler(Looper.getMainLooper());
+                    //Handler uiHandler = new Handler(Looper.getMainLooper());
                     uiHandler.post(() -> {
-                        //load user image
-                        Picasso.get()
-                                .load(userImgUrl)
-                                .into(userProfilePic);
+
                         try {
                             //also load main post image
                             if (mainImageUrl != "") {
@@ -679,10 +700,11 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         // use it on a TextView
         markwon.setParsedMarkdown(body, markdown);
 
+        /*
         ViewGroup.LayoutParams layoutParams = body.getLayoutParams();
         layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-        body.setLayoutParams(layoutParams);
+        body.setLayoutParams(layoutParams);*/
         //mdView.setMinimumHeight(700);
 
         mainImage.setVisibility(GONE);

@@ -156,17 +156,17 @@ public class Utils {
             long remainingMonths = months % 12;
 
             if (mins < 60) {
-                return mins + " min(s)";
+                return mins + " min(s) ago";
             } else if (hours < 24) {
-                return hours + " hour(s)";
+                return hours + " hour(s) ago";
             } else if (days < 7) {
-                return days + " day(s)";
+                return days + " day(s) ago";
             } else if (weeks < 4) {
-                return weeks + " week(s)";
+                return weeks + " week(s) ago";
             } else if (months < 12) {
-                return months + " month(s)";
+                return months + " month(s) ago";
             } else {
-                return years + " year(s)";
+                return years + " year(s) ago";
                 // return years + " years and " + remainingMonths + " month(s)";
             }
         } catch (ParseException e) {
