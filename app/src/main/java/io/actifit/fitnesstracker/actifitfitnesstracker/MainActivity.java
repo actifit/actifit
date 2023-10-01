@@ -4447,7 +4447,7 @@ public class MainActivity extends BaseActivity{
     }
 
     private void loadChatNotif(RequestQueue queue){
-        //start by hiding notifier
+        //start by hiding notifierh
         hideChatData();
 
         //for testing, set custom date

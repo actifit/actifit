@@ -8,13 +8,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -35,41 +40,40 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.mittsu.markedview.MarkedView;
-import com.scottyab.rootbeer.Const;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Target;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
+
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
+
 import androidx.fragment.app.FragmentManager;
+
+import io.noties.markwon.AbstractMarkwonPlugin;
+import io.noties.markwon.LinkResolver;
+import io.noties.markwon.Markwon;
+import io.noties.markwon.MarkwonConfiguration;
+
+import io.noties.markwon.image.AsyncDrawable;
+import io.noties.markwon.image.AsyncDrawableLoader;
+import io.noties.markwon.image.ImageSize;
+import io.noties.markwon.image.ImageSizeResolver;
+import io.noties.markwon.image.ImagesPlugin;
+import io.noties.markwon.image.picasso.PicassoImagesPlugin;
 
 
 public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
@@ -82,6 +86,9 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     Boolean isComment;//flag whether this is a post or a comment
     static JSONArray extraVotesList;
     static Context keyMainContext;
+    // obtain an instance of Markwon
+    Markwon markwon;
+
 
     public int Size(){
         if (postArray !=null && postArray.size()>0) {
@@ -97,6 +104,33 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         this.socialActivContext = socialActivContext;
         this.isComment = isComment;
         this.ctx = context;
+
+                //for handling image loading
+                /*.usePlugin(new AbstractMarkwonPlugin() {
+                    @Override
+                    public void configureConfiguration(MarkwonConfiguration.Builder builder) {
+                        builder.asyncDrawableLoader(AsyncDrawableLoader.noOp());
+                    }
+                })*/
+
+                //control image size
+                /*.usePlugin(new AbstractMarkwonPlugin() {
+                    @Override
+                    public void configureConfiguration(MarkwonConfiguration.Builder builder) {
+                        builder.imageSizeResolver(new ImageSizeResolver() {
+                            @NonNull
+                            @Override
+                            public Rect resolveImageSize(@NonNull AsyncDrawable drawable) {
+                                final ImageSize imageSize = drawable.getImageSize();
+                                return drawable.getResult().getBounds();
+                            }
+                        });
+                    }
+                })*/
+
+                //.usePlugin(HtmlPlugin.create())
+                //Markwon.create(ctx);
+        //markwon.requirePlugin(HtmlPlugin.create());
     }
 
     private boolean userNewlyVotedPost(String voter, int post_id){
@@ -146,7 +180,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             final ImageView userProfilePic = convertView.findViewById(R.id.author_pic);
             TextView date = convertView.findViewById(R.id.date);
             ImageView mainImage = convertView.findViewById(R.id.post_image);
-            MarkedView mdView = convertView.findViewById(R.id.md_view);
+            //MarkedView mdView = convertView.findViewById(R.id.md_view);
             TextView upvoteCount = convertView.findViewById(R.id.upvote_count);
             TextView commentCount = convertView.findViewById(R.id.comment_count);
             Button expandButton = convertView.findViewById(R.id.expand_button);
@@ -162,6 +196,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             Button commentButton = convertView.findViewById(R.id.comment_button);
             Button upvoteButton = convertView.findViewById(R.id.upvote_button);
             Button replyButton = convertView.findViewById(R.id.reply_button);
+
+            TextView body = convertView.findViewById(R.id.body);
 
 
             commentsList = convertView.findViewById(R.id.comments_list);
@@ -180,8 +216,17 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             if (postEntry.commentsExpanded){
                 commentsList.setVisibility(VISIBLE);
+                if (!this.isComment) {
+                    expandButton.setVisibility(GONE);
+                    retractButton.setVisibility(VISIBLE);
+                }
+
             }else{
-                commentsList.setVisibility(View.GONE);
+                commentsList.setVisibility(GONE);
+                if (!this.isComment) {
+                    expandButton.setVisibility(VISIBLE);
+                    retractButton.setVisibility(GONE);
+                }
             }
 
 
@@ -234,7 +279,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 //if it is already visible, hide it
                 commentsList = finalConvertView.findViewById(R.id.comments_list);
                 if (commentsList.getVisibility() == VISIBLE){
-                    commentsList.setVisibility(View.GONE);
+                    commentsList.setVisibility(GONE);
                     postEntry.commentsExpanded = false;
                 }else {
                     //show loader
@@ -254,7 +299,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                             commentsList.setVisibility(VISIBLE);
                             postEntry.commentsExpanded = true;
 
-                            loader.setVisibility(View.GONE);
+                            loader.setVisibility(GONE);
                         });
                     });
                     thread.start();
@@ -300,14 +345,87 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             shortenedContent = Utils.trimText(shortenedContent, Constants.trimmedTextSize);
 
             //to be used when setting value upon content retract
-            final String finalShortenedContent = shortenedContent;
+            final String finalShortenedContent = shortenedContent + "..." ;//append 3 dots for extra content
 
-            mdView.setMDText(finalShortenedContent);
+            //mdView.setMDText(finalShortenedContent);
+            // parse markdown and create styled text
+
+            this.markwon = Markwon.builder(ctx)
+                    //.usePlugin(ImagesPlugin.create())
+
+                    //for handling link clicks
+                    .usePlugin(new AbstractMarkwonPlugin() {
+                        @Override
+                        public void configureConfiguration(MarkwonConfiguration.Builder builder) {
+                            builder.linkResolver(new LinkResolver() {
+                                @Override
+                                public void resolve(@NonNull View view, @NonNull String link) {
+                                    // react to link click here
+
+                                    // Create an Intent to open the URL in an external browser
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                                    // Verify that there's an app available to handle this intent
+                                    if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
+                                        view.getContext().startActivity(intent);
+                                    }
+                                }
+                            });
+                        }
+                    })
+
+                    //handle images via available picasso
+                    //.usePlugin(PicassoImagesPlugin.create(Picasso.get()))
+
+                    //handle images via picasso
+                    .usePlugin(PicassoImagesPlugin.create(new PicassoImagesPlugin.PicassoStore() {
+                        @NonNull
+                        @Override
+                        public RequestCreator load(@NonNull AsyncDrawable drawable) {
+
+                            int originalWidth = Math.round(drawable.getMinimumWidth());
+                            int originalHeight = Math.round(drawable.getMinimumHeight());
+
+                            // Calculate desired width and height based on container size
+                            // For example, you might use the container's width for width and a fixed height
+                            int desiredWidth = body.getWidth(); // Replace with actual container width
+                            int desiredHeight = Math.round(desiredWidth * originalHeight / originalWidth); // Calculate desired height
+
+
+                            return Picasso.get()
+                                    .load(drawable.getDestination())
+                                    .resize(desiredWidth, desiredHeight)
+                                    .centerCrop()
+                                    .tag(drawable);
+                                    //.fit();
+                                    //.fit()
+                                    //.centerCrop();
+                                    //.resize(targetWidth, targetHeight) // Specify your target width and height
+                                    //.fit()
+                                    //.centerCrop()
+                                    //.into(drawable);
+                                    //.tag(drawable);
+                        }
+
+                        @Override
+                        public void cancel(@NonNull AsyncDrawable drawable) {
+                            Picasso.get()
+                                    .cancelTag(drawable);
+                        }
+                    }))
+
+                    .build();
+
+
+            final Spanned markdown = markwon.toMarkdown(finalShortenedContent);
+            // use it on a TextView
+            markwon.setParsedMarkdown(body, markdown);
 
             String activityTypeStr = postEntry.getActivityType();
             activityType.setText(activityTypeStr);
             if (activityTypeStr==""){
-                activityTypeContainer.setVisibility(View.GONE);
+                activityTypeContainer.setVisibility(GONE);
             }else{
                 activityTypeContainer.setVisibility(VISIBLE);
             }
@@ -316,7 +434,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
 
             if (activityCountStr==""){
-                activityCountContainer.setVisibility(View.GONE);
+                activityCountContainer.setVisibility(GONE);
             }else{
                 activityCountContainer.setVisibility(VISIBLE);
 
@@ -450,18 +568,18 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                             }
                         }catch(Exception err){
                             System.out.println(err);
-                            mainImage.setVisibility(View.GONE);
+                            mainImage.setVisibility(GONE);
                         }
                     });
 
                 afitLogo.setVisibility(VISIBLE);
             }else{
                 //hide post only sections
-                mainImage.setVisibility(View.GONE);
-                title.setVisibility(View.GONE);
-                afitRewards.setVisibility(View.GONE);
-                expandButton.setVisibility(View.GONE);
-                afitLogo.setVisibility(View.GONE);
+                mainImage.setVisibility(GONE);
+                title.setVisibility(GONE);
+                afitRewards.setVisibility(GONE);
+                expandButton.setVisibility(GONE);
+                afitLogo.setVisibility(GONE);
             }
 
             ScaleAnimation scaler;
@@ -489,13 +607,13 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             expandButton.setOnClickListener(view -> {
                 if (expandButton.getVisibility() == VISIBLE) {
-                    expandPost(expandButton, retractButton, mdView, mainImage, postEntry);
+                    expandPost(expandButton, retractButton, mainImage, postEntry, body);
                 }else{
-                    retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent);
+                    retractPost(expandButton, retractButton, mainImage, finalShortenedContent, body);
                 }
             });
 
-            retractButton.setOnClickListener(view -> retractPost(expandButton, retractButton, mdView, mainImage, finalShortenedContent));
+            retractButton.setOnClickListener(view -> retractPost(expandButton, retractButton, mainImage, finalShortenedContent, body));
 
         }catch(Exception exp){
             exp.printStackTrace();
@@ -546,24 +664,35 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
     }
 
-    void expandPost(Button expandButton, Button retractButton, MarkedView mdView, ImageView mainImage, SingleHivePostModel postEntry){
+    void expandPost(Button expandButton, Button retractButton, //MarkedView mdView,
+                    ImageView mainImage, SingleHivePostModel postEntry, TextView body){
         //expand text visibility
-        expandButton.setVisibility(View.GONE);
+        expandButton.setVisibility(GONE);
         retractButton.setVisibility(VISIBLE);
-        mdView.setMDText(Utils.sanitizeContent(postEntry.body, true));
+        //mdView.setMDText(Utils.sanitizeContent(postEntry.body, true));
 
-        ViewGroup.LayoutParams layoutParams = mdView.getLayoutParams();
+        //body.setText(mdView.text);
+
+        // parse markdown and create styled text
+        final Spanned markdown = markwon.toMarkdown(Utils.sanitizeContent(postEntry.body, true));
+
+        // use it on a TextView
+        markwon.setParsedMarkdown(body, markdown);
+
+        ViewGroup.LayoutParams layoutParams = body.getLayoutParams();
         layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-        mdView.setLayoutParams(layoutParams);
+        body.setLayoutParams(layoutParams);
+        //mdView.setMinimumHeight(700);
 
-        mainImage.setVisibility(View.GONE);
+        mainImage.setVisibility(GONE);
     }
 
-    void retractPost(Button expandButton, Button retractButton, MarkedView mdView, ImageView mainImage, String finalShortenedContent){
+    void retractPost(Button expandButton, Button retractButton, //MarkedView mdView,
+                     ImageView mainImage, String finalShortenedContent, TextView body){
         //retract text visibility
         expandButton.setVisibility(VISIBLE);
-        retractButton.setVisibility(View.GONE);
+        retractButton.setVisibility(GONE);
 
         //maintain current position after close
         int currentPosition = socialView.getFirstVisiblePosition();
@@ -573,7 +702,12 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         // Restore the scroll position
         socialView.setSelectionFromTop(currentPosition, topOffset);
 
-        mdView.setMDText(finalShortenedContent);
+        //mdView.setMDText(finalShortenedContent);
+
+        final Spanned markdown = markwon.toMarkdown(finalShortenedContent);
+        // use it on a TextView
+        markwon.setParsedMarkdown(body, markdown);
+
         mainImage.setVisibility(VISIBLE);
     }
 
