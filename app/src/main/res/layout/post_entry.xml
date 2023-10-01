@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.cardview.widget.CardView
+<androidx.cardview.widget.CardView xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/entryContainer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -138,7 +138,7 @@
             android:id="@+id/post_preview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            >
+            android:orientation="vertical">
 
 
             <com.mittsu.markedview.MarkedView
@@ -148,19 +148,23 @@
                 android:layout_marginBottom="20dp"
                 android:paddingBottom="20dp"
                 android:background="@color/colorWhite"
-
+                android:visibility="gone"
                />
 
 
-            <!--<TextView
+            <TextView
                 android:id="@+id/body"
                 android:text="body_placeholder"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                />-->
+                android:layout_height="100dp"
+                android:layout_marginBottom="5dp"
+                android:paddingBottom="5dp"
+                android:background="@color/colorWhite"
+                android:color="@color/colorBlack"
+                android:lineSpacingMultiplier="1.3"
+                />
 
         </LinearLayout>
 
