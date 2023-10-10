@@ -20,6 +20,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.List;
 
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+
 public class Slider_items_Pager_Adapter extends PagerAdapter {
 
     private Context Mcontext;
@@ -77,7 +79,9 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         try {
-            container.removeView((View) object);
+            runOnUiThread(() -> {
+                container.removeView((View) object);
+            });
         }catch(Exception ex){
             ex.printStackTrace();
         }
