@@ -152,6 +152,7 @@
     <string name="upload_failed">Upload Failed!</string>
     <string name="uploading">Uploading...</string>
     <string name="select_img_title">Select Image</string>
+    <string name="select_vid_title">Select Video</string>
     <string name="Walking">Walking</string>
     <string name="Jogging">Jogging</string>
     <string name="Running">Running</string>
@@ -460,5 +461,24 @@
     <string name="report_text_hint_7">You got cool pics from your walk/jog/workout/...? Let\'s go</string>
     <string name="report_text_hint_count">7</string>
     <string name="survey_vote">Vote</string>
+    <string name="video_upload_3speak">Video Upload</string>
+    <string name="uploaded_vids_list">Uploaded Vids List</string>
+    <string name="status">Status</string>
+    <string name="size">Size</string>
+    <string name="duration">Duration</string>
+    <string name="filename">Filename</string>
+    <string name="title">Title</string>
+    <string name="play_vid">Play</string>
+    <string name="stop_vid">Stop</string>
+    <string name="choose_file">Choose Video</string>
+    <string name="record_video">Record</string>
+    <string name="add_vid_to_post">Add to Post</string>
+    <string name="mark_vid_published">Mark Published</string>
+    <string name="submit_video">Submit Video</string>
+    <string name="upload_new_vid">Upload New Video</string>
+    <string name="no_vids_found">No User Videos Found</string>
+    <string name="submit_vid">Submit Video</string>
+    <string name="submit_vid_success">Video submitted successfully! Please check the encoding progress of the video to include it into your Actifit report by clicking refresh button above.</string>
     <string name="survey_reward_temp">Taking part in Actifit polls allows you to earn extra AFIT. There is a one time _REWARD_ for answering this poll. There is No correct or incorrect answer.</string>
+    <string name="Now">Now</string>
 </resources>
