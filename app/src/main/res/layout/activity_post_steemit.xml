@@ -645,8 +645,7 @@
                     android:text="\uf03d"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/post_content_container"
-                    android:visibility="gone"/>
+                    app:layout_constraintTop_toBottomOf="@+id/post_content_container" />
 
             <LinearLayout
 
