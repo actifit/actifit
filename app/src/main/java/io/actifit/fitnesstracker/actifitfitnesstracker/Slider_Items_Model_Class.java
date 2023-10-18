@@ -14,7 +14,7 @@ public class Slider_Items_Model_Class {
     private boolean is_survey = false;
     private JSONArray survey_options;
     private int survey_duration;
-    private boolean is_survey_active;
+    private boolean is_survey_active = false;
     private int survey_reward;
     private Date date;
     private Date endDate;
@@ -32,12 +32,24 @@ public class Slider_Items_Model_Class {
                 this.survey_reward = (entry.has("survey_reward")?entry.getInt("survey_reward"):0) ;
                 this.date = (entry.has("date")? Utils.getFormattedDate(entry.getString("date")):new Date()) ;
                 this.endDate = (entry.has("endDate")? Utils.getFormattedDate(entry.getString("endDate")):new Date()) ;
-                this.is_survey_active = !Utils.isPastTime(entry.getString("endDate"));
+                this.is_survey_active = isSurveyActive(entry);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
+    }
+
+    private boolean isSurveyActive(JSONObject entry){
+        if (!entry.has("endDate")) return false;
+        else{
+            try{
+                return !Utils.isPastTime(entry.getString("endDate"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
     }
 
     public Slider_Items_Model_Class(String featured_image_url, String news_title, String link_url) {
