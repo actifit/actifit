@@ -30,12 +30,24 @@ public class Survey_Entry_Class {
                 this.survey_reward = (entry.has("survey_reward")?entry.getInt("survey_reward"):0) ;
                 this.date = (entry.has("date")? Utils.getFormattedDate(entry.getString("date")):new Date()) ;
                 this.endDate = (entry.has("endDate")? Utils.getFormattedDate(entry.getString("endDate")):new Date()) ;
-                this.is_survey_active = !Utils.isPastTime(entry.getString("endDate"));
+                this.is_survey_active = isSurveyActive(entry);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
+    }
+
+    private boolean isSurveyActive(JSONObject entry){
+        if (!entry.has("endDate")) return false;
+        else{
+            try{
+                return !Utils.isPastTime(entry.getString("endDate"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
     }
 
 
