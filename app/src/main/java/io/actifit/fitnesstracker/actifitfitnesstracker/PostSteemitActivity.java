@@ -54,34 +54,51 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import com.amazonaws.util.IOUtils;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 import com.mittsu.markedview.MarkedView;
+
+//import io.tus.android.client.TusAndroidUpload;
+
+import io.tus.java.client.ProtocolException;
+import io.tus.java.client.TusClient;
+import io.tus.java.client.TusExecutor;
+import io.tus.java.client.TusURLMemoryStore;
+import io.tus.java.client.TusUpload;
+import io.tus.java.client.TusUploader;
 
 import static java.lang.Integer.parseInt;
 import static org.bitcoinj.core.TransactionBroadcast.random;
+
+
+//import io.tus.android.client.*;
 
 
 public class PostSteemitActivity extends BaseActivity implements View.OnClickListener{
@@ -95,8 +112,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     //track Choosing Image Intent
     private static final int CHOOSING_IMAGE_REQUEST = 1234;
 
+    //track choosing video intent
+    private static final int CHOOSING_VID_REQUEST = 1235;
+
     private EditText steemitPostContent;
     private NestedScrollView nestedScrollView;
+
+    private UploadedVideoModel selVidEntry;
 
     private Uri fileUri;
     private Bitmap bitmap;
@@ -112,6 +134,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     private static boolean yesterdayReport = false;
 
     private String fitbitUserId;
+
+    private String vidName;
+    private String vidUrl;
+    private String vidThumbName;
+    private String vidThumbUrl;
 
     EditText steemitPostTitle;
     //EditText steemitUsername;
@@ -171,14 +198,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     }
 
 
-    /*************************************/
-    //implementing 3speak upload functionality
-    private void uploadVideo(){
 
-
-    }
-
-    /*************************************/
 
     //implementing file upload functionality
     private void uploadFile() {
@@ -299,15 +319,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         int i = view.getId();
 
         if (i == R.id.btn_choose_file) {
-            showChoosingFile();
+            showChoosingFile(0);
         } else if (i == R.id.btn_video) {
-            //uploadFile();
-            uploadVideo();
+            //show video modal
+            VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken, this);
+            //dialog.getView().setMinimumWidth(400);
+            dialog.show(getSupportFragmentManager(), "video_upload_fragment");
         }
     }
 
     //handles the display of image selection
-    private void showChoosingFile() {
+    private void showChoosingFile(int type) {
 
         //ensure we have proper permissions for image upload
         if (shouldAskPermissions()) {
@@ -315,9 +337,16 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
 
         Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_img_title)), CHOOSING_IMAGE_REQUEST);
+        if (type==0) {
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.select_img_title)), CHOOSING_IMAGE_REQUEST);
+        }else{
+            intent.setType("video/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.select_img_title)), CHOOSING_VID_REQUEST);
+        }
+
     }
 
     @Override
@@ -338,6 +367,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else if (requestCode == CHOOSING_VID_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            //here capture video
+            fileUri = data.getData();
+
+            //uploadThumbnail(Utils.generateThumbnail(getApplicationContext(), fileUri));
+            //uploadVideo();
         }
     }
 
@@ -620,7 +655,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             }
         });
 
+        //try to load any previously selected vid
 
+        // Retrieve the JSON string from SharedPreferences
+        try {
+            String json = sharedPreferences.getString("selVidEntry", "");
+            // Convert back to UploadedVideoModel
+            Gson gson = new Gson();
+            selVidEntry = gson.fromJson(json, UploadedVideoModel.class);
+        }catch(Exception ex1){
+            ex1.printStackTrace();
+        }
 
         //try to load editor content if it was stored previously
         String priorContent = sharedPreferences.getString("steemPostContent","");
@@ -957,6 +1002,23 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
+    public void setMainVid(UploadedVideoModel vidEntry){
+        this.selVidEntry = vidEntry;
+        //store in shared preferences a copy of the video to ensure we have access to data if
+        //user revisits this post later
+        Gson gson = new Gson();
+        String json = gson.toJson(vidEntry);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("selVidEntry", json);
+        editor.apply();
+    }
+
+    public void appendContent(String text){
+        steemitPostContent.setText(steemitPostContent.getText().append(text));
+    }
+
     void focusContent(){
         if (steemitPostContent != null && currentActivity != null){
             currentActivity.runOnUiThread(() -> {
@@ -1166,6 +1228,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     Log.d(MainActivity.TAG, ">>>>[Actifit]lastPostDate:" + lastPostDate);
                     Log.d(MainActivity.TAG, ">>>>[Actifit]currentDate:" + targetDate);
+
+
+
                     if (!lastPostDate.equals("")) {
                         if (parseInt(lastPostDate) >= parseInt(targetDate)) {
                             notification = getString(R.string.one_post_per_day_error);
@@ -1290,6 +1355,81 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     //also append the date used
                     data.put("activityDate", targetDate);
 
+                    /**************************************/
+                    //3speak vid section
+                    // Assuming vid is an instance of some class or object that has the specified properties
+                    if (selVidEntry != null) {
+                        try {
+                            // Create sourceMap JSONArray
+                            JSONArray sourceMap = new JSONArray();
+
+                            JSONObject thumbnailMap = new JSONObject();
+                            thumbnailMap.put("type", "thumbnail");
+                            thumbnailMap.put("url", selVidEntry.thumbnail);
+                            sourceMap.put(thumbnailMap);
+
+                            JSONObject videoMap = new JSONObject();
+                            videoMap.put("type", "video");
+                            videoMap.put("url", selVidEntry.video_v2);
+                            videoMap.put("format", "m3u8");
+                            sourceMap.put(videoMap);
+
+                            // Create content JSONObject
+                            JSONObject content = new JSONObject();
+                            content.put("description", "");
+                            JSONArray tags = new JSONArray();
+                            tags.put("actifit");
+                            tags.put("3speak");
+                            content.put("tags", tags);
+
+                            // Create info JSONObject
+                            JSONObject info = new JSONObject();
+                            info.put("platform", "3speak");
+                            info.put("title", selVidEntry.title);
+                            info.put("author", MainActivity.username);
+                            info.put("permlink", selVidEntry.permlink);
+                            info.put("duration", selVidEntry.duration);
+                            info.put("filesize", selVidEntry.size);
+                            info.put("file", selVidEntry.filename);
+                            info.put("lang", "en");
+                            info.put("firstUpload", false);
+                            info.put("video_v2", selVidEntry.video_v2);
+                            info.put("sourceMap", sourceMap);
+
+                            // Create video JSONObject
+                            JSONObject video = new JSONObject();
+                            video.put("info", info);
+                            video.put("content", content);
+
+                            // Create vidJsonMeta JSONObject
+                            JSONObject vidJsonMeta = new JSONObject();
+                            vidJsonMeta.put("video",video);
+
+                            //include as part of the json_metadata
+                            data.put("video", vidJsonMeta.toString());
+
+                            //add 3speak beneficiary data
+                            JSONArray spkBenefic = Utils.grab3SpeakDefaultBenefic();
+                            try {
+                                JSONArray vidBenefic = new JSONArray(selVidEntry.beneficiaries);
+                                for (int k = 0; k <vidBenefic.length();k++)
+                                    spkBenefic.put(vidBenefic.getJSONObject(k));
+                            }catch(Exception exc){
+                                exc.printStackTrace();
+                            }
+                            data.put("spkBenefic", spkBenefic);
+
+                            //also append vid permalink to ensure it gets recognized on 3speak side
+                            data.put("spkPermlink",selVidEntry.permlink);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    /************************************/
+
                     //choose a charity if one is already selected before
 
                     sharedPreferences[0] = getSharedPreferences("actifitSets",MODE_PRIVATE);
@@ -1339,9 +1479,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 final String[] result = {""};
                 //use test url only if testing mode is on
                 String urlStr = getString(R.string.test_api_url);
-                if (getString(R.string.test_mode).equals("off")) {
+                //if (getString(R.string.test_mode).equals("off")) {
                     urlStr = getString(R.string.api_url_new);
-                }
+                //}
 
                 RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
@@ -1419,33 +1559,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.post_steem_menu, menu);
-        return true;
-    }
-
-
-    //handle the menu item click (new post to steem button)
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-            case R.id.action_post:
-                ProcessPost();
-                return true;
-
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
-
-        }
-    }
-*/
-
     String currentCharityDisplayName="";
 
     private void ProcessPost(){
@@ -1510,6 +1623,16 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         selectedActivityCount = activityTypeSelector.getSelectedIndicies().size();
 
         finalPostContent = steemitPostContent.getText().toString();
+
+        //check if we have a video and the video still is part of the content
+        if (selVidEntry != null){
+            String soughtString = "https://3speak.tv/watch?v="+MainActivity.username+"/"+selVidEntry.permlink;
+            if (!finalPostContent.contains(soughtString)){
+                //video has been removed, set as null
+                selVidEntry = null;
+            }
+        }
+
         finalPostTags = steemitPostTags.getText().toString();
 
         selectedActivitiesVal = activityTypeSelector.getSelectedItemsAsString();
