@@ -1,8 +1,17 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.os.Handler;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.util.Log;
@@ -20,6 +29,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.rjeschke.txtmark.Processor;
@@ -32,6 +42,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Safelist;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +54,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 public class Utils {
@@ -499,6 +514,405 @@ public class Utils {
                 builder1.show();
             }
         });
+
+    }
+
+    public static File getFileFromUri(Uri uri, Context ctx) {
+        String filePath = null;
+        if ("content".equals(uri.getScheme())) {
+            String[] projection = {MediaStore.Images.Media.DATA};
+            Cursor cursor = ctx.getContentResolver().query(uri, projection, null, null, null);
+            if (cursor != null) {
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                cursor.moveToFirst();
+                filePath = cursor.getString(column_index);
+                cursor.close();
+            }
+        } else if ("file".equals(uri.getScheme())) {
+            filePath = uri.getPath();
+        }
+
+        if (filePath != null) {
+            return new File(filePath);
+        } else {
+            return null;
+        }
+    }
+
+    @SuppressLint("Range")
+    public static String getOriginalFileName(Context context, Uri uri) {
+        String fileName = null;
+        String scheme = uri.getScheme();
+
+        if (scheme != null && scheme.equals("content")) {
+            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    fileName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        } else if (scheme != null && scheme.equals("file")) {
+            fileName = new File(uri.getPath()).getName();
+        }
+
+        return fileName;
+    }
+
+
+    public static long getVidSize(Context ctx, Uri videoUri){
+        long fileSizeInBytes = 0;
+        try{
+            String filePath = getRealPathFromURI(ctx, videoUri);
+            File file = new File(filePath);
+            fileSizeInBytes = file.length();
+            //vidSize = (float)fileSizeInBytes / (1024 * 1024); // Convert to MB
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return fileSizeInBytes;
+    }
+
+    public static String getRealPathFromURI(Context ctx, Uri contentUri) {
+        String[] proj = {MediaStore.Images.Media.DATA};
+        Cursor cursor = ctx.getContentResolver().query(contentUri, proj, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
+
+    public static double getVidDuration(Context ctx, Uri videoUri){
+        long vidDuration = 0l;
+        try{
+            MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+            mediaMetadataRetriever.setDataSource(ctx, videoUri);
+            vidDuration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            vidDuration = vidDuration / 1000;//comes in millisecs
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return vidDuration;
+    }
+
+    //generate video thumbnail
+
+    public static Bitmap generateThumbnail(Context ctx, Uri videoUri) {
+//        MediaStore.Video.Media.
+
+        System.out.println(">>>>> generate thumb");
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        System.out.println(">>>>> mediaMetadataRetriever initiated");
+        mediaMetadataRetriever.setDataSource(ctx, videoUri);
+        System.out.println(">>>>> mediaMetadataRetriever set");
+        // Get the video duration in milliseconds.
+        long videoDuration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+
+        // Calculate the time at which to take the thumbnailTime.
+        long thumbnailTime = videoDuration / 4;
+
+        Bitmap thumbnail = mediaMetadataRetriever.getFrameAtTime(thumbnailTime, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+        try {
+            mediaMetadataRetriever.release();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return thumbnail;
+    }
+
+    //create a uri/temp file from bitmap
+    public static Uri getBitmapFileUri(Bitmap bitmap) throws IOException {
+        File file = File.createTempFile("bitmap", ".jpg");
+        OutputStream outputStream = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        outputStream.close();
+
+        return Uri.fromFile(file);
+    }
+
+    public static void loadUserVids(RequestQueue requestQueue, Context ctx, String xcstkn, VideoUploadFragment parent){
+        //remove # from start if exists
+        if (xcstkn.startsWith("#")){
+            xcstkn = xcstkn.substring(1);
+        }
+        String apiUrl = ctx.getString(R.string.three_speak_user_vids_url);
+
+        String finalXcstkn = xcstkn;
+        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest
+                (Request.Method.GET, apiUrl, null, new Response.Listener<JSONArray>() {
+
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            // Handle the response here
+                            System.out.println(response.toString());
+
+                            // Check if the response contains data
+                            if (response != null && response.length() >0){
+                            //if (response.has("data")) {
+                                // set user videos array
+                                JSONArray userVidList = response;//.getJSONArray("data");
+                                parent.setVidsList(userVidList);
+//                                System.out.println(this.userVidList.toString());
+                            }else{
+                                parent.setVidsList(null);
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            parent.refreshList.clearAnimation();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Handle error
+                        error.printStackTrace();
+                        parent.refreshList.clearAnimation();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + finalXcstkn);
+                return headers;
+            }
+        };
+
+// Add the request to the RequestQueue
+        //RequestQueue requestQueue = Volley.newRequestQueue(ctx);
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    public static void connectSession3S(RequestQueue requestQueue, Context ctx, VideoUploadFragment parent){
+        SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
+        String xcstkn = sharedPreferences.getString(ctx.getString(R.string.three_speak_saved_token),"");
+
+        //if we already have access token, let's proceed loading vids
+        if (!xcstkn.equals("")){
+            //Utils.loadUserVids(requestQueue, ctx, xcstkn, parent);
+            Utils.grab3speakCookie(requestQueue, ctx, xcstkn, parent);
+            return;
+        }
+
+        //parent.refreshList.startAnimation(parent.rotate);
+
+        String loginUrl = ctx.getString(R.string.three_speak_login_url).replace("_USERNAME_", MainActivity.username);
+
+        //RequestQueue requestQueue = Volley.newRequestQueue(ctx);
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, loginUrl, null, response -> {
+                    try {
+                        String memo = "";
+
+                        //Map<String, String> headers = response.headers;
+                        //String cookies = headers.get("Set-Cookie");
+
+                        // Assuming the response is in JSON format
+                        if (response.has("memo")) {
+                            memo = response.getString("memo");
+
+                            //verify token legitimacy
+                            String apiUrl = ctx.getString(R.string.three_speak_actifit_verify_url).replace("_USERNAME_",MainActivity.username);
+
+                            // Create the JSON object to be sent in the request body
+                            JSONObject jsonBody = new JSONObject();
+                            try {
+                                jsonBody.put("memo", memo);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            JsonObjectRequest jsonInnerObjectRequest = new JsonObjectRequest
+                                    (Request.Method.POST, apiUrl, jsonBody, response1 -> {
+                                        try {
+                                            // Handle the response here
+                                            System.out.println(response1.toString());
+                                            if (response1.has("error")){
+                                                parent.refreshList.clearAnimation();
+                                            }else if (response1.has("xcstkn")){
+                                                //store the memo
+                                                String tkn = response1.getString("xcstkn");
+                                                if (tkn.startsWith("#")){
+                                                    tkn = tkn.substring(1);
+                                                }
+                                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                                editor.putString(ctx.getString(R.string.three_speak_saved_token), tkn);
+                                                editor.apply();
+
+                                                Utils.grab3speakCookie(requestQueue ,ctx, tkn, parent);
+
+
+                                            }
+                                        } catch (Exception exx) {
+                                            exx.printStackTrace();
+                                        }
+                                    }, new Response.ErrorListener() {
+
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            // Handle error
+                                            error.printStackTrace();
+                                        }
+                                    }) {
+                                @Override
+                                public Map<String, String> getHeaders() {
+                                    Map<String, String> headers = new HashMap<>();
+                                    headers.put("Content-Type", "application/json");
+                                    headers.put("x-acti-token", "Bearer " + LoginActivity.accessToken);
+                                    return headers;
+                                }
+                            };
+
+                            requestQueue.add(jsonInnerObjectRequest);
+
+
+                        }
+
+                        System.out.println(memo); // Log the memo
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }, error -> {
+                    // Handle error
+                    error.printStackTrace();
+                });
+
+// Add the request to the RequestQueue
+        requestQueue.add(jsonObjectRequest);
+
+    }
+
+    public static JSONArray grab3SpeakDefaultBenefic(){
+        // Create a JSONArray to hold the beneficiary list
+        JSONArray benefList = new JSONArray();
+        try {
+            // Create beneficiary objects and add them to the JSONArray
+            JSONObject beneficiary1 = new JSONObject();
+            beneficiary1.put("account", "spk.beneficiary");
+            beneficiary1.put("weight", 900);
+            benefList.put(beneficiary1);
+
+            JSONObject beneficiary2 = new JSONObject();
+
+            beneficiary2.put("account", "threespeakleader");
+
+            beneficiary2.put("weight", 100);
+            benefList.put(beneficiary2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return benefList;
+    }
+
+    public static void markVideoPublished(Context ctx, RequestQueue requestQueue, UploadedVideoModel vidEntry){
+        JSONObject videoInfo = new JSONObject();
+        try {
+            videoInfo.put("videoId", vidEntry._id);
+            videoInfo.put("title", vidEntry.title);
+            videoInfo.put("description", vidEntry.description);
+            videoInfo.put("tags", vidEntry.tags);
+            videoInfo.put("thumbnail", vidEntry.thumbnail);
+
+            System.out.println("markVideoPublished");
+            System.out.println(videoInfo.toString());
+
+            String url = ctx.getString(R.string.three_speak_user_vids_url)+"/iPublished";
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url,  videoInfo,
+                    response -> {
+                        // Handle the response here
+                        try {
+
+                            if (response.has("success")) {
+
+                                //show confirmation
+                                /*Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success), Toast.LENGTH_LONG);
+                                //refresh vids list
+                                SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
+                                String xcstkn = sharedPreferences.getString(ctx.getString(R.string.three_speak_saved_token),"");
+*/
+                            } else {
+                                // Handle other status codes if needed
+                                // ...
+
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    },
+                    error -> {
+                        // Handle error response
+                        error.printStackTrace();
+
+                    }) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    headers.put("Authorization", "Bearer " + LoginActivity.accessToken);
+                    return headers;
+                }
+            };
+
+            // Add the request to the RequestQueue
+            //RequestQueue queue = Volley.newRequestQueue(ctx);
+            requestQueue.add(request);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void grab3speakCookie(RequestQueue requestQueue, Context ctx,
+                                         String tkn, VideoUploadFragment parent){
+        String loginUrl = ctx.getString(R.string.three_speak_login_url)
+                .replace("_USERNAME_", MainActivity.username)
+                +"&access_token="+tkn;
+
+        //RequestQueue requestQueue = Volley.newRequestQueue(ctx);
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, loginUrl, null, response -> {
+                    try {
+
+                        //also load user vids
+                        Utils.loadUserVids(requestQueue, ctx, tkn, parent);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        parent.refreshList.clearAnimation();
+                    }
+                }, error -> {
+                    // Handle error
+                    error.printStackTrace();
+                });
+
+// Add the request to the RequestQueue
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    public static String findMatchingStatus(String status_code, String[][] statusList){
+        String vidStatus = status_code;
+
+        String matchingDescription = null;
+
+// Iterate through the statusList array
+        for (String[] status : statusList) {
+            if (vidStatus.equals(status[0])) {
+                matchingDescription = status[2];
+                break;
+            }
+        }
+
+        return matchingDescription;
 
     }
 

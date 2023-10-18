@@ -144,6 +144,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -744,6 +747,12 @@ public class MainActivity extends BaseActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        //trying out cookie handler
+        //CookieManager cookieManager = new CookieManager(new PersistentCookieStore(getApplicationContext()), CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+        //CookieHandler.setDefault(cookieManager);
+        CookieManager manager = new CookieManager();
+        CookieHandler.setDefault( manager  );
 
         //short rotate animation
         rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
@@ -2522,75 +2531,71 @@ public class MainActivity extends BaseActivity{
 
     private void displayActivityChart(final int stepCount, final boolean animate){
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        runOnUiThread(() -> {
 
-                btnPieChart = findViewById(R.id.step_pie_chart);
-                ArrayList<PieEntry> activityArray = new ArrayList();
-                activityArray.add(new PieEntry(stepCount, ""));
+            btnPieChart = findViewById(R.id.step_pie_chart);
+            ArrayList<PieEntry> activityArray = new ArrayList();
+            activityArray.add(new PieEntry(stepCount, ""));
 
-                if (stepCount < 5000) {
-                    activityArray.add(new PieEntry(5000 - stepCount, ""));
-                    activityArray.add(new PieEntry(5000, ""));
-                } else if (stepCount < 10000) {
-                    //enable animation on post & earn button
-                    //ensure animation is running
-                    if (BtnPostSteemit!=null && scaler!=null) {
-                        if (BtnPostSteemit.getAnimation()==null || BtnPostSteemit.getAnimation().hasStarted()) {
-                            BtnPostSteemit.startAnimation(scaler);
-                        }
+            if (stepCount < 5000) {
+                activityArray.add(new PieEntry(5000 - stepCount, ""));
+                activityArray.add(new PieEntry(5000, ""));
+            } else if (stepCount < 10000) {
+                //enable animation on post & earn button
+                //ensure animation is running
+                if (BtnPostSteemit!=null && scaler!=null) {
+                    if (BtnPostSteemit.getAnimation()==null || BtnPostSteemit.getAnimation().hasStarted()) {
+                        BtnPostSteemit.startAnimation(scaler);
                     }
-
-                    activityArray.add(new PieEntry(10000 - stepCount, ""));
                 }
 
-                PieDataSet dataSet = new PieDataSet(activityArray, "");
+                activityArray.add(new PieEntry(10000 - stepCount, ""));
+            }
 
-                PieData data = new PieData(dataSet);
-                btnPieChart.setData(data);
+            PieDataSet dataSet = new PieDataSet(activityArray, "");
+
+            PieData data = new PieData(dataSet);
+            btnPieChart.setData(data);
 //        Description chartDesc = new Description();
 //        chartDesc.setText(getString(R.string.activity_count_lbl));
 //        btnPieChart.setDescription(chartDesc);
-                btnPieChart.getDescription().setEnabled(false);
-                //chartDesc.setPosition(200, 0);
-                btnPieChart.setCenterText("" + (stepCount < 0 ? 0 : stepCount));
-                btnPieChart.setCenterTextColor(getResources().getColor(R.color.actifitRed));
-                btnPieChart.setCenterTextSize(20f);
-                btnPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
-                btnPieChart.setDrawEntryLabels(false);
-                btnPieChart.getLegend().setEnabled(false);
+            btnPieChart.getDescription().setEnabled(false);
+            //chartDesc.setPosition(200, 0);
+            btnPieChart.setCenterText("" + (stepCount < 0 ? 0 : stepCount));
+            btnPieChart.setCenterTextColor(getResources().getColor(R.color.actifitRed));
+            btnPieChart.setCenterTextSize(20f);
+            btnPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
+            btnPieChart.setDrawEntryLabels(false);
+            btnPieChart.getLegend().setEnabled(false);
 
-                //dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-                //let's set proper color
-                if (stepCount < 5000) {
-                    //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
-                    dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
-                } else if (stepCount < 10000) {
-                    dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
-                    //enable second level reward
-                    //fivekRewardButton.setEnabled(true);
-                } else {
-                    dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen));
-                    //enable third level reward
-                }
+            //dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+            //let's set proper color
+            if (stepCount < 5000) {
+                //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
+                dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+            } else if (stepCount < 10000) {
+                dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+                //enable second level reward
+                //fivekRewardButton.setEnabled(true);
+            } else {
+                dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen));
+                //enable third level reward
+            }
 
-                adjustRewardButtonsStatus(stepCount);
+            adjustRewardButtonsStatus(stepCount);
 
-                //dataSet.setColors(ColorTemplate.rgb("00ff00"), ColorTemplate.rgb("00ffff"), ColorTemplate.rgb("00ffff"));
+            //dataSet.setColors(ColorTemplate.rgb("00ff00"), ColorTemplate.rgb("00ffff"), ColorTemplate.rgb("00ffff"));
 
-                dataSet.setSliceSpace(1f);
-                dataSet.setHighlightEnabled(true);
-                dataSet.setValueTextSize(0f);
-                dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
-                dataSet.setValueTextColor(R.color.actifitRed);
+            dataSet.setSliceSpace(1f);
+            dataSet.setHighlightEnabled(true);
+            dataSet.setValueTextSize(0f);
+            dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
+            dataSet.setValueTextColor(R.color.actifitRed);
 
-                if (animate) {
-                    btnPieChart.animateXY(2000, 2000);
-                } else {
-                    btnPieChart.invalidate();
-                }
-
+            if (animate) {
+                btnPieChart.animateXY(2000, 2000);
+            } else {
+                btnPieChart.invalidate();
             }
 
         });
