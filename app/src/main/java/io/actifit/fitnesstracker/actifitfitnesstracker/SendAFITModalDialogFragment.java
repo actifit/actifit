@@ -53,7 +53,7 @@ public class SendAFITModalDialogFragment extends DialogFragment {
         //this.extraVotesList = extraVotesList;
         try {
             if (userBalance !="") {
-                this.userBalance = Float.parseFloat(userBalance);
+                this.userBalance = Float.parseFloat(userBalance.replace(",", ""));
             }
         }catch(Exception ex){
             ex.printStackTrace();

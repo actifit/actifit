@@ -15,9 +15,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.fragment.app.FragmentManager;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -25,7 +28,11 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +45,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,7 +63,7 @@ import java.util.Map;
 public class WalletActivity extends BaseActivity {
 
     private ProgressDialog progress;
-    private JSONObject hiveChainInfo;
+    public static JSONObject hiveChainInfo;
     private JSONObject steemChainInfo;
     private JSONObject blurtChainInfo;
 
@@ -66,7 +74,18 @@ public class WalletActivity extends BaseActivity {
     private String username;
     private String accessToken;
 
-    TextView BtnCheckBalance, loadPendingRewards, claimRewards, sendAFIT, sendToken;
+    private JSONArray heTokens;
+
+    private ProgressBar loader;
+    Activity callerActivity;
+
+    TextView hiveActionsExpander;
+
+    RequestQueue queue;
+
+    TextView BtnCheckBalance, loadPendingRewards, claimRewards, sendAFIT,
+            sendToken, stakeToken, unstakeToken, sendHEToken, stakeHEToken,
+            unstakeHEToken, BtnCheckHEBalance;
 
     RotateAnimation rotate;
     String afitBal = "";
@@ -84,11 +103,31 @@ public class WalletActivity extends BaseActivity {
         rotate.setInterpolator(new LinearInterpolator());
         rotate.setRepeatCount(Animation.INFINITE);
 
+        loader = findViewById(R.id.loader);
+
+        hiveActionsExpander = findViewById(R.id.expand_view);
+
+        LinearLayout expandedView = findViewById(R.id.hive_actions_container);
+        hiveActionsExpander.setOnClickListener( v -> {
+            if (expandedView.getVisibility() == View.GONE){
+                //expand
+                expandedView.setVisibility(View.VISIBLE);
+                //switch button wording
+                hiveActionsExpander.setText("\uf0aa");
+            }else{
+                expandedView.setVisibility(View.GONE);
+                //switch button wording
+                hiveActionsExpander.setText("\uf0ab");
+            }
+        });
+
         //grab links to layout items for later use
         //final TextView steemitUsername = findViewById(R.id.steemit_username);
         //Button BtnCheckBalance = findViewById(R.id.btn_get_balance);
 
         BtnCheckBalance = findViewById(R.id.btn_refresh_balance);
+
+        BtnCheckHEBalance = findViewById(R.id.btn_refresh_he_balance);
 
         //try to check first if we had a user defined already and saved to preferences
         //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
@@ -99,10 +138,10 @@ public class WalletActivity extends BaseActivity {
         username = sharedPreferences.getString("actifitUser","");
         //steemitUsername.setText(curUser);
 
-        final Activity callerActivity = this;
+        callerActivity = this;
         final Context callerContext = this;
 
-        RequestQueue queue = Volley.newRequestQueue(this);
+        queue = Volley.newRequestQueue(this);
 
         loadPendingRewards = findViewById(R.id.btn_get_pending_rewards);
 
@@ -115,10 +154,16 @@ public class WalletActivity extends BaseActivity {
             }
         });
 
+
+        stakeToken = findViewById(R.id.btn_stake_token);
+        unstakeToken = findViewById(R.id.btn_unstake_token);
+
         //make sure we have a value, and if so, automatically grab it
         if (!username.equals("")) {
             //if we already have data, emulate a click to grab the info
             loadAccountBalance(username, callerActivity, callerContext);
+
+            loadHEBalance(username);
 
             //fetch user global settings - server based
 
@@ -144,22 +189,17 @@ public class WalletActivity extends BaseActivity {
                 //grab auth token for logged in user
                 JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST,
                         loginAuthUrl, loginSettings,
-                        new Response.Listener<JSONObject>() {
-
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                //store token for reuse when saving settings
-                                try {
-                                    if (response.has("success")) {
-                                        Log.d(MainActivity.TAG, response.toString());
-                                        accessToken = response.getString(getString(R.string.login_token));
-                                        LoginActivity.accessToken = accessToken;
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                        response -> {
+                            //store token for reuse when saving settings
+                            try {
+                                if (response.has("success")) {
+                                    Log.d(MainActivity.TAG, response.toString());
+                                    accessToken = response.getString(getString(R.string.login_token));
+                                    LoginActivity.accessToken = accessToken;
                                 }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-
                         },
                         new Response.ErrorListener() {
                             @Override
@@ -192,10 +232,11 @@ public class WalletActivity extends BaseActivity {
 
                 SendTokenModalDialogFragment dialogFragment =
                         new SendTokenModalDialogFragment(this, afitBal, queue);
-                FragmentManager fmgr = ((AppCompatActivity) this).getSupportFragmentManager();
+                FragmentManager fmgr = (this).getSupportFragmentManager();
                 dialogFragment.show(fmgr, "send_token");
 
             });
+
 
             claimRewards = findViewById(R.id.btn_claim_pending_rewards);
 
@@ -282,15 +323,9 @@ public class WalletActivity extends BaseActivity {
             pendingRewardsDialogBuilder.setMessage(getString(R.string.loading));
         }
         //handle activity to fetch balance
-        BtnCheckBalance.setOnClickListener(new View.OnClickListener() {
+        BtnCheckBalance.setOnClickListener(arg0 -> loadAccountBalance(username, callerActivity, callerContext));
 
-            @Override
-            public void onClick(View arg0) {
-
-                loadAccountBalance(username, callerActivity, callerContext);
-
-            }
-        });
+        BtnCheckHEBalance.setOnClickListener(arg0 -> loadHEBalance(username));
     }
 
 
@@ -524,6 +559,217 @@ public class WalletActivity extends BaseActivity {
     boolean chainInfoFetched = false;
     JSONObject balanceData = null;
 
+    void loadHEBalance(String username){
+
+        //cleanup existing content
+        LinearLayout tokensContainer = findViewById(R.id.he_tokens_container);
+        tokensContainer.removeAllViewsInLayout();
+
+        HiveEngineAPI herpc = new HiveEngineAPI(getApplicationContext());
+
+        loader.setVisibility(View.VISIBLE);
+
+        herpc.fetchAllTokens(new HiveEngineAPI.VolleyCallback() {
+            @Override
+            public void onSuccess(JSONArray result) {
+
+                JSONArray tokenExtraDetails = result;
+
+                herpc.queryHEContract(username, new HiveEngineAPI.VolleyCallback() {
+                    @Override
+                    public void onSuccess(JSONArray result) {
+                        // Handle the successful response here
+
+                        heTokens = result;
+                        Handler uiHandler = new Handler(Looper.getMainLooper());
+
+                        //format token display
+                        DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
+
+                        for (int i=0;i<heTokens.length();i++) {
+                            try {
+                                JSONObject entry = heTokens.getJSONObject(i);
+                                //populate tokens to the main wallet view
+                                View tokenView = LayoutInflater.from(getApplicationContext())
+                                        .inflate(R.layout.he_token_entry, null, false);
+
+                                ImageView tokenIcon = tokenView.findViewById(R.id.token_icon);
+
+                                String symbol = entry.has("symbol")?entry.getString("symbol"):"";
+
+                                TextView balance = tokenView.findViewById(R.id.balance);
+                                String balval = decimalFormat.format(entry.has("balance")?entry.getDouble("balance"):0);
+                                balance.setText(balval + " " + symbol);
+
+                                TextView stake = tokenView.findViewById(R.id.stake);
+                                String val = decimalFormat.format(entry.has("stake")?entry.getDouble("stake"):0);
+                                stake.setText(val +" "+symbol);
+
+                                //holds the symbol icon's url
+                                String icon = "";
+                                boolean stakable = false;
+                                String unstakePeriod = "";
+
+                                if (!symbol.equals("")) {
+                                    //match icon
+                                    JSONObject matchEntry = null;
+                                    JSONObject tokenDetail = null;
+                                    for (int j = 0; j < tokenExtraDetails.length(); j++) {
+                                        tokenDetail = tokenExtraDetails.getJSONObject(j);
+                                        if (tokenDetail.getString("symbol").equals(symbol)) {
+                                            matchEntry = tokenDetail;
+                                            break;
+                                        }
+                                    }
+                                    if (matchEntry != null) {
+                                        try {
+                                            JSONObject metadataJson = new JSONObject(matchEntry.getString("metadata"));
+                                            System.out.println(metadataJson.toString());
+                                            //JSONObject metadataJson = (matchEntry.has("metadata") ? matchEntry.get("metadata") : null);
+                                            if (metadataJson.length() >0) {
+                                                icon = metadataJson.getString("icon");
+                                                stakable = tokenDetail.has("stakingEnabled") && tokenDetail.getBoolean("stakingEnabled");
+                                                unstakePeriod = tokenDetail.has("unstakingCooldown")?tokenDetail.getInt("unstakingCooldown")+" days":"";
+                                                if (!icon.equals("")) {
+                                                    String finalIcon = icon;
+                                                    uiHandler.post(() -> {
+                                                        Picasso.get().load(finalIcon).into(tokenIcon);
+                                                    });
+                                                }
+                                            }
+                                        }catch(Exception inn){
+                                            inn.printStackTrace();
+                                        }
+                                    }
+                                }
+
+                                //transfer action
+                                TextView expander = tokenView.findViewById(R.id.expand_view);
+                                LinearLayout expandedView = tokenView.findViewById(R.id.token_expanded_view);
+                                expander.setOnClickListener( v -> {
+                                    if (expandedView.getVisibility() == View.GONE){
+                                        //expand
+                                        expandedView.setVisibility(View.VISIBLE);
+                                        //switch button wording
+                                        expander.setText("\uf0aa");
+                                    }else{
+                                        expandedView.setVisibility(View.GONE);
+                                        //switch button wording
+                                        expander.setText("\uf0ab");
+                                    }
+                                });
+
+                                //handles token transfer event
+                                sendHEToken = tokenView.findViewById(R.id.btn_send_token);
+
+                                sendHEToken.setOnClickListener(arg0 -> {
+
+                                    SendTokenModalDialogFragment dialogFragment =
+                                            new SendTokenModalDialogFragment(getApplicationContext(), balval, queue);
+                                            //new SendTokenModalDialogFragment(this, afitBal, queue);
+
+                                    dialogFragment.setHeToken(true, symbol);
+                                    FragmentManager fmgr = ((AppCompatActivity)callerActivity).getSupportFragmentManager(); //((AppCompatActivity) this).getSupportFragmentManager();
+                                    dialogFragment.show(fmgr, "send_he_token");
+
+                                });
+
+                                stakeHEToken = tokenView.findViewById(R.id.btn_stake_token);
+                                unstakeHEToken = tokenView.findViewById(R.id.btn_unstake_token);
+
+
+
+                                if (!stakable){
+                                    //disable staking button
+                                    stakeHEToken.setEnabled(false);
+                                    stakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                                    unstakeHEToken.setEnabled(false);
+                                    unstakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                                }
+
+                                if (Float.parseFloat(balval.replace(",","")) == 0){
+                                    //no balance to stake
+                                    stakeHEToken.setEnabled(false);
+                                    stakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                                }
+
+                                if (Float.parseFloat(val.replace(",","")) == 0){
+                                    //no staked balance to unstake
+                                    unstakeHEToken.setEnabled(false);
+                                    unstakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                                }
+
+                                String finalIcon1 = icon;
+                                String finalUnstakePeriod = unstakePeriod;
+                                stakeHEToken.setOnClickListener(arg0 -> {
+
+                                    StakeTokenModalDialogFragment dialogFragment =
+                                            new StakeTokenModalDialogFragment(
+                                                    getApplicationContext(), balval, queue, 0 //0 for staking
+                                                    , true, symbol, finalIcon1, finalUnstakePeriod);
+                                    FragmentManager fmgr = ((AppCompatActivity)callerActivity).getSupportFragmentManager(); //((AppCompatActivity) this).getSupportFragmentManager();
+                                    dialogFragment.show(fmgr, "stake_he_token");
+
+                                });
+
+                                unstakeHEToken.setOnClickListener(arg0 -> {
+
+                                    StakeTokenModalDialogFragment dialogFragment =
+                                            new StakeTokenModalDialogFragment(
+                                                    getApplicationContext(), val, queue, 1 //1 for unstaking
+                                                    , true, symbol, finalIcon1, finalUnstakePeriod);
+                                    FragmentManager fmgr = ((AppCompatActivity)callerActivity).getSupportFragmentManager(); //((AppCompatActivity) this).getSupportFragmentManager();
+                                    dialogFragment.show(fmgr, "unstake_he_token");
+
+                                });
+
+                                tokensContainer.addView(tokenView);
+                            }catch(Exception exc){
+                                exc.printStackTrace();
+                            }
+                        }
+
+                        loader.setVisibility(View.GONE);
+
+                        /*ScrollView scrollView = findViewById(R.id.he_token_scrollview);
+                        //adjust scrolls visibility
+                        scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+                            if (scrollView.getChildAt(0).getBottom() <= (scrollView.getHeight() + scrollView.getScrollY())) {
+                                // Content is fully visible, hide the scrollbar
+                                scrollView.setVerticalScrollBarEnabled(false);
+                            } else {
+                                // Content is not fully visible, show the scrollbar
+                                scrollView.setVerticalScrollBarEnabled(true);
+                            }
+                        });*/
+
+                    }
+
+                    @Override
+                    public void onFailure(String error) {
+                        // Handle the error here
+                        //System.out.println(">>>> back to wallet");
+                        System.out.println(error);
+                        loader.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String error) {
+                // Handle the error here
+                //System.out.println(">>>> back to wallet");
+                System.out.println(error);
+                loader.setVisibility(View.GONE);
+            }
+
+        });
+
+
+        //Utils.queryHEContract(getApplicationContext());
+    }
+
+
     void loadAccountBalance(String username, Activity callerActivity, Context callerContext){
 
         if (!username.equals("")) {
@@ -577,9 +823,11 @@ public class WalletActivity extends BaseActivity {
                             progress.hide();
                             // Display the result
                             try {
-                                afitBal = response.getString("tokens");
+                                afitBal = response.getString("tokens").replace(",","");
                                 //grab current token count
-                                actifitBalance.setText(" " + afitBal +" AFIT");
+
+                                DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
+                                actifitBalance.setText(" " + decimalFormat.format(Float.parseFloat(afitBal)) +" AFIT");
                             }catch(JSONException e){
                                 //hide dialog
                                 progress.hide();
@@ -802,13 +1050,76 @@ public class WalletActivity extends BaseActivity {
             hiveBalances += hiveData.getString("hbd_balance");
             hiveChainInfo.put("chainName", "hive");
             //add HP balances
-            hiveBalances += " " + MainActivity.formatValue(vestsToPower(hiveChainInfo, hiveData.getString("vesting_shares"))) + " HP";
+            String hpBalance = MainActivity.formatValue(vestsToPower(hiveChainInfo, hiveData.getString("vesting_shares")));
+            hiveBalances += " " +  hpBalance + " HP";
 
             hiveBalances += " \r\n";
 
             //grab current token count
             //actifitBalance.setText(" " + response.getString("tokens"));
             hiveBalance.setText(" "+ Html.fromHtml( hiveBalances));
+
+
+            /*
+            //convert to VESTS
+            HiveRequests hiveReq = new HiveRequests(getApplicationContext());
+            hiveReq.getGlobalProps(
+
+                new HiveRequests.APIResponseListener() {
+                    @Override
+                    public void onResponse(JSONObject dynamicProps) {
+                        // Step 5: Perform another API call
+                        //performAnotherAPIRequest(dynamicProps);
+                        try {
+                            System.out.println(">>>>> dyn props response:" + dynamicProps.toString());
+                            //convert HP to VESTS to send power down request
+                            JSONObject totalHive = dynamicProps.getJSONObject("total_vesting_fund_hive");
+                            String amount = totalHive.getString("amount");
+                            JSONObject totalHiveVests = dynamicProps.getJSONObject("total_vesting_shares");
+                            String totAmount = totalHiveVests.getString("amount");
+                            return parseFloat(hivePower * totalHiveVests / totalHive).toFixed(6);
+                        }catch(Exception ex){
+                            ex.printStackTrace();
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        // Handle the error
+                        System.out.println(">>>>> dyn props error:" + errorMessage);
+                    }
+                });
+            */
+
+
+            //handle staking action & params
+            stakeToken.setOnClickListener(arg0 -> {
+                try {
+                    StakeTokenModalDialogFragment dialogFragment =
+                            new StakeTokenModalDialogFragment(this, hiveData.getString("balance").split(" ")[0], queue, 0,
+                            false, "HIVE", getString(R.string.hive_logo_url), "13 weeks");
+                    FragmentManager fmgr = (this).getSupportFragmentManager();
+                    dialogFragment.show(fmgr, "stake_hive");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            //handle unstaking action & params
+            unstakeToken.setOnClickListener(arg0 -> {
+                try {
+                    StakeTokenModalDialogFragment dialogFragment =
+                            new StakeTokenModalDialogFragment(this, hpBalance, queue, 1,
+                                    false, "HIVE", getString(R.string.hive_logo_url), "13 weeks");
+                    FragmentManager fmgr = (this).getSupportFragmentManager();
+                    dialogFragment.show(fmgr, "unstake_hive");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
 
             //sportsBalance.setText("sports");
 
@@ -868,6 +1179,30 @@ public class WalletActivity extends BaseActivity {
             BtnCheckBalance.clearAnimation();
         }
     }
+
+    public static Double powerToVests(JSONObject chain, Double hivePower){
+        Double totalHiveVests = 1.0;
+        Double vests = 0.0;
+        Double totalHive = 0.0;
+        //DecimalFormat df = new DecimalFormat(".00");
+
+        try {
+            String vestingFund = chain.getString("total_vesting_fund_"+chain.getString("chainName"));
+            String [] entries = vestingFund.split(" ");
+            totalHive = Double.parseDouble(entries[0]);
+            //.split(" ")[0];
+
+            String totalVestsStr = chain.getString("total_vesting_shares");
+            String [] vals = totalVestsStr.split(" ");
+            totalHiveVests = Double.parseDouble(vals[0]);
+
+            return hivePower * totalHiveVests / totalHive;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
 
     private Double vestsToPower(JSONObject chain, String vestsValue){
         Double powerVal = 0.0;

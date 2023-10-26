@@ -483,36 +483,33 @@ public class Utils {
                              final Context context, final Activity currentActivity,
                              final Boolean closeScreen){
         //render result
-        currentActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //hide the progressDialog
-                if (progress!=null) {
-                    progress.dismiss();
-                }
-
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-                builder1.setMessage(notification);
-
-                builder1.setCancelable(true);
-
-                builder1.setPositiveButton(
-                        context.getString(R.string.dismiss_button),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                                //if we need to close current Activity
-                                if (closeScreen) {
-                                    //close current screen
-                                    Log.d(MainActivity.TAG,">>>Finish");
-                                    currentActivity.finish();
-                                }
-                            }
-                        });
-                //create and display alert window
-                AlertDialog alert11 = builder1.create();
-                builder1.show();
+        currentActivity.runOnUiThread(() -> {
+            //hide the progressDialog
+            if (progress!=null) {
+                progress.dismiss();
             }
+
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+            builder1.setMessage(notification);
+
+            builder1.setCancelable(true);
+
+            builder1.setPositiveButton(
+                    context.getString(R.string.dismiss_button),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                            //if we need to close current Activity
+                            if (closeScreen) {
+                                //close current screen
+                                Log.d(MainActivity.TAG,">>>Finish");
+                                currentActivity.finish();
+                            }
+                        }
+                    });
+            //create and display alert window
+            AlertDialog alert11 = builder1.create();
+            builder1.show();
         });
 
     }

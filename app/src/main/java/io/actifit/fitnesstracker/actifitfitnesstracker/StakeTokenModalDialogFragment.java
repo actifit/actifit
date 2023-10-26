@@ -4,14 +4,16 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -19,39 +21,43 @@ import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.squareup.picasso.Picasso;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
+
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.VISIBLE;
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
-public class SendTokenModalDialogFragment extends DialogFragment {
+public class StakeTokenModalDialogFragment extends DialogFragment {
     public Context ctx;
     float userBalance;
     RequestQueue queue;
-    Spinner token;
-    LinearLayout tokenContainer;
-    TextView exchangeNote;
+    TextView stakeNote, curBalance;
     private boolean heToken = false;
-    String symbol;
+    String symbol, icon, unstakePeriod;
+    int mode;//0 is stake. 1 is unstake
 
-    public SendTokenModalDialogFragment() {
+    public StakeTokenModalDialogFragment() {
 
     }
 
-    public SendTokenModalDialogFragment(Context ctx, String userBalance, RequestQueue queue) {
+    public StakeTokenModalDialogFragment(Context ctx, String userBalance, RequestQueue queue,
+                                         int mode, boolean heToken, String symbol, String icon,
+                                         String unstakePeriod) {
         this.ctx = ctx;
         this.queue = queue;
-
+        this.mode = mode;
+        this.heToken = heToken;
+        this.symbol = symbol;
+        this.icon = icon;
+        this.unstakePeriod = unstakePeriod;
         try {
             if (userBalance !="") {
                 //cleanup user balance from formatting, and parse
@@ -80,7 +86,7 @@ public class SendTokenModalDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.send_token_modal, container, false);
+        View view = inflater.inflate(R.layout.stake_token_modal, container, false);
 
         renderContent(view);
 
@@ -88,6 +94,12 @@ public class SendTokenModalDialogFragment extends DialogFragment {
     }
 
     private void renderContent(View view){
+
+        TextView title = view.findViewById(R.id.title);
+
+        if (mode == 1){
+            title.setText(getString(R.string.unstake));
+        }
 
         EditText recipient = view.findViewById(R.id.recipient);
 
@@ -99,25 +111,45 @@ public class SendTokenModalDialogFragment extends DialogFragment {
 
         ProgressBar taskProgress = view.findViewById(R.id.loader);
 
-        token = view.findViewById(R.id.token);
-        exchangeNote = view.findViewById(R.id.send_note);
-        tokenContainer = view.findViewById(R.id.tokenContainer);
+        //by default set recipient as own self in staking
+        recipient.setText(MainActivity.username);
 
-        if (isHeToken()){
-            tokenContainer.setVisibility(View.GONE);
-            exchangeNote.setVisibility(View.GONE);
-        }else{
-            tokenContainer.setVisibility(VISIBLE);
-            exchangeNote.setVisibility(VISIBLE);
+        try {
+            ImageView tokenIcon = view.findViewById(R.id.token_icon);
+            Handler uiHandler = new Handler(Looper.getMainLooper());
+            uiHandler.post(() -> {
+                Picasso.get().load(icon).into(tokenIcon);
+            });
+        }catch(Exception ex){
+            ex.printStackTrace();
         }
 
-        Button sendButton = view.findViewById(R.id.proceed_send_btn);
+        //token = view.findViewById(R.id.token);
+        stakeNote = view.findViewById(R.id.send_note);
+        curBalance = view.findViewById(R.id.cur_balance);
+
+        stakeNote.setText(getString(R.string.stake_token_note).replace("_PERIOD_", unstakePeriod));
+
+        DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
+
+        curBalance.setText(String.format("%s %s", decimalFormat.format(userBalance), symbol));
+
+        /*if (isHeToken()){
+            exchangeNote.setVisibility(View.GONE);
+        }else{
+            exchangeNote.setVisibility(VISIBLE);
+        }*/
+
+        Button stakeButton = view.findViewById(R.id.proceed_stake_btn);
+        if (mode == 1) {
+            stakeButton.setText(getString(R.string.unstake));
+        }
 
         maxButton.setOnClickListener(v->{
             amount.setText(userBalance+"");
         });
 
-        sendButton.setOnClickListener(v ->{
+        stakeButton.setOnClickListener(v ->{
 
             final SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
             String activKeyVal = sharedPreferences.getString("actvKey", "");
@@ -134,7 +166,7 @@ public class SendTokenModalDialogFragment extends DialogFragment {
             }
 
             //which token is selected
-            String tokenName = token.getSelectedItem().toString();
+            //String tokenName = token.getSelectedItem().toString();
 
             float amountVal = Float.parseFloat(String.valueOf(amount.getText()));
             if (amountVal < 0 || amountVal > userBalance) {
@@ -158,15 +190,30 @@ public class SendTokenModalDialogFragment extends DialogFragment {
             Thread th = new Thread(() -> {
                 //runOnUiThread(() -> {
                 try {
-
-                    String op_name = "transfer";
-
                     JSONObject cstm_params = new JSONObject();
 
+                    //power up
+                    String op_name = "transfer_to_vesting";
                     cstm_params.put("from", MainActivity.username);
                     cstm_params.put("to", recipientVal);
-                    cstm_params.put("amount", String.format("%.3f", amountVal) + " " + tokenName);
-                    cstm_params.put("memo", memoVal);
+                    DecimalFormat decimalFormatUp = new DecimalFormat("0.000");//precision 3
+                    cstm_params.put("amount", decimalFormatUp.format(amountVal) + " HIVE");
+
+                    //power down
+                    if (mode == 1) {
+                        op_name = "withdraw_vesting";
+
+                        cstm_params = new JSONObject();
+                        cstm_params.put("account", MainActivity.username);
+                        //convert amount to VESTS
+                        Double vests = WalletActivity.powerToVests(WalletActivity.hiveChainInfo, Double.parseDouble(amountVal+""));
+                        System.out.println(">>>>> vests:"+vests);
+                        //if (1==1) return;
+                        DecimalFormat decimalFormat2 = new DecimalFormat("0.000000");//precision 6
+                        cstm_params.put("vesting_shares", decimalFormat2.format(vests)+" VESTS");
+
+                    }
+
                     //cstm_params.put("json", json_op_details);
 
                     //support for HE token transfers
@@ -180,13 +227,18 @@ public class SendTokenModalDialogFragment extends DialogFragment {
 
                         JSONArray required_posting_auths = new JSONArray();
 
+                        String action = "stake";
+                        if (mode == 1){
+                            action = "unstake";
+                        }
+
                         cstm_params.put("required_auths", required_auths);
                         cstm_params.put("required_posting_auths", required_posting_auths);
                         cstm_params.put("id", getString(R.string.hive_engine_custom_param_network));
                         //cstm_params.put("json", json_op_details);
                         cstm_params.put("json",
                                 "{\"contractName\": \"tokens\" , " +
-                                        "\"contractAction\": \"transfer\" , " +
+                                        "\"contractAction\": \""+action+"\" , " +
                                         "\"contractPayload\": {" +
                                             "\"symbol\": \"" + symbol + "\", " +
                                             "\"to\": \"" + recipientVal + "\"," +
@@ -216,15 +268,6 @@ public class SendTokenModalDialogFragment extends DialogFragment {
                                         taskProgress.setVisibility(View.GONE);
                                     }
                                 });
-                                // Step 5: Perform another API call
-                                /*runOnUiThread(() -> {
-                                    taskProgress.setVisibility(View.GONE);
-                                    if (success) {
-
-                                    } else {
-                                        Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
-                                    }
-                                });*/
                             }
 
                             @Override
@@ -235,11 +278,7 @@ public class SendTokenModalDialogFragment extends DialogFragment {
                                     taskProgress.setVisibility(View.GONE);
                                     dismiss();
                                 });
-                                // Handle the error
-                                /*runOnUiThread(() -> {
-                                    //taskProgress.setVisibility(View.GONE);
-                                    //Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
-                                });*/
+
                             }
                         });
                 } catch (Exception exc) {
