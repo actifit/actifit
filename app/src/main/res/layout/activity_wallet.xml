@@ -18,305 +18,395 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <info.androidhive.fontawesome.FontTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/fa_wallet_solid"
-            app:solid_icon="true"
-            android:textColor="@color/actifitRed"
-            />
-
-        <TextView
-            android:id="@+id/balance_lbl"
-            android:paddingLeft="10dp"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16dp"
-            android:text="@string/balance_lbl"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+            android:orientation="vertical"
+            >
 
-        <TextView
-            android:id="@+id/btn_refresh_balance"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <info.androidhive.fontawesome.FontTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fa_wallet_solid"
+                    app:solid_icon="true"
+                    android:textColor="@color/actifitRed"
+                    />
+
+                <TextView
+                    android:id="@+id/balance_lbl"
+                    android:paddingLeft="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"
+                    android:text="@string/core_balance_lbl"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+                <TextView
+                    android:id="@+id/btn_refresh_balance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="\uf2f1"
+                    android:textSize="20dp"
+                    android:padding="10dp"
+                    />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="5dp"
+                >
+
+                <ImageView
+                    android:layout_width="25sp"
+                    android:layout_height="25sp"
+                    android:src="@drawable/actifit_logo"
+                    />
+
+                <TextView
+                    android:id="@+id/actifit_balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+
+                <TextView
+                    android:id="@+id/btn_send_afit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="\uf14d"
+                    android:textSize="20dp"
+                    android:paddingLeft="10dp"
+                    />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="5dp"
+                >
+
+                <ImageView
+                    android:layout_width="25sp"
+                    android:layout_height="25sp"
+                    android:src="@drawable/hive"
+                    />
+
+                <TextView
+                    android:id="@+id/hive_balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+
+                <TextView
+                    android:id="@+id/expand_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:textColor="@color/actifitRed"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf0ab"
+                    android:textSize="25sp"
+                    android:paddingRight="5dp"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/hive_actions_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="5dp"
+                android:gravity="center"
+                android:visibility="gone"
+                >
+
+                <TextView
+                    android:id="@+id/btn_send_token"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="\uf14d"
+                    android:textSize="20dp"
+                    android:paddingLeft="10dp"
+                    />
+
+                <TextView
+                    android:id="@+id/btn_stake_token"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:padding="10dp"
+                    android:text="\uf023"
+                    android:textSize="20sp"
+                    />
+
+                <TextView
+                    android:id="@+id/btn_unstake_token"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:padding="10dp"
+                    android:text="\uf09c"
+                    android:textSize="20sp"
+                    />
+            </LinearLayout>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                android:visibility="invisible"
+
+                >
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/steem"
+                    />
+                <TextView
+                    android:id="@+id/steem_balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+
+            </LinearLayout>
+
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="5dp"
+                >
+
+                <ImageView
+                    android:layout_width="25sp"
+                    android:layout_height="25sp"
+                    android:src="@drawable/blurt"
+                    />
+                <TextView
+                    android:id="@+id/blurt_balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+
+            </LinearLayout>
+
+
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/sports"
+                    android:visibility="gone"
+                    />
+                <TextView
+                    android:id="@+id/sports_balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    android:text="" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <info.androidhive.fontawesome.FontTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fa_wallet_solid"
+                    app:solid_icon="true"
+                    android:textColor="@color/actifitRed"
+                    />
+
+                <TextView
+                    android:id="@+id/he_balance_lbl"
+                    android:paddingLeft="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"
+                    android:text="@string/he_balance_lbl"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+                <TextView
+                    android:id="@+id/btn_refresh_he_balance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="\uf2f1"
+                    android:textSize="20dp"
+                    android:padding="10dp"
+                    />
+
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/loader"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="left"
+                android:progress="@integer/material_motion_duration_long_1"
+                android:visibility="visible" />
+
+            <ScrollView
+                android:id="@+id/he_token_scrollview"
+                android:layout_width="match_parent"
+                android:layout_height="200sp"
+                android:maxHeight="200sp"
+                android:fadeScrollbars="false"
+                android:scrollbarFadeDuration="0">
+
+
+                <LinearLayout
+                    android:id="@+id/he_tokens_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:maxHeight="200sp"
+                    />
+
+            </ScrollView>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/font_awesome_6_solid"
-            android:textColor="@color/actifitRed"
-            android:text="\uf2f1"
-            android:textSize="20dp"
-            android:padding="10dp"
-            />
+            android:orientation="horizontal"
+            >
 
-    </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="10dp"
-        >
+            <info.androidhive.fontawesome.FontTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fa_coins_solid"
+                app:solid_icon="true"
+                android:textColor="@color/actifitRed"
+                />
 
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/actifit_logo"
-            />
+            <TextView
+                android:id="@+id/claimable_rewards_lbl"
+                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:text="@string/claimable_rewards_lbl"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-        <TextView
-            android:id="@+id/actifit_balance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="" />
+            <TextView
+                android:id="@+id/btn_claim_pending_rewards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf81d"
+                android:textSize="20dp"
+                android:padding="10dp"
+                />
 
-        <TextView
-            android:id="@+id/btn_send_afit"
+            <TextView
+                android:id="@+id/btn_get_pending_rewards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf254"
+                android:textSize="20dp"
+                android:padding="10dp"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/font_awesome_6_solid"
-            android:textColor="@color/actifitRed"
-            android:text="\uf14d"
-            android:textSize="20dp"
-            android:paddingLeft="10dp"
-            />
+            android:orientation="horizontal"
+            >
 
-    </LinearLayout>
+            <ImageView
+                android:layout_width="25sp"
+                android:layout_height="25sp"
+                android:src="@drawable/hive"
+                />
+
+            <TextView
+                android:id="@+id/hive_rewards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:visibility="invisible"
+            >
+
+            <ImageView
+                android:layout_width="25sp"
+                android:layout_height="25sp"
+                android:src="@drawable/steem"
+                />
+            <TextView
+                android:id="@+id/steem_rewards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+        </LinearLayout>
 
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/hive"
-            />
-
-        <TextView
-            android:id="@+id/hive_balance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="" />
-
-        <TextView
-            android:id="@+id/btn_send_token"
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/font_awesome_6_solid"
-            android:textColor="@color/actifitRed"
-            android:text="\uf14d"
-            android:textSize="20dp"
-            android:paddingLeft="10dp"
-            />
+            android:orientation="horizontal"
+            >
 
-    </LinearLayout>
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/blurt"
+                />
+            <TextView
+                android:id="@+id/blurt_rewards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        android:visibility="invisible"
-
-        >
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/steem"
-            />
-        <TextView
-            android:id="@+id/steem_balance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="" />
-
-    </LinearLayout>
-
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/blurt"
-            />
-        <TextView
-            android:id="@+id/blurt_balance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="" />
-
-    </LinearLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/sports"
-            android:visibility="gone"
-            />
-        <TextView
-            android:id="@+id/sports_balance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:visibility="gone"
-            android:text="" />
-
-    </LinearLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <info.androidhive.fontawesome.FontTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/fa_coins_solid"
-            app:solid_icon="true"
-            android:textColor="@color/actifitRed"
-            />
-
-        <TextView
-            android:id="@+id/claimable_rewards_lbl"
-            android:padding="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16dp"
-            android:text="@string/claimable_rewards_lbl"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-        <TextView
-            android:id="@+id/btn_claim_pending_rewards"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/font_awesome_6_solid"
-            android:textColor="@color/actifitRed"
-            android:text="\uf81d"
-            android:textSize="20dp"
-            android:padding="10dp"
-            />
-
-        <TextView
-            android:id="@+id/btn_get_pending_rewards"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/font_awesome_6_solid"
-            android:textColor="@color/actifitRed"
-            android:text="\uf254"
-            android:textSize="20dp"
-            android:padding="10dp"
-            />
-
-    </LinearLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/hive"
-            />
-
-        <TextView
-            android:id="@+id/hive_rewards"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="" />
-
-    </LinearLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        android:visibility="invisible"
-        >
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/steem"
-            />
-        <TextView
-            android:id="@+id/steem_rewards"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="" />
-
-    </LinearLayout>
-
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/blurt"
-            />
-        <TextView
-            android:id="@+id/blurt_rewards"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="" />
-
-    </LinearLayout>
+        </LinearLayout>
 
 
 
-    <!--<LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-        style="@style/AppTheme.ActifitButton"
-        android:id="@+id/btn_claim_pending_rewards"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/claim_pending_rewards_btn_lbl" />
-
-
-        <Button
-        style="@style/AppTheme.ActifitButton"
-        android:id="@+id/btn_get_pending_rewards"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/get_pending_rewards_btn_lbl" />
-
-    </LinearLayout>-->
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -359,7 +449,12 @@
         android:dividerHeight="0.1dp"
         android:divider="#0000CC"
         android:paddingLeft="10dp"
+        android:fadeScrollbars="false"
+        android:scrollbarFadeDuration="0"
         />
+
+        </LinearLayout>
+
 
 
 </LinearLayout>
