@@ -309,7 +309,10 @@
     <string name="battery_optimization_setting">Battery Optimization Setting</string>
     <string name="third_party_enabled">Fitbit Tracking Enabled.</string>
     <string name="switch_settings">Switch</string>
-    <string name="balance_lbl">Balance</string>
+    <string name="max_amount">Max</string>
+    <string name="core_balance_lbl">Core Balance</string>
+    <string name="he_balance_lbl">Hive-Engine Balance</string>
+    <string name="balance">Balance</string>
     <string name="donotshowrewards">DoNotShowRewards</string>
     <string name="donotshowbatteryoptimization">DoNotShowBatteryOptimization</string>
     <string name="donotshowtips">DoNotShowTips</string>
@@ -367,11 +370,15 @@
     <string name="fundsPassword">Funds Password</string>
     <string name="send_afit">Send AFIT</string>
     <string name="send">Send</string>
+    <string name="staking">Staking</string>
+    <string name="stake">Stake</string>
+    <string name="unstake">Unstake</string>
     <string name="recipient">Recipient</string>
     <string name="amount">Amount (Number)</string>
     <string name="note">Note (Optional)</string>
     <string name="memo">Memo</string>
     <string name="send_token_note">Make sure to use the memo field if sending to an exchange</string>
+    <string name="stake_token_note">Please note that staked tokens can be converted back to liquid tokens over _PERIOD_</string>
     <string name="send_afit_note">You can send a maximum of up to 10,000 AFIT tokens daily</string>
     <string name="unableBuyGadgetHive">Cannot buy gadget with HIVE as you do not have your active key set under settings.</string>
     <string name="processingBuyGadget">Processing Buy Order</string>
