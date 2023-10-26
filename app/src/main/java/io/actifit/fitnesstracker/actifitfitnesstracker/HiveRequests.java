@@ -101,10 +101,13 @@ public class HiveRequests {
         });
     }*/
 
-    public void getGlobalProps() {
+    public void getGlobalProps(final APIResponseListener listener) {
         try {
             performAPIRequest("https://api.hive.blog",
-                    "{\"jsonrpc\":\"2.0\", \"method\":\"database_api.get_dynamic_global_properties\", \"id\":1}",
+                    "{\"jsonrpc\":\"2.0\", \"method\":\"database_api.get_dynamic_global_properties\", \"id\":1}",listener);
+
+            /*
+            *
                     new APIResponseListener() {
                         @Override
                         public void onResponse(JSONObject dynamicProps) {
@@ -116,7 +119,9 @@ public class HiveRequests {
                         public void onError(String errorMessage) {
                             // Handle the error
                         }
-                    });
+                    }
+            * */
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -688,7 +693,7 @@ public class HiveRequests {
 
 
     //to handle multiple successive calls
-    private interface APIResponseListener {
+    public interface APIResponseListener {
         //void onResponse(byte[] serializedTransaction);
         void onError(String errorMessage);
 
