@@ -21,10 +21,10 @@
         >
 
         <TextView
-            android:id="@+id/send_token_title"
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="@string/send"
+            android:text="@string/staking"
             android:textSize="16dp"
             android:paddingTop="10dp"
             android:paddingLeft = "10dp"
@@ -54,6 +54,36 @@
         >
 
         <LinearLayout
+
+            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:gravity="center"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/balance"
+                android:padding = "15dp"
+                android:textStyle="bold"
+                />
+
+            <TextView
+                android:id="@+id/cur_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding = "15dp"
+                android:textStyle="bold"
+                />
+
+            <ImageView android:id="@+id/token_icon"
+                android:layout_width="25sp"
+                android:layout_height="25sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -78,29 +108,7 @@
                 />
 
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/tokenContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-        <Spinner
-            android:id="@+id/token"
-            android:layout_height="40dp"
-            android:layout_width="200dp"
-            android:textSize="16dp"
-            android:spinnerMode="dropdown"
-            android:entries="@array/tokens"
-            android:background="@android:drawable/btn_dropdown" />
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="invisible"
-                />
-        </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -155,7 +163,7 @@
             android:id="@+id/send_note"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/send_token_note"
+            android:text="@string/stake_token_note"
             android:textSize="12dp"
             android:padding = "15dp"
             android:textStyle="bold"
@@ -182,12 +190,12 @@
 
         <Button
             style="@style/AppTheme.ActifitButton"
-            android:id="@+id/proceed_send_btn"
+            android:id="@+id/proceed_stake_btn"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
 
             android:layout_gravity="center"
-            android:text="@string/send"
+            android:text="@string/stake"
             />
 
 
