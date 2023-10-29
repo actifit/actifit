@@ -885,7 +885,9 @@ public class MainActivity extends BaseActivity{
         FontTextView BtnViewNotifications = findViewById(R.id.btn_view_notifications);
         LinearLayout BtnWalletAltContainer = findViewById(R.id.wallet_alt_container);
 
-        FontTextView BtnSnapActiPic = findViewById(R.id.btn_snap_picture);
+        //FontTextView BtnSnapActiPic = findViewById(R.id.btn_snap_picture);
+        TextView BtnVideo = findViewById(R.id.btn_video);
+
         BtnSettings = findViewById(R.id.btn_settings);
         TextView BtnMarket = findViewById(R.id.btn_view_market);
         TextView BtnSocials = findViewById(R.id.btn_socials);
@@ -1417,7 +1419,7 @@ public class MainActivity extends BaseActivity{
         };
 
         //handle taking photos
-        BtnSnapActiPic.setOnClickListener(view -> {
+        /*BtnSnapActiPic.setOnClickListener(view -> {
 
             //make sure we have a cam on device
             PackageManager pm = ctx.getPackageManager();
@@ -1462,7 +1464,15 @@ public class MainActivity extends BaseActivity{
                 }
             }
         }
-        );
+        );*/
+
+        //handle video activity
+        BtnVideo.setOnClickListener( v->{
+            //show video modal
+            VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken, this, false);
+            //dialog.getView().setMinimumWidth(400);
+            dialog.show(getSupportFragmentManager(), "video_upload_fragment");
+        });
 
         //handle activity to move to step history screen
         BtnViewHistory.setOnClickListener(arg0 -> {

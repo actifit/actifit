@@ -4,12 +4,16 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -24,11 +28,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.squareup.picasso.Picasso;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.text.DecimalFormat;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.VISIBLE;
@@ -42,7 +49,10 @@ public class SendTokenModalDialogFragment extends DialogFragment {
     LinearLayout tokenContainer;
     TextView exchangeNote;
     private boolean heToken = false;
-    String symbol;
+    String symbol, icon;
+
+    float mainTokenBalance, secTokenBalance;
+    String mainTokenSymbol, secTokenSymbol = "HBD";
 
     public SendTokenModalDialogFragment() {
 
@@ -95,6 +105,8 @@ public class SendTokenModalDialogFragment extends DialogFragment {
 
         EditText memo = view.findViewById(R.id.memo);
 
+        TextView balance = view.findViewById(R.id.cur_balance);
+
         Button maxButton = view.findViewById(R.id.max_btn);
 
         ProgressBar taskProgress = view.findViewById(R.id.loader);
@@ -102,6 +114,10 @@ public class SendTokenModalDialogFragment extends DialogFragment {
         token = view.findViewById(R.id.token);
         exchangeNote = view.findViewById(R.id.send_note);
         tokenContainer = view.findViewById(R.id.tokenContainer);
+        //balance.setText(userBalance+"");
+        DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
+
+        balance.setText(String.format("%s %s", decimalFormat.format(userBalance), symbol));
 
         if (isHeToken()){
             tokenContainer.setVisibility(View.GONE);
@@ -110,11 +126,56 @@ public class SendTokenModalDialogFragment extends DialogFragment {
             tokenContainer.setVisibility(VISIBLE);
             exchangeNote.setVisibility(VISIBLE);
         }
+        if (!icon.equals("")) {
+            //placeholder or error fallback
+            LetterDrawable placeholderDrawable = new LetterDrawable(symbol.substring(0, 1));
+
+            try {
+                ImageView tokenIcon = view.findViewById(R.id.token_icon);
+                Handler uiHandler = new Handler(Looper.getMainLooper());
+                uiHandler.post(() -> {
+                    Picasso.get().load(icon)
+                            .placeholder(placeholderDrawable)
+                            .error(placeholderDrawable)
+                            .into(tokenIcon);
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
 
         Button sendButton = view.findViewById(R.id.proceed_send_btn);
 
         maxButton.setOnClickListener(v->{
             amount.setText(userBalance+"");
+        });
+
+        //capture change event
+        token.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Code to execute when an item is selected
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                //if (selectedItem)
+                //System.out.println(">>>>>"+selectedItem);
+                if (selectedItem.equals(secTokenSymbol)){
+                    userBalance = secTokenBalance;
+                    symbol = secTokenSymbol;
+                }else{
+                    userBalance = mainTokenBalance;
+                    symbol = mainTokenSymbol;
+                }
+                DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
+
+                balance.setText(String.format("%s %s", decimalFormat.format(userBalance), symbol));
+                // Perform actions with the selected item
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Code to execute when nothing is selected
+            }
         });
 
         sendButton.setOnClickListener(v ->{
@@ -260,9 +321,17 @@ public class SendTokenModalDialogFragment extends DialogFragment {
         return heToken;
     }
 
-    public void setHeToken(boolean heToken, String symbol) {
+    public void setHeToken(boolean heToken, String symbol, String icon) {
         this.heToken = heToken;
         this.symbol = symbol;
+        this.icon = icon;
         System.out.println("<<<<<symbol:"+symbol);
+    }
+
+    public void setSecToken(float secTokenBalance, String secTokenSymbol){
+        this.mainTokenBalance = this.userBalance;
+        this.mainTokenSymbol = this.symbol;
+        this.secTokenBalance = secTokenBalance;
+        this.secTokenSymbol = secTokenSymbol;
     }
 }

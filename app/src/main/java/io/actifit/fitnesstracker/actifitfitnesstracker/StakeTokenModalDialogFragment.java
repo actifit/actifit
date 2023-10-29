@@ -114,14 +114,22 @@ public class StakeTokenModalDialogFragment extends DialogFragment {
         //by default set recipient as own self in staking
         recipient.setText(MainActivity.username);
 
-        try {
-            ImageView tokenIcon = view.findViewById(R.id.token_icon);
-            Handler uiHandler = new Handler(Looper.getMainLooper());
-            uiHandler.post(() -> {
-                Picasso.get().load(icon).into(tokenIcon);
-            });
-        }catch(Exception ex){
-            ex.printStackTrace();
+        if (!icon.equals("")) {
+            //placeholder or error fallback
+            LetterDrawable placeholderDrawable = new LetterDrawable(symbol.substring(0, 1));
+
+            try {
+                ImageView tokenIcon = view.findViewById(R.id.token_icon);
+                Handler uiHandler = new Handler(Looper.getMainLooper());
+                uiHandler.post(() -> {
+                    Picasso.get().load(icon)
+                            .placeholder(placeholderDrawable)
+                            .error(placeholderDrawable)
+                            .into(tokenIcon);
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
 
         //token = view.findViewById(R.id.token);
