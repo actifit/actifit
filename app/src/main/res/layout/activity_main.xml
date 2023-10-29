@@ -791,7 +791,18 @@ android:layout_weight="1"-->
             android:padding="7dp"
             />
 
-        <info.androidhive.fontawesome.FontTextView
+        <TextView
+            android:id="@+id/btn_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf03d"
+            android:textSize="25dp"
+            android:padding="7dp"
+            />
+
+        <!--<info.androidhive.fontawesome.FontTextView
             android:id="@+id/btn_snap_picture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -799,7 +810,7 @@ android:layout_weight="1"-->
             android:textSize="25dp"
             android:text="@string/fa_camera_retro_solid"
             app:solid_icon="true"
-            android:padding="7dp"/>
+            android:padding="7dp"/>-->
 
         <info.androidhive.fontawesome.FontTextView
             android:id="@+id/btn_view_history"
