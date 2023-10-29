@@ -34,6 +34,17 @@
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
         >
+
+        <TextView
+            android:layout_width="40sp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf03d"
+            android:textSize="22dp"
+            android:padding="7dp"
+            />
+
         <TextView
             android:id="@+id/my_caption_title"
             android:layout_width="wrap_content"
@@ -58,7 +69,6 @@
             android:textSize="20dp"
             android:padding="10dp"
             />
-
 
     </LinearLayout>
 
@@ -90,28 +100,45 @@
                 android:progress="@integer/material_motion_duration_long_1"
                 android:visibility="gone"/>
 
+
             <TextView
-                android:id="@+id/noVids"
-                android:layout_width="match_parent"
+                android:id="@+id/no_vids"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:gravity="center"
                 android:text="@string/no_vids_found"
-                android:background="@android:color/white"
+                android:padding="10dp"
                 android:visibility="gone"
                 />
+
+
 
         </LinearLayout>
 
     </HorizontalScrollView>
+
+    <LinearLayout style="@style/Theme.AppCompat.Light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        >
+
+    <TextView
+        android:layout_width="40sp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/actifitRed"
+        android:text="+"
+        android:textSize="22dp"
+        android:padding="7dp"
+        />
 
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
-        android:paddingLeft="10dp"
         android:paddingBottom="10dp"
         android:textStyle="bold"
         android:text="@string/upload_new_vid"
@@ -119,6 +146,8 @@
         android:textSize="22sp"
         android:background="@android:color/white"
         />
+
+    </LinearLayout>
 
     <LinearLayout style="@style/Theme.AppCompat.Light"
         android:layout_width="match_parent"
