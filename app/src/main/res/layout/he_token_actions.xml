@@ -1,0 +1,45 @@
+<LinearLayout android:id="@+id/token_expanded_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_gravity="center"
+    android:padding="5dp"
+    android:visibility="gone"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/btn_send_token"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/actifitRed"
+        android:padding="5dp"
+        android:text="\uf14d"
+        android:textSize="20sp"
+        />
+
+    <TextView
+        android:id="@+id/btn_stake_token"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/actifitRed"
+        android:padding="5dp"
+        android:text="\uf023"
+        android:textSize="20sp"
+        />
+
+    <TextView
+        android:id="@+id/btn_unstake_token"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/actifitRed"
+        android:padding="5dp"
+        android:text="\uf09c"
+        android:textSize="20sp"
+        />
+
+
+
+</LinearLayout>
