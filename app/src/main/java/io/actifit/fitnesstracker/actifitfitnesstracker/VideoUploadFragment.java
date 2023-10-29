@@ -98,7 +98,7 @@ public class VideoUploadFragment extends DialogFragment {
 
     public ArrayList<UploadedVideoModel> vidsList;
 
-    private ProgressBar loader, submitLoader;//, thumbUploadProgress, vidUploadProgress;
+    private ProgressBar submitLoader;//loader, , thumbUploadProgress, vidUploadProgress;
     TextView thumbProgressPercent, vidProgressPercent;
     Button chooseButton, recordButton, vidSelector;
     HorizontalScrollView hScrollView;
@@ -112,19 +112,24 @@ public class VideoUploadFragment extends DialogFragment {
     double vidDuration;
     long vidSize;
     RequestQueue requestQueue;
-    PostSteemitActivity parent;
+    //PostSteemitActivity parent;
+    Activity parent;
     //Volley requestQueue;
 
     public RotateAnimation rotate;
     public TextView refreshList;
 
+    boolean addToPostEnabled = true;
+
     //track choosing video intent
     private static final int CHOOSING_VID_REQUEST = 1235;
 
-    public VideoUploadFragment(Context ctx, String accessToken, PostSteemitActivity parent) {
+    //PostSteemitActivity parent
+    public VideoUploadFragment(Context ctx, String accessToken, Activity parent, boolean addToPostEnabled) {
         this.ctx = ctx;
         this.accessToken = accessToken;
         this.parent = parent;
+        this.addToPostEnabled = addToPostEnabled;
     }
 
     @Override
@@ -210,10 +215,27 @@ public class VideoUploadFragment extends DialogFragment {
                     e.printStackTrace();
                 }
             }
+            chooseButton.performClick();
         }else{
+
+            System.out.println(">>> no user vids");
+            //show no user vids msg
+            /*TextView tv = new TextView (vidsView.getContext());//(ctx);
+            tv.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            tv.setText(ctx.getString(R.string.no_vids_found));
+            tv.setGravity(Gravity.CENTER);
+            tv.setPadding(10, 10, 10, 10);
+
+            vidsView.addView(tv);*/
+
+            refreshList.clearAnimation();
+            if (submitLoader != null) {
+                submitLoader.setVisibility(View.GONE);
+            }
             noVids.setVisibility(View.VISIBLE);
         }
-        chooseButton.performClick();
     }
 
     public void showVids(ViewGroup container){
@@ -221,9 +243,9 @@ public class VideoUploadFragment extends DialogFragment {
         //videoAdapter = new UploadedVideoAdapter(ctx, vidsList, MainActivity.username);
 
         //vidView.setAdapter(videoAdapter);
-        if (loader != null) {
-            loader.setVisibility(View.GONE);
-        }
+//        if (loader != null) {
+//            loader.setVisibility(View.GONE);
+//        }
         //clean up all prior vids
         if (vidsView!=null) {
             vidsView.removeAllViewsInLayout();
@@ -302,38 +324,43 @@ public class VideoUploadFragment extends DialogFragment {
                 });
 
                 Button addToPost = convertView.findViewById(R.id.addVidToPost);
-                addToPost.setOnClickListener(v -> {
-                    //grab video thumb url
-                    String thumbUrl = //ctx.getString(R.string.three_speak_cdn) + "/" +
-                             vidEntry.thumbUrl.replace("ipfs://", "");
-                    String vidLink = "[![]("+thumbUrl+")](https://3speak.tv/watch?v="+MainActivity.username+"/"+vidEntry.permlink+")";
-                    parent.setMainVid(vidEntry);
-                    parent.appendContent(vidLink);
-                    dismiss();
-                    //
+                if (addToPostEnabled) {
+                    addToPost.setOnClickListener(v -> {
+                        //grab video thumb url
+                        String thumbUrl = //ctx.getString(R.string.three_speak_cdn) + "/" +
+                                vidEntry.thumbUrl.replace("ipfs://", "");
+                        String vidLink = "[![](" + thumbUrl + ")](https://3speak.tv/watch?v=" + MainActivity.username + "/" + vidEntry.permlink + ")";
+                        ((PostSteemitActivity) parent).setMainVid(vidEntry);
+                        ((PostSteemitActivity) parent).appendContent(vidLink);
+                        dismiss();
+                        //
                     /*
                     let thumbUrl = 'https://ipfs-3speak.b-cdn.net/ipfs/'+vid.thumbnail.replace('ipfs://','');
 
                     this.vidPostContent =
                             '[![]('+thumbUrl+')](https://3speak.tv/watch?v='+vid.owner+'/'+vid.permlink+')'*/
 
-                });
+                    });
 
-                Button markVidPublished = convertView.findViewById(R.id.markVidPublished);
-                //if video not published and not failed, we can add to post
-                if (!vidEntry.status.equals("published") && !vidEntry.status.equals("encoding_failed")){
-                    addToPost.setVisibility(View.VISIBLE);
-                    //markVidPublished.setVisibility(View.VISIBLE);
+
+                    Button markVidPublished = convertView.findViewById(R.id.markVidPublished);
+                    //if video not published and not failed, we can add to post
+                    if (!vidEntry.status.equals("published") && !vidEntry.status.equals("encoding_failed")){
+                        addToPost.setVisibility(View.VISIBLE);
+                        //markVidPublished.setVisibility(View.VISIBLE);
+                    }else{
+                        addToPost.setVisibility(View.GONE);
+                        markVidPublished.setVisibility(View.GONE);
+                    }
+
+                    markVidPublished.setOnClickListener( v->{
+                        Utils.markVideoPublished(ctx, requestQueue, vidEntry);
+                        //Utils.connectSession3S(requestQueue, ctx, this);
+                        refreshList.performClick();
+                    });
                 }else{
                     addToPost.setVisibility(View.GONE);
-                    markVidPublished.setVisibility(View.GONE);
                 }
-
-                markVidPublished.setOnClickListener( v->{
-                    Utils.markVideoPublished(ctx, requestQueue, vidEntry);
-                    //Utils.connectSession3S(requestQueue, ctx, this);
-                    refreshList.performClick();
-                });
 
                 //add extra data for vid
                 TextView fileName = convertView.findViewById(R.id.title_val);
@@ -409,7 +436,7 @@ public class VideoUploadFragment extends DialogFragment {
 
          */
 
-        loader = view.findViewById(R.id.loader);
+//        loader = view.findViewById(R.id.loader);
 
         //thumbUploadProgress = view.findViewById(R.id.thumbUploadProgress);
         //vidUploadProgress = view.findViewById(R.id.vidUploadProgress);
@@ -429,6 +456,9 @@ public class VideoUploadFragment extends DialogFragment {
         requestQueue = Volley.newRequestQueue(ctx);
         refreshList = view.findViewById(R.id.refresh_list);
 
+        hScrollView = view.findViewById(R.id.horizontalScrollView);
+        noVids = view.findViewById(R.id.no_vids);
+
         //load up user video data
         //connect to 3speak first
         refreshList.startAnimation(rotate);
@@ -441,8 +471,7 @@ public class VideoUploadFragment extends DialogFragment {
         });
 
 
-        hScrollView = view.findViewById(R.id.horizontalScrollView);
-        noVids = view.findViewById(R.id.noVids);
+
         //
 
         vidSelector = view.findViewById(R.id.vidSelector);
@@ -495,19 +524,16 @@ public class VideoUploadFragment extends DialogFragment {
             //show progress
             //.setVisibility(View.VISIBLE);
             //vidUploadProgress.setVisibility(View.VISIBLE);
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Bitmap thumb = Utils.generateThumbnail(ctx, fileUri);
-                        uploadThumbnail(thumb);
-                        vidSize = Utils.getVidSize(ctx, fileUri);
-                        vidDuration = Utils.getVidDuration(ctx, fileUri);
-                        origFileName = Utils.getOriginalFileName(ctx, fileUri);
-                        uploadVideo(fileUri);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
+            Thread thread = new Thread(() -> {
+                try {
+                    Bitmap thumb = Utils.generateThumbnail(ctx, fileUri);
+                    uploadThumbnail(thumb);
+                    vidSize = Utils.getVidSize(ctx, fileUri);
+                    vidDuration = Utils.getVidDuration(ctx, fileUri);
+                    origFileName = Utils.getOriginalFileName(ctx, fileUri);
+                    uploadVideo(fileUri);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             });
             thread.start();
@@ -762,20 +788,6 @@ public class VideoUploadFragment extends DialogFragment {
                                 SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
                                 String xcstkn = sharedPreferences.getString(ctx.getString(R.string.three_speak_saved_token),"");
                                 final VideoUploadFragment vidFragRef = this;
-
-                                //wait 2 seconds and then refresh user vids
-                                Handler handler = new Handler();
-                                handler.postDelayed(() -> {
-                                    // Actions to do after x seconds
-                                    //Utils.loadUserVids(requestQueue, ctx, xcstkn, vidFragRef);
-                                    //Utils.grab3speakCookie(requestQueue ,ctx, xcstkn, vidFragRef);
-                                    refreshList.performClick();
-                                }, 2000);
-
-                                //Utils.connectSession3S(requestQueue, ctx, this);
-                                //also remove view
-                                newVidLayoutContainer.removeView(newVidInnerView);
-                                newVidInnerView = null;
                                 //update vids
 
                             } else {
@@ -787,6 +799,8 @@ public class VideoUploadFragment extends DialogFragment {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
+                        } finally  {
+                            cleanupVid();
                         }
                     },
                     error -> {
@@ -795,6 +809,7 @@ public class VideoUploadFragment extends DialogFragment {
                         if (submitLoader != null) {
                             submitLoader.setVisibility(View.GONE);
                         }
+                        cleanupVid();
                     }) {
                 @Override
                 public Map<String, String> getHeaders() {
@@ -813,6 +828,18 @@ public class VideoUploadFragment extends DialogFragment {
             e.printStackTrace();
         }
 
+    }
+
+    private void cleanupVid(){
+        //wait 2 seconds and then refresh user vids
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            refreshList.performClick();
+        }, 2000);
+
+        //also remove view
+        newVidLayoutContainer.removeView(newVidInnerView);
+        newVidInnerView = null;
     }
 
     /*************************************/
