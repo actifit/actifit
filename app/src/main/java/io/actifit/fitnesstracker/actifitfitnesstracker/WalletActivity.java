@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,7 +77,7 @@ public class WalletActivity extends BaseActivity {
 
     private JSONArray heTokens;
 
-    private ProgressBar loader;
+    //private ProgressBar loader;
     Activity callerActivity;
 
     TextView hiveActionsExpander;
@@ -103,7 +104,7 @@ public class WalletActivity extends BaseActivity {
         rotate.setInterpolator(new LinearInterpolator());
         rotate.setRepeatCount(Animation.INFINITE);
 
-        loader = findViewById(R.id.loader);
+        //loader = findViewById(R.id.loader);
 
         hiveActionsExpander = findViewById(R.id.expand_view);
 
@@ -225,17 +226,7 @@ public class WalletActivity extends BaseActivity {
 
             });
 
-            //handles sending HIVE/HBD tokens
-            sendToken = findViewById(R.id.btn_send_token);
 
-            sendToken.setOnClickListener(arg0 -> {
-
-                SendTokenModalDialogFragment dialogFragment =
-                        new SendTokenModalDialogFragment(this, afitBal, queue);
-                FragmentManager fmgr = (this).getSupportFragmentManager();
-                dialogFragment.show(fmgr, "send_token");
-
-            });
 
 
             claimRewards = findViewById(R.id.btn_claim_pending_rewards);
@@ -552,8 +543,10 @@ public class WalletActivity extends BaseActivity {
     int queriesFetched = 0;
     int totalQueryCount = 0;
     TextView hiveBalance;
+    TextView hbdBalance;
+    TextView hpBalance;
     TextView steemBalance;
-    TextView blurtBalance;
+    TextView blurtBalance, bpBalance;
     TextView sportsBalance;
     TextView actifitBalance;
     boolean chainInfoFetched = false;
@@ -563,11 +556,20 @@ public class WalletActivity extends BaseActivity {
 
         //cleanup existing content
         LinearLayout tokensContainer = findViewById(R.id.he_tokens_container);
+        //TableLayout tokensContainer = findViewById(R.id.he_tokens_container);
+
         tokensContainer.removeAllViewsInLayout();
+
+        //add header view
+        View walletHeader = LayoutInflater.from(getApplicationContext())
+                .inflate(R.layout.wallet_header, null, false);
+
+        tokensContainer.addView(walletHeader);
 
         HiveEngineAPI herpc = new HiveEngineAPI(getApplicationContext());
 
-        loader.setVisibility(View.VISIBLE);
+        //loader.setVisibility(View.VISIBLE);
+        BtnCheckHEBalance.startAnimation(rotate);
 
         herpc.fetchAllTokens(new HiveEngineAPI.VolleyCallback() {
             @Override
@@ -631,10 +633,22 @@ public class WalletActivity extends BaseActivity {
                                                 stakable = tokenDetail.has("stakingEnabled") && tokenDetail.getBoolean("stakingEnabled");
                                                 unstakePeriod = tokenDetail.has("unstakingCooldown")?tokenDetail.getInt("unstakingCooldown")+" days":"";
                                                 if (!icon.equals("")) {
-                                                    String finalIcon = icon;
-                                                    uiHandler.post(() -> {
-                                                        Picasso.get().load(finalIcon).into(tokenIcon);
-                                                    });
+
+                                                        //placeholder or error fallback
+                                                        LetterDrawable placeholderDrawable = new LetterDrawable(symbol.substring(0, 1));
+
+                                                        try {
+                                                            String finalIcon = icon;
+                                                            uiHandler.post(() -> {
+                                                                Picasso.get().load(finalIcon)
+                                                                        .placeholder(placeholderDrawable)
+                                                                        .error(placeholderDrawable)
+                                                                        .into(tokenIcon);
+                                                            });
+                                                        } catch (Exception ex) {
+                                                            ex.printStackTrace();
+                                                        }
+
                                                 }
                                             }
                                         }catch(Exception inn){
@@ -645,7 +659,13 @@ public class WalletActivity extends BaseActivity {
 
                                 //transfer action
                                 TextView expander = tokenView.findViewById(R.id.expand_view);
-                                LinearLayout expandedView = tokenView.findViewById(R.id.token_expanded_view);
+
+
+                                //actions container view
+                                View expandedView = LayoutInflater.from(getApplicationContext())
+                                        .inflate(R.layout.he_token_actions, null, false);
+
+                                //LinearLayout expandedView = tokenView.findViewById(R.id.token_expanded_view);
                                 expander.setOnClickListener( v -> {
                                     if (expandedView.getVisibility() == View.GONE){
                                         //expand
@@ -658,9 +678,10 @@ public class WalletActivity extends BaseActivity {
                                         expander.setText("\uf0ab");
                                     }
                                 });
-
+                                String finalIcon1 = icon;
                                 //handles token transfer event
-                                sendHEToken = tokenView.findViewById(R.id.btn_send_token);
+                                sendHEToken = expandedView.findViewById(R.id.btn_send_token);
+                                //sendHEToken = tokenView.findViewById(R.id.btn_send_token);
 
                                 sendHEToken.setOnClickListener(arg0 -> {
 
@@ -668,14 +689,17 @@ public class WalletActivity extends BaseActivity {
                                             new SendTokenModalDialogFragment(getApplicationContext(), balval, queue);
                                             //new SendTokenModalDialogFragment(this, afitBal, queue);
 
-                                    dialogFragment.setHeToken(true, symbol);
+                                    dialogFragment.setHeToken(true, symbol, finalIcon1);
                                     FragmentManager fmgr = ((AppCompatActivity)callerActivity).getSupportFragmentManager(); //((AppCompatActivity) this).getSupportFragmentManager();
                                     dialogFragment.show(fmgr, "send_he_token");
 
                                 });
 
-                                stakeHEToken = tokenView.findViewById(R.id.btn_stake_token);
-                                unstakeHEToken = tokenView.findViewById(R.id.btn_unstake_token);
+                                stakeHEToken = expandedView.findViewById(R.id.btn_stake_token);
+                                unstakeHEToken = expandedView.findViewById(R.id.btn_unstake_token);
+
+//                                stakeHEToken = tokenView.findViewById(R.id.btn_stake_token);
+//                                unstakeHEToken = tokenView.findViewById(R.id.btn_unstake_token);
 
 
 
@@ -699,7 +723,7 @@ public class WalletActivity extends BaseActivity {
                                     unstakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
                                 }
 
-                                String finalIcon1 = icon;
+
                                 String finalUnstakePeriod = unstakePeriod;
                                 stakeHEToken.setOnClickListener(arg0 -> {
 
@@ -724,12 +748,15 @@ public class WalletActivity extends BaseActivity {
                                 });
 
                                 tokensContainer.addView(tokenView);
+                                //also add token actions row
+                                tokensContainer.addView(expandedView);
                             }catch(Exception exc){
                                 exc.printStackTrace();
                             }
                         }
 
-                        loader.setVisibility(View.GONE);
+                        //loader.setVisibility(View.GONE);
+                        BtnCheckHEBalance.clearAnimation();
 
                         /*ScrollView scrollView = findViewById(R.id.he_token_scrollview);
                         //adjust scrolls visibility
@@ -750,7 +777,8 @@ public class WalletActivity extends BaseActivity {
                         // Handle the error here
                         //System.out.println(">>>> back to wallet");
                         System.out.println(error);
-                        loader.setVisibility(View.GONE);
+                        //loader.setVisibility(View.GONE);
+                        BtnCheckHEBalance.clearAnimation();
                     }
                 });
             }
@@ -760,7 +788,8 @@ public class WalletActivity extends BaseActivity {
                 // Handle the error here
                 //System.out.println(">>>> back to wallet");
                 System.out.println(error);
-                loader.setVisibility(View.GONE);
+                //loader.setVisibility(View.GONE);
+                BtnCheckHEBalance.clearAnimation();
             }
 
         });
@@ -795,8 +824,11 @@ public class WalletActivity extends BaseActivity {
             final TextView actifitTransactionsError = findViewById(R.id.actifit_transactions_error);
 
             hiveBalance = findViewById(R.id.hive_balance);
+            hbdBalance = findViewById(R.id.hbd_balance);
+            hpBalance = findViewById(R.id.hp_balance);
             steemBalance = findViewById(R.id.steem_balance);
             blurtBalance = findViewById(R.id.blurt_balance);
+            bpBalance = findViewById(R.id.bp_balance);
             sportsBalance = findViewById(R.id.sports_balance);
 
             //hide if this is a recurring call
@@ -827,7 +859,7 @@ public class WalletActivity extends BaseActivity {
                                 //grab current token count
 
                                 DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
-                                actifitBalance.setText(" " + decimalFormat.format(Float.parseFloat(afitBal)) +" AFIT");
+                                actifitBalance.setText(decimalFormat.format(Float.parseFloat(afitBal)) +" AFIT");
                             }catch(JSONException e){
                                 //hide dialog
                                 progress.hide();
@@ -1046,18 +1078,37 @@ public class WalletActivity extends BaseActivity {
 
             // Display the result
 
-            String hiveBalances = hiveData.getString("balance")+ " ";
-            hiveBalances += hiveData.getString("hbd_balance");
+            String hiveBalanceVal = hiveData.getString("balance");
+
+            hiveBalance.setText(Html.fromHtml( hiveBalanceVal));
+
+            String hbdBalanceVal = hiveData.getString("hbd_balance");
+
+            hbdBalance.setText(Html.fromHtml( hbdBalanceVal));
+
             hiveChainInfo.put("chainName", "hive");
             //add HP balances
-            String hpBalance = MainActivity.formatValue(vestsToPower(hiveChainInfo, hiveData.getString("vesting_shares")));
-            hiveBalances += " " +  hpBalance + " HP";
+            String hpBalanceVal = MainActivity.formatValue(vestsToPower(hiveChainInfo, hiveData.getString("vesting_shares")));
+            //grab delegated balance
+            String delegatedVal = MainActivity.formatValue(vestsToPower(hiveChainInfo, hiveData.getString("delegated_vesting_shares")));
+            //grab powering down balance
+            String unstakingVal = MainActivity.formatValue(vestsToPower(hiveChainInfo, hiveData.getString("vesting_withdraw_rate")));
+            //owned power
+            String incomingVal = MainActivity.formatValue(vestsToPower(hiveChainInfo, hiveData.getString("received_vesting_shares")));
+            Float ownedPower = Float.parseFloat(hpBalanceVal.replace(",","")) -
+                    Float.parseFloat(delegatedVal.replace(",","")) -
+                    Float.parseFloat(unstakingVal.replace(",",""));
+            String ownedPowerVal = MainActivity.formatValue(ownedPower);
+            String fullPowerVal = MainActivity.formatValue(vestsToPower(hiveChainInfo, hiveData.getString("post_voting_power")));
+            hpBalance.setText(Html.fromHtml(ownedPowerVal)+ " HP" + " ("+fullPowerVal+" HP)");
 
-            hiveBalances += " \r\n";
+            //hiveBalances += " " +  hpBalance + " HP";
+
+            //hiveBalances += " \r\n";
 
             //grab current token count
             //actifitBalance.setText(" " + response.getString("tokens"));
-            hiveBalance.setText(" "+ Html.fromHtml( hiveBalances));
+
 
 
             /*
@@ -1092,17 +1143,38 @@ public class WalletActivity extends BaseActivity {
                 });
             */
 
+            //handles sending HIVE/HBD tokens
+            sendToken = findViewById(R.id.btn_send_token);
+            String hiveBal = "0";
+            try {
+                hiveBal = hiveData.getString("balance").split(" ")[0];
+            }catch(Exception exp){
+                exp.printStackTrace();
+            }
+            String finalHiveBal = hiveBal;
+
+            sendToken.setOnClickListener(arg0 -> {
+
+                SendTokenModalDialogFragment dialogFragment =
+                        new SendTokenModalDialogFragment(this, finalHiveBal , queue);
+                dialogFragment.setHeToken(false, "HIVE", "");
+                //remove HBD part and comma formatting
+                dialogFragment.setSecToken(Float.parseFloat(hbdBalanceVal.replace(" HBD","").replace(",","")) ,"HBD");
+                FragmentManager fmgr = (this).getSupportFragmentManager();
+                dialogFragment.show(fmgr, "send_token");
+
+            });
 
             //handle staking action & params
             stakeToken.setOnClickListener(arg0 -> {
                 try {
                     StakeTokenModalDialogFragment dialogFragment =
-                            new StakeTokenModalDialogFragment(this, hiveData.getString("balance").split(" ")[0], queue, 0,
+                            new StakeTokenModalDialogFragment(this, finalHiveBal, queue, 0,
                             false, "HIVE", getString(R.string.hive_logo_url), "13 weeks");
                     FragmentManager fmgr = (this).getSupportFragmentManager();
                     dialogFragment.show(fmgr, "stake_hive");
 
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             });
@@ -1111,7 +1183,7 @@ public class WalletActivity extends BaseActivity {
             unstakeToken.setOnClickListener(arg0 -> {
                 try {
                     StakeTokenModalDialogFragment dialogFragment =
-                            new StakeTokenModalDialogFragment(this, hpBalance, queue, 1,
+                            new StakeTokenModalDialogFragment(this, ownedPowerVal, queue, 1,
                                     false, "HIVE", getString(R.string.hive_logo_url), "13 weeks");
                     FragmentManager fmgr = (this).getSupportFragmentManager();
                     dialogFragment.show(fmgr, "unstake_hive");
@@ -1157,10 +1229,11 @@ public class WalletActivity extends BaseActivity {
                 JSONObject blurtData = balanceData.getJSONObject("BLURT");
                 String blurtBalances = blurtData.getString("balance");
                 blurtChainInfo.put("chainName", "blurt");
-                blurtBalances += " " + MainActivity.formatValue(vestsToPower(blurtChainInfo, blurtData.getString("vesting_shares"))) + " BP";
+                blurtBalance.setText(Html.fromHtml(blurtBalances));
 
-                blurtBalances += " \r\n";
-                blurtBalance.setText(" " + Html.fromHtml(blurtBalances));
+                String bpBalances = MainActivity.formatValue(vestsToPower(blurtChainInfo, blurtData.getString("vesting_shares"))) + " BP";
+
+                bpBalance.setText(" " + Html.fromHtml(bpBalances));
 
                 String blurtRewards = "";
                 blurtRewards += blurtData.getString("reward_blurt_balance") + " ";
