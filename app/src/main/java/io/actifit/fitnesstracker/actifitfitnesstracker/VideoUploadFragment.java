@@ -33,6 +33,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.android.volley.Request;
@@ -77,17 +78,18 @@ import okhttp3.CookieJar;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
+import static android.view.Gravity.CENTER_HORIZONTAL;
 
 
 public class VideoUploadFragment extends DialogFragment {
 
     static String[][] statusList = {
-            {"uploaded", "0", "Uploaded"},
-            {"encoding_queued", "1", "Queued for Encoding"},
-            {"encoding_ipfs", "2", "Processing Encoding"},
-            {"encoding_failed", "3", "Encoding Failed"},
-            {"deleted", "4", "Deleted"},
-            {"publish_manual", "5", "Ready to publish"},
+            {"uploaded", "0", "Uploaded..▲"},
+            {"encoding_queued", "1", "Queued for Encoding..→"},
+            {"encoding_ipfs", "2", "Processing Encoding..⏳"},
+            {"encoding_failed", "3", "Encoding Failed..x"},
+            {"deleted", "4", "Deleted..\uD83D\uDDD1"},
+            {"publish_manual", "5", "Ready to publish..✅"},
             {"published", "6", "Published✓"}
     };
 
@@ -345,7 +347,8 @@ public class VideoUploadFragment extends DialogFragment {
 
                     Button markVidPublished = convertView.findViewById(R.id.markVidPublished);
                     //if video not published and not failed, we can add to post
-                    if (!vidEntry.status.equals("published") && !vidEntry.status.equals("encoding_failed")){
+                    //if (!vidEntry.status.equals("published") && !vidEntry.status.equals("encoding_failed")){
+                    if (vidEntry.status.equals("publish_manual")){ //|| vidEntry.status.equals("published")){
                         addToPost.setVisibility(View.VISIBLE);
                         //markVidPublished.setVisibility(View.VISIBLE);
                     }else{
@@ -458,6 +461,38 @@ public class VideoUploadFragment extends DialogFragment {
 
         hScrollView = view.findViewById(R.id.horizontalScrollView);
         noVids = view.findViewById(R.id.no_vids);
+
+
+        //info boxes
+        //set modal for social info
+        TextView vidsListBtn = view.findViewById(R.id.vids_list_info);
+        TextView uploadInfoBtn = view.findViewById(R.id.upload_vid_info);
+        vidsListBtn.setOnClickListener(v -> {
+            getActivity().runOnUiThread( () -> {
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+
+                AlertDialog pointer = dialogBuilder.setMessage(Html.fromHtml(getString(R.string.vids_list_description)))
+                        .setTitle(getString(R.string.actifit_info))
+                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                        .setPositiveButton(getString(R.string.close_button), null)
+                        .create();
+
+                dialogBuilder.show();
+            });
+        });
+        uploadInfoBtn.setOnClickListener(v -> {
+            getActivity().runOnUiThread( () -> {
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+
+                AlertDialog pointer = dialogBuilder.setMessage(Html.fromHtml(getString(R.string.upload_vid_description)))
+                        .setTitle(getString(R.string.actifit_info))
+                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                        .setPositiveButton(getString(R.string.close_button), null)
+                        .create();
+
+                dialogBuilder.show();
+            });
+        });
 
         //load up user video data
         //connect to 3speak first
@@ -777,13 +812,13 @@ public class VideoUploadFragment extends DialogFragment {
                     response -> {
                         // Handle the response here
                         try {
-
+                            getActivity().runOnUiThread(() -> {
+                                //show confirmation
+                                Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success), Toast.LENGTH_LONG).show();
+                            });
                             if (response.has("status")) {
 
-                                getActivity().runOnUiThread(() -> {
-                                            //show confirmation
-                                            Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success), Toast.LENGTH_LONG);
-                                        });
+
                                 //refresh vids list
                                 SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
                                 String xcstkn = sharedPreferences.getString(ctx.getString(R.string.three_speak_saved_token),"");
@@ -806,6 +841,13 @@ public class VideoUploadFragment extends DialogFragment {
                     error -> {
                         // Handle error response
                         error.printStackTrace();
+                        getActivity().runOnUiThread(() -> {
+                            //show confirmation
+                            Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success), Toast.LENGTH_LONG).show();
+
+
+                            //Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success), Toast.LENGTH_LONG).show();;
+                        });
                         if (submitLoader != null) {
                             submitLoader.setVisibility(View.GONE);
                         }
