@@ -41,7 +41,7 @@
             android:fontFamily="@font/font_awesome_6_solid"
             android:textColor="@color/actifitRed"
             android:text="\uf03d"
-            android:textSize="22dp"
+            android:textSize="20sp"
             android:padding="7dp"
             />
 
@@ -55,7 +55,7 @@
             android:textStyle="bold"
             android:text="@string/uploaded_vids_list"
             android:textColor="@color/actifitRed"
-            android:textSize="22sp"
+            android:textSize="20sp"
             android:background="@android:color/white"
         />
 
@@ -64,10 +64,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/font_awesome_6_solid"
-
-            android:text="\uf2f1"
-            android:textSize="20dp"
+            android:textColor="@color/actifitRed"
             android:padding="10dp"
+            android:text="\uf2f1"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/vids_list_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf05a"
+            android:textSize="20sp"
+            android:padding="7dp"
             />
 
     </LinearLayout>
@@ -130,7 +140,7 @@
         android:fontFamily="@font/font_awesome_6_solid"
         android:textColor="@color/actifitRed"
         android:text="+"
-        android:textSize="22dp"
+        android:textSize="20sp"
         android:padding="7dp"
         />
 
@@ -143,9 +153,20 @@
         android:textStyle="bold"
         android:text="@string/upload_new_vid"
         android:textColor="@color/actifitRed"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:background="@android:color/white"
         />
+
+        <TextView
+            android:id="@+id/upload_vid_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf05a"
+            android:textSize="20sp"
+            android:padding="7dp"
+            />
 
     </LinearLayout>
 
