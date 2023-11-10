@@ -75,6 +75,8 @@ import android.widget.VideoView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
@@ -726,6 +728,7 @@ public class MainActivity extends BaseActivity{
 
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -1206,6 +1209,39 @@ public class MainActivity extends BaseActivity{
         PrepareGround prepareApp = new PrepareGround();
         prepareApp.execute();
 
+
+
+        // Check if notifications are enabled
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+        boolean notificationsEnabled = notificationManagerCompat.areNotificationsEnabled();
+
+// If notifications are disabled, request the permission
+        if (!notificationsEnabled) {
+            //requestNotificationPermissionLauncher.launch(POST_NOTIFICATIONS_PERMISSION);
+            // Initialize the permission result launcher
+
+            final String POST_NOTIFICATIONS_PERMISSION = "android.permission.POST_NOTIFICATIONS";
+            final int REQUEST_CODE_NOTIFICATION_PERMISSION = 1;
+
+            // Request the notification permission
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{POST_NOTIFICATIONS_PERMISSION},
+                    REQUEST_CODE_NOTIFICATION_PERMISSION
+            );
+
+            /*PermissionResultLauncher<String> requestNotificationPermissionLauncher = registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    result -> {
+                        // Handle the permission grant or denial
+                        if (result.isGranted()) {
+                            // The user granted the permission, so you can now post notifications
+                        } else {
+                            // The user denied the permission, so you cannot post notifications
+                        }
+                    }
+            );*/
+        }
 
         //prepare ads
         //prepareAds();
