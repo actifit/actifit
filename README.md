@@ -1,11 +1,11 @@
 # Actifit Android Version
-Actifit: An Innovative Dapp That Rewards Your Everyday Activity!
+Actifit: It Pays to be Fit!
 
 
 Actifit tracks and rewards your activity with Actifit's AFIT tokens, but also HIVE, SPORTS and other token rewards.
 
 ##### Earn Tokens As Simple As One Two Three
-1. Download the Actifit mobile app [Google Play](https://bit.ly/actifit-app) | [App Store](https://bit.ly/actifit-ios)
+1. Download the Actifit mobile app [Google Play](https://links.actifit.io/android) | [App Store](https://links.actifit.io/ios)
 2. Go for a jog, walk your dog, maw your lawn, go to the gym, move around your office,... with an aim to reach a minimum of 5,000 activity count.
 3. Post via app, and get rewarded!
 
