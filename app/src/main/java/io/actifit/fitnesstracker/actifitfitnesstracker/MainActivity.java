@@ -658,7 +658,7 @@ public class MainActivity extends BaseActivity{
 
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putInt(getString(R.string.main_announce_view), announceViews);
-                    editor.commit();
+                    editor.apply();
 
                     if (mainAnnounce !=null && announceViews <=1) {
                         //show mainAnnounce if there exists one

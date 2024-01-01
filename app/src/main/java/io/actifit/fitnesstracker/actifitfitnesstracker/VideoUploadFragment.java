@@ -61,6 +61,7 @@ import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -568,6 +569,7 @@ public class VideoUploadFragment extends DialogFragment {
                     origFileName = Utils.getOriginalFileName(ctx, fileUri);
                     uploadVideo(fileUri);
                 } catch (Exception ex) {
+                    Toast.makeText( ctx,"error during upload:"+ex.getMessage(), Toast.LENGTH_LONG ).show();
                     ex.printStackTrace();
                 }
             });
@@ -825,6 +827,10 @@ public class VideoUploadFragment extends DialogFragment {
                                 final VideoUploadFragment vidFragRef = this;
                                 //update vids
 
+                                appendVidMonitorStatus(requestQueue, response.getString("permlink"));
+                                //also add the video to the API for auto status monitoring
+
+
                             } else {
                                 // Handle other status codes if needed
                                 // ...
@@ -870,6 +876,28 @@ public class VideoUploadFragment extends DialogFragment {
             e.printStackTrace();
         }
 
+    }
+
+    private void appendVidMonitorStatus(RequestQueue queue, String vidPermLink){
+        String buyUrl = getContext().getString(R.string.register_user_added_vid)+"/"+
+                MainActivity.username+"/"+vidPermLink+"/new";
+                //URLEncoder.encode(String.valueOf(vidName));
+
+
+        //send out transaction
+        JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
+                buyUrl, null,
+                response1 -> {
+
+                },
+                error -> {
+                    // error
+                    Log.d(MainActivity.TAG, "Error querying blockchain");
+                    //progress.dismiss();
+
+                });
+
+        queue.add(buyRequest);
     }
 
     private void cleanupVid(){

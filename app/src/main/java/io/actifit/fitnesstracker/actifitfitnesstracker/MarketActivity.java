@@ -324,8 +324,11 @@ public class MarketActivity extends BaseActivity {
 
                             //only append product if it is active and is a gaming product
                             //if (postEntry.active && postEntry.type.equals(getString(R.string.gameGadget))) {
+
                             //skip products that are event specific
-                            if (!postEntry.specialevent) {
+                            if (postEntry.specialevent && !postEntry.active) {
+                                //skip it
+                            }else{
                                 productList.add(postEntry);
                             }
                         }

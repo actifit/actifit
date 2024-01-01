@@ -8,7 +8,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 //import org.jetbrains.annotations.Nullable;
-import androidx.annotation.Nullable;
+//import androidx.annotation.Nullable;
 
 
 import static android.content.pm.PackageManager.GET_META_DATA;
@@ -16,7 +16,7 @@ import static android.content.pm.PackageManager.GET_META_DATA;
 public class BaseActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         resetTitles();
     }
