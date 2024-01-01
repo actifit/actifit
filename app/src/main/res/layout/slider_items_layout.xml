@@ -28,10 +28,10 @@
         android:gravity="center"
         android:textStyle="bold|italic"
         android:text="The Caption Title"
-        android:textColor="@color/actifitRed"
+        android:textColor="@color/colorBlack"
         android:textSize="26sp"
         android:background="@android:color/white"
-        android:alpha="0.6"
+        android:alpha="0.8"
         tools:layout_editor_absoluteX="51dp"
         tools:layout_editor_absoluteY="100dp"
         tools:ignore="MissingConstraints" />
