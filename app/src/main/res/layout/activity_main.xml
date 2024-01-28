@@ -471,15 +471,50 @@
             android:layout_height="match_parent"
             android:weightSum="1.0">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <LinearLayout
+                android:id="@+id/post_action_container"
+                android:orientation="horizontal"
+                android:gravity="left"
+                android:paddingLeft="5dp"
+                android:paddingBottom="5dp"
+                android:layout_gravity="start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
 
-            style="@style/AppTheme.ActifitButton"
-            android:id="@+id/btn_post_steemit"
+                <androidx.appcompat.widget.AppCompatButton
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/btn_post_steemit"
+                    android:textSize="14dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:text="@string/post_to_steem_btn_txt" />
 
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/post_to_steem_btn_txt" />
+                <Button
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/btn_waves"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:text="\uf773"
+                    android:textSize="16dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    />
 
+                <!--<TextView
+                    android:id="@+id/btn_waves"
+                    style="@style/AppTheme.ActifitButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:fontFamily="@font/font_awesome_6_solid"
+
+                    android:text="\uf773"
+                    android:textSize="25dp"
+                    android:padding="7dp"
+                    />
+                -->
+
+            </LinearLayout>
             <LinearLayout
                 android:id="@+id/voting_status_container"
                 android:orientation="horizontal"
@@ -877,6 +912,8 @@ android:layout_weight="1"-->
             android:textSize="25dp"
             android:padding="7dp"
             />
+
+
 
 
         <TextView android:id="@+id/chat_notif_count"
