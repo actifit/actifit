@@ -139,6 +139,14 @@ public class SingleHivePostModel{
                     }else{
                         return stepCount+"";
                     }
+                }else{
+                    //alternatively try step count as int
+                    try {
+                        int stepCount = json_metadata.optInt("step_count");
+                        return stepCount+"";
+                    }catch(Exception ee){
+                        ee.printStackTrace();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

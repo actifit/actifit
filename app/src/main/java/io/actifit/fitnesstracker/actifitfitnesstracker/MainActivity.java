@@ -296,6 +296,7 @@ public class MainActivity extends BaseActivity{
     private RewardedAd rewardedAd;
     private Button dailyRewardButton;
     private Button freeRewardButton, fivekRewardButton, sevenkRewardButton, tenkRewardButton;
+    private Button BtnWaves;
     private boolean dailyRewardClaimed = false, fivekRewardClaimed = false, sevenkRewardClaimed = false, tenkRewardClaimed = false;
     private boolean isAdLoading;
 
@@ -897,6 +898,7 @@ public class MainActivity extends BaseActivity{
         TextView BtnPosts = findViewById(R.id.btn_view_social);
         TextView BtnHelp = findViewById(R.id.btn_help);
         TextView BtnChat = findViewById(R.id.btn_chat);
+        BtnWaves = findViewById(R.id.btn_waves);
         Button BtnSwitchSettings = findViewById(R.id.switchSettings);
 
 
@@ -989,6 +991,11 @@ public class MainActivity extends BaseActivity{
 
         queue.add(vidUrlRequest);
 
+        BtnWaves.setOnClickListener(view -> {
+            WavesDialogFragment wavesDialog = new WavesDialogFragment(getCtx());
+            wavesDialog.show(getSupportFragmentManager(),"waves_dialog");
+
+        });
 
         BtnChat.setOnClickListener(view -> {
 
@@ -1331,6 +1338,8 @@ public class MainActivity extends BaseActivity{
 
             int curStepCount = mStepsDBHelper.fetchTodayStepCount();
 
+
+            //animate reward button
             if (!fivekRewardClaimed && curStepCount >= 5000){
                 fivekRewardButton.setAnimation(scaler);
             }else if (fivekRewardClaimed){
@@ -2582,6 +2591,13 @@ public class MainActivity extends BaseActivity{
             btnPieChart = findViewById(R.id.step_pie_chart);
             ArrayList<PieEntry> activityArray = new ArrayList();
             activityArray.add(new PieEntry(stepCount, ""));
+
+            if (stepCount > 2000){
+                //animate waves button
+                if (BtnWaves.getAnimation()==null || BtnWaves.getAnimation().hasStarted()) {
+                    BtnWaves.setAnimation(scaler);
+                }
+            }
 
             if (stepCount < 5000) {
                 activityArray.add(new PieEntry(5000 - stepCount, ""));

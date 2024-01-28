@@ -134,16 +134,17 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         //markwon.requirePlugin(HtmlPlugin.create());
     }
 
-    private boolean userNewlyVotedPost(String voter, int post_id){
+    private boolean userNewlyVotedPost(String voter, String permlink){ //int post_id){
         if (extraVotesList != null && extraVotesList.length() > 0) {
             for (int j=0;j<extraVotesList.length();j++) {
                 try {
                     JSONObject entry = extraVotesList.getJSONObject(j);
                     String entVoter = entry.optString("voter");
-                    int entPostId = entry.optInt("post_id");
+                    String permlnk = entry.optString("permlink");
+                    //int entPostId = entry.optInt("post_id");
 
                     // Perform your search or comparison here
-                    if (voter.equals(entVoter) && post_id == entPostId) {
+                    if (voter.equals(entVoter) && permlink.equals(permlnk)){ //post_id == entPostId) {
                         // Found the desired entry
                         return true;
                     }
@@ -200,16 +201,17 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             TextView body = convertView.findViewById(R.id.body);
 
+            author.setText('@'+postEntry.author);
 
             commentsList = convertView.findViewById(R.id.comments_list);
 
-            boolean isExtraVote = userNewlyVotedPost(MainActivity.username, postEntry.post_id);
+            boolean isExtraVote = userNewlyVotedPost(MainActivity.username, postEntry.permlink); //postEntry.post_id);
 
             //check if user has voted for this post
-            if (Utils.userVotedPost(MainActivity.username, postEntry.active_votes, postEntry.post_id)
+            if (Utils.userVotedPost(MainActivity.username, postEntry.active_votes, postEntry.permlink)//postEntry.post_id)
                 || isExtraVote){
                 //upvoteButton.setBackgroundColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
-                upvoteButton.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
+                upvoteButton.setTextColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
             }else{
                 //upvoteButton.setBackgroundColor(getContext().getResources().getColor(R.color.actifitRed));
                 upvoteButton.setTextColor(getContext().getResources().getColor(R.color.colorWhite));
@@ -254,6 +256,10 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     PostAdapter.keyMainContext = ((ListView)finalConvertView.getParent()).getContext();
                 }
 
+                if ( PostAdapter.keyMainContext == null){
+                    PostAdapter.keyMainContext = ctx;
+                }
+
                 CommentModalDialogFragment dialogFragment =
                         new CommentModalDialogFragment(PostAdapter.keyMainContext, postEntry);
                 FragmentManager fmgr = ((AppCompatActivity) PostAdapter.keyMainContext).getSupportFragmentManager();
@@ -269,10 +275,17 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 if (!this.isComment) {
                     PostAdapter.keyMainContext = ((ListView)finalConvertView.getParent()).getContext();
                 }
+                if ( PostAdapter.keyMainContext == null){
+                    PostAdapter.keyMainContext = ctx;
+                }
                 VoteModalDialogFragment dialogFragment =
                         new VoteModalDialogFragment(PostAdapter.keyMainContext, postEntry,
                                 extraVotesList, socialView);
                 FragmentManager fmgr = ((AppCompatActivity) PostAdapter.keyMainContext).getSupportFragmentManager();
+                if (fmgr.isDestroyed()){
+                    PostAdapter.keyMainContext = ctx;
+                    fmgr = ((AppCompatActivity) PostAdapter.keyMainContext).getSupportFragmentManager();
+                }
                 dialogFragment.show(fmgr, "vote_modal");
             });
 
@@ -354,6 +367,72 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             //to be used when setting value upon content retract
             final String finalShortenedContent = shortenedContent;
 
+
+            try {
+                String activityTypeStr = postEntry.getActivityType();
+                activityType.setText(activityTypeStr);
+                if (activityTypeStr == "") {
+                    activityTypeContainer.setVisibility(GONE);
+                } else {
+                    activityTypeContainer.setVisibility(VISIBLE);
+                }
+
+                String activityCountStr = postEntry.getActivityCount(true);
+
+
+                if (activityCountStr == "") {
+                    activityCountContainer.setVisibility(GONE);
+                } else {
+                    activityCountContainer.setVisibility(VISIBLE);
+
+                    //only display AFIT rewards on content with activity count
+                    //afitRewards.setText (Html.fromHtml(postEntry.afitRewards+" AFIT" + (postEntry.afitRewards>0?checkMark:hourglass)));
+                    afitRewards.setText(Html.fromHtml(postEntry.afitRewards + " AFIT"));
+
+                    //also adjust formatting of activity count
+                    String activityCountStrNfmt = postEntry.getActivityCount(false);
+                    Integer actiCountNo = Integer.parseInt(activityCountStrNfmt);
+                    activityCount.setText(activityCountStr);
+                    if (actiCountNo >= 10000) {
+                        activityCount.setTextColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
+                    } else if (actiCountNo >= 5000) {
+                        activityCount.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
+                    } else {
+                        activityCount.setTextColor(getContext().getResources().getColor(android.R.color.tab_indicator_text));
+                    }
+
+                }
+
+
+                payoutVal.setText(Html.fromHtml(grabPostPayout(postEntry) + (isPaid(postEntry) ? checkMark : hourglass)));
+
+                if (isPaid(postEntry)) {
+                    payoutVal.setTextColor(colorSuccess);
+                } else {
+                    payoutVal.setTextColor(colorPending);
+                }
+            }catch(Exception ee){
+                ee.printStackTrace();
+            }
+
+            date.setText(Utils.getTimeDifference(postEntry.created));
+            int voteCount = postEntry.active_votes.length();
+            if (isExtraVote) {
+                voteCount += 1;
+            }
+            upvoteCount.setText(voteCount + "");
+            commentCount.setText(postEntry.children+"");
+
+            //profile pic
+            final String userImgUrl = ctx.getString(R.string.hive_image_host_url).replace("USERNAME", postEntry.author);
+            Handler uiHandler = new Handler(Looper.getMainLooper());
+            uiHandler.post(() -> {
+                //load user image
+                Picasso.get()
+                        .load(userImgUrl)
+                        .into(userProfilePic);
+            });
+
             //mdView.setMDText(finalShortenedContent);
             // parse markdown and create styled text
 
@@ -366,19 +445,16 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     .usePlugin(new AbstractMarkwonPlugin() {
                         @Override
                         public void configureConfiguration(MarkwonConfiguration.Builder builder) {
-                            builder.linkResolver(new LinkResolver() {
-                                @Override
-                                public void resolve(@NonNull View view, @NonNull String link) {
-                                    // react to link click here
+                            builder.linkResolver((view, link) -> {
+                                // react to link click here
 
-                                    // Create an Intent to open the URL in an external browser
-                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                // Create an Intent to open the URL in an external browser
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                                    // Verify that there's an app available to handle this intent
-                                    if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
-                                        view.getContext().startActivity(intent);
-                                    }
+                                // Verify that there's an app available to handle this intent
+                                if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
+                                    view.getContext().startActivity(intent);
                                 }
                             });
                         }
@@ -438,61 +514,6 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             // use it on a TextView
             markwon.setParsedMarkdown(body, markdown);
 
-            String activityTypeStr = postEntry.getActivityType();
-            activityType.setText(activityTypeStr);
-            if (activityTypeStr==""){
-                activityTypeContainer.setVisibility(GONE);
-            }else{
-                activityTypeContainer.setVisibility(VISIBLE);
-            }
-
-            String activityCountStr = postEntry.getActivityCount(true);
-
-
-            if (activityCountStr==""){
-                activityCountContainer.setVisibility(GONE);
-            }else{
-                activityCountContainer.setVisibility(VISIBLE);
-
-                //only display AFIT rewards on content with activity count
-                //afitRewards.setText (Html.fromHtml(postEntry.afitRewards+" AFIT" + (postEntry.afitRewards>0?checkMark:hourglass)));
-                afitRewards.setText (Html.fromHtml(postEntry.afitRewards+" AFIT"));
-
-                //also adjust formatting of activity count
-                String activityCountStrNfmt = postEntry.getActivityCount(false);
-                Integer actiCountNo = Integer.parseInt(activityCountStrNfmt);
-                activityCount.setText(activityCountStr);
-                if (actiCountNo >= 10000 ){
-                    activityCount.setTextColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
-                }else if (actiCountNo >= 5000 ){
-                    activityCount.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
-                }else {
-                    activityCount.setTextColor(getContext().getResources().getColor(android.R.color.tab_indicator_text));
-                }
-
-            }
-
-
-
-
-            payoutVal.setText(Html.fromHtml(grabPostPayout(postEntry) + (isPaid(postEntry)?checkMark:hourglass)));
-
-            if (isPaid(postEntry)){
-                payoutVal.setTextColor(colorSuccess);
-            }else{
-                payoutVal.setTextColor(colorPending);
-            }
-
-
-            author.setText('@'+postEntry.author);
-            date.setText(Utils.getTimeDifference(postEntry.created));
-            int voteCount = postEntry.active_votes.length();
-            if (isExtraVote) {
-                voteCount += 1;
-            }
-            upvoteCount.setText(voteCount + "");
-            commentCount.setText(postEntry.children+"");
-
             //show comment content
             /*PostAdapter commentAdapter = new PostAdapter(ctx, postEntry.comments, socialView, this.socialActivContext, false);
 
@@ -527,16 +548,6 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 return false;
             });
 
-
-            //profile pic
-            final String userImgUrl = ctx.getString(R.string.hive_image_host_url).replace("USERNAME", postEntry.author);
-            Handler uiHandler = new Handler(Looper.getMainLooper());
-            uiHandler.post(() -> {
-                        //load user image
-                        Picasso.get()
-                                .load(userImgUrl)
-                                .into(userProfilePic);
-                    });
             //only show this under no comments to save phone space
             if (!this.isComment) {
                 //show title
