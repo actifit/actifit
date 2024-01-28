@@ -130,9 +130,6 @@ public class CommentModalDialogFragment extends DialogFragment {
         //default content for preview
         mdReplyView.setMDText(ctx.getString(R.string.comment_preview_lbl));
 
-
-        AlertDialog pointer;
-
         //proceed with positive action
         Button proceedCommentBtn = view.findViewById(R.id.proceed_comment_btn);
         proceedCommentBtn.setOnClickListener(v ->{
@@ -153,21 +150,25 @@ public class CommentModalDialogFragment extends DialogFragment {
 
                     String op_name = "comment";
 
-                    String comment_perm = MainActivity.username.replace(".", "-") + "-re-" + postEntry.author.replace(".", "-") + "-" + postEntry.permlink + new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.US).format(new Date());
-                    comment_perm = comment_perm.replaceAll("[^a-zA-Z0-9]+", "").toLowerCase();
+                    String comment_perm = MainActivity.username.replace(".", "-") + "-re-" + postEntry.author.replace(".", "-") + "-" + postEntry.permlink + new SimpleDateFormat("yyyyMMddHHmmssSSS'Z'", Locale.US).format(new Date());
+                    comment_perm = comment_perm.replaceAll("[^a-zA-Z0-9-]+", "").toLowerCase();
 
                     JSONObject cstm_params = new JSONObject();
                     cstm_params.put("author", MainActivity.username);
                     cstm_params.put("permlink", comment_perm);
                     cstm_params.put("title", "");
                     //include comment alongside comment source (android app)
-                    cstm_params.put("body", replyText.getText() + " <br />" + getString(R.string.comment_note));
+                    cstm_params.put("body", replyText.getText());// + " <br />" + getString(R.string.comment_note));
                     cstm_params.put("parent_author", postEntry.author);
                     cstm_params.put("parent_permlink", postEntry.permlink);
 
                     JSONObject metaData = new JSONObject();
 
-                    metaData.put("tags","['hive-193552', 'actifit']");
+                    JSONArray tagsArr = new JSONArray();
+                    tagsArr.put("hive-193552");
+                    tagsArr.put("actifit");
+                    metaData.put("tags", tagsArr);
+
                     metaData.put("app","actifit");
 
                     //grab app version number

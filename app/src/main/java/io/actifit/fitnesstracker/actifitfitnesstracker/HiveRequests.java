@@ -197,6 +197,20 @@ public class HiveRequests {
     }
 
 
+
+    @TargetApi(Build.VERSION_CODES.N)
+    public JSONArray getAccountPosts(JSONObject params){
+        JSONArray outcome = new JSONArray();
+        CompletableFuture<JSONArray> future = this.processRequest(ctx.getString(R.string.get_account_posts), params);
+        try {
+            JSONArray result = future.join(); // Waits for the future to complete and returns the result
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return outcome;
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.N)
     public JSONArray getRankedPosts(JSONObject params){
         JSONArray outcome = new JSONArray();

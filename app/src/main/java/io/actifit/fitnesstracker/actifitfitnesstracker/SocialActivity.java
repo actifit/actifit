@@ -248,7 +248,6 @@ public class SocialActivity extends BaseActivity {
     }
 
 
-
     public void loadPosts(Boolean showFullProgress){
 
 
