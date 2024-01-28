@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
+    <string name="hive_default_node">https://api.hive.blog</string>
+    <string name="hive_alt_node_1">https://api.deathwing.me</string>
+    <string name="get_ranked_posts">bridge.get_ranked_posts</string>
+    <string name="get_account_posts">bridge.get_account_posts</string>
+    <string name="get_post_comments">condenser_api.get_content_replies</string>
+    <string name="get_dynamic_global_properties">condenser_api.get_dynamic_global_properties</string>
+    <string name="actifit_community">hive-193552</string>
+    <string name="hive_image_host_url">https://images.hive.blog/u/USERNAME/avatar</string>
+</resources>
