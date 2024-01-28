@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/marketContainer"
+    android:layout_width="match_parent"
+    android:minWidth="300sp"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/short_waves"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textColor="@color/actifitRed"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+        <TextView
+            android:id="@+id/social_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf05a"
+            android:textSize="20dp"
+            android:padding="7dp"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal">
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/close_btn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:ems="10"
+                android:text="X"
+                android:textSize="14sp"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/loader"
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:progress="@integer/material_motion_duration_long_1"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="5sp">
+
+
+
+    <EditText
+            android:id="@+id/wave_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="top"
+            android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
+            android:maxLines="4"
+            android:minHeight="60dp"
+            android:hint="@string/wave_hint_1"
+        />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="5sp">
+
+
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/insert_image_comment"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:textSize="16dp"
+                android:fontFamily="@font/font_awesome_6_regular"
+                android:text="\uf03e"
+                />
+
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/expand_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf358"
+                android:textSize="16sp"
+                android:visibility="gone"
+                />
+
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/retract_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf0aa"
+                android:textSize="16sp"
+                android:visibility="visible"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingStart="5sp">
+
+
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/post_wave"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:ems="10"
+                android:text="@string/post_thread"
+                android:textSize="16sp"
+                />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <com.mittsu.markedview.MarkedView
+            android:id="@+id/md_view"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginBottom="20dp"
+            android:minHeight="40dp"
+            android:maxHeight="160dp"
+            android:paddingBottom="20dp"
+            android:fadeScrollbars="false"
+            android:scrollbarFadeDuration="0"
+         />
+
+
+
+    </LinearLayout>
+
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <ListView
+        android:id="@+id/contentList"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:dividerHeight="0dp"
+        android:divider="#0000CC"
+        />
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/load_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        android:layout_gravity="center"
+        android:elevation="20dp"
+        android:text="Load More"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+
+        />
+
+        <ProgressBar
+            android:id="@+id/loaderMore"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:progress="@integer/material_motion_duration_long_1"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+             />
+
+    </RelativeLayout>
+
+
+</LinearLayout>
