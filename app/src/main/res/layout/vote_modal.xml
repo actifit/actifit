@@ -62,6 +62,17 @@
         android:layout_gravity="center"
         android:gravity="center">
 
+        <Button
+            android:id="@+id/sub_10"
+            style="@style/AppTheme.ActifitButton"
+            android:layout_width="70sp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingLeft="10dp"
+            android:textSize="12sp"
+            android:text="@string/sub_10"
+            />
+
         <EditText
             android:id="@+id/vote_weight"
             android:layout_width="70dp"
@@ -79,7 +90,17 @@
             android:paddingTop="10dp"
             android:paddingLeft="5dp"
             android:textStyle="bold"
-            android:paddingBottom="10dp"
+            />
+
+        <Button
+            android:id="@+id/add_10"
+            style="@style/AppTheme.ActifitButton"
+            android:layout_width="70sp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingLeft="10dp"
+            android:textSize="12sp"
+            android:text="@string/add_10"
             />
     </LinearLayout>
 

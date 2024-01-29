@@ -258,6 +258,56 @@
         android:paddingRight="20dp"
         android:paddingTop="10dp"
         android:textSize="18dp"
+        android:text="@string/defaultVoteWeight" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:fitsSystemWindows="true">
+
+        <EditText
+            android:id="@+id/votePercent"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:inputType="number"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="40dp"
+            android:hint="0"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="2dp"
+            android:paddingRight="20dp"
+            android:textSize="18dp"
+            android:text="%" />
+
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="30dp"
+        android:paddingRight="20dp"
+        android:textStyle="italic"
+        android:textColor="@color/actifitRed"
+        android:textSize="14dp"
+        android:text="@string/defaultVoteValueNotice" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
         android:text="@string/activeKey" />
 
 
@@ -269,6 +319,20 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="40dp"
         android:hint="@string/activeKey"/>
+
+    <Button
+        android:id="@+id/qrCodeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_gravity="end"
+        android:layout_marginRight="5sp"
+        android:textSize="20sp"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:text="\uf029"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        />
 
     <View
         android:layout_width="match_parent"
