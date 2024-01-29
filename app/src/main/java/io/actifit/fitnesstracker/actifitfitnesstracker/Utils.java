@@ -17,6 +17,7 @@ import android.transition.Transition;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -202,7 +203,7 @@ public class Utils {
     }
 
     //checks if a user has an active vote on a post
-    public static Boolean userVotedPost(String voter, JSONArray actVotes , int post_id){
+    public static Boolean userVotedPost(String voter, JSONArray actVotes , String permlink){// int post_id){
         //no logged in user case
         if (voter == null || voter == "" || voter.length() < 1) return false;
         for (int i = 0; i < actVotes.length(); i++) {
@@ -681,6 +682,11 @@ public class Utils {
             }
         };
 
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                MainActivity.connectTimeout,
+                MainActivity.connectMaxRetries,
+                MainActivity.connectSubsequentRetryDelay));
+
 // Add the request to the RequestQueue
         //RequestQueue requestQueue = Volley.newRequestQueue(ctx);
         requestQueue.add(jsonObjectRequest);
@@ -809,6 +815,89 @@ public class Utils {
         return benefList;
     }
 
+
+    public static void delete3spkVid(RequestQueue requestQueue, Context ctx,
+                                     //String xcstkn,
+                                     VideoUploadFragment parent,
+                                     String vidPermlink){
+        //remove # from start if exists
+        /*if (xcstkn.startsWith("#")){
+            xcstkn = xcstkn.substring(1);
+        }*/
+
+        String apiUrl = ctx.getString(R.string.three_speak_user_delete_vid).replace("_VIDPERM_",
+                vidPermlink);
+
+        //String finalXcstkn = xcstkn;
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, apiUrl, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            // Handle the response here
+                            System.out.println(response.toString());
+
+                            // Check if the response contains data
+                            if (response != null){
+
+                                if (response.has("success")) {
+                                    //if (response.getBoolean("status")){
+                                        Toast.makeText(ctx, ctx.getString(R.string.video_deleted_success),
+                                                Toast.LENGTH_LONG).show();
+                                    //}
+                                }
+                                // set user videos array
+                                //JSONObject response1 = response;//.getJSONArray("data");
+                                //parent.setVidsList(userVidList);
+//                                System.out.println(this.userVidList.toString());
+                            }else{
+                                //parent.setVidsList(null);
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            //parent.refreshList.clearAnimation();
+                        }
+                        //parent.refreshList.clearAnimation();
+                        if (parent.submitLoader != null) {
+                            parent.submitLoader.setVisibility(View.GONE);
+                        }
+                        //refresh vids list
+                        parent.refreshList.performClick();
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Handle error
+                        error.printStackTrace();
+                        //parent.refreshList.clearAnimation();
+                        if (parent.submitLoader != null) {
+                            parent.submitLoader.setVisibility(View.GONE);
+                        }
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Bearer " + LoginActivity.accessToken);
+                return headers;
+            }
+        };
+
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                MainActivity.connectTimeout,
+                MainActivity.connectMaxRetries,
+                MainActivity.connectSubsequentRetryDelay));
+
+// Add the request to the RequestQueue
+        //RequestQueue requestQueue = Volley.newRequestQueue(ctx);
+        requestQueue.add(jsonObjectRequest);
+    }
+
+
     public static void markVideoPublished(Context ctx, RequestQueue requestQueue, UploadedVideoModel vidEntry){
         JSONObject videoInfo = new JSONObject();
         try {
@@ -911,6 +1000,55 @@ public class Utils {
 
         return matchingDescription;
 
+    }
+
+    public static String grabUserDefaultVoteWeight(){
+        if (MainActivity.username != ""){
+            if (MainActivity.userSettings != null && MainActivity.userSettings.has("default_vote_weight")){
+                try {
+                    return MainActivity.userSettings.getInt("default_vote_weight")+"";
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "10";//standard default value
+    }
+
+    public static void loadUserSettings(RequestQueue queue, Context ctx){
+        if (MainActivity.username != ""){
+            // This holds the url to connect to the API and grab the settings.
+            String settingsUrl = ctx.getString(R.string.live_server)
+                    + ctx.getString(R.string.fetch_settings)
+                    +"/" + MainActivity.username;
+
+            JsonObjectRequest settingsRequest = new JsonObjectRequest(Request.Method.GET,
+                    settingsUrl, null, new Response.Listener<JSONObject>() {
+
+                @Override
+                public void onResponse(JSONObject settingsList) {
+                    if (settingsList.has("settings")) {
+                        try {
+                            MainActivity.userSettings = settingsList.getJSONObject("settings");
+                        }catch(Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // TODO: Handle error
+                    Log.e(MainActivity.TAG, "error connecting");
+                }
+            });
+
+            // Add request to be processed
+            queue.add(settingsRequest);
+
+        }
     }
 
 }
