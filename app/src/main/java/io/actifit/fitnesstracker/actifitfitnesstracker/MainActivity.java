@@ -289,6 +289,8 @@ public class MainActivity extends BaseActivity{
     GridLayout topIconsContainer;
     FontTextView BtnSettings;
 
+    public static JSONObject userSettings;
+
     JSONArray productsList;
     JSONArray activeProducts;
     JSONArray userReferrals;
@@ -3769,6 +3771,9 @@ public class MainActivity extends BaseActivity{
 
             //load chat notifications
             loadChatNotif(queue);
+
+            //load user settings
+            Utils.loadUserSettings(queue, ctx);
 
             //display profile pic too
             final String userImgUrl = getString(R.string.hive_image_host_url).replace("USERNAME", username);

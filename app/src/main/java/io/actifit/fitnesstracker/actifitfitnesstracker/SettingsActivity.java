@@ -16,6 +16,7 @@ import android.os.PowerManager;
 
 import androidx.appcompat.app.AlertDialog;
 
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
@@ -45,6 +46,10 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
@@ -83,7 +88,10 @@ public class SettingsActivity extends BaseActivity {
 
     private String accessToken;
 
-    private EditText activeKey;
+    private EditText activeKey, fundsPassword, voteWeight;
+
+    Button qrCodeBtn;
+    GmsBarcodeScanner scanner;
 
     TextView logoutLink;
 
@@ -102,12 +110,25 @@ public class SettingsActivity extends BaseActivity {
         break;
     }*/
 
+    private void prepQRCode(){
+        GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
+                .setBarcodeFormats(
+                        Barcode.FORMAT_QR_CODE,
+                        Barcode.FORMAT_AZTEC)
+                .enableAutoZoom()
+                .build();
+        scanner = GmsBarcodeScanning.getClient(this, options);
+        //GmsBarcodeScanning.getClient(this);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
         activeKey = findViewById(R.id.activeKey);
+        fundsPassword = findViewById(R.id.fundsPassword);
+        voteWeight = findViewById(R.id.votePercent);
 
         //grab instances of settings components
         final RadioButton metricSysRadioBtn = findViewById(R.id.metric_system);
@@ -154,6 +175,37 @@ public class SettingsActivity extends BaseActivity {
 
         Spinner charitySelected = findViewById(R.id.charity_options);
 
+        qrCodeBtn = findViewById(R.id.qrCodeButton);
+
+        prepQRCode();
+
+        qrCodeBtn.setOnClickListener(view ->{
+
+            if (scanner != null) {
+                scanner
+                        .startScan()
+                        .addOnSuccessListener(
+                                barcode -> {
+                                    // Task completed successfully
+                                    String rawValue = barcode.getRawValue();
+                                    //inject value into the active key text
+                                    activeKey.setText(rawValue);
+                                    //keyEntry.setText(rawValue);
+                                    //attempt login
+                                    //loginBtn.performClick();
+
+                                })
+                        .addOnCanceledListener(
+                                () -> {
+                                    // Task canceled
+                                })
+                        .addOnFailureListener(
+                                e -> {
+                                    // Task failed with an exception
+                                });
+            }
+        });
+
         finalList = new ArrayList<>();
 
         logoutLink.setOnClickListener(new View.OnClickListener() {
@@ -177,6 +229,14 @@ public class SettingsActivity extends BaseActivity {
                                     editor.remove("userRank");
                                     editor.remove("userRankUpdateDate");
                                     editor.remove("actvKey");
+                                    editor.remove("fundsPass");
+                                    editor.remove(getString(R.string.three_speak_saved_token));
+                                    editor.remove(getString(R.string.sting_chat_comm_count));
+
+                                    editor.remove(getString(R.string.daily_free_reward));
+                                    editor.remove(getString(R.string.daily_5k_reward));
+                                    editor.remove(getString(R.string.daily_7k_reward));
+                                    editor.remove(getString(R.string.daily_10k_reward));
 
                                     editor.apply();
                                     LoginActivity.accessToken = "";
@@ -231,6 +291,7 @@ public class SettingsActivity extends BaseActivity {
         final String username = sharedPreferences.getString("actifitUser","");
 
         activeKey.setText(sharedPreferences.getString("actvKey", ""));
+        fundsPassword.setText(sharedPreferences.getString("fundsPass", ""));
 
         //display whether user has elected not to get main screen earnings notification
         showPendingRewardsCheckbox.setChecked( !(sharedPreferences.getBoolean(getString(R.string.donotshowrewards),true)));
@@ -338,8 +399,15 @@ public class SettingsActivity extends BaseActivity {
                                 JSONObject setgs = null;
                                 try {
                                     setgs = userServerSettings.getJSONObject("settings");
+                                    MainActivity.userSettings = setgs;
 
                                     if (setgs != null){
+
+
+                                        //load default vote weight percentage
+                                        voteWeight.setText(Utils.grabUserDefaultVoteWeight());
+
+
                                         try {
                                             if (setgs.has("notifications_active") && !setgs.getBoolean("notifications_active")){
                                                 notificationsInactive.setChecked(true);
@@ -647,6 +715,12 @@ public class SettingsActivity extends BaseActivity {
                 //store active key to use where and if needed
                 editor.putString("actvKey",activeKey.getText().toString());
 
+                //store funds password to use where and if needed
+                editor.putString("fundsPass", fundsPassword.getText().toString());
+
+                //store vote weight percentage
+
+
                 //update language
 
                 //SettingsActivity.langChoice = languageSelected.getSelectedItemPosition();
@@ -787,6 +861,20 @@ public class SettingsActivity extends BaseActivity {
                         }
                         chain_selection += "]";
                         innerSettingsData.put("post_target_bchain", chain_selection);
+
+                        try {
+                            Integer vw = Integer.parseInt(voteWeight.getText().toString());
+
+                            if (vw < 0 || vw > 100) {
+                                Toast.makeText(cntxt, cntxt.getString(R.string.vote_percent_incorrect), Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            innerSettingsData.put("default_vote_weight", vw+"");
+
+                        }catch(Exception execp){
+                            execp.printStackTrace();
+                        }
                         /*Array chains = new Array();
                         if (hiveOptionCheckbox.isChecked()){
                             chains[] = 'HIVE';

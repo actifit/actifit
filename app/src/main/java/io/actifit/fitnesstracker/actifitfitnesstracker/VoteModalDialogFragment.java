@@ -83,11 +83,35 @@ public class VoteModalDialogFragment extends DialogFragment {
 
         EditText vote_weight = voteModalLayout.findViewById(R.id.vote_weight);
 
+        vote_weight.setText(Utils.grabUserDefaultVoteWeight());
+
         ProgressBar taskProgress = voteModalLayout.findViewById(R.id.loader);
 
         AlertDialog pointer = null;
 
         Button upvoteButton = view.findViewById(R.id.proceed_vote_btn);
+
+        Button add10Button = view.findViewById(R.id.add_10);
+        Button sub10Button = view.findViewById(R.id.sub_10);
+
+        add10Button.setOnClickListener(v -> {
+            int newVal = Integer.parseInt(vote_weight.getText().toString());
+            newVal += 10;
+            if (newVal > 100){
+                newVal = 100;
+            }
+            vote_weight.setText(newVal+"");
+        });
+
+        sub10Button.setOnClickListener(v -> {
+            int newVal = Integer.parseInt(vote_weight.getText().toString());
+            newVal -= 10;
+            if (newVal < 0){
+                newVal = 0;
+            }
+            vote_weight.setText(newVal+"");
+        });
+
         upvoteButton.setOnClickListener(v ->{
 
 
@@ -133,7 +157,8 @@ public class VoteModalDialogFragment extends DialogFragment {
                                             JSONObject entry = new JSONObject();
                                             try {
                                                 entry.put("voter", MainActivity.username);
-                                                entry.put("post_id", postEntry.post_id);
+                                                //entry.put("post_id", postEntry.post_id);
+                                                entry.put("permlink", postEntry.permlink);
                                                 PostAdapter.extraVotesList.put(entry);
 
                                             } catch (JSONException e) {
