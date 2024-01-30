@@ -55,8 +55,10 @@ import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -82,6 +84,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -156,8 +159,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -227,6 +232,8 @@ public class MainActivity extends BaseActivity{
 
     TextView giftLoader;
 
+    View referLayout;
+
     //tracks if listener is active
     public static boolean isListenerActive = false;
 
@@ -290,10 +297,13 @@ public class MainActivity extends BaseActivity{
     FontTextView BtnSettings;
 
     public static JSONObject userSettings;
+    JSONArray freeSignupLinks;
 
     JSONArray productsList;
     JSONArray activeProducts;
     JSONArray userReferrals;
+    boolean userCanClaimSignupLinks = false;
+
 
     private RewardedAd rewardedAd;
     private Button dailyRewardButton;
@@ -1108,7 +1118,7 @@ public class MainActivity extends BaseActivity{
         BtnReferFriend.setOnClickListener(view -> {
 
             AlertDialog.Builder referDialogBuilder = new AlertDialog.Builder(ctx);
-            final View referLayout = getLayoutInflater().inflate(R.layout.refer_friend, null);
+            referLayout = getLayoutInflater().inflate(R.layout.refer_friend, null);
             EditText refLink = referLayout.findViewById(R.id.referralLink);
             refLink.setText(getString(R.string.referrals_format)+username);
 
@@ -1146,6 +1156,9 @@ public class MainActivity extends BaseActivity{
                 MainActivity.this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
 
             });
+
+            //also load data relating to free signups
+            loadAndUpdateSignupData();
 
             //display referrals count
             //Html.fromHtml(checkMark +userReferrals.length());
@@ -1582,6 +1595,12 @@ public class MainActivity extends BaseActivity{
         //load referral count
         loadReferrals(queue);
 
+        //load claimable signups
+        loadClaimableSignupLinks(queue);
+
+        //load signup links
+        loadSignupLinks(queue);
+
         BtnBuyAFIT.setOnClickListener(arg0 -> {
 
             afitBuyDialogBuilder = new AlertDialog.Builder(ctx);
@@ -1821,6 +1840,78 @@ public class MainActivity extends BaseActivity{
         }
 
 
+    }
+
+    private void loadAndUpdateSignupData(){
+        Button claimSignups = referLayout.findViewById(R.id.claimFreeSignups);
+        if (userCanClaimSignupLinks){
+            claimSignups.setVisibility(View.VISIBLE);
+        }else{
+            claimSignups.setVisibility(View.GONE);
+        }
+
+        claimSignups.setOnClickListener(v->{
+            RequestQueue queue = Volley.newRequestQueue(this);
+            claimFreeSignupLinks(queue);
+        });
+
+        LinearLayout linksView = referLayout.findViewById(R.id.signupLinksContainer);
+        TextView linksHeader = referLayout.findViewById(R.id.available_free_signups_notice);
+
+        //loop through signup links and display them
+        if (freeSignupLinks !=null && freeSignupLinks.length() > 0) {
+            linksHeader.setVisibility(View.VISIBLE);
+            //append all links
+            for (int i=0;i<freeSignupLinks.length();i++) {
+                try {
+                    JSONObject entry = freeSignupLinks.getJSONObject(i);
+                    View convertView = LayoutInflater.from(ctx).inflate(R.layout.signup_link, (ViewGroup) referLayout, false);
+                    //set link content
+                    TextView linkTxt = convertView.findViewById(R.id.signupLink);
+                    String fullLink = getString(R.string.signup_link_format)
+                            .replace("PROMO", entry.getString("code"))
+                            .replace("REFERRER", username);
+                    linkTxt.setText(fullLink);
+                    linksView.addView(convertView);
+
+                    //add copy link functionality
+                    TextView copyBtn = convertView.findViewById(R.id.copyBtn);
+                    copyBtn.setOnClickListener(view12 -> {
+                        copyBtn.startAnimation(rotate);
+
+                        //copy code
+                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", fullLink);
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(MainActivity.this, getString(R.string.copy_success), Toast.LENGTH_SHORT)
+                                .show();
+
+                    });
+
+                    //add share button functionality
+                    TextView shareBtn = convertView.findViewById(R.id.shareBtn);
+                    shareBtn.setOnClickListener(view1 -> {
+                        //copyText(refLink);
+                        shareBtn.startAnimation(rotate);
+                        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                        sharingIntent.setType("text/plain");
+                        String shareSubject = getString(R.string.referral_title);
+                        String shareBody = getString(R.string.referral_description);
+                        shareBody += " "+getString(R.string.referral_join_link).replace("_URL_",fullLink);
+
+                        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
+                        sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+
+                        MainActivity.this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
+
+                    });
+                }catch(JSONException exc){
+                    exc.printStackTrace();
+                }
+            }
+        }else{
+            linksHeader.setVisibility(View.GONE);
+        }
     }
 
     private void copyText(EditText src){
@@ -3393,6 +3484,106 @@ public class MainActivity extends BaseActivity{
             queue.add(pendRewardsRequest);
 
         }
+    }
+
+    private void loadSignupLinks(RequestQueue queue) {
+            String signupLinksUrl = getString(R.string.my_free_signup_links) + "?user=" + MainActivity.username;
+
+            // Process claim rewards request
+            JsonObjectRequest req = new JsonObjectRequest
+                    (Request.Method.GET, signupLinksUrl, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            if (response.has("result")) {
+                                try {
+                                    freeSignupLinks = response.getJSONArray("result");
+                                    if (referLayout != null) {
+                                        loadAndUpdateSignupData();
+                                    }
+                                }catch(Exception excp){
+                                    excp.printStackTrace();
+                                }
+                            }
+                        }
+                    }, error -> {
+                        //hide dialog
+                        error.printStackTrace();
+                        //displayNotification(error_notification, null, callerContext, callerActivity, false);
+                    }) {
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    final Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/json");
+                    params.put(getString(R.string.validation_header), getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
+                    return params;
+                }
+            };
+
+            queue.add(req);
+
+    }
+
+    private void claimFreeSignupLinks(RequestQueue queue){
+        String claimLink = getString(R.string.claim_free_signup_links) + username;
+        // Request the user's active gadgets list
+        JsonObjectRequest claimableSignupsRequest = new JsonObjectRequest
+                (Request.Method.GET, claimLink, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        // grab result
+                        try {
+
+                            if (response.has("status") && response.getString("status").equals("success")) {
+                                //claimed already
+                                userCanClaimSignupLinks = false;
+                                loadSignupLinks(queue);
+                            }
+                        } catch (Exception exc) {
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                });
+
+        queue.add(claimableSignupsRequest);
+
+    }
+
+    private void loadClaimableSignupLinks(RequestQueue queue){
+        String claimableSignups = getString(R.string.claimable_free_signup_links)+username;
+
+
+            // Request the user's active gadgets list
+            JsonObjectRequest claimableSignupsRequest = new JsonObjectRequest
+                    (Request.Method.GET, claimableSignups, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            // Display the result
+                            try {
+                                //grab current user rank
+                                if (response.has("status") && response.getBoolean("status")) {
+                                    userCanClaimSignupLinks = true;
+                                }
+                            } catch (Exception exc) {
+
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+
+        queue.add(claimableSignupsRequest);
+
     }
 
     private void loadReferrals(RequestQueue queue){
