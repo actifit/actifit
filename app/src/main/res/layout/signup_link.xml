@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:paddingTop="5dp">
+
+        <TextView
+            android:id="@+id/signupLink"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="@string/free_link"
+            android:paddingLeft="10dp"/>
+
+        <TextView
+            android:id="@+id/copyBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="\uf0c5"
+            android:textSize="20dp"
+            android:textColor="@color/actifitRed"
+            android:padding="10dp"
+            android:fontFamily="@font/font_awesome_6_solid"
+            />
+
+        <TextView
+            android:id="@+id/shareBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="\uf1e0"
+            android:textSize="20dp"
+            android:textColor="@color/actifitRed"
+            android:padding="10dp"
+            android:fontFamily="@font/font_awesome_6_solid"
+            />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

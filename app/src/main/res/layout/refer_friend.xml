@@ -1,4 +1,9 @@
 <?xml version = "1.0" encoding = "utf-8"?>
+
+<ScrollView android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
 <LinearLayout xmlns:android = "http://schemas.android.com/apk/res/android"
     android:layout_width = "match_parent"
     android:gravity = "center"
@@ -17,10 +22,10 @@
     <TextView
         android:id="@+id/referral_description"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/referrals_details"
         android:paddingTop="10dp"
-        android:lineSpacingExtra="10dp"
+        android:lineSpacingExtra="2dp"
         />
 
     <LinearLayout
@@ -107,4 +112,58 @@
             android:layout_height="wrap_content"
             android:text="@string/Share"/>-->
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:textStyle="bold"
+            android:text="@string/free_signup_links"/>
+
+        <TextView
+            android:id="@+id/signup_links_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/free_signup_links_desc"
+            android:paddingLeft="10dp"/>
+
+        <TextView
+            android:id="@+id/available_free_signups_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="@string/available_free_signups"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"/>
+
+        <LinearLayout
+            android:id="@+id/signupLinksContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="5dp">
+            >
+
+
+
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/claimFreeSignups"
+            android:theme="@style/AppTheme.ActifitButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Claim_links"/>
+
+    </LinearLayout>
+
 </LinearLayout>
+
+</ScrollView>
