@@ -322,7 +322,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             showChoosingFile(0);
         } else if (i == R.id.btn_video) {
             //show video modal
-            VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken, this);
+            VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken, this, true);
             //dialog.getView().setMinimumWidth(400);
             dialog.show(getSupportFragmentManager(), "video_upload_fragment");
         }
@@ -805,7 +805,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 getString(R.string.ChasingPokemons), getString(R.string.Badminton), getString(R.string.PickleBall),
                 getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking), getString(R.string.Kidplay),
                 getString(R.string.HomeImprovement), getString(R.string.YardWork), getString(R.string.StairClimbing),
-                getString(R.string.Yoga), getString(R.string.Stretching), getString(R.string.Plogging), getString(R.string.Crossfit)
+                getString(R.string.Yoga), getString(R.string.Stretching), getString(R.string.Plogging), getString(R.string.Crossfit),getString(R.string.FitnessGaming)
         };
 
         //sort options in alpha order
