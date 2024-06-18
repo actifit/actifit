@@ -800,15 +800,15 @@ public class Utils {
             // Create beneficiary objects and add them to the JSONArray
             JSONObject beneficiary1 = new JSONObject();
             beneficiary1.put("account", "spk.beneficiary");
-            beneficiary1.put("weight", 900);
+            beneficiary1.put("weight", 1000);
             benefList.put(beneficiary1);
 
-            JSONObject beneficiary2 = new JSONObject();
+            /*JSONObject beneficiary2 = new JSONObject();
 
             beneficiary2.put("account", "threespeakleader");
 
             beneficiary2.put("weight", 100);
-            benefList.put(beneficiary2);
+            benefList.put(beneficiary2);*/
         } catch (JSONException e) {
             e.printStackTrace();
         }
