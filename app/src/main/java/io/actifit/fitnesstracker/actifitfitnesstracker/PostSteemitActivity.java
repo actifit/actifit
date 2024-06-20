@@ -105,7 +105,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     private StepsDBHelper mStepsDBHelper;
     private String notification = "";
-    private int min_step_limit = 500;
+    private int min_step_limit = 1;
+    private static final int min_reward_limit = 5000;
     private int min_char_count = 100;
     private Context steemit_post_context;
 
@@ -1666,7 +1667,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     switch (which) {
                         case DialogInterface.BUTTON_POSITIVE:
                             //go ahead posting
-                            new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+                            processPostMinRewards();
                             break;
 
                         case DialogInterface.BUTTON_NEGATIVE:
@@ -1684,10 +1685,49 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     .setNegativeButton(getString(R.string.no_button), dialogClickListener).show();
         }else {
             //connect to the server via a thread to prevent application hangup
-            new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+            processPostMinRewards();
         }
     }
 
+    //function handles confirming less than min rewards requirement
+    private void processPostMinRewards(){
+        //this runs only on live mode
+        if (getString(R.string.test_mode).equals("off")) {
+            //make sure we have reached the min movement amount
+            if (parseInt(accountActivityCount) < min_reward_limit) {
+
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //go ahead posting
+                                new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //cancel
+                                break;
+                        }
+                    }
+                };
+                String notfMsg = getString(R.string.min_activity_not_reached) + " " +
+                        NumberFormat.getNumberInstance(Locale.US).format(min_reward_limit) + " " + getString(R.string.not_yet)
+                        + " " + getString(R.string.for_rewards)
+                        + " " + getString(R.string.confirm_proceed);
+                AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
+                builder.setMessage(notfMsg)
+                        .setPositiveButton(getString(R.string.yes_button), dialogClickListener)
+                        .setNegativeButton(getString(R.string.no_button), dialogClickListener).show();
+            }else {
+                //connect to the server via a thread to prevent application hangup
+                new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+            }
+        }else {
+            //connect to the server via a thread to prevent application hangup
+            new PostSteemitRequest(steemit_post_context, currentActivity).execute();
+        }
+    }
 
 }
 
