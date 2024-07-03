@@ -13,6 +13,8 @@
     <string name="username_missing">Please login first</string>
     <string name="fetching_user_balance">Grabbing user balance...</string>
     <string name="metric_system">Metric System</string>
+    <string name="Calisthenics">Calisthenics</string>
+    <string name="StreetWorkout">Street Workout</string>
     <string name="us_system">US System</string>
     <string name="back_exit_confirmation">Click BACK button again if you want to exit</string>
     <string name="actifit_service_desc">Actifit Service to keep track of user activity</string>
