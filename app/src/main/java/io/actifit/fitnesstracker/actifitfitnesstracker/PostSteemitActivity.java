@@ -807,7 +807,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking), getString(R.string.Kidplay),
                 getString(R.string.HomeImprovement), getString(R.string.YardWork), getString(R.string.StairClimbing),
                 getString(R.string.Yoga), getString(R.string.Stretching),getString(R.string.Calisthenics),
-                getString(R.string.StreetWorkout), getString(R.string.Plogging), getString(R.string.Crossfit),getString(R.string.fitnessgaming)
+                getString(R.string.StreetWorkout), getString(R.string.Plogging), getString(R.string.Crossfit),getString(R.string.FitnessGaming)
         };
 
         //sort options in alpha order
