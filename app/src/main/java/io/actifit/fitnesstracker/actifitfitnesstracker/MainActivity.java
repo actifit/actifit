@@ -1405,11 +1405,10 @@ public class MainActivity extends BaseActivity{
                 }
             });
 
-            freeRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 1,R.id.daily_free_reward,R.id.daily_5k_reward,R.id.daily_7k_reward,R.id.daily_10k_reward));
-            fivekRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 2,R.id.daily_free_reward,R.id.daily_5k_reward,R.id.daily_7k_reward,R.id.daily_10k_reward));
-            sevenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 3,R.id.daily_free_reward,R.id.daily_5k_reward,R.id.daily_7k_reward,R.id.daily_10k_reward));
-            tenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 4,R.id.daily_free_reward,R.id.daily_5k_reward,R.id.daily_7k_reward,R.id.daily_10k_reward));
-
+            freeRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 1));
+            fivekRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 2));
+            sevenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 3));
+            tenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 4));
             //fetch existing reward status
 
             Date date = new Date();
@@ -2158,56 +2157,12 @@ public class MainActivity extends BaseActivity{
         }
     }
 
-    private void showRewardedVideo(View view, int tier, int free,int five,int seven,int ten) {
+    private void showRewardedVideo(View view, int tier) {
         int curStepCount = mStepsDBHelper.fetchTodayStepCount();
         giftLoader.startAnimation(rotate);
         if (getString(R.string.test_mode).equals("off")) {
-            if(view.getId()==free){
-                if (dailyRewardClaimed) {
-                    //bail out, user already rewarded
-                    Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
-                            .show();
-                    return;
-                }
-            }
-            else if (view.getId()==five) {
-                if (fivekRewardClaimed) {
-                    Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
-                            .show();
-                    return;
-                }
-                if (curStepCount < 5000) {
-                    Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
-                            .show();
-                    return;
-                }
-            }
-            else if (view.getId()==seven) {
-                if (sevenkRewardClaimed) {
-                    Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
-                            .show();
-                    return;
-                }
-                if (curStepCount < 7000) {
-                    Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
-                            .show();
-                    return;
-                }
-            }
-            else if(view.getId()==ten){
-                if (tenkRewardClaimed) {
-                    Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
-                            .show();
-                    return;
-                }
-                if (curStepCount < 10000) {
-                    Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
-                            .show();
-                    return;
-                }
-            }
-            /*switch (view.getId()) {
-                case free:
+            switch (view.getId()) {
+                case R.id.daily_free_reward:
                     //Toast.makeText(MainActivity.this, "test message", Toast.LENGTH_LONG)
                     //        .show();
                     if (dailyRewardClaimed) {
@@ -2218,7 +2173,7 @@ public class MainActivity extends BaseActivity{
                     }
                     break;
 
-                case five:
+                case R.id.daily_5k_reward:
                     if (fivekRewardClaimed) {
                         Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
                                 .show();
@@ -2256,7 +2211,7 @@ public class MainActivity extends BaseActivity{
                         return;
                     }
                     break;
-            }*/
+            }
         }
 
         if (rewardedAd == null) {
@@ -2379,33 +2334,8 @@ public class MainActivity extends BaseActivity{
                     DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
                     String strDate = dateFormat.format(date);
 
-                    if(view.getId()==free){
-                        dailyRewardClaimed = true;
-                        editor.putString(getString(R.string.daily_free_reward), strDate);
-                        editor.putString("freerewardedValue",finalRewardValue+"");
-                        editor.commit();
-                    }
-                    else if(view.getId()==five){
-                        fivekRewardClaimed = true;
-                        editor.putString(getString(R.string.daily_5k_reward), strDate);
-                        editor.putString("5krewardedValue",finalRewardValue+"");
-                        editor.commit();
-                    }
-                    else if(view.getId()==seven){
-                        sevenkRewardClaimed = true;
-                        editor.putString(getString(R.string.daily_7k_reward), strDate);
-                        editor.putString("7krewardedValue",finalRewardValue+"");
-                        editor.commit();
-                    }
-                    else if(view.getId()==ten){
-                        tenkRewardClaimed = true;
-                        editor.putString(getString(R.string.daily_10k_reward), strDate);
-                        editor.putString("10krewardedValue",finalRewardValue+"");
-                        editor.commit();
-                    }
 
-
-                    /*switch (view.getId()){
+                    switch (view.getId()){
                         case R.id.daily_free_reward:
                             dailyRewardClaimed = true;
                             editor.putString(getString(R.string.daily_free_reward), strDate);
@@ -2433,7 +2363,7 @@ public class MainActivity extends BaseActivity{
                             editor.putString("10krewardedValue",finalRewardValue+"");
                             editor.commit();
                             break;
-                    }*/
+                    }
                     //adjust button text
                     ((Button) view).setText(Html.fromHtml (((Button) view).getText()+"<br/> "+finalRewardValue+" AFIT "+checkMark));
                     adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
