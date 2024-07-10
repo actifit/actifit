@@ -24,14 +24,25 @@
         />
 
     <!--<androidx.appcompat.widget.AppCompatButton-->
-    <Button
-        style="@style/AppTheme.ActifitButton"
+    <info.androidhive.fontawesome.FontTextView
         android:id="@+id/activityDetailsBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:background="@color/actifitRed"
+        android:text="\uf1fe"
+        android:textColor="@color/actifitRed"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:textSize="30dp"
+        app:solid_icon="true" />
 
-        android:text="@string/activity_view_details_button"/>
+    <info.androidhive.fontawesome.FontTextView
+        android:id="@+id/post_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/actifitRed"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="30dp"
+        android:textSize="30dp"
+        app:solid_icon="true" />
 
 </LinearLayout>
