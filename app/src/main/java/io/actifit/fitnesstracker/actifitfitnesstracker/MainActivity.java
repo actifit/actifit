@@ -2447,7 +2447,7 @@ public class MainActivity extends BaseActivity{
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         FontTextView batteryNotif = findViewById(R.id.battery_notice);
-        if (!pm.isIgnoringBatteryOptimizations("com.example.trial")) {
+        if (!pm.isIgnoringBatteryOptimizations("io.actifit.fitnesstracker.actifitfitnesstracker")) {
             //display related button
             batteryNotif.setVisibility(View.VISIBLE);
             batteryNotif.setOnClickListener(view -> {
@@ -4746,7 +4746,7 @@ public class MainActivity extends BaseActivity{
 
 
                 //make sure package name has not been manipulated
-                if (!ctx.getPackageName().equals("com.example.trial")) {
+                if (!ctx.getPackageName().equals("io.actifit.fitnesstracker.actifitfitnesstracker")) {
                     //package name has been manipulated
                     Log.d(TAG, ">>>>[Actifit] Package name has been manipulated");
                     killActifit(getString(R.string.security_concerns));
