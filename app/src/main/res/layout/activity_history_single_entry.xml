@@ -30,9 +30,19 @@
         android:layout_height="wrap_content"
         android:text="\uf1fe"
         android:textColor="@color/actifitRed"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
-        android:textSize="50dp"
+        android:textSize="30dp"
+        app:solid_icon="true" />
+
+    <info.androidhive.fontawesome.FontTextView
+        android:id="@+id/post_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/actifitRed"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="30dp"
+        android:textSize="30dp"
         app:solid_icon="true" />
 
 </LinearLayout>
