@@ -172,6 +172,14 @@
 
             />
 
+        <Button
+            android:id="@+id/displayTweets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/actifitRed"
+            android:textColor="@color/colorWhite"
+            android:text="Actifit on X" />
+
     </LinearLayout>
 
 
