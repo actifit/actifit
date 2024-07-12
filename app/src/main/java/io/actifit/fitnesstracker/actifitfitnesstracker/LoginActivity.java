@@ -111,7 +111,7 @@ public class LoginActivity extends BaseActivity {
         //load login hero image
         final LinearLayout heroImage = findViewById(R.id.login_hero);
         Handler uiAltHandler = new Handler(Looper.getMainLooper());
-        String loginImgUrl = getString(R.string.login_img_url);
+        String loginImgUrl = Utils.apiUrl(this)+getString(R.string.login_img_url);
 
         // Request the rank of the user while expecting a JSON response
         JsonObjectRequest imgRequest = new JsonObjectRequest
@@ -240,8 +240,7 @@ public class LoginActivity extends BaseActivity {
             assessLogin(false, firstLoad);
         }else{
             //otherwise check if user can skip login
-            String loginAuthUrl = getString(R.string.live_server)
-                    + getString(R.string.login_auth);
+            String loginAuthUrl = Utils.apiUrl(this)+ getString(R.string.login_auth);
 
 
             JSONObject loginSettings = new JSONObject();

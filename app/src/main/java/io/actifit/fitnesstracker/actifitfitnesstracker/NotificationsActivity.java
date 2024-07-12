@@ -59,7 +59,7 @@ public class NotificationsActivity extends BaseActivity{
 
         // This holds the url to connect to the API and grab the transactions.
         // We append to it the username
-        String notificationsUrl = getString(R.string.user_all_notifications_api_url)+username;
+        String notificationsUrl = Utils.apiUrl(this)+getString(R.string.user_all_notifications_api_url)+username;
 
         // Request the transactions of the user first via JsonArrayRequest
         // according to our data format
