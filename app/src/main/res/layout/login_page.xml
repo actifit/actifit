@@ -117,6 +117,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/steemit_posting_key_lbl" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/posting_key_link"
+            >
+
     <EditText
         android:id="@+id/posting_key_login"
         android:layout_width="wrap_content"
@@ -125,11 +135,22 @@
         android:inputType="textPassword"
         android:padding="10dp"
         android:hint="Private Posting Key"
-        android:background="@drawable/edittextbackground"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/posting_key_link" />
+                android:background="@drawable/edittextbackground" />
 
+            <Button
+                android:id="@+id/qrCodeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorPrimary"
+
+                android:textSize="20sp"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf029"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                />
+
+        </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
