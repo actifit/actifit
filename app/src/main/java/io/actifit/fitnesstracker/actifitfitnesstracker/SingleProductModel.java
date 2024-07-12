@@ -29,7 +29,8 @@ public class SingleProductModel implements Comparable<SingleProductModel>{
     public int totalBought;
     public int totalConsumed;
     public int remainingBoosts;
-
+    public boolean specialevent;
+    public String event;
 
     public final static int NOCOPY = 0;
     public final static int BOUGHTCOPY = 1;
@@ -64,6 +65,9 @@ public class SingleProductModel implements Comparable<SingleProductModel>{
             if (afitPrice != null && afitPrice.has("afitHiveLastPrice")) {
                 this.priceHIVE = Double.parseDouble(String.format("%.3f", this.priceAFIT * afitPrice.getDouble("afitHiveLastPrice")));
             }
+
+            this.specialevent = jsonObject.has("specialevent") ? jsonObject.getBoolean("specialevent"):false;
+            this.event = jsonObject.has("event") ? jsonObject.getString("event"):"";
 
         } catch (JSONException e) {
             e.printStackTrace();
