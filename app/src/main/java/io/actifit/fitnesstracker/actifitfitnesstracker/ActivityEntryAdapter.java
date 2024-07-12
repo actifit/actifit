@@ -4,7 +4,7 @@ import static android.view.View.GONE;
 import static androidx.core.content.ContextCompat.startActivity;
 
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
-import static com.example.trial.MainActivity.TAG;
+import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
 
 import android.content.Context;
 import android.content.Intent;
@@ -122,7 +122,7 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
     }
 
     private void openPost(String permlink) {
-        String link = "https://actifit.io/" + MainActivity.username + "/" + permlink;
+        String link = getContext().getString(R.string.actifit_url) + MainActivity.username + "/" + permlink;
         Intent gotoPost = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
         gotoPost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getContext().startActivity(gotoPost);
@@ -145,12 +145,23 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject post = result.getJSONObject(i);
                     String postDate = post.getString("created");
-                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-                    LocalDate localDate1 = LocalDate.parse(mDate, formatter1);
-                    LocalDateTime localDateTime2 = LocalDateTime.parse(postDate, formatter2);
-                    LocalDate localDate2 = localDateTime2.toLocalDate();
-                    if (localDate1.isEqual(localDate2)) {
+                    SimpleDateFormat formatter1 = new SimpleDateFormat("MM/dd/yyyy");
+                    SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                    Date date1 = formatter1.parse(mDate);
+
+                    // Parsing postDate
+                    Date date2 = formatter2.parse(postDate);
+
+                    // To get only the date part from date2, you can use Calendar
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date2);
+                    // Extracting only the date part
+                    calendar.set(Calendar.HOUR_OF_DAY, 0);
+                    calendar.set(Calendar.MINUTE, 0);
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
+                    Date dateOnly = calendar.getTime();
+                    if (formatter1.format(date1).equals(formatter1.format(dateOnly))) {
                         hasPost = true;
                         final String permlink = post.getString("permlink");
                         runOnUiThread(() -> {

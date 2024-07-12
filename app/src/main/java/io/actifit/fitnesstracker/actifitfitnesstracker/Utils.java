@@ -53,6 +53,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -240,7 +241,7 @@ public class Utils {
                 operation.put(0, op_name);
                 operation.put(1, cstm_params);
 
-                String bcastUrl = ctx.getString(R.string.perform_trx_link);
+                String bcastUrl = Utils.apiUrl(ctx)+ctx.getString(R.string.perform_trx_link);
                 bcastUrl += user +
                             "&operation=[" + URLEncoder.encode(String.valueOf(operation), "UTF-8") + "]" +
                             "&bchain=HIVE";
@@ -316,7 +317,7 @@ public class Utils {
         try {
             RequestQueue queue = Volley.newRequestQueue(ctx);
 
-            String bcastUrl = ctx.getString(R.string.mark_notif_read);
+            String bcastUrl = Utils.apiUrl(ctx)+ctx.getString(R.string.mark_notif_read);
             bcastUrl += notifId + "/?user=" + user;
 
 
@@ -388,7 +389,7 @@ public class Utils {
             try {
 
 
-                String bcastUrl = ctx.getString(R.string.perform_trx_post_link);
+                String bcastUrl = Utils.apiUrl(ctx)+ctx.getString(R.string.perform_trx_post_link);
                 bcastUrl += user +
                         "&bchain=HIVE";
                 ;
@@ -1018,8 +1019,7 @@ public class Utils {
     public static void loadUserSettings(RequestQueue queue, Context ctx){
         if (MainActivity.username != ""){
             // This holds the url to connect to the API and grab the settings.
-            String settingsUrl = ctx.getString(R.string.live_server)
-                    + ctx.getString(R.string.fetch_settings)
+            String settingsUrl = Utils.apiUrl(ctx)+ ctx.getString(R.string.fetch_settings)
                     +"/" + MainActivity.username;
 
             JsonObjectRequest settingsRequest = new JsonObjectRequest(Request.Method.GET,
@@ -1049,6 +1049,13 @@ public class Utils {
             queue.add(settingsRequest);
 
         }
+    }
+
+    public static String apiUrl(Context ctx){
+        String[] apis = ctx.getResources().getStringArray(R.array.APIs);
+        Random r = new Random();
+        int index = r.nextInt(apis.length);
+        return apis[index];
     }
 
 }

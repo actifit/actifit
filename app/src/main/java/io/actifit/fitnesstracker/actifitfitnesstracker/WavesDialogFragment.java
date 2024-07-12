@@ -403,8 +403,7 @@ public class WavesDialogFragment extends DialogFragment {
 
             //authorize user login based on credentials if user is already verified
             if (!pkey.equals("")) {
-                String loginAuthUrl = getString(R.string.live_server)
-                        + getString(R.string.login_auth);
+                String loginAuthUrl = Utils.apiUrl(ctx)+getString(R.string.login_auth);
 
 
                 JSONObject loginSettings = new JSONObject();

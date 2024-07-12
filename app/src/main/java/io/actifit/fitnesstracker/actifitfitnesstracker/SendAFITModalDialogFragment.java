@@ -153,7 +153,7 @@ public class SendAFITModalDialogFragment extends DialogFragment {
                 //runOnUiThread(() -> {
                 try {
 
-                    String sendFundsUrl = getString(R.string.send_afit_url).replace("USERNAME", MainActivity.username)
+                    String sendFundsUrl = Utils.apiUrl(ctx)+getString(R.string.send_afit_url).replace("USERNAME", MainActivity.username)
                             .replace("TARGET",recipientVal)
                             .replace("VAL",amountVal+"")
                             .replace("FUNDSP",fundsPassVal)

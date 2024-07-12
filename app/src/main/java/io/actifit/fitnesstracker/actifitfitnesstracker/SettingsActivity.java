@@ -307,8 +307,7 @@ public class SettingsActivity extends BaseActivity {
 
             //authorize user login based on credentials if user is already verified
             if (!pkey.equals("")) {
-                String loginAuthUrl = getString(R.string.live_server)
-                        + getString(R.string.login_auth);
+                String loginAuthUrl = Utils.apiUrl(this)+getString(R.string.login_auth);
 
 
                 JSONObject loginSettings = new JSONObject();
@@ -355,8 +354,7 @@ public class SettingsActivity extends BaseActivity {
 
 
             // This holds the url to connect to the API and grab the settings.
-            String notTypeUrl = getString(R.string.live_server)
-                    + getString(R.string.notification_types);
+            String notTypeUrl = Utils.apiUrl(this)+ getString(R.string.notification_types);
 
             JsonArrayRequest notificationTypeRequest = new JsonArrayRequest(Request.Method.GET,
                     notTypeUrl, null, new Response.Listener<JSONArray>() {
@@ -383,8 +381,7 @@ public class SettingsActivity extends BaseActivity {
                         notificationAdapter = new NotificationTypeEntryAdapter(cntxt, finalList);
 
                         // This holds the url to connect to the API and grab the settings.
-                        String settingsUrl = getString(R.string.live_server)
-                                + getString(R.string.fetch_settings)
+                        String settingsUrl = Utils.apiUrl(cntxt)+ getString(R.string.fetch_settings)
                                 +"/" + username;
 
                         JsonObjectRequest settingsRequest = new JsonObjectRequest(Request.Method.GET,
@@ -928,8 +925,7 @@ public class SettingsActivity extends BaseActivity {
                     }
 
                     // This holds the url to connect to the API and grab the settings.
-                    String saveSettingsUrl = getString(R.string.live_server)
-                            + getString(R.string.save_settings) + "?user=" + username
+                    String saveSettingsUrl = Utils.apiUrl(cntxt)+getString(R.string.save_settings) + "?user=" + username
                             + "&settings=" + innerSettingsData.toString();
 
 
@@ -1015,7 +1011,7 @@ public class SettingsActivity extends BaseActivity {
         //queue = Volley.newRequestQueue(this);
 
         // This holds the url to connect to the API and grab the balance.
-        String charityUrl = getString(R.string.charity_list_api_url);
+        String charityUrl = Utils.apiUrl(this)+getString(R.string.charity_list_api_url);
 
         JsonArrayRequest charitiesRequest = new JsonArrayRequest(Request.Method.GET,
                 charityUrl, null, new Response.Listener<JSONArray>(){
