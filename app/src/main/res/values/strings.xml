@@ -213,6 +213,7 @@
     <string name="StairClimbing">Stair Climbing</string>
     <string name="Yoga">Yoga</string>
     <string name="Stretching">Stretching</string>
+    <string name="FitnessGaming">Fitness Gaming</string>
     <string name="kg_unit">kg</string>
     <string name="cm_unit">cm</string>
     <string name="lb_unit">lb</string>
@@ -506,4 +507,16 @@
     <string name="submit_vid_success">Video submitted! Refresh the vids List to confirm ready to publish status.</string>
     <string name="survey_reward_temp">Taking part in Actifit polls allows you to earn extra AFIT. There is a one time _REWARD_ for answering this poll. There is No correct or incorrect answer.</string>
     <string name="Now">Now</string>
+    <string name="sync_steps">Sync your steps from Fitbit</string>
+    <string name="defaultVoteWeight">Default Vote Percentage</string>
+    <string name="defaultVoteValueNotice">A value of 0 indicates no default</string>
+    <string name="add_10">+10%</string>
+    <string name="sub_10">-10%</string>
+    <string name="free_signup_links">Free Signup Links!</string>
+    <string name="available_free_signups">Available Free Signup Links</string>
+    <string name="free_link">Signup Link</string>
+    <string name="Claim_links">Claim Free Signups</string>
+    <string name="free_signup_links_desc">Once you have completed 5 rewarded actifit activity reports, you become eligible to claim 5 free referral signup links to share with your friends. After depletion and completion another 5 rewarded activity reports, you can claim again another 5 free signup links.</string>
+    <string name="for_rewards">to earn rewards.</string>
+    <string name="confirm_proceed">Post anyway?</string>
 </resources>
