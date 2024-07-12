@@ -170,6 +170,14 @@
                 android:text="@string/submit_vid"
                 android:visibility="gone"/>
 
+            <Button
+                style="@style/AppTheme.ActifitButton"
+                android:id="@+id/deleteVid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete_vid"
+                android:visibility="gone"/>
+
             <ProgressBar
                 android:id="@+id/submitLoader"
                 android:layout_width="25dp"
