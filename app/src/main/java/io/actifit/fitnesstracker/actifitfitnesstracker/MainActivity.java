@@ -575,7 +575,7 @@ public class MainActivity extends BaseActivity{
 
     //handles displaying any available surveys
     private void loadSurvey(RequestQueue queue){
-        String newsArticlesUrl = getString(R.string.surveys);
+        String newsArticlesUrl = Utils.apiUrl(this)+getString(R.string.surveys);
 
         //also set and popup any mainAnnounce news
 
@@ -599,7 +599,7 @@ public class MainActivity extends BaseActivity{
 
                 //check if user voted on survey already, if not show it
                 Survey_Entry_Class finalActivSurvey = activSurvey;
-                String voteStatusUrl = getString(R.string.user_voted_survey).replace("_USER_", MainActivity.username)
+                String voteStatusUrl = Utils.apiUrl(this)+getString(R.string.user_voted_survey).replace("_USER_", MainActivity.username)
                         .replace("_ID_", activSurvey.getId());
                 JsonObjectRequest voteReq = new JsonObjectRequest
                         (Request.Method.GET, voteStatusUrl, null, new Response.Listener<JSONObject>() {
@@ -648,7 +648,7 @@ public class MainActivity extends BaseActivity{
 
         listItems = new ArrayList<>() ;
 
-        String newsArticlesUrl = getString(R.string.news_articles);
+        String newsArticlesUrl = Utils.apiUrl(this)+getString(R.string.news_articles);
 
         //also set and popup any mainAnnounce news
 
@@ -728,7 +728,7 @@ public class MainActivity extends BaseActivity{
      */
     private void sendRegistrationToServer() {
         if (!username.equals("")) {
-            String urlStr = getString(R.string.live_server) + getString(R.string.register_user_token_notifications);
+            String urlStr = Utils.apiUrl(this)+ getString(R.string.register_user_token_notifications);
             Log.d(MainActivity.TAG, "sendRegistrationToServer - urlStr:" + urlStr);
             ArrayList<String[]> headers = new ArrayList<>();
             headers.add(new String[]{"Content-Type", "application/json"});
@@ -1019,7 +1019,7 @@ public class MainActivity extends BaseActivity{
 
         //preload tutorial vid url
         Handler uiAltHandler = new Handler(Looper.getMainLooper());
-        String vidFetchUrl = getString(R.string.tut_vid_url);
+        String vidFetchUrl = Utils.apiUrl(this)+getString(R.string.tut_vid_url);
         final String[] tutVidUrl = {""};
 
         // Request the rank of the user while expecting a JSON response
@@ -1672,7 +1672,7 @@ public class MainActivity extends BaseActivity{
         //handles sending out API query requests
         //RequestQueue queue = Volley.newRequestQueue(this);
 
-        String afitMarketsUrl = getString(R.string.afit_markets);
+        String afitMarketsUrl = Utils.apiUrl(this)+getString(R.string.afit_markets);
 
 
         JsonArrayRequest afitMarketsReq = new JsonArrayRequest(Request.Method.GET,
@@ -2042,7 +2042,7 @@ public class MainActivity extends BaseActivity{
                     View convertView = LayoutInflater.from(ctx).inflate(R.layout.signup_link, (ViewGroup) referLayout, false);
                     //set link content
                     TextView linkTxt = convertView.findViewById(R.id.signupLink);
-                    String fullLink = getString(R.string.signup_link_format)
+                    String fullLink = Utils.apiUrl(this)+getString(R.string.signup_link_format)
                             .replace("PROMO", entry.getString("code"))
                             .replace("REFERRER", username);
                     linkTxt.setText(fullLink);
@@ -2577,7 +2577,7 @@ public class MainActivity extends BaseActivity{
         // This holds the url to connect to the API and grab the balance.
         // We append to it the username
         if (username.equals("") || username.length()<2) return;
-        String balanceUrl = getString(R.string.user_balance_api_url)+username+"?fullBalance=1";
+        String balanceUrl = Utils.apiUrl(this)+getString(R.string.user_balance_api_url)+username+"?fullBalance=1";
 
         //display header
         //actifitBalanceLbl.setVisibility(View.VISIBLE);
@@ -2673,7 +2673,7 @@ public class MainActivity extends BaseActivity{
         queue.add(balanceRequest);
 
         //grab account RC value
-        String accountRCUrl = getString(R.string.get_account_rc)+username;
+        String accountRCUrl = Utils.apiUrl(this)+getString(R.string.get_account_rc)+username;
         // Request the balance of the user while expecting a JSON response
         JsonObjectRequest accountRCRequest = new JsonObjectRequest
                 (Request.Method.GET, accountRCUrl, null, new Response.Listener<JSONObject>() {
@@ -2791,7 +2791,7 @@ public class MainActivity extends BaseActivity{
 
         // This holds the url to connect to the API and grab the balance.
         // We append to it the username
-        String accountDataUrl = getString(R.string.get_account_api_url)+username;
+        String accountDataUrl = Utils.apiUrl(this)+getString(R.string.get_account_api_url)+username;
 
         //display header
         // Request the balance of the user while expecting a JSON response
@@ -3623,7 +3623,7 @@ public class MainActivity extends BaseActivity{
 
             // This holds the url to connect to the API and grab the pending rewards.
             // We append to it the username
-            String userPendingRewardsUrl = getString(R.string.user_pending_rewards_url) + username;
+            String userPendingRewardsUrl = Utils.apiUrl(this)+getString(R.string.user_pending_rewards_url) + username;
 
             // Request the rank of the user while expecting a JSON response
             JsonObjectRequest pendRewardsRequest = new JsonObjectRequest
@@ -3739,7 +3739,7 @@ public class MainActivity extends BaseActivity{
     }
 
     private void loadSignupLinks(RequestQueue queue) {
-        String signupLinksUrl = getString(R.string.my_free_signup_links) + "?user=" + MainActivity.username;
+        String signupLinksUrl = Utils.apiUrl(this)+getString(R.string.my_free_signup_links) + "?user=" + MainActivity.username;
 
         // Process claim rewards request
         JsonObjectRequest req = new JsonObjectRequest
@@ -3777,7 +3777,7 @@ public class MainActivity extends BaseActivity{
     }
 
     private void claimFreeSignupLinks(RequestQueue queue){
-        String claimLink = getString(R.string.claim_free_signup_links) + username;
+        String claimLink = Utils.apiUrl(this)+getString(R.string.claim_free_signup_links) + username;
         // Request the user's active gadgets list
         JsonObjectRequest claimableSignupsRequest = new JsonObjectRequest
                 (Request.Method.GET, claimLink, null, new Response.Listener<JSONObject>() {
@@ -3808,7 +3808,7 @@ public class MainActivity extends BaseActivity{
     }
 
     private void loadClaimableSignupLinks(RequestQueue queue){
-        String claimableSignups = getString(R.string.claimable_free_signup_links)+username;
+        String claimableSignups = Utils.apiUrl(this)+getString(R.string.claimable_free_signup_links)+username;
 
 
         // Request the user's active gadgets list
@@ -3840,7 +3840,7 @@ public class MainActivity extends BaseActivity{
 
     private void loadReferrals(RequestQueue queue){
 
-        String usersReferralsUrl = getString(R.string.user_referrals_url) + username;
+        String usersReferralsUrl = Utils.apiUrl(this)+getString(R.string.user_referrals_url) + username;
 
 
         JsonArrayRequest referralDataRequest = new JsonArrayRequest(Request.Method.GET,
@@ -3884,7 +3884,7 @@ public class MainActivity extends BaseActivity{
         RequestQueue queue = Volley.newRequestQueue(this);
 
         //load all product details
-        String dailyTipUrl = getString(R.string.daily_tip_url);
+        String dailyTipUrl = Utils.apiUrl(this)+getString(R.string.daily_tip_url);
 
         JsonArrayRequest productsListReq = new JsonArrayRequest(Request.Method.GET,
                 dailyTipUrl, null, new Response.Listener<JSONArray>(){
@@ -3991,7 +3991,7 @@ public class MainActivity extends BaseActivity{
             RequestQueue queue = Volley.newRequestQueue(this);
 
             //load all product details
-            String productsUrl = getString(R.string.products_link);
+            String productsUrl = Utils.apiUrl(this)+getString(R.string.products_link);
 
             JsonArrayRequest productsListReq = new JsonArrayRequest(Request.Method.GET,
                     productsUrl, null, new Response.Listener<JSONArray>(){
@@ -4030,7 +4030,7 @@ public class MainActivity extends BaseActivity{
 
             //username="pjansen";
 
-            String activeGadgetsListUrl = getString(R.string.active_gadgets_url) + username;
+            String activeGadgetsListUrl = Utils.apiUrl(this)+getString(R.string.active_gadgets_url) + username;
 
             // Request the user's active gadgets list
             JsonObjectRequest activeGadgetsRequest = new JsonObjectRequest
@@ -4309,7 +4309,7 @@ public class MainActivity extends BaseActivity{
 
                 // This holds the url to connect to the API and grab the user rank.
                 // We append to it the username
-                String userRankUrl = getString(R.string.user_rank_api_url) + username;
+                String userRankUrl = Utils.apiUrl(this)+getString(R.string.user_rank_api_url) + username;
 
                 // Request the rank of the user while expecting a JSON response
                 JsonObjectRequest rankRequest = new JsonObjectRequest
@@ -4417,7 +4417,7 @@ public class MainActivity extends BaseActivity{
 
                 CustomTabsIntent customTabsIntent = builder.build();
 
-                customTabsIntent.launchUrl(ctx, Uri.parse(getString(R.string.signup_link)));
+                customTabsIntent.launchUrl(ctx, Uri.parse(Utils.apiUrl(ctx)+getString(R.string.signup_link)));
             }
 
         });
@@ -4466,7 +4466,7 @@ public class MainActivity extends BaseActivity{
         RequestQueue queue = Volley.newRequestQueue(this);
 
         //grab reward distribution status/timer
-        String votingStatusUrl = getString(R.string.voting_api_url);
+        String votingStatusUrl = Utils.apiUrl(this)+getString(R.string.voting_api_url);
         // Request the balance of the user while expecting a JSON response
         JsonObjectRequest votingStatusRequest = new JsonObjectRequest
                 (Request.Method.GET, votingStatusUrl, null, new Response.Listener<JSONObject>() {
@@ -5069,7 +5069,7 @@ public class MainActivity extends BaseActivity{
     }
 
     private void loadNotifCount(RequestQueue queue){
-        String notificationsUrl = getString(R.string.user_active_notifications_url)+MainActivity.username;
+        String notificationsUrl = Utils.apiUrl(this)+getString(R.string.user_active_notifications_url)+MainActivity.username;
         notifCount.setText("");
         notifCount.setVisibility(View.GONE);
         // Request the transactions of the user first via JsonArrayRequest

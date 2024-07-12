@@ -48,7 +48,7 @@ public class MarketActivity extends BaseActivity {
         if (MainActivity.username.equals("") || MainActivity.username.length() <1){
             return;
         }
-        String balanceUrl = getString(R.string.user_balance_api_url)+MainActivity.username;
+        String balanceUrl = Utils.apiUrl(this)+getString(R.string.user_balance_api_url)+MainActivity.username;
 
         //display header
         //actifitBalanceLbl.setVisibility(View.VISIBLE);
@@ -96,8 +96,7 @@ public class MarketActivity extends BaseActivity {
 
         //load AFIT price
         //grab AFIT price to calculate HIVE price
-        String afitPriceUrl = getString(R.string.live_server)
-                + getString(R.string.afit_price_he);
+        String afitPriceUrl = Utils.apiUrl(this)+ getString(R.string.afit_price_he);
 
         //grab auth token for logged in user
         JsonObjectRequest afitPriceReq = new JsonObjectRequest(Request.Method.GET,
@@ -137,8 +136,7 @@ public class MarketActivity extends BaseActivity {
 
             //authorize user login based on credentials if user is already verified
             if (!pkey.equals("")) {
-                String loginAuthUrl = getString(R.string.live_server)
-                        + getString(R.string.login_auth);
+                String loginAuthUrl = Utils.apiUrl(this)+ getString(R.string.login_auth);
 
 
                 JSONObject loginSettings = new JSONObject();
@@ -186,7 +184,7 @@ public class MarketActivity extends BaseActivity {
             loadBalance(queue);
 
         //connect to our products API
-        String productsUrl = getString(R.string.products_link);
+        String productsUrl = Utils.apiUrl(this)+getString(R.string.products_link);
 
         progress = new ProgressDialog(this);
 
@@ -369,7 +367,7 @@ public class MarketActivity extends BaseActivity {
 
 
             //load consumed products
-            String consumedProductsUrl = getString(R.string.consumed_gadgets_link) + MainActivity.username;
+            String consumedProductsUrl = Utils.apiUrl(this)+getString(R.string.consumed_gadgets_link) + MainActivity.username;
             JsonArrayRequest consumedProductsReq = new JsonArrayRequest(Request.Method.GET,
                     consumedProductsUrl, null, new Response.Listener<JSONArray>() {
 
@@ -408,7 +406,7 @@ public class MarketActivity extends BaseActivity {
 
 
             //load non-consumed products
-            String nonConsumedProductsUrl = getString(R.string.non_consumed_gadgets_link) + MainActivity.username;
+            String nonConsumedProductsUrl = Utils.apiUrl(this)+getString(R.string.non_consumed_gadgets_link) + MainActivity.username;
             JsonArrayRequest nonConsumedProductsReq = new JsonArrayRequest(Request.Method.GET,
                     nonConsumedProductsUrl, null, new Response.Listener<JSONArray>() {
 

@@ -127,7 +127,7 @@ public class SurveyFragment extends DialogFragment {
             loader.setVisibility(View.VISIBLE);
 
 
-            String voteSurveyUrl = getString(R.string.vote_survey_url).replace("_USER_", MainActivity.username)
+            String voteSurveyUrl = Utils.apiUrl(ctx)+getString(R.string.vote_survey_url).replace("_USER_", MainActivity.username)
                     .replace("_ID_", this.survey.getId())
                     .replace("_OPTION_",radioGroup.getCheckedRadioButtonId()+"");
             final String success_notification = getString(R.string.trx_success);
