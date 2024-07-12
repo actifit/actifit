@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -101,7 +102,7 @@ public class VideoUploadFragment extends DialogFragment {
 
     public ArrayList<UploadedVideoModel> vidsList;
 
-    private ProgressBar submitLoader;//loader, , thumbUploadProgress, vidUploadProgress;
+    public ProgressBar submitLoader;//loader, , thumbUploadProgress, vidUploadProgress;
     TextView thumbProgressPercent, vidProgressPercent;
     Button chooseButton, recordButton, vidSelector;
     HorizontalScrollView hScrollView;
@@ -253,7 +254,12 @@ public class VideoUploadFragment extends DialogFragment {
         if (vidsView!=null) {
             vidsView.removeAllViewsInLayout();
         }
+
+        final VideoUploadFragment contnr = this;
+
         vidsView.setPadding(0,0,0,0);
+
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
         //loop through vids and display them
         for (int i=0;i<vidsList.size();i++) {
@@ -309,6 +315,7 @@ public class VideoUploadFragment extends DialogFragment {
 
                 Button playVid = convertView.findViewById(R.id.playVid);
                 Button stopVid = convertView.findViewById(R.id.stopVid);
+                Button deleteVid = convertView.findViewById(R.id.deleteVid);
                 playVid.setOnClickListener(v -> {
 
                     img.setVisibility(View.GONE);
@@ -324,6 +331,37 @@ public class VideoUploadFragment extends DialogFragment {
                     videoView.pause();
                     playVid.setVisibility(View.VISIBLE);
                     stopVid.setVisibility(View.GONE);
+                });
+
+                //show delete video option if not deleted
+                deleteVid.setVisibility(View.VISIBLE);
+
+
+
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //go ahead posting
+                                submitLoader = convertView.findViewById(R.id.submitLoader);
+                                submitLoader.setVisibility(View.VISIBLE);
+                                Utils.delete3spkVid(requestQueue, ctx, contnr, vidEntry.permlink);
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //cancel
+                                break;
+                        }
+                    }
+                };
+
+                deleteVid.setOnClickListener(v -> {
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage(getString(R.string.delete_vid_confirmation) + " ")
+                            .setPositiveButton(getString(R.string.yes_button), dialogClickListener)
+                            .setNegativeButton(getString(R.string.no_button), dialogClickListener).show();
                 });
 
                 Button addToPost = convertView.findViewById(R.id.addVidToPost);
@@ -373,8 +411,17 @@ public class VideoUploadFragment extends DialogFragment {
                 TextView status = convertView.findViewById(R.id.status_val);
                 status.setText(Utils.findMatchingStatus(vidEntry.status, VideoUploadFragment.statusList));
 
+                //append display of encoding progress
+                try {
+                    if (vidEntry.status.equals("encoding_ipfs")) {
+                        status.setText(status.getText() + "(" + decimalFormat.format(vidEntry.encodingProgress) + "%)");
+                    }
+                }catch(Exception excpt){
+                    excpt.printStackTrace();
+                }
+
                 TextView duration = convertView.findViewById(R.id.duration_val);
-                DecimalFormat decimalFormat = new DecimalFormat("#.##");
+
                 String formattedNumber = decimalFormat.format(vidEntry.duration);
 
                 duration.setText(formattedNumber + " sec");
@@ -733,9 +780,9 @@ public class VideoUploadFragment extends DialogFragment {
                 String formattedNumber = decimalFormat.format(vidDuration);
 
                 duration.setText(formattedNumber + " sec");
-                long sizeInMB = vidSize;
+                double sizeInMB = (long) vidSize;
                 if (sizeInMB >0){
-                    sizeInMB = vidSize / 1024 / 1024;
+                    sizeInMB = sizeInMB / 1024.0 / 1024.0;
                 }
                 TextView size = newVidInnerView.findViewById(R.id.size_val);
                 formattedNumber = decimalFormat.format(sizeInMB);
