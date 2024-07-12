@@ -12,6 +12,10 @@
     <string name="notification_status" translatable="false">notificationstatus</string>
     <string name="main_announce_view"  translatable="false">mainAnnounceView</string>
     <string name="actifit_wake_lock_tag" translatable="false">ACTIFIT:ACTIFIT_SPECIAL_LOCK</string>
+	<string-array name="tokens" translatable="false">
+        <item>HIVE</item>
+        <item>HBD</item>
+    </string-array>
     <string-array name="supported_languages">
         <item>English</item>
         <item>Portuguesa</item>
