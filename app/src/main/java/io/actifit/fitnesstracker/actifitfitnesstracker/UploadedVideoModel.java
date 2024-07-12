@@ -25,6 +25,7 @@ public class UploadedVideoModel {
     public String description;
     public String tags;
     public String beneficiaries;
+	public double encodingProgress;
     //public JSONArray tags;
 
     public UploadedVideoModel(JSONObject jsonObject) {
