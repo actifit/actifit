@@ -172,8 +172,7 @@ public class WalletActivity extends BaseActivity {
 
             //authorize user login based on credentials if user is already verified
             if (!pkey.equals("")) {
-                String loginAuthUrl = getString(R.string.live_server)
-                        + getString(R.string.login_auth);
+                String loginAuthUrl = Utils.apiUrl(this)+getString(R.string.login_auth);
 
 
                 JSONObject loginSettings = new JSONObject();
@@ -242,7 +241,7 @@ public class WalletActivity extends BaseActivity {
                 RequestQueue queue1 = Volley.newRequestQueue(callerContext);
 
                 //fetch blurt price
-                String claimRewardsUrl = getString(R.string.claim_rewards_url) + username;
+                String claimRewardsUrl = Utils.apiUrl(this)+getString(R.string.claim_rewards_url) + username;
                 final String success_notification = getString(R.string.rewards_claimed_successfully);
                 final String error_notification = getString(R.string.rewards_claim_error);
 
@@ -408,7 +407,7 @@ public class WalletActivity extends BaseActivity {
 
             // This holds the url to connect to the API and grab the pending rewards.
             // We append to it the username
-            String userPendingRewardsUrl = getString(R.string.user_pending_rewards_url) + username;
+            String userPendingRewardsUrl = Utils.apiUrl(this)+getString(R.string.user_pending_rewards_url) + username;
 
             // Request the rank of the user while expecting a JSON response
             JsonObjectRequest pendRewardsRequest = new JsonObjectRequest
@@ -842,7 +841,7 @@ public class WalletActivity extends BaseActivity {
 
             // This holds the url to connect to the API and grab the balance.
             // We append to it the username
-            String balanceUrl = getString(R.string.user_balance_api_url)+username;
+            String balanceUrl = Utils.apiUrl(this)+getString(R.string.user_balance_api_url)+username;
 
             //display header
             //actifitBalanceLbl.setVisibility(View.VISIBLE);
@@ -888,7 +887,7 @@ public class WalletActivity extends BaseActivity {
             queue.add(balanceRequest);
 
             //grab chain info to convert vests to power value
-            String chainDataUrl = getString(R.string.get_chain_info);
+            String chainDataUrl = Utils.apiUrl(this)+getString(R.string.get_chain_info);
             JsonObjectRequest chainInfoRequest = new JsonObjectRequest
                     (Request.Method.GET, chainDataUrl, null, new Response.Listener<JSONObject>() {
                         @Override
@@ -930,7 +929,7 @@ public class WalletActivity extends BaseActivity {
 
             // This holds the url to connect to the API and grab the balance.
             // We append to it the username
-            String accountDataUrl = getString(R.string.get_account_api_url)+username;
+            String accountDataUrl = Utils.apiUrl(this)+getString(R.string.get_account_api_url)+username;
 
             //display header
             //actifitBalanceLbl.setVisibility(View.VISIBLE);
@@ -965,7 +964,7 @@ public class WalletActivity extends BaseActivity {
 
             // This holds the url to connect to the API and grab the transactions.
             // We append to it the username
-            String transactionUrl = getString(R.string.user_transactions_api_url)+username;
+            String transactionUrl = Utils.apiUrl(this)+getString(R.string.user_transactions_api_url)+username;
 
             //display header
             actifitTransactionsLbl.setVisibility(View.VISIBLE);

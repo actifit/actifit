@@ -380,8 +380,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
                     //authorize user login based on credentials if user is already verified
                     if (!pkey.equals("")) {
-                        String loginAuthUrl = getContext().getString(R.string.live_server)
-                                + getContext().getString(R.string.login_auth);
+                        String loginAuthUrl = Utils.apiUrl(getContext())+ getContext().getString(R.string.login_auth);
 
 
                         JSONObject loginSettings = new JSONObject();
@@ -454,7 +453,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     operation.put(0, op_name);
                     operation.put(1, cstm_params);
 
-                    String bcastUrl = getContext().getString(R.string.perform_trx_link) +
+                    String bcastUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.perform_trx_link) +
                             MainActivity.username +
                             "&operation=[" + operation + "]" +
                             "&bchain=HIVE";//hardcoded for now
@@ -475,7 +474,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
 
 
-                                        String buyUrl = getContext().getString(R.string.buy_gadget_link)+
+                                        String buyUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.buy_gadget_link)+
                                                 MainActivity.username+"/"+
                                                 postEntry.id+"/"+
                                                 bcastRes.get("ref_block_num")+"/"+
@@ -579,8 +578,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
                         //authorize user login based on credentials if user is already verified
                         if (!pkey.equals("")) {
-                            String loginAuthUrl = getContext().getString(R.string.live_server)
-                                    + getContext().getString(R.string.login_auth);
+                            String loginAuthUrl = Utils.apiUrl(getContext())+ getContext().getString(R.string.login_auth);
 
 
                             JSONObject loginSettings = new JSONObject();
@@ -664,7 +662,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                         operation.put(0, op_name);
                         operation.put(1, cstm_params);
 
-                        String bcastUrl = getContext().getString(R.string.perform_trx_link) +
+                        String bcastUrl = Utils.apiUrl(getContext())getContext().getString(R.string.perform_trx_link) +
                                 MainActivity.username +
                                 "&operation=[" + operation + "]" +
                                 "&bchain=HIVE";//hardcoded for now
@@ -688,7 +686,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
 
 
-                                                String buyUrl = getContext().getString(R.string.activate_gadget_link)+
+                                                String buyUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.activate_gadget_link)+
                                                         MainActivity.username+"/"+
                                                         postEntry.id+"/"+
                                                         bcastRes.get("ref_block_num")+"/"+
@@ -804,8 +802,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
                         //authorize user login based on credentials if user is already verified
                         if (!pkey.equals("")) {
-                            String loginAuthUrl = getContext().getString(R.string.live_server)
-                                    + getContext().getString(R.string.login_auth);
+                            String loginAuthUrl = Utils.apiUrl(getContext())+ getContext().getString(R.string.login_auth);
 
 
                             JSONObject loginSettings = new JSONObject();
@@ -878,7 +875,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                         operation.put(0, op_name);
                         operation.put(1, cstm_params);
 
-                        String bcastUrl = getContext().getString(R.string.perform_trx_link) +
+                        String bcastUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.perform_trx_link) +
                                 MainActivity.username +
                                 "&operation=[" + operation + "]" +
                                 "&bchain=HIVE";//hardcoded for now
@@ -901,7 +898,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                                                 JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
 
 
-                                                String buyUrl = getContext().getString(R.string.deactivate_gadget_link)+
+                                                String buyUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.deactivate_gadget_link)+
                                                         MainActivity.username+"/"+
                                                         postEntry.id+"/"+
                                                         bcastRes.get("ref_block_num")+"/"+
@@ -1022,8 +1019,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
                         //authorize user login based on credentials if user is already verified
                         if (!pkey.equals("")) {
-                            String loginAuthUrl = getContext().getString(R.string.live_server)
-                                    + getContext().getString(R.string.login_auth);
+                            String loginAuthUrl = Utils.apiUrl(getContext())+ getContext().getString(R.string.login_auth);
 
 
                             JSONObject loginSettings = new JSONObject();
@@ -1094,7 +1090,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                         JSONArray op_array = new JSONArray();
                         op_array.put(operation);
 
-                        String bcastUrl = getContext().getString(R.string.perform_trx_post_link) +
+                        String bcastUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.perform_trx_post_link) +
                                 MainActivity.username +
                                 "&bchain=HIVE";//hardcoded for now
                         ;
@@ -1122,7 +1118,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
 
 
-                                                String buyUrl = getContext().getString(R.string.buy_gadget_hive_link)+
+                                                String buyUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.buy_gadget_hive_link)+
                                                         MainActivity.username+"/"+
                                                         postEntry.id+"/"+
                                                         bcastRes.get("ref_block_num")+"/"+

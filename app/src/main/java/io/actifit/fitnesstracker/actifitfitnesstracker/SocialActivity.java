@@ -89,7 +89,7 @@ public class SocialActivity extends BaseActivity {
         if (MainActivity.username.equals("") || MainActivity.username.length() <1){
             return;
         }
-        String balanceUrl = getString(R.string.user_balance_api_url)+MainActivity.username;
+        String balanceUrl = Utils.apiUrl(this)+getString(R.string.user_balance_api_url)+MainActivity.username;
 
         //display header
         //actifitBalanceLbl.setVisibility(View.VISIBLE);
@@ -192,8 +192,7 @@ public class SocialActivity extends BaseActivity {
 
             //authorize user login based on credentials if user is already verified
             if (!pkey.equals("")) {
-                String loginAuthUrl = getString(R.string.live_server)
-                        + getString(R.string.login_auth);
+                String loginAuthUrl = Utils.apiUrl(this)+getString(R.string.login_auth);
 
 
                 JSONObject loginSettings = new JSONObject();
@@ -289,7 +288,7 @@ public class SocialActivity extends BaseActivity {
                     //Thread thread = new Thread(() -> {
                         try {
                             //send out server notification registration with username and token
-                            String reqUrl = getString(R.string.post_rewards_api_url).replace("_USER_", postEntry.author).replace("_URL_", postEntry.url);
+                            String reqUrl = Utils.apiUrl(this)+getString(R.string.post_rewards_api_url).replace("_USER_", postEntry.author).replace("_URL_", postEntry.url);
 
                             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, reqUrl, null,
                                     response -> {

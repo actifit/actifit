@@ -879,7 +879,7 @@ public class VideoUploadFragment extends DialogFragment {
     }
 
     private void appendVidMonitorStatus(RequestQueue queue, String vidPermLink){
-        String buyUrl = getContext().getString(R.string.register_user_added_vid)+"/"+
+        String buyUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.register_user_added_vid)+"/"+
                 MainActivity.username+"/"+vidPermLink+"/new";
                 //URLEncoder.encode(String.valueOf(vidName));
 
