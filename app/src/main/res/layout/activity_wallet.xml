@@ -168,8 +168,8 @@
                         android:fontFamily="@font/font_awesome_6_solid"
                         android:textColor="@color/actifitRed"
                         android:text="\uf14d"
-                        android:textSize="20dp"
-                        android:paddingLeft="10dp"
+                        android:textSize="20sp"
+                        android:padding="5dp"
                         />
 
                     <TextView
@@ -178,7 +178,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/font_awesome_6_solid"
                         android:textColor="@color/actifitRed"
-                        android:padding="10dp"
+                        android:padding="5dp"
                         android:text="\uf023"
                         android:textSize="20sp"
                         />
@@ -189,7 +189,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/font_awesome_6_solid"
                         android:textColor="@color/actifitRed"
-                        android:padding="10dp"
+                        android:padding="5dp"
                         android:text="\uf09c"
                         android:textSize="20sp"
                         />
