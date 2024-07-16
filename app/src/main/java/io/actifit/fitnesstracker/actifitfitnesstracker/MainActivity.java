@@ -117,8 +117,6 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.google.android.gms.ads.AdError;
@@ -3115,7 +3113,7 @@ public class MainActivity extends BaseActivity{
 
             //customize X-axis
 
-            IndexAxisValueFormatter formatter = new IndexAxisValueFormatter() {
+            IAxisValueFormatter formatter = new IAxisValueFormatter() {
 
                 @Override
                 public String getFormattedValue(float value, AxisBase axis) {
@@ -3128,7 +3126,7 @@ public class MainActivity extends BaseActivity{
             xAxis.setGranularity(1f); // minimum axis-step (interval)
             xAxis.setValueFormatter(formatter);
 
-            ValueFormatter yFormatter = new ValueFormatter() {
+            IValueFormatter yFormatter = new IValueFormatter() {
 
                 @Override
                 public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
@@ -3238,7 +3236,7 @@ public class MainActivity extends BaseActivity{
 
                 //customize X-axis
 
-                IndexAxisValueFormatter formatter = new IndexAxisValueFormatter() {
+                IAxisValueFormatter formatter = new IAxisValueFormatter() {
 
                     @Override
                     public String getFormattedValue(float value, AxisBase axis) {
@@ -3265,7 +3263,7 @@ public class MainActivity extends BaseActivity{
 
                 //add limit lines to show marker of min 5K activity
                 //YAxis yAxis = chart.getAxisLeft();
-                dayBarData.setValueFormatter((ValueFormatter) yFormatter);
+                dayBarData.setValueFormatter(yFormatter);
                 //yAxis.setAxisMinimum(0);
 
 
@@ -3360,7 +3358,7 @@ public class MainActivity extends BaseActivity{
 
             //customize X-axis
 
-            IndexAxisValueFormatter formatter = new IndexAxisValueFormatter() {
+            IAxisValueFormatter formatter = new IAxisValueFormatter() {
 
                 @Override
                 public String getFormattedValue(float value, AxisBase axis) {
@@ -3485,7 +3483,7 @@ public class MainActivity extends BaseActivity{
 
                 //customize X-axis
 
-                IndexAxisValueFormatter formatter = new IndexAxisValueFormatter() {
+                IAxisValueFormatter formatter = new IAxisValueFormatter() {
 
                     @Override
                     public String getFormattedValue(float value, AxisBase axis) {
