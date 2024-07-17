@@ -42,6 +42,12 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
         android:value="@string/actifit_fcm_msg_channel_id" />
     <!-- [END fcm_default_channel] -->
 
+        <!-- for QR code support via google services -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode_ui"/>
+        <!-- end -->
+
     <activity android:name=".LoginActivity"
         android:theme="@style/Theme.App.Starting"
         android:exported="true">
@@ -84,6 +90,7 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
         android:name=".ActivityMonitorService"
         android:enabled="true"
         android:exported="false"
+        android:foregroundServiceType="dataSync"
         android:description="@string/actifit_service_desc">
 
     </service>
@@ -94,6 +101,7 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
     <service
         android:name=".ActifitFirebaseMessagingService"
         android:exported="false"
+
         android:directBootAware="true">
         <intent-filter>
             <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -156,5 +164,8 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+<!-- new permission type for starting service in background -->
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
 </manifest>
