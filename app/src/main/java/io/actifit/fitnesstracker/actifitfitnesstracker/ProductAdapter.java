@@ -662,7 +662,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                         operation.put(0, op_name);
                         operation.put(1, cstm_params);
 
-                        String bcastUrl = Utils.apiUrl(getContext())getContext().getString(R.string.perform_trx_link) +
+                        String bcastUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.perform_trx_link) +
                                 MainActivity.username +
                                 "&operation=[" + operation + "]" +
                                 "&bchain=HIVE";//hardcoded for now

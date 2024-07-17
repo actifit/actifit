@@ -140,6 +140,8 @@ import com.google.android.ump.ConsentInformation;
 import com.google.android.ump.ConsentRequestParameters;
 import com.google.android.ump.FormError;
 import com.google.android.ump.UserMessagingPlatform;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -829,7 +831,9 @@ public class MainActivity extends BaseActivity{
         Boolean currentNotifStatus = (sharedPreferences.getBoolean(getString(R.string.notification_status),true));
 
         //if not set as subscribed by default
+        //FirebaseApp.initializeApp(this);
         if (currentNotifStatus) {
+
             FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.actif_def_not_topic));
         }
         /*****   Script below for fetching new app communication token *******/
@@ -940,7 +944,9 @@ public class MainActivity extends BaseActivity{
 
         displayActivityChartFitbit(0,true);
         TextView sync = findViewById(R.id.sync);
-        sync.setTooltipText("Sync your steps from Fitbit");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            sync.setTooltipText(getString(R.string.sync_steps));
+        }
         sync.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1411,7 +1417,7 @@ public class MainActivity extends BaseActivity{
 
             Date date = new Date();
             DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-            int curDate = Integer.parseInt(dateFormat.format(date));
+            int curDate = parseInt(dateFormat.format(date));
 
             //Toast.makeText(getApplicationContext(),"date"+curDate, Toast.LENGTH_LONG).show();
 
@@ -1423,7 +1429,7 @@ public class MainActivity extends BaseActivity{
             tenkRewardClaimed = false;
 
             if (!strDate.equals("")){
-                if (curDate<=Integer.parseInt(strDate)){
+                if (curDate<= parseInt(strDate)){
                     //user has already received reward
                     dailyRewardClaimed = true;
                 }
@@ -1431,7 +1437,7 @@ public class MainActivity extends BaseActivity{
 
             strDate = sharedPreferences.getString(getString(R.string.daily_5k_reward), "");
             if (!strDate.equals("")){
-                if (curDate<=Integer.parseInt(strDate)){
+                if (curDate<= parseInt(strDate)){
                     //user has already received reward
                     fivekRewardClaimed = true;
                 }
@@ -1439,7 +1445,7 @@ public class MainActivity extends BaseActivity{
 
             strDate = sharedPreferences.getString(getString(R.string.daily_7k_reward), "");
             if (!strDate.equals("")){
-                if (curDate<=Integer.parseInt(strDate)){
+                if (curDate<= parseInt(strDate)){
                     //user has already received reward
                     sevenkRewardClaimed = true;
                 }
@@ -1447,7 +1453,7 @@ public class MainActivity extends BaseActivity{
 
             strDate = sharedPreferences.getString(getString(R.string.daily_10k_reward), "");
             if (!strDate.equals("")){
-                if (curDate<=Integer.parseInt(strDate)){
+                if (curDate<= parseInt(strDate)){
                     //user has already received reward
                     tenkRewardClaimed = true;
                 }
@@ -1905,7 +1911,9 @@ public class MainActivity extends BaseActivity{
         });
 
         FontTextView BtnSwitchSettings2 = findViewById(R.id.switchSettings2);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         BtnSwitchSettings2.setTooltipText("Switch to Phone sensors mode");
+        }
         BtnSwitchSettings2.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -1943,7 +1951,9 @@ public class MainActivity extends BaseActivity{
         });
 
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         BtnSwitchSettings.setTooltipText("Switch to Fitbit mode");
+        }
         BtnSwitchSettings.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -2159,9 +2169,9 @@ public class MainActivity extends BaseActivity{
         int curStepCount = mStepsDBHelper.fetchTodayStepCount();
         giftLoader.startAnimation(rotate);
         if (getString(R.string.test_mode).equals("off")) {
-            switch (view.getId()) {
-                case R.id.daily_free_reward:
-                    //Toast.makeText(MainActivity.this, "test message", Toast.LENGTH_LONG)
+            //switch (view.getId()) {
+            int id = view.getId();
+            if (id == R.id.daily_free_reward) {//Toast.makeText(MainActivity.this, "test message", Toast.LENGTH_LONG)
                     //        .show();
                     if (dailyRewardClaimed) {
                         //bail out, user already rewarded
@@ -2169,9 +2179,7 @@ public class MainActivity extends BaseActivity{
                                 .show();
                         return;
                     }
-                    break;
-
-                case R.id.daily_5k_reward:
+            } else if (id == R.id.daily_5k_reward) {
                     if (fivekRewardClaimed) {
                         Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
                                 .show();
@@ -2182,9 +2190,7 @@ public class MainActivity extends BaseActivity{
                                 .show();
                         return;
                     }
-                    break;
-
-                case R.id.daily_7k_reward:
+            } else if (id == R.id.daily_7k_reward) {
                     if (sevenkRewardClaimed) {
                         Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
                                 .show();
@@ -2195,9 +2201,7 @@ public class MainActivity extends BaseActivity{
                                 .show();
                         return;
                     }
-                    break;
-
-                case R.id.daily_10k_reward:
+            } else if (id == R.id.daily_10k_reward) {
                     if (tenkRewardClaimed) {
                         Toast.makeText(MainActivity.this, getString(R.string.reward_already_claimed), Toast.LENGTH_LONG)
                                 .show();
@@ -2208,7 +2212,6 @@ public class MainActivity extends BaseActivity{
                                 .show();
                         return;
                     }
-                    break;
             }
         }
 
@@ -2332,35 +2335,27 @@ public class MainActivity extends BaseActivity{
                     DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
                     String strDate = dateFormat.format(date);
 
-
-                    switch (view.getId()){
-                        case R.id.daily_free_reward:
+                    int id = view.getId();
+                    if (id == R.id.daily_free_reward) {
                             dailyRewardClaimed = true;
                             editor.putString(getString(R.string.daily_free_reward), strDate);
                             editor.putString("freerewardedValue",finalRewardValue+"");
                             editor.commit();
-                            break;
-
-                        case R.id.daily_5k_reward:
+                    } else if (id == R.id.daily_5k_reward) {
                             fivekRewardClaimed = true;
                             editor.putString(getString(R.string.daily_5k_reward), strDate);
                             editor.putString("5krewardedValue",finalRewardValue+"");
                             editor.commit();
-                            break;
-
-                        case R.id.daily_7k_reward:
+                    } else if (id == R.id.daily_7k_reward) {
                             sevenkRewardClaimed = true;
                             editor.putString(getString(R.string.daily_7k_reward), strDate);
                             editor.putString("7krewardedValue",finalRewardValue+"");
                             editor.commit();
-                            break;
-
-                        case R.id.daily_10k_reward:
+                    } else if (id == R.id.daily_10k_reward) {
                             tenkRewardClaimed = true;
                             editor.putString(getString(R.string.daily_10k_reward), strDate);
                             editor.putString("10krewardedValue",finalRewardValue+"");
                             editor.commit();
-                            break;
                     }
                     //adjust button text
                     ((Button) view).setText(Html.fromHtml (((Button) view).getText()+"<br/> "+finalRewardValue+" AFIT "+checkMark));
@@ -4997,7 +4992,8 @@ public class MainActivity extends BaseActivity{
                             // Retrieve each JSON object within the JSON array
                             JSONObject jsonObject = innerArray.getJSONObject(i);
 
-                            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+                            //SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+                            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault());
                             Date date = inputFormat.parse(jsonObject.getString("date"));
 
                             SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
