@@ -739,27 +739,21 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     fitbitSyncDone = 0;
                 }
 
-                switch(checkedId){
-                    case R.id.report_today_option:
-                        //we have today's option
+                if (checkedId == R.id.report_today_option) {//we have today's option
                         //set initial steps display value
                         int stepCount = mStepsDBHelper.fetchTodayStepCount();
                         //display step count while ensuring we don't display negative value if no steps tracked yet
-                        stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+                    stepCountContainer.setText(String.valueOf((Math.max(stepCount, 0))), TextView.BufferType.EDITABLE);
 
                         yesterdayReport = false;
-
-                        break;
-                    case R.id.report_yesterday_option:
-                        //yesterday's option
+                } else if (checkedId == R.id.report_yesterday_option) {
+                    int stepCount;//yesterday's option
                         //set initial steps display value
                         stepCount = mStepsDBHelper.fetchYesterdayStepCount();
                         //display step count while ensuring we don't display negative value if no steps tracked yet
-                        stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+                    stepCountContainer.setText(String.valueOf((Math.max(stepCount, 0))), TextView.BufferType.EDITABLE);
 
                         yesterdayReport = true;
-
-                        break;
                 }
             }
         });
