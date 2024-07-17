@@ -14,6 +14,7 @@ plugins{
 final def markwonVersion = '4.6.2'
 
 android {
+    namespace "io.actifit.fitnesstracker.actifitfitnesstracker"
     /*packagingOptions {
         exclude 'META-INF/kotlin-stdlib-jdk7.kotlin_module'
     }*/
@@ -21,19 +22,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    compileSdkVersion 33
+    compileSdk 34
     defaultConfig {
         applicationId "io.actifit.fitnesstracker.actifitfitnesstracker"
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
         versionCode 43
         versionName "v0.11.2"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled true
-    }
-    lintOptions{
-        //avoid ClassNotFoundException: com.android.tools.lint.client.api.Vendor
-        checkReleaseBuilds false
     }
     buildTypes {
         release {
@@ -46,6 +43,12 @@ android {
                 }
             }
         }
+    }
+    buildFeatures{
+        buildConfig = true
+    }
+    lint {
+        checkReleaseBuilds false
     }
 }
 
@@ -104,17 +107,17 @@ dependencies {
     //used for content sanitization
     implementation 'org.jsoup:jsoup:1.14.2'
 
-    implementation ('com.google.firebase:firebase-core:20.1.1')
+    implementation ('com.google.firebase:firebase-core:21.1.1')
 
     // Add the Firebase Crashlytics SDK.
     implementation ('com.google.firebase:firebase-crashlytics:18.2.12')
 
     // Recommended: Add the Google Analytics SDK.
-    implementation ('com.google.firebase:firebase-analytics:20.1.2')
+    implementation ('com.google.firebase:firebase-analytics:22.0.2')
 
-    implementation ('com.google.firebase:firebase-messaging:23.0.0')
+    implementation ('com.google.firebase:firebase-messaging:24.0.0')
 
-    implementation ('com.google.firebase:firebase-messaging-directboot:23.0.0')
+    implementation ('com.google.firebase:firebase-messaging-directboot:24.0.0')
 
     implementation 'com.squareup.picasso:picasso:2.71828'
 
@@ -125,8 +128,8 @@ dependencies {
     implementation ("androidx.localbroadcastmanager:localbroadcastmanager:1.0.0")
 
 
-    implementation ('com.google.android.gms:play-services-fitness:21.0.1')
-    implementation ('com.google.android.gms:play-services-auth:20.1.0')
+    implementation ('com.google.android.gms:play-services-fitness:21.2.0')
+    implementation ('com.google.android.gms:play-services-auth:21.2.0')
 
     implementation 'info.androidhive:fontawesome:0.0.5'
 
@@ -147,7 +150,7 @@ dependencies {
     implementation 'org.bitcoinj:bitcoinj-core:0.16'
 
     //for usermessaging
-    implementation 'com.google.android.ump:user-messaging-platform:2.1.0'
+    implementation 'com.google.android.ump:user-messaging-platform:3.0.0'
 
     //for 3speak video upload
     implementation 'io.tus.android.client:tus-android-client:0.1.11'
@@ -161,6 +164,8 @@ dependencies {
 
     //for QR code support
     implementation 'com.google.android.gms:play-services-code-scanner:16.1.0'
+
+
 
 
 }

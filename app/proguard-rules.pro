@@ -19,3 +19,19 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.github.mikephil.charting.** { *; }
+-ignorewarnings
+-dontwarn org.apache.http.**
+-dontwarn android.net.http.AndroidHttpClient
+-dontwarn com.google.android.gms.**
+-dontwarn com.android.volley.toolbox.**
+-dontwarn sun.misc.Unsafe
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.ParametersAreNonnullByDefault
+-dontwarn javax.annotation.CheckReturnValue
+-dontwarn javax.annotation.CheckForNull
+-dontwarn javax.annotation.concurrent.GuardedBy
+-dontwarn javax.annotation.concurrent.Immutable
+-dontwarn javax.annotation.concurrent.ThreadSafe
+-dontwarn javax.annotation.concurrent.NotThreadSafe
