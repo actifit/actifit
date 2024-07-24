@@ -293,14 +293,21 @@ public class SocialActivity extends BaseActivity {
                             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, reqUrl, null,
                                     response -> {
                                         try {
-                                            //Double afitRewards = Double.parseDouble();
-                                            postEntry.afitRewards = Double.parseDouble(response.getDouble("token_count") + "");
+                                            if (response != null) {
+                                                //Double afitRewards = Double.parseDouble();
+                                                postEntry.afitRewards = 0.00;
+                                                if (response.has("token_count")){
+                                                    Double.parseDouble(response.getDouble("token_count") + "");
+                                                }
+                                            }
                                             //callback.onSuccess(response.getString(soughtVal));
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                     },
-                                    error -> Log.e(TAG, error.getMessage()));
+                                    error -> {
+                                        error.printStackTrace();
+                                    });
 
                             // Add the request to the request queue
                             // (Assuming you have a RequestQueue instance named "requestQueue")
