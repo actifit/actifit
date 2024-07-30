@@ -944,40 +944,88 @@ public class MainActivity extends BaseActivity{
 
         displayActivityChartFitbit(0,true);
         TextView sync = findViewById(R.id.sync);
+        sync.startAnimation(scaler);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             sync.setTooltipText(getString(R.string.sync_steps));
         }
         sync.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                //NxFitbitHelper.sendUserToAuthorisation(ctx);
+                NxFitbitHelper.sendUserToAuthorisation(ctx);
+            }
+        });
+
+        Uri returnUrl = getIntent().getData();
+        if (returnUrl != null){
+            try {
                 NxFitbitHelper fitbit = new NxFitbitHelper(ctx);
-                String soughtInfo = "steps";
-                String targetDate = "today";
-                int trackedActivityCount = 0;
+                fitbit.requestAccessTokenFromIntent(returnUrl);
                 try {
-                    JSONObject stepActivityList;
-                    stepActivityList = fitbit.getActivityByDate(soughtInfo, targetDate);
-                    JSONArray stepActivityArray;
-                    stepActivityArray = stepActivityList.getJSONArray("activities-tracker-" + soughtInfo);
+                    JSONObject responseProfile = fitbit.getUserProfile();
+                    responseProfile.getJSONObject("user");
+                } catch (JSONException | InterruptedException | ExecutionException |
+                         IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    String soughtInfo = "steps";
+                    String targetDate = "today";
+                    JSONObject stepActivityList = fitbit.getActivityByDate(soughtInfo, targetDate);
+                    JSONArray stepActivityArray = stepActivityList.getJSONArray("activities-tracker-" + soughtInfo);
                     Log.d(MainActivity.TAG, "From JSON distance:" + stepActivityArray.length());
+                    int trackedActivityCount = 0;
                     if (stepActivityArray.length() > 0) {
                         Log.d(MainActivity.TAG, "we found matching records");
                         //loop through records adding up recorded steps
                         for (int i = 0; i < stepActivityArray.length(); i++) {
                             trackedActivityCount += parseInt(stepActivityArray.getJSONObject(i).getString("value"));
                         }
+
+                        displayActivityChartFitbit(trackedActivityCount,true);
+                        Calendar mCalendar = Calendar.getInstance();
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("fitbitLastMainSyncDate",
+                                new SimpleDateFormat("dd/MM/yyyy HH:mm",
+                                        Locale.getDefault()).format(mCalendar.getTime())
+                        );
+                        editor.apply();
+                    } else {
+                        Log.d(MainActivity.TAG, "No auto-tracked activity found for today");
                     }
-                }
-                catch (Exception e){
+
+                } catch (JSONException | InterruptedException | ExecutionException | IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                displayActivityChartFitbit(trackedActivityCount,true);
+            }
+            catch(Exception myExc){
+                myExc.printStackTrace();
+                Toast.makeText(getApplicationContext(), getString(R.string.error_fitbit_fecth), Toast.LENGTH_SHORT).show();
+            }
+
+
+        }
+
+        ImageView fitbitLogo = findViewById(R.id.fitbit_logo);
+        fitbitLogo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String lastMainSyncDate = sharedPreferences.getString("fitbitLastMainSyncDate","");
+                Toast.makeText(ctx, "Fitbit last synced on : "+lastMainSyncDate, Toast.LENGTH_LONG).show();
             }
         });
 
-
-        sync.startAnimation(scaler);
+        getFitbitPieChartReset();
+        boolean resetFitbit = sharedPreferences.getBoolean("resetPieChart",false);
+        if(resetFitbit){
+            displayActivityChartFitbit(0,true);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("resetPieChart",false);
+            editor.apply();
+        }
 
 
         dayChartButton.setOnClickListener(view -> {
@@ -1932,7 +1980,7 @@ public class MainActivity extends BaseActivity{
                 }
                 else{
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    if(fullChartButton.getVisibility() == View.VISIBLE){
+                    if(sharedPreferences.getString("dataTrackingSystem", "").equals(getString(R.string.device_tracking_ntt))){
                         hideCharts();
                         editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
                     }
@@ -1941,6 +1989,8 @@ public class MainActivity extends BaseActivity{
                         btnPieChart.setVisibility(View.VISIBLE);
                         fullChartButton.setVisibility(View.VISIBLE);
                         thirdPartyTracking.setVisibility(View.GONE);
+                        LinearLayout barCharts = findViewById(R.id.bar_chart_container);
+                        barCharts.setVisibility(View.VISIBLE);
                         int steps = mStepsDBHelper.fetchTodayStepCount();
                         displayActivityChart(steps, true);
                         editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
@@ -1972,7 +2022,7 @@ public class MainActivity extends BaseActivity{
                 }
                 else{
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    if(fullChartButton.getVisibility() == View.VISIBLE){
+                    if(sharedPreferences.getString("dataTrackingSystem", "").equals(getString(R.string.device_tracking_ntt))){
                         hideCharts();
                         editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
                     }
@@ -1981,6 +2031,8 @@ public class MainActivity extends BaseActivity{
                         btnPieChart.setVisibility(View.VISIBLE);
                         fullChartButton.setVisibility(View.VISIBLE);
                         thirdPartyTracking.setVisibility(View.GONE);
+                        LinearLayout barCharts = findViewById(R.id.bar_chart_container);
+                        barCharts.setVisibility(View.VISIBLE);
                         int steps = mStepsDBHelper.fetchTodayStepCount();
                         displayActivityChart(steps, true);
                         editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
@@ -5096,6 +5148,8 @@ public class MainActivity extends BaseActivity{
         dayChartButton.setVisibility(View.GONE);
         fullChartButton.setVisibility(View.GONE);
         thirdPartyTracking.setVisibility(View.VISIBLE);
+        LinearLayout barCharts = findViewById(R.id.bar_chart_container);
+        barCharts.setVisibility(View.GONE);
     }
 
 
@@ -5209,6 +5263,20 @@ public class MainActivity extends BaseActivity{
                     }
                 }
         );
+    }
+    public void getFitbitPieChartReset() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(MainActivity.this, ResetPieChart.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, pendingIntent);
+        Log.d(MainActivity.TAG, "Alarm set for"+ calendar.getTime()+"daily");
     }
 
 
