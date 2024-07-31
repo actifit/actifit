@@ -85,6 +85,7 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
     <activity android:name=".HistoryChartActivity" />
     <activity android:name=".MarketActivity" android:windowSoftInputMode="adjustPan" />
     <activity android:name=".SocialActivity" android:windowSoftInputMode="adjustPan" />
+        <receiver android:name=".ResetPieChart" />
 
     <service
         android:name=".ActivityMonitorService"
