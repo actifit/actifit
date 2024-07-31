@@ -32,25 +32,38 @@
         android:orientation="vertical">
 
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="10dp">
-
-
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
 
             <TextView
                 android:id="@+id/title"
                 android:text="title_placeholder"
                 android:paddingLeft="0dp"
                 android:paddingRight="10dp"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="20dp"
-                />
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true" />
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/translate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf1ab"
+                android:textColor="@color/actifitRed"
+                android:textSize="32sp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                app:solid_icon="true" />
+
+        </RelativeLayout>
 
 
         <LinearLayout
@@ -149,12 +162,25 @@
                 android:paddingBottom="20dp"
                 android:background="@color/colorWhite"
                 android:visibility="gone"
-               />
+                />
 
 
             <TextView
                 android:id="@+id/body"
                 android:text="body_placeholder"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginBottom="5dp"
+                android:paddingBottom="5dp"
+                android:background="@color/colorWhite"
+                android:color="@color/colorBlack"
+                android:lineSpacingMultiplier="1.3"
+                />
+            <TextView
+                android:id="@+id/translatedBody"
+                android:visibility="gone"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:layout_width="match_parent"
@@ -314,113 +340,113 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingLeft="10dp">
-
-            <Button
-                style="@style/AppTheme.ActifitButton"
-                android:id="@+id/reply_button"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf3e5"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:gravity="center"
-                />
+                android:paddingLeft="10dp">
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
-                android:id="@+id/upvote_button"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf164"
-                android:gravity="center"
-                />
+                <Button
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/reply_button"
+                    android:layout_width="wrap_content"
+                    android:minWidth="45dp"
+                    android:layout_height="45dp"
+                    android:textSize="14dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf3e5"
+                    android:gravity="center"
+                    />
 
-            <TextView
-                android:id="@+id/upvote_count"
-                android:text="0"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
+                <Button
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/upvote_button"
+                    android:layout_width="wrap_content"
+                    android:minWidth="45dp"
+                    android:layout_height="45dp"
+                    android:textSize="14dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf164"
+                    android:gravity="center"
+                    />
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
-                android:id="@+id/comment_button"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf086"
-                />
+                <TextView
+                    android:id="@+id/upvote_count"
+                    android:text="0"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
 
-            <TextView
-                android:id="@+id/comment_count"
-                android:text="0"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
+                <Button
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/comment_button"
+                    android:layout_width="wrap_content"
+                    android:minWidth="45dp"
+                    android:layout_height="45dp"
+                    android:textSize="14dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf086"
+                    />
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
-                android:id="@+id/expand_button"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf103"
-                />
+                <TextView
+                    android:id="@+id/comment_count"
+                    android:text="0"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
-                android:id="@+id/retract_button"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf102"
-                android:visibility="gone"
-                />
+                <Button
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/expand_button"
+                    android:layout_width="wrap_content"
+                    android:minWidth="45dp"
+                    android:layout_height="45dp"
+                    android:textSize="14dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf103"
+                    />
 
-            <!--<Button
-                style="@style/AppTheme.ActifitButton"
-                android:id="@+id/test_button"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="wrap_content"
-                android:textSize="14dp"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf103"
-                android:layout_weight="1"
-                />-->
+                <Button
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/retract_button"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:textSize="14dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf102"
+                    android:visibility="gone"
+                    />
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
-                android:id="@+id/share_social"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf1e0"
-                />
+                <!--<Button
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/test_button"
+                    android:layout_width="wrap_content"
+                    android:minWidth="45dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="14dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf103"
+                    android:layout_weight="1"
+                    />-->
+
+                <Button
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/share_social"
+                    android:layout_width="wrap_content"
+                    android:minWidth="45dp"
+                    android:layout_height="45dp"
+                    android:textSize="14dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf1e0"
+                    />
 
 
-        </LinearLayout>
+            </LinearLayout>
         </HorizontalScrollView>
 
         <ProgressBar

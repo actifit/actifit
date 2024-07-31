@@ -651,6 +651,35 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             exp.printStackTrace();
         }
 
+        //translate
+        String authKey = "060982f7-e836-4704-8a53-b34d31eb41e1:fx";
+        Translator translator = new Translator(authKey);
+        TextView body = convertView.findViewById(R.id.body);
+        TextView translatedBody = convertView.findViewById(R.id.translatedBody);
+        TextView t = convertView.findViewById(R.id.translate);
+
+        t.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (translatedBody.getVisibility() == View.GONE) {
+                    String result;
+                    try {
+                        result = translator.translateText(body.getText().toString(), null, "en-US").getText();
+                    } catch (DeepLException e) {
+                        throw new RuntimeException(e);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    translatedBody.setText(result);
+                    translatedBody.setVisibility(View.VISIBLE);
+                    body.setVisibility(View.GONE);
+                } else {
+                    translatedBody.setVisibility(View.GONE);
+                    body.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
         // Return the completed view to render on screen
         return convertView;
     }
