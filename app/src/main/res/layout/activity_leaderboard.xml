@@ -17,6 +17,22 @@ android:orientation="vertical"
     android:textColor="@color/actifitRed"
     android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/progressBarRelLayout"
+        android:visibility="visible"
+        >
+
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:progress="@integer/material_motion_duration_long_1"
+            android:layout_centerInParent="true"
+            />
+
+    </RelativeLayout>
+
 <ListView
     android:id="@+id/accounts_list"
     android:layout_width="fill_parent"

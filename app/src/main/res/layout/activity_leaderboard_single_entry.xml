@@ -2,7 +2,9 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="10dp"
+    android:layout_gravity="center_horizontal"
     android:id="@+id/entryContainer">
 
     <TextView
@@ -15,8 +17,8 @@
 
     <FrameLayout android:id="@+id/picFrame"
         android:layout_width="36dp"
-        android:layout_height="match_parent"
-        android:paddingTop="10dp"
+        android:layout_height="wrap_content"
+
         >
 
         <ImageView android:id="@+id/userProfilePic"
@@ -33,7 +35,7 @@
 
     <TextView
         android:id="@+id/userName"
-        android:layout_width="100dp"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         />
 
@@ -43,11 +45,21 @@
         android:layout_height="wrap_content"
         />
 
-    <Button
-        style="@style/AppTheme.ActifitButton"
-        android:id="@+id/entryDetailsBtn"
-        android:layout_width="120dp"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/entry_view_details_button"/>
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/entryDetailsBtn"
+            style="@style/AppTheme.ActifitButton"
+            android:layout_width="50sp"
+            android:layout_height="50sp"
+
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:text="\uf15c"
+            android:textSize="18sp" />
+    </LinearLayout>
 
 </LinearLayout>

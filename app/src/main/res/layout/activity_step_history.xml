@@ -6,10 +6,11 @@
     android:padding="10dp"
     >
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+
         >
 
         <TextView
@@ -20,15 +21,39 @@
             android:textColor="@color/actifitRed"
             android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            >
         <Button
             style="@style/AppTheme.ActifitButton"
             android:id="@+id/chart_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/view_chart_btn_lbl"
+            android:layout_width="50sp"
+            android:layout_height="50sp"
+            android:text="\uf080"
+            android:textSize="25sp"
+            android:fontFamily="@font/font_awesome_6_solid"
+            />
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/progressBarRelLayout"
+        android:visibility="visible"
+        >
+
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:progress="@integer/material_motion_duration_long_1"
+            android:layout_centerInParent="true"
             />
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/steps_list"
@@ -38,11 +63,12 @@
         android:divider="#0000CC"/>
 
 
-    <EditText
+
+    <!--<EditText
         android:id="@+id/sensor_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName" />
+        android:inputType="textPersonName" />-->
 
 </LinearLayout>
