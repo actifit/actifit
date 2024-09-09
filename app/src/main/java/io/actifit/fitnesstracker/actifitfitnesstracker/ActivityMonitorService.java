@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -16,6 +17,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -62,10 +65,15 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     public ActivityMonitorService(Context applicationContext) {
         super();
         Log.d(MainActivity.TAG,">>>>[Actifit]here I am!");
+        sharedPreferences = applicationContext.getSharedPreferences("actifitSets",MODE_PRIVATE);
     }
 
     public ActivityMonitorService() {
 
+    }
+
+    private void initializeSharedPrefs(){
+        sharedPreferences = getApplicationContext().getSharedPreferences("actifitSets",MODE_PRIVATE);
     }
 
     @Override
@@ -107,12 +115,29 @@ public class ActivityMonitorService extends Service implements SensorEventListen
      */
     @Override
     public void step(long timeNs) {
+        //no need to track steps if we do not have the proper mode active
+        if (sharedPreferences == null){
+            initializeSharedPrefs();
+        }
+        if(!sharedPreferences.getString("dataTrackingSystem", "").equals(getApplicationContext().getString(R.string.device_tracking_ntt))) {
+            return;
+        }
         int curStepCount = mStepsDBHelper.createStepsEntry();
 
         //adjust step count display and print to notification activity
         //making sure we have an instance of mBuilder
         if (mBuilder!=null) {
             mBuilder.setContentText(getString(R.string.activity_today_string) + " " + curStepCount);
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             notificationManager.notify(notificationID, mBuilder.build());
         }
 
@@ -153,11 +178,11 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             Intent notifyIntent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent;
-            if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+            /*if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
                 pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
-            }else{
-                pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
-            }
+            }else{*/
+                pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
+            //}
             //prepare notification details
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
                     context.getString(R.string.actifit_channel_remind_ID))
@@ -172,6 +197,16 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             //proceed notifying user
             NotificationManagerCompat managerCompat = NotificationManagerCompat.from(context);
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             managerCompat.notify(notID, notificationCompat);
         }
         //stepDisplay.setText(TEXT_NUM_STEPS + (curStepCount < 0 ? 0 : curStepCount));
@@ -304,14 +339,14 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
 
             PendingIntent pendingIntent;
-            if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+            //if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
                 pendingIntent =
                         PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
-            }else {
+            /*}else {
                 pendingIntent =
                         PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
-            }
+            }*/
             mBuilder = new
                     NotificationCompat.Builder(getApplicationContext(), getString(R.string.actifit_channel_ID))
                     .setContentTitle(getString(R.string.actifit_notif_title))
