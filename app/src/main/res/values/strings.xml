@@ -519,4 +519,11 @@
     <string name="free_signup_links_desc">Once you have completed 5 rewarded actifit activity reports, you become eligible to claim 5 free referral signup links to share with your friends. After depletion and completion another 5 rewarded activity reports, you can claim again another 5 free signup links.</string>
     <string name="for_rewards">to earn rewards.</string>
     <string name="confirm_proceed">Post anyway?</string>
+    <string name="translation_header">Auto-translated content. Click to view original.</string>
+    <string name="fa_wallet_solid">\uf555</string>
+    <string name="fa_exclamation_circle_solid">\uf06a</string>
+    <string name="fa_history_solid">\uf1da</string>
+    <string name="fa_coins_solid">\uf51e</string>
+    <string name="fa_file">\uf15b</string>
+    <string name="noPostFound">No submitted post found on this date</string>
 </resources>
