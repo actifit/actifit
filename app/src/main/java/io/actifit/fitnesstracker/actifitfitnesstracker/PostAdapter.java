@@ -1,29 +1,14 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
-import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
+
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,20 +17,22 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.deepl.api.DeepLException;
+import com.deepl.api.Translator;
+import com.deepl.api.TranslatorOptions;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
-import com.squareup.picasso.Target;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -54,6 +41,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 import static android.view.View.GONE;
@@ -64,16 +52,11 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 import androidx.fragment.app.FragmentManager;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
-import io.noties.markwon.LinkResolver;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.MarkwonConfiguration;
 
 import io.noties.markwon.html.HtmlPlugin;
 import io.noties.markwon.image.AsyncDrawable;
-import io.noties.markwon.image.AsyncDrawableLoader;
-import io.noties.markwon.image.ImageSize;
-import io.noties.markwon.image.ImageSizeResolver;
-import io.noties.markwon.image.ImagesPlugin;
 import io.noties.markwon.image.picasso.PicassoImagesPlugin;
 
 
@@ -84,11 +67,15 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     ListView socialView;
     Context socialActivContext;
     ListView commentsList;
-    Boolean isComment;//flag whether this is a post or a comment
+    //TextView translationNotice;
+    Boolean isComment = false;//flag whether this is a post or a comment
+    Boolean isTranslated = false;
+    //Boolean isExpanded = false;
     static JSONArray extraVotesList;
     static Context keyMainContext;
     // obtain an instance of Markwon
     Markwon markwon;
+    Translator translator;
 
 
     public int Size(){
@@ -106,32 +93,13 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         this.isComment = isComment;
         this.ctx = context;
 
-                //for handling image loading
-                /*.usePlugin(new AbstractMarkwonPlugin() {
-                    @Override
-                    public void configureConfiguration(MarkwonConfiguration.Builder builder) {
-                        builder.asyncDrawableLoader(AsyncDrawableLoader.noOp());
-                    }
-                })*/
+        //translate
+        String authKey = ctx.getString(R.string.deepl_api_key);
+        //TranslatorOptions options =
+        //        new TranslatorOptions().; //.setMaxRetries(8).setTimeout(Duration.ofSeconds(
+        //                5));
+        this.translator = new Translator(authKey);//, options);
 
-                //control image size
-                /*.usePlugin(new AbstractMarkwonPlugin() {
-                    @Override
-                    public void configureConfiguration(MarkwonConfiguration.Builder builder) {
-                        builder.imageSizeResolver(new ImageSizeResolver() {
-                            @NonNull
-                            @Override
-                            public Rect resolveImageSize(@NonNull AsyncDrawable drawable) {
-                                final ImageSize imageSize = drawable.getImageSize();
-                                return drawable.getResult().getBounds();
-                            }
-                        });
-                    }
-                })*/
-
-                //.usePlugin(HtmlPlugin.create())
-                //Markwon.create(ctx);
-        //markwon.requirePlugin(HtmlPlugin.create());
     }
 
     private boolean userNewlyVotedPost(String voter, String permlink){ //int post_id){
@@ -156,7 +124,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         return false;
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    //@RequiresApi(api = Build.VERSION_CODES.O)
+    //@SuppressLint("ClickableViewAccessibility")
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -198,6 +167,9 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             Button commentButton = convertView.findViewById(R.id.comment_button);
             Button upvoteButton = convertView.findViewById(R.id.upvote_button);
             Button replyButton = convertView.findViewById(R.id.reply_button);
+            //translationNotice = convertView.findViewById(R.id.translation_notice_lbl);
+            TextView translateBtn = convertView.findViewById(R.id.translate);
+            RelativeLayout progressBarBody = convertView.findViewById(R.id.progressBarBody);
 
             TextView body = convertView.findViewById(R.id.body);
 
@@ -233,13 +205,21 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             }
 
 
+            /*if (postEntry.isTranslated){
+                translationNotice.setVisibility(VISIBLE);
+            }else{
+                translationNotice.setVisibility(GONE);
+            }*/
+
+
+
             View finalConvertView = convertView;
 
 
 
             replyButton.setOnClickListener(view -> {
 
-                if (MainActivity.username == null || MainActivity.username.length() <1) {
+                if (MainActivity.username == null || MainActivity.username.isEmpty()) {
                     Toast.makeText(ctx, ctx.getString(R.string.username_missing), Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -336,6 +316,24 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 Toast.makeText(ctx, ctx.getString(R.string.afit_payout_details),Toast.LENGTH_SHORT).show();
             });
 
+            expandButton.setOnClickListener(view -> {
+                if (expandButton.getVisibility() == VISIBLE) {
+                    expandPost(expandButton, retractButton, mainImage, postEntry,
+                            body, progressBarBody);
+                }else{
+                    retractPost(expandButton, retractButton, mainImage, postEntry,
+                            body, progressBarBody);
+                }
+            });
+
+            retractButton.setOnClickListener(view -> retractPost(expandButton, retractButton,
+                    mainImage, postEntry, body, progressBarBody));
+
+            translateBtn.setOnClickListener((View v) -> {
+                handleTranslation(postEntry, body, progressBarBody);//, translationNotice);
+
+            });
+
             // Populate the data into the template view using the data object
 
             //checkmark
@@ -350,22 +348,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             title.setText(postEntry.title);
             //permlink.setText(postEntry.permlink);
 
-            //body.setText(postEntry.body);
-            //convert markdown
-            String shortenedContent = Utils.parseMarkdown(postEntry.body);
-            //removed extra tags
-            shortenedContent = Utils.sanitizeContent(shortenedContent, false);
-
-            //shorten content only for posts, comments usually are shorter in nature
-            if (!this.isComment){
-                shortenedContent = Utils.trimText(shortenedContent, Constants.trimmedTextSize);
-                shortenedContent += "..." ;//append 3 dots for extra content
-            }else{
-                shortenedContent = Utils.sanitizeContent(postEntry.body, true);
-            }
-
             //to be used when setting value upon content retract
-            final String finalShortenedContent = shortenedContent;
+            //final String finalShortenedContent = displayContent;
 
 
             try {
@@ -380,7 +364,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 String activityCountStr = postEntry.getActivityCount(true);
 
 
-                if (activityCountStr == "") {
+                if (Objects.equals(activityCountStr, "")) {
                     activityCountContainer.setVisibility(GONE);
                 } else {
                     activityCountContainer.setVisibility(VISIBLE);
@@ -391,7 +375,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
                     //also adjust formatting of activity count
                     String activityCountStrNfmt = postEntry.getActivityCount(false);
-                    Integer actiCountNo = Integer.parseInt(activityCountStrNfmt);
+                    int actiCountNo = Integer.parseInt(activityCountStrNfmt);
                     activityCount.setText(activityCountStr);
                     if (actiCountNo >= 10000) {
                         activityCount.setTextColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
@@ -476,7 +460,11 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                             // For example, you might use the container's width for width and a fixed height
                             int desiredWidth = body.getWidth(); // Replace with actual container width
                             int desiredHeight = Math.round(desiredWidth * originalHeight / originalWidth); // Calculate desired height
-
+                            if (desiredHeight <=0 && desiredWidth <=0){
+                                return Picasso.get()
+                                        .load(drawable.getDestination())
+                                        .tag(drawable);
+                            }
 
                             return Picasso.get()
                                     .load(drawable.getDestination())
@@ -510,9 +498,11 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 body.setLayoutParams(layoutParams);
             //}
 
-            final Spanned markdown = markwon.toMarkdown(finalShortenedContent);
+            renderContent(postEntry, body, progressBarBody);//, translationNotice);
+
+            /*final Spanned markdown = markwon.toMarkdown(finalShortenedContent);
             // use it on a TextView
-            markwon.setParsedMarkdown(body, markdown);
+            markwon.setParsedMarkdown(body, markdown);*/
 
             //show comment content
             /*PostAdapter commentAdapter = new PostAdapter(ctx, postEntry.comments, socialView, this.socialActivContext, false);
@@ -637,49 +627,10 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 }
             });*/
 
-            expandButton.setOnClickListener(view -> {
-                if (expandButton.getVisibility() == VISIBLE) {
-                    expandPost(expandButton, retractButton, mainImage, postEntry, body);
-                }else{
-                    retractPost(expandButton, retractButton, mainImage, finalShortenedContent, body);
-                }
-            });
-
-            retractButton.setOnClickListener(view -> retractPost(expandButton, retractButton, mainImage, finalShortenedContent, body));
 
         }catch(Exception exp){
             exp.printStackTrace();
         }
-
-        //translate
-        String authKey = "060982f7-e836-4704-8a53-b34d31eb41e1:fx";
-        Translator translator = new Translator(authKey);
-        TextView body = convertView.findViewById(R.id.body);
-        TextView translatedBody = convertView.findViewById(R.id.translatedBody);
-        TextView t = convertView.findViewById(R.id.translate);
-
-        t.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (translatedBody.getVisibility() == View.GONE) {
-                    String result;
-                    try {
-                        result = translator.translateText(body.getText().toString(), null, "en-US").getText();
-                    } catch (DeepLException e) {
-                        throw new RuntimeException(e);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    translatedBody.setText(result);
-                    translatedBody.setVisibility(View.VISIBLE);
-                    body.setVisibility(View.GONE);
-                } else {
-                    translatedBody.setVisibility(View.GONE);
-                    body.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
         // Return the completed view to render on screen
         return convertView;
     }
@@ -698,7 +649,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 JSONArray result = hiveReq.getComments(params);
                 for (int i = 0; i < result.length(); i++) {
                     //comments are basically like posts under hive
-                    SingleHivePostModel commentEntry = new SingleHivePostModel((result.getJSONObject(i)));
+                    SingleHivePostModel commentEntry = new SingleHivePostModel((result.getJSONObject(i)), ctx);
                     commentList.add(commentEntry);
                 }
             } catch (Exception ex) {
@@ -726,19 +677,22 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     }
 
     void expandPost(Button expandButton, Button retractButton, //MarkedView mdView,
-                    ImageView mainImage, SingleHivePostModel postEntry, TextView body){
+                    ImageView mainImage, SingleHivePostModel postEntry,
+                    TextView body, RelativeLayout progressBarBody){
         //expand text visibility
         expandButton.setVisibility(GONE);
         retractButton.setVisibility(VISIBLE);
+        postEntry.isExpanded = true;
         //mdView.setMDText(Utils.sanitizeContent(postEntry.body, true));
 
         //body.setText(mdView.text);
 
         // parse markdown and create styled text
-        final Spanned markdown = markwon.toMarkdown(Utils.sanitizeContent(postEntry.body, true));
-
-        // use it on a TextView
-        markwon.setParsedMarkdown(body, markdown);
+        /*String textToUse = postEntry.body;
+        if (postEntry.isTranslated){
+            textToUse = postEntry.translatedText;
+        }*/
+        renderContent(postEntry, body, progressBarBody);//, translationNotice);
 
         /*
         ViewGroup.LayoutParams layoutParams = body.getLayoutParams();
@@ -751,10 +705,12 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     }
 
     void retractPost(Button expandButton, Button retractButton, //MarkedView mdView,
-                     ImageView mainImage, String finalShortenedContent, TextView body){
+                     ImageView mainImage, SingleHivePostModel postEntry,
+                     TextView body, RelativeLayout progressBarBody){
         //retract text visibility
         expandButton.setVisibility(VISIBLE);
         retractButton.setVisibility(GONE);
+        postEntry.isExpanded = false;
 
         //maintain current position after close
         int currentPosition = socialView.getFirstVisiblePosition();
@@ -765,12 +721,75 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         socialView.setSelectionFromTop(currentPosition, topOffset);
 
         //mdView.setMDText(finalShortenedContent);
-
-        final Spanned markdown = markwon.toMarkdown(finalShortenedContent);
-        // use it on a TextView
-        markwon.setParsedMarkdown(body, markdown);
+        renderContent(postEntry, body, progressBarBody);//, translationNotice);
 
         mainImage.setVisibility(VISIBLE);
+    }
+
+    void handleTranslation(SingleHivePostModel postEntry, TextView body, RelativeLayout progressBarBody){//, TextView _translationNotice){
+
+
+        if (!postEntry.isTranslated){
+            progressBarBody.setVisibility(VISIBLE);
+            body.setVisibility(GONE);
+            //_translationNotice.setVisibility(VISIBLE);
+            //if (translatedBody.getVisibility() == View.GONE) {
+            Thread thread = new Thread(() -> {
+                String result = "";
+                if (postEntry.translatedText.isEmpty()) {
+                    try {
+                        result = translator.translateText(postEntry.body, null, "EN-US").getText();
+                        postEntry.translatedText = result;
+                        postEntry.isTranslated = true;
+                    } catch (DeepLException e) {
+                        Log.e(MainActivity.TAG, "deepl exception" + e.getMessage());
+                    } catch (InterruptedException e) {
+                        Log.e(MainActivity.TAG, "deepl InterruptedException" + e.getMessage());
+                    }
+                }else{
+                    postEntry.isTranslated = true;
+                }
+
+                runOnUiThread(() -> {
+                    renderContent(postEntry, body, progressBarBody);//, _translationNotice);
+
+                });
+            });
+            thread.start();
+        } else {
+            postEntry.isTranslated = false;
+            //_translationNotice.setVisibility(GONE);
+            /*if (retractButton.getVisibility() == VISIBLE) {
+                expandPost(expandButton, retractButton, mainImage, postEntry, body);
+            }else{
+                retractPost(expandButton, retractButton, mainImage, finalShortenedContent, body);
+            }*/
+            renderContent(postEntry, body, progressBarBody);//, _translationNotice);
+                    /*translatedBody.setVisibility(View.GONE);
+                    body.setVisibility(View.VISIBLE);*/
+        }
+    }
+
+    void renderContent(SingleHivePostModel postEntry, TextView body, RelativeLayout progressBarBody){//, TextView translationNotice){
+        String finalText = postEntry.shortBody;
+        if (this.isComment || postEntry.isExpanded) {
+            finalText = postEntry.body;
+        }
+        if (postEntry.isTranslated){
+            //translationNotice.setVisibility(VISIBLE);
+            if (this.isComment || postEntry.isExpanded){
+                finalText = postEntry.translatedText;
+            }else{
+                finalText = postEntry.getTrimmedTranslatedContent();
+            }
+        }
+
+        Spanned markdown = markwon.toMarkdown(Utils.sanitizeContent(finalText, true));
+
+        // use it on a TextView
+        markwon.setParsedMarkdown(body, markdown);
+        body.setVisibility(VISIBLE);
+        progressBarBody.setVisibility(GONE);
     }
 
     private Boolean isPaid(SingleHivePostModel postEntry){

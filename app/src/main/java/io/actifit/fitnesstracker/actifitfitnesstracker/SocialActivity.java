@@ -30,10 +30,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
-
-import info.androidhive.fontawesome.FontTextView;
 
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
@@ -280,7 +276,7 @@ public class SocialActivity extends BaseActivity {
                     // Retrieve each JSON object within the JSON array
                     //JSONObject jsonObject = new JSONObject()
 
-                    SingleHivePostModel postEntry = new SingleHivePostModel((result.getJSONObject(i)));
+                    SingleHivePostModel postEntry = new SingleHivePostModel((result.getJSONObject(i)), getApplicationContext());
                     lastPost = postEntry;
                     posts.add(postEntry);
                     //grab post AFIT rewards

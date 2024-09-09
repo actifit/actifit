@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,6 +19,7 @@ import com.squareup.picasso.Picasso;
 import java.text.DecimalFormat;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
@@ -28,7 +28,7 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
     public LeaderboardEntryAdapter(Context context, ArrayList<SinglePostModel> activityEntry) {
         super(context, 0, activityEntry);
 
-        SharedPreferences sharedPreferences = context.getSharedPreferences("actifitSets", context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
         currentUser = sharedPreferences.getString("actifitUser","");
     }
 
@@ -48,7 +48,7 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
         TextView entryCount = convertView.findViewById(R.id.activityCount);
         ImageView userProfilePic = convertView.findViewById(R.id.userProfilePic);
         FrameLayout picFrame = convertView.findViewById(R.id.picFrame);
-        Button detailsButton = convertView.findViewById(R.id.entryDetailsBtn);
+        TextView detailsButton = convertView.findViewById(R.id.entryDetailsBtn);
 
         // Populate the data into the template view using the data object
 
@@ -80,7 +80,7 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
         });
 
         //highlight the user's entry in the list
-        if (!currentUser.equals("") && currentUser.equals(postEntry.username) ){
+        if (!currentUser.isEmpty() && currentUser.equals(postEntry.username) ){
             entryContainer.setBackgroundColor(getContext().getResources().getColor(R.color.actifitRed));
         }else{
             entryContainer.setBackgroundColor(getContext().getResources().getColor(R.color.colorWhite));
@@ -101,27 +101,24 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
         }
 
         //associate proper action with button
-        detailsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
+        detailsButton.setOnClickListener(arg0 -> {
 
-                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
-                builder.setToolbarColor(leaderboardContext.getResources().getColor(R.color.actifitRed));
+            builder.setToolbarColor(leaderboardContext.getResources().getColor(R.color.actifitRed));
 
-                //animation for showing and closing fitbit authorization screen
-                builder.setStartAnimations(leaderboardContext, R.anim.slide_in_right, R.anim.slide_out_left);
+            //animation for showing and closing fitbit authorization screen
+            builder.setStartAnimations(leaderboardContext, R.anim.slide_in_right, R.anim.slide_out_left);
 
-                //animation for back button clicks
-                builder.setExitAnimations(leaderboardContext, android.R.anim.slide_in_left,
-                        android.R.anim.slide_out_right);
+            //animation for back button clicks
+            builder.setExitAnimations(leaderboardContext, android.R.anim.slide_in_left,
+                    android.R.anim.slide_out_right);
 
-                CustomTabsIntent customTabsIntent = builder.build();
+            CustomTabsIntent customTabsIntent = builder.build();
 
-                customTabsIntent.launchUrl(leaderboardContext, Uri.parse(MainActivity.ACTIFIT_CORE_URL + postEntry.postUrl));
+            customTabsIntent.launchUrl(leaderboardContext, Uri.parse(MainActivity.ACTIFIT_CORE_URL + postEntry.postUrl));
 
 
-            }
         });
         // Return the completed view to render on screen
         return convertView;
@@ -129,7 +126,7 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
 
     private void openUserAccount(SinglePostModel postEntry){
         final String username = postEntry.username;
-        if (username != "") {
+        if (!Objects.equals(username, "")) {
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
             builder.setToolbarColor(getContext().getResources().getColor(R.color.actifitRed));

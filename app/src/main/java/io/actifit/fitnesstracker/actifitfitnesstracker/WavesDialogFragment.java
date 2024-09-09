@@ -48,7 +48,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.mittsu.markedview.MarkedView;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -75,6 +76,13 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
 import static io.actifit.fitnesstracker.actifitfitnesstracker.PostSteemitActivity.copyExif;
 
+import io.noties.markwon.AbstractMarkwonPlugin;
+import io.noties.markwon.Markwon;
+import io.noties.markwon.MarkwonConfiguration;
+import io.noties.markwon.html.HtmlPlugin;
+import io.noties.markwon.image.AsyncDrawable;
+import io.noties.markwon.image.picasso.PicassoImagesPlugin;
+
 public class WavesDialogFragment extends DialogFragment {
     public Context ctx;
     //JSONArray extraVotesList;
@@ -87,7 +95,7 @@ public class WavesDialogFragment extends DialogFragment {
     private PostAdapter postAdapter;
     String start_author, start_permlink;
     EditText replyText;
-    MarkedView mdReplyView;
+    TextView mdReplyView;
     //below tracks which post's comments we are fetching
     //as the value increases, we go back in history further
     //0 means today's comments, 1 means yesterday and so on and so forth
@@ -188,7 +196,56 @@ public class WavesDialogFragment extends DialogFragment {
 
         //mdReplyView.setMDText(replyText.getText().toString());
         //default content for preview
-        mdReplyView.setMDText(ctx.getString(R.string.wave_preview_lbl));
+        //mdReplyView.setMDText(ctx.getString(R.string.wave_preview_lbl));
+        final Markwon markwon = Markwon.builder(ctx)
+                //.usePlugin(ImagesPlugin.create())
+                //support HTML
+                .usePlugin(HtmlPlugin.create())
+
+                //for handling link clicks
+                .usePlugin(new AbstractMarkwonPlugin() {
+                    @Override
+                    public void configureConfiguration(MarkwonConfiguration.Builder builder) {
+                        builder.linkResolver((view, link) -> {
+                            // react to link click here
+
+                            // Create an Intent to open the URL in an external browser
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            // Verify that there's an app available to handle this intent
+                            if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
+                                view.getContext().startActivity(intent);
+                            }
+                        });
+                    }
+                })
+
+                //handle images via available picasso
+                //.usePlugin(PicassoImagesPlugin.create(Picasso.get()))
+
+                //handle images via picasso
+                .usePlugin(PicassoImagesPlugin.create(new PicassoImagesPlugin.PicassoStore() {
+                    @org.checkerframework.checker.nullness.qual.NonNull
+                    @Override
+                    public RequestCreator load(@org.checkerframework.checker.nullness.qual.NonNull AsyncDrawable drawable) {
+
+                        return Picasso.get()
+                                .load(drawable.getDestination())
+                                //.resize(desiredWidth, desiredHeight)
+                                //.centerCrop()
+                                .tag(drawable);
+                    }
+
+                    @Override
+                    public void cancel(@NonNull AsyncDrawable drawable) {
+                        Picasso.get()
+                                .cancelTag(drawable);
+                    }
+                }))
+
+                .build();
+        markwon.setMarkdown(mdReplyView, ctx.getString(R.string.wave_preview_lbl));
 
         replyText.addTextChangedListener(new TextWatcher() {
 
@@ -204,7 +261,8 @@ public class WavesDialogFragment extends DialogFragment {
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
                 if(s.length() != 0) {
-                    mdReplyView.setMDText(replyText.getText().toString());
+                    //mdReplyView.setMDText(replyText.getText().toString());
+                    markwon.setMarkdown(mdReplyView, replyText.getText().toString());
 
                     //store current text
                         /*    SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -213,7 +271,9 @@ public class WavesDialogFragment extends DialogFragment {
                             editor.apply();
                             */
                 }else{
-                    mdReplyView.setMDText(ctx.getString(R.string.wave_preview_lbl));
+                    //mdReplyView.setMDText(ctx.getString(R.string.wave_preview_lbl));
+                    Markwon markwon = Markwon.create(ctx);
+                    markwon.setMarkdown(mdReplyView, ctx.getString(R.string.wave_preview_lbl));
                 }
             }
         });
@@ -526,7 +586,7 @@ public class WavesDialogFragment extends DialogFragment {
                 SingleHivePostModel lastPost = null;
 
                 if (result.length() > postDateContent){
-                    postEntry = new SingleHivePostModel((result.getJSONObject(postDateContent)));
+                    postEntry = new SingleHivePostModel((result.getJSONObject(postDateContent)), ctx);
                     //lastPost = postEntry;
                     comments.addAll(loadComments(postEntry));
                 }
@@ -625,7 +685,7 @@ public class WavesDialogFragment extends DialogFragment {
             JSONArray result = hiveReq.getComments(params);
             for (int i = result.length() - 1; i > -1 ; i--) {
                 //comments are basically like posts under hive
-                SingleHivePostModel commentEntry = new SingleHivePostModel((result.getJSONObject(i)));
+                SingleHivePostModel commentEntry = new SingleHivePostModel((result.getJSONObject(i)), ctx);
                 commentList.add(commentEntry);
             }
         } catch (Exception ex) {

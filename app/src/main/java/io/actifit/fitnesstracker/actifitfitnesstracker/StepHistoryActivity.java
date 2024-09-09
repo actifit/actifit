@@ -6,14 +6,23 @@ import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Objects;
 
 public class StepHistoryActivity extends BaseActivity {
     private ListView mStepsListView;
@@ -21,6 +30,8 @@ public class StepHistoryActivity extends BaseActivity {
     private ArrayList<DateStepsModel> mStepCountList;
     private ArrayList<DateStepsModel> mStepFinalList;
     private ActivityEntryAdapter listingAdapter;
+    private JSONArray userPosts;
+    private RelativeLayout progressBarRelLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +47,7 @@ public class StepHistoryActivity extends BaseActivity {
 
         //hook chart activity button
         Button BtnViewChart = findViewById(R.id.chart_view);
+        progressBarRelLayout = findViewById(R.id.progressBarRelLayout);
 
         BtnViewChart.setOnClickListener(new View.OnClickListener() {
 
@@ -65,6 +77,9 @@ public class StepHistoryActivity extends BaseActivity {
             //grab the data to be displayed in the list
             getDataForList();
 
+            //load user's post data
+            loadPosts();
+
             return null;
         }
 
@@ -90,6 +105,10 @@ public class StepHistoryActivity extends BaseActivity {
                     //initiate a new entry
                     DateStepsModel newEntry = new DateStepsModel(dateDisplay, mStepCountList.get(position).mStepCount, mStepCountList.get(position).mtrackingDevice);
 
+                    //check if user has a post, set up its link properly
+                    newEntry.relevantPostLink = matchUserPostLink((mStepCountList.get(position)).mDate);
+                    newEntry.hasRelevantPost = !Objects.equals(newEntry.relevantPostLink, "");
+
                     mStepFinalList.add(newEntry);
 
                 }catch(ParseException txtEx){
@@ -105,7 +124,57 @@ public class StepHistoryActivity extends BaseActivity {
 
 
             mStepsListView.setAdapter(listingAdapter);
+            progressBarRelLayout.setVisibility(View.GONE);
 
         }
+    }
+
+
+    /**
+     * function handles loading user's historical posts
+     */
+    void loadPosts()  {
+
+        HiveRequests hive = new HiveRequests(getApplicationContext());
+
+        //Thread thread = new Thread(() -> {
+
+            try {
+                JSONObject params = new JSONObject();
+                params.put("sort", "posts");
+                params.put("account", MainActivity.username);
+                params.put("start_author", "");
+                params.put("start_permlink", "");
+                params.put("observer", "");
+                JSONArray result = hive.getAccountPosts(params);
+                userPosts = result;
+
+            }
+            catch (Exception e){
+                //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(MainActivity.TAG, "ERROR");
+            }
+        //});
+        //thread.start();
+    }
+    String matchUserPostLink(String entryDate){
+        for (int i = 0; i < userPosts.length(); i++) {
+            try {
+                JSONObject post = userPosts.getJSONObject(i);
+                SingleHivePostModel postEntry = new SingleHivePostModel(post, getApplicationContext());
+                //same date
+                if (postEntry.postDateMatches(entryDate)) {
+                    if (postEntry.author.equals(MainActivity.username) && postEntry.hasActivityCount()
+                    && (postEntry.hasActifitTag() )
+                    ) {
+                        return postEntry.permlink;
+                    }
+                }
+            } catch (Exception e) {
+                //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(MainActivity.TAG, "ERROR");
+            }
+        }
+        return "";
     }
 }

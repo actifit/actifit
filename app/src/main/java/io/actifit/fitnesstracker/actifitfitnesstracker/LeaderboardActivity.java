@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -25,7 +27,7 @@ public class LeaderboardActivity extends BaseActivity {
     private ArrayList<SinglePostModel> mAccountsFinalList ;
     private Context leadership_post_context;
     private LeaderboardEntryAdapter listingAdapter;
-    private ProgressDialog progress;
+    private RelativeLayout progressBarRelLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +49,13 @@ public class LeaderboardActivity extends BaseActivity {
             urlStr = getString(R.string.test_leaderboard_v2_url);
         }*/
 
-        progress = new ProgressDialog(this);
+        progressBarRelLayout = findViewById(R.id.progressBarRelLayout);
+        progressBarRelLayout.setVisibility(View.VISIBLE);
+
+        /*progress = new ProgressDialog(this);
 
         progress.setMessage(getString(R.string.fetching_leaderboard));
-        progress.show();
+        progress.show();*/
 
         // Request the transactions of the user first via JsonArrayRequest
         // according to our data format
@@ -75,18 +80,20 @@ public class LeaderboardActivity extends BaseActivity {
                         mAccountsListView.setAdapter(listingAdapter);
 
                         //hide dialog
-                        progress.hide();
+                        //progress.hide();
                         //actifitTransactions.setText("Response is: "+ response);
                     }catch (Exception e) {
                         //hide dialog
-                        progress.hide();
+                        //progress.hide();
                         //actifitTransactionsError.setVisibility(View.VISIBLE);
                         e.printStackTrace();
                     }
+                    progressBarRelLayout.setVisibility(View.GONE);
 
                 }, error -> {
             //hide dialog
-            progress.hide();
+            //progress.hide();
+            progressBarRelLayout.setVisibility(View.GONE);
             //actifitTransactionsView.setText("Unable to fetch balance");
             //actifitTransactionsError.setVisibility(View.VISIBLE);
         });
@@ -104,16 +111,22 @@ public class LeaderboardActivity extends BaseActivity {
     protected void onPause()
     {
         super.onPause();
-        if ( progress!=null){
+        /*if ( progress!=null){
             progress.dismiss();
+        }*/
+        if (progressBarRelLayout != null){
+            progressBarRelLayout.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
-        if ( progress!=null){
+        /*if ( progress!=null){
             progress.dismiss();
+        }*/
+        if (progressBarRelLayout != null){
+            progressBarRelLayout.setVisibility(View.GONE);
         }
     }
 

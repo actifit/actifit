@@ -38,7 +38,7 @@ class NxFitbitHelper {
     @SuppressWarnings("FieldCanBeLocal")
     private String clientSecret = "";
     @SuppressWarnings("FieldCanBeLocal")
-    private String apiCallback = "";
+    private static String apiCallback = "";
     @SuppressWarnings("FieldCanBeLocal")
     private String apiScope = "activity heartrate location profile weight";
 
@@ -51,10 +51,11 @@ class NxFitbitHelper {
     private String fitBitAPIUrl = "https://api.fitbit.com/1/";
 
     //constructor
-    NxFitbitHelper(Context ctxt) {
+    NxFitbitHelper(Context ctxt, boolean postScreen) {
         clientid = ctxt.getString(R.string.fitbit_clientid);
         clientSecret = ctxt.getString(R.string.fitbit_clientsec);
-        apiCallback = ctxt.getString(R.string.fitbit_apicb);
+        apiCallback = postScreen?ctxt.getString(R.string.fitbit_apicb)
+                :ctxt.getString(R.string.fitbit_apicbmain);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
     }
@@ -64,9 +65,8 @@ class NxFitbitHelper {
     }
 
     //function handles redirecting user to proper authorization url via customtabs
-    static void sendUserToAuthorisation(Context callingContext) {
-
-        NxFitbitHelper helperClass = new NxFitbitHelper(callingContext);
+    static void sendUserToAuthorisation(Context callingContext, boolean postScreen) {
+        NxFitbitHelper helperClass = new NxFitbitHelper(callingContext, postScreen);
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
         builder.setToolbarColor(callingContext.getResources().getColor(R.color.actifitRed));

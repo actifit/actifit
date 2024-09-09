@@ -38,7 +38,8 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.mittsu.markedview.MarkedView;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -61,6 +62,13 @@ import static android.app.Activity.RESULT_OK;
 import static android.view.View.VISIBLE;
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 import static io.actifit.fitnesstracker.actifitfitnesstracker.PostSteemitActivity.copyExif;
+
+import io.noties.markwon.AbstractMarkwonPlugin;
+import io.noties.markwon.Markwon;
+import io.noties.markwon.MarkwonConfiguration;
+import io.noties.markwon.html.HtmlPlugin;
+import io.noties.markwon.image.AsyncDrawable;
+import io.noties.markwon.image.picasso.PicassoImagesPlugin;
 
 public class CommentModalDialogFragment extends DialogFragment {
     public Context ctx;
@@ -117,7 +125,7 @@ public class CommentModalDialogFragment extends DialogFragment {
 
         //EditText
         replyText = view.findViewById(R.id.reply_text);
-        MarkedView mdReplyView = view.findViewById(R.id.reply_preview);
+        TextView mdReplyView = view.findViewById(R.id.reply_preview);
 
         Button insertImage = view.findViewById(R.id.insert_image_comment);
 
@@ -128,7 +136,57 @@ public class CommentModalDialogFragment extends DialogFragment {
 
         //mdReplyView.setMDText(replyText.getText().toString());
         //default content for preview
-        mdReplyView.setMDText(ctx.getString(R.string.comment_preview_lbl));
+        //mdReplyView.setMDText(ctx.getString(R.string.comment_preview_lbl));
+        final Markwon markwon = Markwon.builder(ctx)
+                //.usePlugin(ImagesPlugin.create())
+                //support HTML
+                .usePlugin(HtmlPlugin.create())
+
+                //for handling link clicks
+                .usePlugin(new AbstractMarkwonPlugin() {
+                    @Override
+                    public void configureConfiguration(MarkwonConfiguration.Builder builder) {
+                        builder.linkResolver((view, link) -> {
+                            // react to link click here
+
+                            // Create an Intent to open the URL in an external browser
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            // Verify that there's an app available to handle this intent
+                            if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
+                                view.getContext().startActivity(intent);
+                            }
+                        });
+                    }
+                })
+
+                //handle images via available picasso
+                //.usePlugin(PicassoImagesPlugin.create(Picasso.get()))
+
+                //handle images via picasso
+                .usePlugin(PicassoImagesPlugin.create(new PicassoImagesPlugin.PicassoStore() {
+                    @org.checkerframework.checker.nullness.qual.NonNull
+                    @Override
+                    public RequestCreator load(@org.checkerframework.checker.nullness.qual.NonNull AsyncDrawable drawable) {
+
+                        return Picasso.get()
+                                .load(drawable.getDestination())
+                                //.resize(desiredWidth, desiredHeight)
+                                //.centerCrop()
+                                .tag(drawable);
+                    }
+
+                    @Override
+                    public void cancel(@NonNull AsyncDrawable drawable) {
+                        Picasso.get()
+                                .cancelTag(drawable);
+                    }
+                }))
+
+                .build();
+
+        markwon.setMarkdown(mdReplyView, ctx.getString(R.string.comment_preview_lbl));
 
         //proceed with positive action
         Button proceedCommentBtn = view.findViewById(R.id.proceed_comment_btn);
@@ -246,7 +304,8 @@ public class CommentModalDialogFragment extends DialogFragment {
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
                 if(s.length() != 0) {
-                    mdReplyView.setMDText(replyText.getText().toString());
+                    //mdReplyView.setMDText(replyText.getText().toString());
+                    markwon.setMarkdown(mdReplyView, replyText.getText().toString());
 
                     //store current text
                         /*    SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -255,7 +314,8 @@ public class CommentModalDialogFragment extends DialogFragment {
                             editor.apply();
                             */
                 }else{
-                    mdReplyView.setMDText(ctx.getString(R.string.comment_preview_lbl));
+                    //mdReplyView.setMDText(ctx.getString(R.string.comment_preview_lbl));
+                    markwon.setMarkdown(mdReplyView, ctx.getString(R.string.comment_preview_lbl));
                 }
             }
         });
