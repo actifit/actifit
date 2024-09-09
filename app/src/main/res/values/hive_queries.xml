@@ -9,5 +9,6 @@
     <string name="get_post_comments">condenser_api.get_content_replies</string>
     <string name="get_dynamic_global_properties">condenser_api.get_dynamic_global_properties</string>
     <string name="actifit_community">hive-193552</string>
+    <string name="actifit_name">actifit</string>
     <string name="hive_image_host_url">https://images.hive.blog/u/USERNAME/avatar</string>
 </resources>
