@@ -138,7 +138,7 @@
                 android:layout_gravity="right"
                 android:id="@+id/top_icons_container">
 
-                <info.androidhive.fontawesome.FontTextView
+                <TextView
                     android:id="@+id/btn_settings"
                     android:layout_width="35dp"
                     android:layout_height="30dp"
@@ -147,7 +147,10 @@
                     android:text="\uf013"
                     android:layout_gravity="left"
                     android:gravity="left"
-                    app:solid_icon="true" />
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    />
+
+
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -166,7 +169,8 @@
                         android:background="@color/actifitRed"
                         />
 
-                    <info.androidhive.fontawesome.FontTextView
+
+                    <TextView
                         android:id="@+id/btn_view_notifications"
                         android:layout_width="wrap_content"
                         android:layout_height="30dp"
@@ -176,10 +180,12 @@
                         android:gravity="center"
                         android:paddingRight="30dp"
                         android:layout_gravity="right"
-                        app:solid_icon="true" />
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        />
+
                 </LinearLayout>
 
-                <info.androidhive.fontawesome.FontTextView
+                <TextView
                     android:id="@+id/btn_view_wallet"
                     android:layout_width="35dp"
                     android:layout_height="30dp"
@@ -188,9 +194,8 @@
                     android:layout_gravity="right"
                     android:text="@string/fa_wallet_solid"
                     android:paddingRight="5dp"
-                    app:solid_icon="true" />
-
-
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    />
 
                 <TextView
                     android:layout_width="35dp"
@@ -383,6 +388,7 @@
                                     android:gravity="center" />
 
                                 <ImageView
+                                    android:id="@+id/fitbit_logo"
                                     android:layout_width="30dp"
                                     android:layout_height="30dp"
                                     android:layout_marginTop="5dp"
@@ -396,14 +402,16 @@
                                     android:padding="7dp"
                                     android:text="\uf0ed"
                                     android:textColor="@color/actifitRed"
-                                    android:textSize="25dp"
-                                    android:clickable="true"
-                                    android:layout_alignRight="@id/step_pie_chart_fitbit"
+                                    android:textSize="25sp"
+                                    android:layout_alignEnd="@id/step_pie_chart_fitbit"
                                     android:layout_alignTop="@id/step_pie_chart_fitbit"
-                                    app:solid_icon="true" />
+                                    />
 
-                                <info.androidhive.fontawesome.FontTextView
-                                    android:id="@+id/switchSettings2"
+
+
+
+                                <TextView
+                                    android:id="@+id/switchSettingsFitbit"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textColor="@color/actifitRed"
@@ -413,7 +421,8 @@
                                     android:text="\uf362"
                                     android:layout_alignBottom="@+id/step_pie_chart_fitbit"
                                     android:layout_alignRight="@+id/step_pie_chart_fitbit"
-                                    app:solid_icon="true"/>
+                                    />
+
 
 
                             </RelativeLayout>
@@ -431,30 +440,31 @@
                                     android:gravity="center"
                                     />
 
-                                <info.androidhive.fontawesome.FontTextView
+                                <TextView
                                     android:id="@+id/battery_notice"
                                     android:layout_width="25dp"
                                     android:layout_height="25dp"
                                     android:textColor="@color/actifitRed"
                                     android:textSize="20dp"
                                     android:text="@string/fa_exclamation_circle_solid"
-                                    app:solid_icon="true"
                                     android:layout_alignBottom="@+id/step_pie_chart"
                                     android:layout_alignLeft="@+id/step_pie_chart"
                                     android:gravity="center"
+                                    android:fontFamily="@font/font_awesome_6_solid"
                                     />
-                                <info.androidhive.fontawesome.FontTextView
+
+                                <TextView
                                     android:id="@+id/switchSettings"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textColor="@color/actifitRed"
-                                    android:fontFamily="@font/font_awesome_6_solid"
                                     android:textSize="25dp"
                                     android:padding="7dp"
                                     android:text="\uf362"
                                     android:layout_alignBottom="@+id/step_pie_chart"
                                     android:layout_alignRight="@+id/step_pie_chart"
-                                    app:solid_icon="true"/>
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    />
 
 
                             </RelativeLayout>
@@ -554,15 +564,18 @@
                                 android:layout_height="wrap_content"
                                 android:weightSum="1.0">
 
-                                <info.androidhive.fontawesome.FontTextView
+
+                                <TextView
                                     android:id="@+id/token_notice"
                                     android:layout_width="25dp"
                                     android:layout_height="25dp"
                                     android:textColor="@color/actifitRed"
                                     android:textSize="20dp"
                                     android:text="@string/fa_exclamation_circle_solid"
-                                    app:solid_icon="true"
+                                    android:fontFamily="@font/font_awesome_6_solid"
                                     />
+
+
                                 <ImageView
                                     android:id="@+id/afit_logo"
                                     android:src="@drawable/actifit_logo"
@@ -662,17 +675,18 @@
                                 android:layout_height="wrap_content"
                                 android:weightSum="1.0">
 
-                                <info.androidhive.fontawesome.FontTextView
+
+                                <TextView
                                     android:id="@+id/wallet_alt_btn"
                                     android:layout_width="25dp"
                                     android:layout_height="25dp"
                                     android:text="@string/fa_wallet_solid"
-                                    app:solid_icon="true"
                                     android:textSize="20dp"
                                     android:textColor="@color/actifitRed"
+                                    android:fontFamily="@font/font_awesome_6_solid"
                                     />
 
-                                <info.androidhive.fontawesome.FontTextView
+                                <TextView
                                     android:id="@+id/token_notice_wallet"
                                     android:layout_width="25dp"
                                     android:layout_height="25dp"
@@ -680,7 +694,9 @@
                                     android:textColor="@color/actifitRed"
                                     android:textSize="20dp"
                                     android:visibility="gone"
-                                    app:solid_icon="true" />
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    />
+
 
                                 <TextView
                                     android:id="@+id/bal_display"
@@ -848,25 +864,28 @@
                         app:solid_icon="true"
                         android:padding="7dp"/>-->
 
-                    <info.androidhive.fontawesome.FontTextView
+                    <TextView
                         android:id="@+id/btn_view_history"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/actifitRed"
                         android:textSize="25dp"
                         android:text="@string/fa_history_solid"
-                        app:solid_icon="true"
-                        android:padding="7dp"/>
+                        android:padding="7dp"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        />
 
-                    <info.androidhive.fontawesome.FontTextView
+                    <TextView
                         android:id="@+id/btn_view_leaderboard"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/actifitRed"
                         android:textSize="25dp"
                         android:text="\uf0cb"
-                        app:solid_icon="true"
-                        android:padding="7dp"/>
+                        android:padding="7dp"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        />
+
 
                     <!-- android:text="@string/fa_list_solid" -->
 

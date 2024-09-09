@@ -23,26 +23,30 @@
         android:layout_height="wrap_content"
         />
 
-    <!--<androidx.appcompat.widget.AppCompatButton-->
-    <info.androidhive.fontawesome.FontTextView
+    <TextView
         android:id="@+id/activityDetailsBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="\uf1fe"
         android:textColor="@color/actifitRed"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:textSize="30dp"
-        app:solid_icon="true" />
+        android:layout_marginStart="10dp"
+        android:textSize="30sp"
+        android:fontFamily="@font/font_awesome_6_solid"
+        />
 
-    <info.androidhive.fontawesome.FontTextView
+
+    <TextView
         android:id="@+id/post_link"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40sp"
+        android:layout_height="40sp"
+        android:text=""
         android:textColor="@color/actifitRed"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="30dp"
-        android:textSize="30dp"
-        app:solid_icon="true" />
+        android:layout_marginStart="10dp"
+        android:textSize="30sp"
+
+        android:fontFamily="@font/font_awesome_6_solid"
+        />
 
 </LinearLayout>

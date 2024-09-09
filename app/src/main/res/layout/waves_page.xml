@@ -141,7 +141,7 @@
 
         </LinearLayout>
 
-        <com.mittsu.markedview.MarkedView
+        <TextView
             android:id="@+id/md_view"
             android:layout_width="match_parent"
             android:layout_height="100dp"

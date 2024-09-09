@@ -715,7 +715,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/steemit_post_text" />
 
-            <com.mittsu.markedview.MarkedView
+
+            <TextView
+                android:id="@+id/md_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:minHeight="185dp"
+                android:paddingBottom="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/steemit_post_preview_lbl"  />
+
+            <!--<com.mittsu.markedview.MarkedView
                 android:id="@+id/md_view"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -725,7 +737,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/steemit_post_preview_lbl" />
-
+            -->
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>

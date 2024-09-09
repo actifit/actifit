@@ -30,13 +30,14 @@
                 android:orientation="horizontal"
                 >
 
-                <info.androidhive.fontawesome.FontTextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fa_wallet_solid"
-                    app:solid_icon="true"
                     android:textColor="@color/actifitRed"
+                    android:fontFamily="@font/font_awesome_6_solid"
                     />
+
 
                 <TextView
                     android:id="@+id/balance_lbl"
@@ -251,12 +252,12 @@
                 android:orientation="horizontal"
                 >
 
-                <info.androidhive.fontawesome.FontTextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fa_wallet_solid"
-                    app:solid_icon="true"
                     android:textColor="@color/actifitRed"
+                    android:fontFamily="@font/font_awesome_6_solid"
                     />
 
                 <TextView
@@ -322,13 +323,14 @@
             android:orientation="horizontal"
             >
 
-            <info.androidhive.fontawesome.FontTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/fa_coins_solid"
-                app:solid_icon="true"
                 android:textColor="@color/actifitRed"
+                android:fontFamily="@font/font_awesome_6_solid"
                 />
+
 
             <TextView
                 android:id="@+id/claimable_rewards_lbl"
@@ -431,12 +433,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-            <info.androidhive.fontawesome.FontTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/fa_file"
-                app:solid_icon="true"
                 android:textColor="@color/actifitRed"
+                android:fontFamily="@font/font_awesome_6_solid"
                 />
 
             <TextView

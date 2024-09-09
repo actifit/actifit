@@ -88,7 +88,7 @@
 
     </LinearLayout>
 
-        <com.mittsu.markedview.MarkedView
+        <TextView
             android:id="@+id/reply_preview"
             android:layout_height="100dp"
             android:layout_width="match_parent"
