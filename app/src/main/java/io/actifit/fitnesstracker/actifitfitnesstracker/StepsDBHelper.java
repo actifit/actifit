@@ -1,10 +1,15 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 
 import java.text.SimpleDateFormat;
@@ -13,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -35,6 +41,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     private static SQLiteDatabase dbInstance;
 
+    private Context ctx;
+    private SharedPreferences sharedPreferences;
+
 
     private static final String CREATE_TABLE_ACTIFIT = "CREATE TABLE "
             + TABLE_STEPS_SUMMARY
@@ -53,6 +62,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     StepsDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         dbInstance = this.getWritableDatabase();
+        ctx = context;
+        sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
     }
 
     @Override
@@ -114,7 +125,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(MainActivity.TAG, "ERROR");
         }
         return timeSlotStepCount;
     }
@@ -122,7 +134,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     /**
      * function handles recording a step entry, and returning current step count
      * this is the default function increasing by 1
-     * @return
+     * @return integer stepCount
      */
     public int createStepsEntry(){
         return createStepsEntry(1);
@@ -131,7 +143,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     /**
      * function handles recording a step entry, and returning current step count
      * @param incrementVal contains the amount to increase the count
-     * @return
+     * @return integer stepCount
      */
     public int createStepsEntry(int incrementVal)
     {
@@ -165,7 +177,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(MainActivity.TAG, "ERROR");
         }
         //also store this in the detailed log
 
@@ -177,6 +190,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
      * function handling grabbing the data and returning it
      * @return ArrayList containing dates and steps
      */
+    @SuppressLint("Range")
     public ArrayList<DateStepsModel> readStepsEntries()
     {
         ArrayList<DateStepsModel> mStepCountList = new ArrayList<DateStepsModel>();
@@ -203,7 +217,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             c.close();
             //db.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(MainActivity.TAG, "ERROR");
         }
         return mStepCountList;
     }
@@ -214,6 +229,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
      * function handles grabbing the detailed activity count by each time slot
      * @return target date's activity count by timeslot
      */
+    @SuppressLint("Range")
     public ArrayList<ActivitySlot> fetchDateTimeSlotActivity(String targetDateString)
     {
         //array containing all matching activity slots
@@ -251,7 +267,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             c.close();
             //db.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(MainActivity.TAG, "ERROR");
         }
         return activitySlots;
 
@@ -261,6 +278,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
      * function handles grabbing the current step count saved so far in each time slot in case it was stored
      * @return current timeslot's step count
      */
+    @SuppressLint("Range")
     public int fetchTimeSlotStepCount(String timeSlot)
     {
         //tracking found step count. Initiate at -1 to know if entry was found
@@ -294,7 +312,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             c.close();
             //db.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(MainActivity.TAG, "ERROR");
         }
         return currentSlotStepCounts;
 
@@ -304,7 +323,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
      * function handles grabbing the current step count saved so far in case it was stored
      * @return today's step count
      */
-
+    @SuppressLint("Range")
     public int fetchStepCountByDate(String dateString)
     {
         //ensure we are using proper numeric format for dates
@@ -331,7 +350,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             c.close();
             //db.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(MainActivity.TAG, "ERROR");
         }
         return currentDateStepCounts;
     }
@@ -359,7 +379,17 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         Date todaysDate = new Date();
         SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
         String todaysDateString = formatToDB.format(todaysDate);
-
+        //if this is not the normal tracking mode, return fitbit synced data
+        if(!sharedPreferences.getString("dataTrackingSystem", "").equals(ctx.getString(R.string.device_tracking_ntt))) {
+            String lastMainSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
+            //TODO make sure date comparison is accurate
+            if (todaysDateString.equals(lastMainSyncDate)) {
+                return sharedPreferences.getInt("fitbitSyncCount", 0);
+            }else{
+                //default value
+                return 0;
+            }
+        }
         return fetchStepCountByDate(todaysDateString);
     }
 
@@ -429,7 +459,8 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             //db.close();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(MainActivity.TAG, "ERROR");
         }
         return false;
     }
