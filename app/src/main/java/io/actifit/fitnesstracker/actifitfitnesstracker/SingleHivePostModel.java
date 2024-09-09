@@ -1,13 +1,22 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.content.Context;
+import android.util.Log;
+
+import androidx.media3.exoplayer.text.ExoplayerCuesDecoder;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 public class SingleHivePostModel{
 
@@ -18,6 +27,9 @@ public class SingleHivePostModel{
     public String category;
     public String url;
     public String body;
+    public String shortBody;
+
+    public String translatedText = "";
     public JSONObject json_metadata;
     public String created;
     public int children;
@@ -40,13 +52,19 @@ public class SingleHivePostModel{
     NumberFormat numberFormat;
     public ArrayList<SingleHivePostModel> comments;
     public Boolean commentsExpanded = false;
+    public Boolean isTranslated = false;
+    public Boolean isExpanded = false; // default view not expanded, so display shortBody content i/o body
+    public Context ctx;
 
 
-    public SingleHivePostModel(JSONObject jsonObject) {
+    public SingleHivePostModel(JSONObject jsonObject, Context ctx) {
         try {
             numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
             //load data
             this.fillObjectFromJson(this, jsonObject);
+
+            //fill shortened content
+            this.setShortenedContent();
 
             //initialize comments
             comments = new ArrayList<>();
@@ -57,10 +75,28 @@ public class SingleHivePostModel{
             this.calculateSumPayout();
             //calculate ratio
             this.calculateRatio();
+
+            this.ctx = ctx;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+    public String getTrimmedTranslatedContent(){
+        String transStr = Utils.trimText(this.translatedText, Constants.trimmedTextSize);
+        transStr += (this.translatedText.length() > Constants.trimmedTextSize)? "": "...";
+        return transStr;
+    }
+
+    void setShortenedContent(){
+        this.shortBody = Utils.trimText(this.body, Constants.trimmedTextSize);
+        //sanitize content as well for shortbody
+        this.shortBody = Utils.sanitizeContent(this.shortBody,false);
+        //append 3 dots if original text is long
+        this.shortBody += (this.shortBody.length() > Constants.trimmedTextSize)? "": "...";
+        //also sanitize content
+        this.body = Utils.sanitizeContent(this.body, true);
     }
 
 
@@ -155,9 +191,80 @@ public class SingleHivePostModel{
         return "";
     }
 
+    public Boolean hasJsonMetaData(){
+        return json_metadata != null;
+    }
+
     public Boolean hasActivityCount(){
-        if (json_metadata == null) return false;
+        if (!hasJsonMetaData()) return false;
         return json_metadata.has("step_count");
+    }
+
+    public Boolean hasActivityDate(){
+        if (!hasJsonMetaData()) return false;
+        return json_metadata.has("activityDate");
+    }
+
+    public String getActivityDate(){
+        if (!hasActivityDate()) return "";
+        try {
+            return (String) json_metadata.getJSONArray("activityDate").get(0);
+        } catch (JSONException e) {
+            //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(MainActivity.TAG, "ERROR");
+        }
+        return "";
+    }
+
+    public Boolean postDateMatches(String paramDate){
+        try {
+            SimpleDateFormat entryDateformatter = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat postDateformatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+            // Parsing postDate
+            Date date2 = postDateformatter.parse(this.created);
+
+            // To get only the date part, you can use Calendar
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date2);
+            // Extracting only the date part
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date dateOnly = calendar.getTime();
+            boolean mainDateMatch = entryDateformatter.format(
+                    entryDateformatter.parse(paramDate)).equals(
+                    entryDateformatter.format(dateOnly));
+            String activityDateString = this.getActivityDate();
+            if (!activityDateString.equals("")){
+                mainDateMatch = entryDateformatter.format(
+                        entryDateformatter.parse(paramDate)).equals(
+                        entryDateformatter.format(dateOnly));
+            }
+            return mainDateMatch;
+        }catch(Exception e){
+            //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(MainActivity.TAG, "ERROR");
+        }
+        return false;
+    }
+
+    public Boolean hasActifitTag(){
+        if (!hasJsonMetaData()) return false;
+        boolean hasTags = json_metadata.has("tags");
+        if (hasTags){
+            //json_metadata.getJSONArray("tags");
+            try {
+                JSONArray tagArray = json_metadata.getJSONArray("tags");
+                return tagArray.toString().contains(ctx.getString(R.string.actifit_community)) ||
+                        tagArray.toString().contains(ctx.getString(R.string.actifit_name)) ;
+            } catch (JSONException e) {
+                //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(MainActivity.TAG, "ERROR");
+            }
+        }
+        return false;
     }
 
     public static void fillObjectFromJson(Object object, JSONObject jsonObject) {

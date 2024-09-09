@@ -896,17 +896,18 @@ public class SettingsActivity extends BaseActivity {
                     }catch(JSONException e){
                         //Log.e(MainActivity.TAG, e.getMessage());
                     }
+                    try {
+                        for (int i = 0; i < notificationAdapter.getCount(); i++) {
+                            SingleNotificationModel entry = notificationAdapter.getItem(i);
+                            //Toast.makeText(cntxt, entry.type + " " + entry.isChecked,Toast.LENGTH_LONG);
 
-                    for (int i = 0; i < notificationAdapter.getCount(); i++) {
-                        SingleNotificationModel entry = notificationAdapter.getItem(i);
-                        //Toast.makeText(cntxt, entry.type + " " + entry.isChecked,Toast.LENGTH_LONG);
-                        try {
-                            innerSettingsData.put(entry.type, entry.isChecked);
-                        } catch (JSONException e) {
-                            //Log.e(MainActivity.TAG, e.getMessage());
+                                innerSettingsData.put(entry.type, entry.isChecked);
+
                         }
-
+                    } catch (JSONException e) {
+                        //Log.e(MainActivity.TAG, e.getMessage());
                     }
+
                     //innerSettingsData.
                     try{
                         //check if we already have the user's settings data
