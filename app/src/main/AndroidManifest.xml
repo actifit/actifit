@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-package="io.actifit.fitnesstracker.actifitfitnesstracker">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="io.actifit.fitnesstracker.actifitfitnesstracker">
 
     <!-- required by android 13 / post notifications permission  -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -57,8 +58,18 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
         </intent-filter>
     </activity>
 
-    <activity android:name=".MainActivity">
+    <activity android:name=".MainActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
 
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+
+            <data
+                android:host="fitbitcallbackmain"
+                android:scheme="actifitcb" /> <!--ftbmaincb-->
+        </intent-filter>
     </activity>
     <activity android:name=".StepHistoryActivity" />
     <activity
@@ -85,19 +96,25 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
     <activity android:name=".HistoryChartActivity" />
     <activity android:name=".MarketActivity" android:windowSoftInputMode="adjustPan" />
     <activity android:name=".SocialActivity" android:windowSoftInputMode="adjustPan" />
-        <receiver android:name=".ResetPieChart" />
+
+    <receiver android:name=".ResetPieChart" />
 
     <service
         android:name=".ActivityMonitorService"
         android:enabled="true"
         android:exported="false"
-        android:foregroundServiceType="dataSync"
+        android:foregroundServiceType="specialUse"
         android:description="@string/actifit_service_desc">
+
+        <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+            android:value="we use this service to monitor and notify users about their activity
+            count increase throughout their tracking period"/>
 
     </service>
     <service
         android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
         android:enabled="true" />
+        <!--android:foregroundServiceType="dataSync"/>
 
     <service
         android:name=".ActifitFirebaseMessagingService"
@@ -118,7 +135,7 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
             android:name="android.support.FILE_PROVIDER_PATHS"
             android:resource="@xml/file_paths"></meta-data>
     </provider>
-    <!--<receiver
+    <receiver
             android:name=".MonitorRestartBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
@@ -167,6 +184,7 @@ package="io.actifit.fitnesstracker.actifitfitnesstracker">
 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
 <!-- new permission type for starting service in background -->
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <!--tools:node="remove"/>-->
 
 </manifest>
