@@ -4,13 +4,18 @@ buildscript {
 
     repositories {
         google()
-        jcenter()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' } // 👈 this one
+        //jcenter()
+        mavenCentral()
+        //jcenter()
+        //maven { url 'https://jitpack.io' }
+        //maven { url "https://mvnrepository.com/"}
+        //maven {url 'https://jcenter.bintray.com/'}
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.1'
-        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.android.tools.build:gradle:8.5.2'
+        classpath 'com.google.gms:google-services:4.4.2'
 
 
         // Add the Firebase Crashlytics Gradle plugin.
@@ -24,7 +29,8 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        //jcenter()
+        mavenCentral()
         maven { url 'https://jitpack.io' }
     }
 }
