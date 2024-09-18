@@ -1,6 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.StrictMode;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -85,6 +86,12 @@ class NxFitbitHelper {
         //https://dev.fitbit.com/build/reference/web-api/oauth2/#authorization-page
         Map<String, String> addFitbitOptions = new HashMap<String, String>();
         addFitbitOptions.put("expires_in", "2592000");//1 month
+
+        // Remove FLAG_ACTIVITY_NEW_TASK
+        Intent intent = customTabsIntent.intent;
+        intent.setFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        //intent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+
 
         customTabsIntent.launchUrl(callingContext, Uri.parse(helperClass.getAuthorizationUrl(addFitbitOptions)));
     }

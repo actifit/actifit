@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -22,6 +23,7 @@ import android.provider.MediaStore;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
+
 import androidx.core.widget.NestedScrollView;
 
 import android.os.Bundle;
@@ -49,29 +51,27 @@ import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.net.MalformedURLException;
-import java.net.URL;
+
 import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
+
 import java.util.Locale;
-import java.util.Map;
+
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -83,22 +83,23 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.mittsu.markedview.MarkedView;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
-//import io.tus.android.client.TusAndroidUpload;
 
-import io.tus.java.client.ProtocolException;
-import io.tus.java.client.TusClient;
-import io.tus.java.client.TusExecutor;
-import io.tus.java.client.TusURLMemoryStore;
-import io.tus.java.client.TusUpload;
-import io.tus.java.client.TusUploader;
+import io.noties.markwon.AbstractMarkwonPlugin;
+import io.noties.markwon.Markwon;
+import io.noties.markwon.MarkwonConfiguration;
+import io.noties.markwon.html.HtmlPlugin;
+import io.noties.markwon.image.AsyncDrawable;
+import io.noties.markwon.image.ImageSize;
+import io.noties.markwon.image.ImageSizeResolver;
+import io.noties.markwon.image.picasso.PicassoImagesPlugin;
+
 
 import static java.lang.Integer.parseInt;
 import static org.bitcoinj.core.TransactionBroadcast.random;
 
-
-//import io.tus.android.client.*;
 
 
 public class PostSteemitActivity extends BaseActivity implements View.OnClickListener{
@@ -168,7 +169,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     EditText thighsSize;
     EditText waistSize;
 
-    MarkedView mdView;
+    //MarkedView mdView;
+    TextView mdView;
 
     MultiSelectionSpinner activityTypeSelector;
 
@@ -616,7 +618,59 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         });
 
 
+        final Markwon markwon = Markwon.builder(steemit_post_context)
+                //.usePlugin(ImagesPlugin.create())
+                //support HTML
+                //.usePlugin(HtmlPlugin.create())
+                .usePlugin(HtmlPlugin.create())
 
+
+                //for handling link clicks
+                .usePlugin(new AbstractMarkwonPlugin() {
+                    @Override
+                    public void configureConfiguration(MarkwonConfiguration.Builder builder) {
+                        builder.linkResolver((view, link) -> {
+                            // react to link click here
+
+                            // Create an Intent to open the URL in an external browser
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            // Verify that there's an app available to handle this intent
+                            if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
+                                view.getContext().startActivity(intent);
+                            }
+                        });
+                    }
+                })
+
+                //handle images via available picasso
+                //.usePlugin(PicassoImagesPlugin.create(Picasso.get()))
+
+                //handle images via picasso
+                .usePlugin(PicassoImagesPlugin.create(new PicassoImagesPlugin.PicassoStore() {
+                    @org.checkerframework.checker.nullness.qual.NonNull
+                    @Override
+                    public RequestCreator load(@org.checkerframework.checker.nullness.qual.NonNull AsyncDrawable drawable) {
+                        try {
+                            return Picasso.get()
+                                    .load(drawable.getDestination())
+                                    //.resize(desiredWidth, desiredHeight)
+                                    //.centerCrop()
+                                    .tag(drawable);
+                        }catch(Exception e){
+                            return null;
+                        }
+                    }
+
+                    @Override
+                    public void cancel(@NonNull AsyncDrawable drawable) {
+                        Picasso.get()
+                                .cancelTag(drawable);
+                    }
+                }))
+
+                .build();
 
         //hook change event for report content preview and saving the text to prevent data loss
         steemitPostContent.addTextChangedListener(new TextWatcher() {
@@ -633,7 +687,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
                 if(s.length() != 0) {
-                    mdView.setMDText(steemitPostContent.getText().toString());
+                    //mdView.setMDText(steemitPostContent.getText().toString());
+                    try {
+                        markwon.setMarkdown(mdView, steemitPostContent.getText().toString());
+                    }catch(Exception e){
+                        Log.e(MainActivity.TAG, "error ontextchanged markwon");
+                    }
 
                     //store current text
                     SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -686,9 +745,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         }
 
-
+        markwon.setMarkdown(mdView, steemitPostContent.getText().toString());
         // set markdown text pattern. ('contents' object is markdown text)
-        mdView.setMDText(steemitPostContent.getText().toString());
+        //mdView.setMDText(steemitPostContent.getText().toString());
 
         //hooking to date change event for activity
 
@@ -740,20 +799,20 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 }
 
                 if (checkedId == R.id.report_today_option) {//we have today's option
-                        //set initial steps display value
-                        int stepCount = mStepsDBHelper.fetchTodayStepCount();
-                        //display step count while ensuring we don't display negative value if no steps tracked yet
+                    //set initial steps display value
+                    int stepCount = mStepsDBHelper.fetchTodayStepCount();
+                    //display step count while ensuring we don't display negative value if no steps tracked yet
                     stepCountContainer.setText(String.valueOf((Math.max(stepCount, 0))), TextView.BufferType.EDITABLE);
 
-                        yesterdayReport = false;
+                    yesterdayReport = false;
                 } else if (checkedId == R.id.report_yesterday_option) {
                     int stepCount;//yesterday's option
-                        //set initial steps display value
-                        stepCount = mStepsDBHelper.fetchYesterdayStepCount();
-                        //display step count while ensuring we don't display negative value if no steps tracked yet
+                    //set initial steps display value
+                    stepCount = mStepsDBHelper.fetchYesterdayStepCount();
+                    //display step count while ensuring we don't display negative value if no steps tracked yet
                     stepCountContainer.setText(String.valueOf((Math.max(stepCount, 0))), TextView.BufferType.EDITABLE);
 
-                        yesterdayReport = true;
+                    yesterdayReport = true;
                 }
             }
         });
@@ -885,20 +944,16 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         //capturing fitbit sync action
         Button BtnFitbitSync = findViewById(R.id.fitbit_sync);
-        BtnFitbitSync.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(final View arg0) {
-                // Connect to fitbit and grab data
-                NxFitbitHelper.sendUserToAuthorisation(steemit_post_context);
-            }
-
+        BtnFitbitSync.setOnClickListener(arg0 -> {
+            // Connect to fitbit and grab data
+            NxFitbitHelper.sendUserToAuthorisation(steemit_post_context, true);
         });
 
         //retrieve resulting data from fitbit sync (parameter from the Intent)
         Uri returnUrl = getIntent().getData();
         if (returnUrl != null) {
             try {
-                NxFitbitHelper fitbit = new NxFitbitHelper(getApplicationContext());
+                NxFitbitHelper fitbit = new NxFitbitHelper(getApplicationContext(), true);
                 fitbit.requestAccessTokenFromIntent(returnUrl);
 
                 // Get user profile using helper function
