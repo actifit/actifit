@@ -389,9 +389,10 @@
 
                                 <ImageView
                                     android:id="@+id/fitbit_logo"
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
-                                    android:layout_marginTop="5dp"
+                                    android:layout_width="25dp"
+                                    android:layout_height="25dp"
+
+                                    android:contentDescription="Fitbit Logo"
                                     android:src="@drawable/fitbit_app_icon" />
 
                                 <TextView
@@ -399,16 +400,13 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/font_awesome_6_solid"
-                                    android:padding="7dp"
-                                    android:text="\uf0ed"
+                                    android:text="@string/fitbit_sync_btn"
                                     android:textColor="@color/actifitRed"
+
                                     android:textSize="25sp"
                                     android:layout_alignEnd="@id/step_pie_chart_fitbit"
                                     android:layout_alignTop="@id/step_pie_chart_fitbit"
                                     />
-
-
-
 
                                 <TextView
                                     android:id="@+id/switchSettingsFitbit"
@@ -416,11 +414,11 @@
                                     android:layout_height="wrap_content"
                                     android:textColor="@color/actifitRed"
                                     android:fontFamily="@font/font_awesome_6_solid"
-                                    android:textSize="25dp"
-                                    android:padding="7dp"
-                                    android:text="\uf362"
+                                    android:textSize="25sp"
+                                    android:padding="5dp"
+                                    android:text="@string/switch_settings_btn"
                                     android:layout_alignBottom="@+id/step_pie_chart_fitbit"
-                                    android:layout_alignRight="@+id/step_pie_chart_fitbit"
+                                    android:layout_alignEnd="@+id/step_pie_chart_fitbit"
                                     />
 
 
@@ -445,10 +443,11 @@
                                     android:layout_width="25dp"
                                     android:layout_height="25dp"
                                     android:textColor="@color/actifitRed"
-                                    android:textSize="20dp"
+                                    android:textSize="20sp"
                                     android:text="@string/fa_exclamation_circle_solid"
+
                                     android:layout_alignBottom="@+id/step_pie_chart"
-                                    android:layout_alignLeft="@+id/step_pie_chart"
+                                    android:layout_alignStart="@+id/step_pie_chart"
                                     android:gravity="center"
                                     android:fontFamily="@font/font_awesome_6_solid"
                                     />
@@ -458,11 +457,11 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textColor="@color/actifitRed"
-                                    android:textSize="25dp"
-                                    android:padding="7dp"
-                                    android:text="\uf362"
+                                    android:textSize="25sp"
+                                    android:padding="5dp"
+                                    android:text="@string/switch_settings_btn"
                                     android:layout_alignBottom="@+id/step_pie_chart"
-                                    android:layout_alignRight="@+id/step_pie_chart"
+                                    android:layout_alignEnd="@+id/step_pie_chart"
                                     android:fontFamily="@font/font_awesome_6_solid"
                                     />
 
