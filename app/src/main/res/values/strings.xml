@@ -526,4 +526,7 @@
     <string name="fa_coins_solid">\uf51e</string>
     <string name="fa_file">\uf15b</string>
     <string name="noPostFound">No submitted post found on this date</string>
+    <string name="tweet_button">Tweet Reward</string>
+    <string name="fitbit_sync_btn">\uf0ed</string>
+    <string name="switch_settings_btn">\uf362</string>
 </resources>
