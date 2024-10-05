@@ -865,13 +865,11 @@ public class MainActivity extends BaseActivity{
         //notify user of app restart with a Toast
         //TODO: might need to remove again
         if (getIntent().getBooleanExtra("crash", false)) {
-            Toast toast = Toast.makeText(this,  getString(R.string.actifit_crash_restarted), Toast.LENGTH_SHORT);
-
-            View view = toast.getView();
-
-            TextView text = view.findViewById(android.R.id.message);
-
-
+            try {
+                Toast toast = Toast.makeText(this,  getString(R.string.actifit_crash_restarted), Toast.LENGTH_SHORT);
+                View view = toast.getView();
+                assert view != null;
+                TextView text = view.findViewById(android.R.id.message);
             /*
             try {
                 //Gets the actual oval background of the Toast then sets the colour filter
@@ -879,10 +877,11 @@ public class MainActivity extends BaseActivity{
             }catch(Exception e){
                 e.printStackTrace();
             }*/
-
-            text.setTextColor(Color.WHITE);
-
-            toast.show();
+                text.setTextColor(Color.WHITE);
+                toast.show();
+            }catch(Exception ex){
+                Log.e(TAG, "error displaying toast");
+            }
 
         }
 
