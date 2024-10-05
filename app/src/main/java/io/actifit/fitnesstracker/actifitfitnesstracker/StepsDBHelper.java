@@ -380,7 +380,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
         String todaysDateString = formatToDB.format(todaysDate);
         //if this is not the normal tracking mode, return fitbit synced data
-        if(!sharedPreferences.getString("dataTrackingSystem", "").equals(ctx.getString(R.string.device_tracking_ntt))) {
+        if(!sharedPreferences.getString("dataTrackingSystem",
+                ctx.getString(R.string.device_tracking_ntt))
+                .equals(ctx.getString(R.string.device_tracking_ntt))) {
             String lastMainSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
             //TODO make sure date comparison is accurate
             if (todaysDateString.equals(lastMainSyncDate)) {

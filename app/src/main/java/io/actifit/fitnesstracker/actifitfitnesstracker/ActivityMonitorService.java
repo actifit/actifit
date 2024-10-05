@@ -54,6 +54,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     private final int fivekValMilestone = 5000;
     private final int tenkValMilestone = 10000;
 
+    private Context ctx;
+
     public static PowerManager getPowerManagerInstance(){
         return pm;
     }
@@ -66,6 +68,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         super();
         Log.d(MainActivity.TAG,">>>>[Actifit]here I am!");
         sharedPreferences = applicationContext.getSharedPreferences("actifitSets",MODE_PRIVATE);
+        ctx = applicationContext;
     }
 
     public ActivityMonitorService() {
@@ -73,7 +76,11 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     }
 
     private void initializeSharedPrefs(){
-        sharedPreferences = getApplicationContext().getSharedPreferences("actifitSets",MODE_PRIVATE);
+        if (ctx == null) {
+            sharedPreferences = getApplicationContext().getSharedPreferences("actifitSets", MODE_PRIVATE);
+        }else{
+            sharedPreferences = ctx.getSharedPreferences("actifitSets", MODE_PRIVATE);
+        }
     }
 
     @Override
@@ -119,7 +126,11 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         if (sharedPreferences == null){
             initializeSharedPrefs();
         }
-        if(!sharedPreferences.getString("dataTrackingSystem", "").equals(getApplicationContext().getString(R.string.device_tracking_ntt))) {
+        if(!sharedPreferences.getString("dataTrackingSystem",
+                ctx.getString(R.string.device_tracking_ntt))
+                .equals(ctx.getString(R.string.device_tracking_ntt))){
+                /*getApplicationContext().getString(R.string.device_tracking_ntt))
+                .equals(getApplicationContext().getString(R.string.device_tracking_ntt))) {*/
             return;
         }
         int curStepCount = mStepsDBHelper.createStepsEntry();
@@ -146,7 +157,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         in.putExtra("move_count",curStepCount);
         in.setAction("ACTIFIT_SERVICE");
         //sendBroadcast(in);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(in);
+        LocalBroadcastManager.getInstance(ctx).sendBroadcast(in);
 
         boolean doNotify = false;
         //if user crossed 5k, or 10k, also send out another notification
@@ -163,7 +174,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         }
 
         if (doNotify) {
-            Context context = getApplicationContext();
+            Context context = ctx;//getApplicationContext();
 
             int notID = tenknotificationID;
             String notText = context.getString(R.string.activity_today_tenk_milestone);
@@ -298,7 +309,11 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                 }
             }
 
-            mStepsDBHelper = new StepsDBHelper(getApplicationContext());
+            if (ctx == null){
+                ctx = getApplicationContext();
+            }
+
+            mStepsDBHelper = new StepsDBHelper(ctx);//getApplicationContext());
             // Get an instance of the SensorManager
             sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -336,19 +351,19 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
 
             //create the service that will display as a notification on screen lock
-            Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+            Intent notificationIntent = new Intent(ctx, MainActivity.class);
 
             PendingIntent pendingIntent;
             //if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
                 pendingIntent =
-                        PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+                        PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
             /*}else {
                 pendingIntent =
-                        PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+                        PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
             }*/
             mBuilder = new
-                    NotificationCompat.Builder(getApplicationContext(), getString(R.string.actifit_channel_ID))
+                    NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
                     .setContentTitle(getString(R.string.actifit_notif_title))
                     .setContentText(getString(R.string.activity_today_string)+" "+(curActivityCount<0?0:curActivityCount))
                     .setSmallIcon(R.drawable.actifit_logo)
@@ -356,7 +371,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setOnlyAlertOnce(true);
 
-            notificationManager = NotificationManagerCompat.from(getApplicationContext());
+            notificationManager = NotificationManagerCompat.from(ctx);
 
             startForeground(notificationID,mBuilder.build());
         }
