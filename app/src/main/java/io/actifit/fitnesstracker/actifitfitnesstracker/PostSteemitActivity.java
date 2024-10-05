@@ -1517,7 +1517,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                         data.put("fitbitUserId", sb.toString());
                     }else {
-                        data.put("dataTrackingSource", sharedPreferences[0].getString("dataTrackingSystem", ""));
+                        data.put("dataTrackingSource", sharedPreferences[0].getString("dataTrackingSystem",
+                                getString(R.string.device_tracking_ntt)));
                     }
                     //append report STEEM payout type
                     data.put("reportSTEEMPayMode", sharedPreferences[0].getString("reportSTEEMPayMode",""));

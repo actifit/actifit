@@ -590,7 +590,8 @@ public class SettingsActivity extends BaseActivity {
 
         //check which data source is active now
 
-        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem","");
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                getString(R.string.device_tracking_ntt));
         if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))){
             fitbitBtn.setChecked(true);
 

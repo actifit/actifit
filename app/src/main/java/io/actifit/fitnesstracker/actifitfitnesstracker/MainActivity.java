@@ -814,6 +814,12 @@ public class MainActivity extends BaseActivity{
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
         boolean currentNotifStatus = (sharedPreferences.getBoolean(getString(R.string.notification_status),true));
 
+
+        //clear all preferences for testing purposes
+        /*SharedPreferences.Editor editor2 = sharedPreferences.edit();
+        editor2.clear();
+        editor2.apply();*/
+
         //if not set as subscribed by default
         //FirebaseApp.initializeApp(this);
         if (currentNotifStatus) {
@@ -930,7 +936,9 @@ public class MainActivity extends BaseActivity{
 
 
         int fitbitStepCount = 0;
-        if(!sharedPreferences.getString("dataTrackingSystem", "").equals(ctx.getString(R.string.device_tracking_ntt))) {
+        if(!sharedPreferences.getString("dataTrackingSystem",
+                ctx.getString(R.string.device_tracking_ntt))
+                .equals(ctx.getString(R.string.device_tracking_ntt))) {
             if (mStepsDBHelper == null) {
                 mStepsDBHelper = new StepsDBHelper(ctx);
             }
@@ -1990,7 +1998,9 @@ public class MainActivity extends BaseActivity{
             }
             else{
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                if(sharedPreferences.getString("dataTrackingSystem", "").equals(getString(R.string.device_tracking_ntt))){
+                if(sharedPreferences.getString("dataTrackingSystem",
+                        getString(R.string.device_tracking_ntt))
+                        .equals(getString(R.string.device_tracking_ntt))){
                     hideCharts();
                     editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
                     editor.apply();
@@ -2034,7 +2044,8 @@ public class MainActivity extends BaseActivity{
             }
             else{
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                if(sharedPreferences.getString("dataTrackingSystem", "").equals(getString(R.string.device_tracking_ntt))){
+                if(sharedPreferences.getString("dataTrackingSystem",
+                        getString(R.string.device_tracking_ntt)).equals(getString(R.string.device_tracking_ntt))){
                     hideCharts();
                     editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
                     editor.commit();
@@ -2502,7 +2513,8 @@ public class MainActivity extends BaseActivity{
 
         Boolean skipShowingRewards = (sharedPreferences.getBoolean(getString(R.string.donotshowbatteryoptimization),false));
 
-        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem","");
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                getString(R.string.device_tracking_ntt));
         if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))){
             skipShowingRewards = true;
 
@@ -4853,7 +4865,8 @@ public class MainActivity extends BaseActivity{
 
 
             //only start the tracking service if the device sensors is picked as tracking medium
-            dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",getString(R.string.device_tracking_ntt));
+            dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                    getString(R.string.device_tracking_ntt));
             if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
 
                 if (!isMyServiceRunning(mSensorService.getClass())) {

@@ -802,9 +802,15 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     }
 
     private String grabPostPayout(SingleHivePostModel postEntry) {
-        if (postEntry.total_payout_value != null && Double.parseDouble(postEntry.total_payout_value.replaceAll("[^\\d.]", "")) != 0) return postEntry.total_payout_value;
-        if (postEntry.author_payout_value != null && Double.parseDouble(postEntry.author_payout_value.replaceAll("[^\\d.]", "")) != 0) return postEntry.author_payout_value;
-        if (postEntry.pending_payout_value != null && Double.parseDouble(postEntry.pending_payout_value.replaceAll("[^\\d.]", "")) != 0) return postEntry.pending_payout_value;
+        if (postEntry.total_payout_value != null &&
+                Double.parseDouble(postEntry.total_payout_value.replaceAll("[^\\d.]", "")) != 0)
+            return postEntry.total_payout_value;
+        if (postEntry.author_payout_value != null &&
+                Double.parseDouble(postEntry.author_payout_value.replaceAll("[^\\d.]", "")) != 0)
+            return postEntry.author_payout_value;
+        if (postEntry.pending_payout_value != null &&
+                Double.parseDouble(postEntry.pending_payout_value.replaceAll("[^\\d.]", "")) != 0)
+            return postEntry.pending_payout_value;
         return "0.0";
     }
 
