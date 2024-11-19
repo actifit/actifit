@@ -139,30 +139,10 @@
             android:visibility="gone"
             />
 
-
         <LinearLayout android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_gravity="end"
-            android:layout_margin="10dp">
-
-
-            <TextView
-                android:id="@+id/translate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf1ab"
-                android:textColor="@color/actifitRed"
-                android:textSize="32sp"
-                android:layout_marginRight="10dp"
-                android:gravity="end" />
-
-        </LinearLayout>
-
-        <LinearLayout android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:visibility="gone"
             android:layout_margin="10dp">
 
             <TextView
@@ -182,6 +162,32 @@
                 android:visibility="gone"
                 />
 
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="end"
+            android:layout_margin="0dp">
+
+
+            <!--<TextView
+                android:id="@+id/threadType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="none"
+                android:textColor="@color/actifitRed"
+                android:textSize="20sp"
+
+                />-->
+
+            <ImageView
+                android:id="@+id/threadTypeImage"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="10dp"
+
+                />
         </LinearLayout>
 
 
@@ -216,6 +222,27 @@
                     />
 
             </RelativeLayout>
+
+            <LinearLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="end"
+                android:layout_margin="0dp">
+
+
+                <TextView
+                    android:id="@+id/translate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf1ab"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="32sp"
+                    android:layout_marginRight="10dp"
+                    android:gravity="end" />
+
+            </LinearLayout>
+
 
             <TextView
                 android:id="@+id/body"

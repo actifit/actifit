@@ -125,16 +125,53 @@
                 android:paddingStart="5sp">
 
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
-                android:id="@+id/post_wave"
-                android:layout_width="100dp"
-                android:layout_height="40dp"
-                android:layout_gravity="end"
-                android:ems="10"
-                android:text="@string/post_thread"
-                android:textSize="16sp"
-                />
+                <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:id="@+id/tracking_mode_radiogroup">
+
+                    <RadioButton
+                        android:id="@+id/peakd_snaps_option"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="" />
+
+                    <ImageView
+                        android:id="@+id/peakd_icon"
+                        android:layout_width="18dp"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/peakd" />
+
+                    <RadioButton
+                        android:id="@+id/ecency_waves_option"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text=""
+                        android:checked="true"
+                        />
+
+                    <ImageView
+                        android:id="@+id/ecency_icon"
+                        android:layout_width="18dp"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ecency" />
+
+                </RadioGroup>
+
+                <Button
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/post_wave"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end"
+                    android:ems="10"
+                    android:text="@string/post_thread"
+                    android:textSize="16sp"
+                    />
 
             </LinearLayout>
 
