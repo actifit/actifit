@@ -27,6 +27,14 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:visibility="gone"/>
 
+    <ProgressBar
+        android:id="@+id/loader"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:progress="@integer/material_motion_duration_long_1"
+        android:visibility="visible" />
+
     <ListView
         android:id="@+id/actifit_notifications"
         android:layout_width="fill_parent"

@@ -45,8 +45,17 @@
         android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
         android:textSize="30sp"
-
+        android:visibility="gone"
         android:fontFamily="@font/font_awesome_6_solid"
+        />
+
+    <ProgressBar
+        android:id="@+id/loader"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:progress="@integer/material_motion_duration_long_1"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
         />
 
 </LinearLayout>
