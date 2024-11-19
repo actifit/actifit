@@ -1,5 +1,8 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static org.bitcoinj.core.TransactionBroadcast.random;
+import static java.lang.Integer.parseInt;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -11,28 +14,16 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.StrictMode;
-
-import android.provider.MediaStore;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.browser.customtabs.CustomTabsIntent;
-
-import androidx.core.widget.NestedScrollView;
-
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.text.Editable;
-
 import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
-
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -45,60 +36,41 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.*;
-
-import com.amazonaws.mobile.client.AWSMobileClient;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import java.security.MessageDigest;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-
-import java.util.Locale;
-
-import java.util.TimeZone;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.widget.NestedScrollView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.MarkwonConfiguration;
 import io.noties.markwon.html.HtmlPlugin;
 import io.noties.markwon.image.AsyncDrawable;
-import io.noties.markwon.image.ImageSize;
-import io.noties.markwon.image.ImageSizeResolver;
 import io.noties.markwon.image.picasso.PicassoImagesPlugin;
-
-
-import static java.lang.Integer.parseInt;
-import static org.bitcoinj.core.TransactionBroadcast.random;
 
 
 
@@ -200,9 +172,24 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         requestPermissions(permissions, requestCode);
     }
 
+/*
+    private void createFile(Context context, Uri srcUri, File dstFile) {
+        try (InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
+             OutputStream outputStream = new FileOutputStream(dstFile)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+*/
 
 
 
+/*
     //implementing file upload functionality
     private void uploadFile() {
         final ProgressDialog uploadProgress;
@@ -315,7 +302,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 file.delete();
             }
         }
-    }
+    }*/
 
     @Override
     public void onClick(View view) {
@@ -365,7 +352,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
 
-                uploadFile();
+                Utils.uploadFile( bitmap, fileUri, steemitPostContent, getApplicationContext(),
+                        PostSteemitActivity.this );
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -405,47 +393,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     }
 
 
-    public static void copyExif(InputStream originalPath, String newPath) throws IOException {
 
-        String[] attributes = new String[]
-                {
-                        ExifInterface.TAG_DATETIME,
-                        ExifInterface.TAG_DATETIME_DIGITIZED,
-                        ExifInterface.TAG_EXPOSURE_TIME,
-                        ExifInterface.TAG_FLASH,
-                        ExifInterface.TAG_FOCAL_LENGTH,
-                        ExifInterface.TAG_GPS_ALTITUDE,
-                        ExifInterface.TAG_GPS_ALTITUDE_REF,
-                        ExifInterface.TAG_GPS_DATESTAMP,
-                        ExifInterface.TAG_GPS_LATITUDE,
-                        ExifInterface.TAG_GPS_LATITUDE_REF,
-                        ExifInterface.TAG_GPS_LONGITUDE,
-                        ExifInterface.TAG_GPS_LONGITUDE_REF,
-                        ExifInterface.TAG_GPS_PROCESSING_METHOD,
-                        ExifInterface.TAG_GPS_TIMESTAMP,
-                        ExifInterface.TAG_MAKE,
-                        ExifInterface.TAG_MODEL,
-                        ExifInterface.TAG_ORIENTATION,
-                        ExifInterface.TAG_SUBSEC_TIME,
-                        ExifInterface.TAG_WHITE_BALANCE
-                };
 
-        ExifInterface oldExif = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            oldExif = new ExifInterface(originalPath);
-        }
-        ExifInterface newExif = new ExifInterface(newPath);
-
-        if (attributes.length > 0) {
-            for (int i = 0; i < attributes.length; i++) {
-                String value = oldExif.getAttribute(attributes[i]);
-                if (value != null)
-                    newExif.setAttribute(attributes[i], value);
-            }
-            newExif.saveAttributes();
-        }
-    }
-
+    /*
     //Compression Based Update
 
     private void createFile(Context context, Uri srcUri, File dstFile) {
@@ -464,7 +414,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     //OLD version no compression
     /*private void createFile(Context context, Uri srcUri, File dstFile) {
@@ -825,7 +775,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         findViewById(R.id.btn_video).setOnClickListener(this);
 
-        AWSMobileClient.getInstance().initialize(this).execute();
+        //AWSMobileClient.getInstance().initialize(this).execute();
 
         //Adding default title content for the daily post
 

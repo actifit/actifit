@@ -1,5 +1,9 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.VISIBLE;
+
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,7 +19,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,11 +26,7 @@ import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.squareup.picasso.Picasso;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -36,10 +35,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
-
-import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.VISIBLE;
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 public class SendTokenModalDialogFragment extends DialogFragment {
     public Context ctx;
@@ -258,6 +253,8 @@ public class SendTokenModalDialogFragment extends DialogFragment {
                     System.out.println(">>>>>>>>>>>>>>custom_params:"+cstm_params.toString());
                     System.out.println(">>>>>>>>>>>>>>op_name"+op_name.toString());
 
+                    Activity activity = getActivity();
+
                     //no need to wait for response
                     Utils.queryAPIPost(getContext(), MainActivity.username, activKeyVal,
                             op_name, cstm_params, taskProgress,
@@ -265,7 +262,7 @@ public class SendTokenModalDialogFragment extends DialogFragment {
                             @Override
                             public void onResponse(boolean success) {
                                 Log.e(MainActivity.TAG, "custom json complete:"+success);
-                                runOnUiThread(() -> {
+                                activity.runOnUiThread(() -> {
 
                                     if (success) {
 
@@ -291,7 +288,7 @@ public class SendTokenModalDialogFragment extends DialogFragment {
                             @Override
                             public void onError(String errorMessage) {
                                 Log.e(MainActivity.TAG, "error writing custom json:"+errorMessage);
-                                runOnUiThread(() -> {
+                                activity.runOnUiThread(() -> {
                                     Toast.makeText(ctx, ctx.getString(R.string.trx_success), Toast.LENGTH_LONG).show();
                                     taskProgress.setVisibility(View.GONE);
                                     dismiss();
@@ -302,7 +299,7 @@ public class SendTokenModalDialogFragment extends DialogFragment {
                                     //Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
                                 });*/
                             }
-                        });
+                        }, activity);
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }

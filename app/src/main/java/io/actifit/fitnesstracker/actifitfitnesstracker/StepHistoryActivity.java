@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,7 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
 
-public class StepHistoryActivity extends BaseActivity {
+public class StepHistoryActivity extends Activity {
     private ListView mStepsListView;
     private StepsDBHelper mStepsDBHelper;
     private ArrayList<DateStepsModel> mStepCountList;
@@ -42,6 +43,10 @@ public class StepHistoryActivity extends BaseActivity {
         //mStepFinalList = new ArrayList<String>();
         mStepFinalList = new ArrayList<>();
 
+
+        //TODO: we just moved this outside of the AsyncTask, see if this works properly
+
+
         StepHistoryAsyncTask stepHistoryAsyncTask = new StepHistoryAsyncTask();
         stepHistoryAsyncTask.execute();
 
@@ -49,15 +54,11 @@ public class StepHistoryActivity extends BaseActivity {
         Button BtnViewChart = findViewById(R.id.chart_view);
         progressBarRelLayout = findViewById(R.id.progressBarRelLayout);
 
-        BtnViewChart.setOnClickListener(new View.OnClickListener() {
+        BtnViewChart.setOnClickListener(arg0 -> {
 
-            @Override
-            public void onClick(View arg0) {
+            Intent intent = new Intent(StepHistoryActivity.this, HistoryChartActivity.class);
+            startActivity(intent);
 
-                Intent intent = new Intent(StepHistoryActivity.this, HistoryChartActivity.class);
-                startActivity(intent);
-
-            }
         });
 
     }
@@ -74,6 +75,7 @@ public class StepHistoryActivity extends BaseActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
+
             //grab the data to be displayed in the list
             getDataForList();
 
@@ -87,44 +89,11 @@ public class StepHistoryActivity extends BaseActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            //initializing date conversion components
-            String dateDisplay;
-            //existing date format
-            SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
-            //output format
-            SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd/yyyy");
-
-            //loop through the data to prepare it for proper display
-            for (int position=0;position<mStepCountList.size();position++){
-                try {
-                    //grab date entry according to stored format
-                    Date feedingDate = dateFormIn.parse((mStepCountList.get(position)).mDate);
-                    //convert it to new format for display
-                    dateDisplay = dateFormOut.format(feedingDate);
-
-                    //initiate a new entry
-                    DateStepsModel newEntry = new DateStepsModel(dateDisplay, mStepCountList.get(position).mStepCount, mStepCountList.get(position).mtrackingDevice);
-
-                    //check if user has a post, set up its link properly
-                    newEntry.relevantPostLink = matchUserPostLink((mStepCountList.get(position)).mDate);
-                    newEntry.hasRelevantPost = !Objects.equals(newEntry.relevantPostLink, "");
-
-                    mStepFinalList.add(newEntry);
-
-                }catch(ParseException txtEx){
-                    Log.d(MainActivity.TAG,txtEx.toString());
-                    txtEx.printStackTrace();
-                }
-            }
-            //reverse the list for descending display
-            Collections.reverse(mStepFinalList);
-
-            // Create the adapter to convert the array to views
-            listingAdapter = new ActivityEntryAdapter(getApplicationContext(), mStepFinalList);
 
 
-            mStepsListView.setAdapter(listingAdapter);
-            progressBarRelLayout.setVisibility(View.GONE);
+            mStepFinalList = new ArrayList<>();
+
+            fillData();
 
         }
     }
@@ -137,7 +106,7 @@ public class StepHistoryActivity extends BaseActivity {
 
         HiveRequests hive = new HiveRequests(getApplicationContext());
 
-        //Thread thread = new Thread(() -> {
+        Thread thread = new Thread(() -> {
 
             try {
                 JSONObject params = new JSONObject();
@@ -148,14 +117,16 @@ public class StepHistoryActivity extends BaseActivity {
                 params.put("observer", "");
                 JSONArray result = hive.getAccountPosts(params);
                 userPosts = result;
-
+                runOnUiThread(() -> {
+                    fillData();
+                });
             }
             catch (Exception e){
                 //Log.e(MainActivity.TAG, Objects.requireNonNull(e.getMessage()));
                 Log.e(MainActivity.TAG, "ERROR");
             }
-        //});
-        //thread.start();
+        });
+        thread.start();
     }
     String matchUserPostLink(String entryDate){
         for (int i = 0; i < userPosts.length(); i++) {
@@ -176,5 +147,58 @@ public class StepHistoryActivity extends BaseActivity {
             }
         }
         return "";
+    }
+
+
+    void fillData(){
+
+        //initializing date conversion components
+        String dateDisplay;
+        //existing date format
+        SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
+        //output format
+        SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd/yyyy");
+
+        //loop through the data to prepare it for proper display
+        for (int position=0;position<mStepCountList.size();position++){
+            try {
+                //grab date entry according to stored format
+                Date feedingDate = dateFormIn.parse((mStepCountList.get(position)).mDate);
+                //convert it to new format for display
+                dateDisplay = dateFormOut.format(feedingDate);
+
+                //initiate a new entry
+                DateStepsModel newEntry = new DateStepsModel(dateDisplay, mStepCountList.get(position).mStepCount, mStepCountList.get(position).mtrackingDevice);
+
+                //check if user has a post, set up its link properly
+                if (userPosts!=null && userPosts.length()>0) {
+                    newEntry.relevantPostChecked = true;
+                    newEntry.relevantPostLink = matchUserPostLink((mStepCountList.get(position)).mDate);
+                    newEntry.hasRelevantPost = !Objects.equals(newEntry.relevantPostLink, "");
+                }
+
+                mStepFinalList.add(newEntry);
+
+            }catch(ParseException txtEx){
+                Log.d(MainActivity.TAG,txtEx.toString());
+                txtEx.printStackTrace();
+            }
+        }
+        //reverse the list for descending display
+        Collections.reverse(mStepFinalList);
+
+        // Create the adapter to convert the array to views
+        if (listingAdapter==null) {
+            listingAdapter = new ActivityEntryAdapter(getApplicationContext(),
+                    mStepFinalList, StepHistoryActivity.this);
+        }else {
+            listingAdapter = new ActivityEntryAdapter(getApplicationContext(),
+                    mStepFinalList, StepHistoryActivity.this);
+        }
+        mStepsListView.setAdapter(null);
+        mStepsListView.setAdapter(listingAdapter);
+        if (progressBarRelLayout !=null && progressBarRelLayout.getVisibility()==View.VISIBLE) {
+            progressBarRelLayout.setVisibility(View.GONE);
+        }
     }
 }

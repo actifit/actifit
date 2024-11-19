@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
-public class SingleHivePostModel{
+public class SingleHivePostModel implements Comparable<SingleHivePostModel>{
 
     public int post_id;
     public String title;
@@ -55,6 +55,9 @@ public class SingleHivePostModel{
     public Boolean isTranslated = false;
     public Boolean isExpanded = false; // default view not expanded, so display shortBody content i/o body
     public Context ctx;
+
+    public boolean isThread = false;
+    public String threadType = "";
 
 
     public SingleHivePostModel(JSONObject jsonObject, Context ctx) {
@@ -302,6 +305,14 @@ public class SingleHivePostModel{
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public int compareTo(SingleHivePostModel compPost) {
+        if (this.created == null || compPost.created == null) {
+            return 0;
+        }
+        return this.created.compareTo(compPost.created);
     }
 
 

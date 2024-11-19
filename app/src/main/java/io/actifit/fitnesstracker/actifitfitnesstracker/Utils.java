@@ -1,4 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
+
+import static android.content.Context.MODE_PRIVATE;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -7,9 +10,10 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.transition.Slide;
@@ -17,11 +21,13 @@ import android.transition.Transition;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.AuthFailureError;
@@ -46,6 +52,7 @@ import org.jsoup.safety.Safelist;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.text.ParseException;
@@ -54,14 +61,152 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static android.content.Context.MODE_PRIVATE;
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class Utils {
 
     public static JSONArray extraVotesList;
+
+    //Compression Based Update
+
+    public static void createFile(Bitmap bitmap, Context context, Uri srcUri, File dstFile) {
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
+            if (inputStream == null) return;
+
+            OutputStream outputStream = new FileOutputStream(dstFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);
+
+            //special copyexif from stream to file
+            copyExif(inputStream, dstFile.getAbsolutePath());
+
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void copyExif(InputStream originalPath, String newPath) throws IOException {
+
+        String[] attributes = new String[]
+                {
+                        ExifInterface.TAG_DATETIME,
+                        ExifInterface.TAG_DATETIME_DIGITIZED,
+                        ExifInterface.TAG_EXPOSURE_TIME,
+                        ExifInterface.TAG_FLASH,
+                        ExifInterface.TAG_FOCAL_LENGTH,
+                        ExifInterface.TAG_GPS_ALTITUDE,
+                        ExifInterface.TAG_GPS_ALTITUDE_REF,
+                        ExifInterface.TAG_GPS_DATESTAMP,
+                        ExifInterface.TAG_GPS_LATITUDE,
+                        ExifInterface.TAG_GPS_LATITUDE_REF,
+                        ExifInterface.TAG_GPS_LONGITUDE,
+                        ExifInterface.TAG_GPS_LONGITUDE_REF,
+                        ExifInterface.TAG_GPS_PROCESSING_METHOD,
+                        ExifInterface.TAG_GPS_TIMESTAMP,
+                        ExifInterface.TAG_MAKE,
+                        ExifInterface.TAG_MODEL,
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.TAG_SUBSEC_TIME,
+                        ExifInterface.TAG_WHITE_BALANCE
+                };
+
+        ExifInterface oldExif = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            oldExif = new ExifInterface(originalPath);
+        }
+        ExifInterface newExif = new ExifInterface(newPath);
+
+        if (attributes.length > 0) {
+            for (int i = 0; i < attributes.length; i++) {
+                String value = oldExif.getAttribute(attributes[i]);
+                if (value != null)
+                    newExif.setAttribute(attributes[i], value);
+            }
+            newExif.saveAttributes();
+        }
+    }
+
+    public static void uploadFile(Bitmap bitmap, Uri fileUri, EditText textBox,
+                                  Context ctx, Activity activity) {
+        final ProgressDialog uploadProgress;
+        if (fileUri != null) {
+            // Create unique image file name
+            final String fileName = UUID.randomUUID().toString();
+            final File file = new File(ctx.getFilesDir(), fileName);
+
+            // Create file from URI
+            createFile(bitmap, ctx, fileUri, file);
+
+            // Show progress dialog
+            uploadProgress = new ProgressDialog(activity);
+            uploadProgress.setMessage(ctx.getString(R.string.start_upload));
+
+            activity.runOnUiThread(() -> {
+                uploadProgress.show();
+            });
+
+            // Prepare the file to be uploaded
+            RequestBody requestFile = RequestBody.create(MediaType.parse(ctx.getContentResolver().getType(fileUri)), file);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+            String token = ctx.getString(R.string.media_upload_key); // Replace with your token
+
+            // Create Retrofit client and call API
+            ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+            Call<ResponseBody> call = apiService.uploadImage(body, token);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull retrofit2.Response<ResponseBody> response) {
+                    activity.runOnUiThread(() -> {
+                        if (uploadProgress != null && uploadProgress.isShowing()) {
+                            uploadProgress.dismiss();
+                        }
+                        if (response.isSuccessful()) {
+                            Toast.makeText(ctx, ctx.getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
+                            String fullImgUrl = ctx.getString(R.string.actifit_usermedia_url) + fileName;
+                            String imgMarkdownText = "![](" + fullImgUrl + ")";
+                            // Append the uploaded image URL to the text as markdown
+                            int start = Math.max(textBox.getSelectionStart(), 0);
+                            int end = Math.max(textBox.getSelectionEnd(), 0);
+                            textBox.getText().replace(Math.min(start, end), Math.max(start, end),
+                                    imgMarkdownText, 0, imgMarkdownText.length());
+                            file.delete();
+                        } else {
+                            showError();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    activity.runOnUiThread(() -> {
+                        if (uploadProgress != null && uploadProgress.isShowing()) {
+                            uploadProgress.dismiss();
+                        }
+                        showError();
+                    });
+                }
+
+                private void showError() {
+                    activity.runOnUiThread(() -> {
+                        Toast toast = Toast.makeText(ctx, ctx.getString(R.string.upload_failed), Toast.LENGTH_SHORT);
+                        TextView v = toast.getView().findViewById(android.R.id.message);
+                        v.setTextColor(Color.RED);
+                        toast.show();
+                    });
+                }
+            });
+        }
+    }
 
     //removes any tags that do not match predefined list
     public static String sanitizeContent(String htmlContent, Boolean minimal) {
@@ -224,14 +369,15 @@ public class Utils {
     public static void queryAPI(Context ctx, String user, String op_name,
                                 JSONObject cstm_params,
                                 final ProgressBar taskProgress,
-                                final APIResponseListener listener) {
+                                final APIResponseListener listener,
+                                final Activity activity) {
 
         RequestQueue queue = Volley.newRequestQueue(ctx);
 
         if (user.equals("") || op_name.equals("") || cstm_params == null) {
 
             Log.e(MainActivity.TAG, "missing params");
-            runOnUiThread(() -> {
+            activity.runOnUiThread(() -> {
                 taskProgress.setVisibility(View.GONE);
             });
         } else {
@@ -251,7 +397,7 @@ public class Utils {
                 //send out transaction
                 JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
                         bcastUrl, null,
-                        response -> runOnUiThread(() -> {
+                        response -> activity.runOnUiThread(() -> {
                             taskProgress.setVisibility(View.GONE);
                             Log.d(MainActivity.TAG, response.toString());
 
@@ -313,7 +459,7 @@ public class Utils {
 
 
     //marks a notification as read
-    public static void markNotifRead(Context ctx, String user, String notifId){
+    public static void markNotifRead(Context ctx, Activity activity, String user, String notifId){
         try {
             RequestQueue queue = Volley.newRequestQueue(ctx);
 
@@ -324,7 +470,7 @@ public class Utils {
             //send out transaction
             JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
                     bcastUrl, null,
-                    response -> runOnUiThread(() -> {
+                    response -> activity.runOnUiThread(() -> {
                         /*Log.d(MainActivity.TAG, response.toString());
                         try{
                             //
@@ -375,14 +521,15 @@ public class Utils {
     public static void queryAPIPost(Context ctx, String user, String actvKey, String op_name,
                                 JSONObject cstm_params,
                                 final ProgressBar taskProgress,
-                                final APIResponseListener listener) {
+                                final APIResponseListener listener,
+                                    Activity activity) {
 
         RequestQueue queue = Volley.newRequestQueue(ctx);
 
         if (user.equals("") || op_name.equals("") || cstm_params == null) {
 
             Log.e(MainActivity.TAG, "missing params");
-            runOnUiThread(() -> {
+            activity.runOnUiThread(() -> {
                 taskProgress.setVisibility(View.GONE);
             });
         } else {
@@ -411,7 +558,7 @@ public class Utils {
                 //send out transaction
                 JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.POST,
                         bcastUrl, body,
-                        response -> runOnUiThread(() -> {
+                        response ->  activity.runOnUiThread(() -> {
                             taskProgress.setVisibility(View.GONE);
                             Log.d(MainActivity.TAG, response.toString());
 

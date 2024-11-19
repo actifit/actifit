@@ -7,6 +7,7 @@ public class DateStepsModel {
     public String mtrackingDevice;
     public Boolean hasRelevantPost = false;
     public String relevantPostLink;
+    public Boolean relevantPostChecked = false;
 
     public DateStepsModel(){
 

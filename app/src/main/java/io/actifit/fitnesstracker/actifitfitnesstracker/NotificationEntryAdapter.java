@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -19,7 +20,6 @@ import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.squareup.picasso.Picasso;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 
@@ -27,10 +27,14 @@ public class NotificationEntryAdapter extends ArrayAdapter<NotificationModel> {
 
     private String currentUser = "";
     private Context ctx;
+    private Activity activity;
 
-    public NotificationEntryAdapter(Context context, ArrayList<NotificationModel> activityEntry) {
+    public NotificationEntryAdapter(Context context,
+                                    Activity activity,
+                                    ArrayList<NotificationModel> activityEntry) {
         super(context, 0, activityEntry);
         this.ctx = context;
+        this.activity = activity;
         SharedPreferences sharedPreferences = context.getSharedPreferences("actifitSets", context.MODE_PRIVATE);
         currentUser = sharedPreferences.getString("actifitUser","");
     }
@@ -86,12 +90,11 @@ public class NotificationEntryAdapter extends ArrayAdapter<NotificationModel> {
         //handle click on username
         actionTaker.setOnClickListener(view -> openUserAccount(notifEntry.action_taker));
 
-
         //associate proper action with button
         detailsButton.setOnClickListener(arg0 -> {
 
             //mark as read
-            Utils.markNotifRead(ctx, MainActivity.username, notifEntry._id);
+            Utils.markNotifRead(ctx, activity, MainActivity.username, notifEntry._id);
 
 
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();

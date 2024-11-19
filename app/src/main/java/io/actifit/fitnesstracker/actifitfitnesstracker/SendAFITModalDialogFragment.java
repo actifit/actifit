@@ -1,10 +1,13 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.VISIBLE;
+
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +16,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.android.volley.Request;
@@ -28,14 +29,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-
-import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.VISIBLE;
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 public class SendAFITModalDialogFragment extends DialogFragment {
     public Context ctx;
@@ -148,6 +142,8 @@ public class SendAFITModalDialogFragment extends DialogFragment {
 
             taskProgress.setVisibility(VISIBLE);
 
+            Activity activity = getActivity();
+
             //run on its own thread to avoid hiccups
             Thread th = new Thread(() -> {
                 //runOnUiThread(() -> {
@@ -197,7 +193,7 @@ public class SendAFITModalDialogFragment extends DialogFragment {
                                                                 @Override
                                                                 public void onResponse(boolean success) {
                                                                     Log.e(MainActivity.TAG, "custom json complete:"+success);
-                                                                    runOnUiThread(() -> {
+                                                                    activity.runOnUiThread(() -> {
                                                                         Toast.makeText(ctx, ctx.getString(R.string.trx_success), Toast.LENGTH_LONG).show();
                                                                         taskProgress.setVisibility(View.GONE);
                                                                         dismiss();
@@ -216,7 +212,7 @@ public class SendAFITModalDialogFragment extends DialogFragment {
                                                                 @Override
                                                                 public void onError(String errorMessage) {
                                                                     Log.e(MainActivity.TAG, "error writing custom json:"+errorMessage);
-                                                                    runOnUiThread(() -> {
+                                                                    activity.runOnUiThread(() -> {
                                                                         Toast.makeText(ctx, ctx.getString(R.string.trx_success), Toast.LENGTH_LONG).show();
                                                                         taskProgress.setVisibility(View.GONE);
                                                                         dismiss();
@@ -227,7 +223,7 @@ public class SendAFITModalDialogFragment extends DialogFragment {
                                                                         //Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
                                                                     });*/
                                                                 }
-                                                            });
+                                                            }, activity);
 
                                                 } catch (Exception exc) {
                                                     exc.printStackTrace();
@@ -245,7 +241,7 @@ public class SendAFITModalDialogFragment extends DialogFragment {
                                     public void onErrorResponse (VolleyError error){
                                     Log.e(MainActivity.TAG, "error sending funds"+error.getMessage());
                                         // Handle the error
-                                        runOnUiThread(() -> {
+                                        activity.runOnUiThread(() -> {
                                             taskProgress.setVisibility(View.GONE);
                                             Toast.makeText(ctx, ctx.getString(R.string.trx_error), Toast.LENGTH_LONG).show();
                                         });

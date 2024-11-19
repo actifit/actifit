@@ -25,6 +25,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.util.Log;
+import android.widget.Toast;
 
 
 /**
@@ -122,6 +123,39 @@ public class ActivityMonitorService extends Service implements SensorEventListen
      */
     @Override
     public void step(long timeNs) {
+
+        /* testing code for notifications and user error */
+        /*
+        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(ctx);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        int notID = tenknotificationID;
+        Context context = ctx;
+        Intent notifyIntent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
+                context.getString(R.string.actifit_channel_remind_ID))
+                .setContentTitle("Test Notification")
+                .setContentText(sharedPreferences.getString("dataTrackingSystem",
+                                ctx.getString(R.string.device_tracking_ntt)))
+                .setSmallIcon(R.drawable.actifit_logo)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);
+
+        Notification notificationCompat = builder.build();
+        managerCompat.notify(notID, notificationCompat);*/
+        /* ********************************************* */
+
+
         //no need to track steps if we do not have the proper mode active
         if (sharedPreferences == null){
             initializeSharedPrefs();
@@ -189,9 +223,9 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             Intent notifyIntent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent;
-            /*if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-                pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
-            }else{*/
+            //if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+            //    pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
+            //}else{
                 pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
             //}
             //prepare notification details
@@ -247,6 +281,29 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         InitializeAsyncTask initNotif = new InitializeAsyncTask();
         initNotif.execute();
 
+        /*Intent notificationIntent = new Intent(ctx, MainActivity.class);
+
+        PendingIntent pendingIntent;
+        //if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+        pendingIntent =
+                PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+
+
+
+        int curActivityCount = mStepsDBHelper.fetchTodayStepCount();
+        mBuilder = new
+                NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
+                .setContentTitle(getString(R.string.actifit_notif_title))
+                .setContentText(getString(R.string.activity_today_string)+" "+(Math.max(curActivityCount, 0)))
+                .setSmallIcon(R.drawable.actifit_logo)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOnlyAlertOnce(true);
+
+        notificationManager = NotificationManagerCompat.from(ctx);
+
+        startForeground(notificationID,mBuilder.build());
+*/
         return START_STICKY;
     }
 

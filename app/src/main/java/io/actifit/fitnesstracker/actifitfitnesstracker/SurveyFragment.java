@@ -3,23 +3,17 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.fragment.app.DialogFragment;
 
 import com.android.volley.AuthFailureError;
@@ -29,7 +23,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.squareup.picasso.Picasso;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -38,8 +31,6 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 public class SurveyFragment extends DialogFragment {
 
@@ -111,6 +102,8 @@ public class SurveyFragment extends DialogFragment {
             }
         }
 
+        Activity activity = getActivity();
+
         Button voteButton = view.findViewById(R.id.voteButton);
         ProgressBar loader = view.findViewById(R.id.loader);
         //final Activity activRef = this;
@@ -140,7 +133,7 @@ public class SurveyFragment extends DialogFragment {
                         public void onResponse(JSONObject response) {
 
                             // Display the result
-                            runOnUiThread(() -> {
+                            activity.runOnUiThread(() -> {
                             try {
 
                                             loader.setVisibility(View.GONE);

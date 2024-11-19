@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.viewpager.widget.PagerAdapter;
@@ -20,24 +20,25 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.List;
 
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
-
 public class Slider_items_Pager_Adapter extends PagerAdapter {
 
-    private Context Mcontext;
+    private Context ctx;
     private List<Slider_Items_Model_Class> sliderItemsModelClasses;
+    private Activity activity;
 
-
-    public Slider_items_Pager_Adapter(Context Mcontext, List<Slider_Items_Model_Class> slideItemsModelClassList) {
-        this.Mcontext = Mcontext;
+    public Slider_items_Pager_Adapter(Context Mcontext,
+                                      List<Slider_Items_Model_Class> slideItemsModelClassList,
+                                      Activity activity) {
+        this.ctx = Mcontext;
         this.sliderItemsModelClasses = slideItemsModelClassList;
+        this.activity = activity;
     }
 
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
 
-        LayoutInflater inflater = (LayoutInflater) Mcontext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View sliderLayout = inflater.inflate(R.layout.slider_items_layout,null);
 
         ImageView featured_image = sliderLayout.findViewById(R.id.news_featured_image);
@@ -59,18 +60,18 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
             //Toast.makeText   (Mcontext, "test", Toast.LENGTH_LONG).show();
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
-            builder.setToolbarColor(Mcontext.getResources().getColor(R.color.actifitRed));
+            builder.setToolbarColor(ctx.getResources().getColor(R.color.actifitRed));
 
             //animation for showing and closing fitbit authorization screen
-            builder.setStartAnimations(Mcontext, R.anim.slide_in_right, R.anim.slide_out_left);
+            builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
 
             //animation for back button clicks
-            builder.setExitAnimations(Mcontext, android.R.anim.slide_in_left,
+            builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
                     android.R.anim.slide_out_right);
 
             CustomTabsIntent customTabsIntent = builder.build();
 
-            customTabsIntent.launchUrl(Mcontext, Uri.parse(sliderItemsModelClasses.get(position).getLink_url()));
+            customTabsIntent.launchUrl(ctx, Uri.parse(sliderItemsModelClasses.get(position).getLink_url()));
         });
 
         return sliderLayout;
@@ -79,7 +80,7 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         try {
-            runOnUiThread(() -> {
+            activity.runOnUiThread(() -> {
                 container.removeView((View) object);
             });
         }catch(Exception ex){
