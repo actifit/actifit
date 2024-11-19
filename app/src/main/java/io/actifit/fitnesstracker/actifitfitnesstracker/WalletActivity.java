@@ -560,8 +560,8 @@ public class WalletActivity extends BaseActivity {
         tokensContainer.removeAllViewsInLayout();
 
         //add header view
-        View walletHeader = LayoutInflater.from(getApplicationContext())
-                .inflate(R.layout.wallet_header, null, false);
+        View walletHeader = LayoutInflater.from(this)//getApplicationContext()) //getApplicationContext())
+                .inflate(R.layout.wallet_header, tokensContainer, false);
 
         tokensContainer.addView(walletHeader);
 

@@ -1,8 +1,10 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static android.view.View.VISIBLE;
+
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -25,9 +27,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-
-import static android.view.View.VISIBLE;
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 public class VoteModalDialogFragment extends DialogFragment {
     public Context ctx;
@@ -75,7 +74,6 @@ public class VoteModalDialogFragment extends DialogFragment {
 
     private void renderVoteContent(View view){
 
-        AlertDialog.Builder voteDialogBuilder = new AlertDialog.Builder(ctx);
         //View voteModalLayout = LayoutInflater.from(ctx).inflate(R.layout.vote_modal, null);
         View voteModalLayout = view;
         TextView author_txt = voteModalLayout.findViewById(R.id.vote_author);
@@ -86,8 +84,6 @@ public class VoteModalDialogFragment extends DialogFragment {
         vote_weight.setText(Utils.grabUserDefaultVoteWeight());
 
         ProgressBar taskProgress = voteModalLayout.findViewById(R.id.loader);
-
-        AlertDialog pointer = null;
 
         Button upvoteButton = view.findViewById(R.id.proceed_vote_btn);
 
@@ -128,6 +124,8 @@ public class VoteModalDialogFragment extends DialogFragment {
 
             taskProgress.setVisibility(VISIBLE);
 
+            Activity activity = getActivity();
+
             //run on its own thread to avoid hiccups
             Thread voteThread = new Thread(() -> {
                 //runOnUiThread(() -> {
@@ -140,12 +138,13 @@ public class VoteModalDialogFragment extends DialogFragment {
                     cstm_params.put("permlink", postEntry.permlink);
                     cstm_params.put("weight", Integer.parseInt(String.valueOf(vote_weight.getText())) * 100);
 
-                    Utils.queryAPI(getContext(), MainActivity.username, op_name, cstm_params, taskProgress,
+                    Utils.queryAPI(getContext(), MainActivity.username, op_name,
+                            cstm_params, taskProgress,
                             new Utils.APIResponseListener() {
                                 @Override
                                 public void onResponse(boolean success) {
                                     // Step 5: Perform another API call
-                                    runOnUiThread(() -> {
+                                    activity.runOnUiThread(() -> {
                                         taskProgress.setVisibility(View.GONE);
                                         if (success) {
                                             Toast.makeText(ctx, ctx.getString(R.string.vote_success), Toast.LENGTH_LONG).show();
@@ -193,12 +192,12 @@ public class VoteModalDialogFragment extends DialogFragment {
                                 @Override
                                 public void onError(String errorMessage) {
                                     // Handle the error
-                                    runOnUiThread(() -> {
+                                    activity.runOnUiThread(() -> {
                                         taskProgress.setVisibility(View.GONE);
                                         Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
                                     });
                                 }
-                            });
+                            }, activity);
 
                 } catch (Exception exc) {
                     exc.printStackTrace();

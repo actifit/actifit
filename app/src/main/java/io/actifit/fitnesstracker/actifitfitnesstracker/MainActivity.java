@@ -15,6 +15,8 @@
  */
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static java.lang.Integer.parseInt;
+
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -76,10 +78,6 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
-//import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
-
-
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -104,7 +102,6 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
-
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.google.android.gms.ads.AdError;
@@ -152,14 +149,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
-import static java.lang.Integer.parseInt;
 
 
 /**
@@ -649,7 +642,8 @@ public class MainActivity extends BaseActivity{
                         }
                     }
 
-                    Slider_items_Pager_Adapter itemsPager_adapter = new Slider_items_Pager_Adapter(this, listItems);
+                    Slider_items_Pager_Adapter itemsPager_adapter = new Slider_items_Pager_Adapter(
+                            this, listItems, MainActivity.this);
                     newsPage.setAdapter(itemsPager_adapter);
 
                     newsTabLayout.setupWithViewPager(newsPage,true);
@@ -868,8 +862,8 @@ public class MainActivity extends BaseActivity{
             try {
                 Toast toast = Toast.makeText(this,  getString(R.string.actifit_crash_restarted), Toast.LENGTH_SHORT);
                 View view = toast.getView();
-                assert view != null;
-                TextView text = view.findViewById(android.R.id.message);
+                if (view != null) {
+                    TextView text = view.findViewById(android.R.id.message);
             /*
             try {
                 //Gets the actual oval background of the Toast then sets the colour filter
@@ -877,8 +871,9 @@ public class MainActivity extends BaseActivity{
             }catch(Exception e){
                 e.printStackTrace();
             }*/
-                text.setTextColor(Color.WHITE);
-                toast.show();
+                    text.setTextColor(Color.WHITE);
+                    toast.show();
+                }
             }catch(Exception ex){
                 Log.e(TAG, "error displaying toast");
             }
@@ -1618,7 +1613,7 @@ public class MainActivity extends BaseActivity{
 
         //this is now needed for proper image upload to AWS
         //TODO: RECHECK THIS CRASHING
-
+        /*
         try {
             getApplicationContext().startService(new Intent(getApplicationContext(), TransferService.class));
         }catch(Exception e){
@@ -1631,7 +1626,7 @@ public class MainActivity extends BaseActivity{
                 ex.printStackTrace();
             }
         }
-
+        */
 
         //connecting the activity to the service to receive proper updates on move count
         receiver = new BroadcastReceiver() {

@@ -1,9 +1,8 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
-import android.app.ProgressDialog;
+import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
+
 import android.content.SharedPreferences;
-import android.opengl.Visibility;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -21,7 +20,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -30,9 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
-import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
 
 public class SocialActivity extends BaseActivity {
 
@@ -327,7 +322,8 @@ public class SocialActivity extends BaseActivity {
                 // Create the adapter to convert the array to views
                 //String pkey = sharedPreferences.getString("actifitPst", "");
 
-                postAdapter = new PostAdapter(getBaseContext(), posts, socialView, SocialActivity.this, false);
+                postAdapter = new PostAdapter(getBaseContext(), posts, socialView,
+                        SocialActivity.this, false, SocialActivity.this);
                 //postAdapter = new PostAdapter(getApplicationContext(), posts, socialView, SocialActivity.this, false);
 
                 // Execute UI-related code on the main thread

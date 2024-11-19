@@ -1,23 +1,25 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static android.app.Activity.RESULT_OK;
+import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
+
 import android.annotation.TargetApi;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.service.voice.VisibleActivityInfo;
 import android.text.Editable;
 import android.text.Html;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,19 +31,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import com.amazonaws.mobile.client.AWSMobileClient;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -57,24 +53,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
-import java.util.UUID;
-
-import static android.app.Activity.RESULT_OK;
-import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
-import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
-import static io.actifit.fitnesstracker.actifitfitnesstracker.PostSteemitActivity.copyExif;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.Markwon;
@@ -86,7 +70,7 @@ import io.noties.markwon.image.picasso.PicassoImagesPlugin;
 public class WavesDialogFragment extends DialogFragment {
     public Context ctx;
     //JSONArray extraVotesList;
-    SingleHivePostModel postEntry;
+    SingleHivePostModel postEntry, postEntryWaves, postEntrySnaps;
     ListView socialView;
     RequestQueue queue = null;
     Button loadMoreBtn, postWaveBtn, expandPreview, retractPreview;
@@ -294,22 +278,26 @@ public class WavesDialogFragment extends DialogFragment {
         postWaveBtn.setOnClickListener(v -> {
 
 
-                    //EditText
-                    replyText = view.findViewById(R.id.wave_text);
+            //EditText
+            replyText = view.findViewById(R.id.wave_text);
 
-                    //proceed with positive action
-                    //Button proceedCommentBtn = view.findViewById(R.id.proceed_comment_btn);
-                    //proceedCommentBtn.setOnClickListener(vv ->{
-                        //DialogInterface.OnClickListener handleCommentAction = (dialogInterface, which) -> {
+            //proceed with positive action
+            //Button proceedCommentBtn = view.findViewById(R.id.proceed_comment_btn);
+            //proceedCommentBtn.setOnClickListener(vv ->{
+                //DialogInterface.OnClickListener handleCommentAction = (dialogInterface, which) -> {
 
-                        String commentStr = replyText.getText().toString();
-                        if (commentStr.length() < 1){
-                            Toast.makeText(ctx, ctx.getString(R.string.no_empty_comment),Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        ProgressBar taskProgress = view.findViewById(R.id.loader);
+            String commentStr = replyText.getText().toString();
+            if (commentStr.length() < 1){
+                Toast.makeText(ctx, ctx.getString(R.string.no_empty_comment),Toast.LENGTH_SHORT).show();
+                return;
+            }
+            ProgressBar taskProgress = view.findViewById(R.id.loader);
 
-                        taskProgress.setVisibility(VISIBLE);
+            taskProgress.setVisibility(VISIBLE);
+
+            RadioButton wavesRadioButton = view.findViewById(R.id.ecency_waves_option);
+
+                        //check whether to make a WAVE/ecency or a SNAP/peakd
 
                         //run on its own thread to avoid hiccups
                         Thread trxThread = new Thread(() -> {
@@ -317,7 +305,18 @@ public class WavesDialogFragment extends DialogFragment {
                                 //postEntry = lastPost;
                                 String op_name = "comment";
 
-                                String comment_perm = "wave-actifit-"+MainActivity.username.replace(".", "-") + new SimpleDateFormat("yyyyMMddHHmmssSSS'Z'", Locale.US).format(new Date());;//MainActivity.username.replace(".", "-") + "-re-" + postEntry.author.replace(".", "-") + "-" + postEntry.permlink + new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.US).format(new Date());
+                                String comment_perm = "actifit-"+MainActivity.username.replace(".", "-")
+                                        + new SimpleDateFormat("yyyyMMddHHmmssSSS'Z'", Locale.US).format(new Date());
+                                //MainActivity.username.replace(".", "-") + "-re-" + postEntry.author.replace(".", "-") + "-" + postEntry.permlink + new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.US).format(new Date());
+
+                                if (wavesRadioButton.isChecked()) {
+                                    postEntry = postEntryWaves;
+                                    comment_perm = "wave-" + comment_perm;
+                                }else{
+                                    postEntry = postEntrySnaps;
+                                    comment_perm = "snap-" + comment_perm;
+                                }
+
                                 comment_perm = comment_perm.replaceAll("[^a-zA-Z0-9-]", "").toLowerCase();
 
                                 JSONObject cstm_params = new JSONObject();
@@ -354,7 +353,7 @@ public class WavesDialogFragment extends DialogFragment {
                                         new Utils.APIResponseListener() {
                                             @Override
                                             public void onResponse(boolean success) {
-                                                runOnUiThread(() -> {
+                                                getActivity().runOnUiThread(() -> {
                                                     taskProgress.setVisibility(GONE);
                                                     Log.e(MainActivity.TAG, "response");
                                                     if (success) {
@@ -370,13 +369,13 @@ public class WavesDialogFragment extends DialogFragment {
                                             @Override
                                             public void onError(String errorMessage) {
                                                 // Handle the error
-                                                runOnUiThread(() -> {
+                                                getActivity().runOnUiThread(() -> {
                                                     taskProgress.setVisibility(GONE);
                                                     Toast.makeText(ctx, ctx.getString(R.string.comment_error), Toast.LENGTH_LONG).show();
                                                 });
                                                 Log.e(MainActivity.TAG, errorMessage);
                                             }
-                                        });
+                                        }, getActivity());
 
                             } catch (Exception exc) {
                                 exc.printStackTrace();
@@ -544,7 +543,7 @@ public class WavesDialogFragment extends DialogFragment {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), fileUri);
 
-                uploadFile();
+                Utils.uploadFile(bitmap, fileUri, replyText, ctx, getActivity());
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -564,7 +563,7 @@ public class WavesDialogFragment extends DialogFragment {
             try {
                 JSONObject params = new JSONObject();
                 params.put("sort", "posts");
-                params.put("account", "ecency.waves");
+                params.put("account", getString(R.string.ecency_waves_account));
                 params.put("start_author", start_author);
                 params.put("start_permlink", start_permlink);
                 params.put("limit", 10);//grab last 10 posts, covering 10 days content
@@ -572,7 +571,7 @@ public class WavesDialogFragment extends DialogFragment {
 
                 //progress = new ProgressBar(this);
                 // progress = new ProgressDialog(this);
-                runOnUiThread(() -> {
+                getActivity().runOnUiThread(() -> {
                     if (showFullProgress) {
                         progress.setVisibility(View.VISIBLE);
                     } else {
@@ -583,13 +582,29 @@ public class WavesDialogFragment extends DialogFragment {
 
                 //grab array from result
                 JSONArray result = hiveReq.getAccountPosts(params);
-                SingleHivePostModel lastPost = null;
+                //SingleHivePostModel lastPost = null;
 
                 if (result.length() > postDateContent){
-                    postEntry = new SingleHivePostModel((result.getJSONObject(postDateContent)), ctx);
+                    postEntryWaves = new SingleHivePostModel((result.getJSONObject(postDateContent)), ctx);
+                    postEntryWaves.isThread = true;
+                    postEntryWaves.threadType = getString(R.string.ecency_waves_account);
                     //lastPost = postEntry;
-                    comments.addAll(loadComments(postEntry));
+                    comments.addAll(loadComments(postEntryWaves));
                 }
+
+                //also load snaps (by peakd) content
+                params.put("account", getString(R.string.peakd_snaps_account));
+                JSONArray snaps = hiveReq.getAccountPosts(params);
+                if (result.length() > postDateContent){
+                    postEntrySnaps = new SingleHivePostModel((snaps.getJSONObject(postDateContent)), ctx);
+                    postEntrySnaps.isThread = true;
+                    postEntrySnaps.threadType = getString(R.string.peakd_snaps_account);
+                    //lastPost = postEntry;
+                    comments.addAll(loadComments(postEntrySnaps));
+                }
+
+                Collections.sort(comments);
+                Collections.reverse(comments);
 
                 /*
                 for (int i = 0; i < result.length(); i++) {
@@ -616,11 +631,11 @@ public class WavesDialogFragment extends DialogFragment {
                 // Create the adapter to convert the array to views
                 //String pkey = sharedPreferences.getString("actifitPst", "");
 
-                postAdapter = new PostAdapter(ctx, comments, socialView, ctx, true);
+                postAdapter = new PostAdapter(ctx, comments, socialView, ctx, true, getActivity());
                 //postAdapter = new PostAdapter(getApplicationContext(), posts, socialView, SocialActivity.this, false);
 
                 // Execute UI-related code on the main thread
-                runOnUiThread(() -> {
+                getActivity().runOnUiThread(() -> {
 
                     if (!showFullProgress) {
 
@@ -686,6 +701,8 @@ public class WavesDialogFragment extends DialogFragment {
             for (int i = result.length() - 1; i > -1 ; i--) {
                 //comments are basically like posts under hive
                 SingleHivePostModel commentEntry = new SingleHivePostModel((result.getJSONObject(i)), ctx);
+                commentEntry.isThread = postEntry.isThread;
+                commentEntry.threadType = postEntry.threadType;
                 commentList.add(commentEntry);
             }
         } catch (Exception ex) {
@@ -718,139 +735,6 @@ public class WavesDialogFragment extends DialogFragment {
     private Uri fileUri;
     private Bitmap bitmap;
 
-    private void createFile(Context context, Uri srcUri, File dstFile) {
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
-            if (inputStream == null) return;
-
-            OutputStream outputStream = new FileOutputStream(dstFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);
-
-            //special copyexif from stream to file
-            copyExif(inputStream, dstFile.getAbsolutePath());
-
-            inputStream.close();
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //implementing file upload functionality
-    private void uploadFile() {
-        final ProgressDialog uploadProgress;
-        if (fileUri != null) {
-
-            AWSMobileClient.getInstance().initialize(ctx).execute();
-
-            //create unique image file name
-            final String fileName = UUID.randomUUID().toString();
-
-            // final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            final File file = new File(ctx.getFilesDir(), fileName);
-
-            createFile(ctx, fileUri, file);
-
-            TransferUtility transferUtility =
-                    TransferUtility.builder()
-                            .context(ctx)
-                            .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                            .s3Client(new AmazonS3Client(AWSMobileClient.getInstance().getCredentialsProvider()))
-                            .build();
-
-            //specify content type to be image to be properly recognizable upon rendering
-            ObjectMetadata imgMetaData = new ObjectMetadata();
-            imgMetaData.setContentType("image/jpeg");
-
-            TransferObserver uploadObserver =
-                    transferUtility.upload(fileName, file, imgMetaData);
-
-            //create a new progress dialog to show action is underway
-            uploadProgress = new ProgressDialog(ctx);
-            uploadProgress.setMessage(getString(R.string.start_upload));
-            uploadProgress.show();
-
-            uploadObserver.setTransferListener(new TransferListener() {
-
-                @Override
-                public void onStateChanged(int id, TransferState state) {
-                    if (TransferState.COMPLETED == state) {
-                        try {
-                            if (uploadProgress != null && uploadProgress.isShowing()) {
-                                uploadProgress.dismiss();
-                            }
-                        }catch (Exception ex){
-                            //Log.d(MainActivity.TAG,ex.getMessage());
-                        }
-
-                        Toast.makeText(ctx, getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
-
-                        String full_img_url = getString(R.string.actifit_usermedia_url)+fileName;
-                        String img_markdown_text = "![]("+full_img_url+")";
-
-                        //append the uploaded image url to the text as markdown
-                        //if there is any particular selection, replace it too
-
-                        int start = Math.max(replyText.getSelectionStart(), 0);
-                        int end = Math.max(replyText.getSelectionEnd(), 0);
-                        replyText.getText().replace(Math.min(start, end), Math.max(start, end),
-                                img_markdown_text, 0, img_markdown_text.length());
-
-                        file.delete();
-
-                    } else if (TransferState.FAILED == state) {
-                        Toast toast = Toast.makeText(ctx, getString(R.string.upload_failed), Toast.LENGTH_SHORT);
-                        TextView v = toast.getView().findViewById(android.R.id.message);
-                        v.setTextColor(Color.RED);
-                        toast.show();
-                        file.delete();
-                    }
-                }
-
-                @Override
-                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                    float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
-                    int percentDone = (int) percentDonef;
-                    uploadProgress.setMessage(getString(R.string.uploading) + percentDone + "%");
-                    //tvFileName.setText("ID:" + id + "|bytesCurrent: " + bytesCurrent + "|bytesTotal: " + bytesTotal + "|" + percentDone + "%");
-                }
-
-                @Override
-                public void onError(int id, Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            });
-
-            // If your upload does not trigger the onStateChanged method inside your
-            // TransferListener, you can directly check the transfer state as shown here.
-            if (TransferState.COMPLETED == uploadObserver.getState()) {
-                // Handle a completed upload.
-                try {
-                    if (uploadProgress != null && uploadProgress.isShowing()) {
-                        uploadProgress.dismiss();
-                    }
-                }catch (Exception ex){
-                    //Log.d(MainActivity.TAG,ex.getMessage());
-                }
-
-                Toast.makeText(ctx, getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
-
-                String full_img_url = getString(R.string.actifit_usermedia_url)+fileName;
-                String img_markdown_text = "![]("+full_img_url+")";
-
-                //append the uploaded image url to the text as markdown
-                //if there is any particular selection, replace it too
-
-                int start = Math.max(replyText.getSelectionStart(), 0);
-                int end = Math.max(replyText.getSelectionEnd(), 0);
-                replyText.getText().replace(Math.min(start, end), Math.max(start, end),
-                        img_markdown_text, 0, img_markdown_text.length());
-
-                file.delete();
-            }
-        }
-    }
 
 
 

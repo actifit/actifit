@@ -1,8 +1,11 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,15 +30,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
 
 import com.deepl.api.DeepLException;
 import com.deepl.api.Translator;
-import com.deepl.api.TranslatorOptions;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,18 +45,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Objects;
 
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
-
-import androidx.fragment.app.FragmentManager;
-
 import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.MarkwonConfiguration;
-
 import io.noties.markwon.html.HtmlPlugin;
 import io.noties.markwon.image.AsyncDrawable;
 import io.noties.markwon.image.picasso.PicassoImagesPlugin;
@@ -63,6 +56,7 @@ import io.noties.markwon.image.picasso.PicassoImagesPlugin;
 public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
     Context ctx;
+    Activity activity;
     ArrayList<SingleHivePostModel> postArray;
     ListView socialView;
     Context socialActivContext;
@@ -85,13 +79,16 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         return 0;
     }
 
-    public PostAdapter(Context context, ArrayList<SingleHivePostModel> postArray, ListView socialView, Context socialActivContext, Boolean isComment){
+    public PostAdapter(Context context, ArrayList<SingleHivePostModel> postArray,
+                       ListView socialView, Context socialActivContext, Boolean isComment,
+                       Activity activity){
         super(context, 0, postArray);
         this.postArray = postArray;
         this.socialView = socialView;
         this.socialActivContext = socialActivContext;
         this.isComment = isComment;
         this.ctx = context;
+        this.activity = activity;
 
         //translate
         String authKey = ctx.getString(R.string.deepl_api_key);
@@ -170,6 +167,21 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             //translationNotice = convertView.findViewById(R.id.translation_notice_lbl);
             TextView translateBtn = convertView.findViewById(R.id.translate);
             RelativeLayout progressBarBody = convertView.findViewById(R.id.progressBarBody);
+
+            //TextView threadType = convertView.findViewById(R.id.threadType);
+            ImageView threadTypeImage = convertView.findViewById(R.id.threadTypeImage);
+
+            if (postEntry!=null && postEntry.isThread){
+                //threadType.setVisibility(VISIBLE);
+                //threadType.setText(postEntry.threadType);
+                //threadImage.setIcon(getResources().getDrawable(R.drawable.actifit_logo));
+                if (postEntry.threadType.equals(ctx.getString(R.string.peakd_snaps_account))) {
+                    threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.peakd));
+                }else if (postEntry.threadType.equals(ctx.getString(R.string.ecency_waves_account)))
+                    threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.ecency));
+            }else{
+                //threadType.setVisibility(GONE);
+            }
 
             TextView body = convertView.findViewById(R.id.body);
 
@@ -281,14 +293,15 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     ProgressBar loader = finalConvertView.findViewById(R.id.loader);
                     Thread thread = new Thread(() -> {
                         //load data
-                        runOnUiThread(() -> {
+                        activity.runOnUiThread(() -> {
                             loader.setVisibility(VISIBLE);
                         });
                         postEntry.comments = loadComments(postEntry);
 
 
-                        PostAdapter commentAdapter = new PostAdapter(ctx, postEntry.comments, socialView, socialActivContext, true);
-                        runOnUiThread(() -> {
+                        PostAdapter commentAdapter = new PostAdapter(ctx, postEntry.comments,
+                                socialView, socialActivContext, true, activity);
+                        activity.runOnUiThread(() -> {
                             commentsList.setAdapter(commentAdapter);
                             commentsList.setVisibility(VISIBLE);
                             postEntry.commentsExpanded = true;
@@ -330,7 +343,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     mainImage, postEntry, body, progressBarBody));
 
             translateBtn.setOnClickListener((View v) -> {
-                handleTranslation(postEntry, body, progressBarBody);//, translationNotice);
+                handleTranslation(postEntry, body, progressBarBody, activity);//, translationNotice);
 
             });
 
@@ -726,7 +739,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         mainImage.setVisibility(VISIBLE);
     }
 
-    void handleTranslation(SingleHivePostModel postEntry, TextView body, RelativeLayout progressBarBody){//, TextView _translationNotice){
+    void handleTranslation(SingleHivePostModel postEntry, TextView body,
+                           RelativeLayout progressBarBody, Activity activity){//, TextView _translationNotice){
 
 
         if (!postEntry.isTranslated){
@@ -750,7 +764,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     postEntry.isTranslated = true;
                 }
 
-                runOnUiThread(() -> {
+                activity.runOnUiThread(() -> {
                     renderContent(postEntry, body, progressBarBody);//, _translationNotice);
 
                 });

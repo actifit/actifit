@@ -1,5 +1,9 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.VISIBLE;
+
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,9 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,10 +32,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
-
-import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.VISIBLE;
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 public class StakeTokenModalDialogFragment extends DialogFragment {
     public Context ctx;
@@ -257,6 +255,8 @@ public class StakeTokenModalDialogFragment extends DialogFragment {
                     System.out.println(">>>>>>>>>>>>>>custom_params:"+cstm_params.toString());
                     System.out.println(">>>>>>>>>>>>>>op_name"+op_name.toString());
 
+                    Activity activity = getActivity();
+
                     //no need to wait for response
                     Utils.queryAPIPost(getContext(), MainActivity.username, activKeyVal,
                             op_name, cstm_params, taskProgress,
@@ -264,7 +264,7 @@ public class StakeTokenModalDialogFragment extends DialogFragment {
                             @Override
                             public void onResponse(boolean success) {
                                 Log.e(MainActivity.TAG, "custom json complete:"+success);
-                                runOnUiThread(() -> {
+                                activity.runOnUiThread(() -> {
 
                                     if (success) {
 
@@ -281,14 +281,14 @@ public class StakeTokenModalDialogFragment extends DialogFragment {
                             @Override
                             public void onError(String errorMessage) {
                                 Log.e(MainActivity.TAG, "error writing custom json:"+errorMessage);
-                                runOnUiThread(() -> {
+                                activity.runOnUiThread(() -> {
                                     Toast.makeText(ctx, ctx.getString(R.string.trx_success), Toast.LENGTH_LONG).show();
                                     taskProgress.setVisibility(View.GONE);
                                     dismiss();
                                 });
 
                             }
-                        });
+                        }, activity);
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }

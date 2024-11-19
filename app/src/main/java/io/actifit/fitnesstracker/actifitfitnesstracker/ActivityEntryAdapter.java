@@ -1,11 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
-import static android.view.View.GONE;
-import static androidx.core.content.ContextCompat.startActivity;
-
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
-import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
-
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,10 +22,12 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
 
     private final HiveRequests hiveReq;
     String start_author, start_permlink;
+    private Activity activity;
 
-    public ActivityEntryAdapter(Context context, ArrayList<DateStepsModel> activityEntry) {
+    public ActivityEntryAdapter(Context context, ArrayList<DateStepsModel> activityEntry, Activity activity) {
         super(context, 0, activityEntry);
         hiveReq = new HiveRequests(context);
+        this.activity = activity;
     }
 
     @Override
@@ -46,6 +44,7 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
         TextView entryDevice = convertView.findViewById(R.id.activityDevice);
         TextView detailsButton = convertView.findViewById(R.id.activityDetailsBtn);
         TextView postViewButton = convertView.findViewById(R.id.post_link);
+        ProgressBar loader = convertView.findViewById(R.id.loader);
         // Populate the data into the template view using the data object
         entryDate.setText(activityEntry.mDate.toString());
 
@@ -99,14 +98,21 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getContext().startActivity(intent);
         });
-        runOnUiThread(() -> {
-            if (activityEntry.hasRelevantPost) {
-                postViewButton.setText("\uf15c");
+        activity.runOnUiThread(() -> {
+            if (!activityEntry.relevantPostChecked){
+                postViewButton.setText("\uf110");
+                loader.setVisibility(View.VISIBLE);
+                postViewButton.setVisibility(View.GONE);
+            }else {
+                loader.setVisibility(View.GONE);
+                postViewButton.setVisibility(View.VISIBLE);
+                if (activityEntry.hasRelevantPost) {
+                    postViewButton.setText("\uf15c");
                 /*ViewGroup.MarginLayoutParams margins = (ViewGroup.MarginLayoutParams) postView.getLayoutParams();
                 margins.leftMargin = 95;
                 postViewButton.setLayoutParams(margins);*/
-                postViewButton.setTextColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
-                postViewButton.setOnClickListener(view -> openPost(activityEntry.relevantPostLink));
+                    postViewButton.setTextColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
+                    postViewButton.setOnClickListener(view -> openPost(activityEntry.relevantPostLink));
 
 
                 /* postView.setOnClickListener(new View.OnClickListener() {
@@ -130,10 +136,11 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
                                 + MainActivity.username + '/' + activityEntry.relevantPostLink));
                     }
                 });*/
-            }else{
-                postViewButton.setText("\uf410");
-                postViewButton.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
-                postViewButton.setOnClickListener(view -> noPostFound());
+                } else {
+                    postViewButton.setText("\uf410");
+                    postViewButton.setTextColor(getContext().getResources().getColor(R.color.actifitRed));
+                    postViewButton.setOnClickListener(view -> noPostFound());
+                }
             }
         });
         return convertView;
