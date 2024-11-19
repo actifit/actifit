@@ -11,6 +11,10 @@ plugins{
     id 'com.google.firebase.crashlytics'
 }
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 final def markwonVersion = '4.6.2'
 
 android {
@@ -22,13 +26,19 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    signingConfigs {
+
+        release {
+            
+        }
+    }
     compileSdk 34
     defaultConfig {
         applicationId "io.actifit.fitnesstracker.actifitfitnesstracker"
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 43
-        versionName "v0.11.2"
+        versionCode 49
+        versionName "v0.12.3.1"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled true
     }
@@ -74,10 +84,17 @@ dependencies {
 
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.android.volley:volley:1.2.1'
-    implementation('com.amazonaws:aws-android-sdk-mobile-client:2.7.+@aar') { transitive = true }
-    implementation 'com.amazonaws:aws-android-sdk-s3:2.7.+'
-    implementation 'com.amazonaws:aws-android-sdk-cognito:2.7.+'
-    implementation 'com.mittsu:markedview:1.0.7@aar'
+    //implementation('com.amazonaws:aws-android-sdk-mobile-client:2.7.+@aar') { transitive = true }
+    //implementation 'com.amazonaws:aws-android-sdk-s3:2.7.+'
+    //implementation 'com.amazonaws:aws-android-sdk-cognito:2.7.+'
+
+
+    //implementation 'com.mittsu:markedview:1.0.7@aar'
+    //implementation 'com.github.mukeshsolanki:MarkdownView-Android:2.0.0'
+
+
+
+
     implementation 'com.scottyab:rootbeer-lib:0.0.7'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
     implementation 'com.github.scribejava:scribejava-apis:7.1.1'
@@ -131,7 +148,7 @@ dependencies {
     implementation ('com.google.android.gms:play-services-fitness:21.2.0')
     implementation ('com.google.android.gms:play-services-auth:21.2.0')
 
-    implementation 'info.androidhive:fontawesome:0.0.5'
+    //implementation 'info.androidhive:fontawesome:0.0.5'
 
     implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
 
@@ -142,8 +159,6 @@ dependencies {
     implementation ('com.google.firebase:firebase-iid:21.1.0')
 
     implementation ('androidx.work:work-runtime:2.5.1')
-
-    implementation ("com.deepl.api:deepl-java:1.5.0")
 
     //for proper reading and formatting of image EXIF data
     implementation "androidx.exifinterface:exifinterface:1.1.0"
@@ -167,6 +182,13 @@ dependencies {
     //for QR code support
     implementation 'com.google.android.gms:play-services-code-scanner:16.1.0'
 
+    //for translations via deepl API
+    implementation "com.deepl.api:deepl-java:1.5.0"
+
+    //new image upload dependencies
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
 
 
