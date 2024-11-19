@@ -35,7 +35,7 @@
     <string name="min_char_count_error">You need to describe your activity in at least </string>
     <string name="characters_plural_label">characters</string>
     <string name="social_title_desc">Social Actifit Reports</string>
-    <string name="waves_description">Waves are an additional short and quick communication means on hive blockchain. Engage with others, share your updates as you go through your daily journeys, and earn some extra rewards as well.</string>
+    <string name="waves_description">Waves by Ecency and Snaps by Peakd are additional short and quick communication means on hive blockchain. Engage with others, share your updates as you go through your daily journeys, and earn some extra rewards as well.</string>
     <string name="social_description">Engage with the actifit community via their daily reports. <br/>Motivate yourself and others. <br/>Increase your rewards by interacting via comments &amp; upvotes. <br/>Create your ultimate social backing. </string>
     <string name="vids_list_description">List below contains all videos you had previously uploaded and submitted. To include any of those videos onto your actifit report content, you need to be on the "Post &amp; Earn" screen, and your video status needs to be ready to publish. You can click the refresh button to refresh the status of all videos.</string>
     <string name="upload_vid_description">Use either options below (record or upload) to upload a video and submit it to be included in your current uploaded vids list. Please check the info button next to the uploaded vids list for further details.</string>
@@ -96,7 +96,7 @@
     <string name="markdown_content_note">Markdown Content Accepted</string>
     <string name="report_preview_lbl">Report Preview</string>
     <string name="comment_preview_lbl">Comment Preview</string>
-    <string name="wave_preview_lbl">Wave Preview</string>
+    <string name="wave_preview_lbl">Preview</string>
     <string name="fitbit_permissions_missing">Please provide full permissions for proper Fitbit sync</string>
     <string name="fitbit_sync_btn_lbl">FITBIT SYNC</string>
     <string name="percent_lbl">%</string>
@@ -339,7 +339,7 @@
     <string name="active_gadgets_note_3">You can explore and buy gadgets by visiting Actifit Market.</string>
     <string name="buy_now">Buy Now</string>
     <string name="upvote">Upvote</string>
-    <string name="short_waves">Waves</string>
+    <string name="short_waves">Discussions</string>
     <string name="social_title">Actifit Reports</string>
     <string name="activate_gadget">Activate</string>
     <string name="deactivate_gadget">Deactivate</string>
@@ -423,13 +423,13 @@
     <string name="Share">Share</string>
     <string name="successful_referrals_txt">Successful Referrals</string>
     <string name="referral_link_txt">Your Referral Link</string>
-    <string name="referrals_format">https://actifit.io/signup?referrer=</string>
+    <string name="referrals_format" translatable="false">https://actifit.io/signup?referrer=</string>
     <string name="referral_title">Join Actifit NOW - The Social Move2Earn Project!</string>
     <string name="referral_description">Actifit rewards you for tracking your daily activity, earning multiple crypto assets.</string>
     <string name="post_title">Check out my cool new post on actifit, the social Move2Earn Project!</string>
     <string name="post_title_other">Check out this cool post on actifit, the social Move2Earn Project!</string>
     <string name="newbie_share_socials">I started using this amazing project called Actifit. Check it out. It pays to move! #actifit @actifit_fitness</string>
-    <string name="post_description"></string>
+    <string name="post_description" translatable="false"></string>
     <string name="referral_join_link">Join today &amp; start earning NOW! _URL_</string>
     <string name="copy_success">Copied Successfully!</string>
     <string name="share_via">Share Via</string>
@@ -441,8 +441,8 @@
     <string name="daily_5k_reward">5K Extra Reward</string>
     <string name="daily_7k_reward">7K Extra Reward</string>
     <string name="daily_10k_reward">10K Extra Reward</string>
-    <string name="sting_chat_update">Sting_chat_update</string>
-    <string name="sting_chat_comm_count">Sting_chat_comm_count</string>
+    <string name="sting_chat_update" translatable="false">Sting_chat_update</string>
+    <string name="sting_chat_comm_count" translatable="false">Sting_chat_comm_count</string>
     <string name="voting_on">Voting</string>
     <string name="select_option">Please select an option first</string>
     <string name="voters_list">Voters List</string>
@@ -456,26 +456,26 @@
     <string name="daily_7k_rewards_description">Unlocked when you reach 7,000 activity count. Earn extra random reward up to 7 AFIT</string>
     <string name="daily_10k_rewards_description">Unlocked when you reach 10,000 activity count. Earn extra random reward up to 10 AFIT</string>
     <string name="reward_already_claimed">You have already claimed this reward today! You can do so again tomorrow.</string>
-    <string name="bold_container">&lt;b&gt; _TEXT_ &lt;/b&gt;</string>
+    <string name="bold_container" translatable="false">&lt;b&gt; _TEXT_ &lt;/b&gt;</string>
     <string name="ad_reward_success">You have been successfully rewarded _VAL_ AFIT Tokens!</string>
     <string name="not_eligible">You are not yet eligible for this reward</string>
     <string name="rewards_processing">💰 Rewards Cycle In Progress - Distributing Rewards 💰</string>
     <string name="not_enough_afit_balance">You do not have enough AFIT to purchase </string>
-    <string name="facebook_actifit">https://www.facebook.com/Actifit.fitness</string>
-    <string name="twitter_actifit">https://www.twitter.com/Actifit_fitness</string>
-    <string name="telegram_actifit">https://t.me/actifit</string>
-    <string name="discord_actifit">https://links.actifit.io/discord</string>
-    <string name="youtube_actifit">https://www.youtube.com/c/Actifitfitness</string>
-    <string name="instagram_actifit">https://www.instagram.com/actifit.fitness</string>
-    <string name="medium_actifit">https://medium.com/@actifit.fitness</string>
-    <string name="linkedin_actifit">https://www.linkedin.com/company/actifit-io</string>
+    <string name="facebook_actifit" translatable="false">https://www.facebook.com/Actifit.fitness</string>
+    <string name="twitter_actifit" translatable="false">https://www.twitter.com/Actifit_fitness</string>
+    <string name="telegram_actifit" translatable="false">https://t.me/actifit</string>
+    <string name="discord_actifit" translatable="false">https://links.actifit.io/discord</string>
+    <string name="youtube_actifit" translatable="false">https://www.youtube.com/c/Actifitfitness</string>
+    <string name="instagram_actifit" translatable="false">https://www.instagram.com/actifit.fitness</string>
+    <string name="medium_actifit" translatable="false">https://medium.com/@actifit.fitness</string>
+    <string name="linkedin_actifit" translatable="false">https://www.linkedin.com/company/actifit-io</string>
     <string name="logout_confirmation">Are you sure you want to logout?</string>
     <string name="gadgets_description">Virtual gadgets allow you to boost your daily earnings. By purchasing and activating gadgets, you can earn extra diverse types of rewards to yourself (or your friend) across actifit rewards.</string>
-    <string name="default_login_img">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
+    <string name="default_login_img" translatable="false">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
     <string name="ad_not_ready">The rewarded ad wasn\'t ready yet.</string>
     <string name="err_load_ad">error loading ad</string>
     <string name="wave_hint_1">Share a quick update...</string>
-    <string name="wave_preview">Wave Preview</string>
+    <string name="wave_preview">Preview</string>
     <string name="report_text_hint_1">Describe your day\'s activity using original content in as little as a few sentences. The more the merrier!</string>
     <string name="report_text_hint_2">What did you do today?</string>
     <string name="report_text_hint_3">Got some cool content to share?</string>
@@ -483,7 +483,7 @@
     <string name="report_text_hint_5">Did you cross some milestones today? tell the world about it!</string>
     <string name="report_text_hint_6">How\'s your fitness journey going? share it with other actifitters</string>
     <string name="report_text_hint_7">You got cool pics from your walk/jog/workout/...? Let\'s go</string>
-    <string name="report_text_hint_count">7</string>
+    <string name="report_text_hint_count" translatable="false">7</string>
     <string name="survey_vote">Vote</string>
     <string name="video_upload_3speak">Video Upload</string>
     <string name="uploaded_vids_list">Uploaded Vids List</string>
@@ -520,13 +520,13 @@
     <string name="for_rewards">to earn rewards.</string>
     <string name="confirm_proceed">Post anyway?</string>
     <string name="translation_header">Auto-translated content. Click to view original.</string>
-    <string name="fa_wallet_solid">\uf555</string>
-    <string name="fa_exclamation_circle_solid">\uf06a</string>
-    <string name="fa_history_solid">\uf1da</string>
-    <string name="fa_coins_solid">\uf51e</string>
-    <string name="fa_file">\uf15b</string>
+    <string name="fa_wallet_solid" translatable="false">\uf555</string>
+    <string name="fa_exclamation_circle_solid" translatable="false">\uf06a</string>
+    <string name="fa_history_solid" translatable="false">\uf1da</string>
+    <string name="fa_coins_solid" translatable="false">\uf51e</string>
+    <string name="fa_file" translatable="false">\uf15b</string>
     <string name="noPostFound">No submitted post found on this date</string>
     <string name="tweet_button">Tweet Reward</string>
-    <string name="fitbit_sync_btn">\uf0ed</string>
-    <string name="switch_settings_btn">\uf362</string>
+    <string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
+    <string name="switch_settings_btn" translatable="false">\uf362</string>
 </resources>

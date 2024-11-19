@@ -2,13 +2,15 @@
 <resources
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingTranslation">
-    <string name="hive_default_node">https://api.hive.blog</string>
-    <string name="hive_alt_node_1">https://api.deathwing.me</string>
-    <string name="get_ranked_posts">bridge.get_ranked_posts</string>
-    <string name="get_account_posts">bridge.get_account_posts</string>
-    <string name="get_post_comments">condenser_api.get_content_replies</string>
-    <string name="get_dynamic_global_properties">condenser_api.get_dynamic_global_properties</string>
-    <string name="actifit_community">hive-193552</string>
-    <string name="actifit_name">actifit</string>
-    <string name="hive_image_host_url">https://images.hive.blog/u/USERNAME/avatar</string>
+    <string name="hive_default_node" translatable="false">https://api.hive.blog</string>
+    <string name="hive_alt_node_1" translatable="false">https://api.deathwing.me</string>
+    <string name="get_ranked_posts" translatable="false">bridge.get_ranked_posts</string>
+    <string name="get_account_posts" translatable="false">bridge.get_account_posts</string>
+    <string name="get_post_comments" translatable="false">condenser_api.get_content_replies</string>
+    <string name="get_dynamic_global_properties" translatable="false">condenser_api.get_dynamic_global_properties</string>
+    <string name="actifit_community" translatable="false">hive-193552</string>
+    <string name="actifit_name" translatable="false">actifit</string>
+    <string name="hive_image_host_url" translatable="false">https://images.hive.blog/u/USERNAME/avatar</string>
+    <string name="ecency_waves_account" translatable="false">ecency.waves</string>
+    <string name="peakd_snaps_account" translatable="false">peak.snaps</string>
 </resources>
