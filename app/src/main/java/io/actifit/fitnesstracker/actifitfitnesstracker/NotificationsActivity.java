@@ -18,6 +18,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 
 public class NotificationsActivity extends BaseActivity{
@@ -77,6 +78,8 @@ public class NotificationsActivity extends BaseActivity{
                     notificationList.add(postEntry);
 
                 }
+
+                Collections.reverse(notificationList);
                 // Create the adapter to convert the array to views
                 listingAdapter = new NotificationEntryAdapter(callerContext,
                         NotificationsActivity.this , notificationList);
