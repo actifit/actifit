@@ -2113,7 +2113,7 @@ public class MainActivity extends BaseActivity{
             claimFreeSignupLinks(queue);
         });
 
-        //LinearLayout linksView = referLayout.findViewById(R.id.signupLinksContainer);
+        LinearLayout linksView = referLayout.findViewById(R.id.signupLinksContainer);
         TextView linksHeader = referLayout.findViewById(R.id.available_free_signups_notice);
 
         //loop through signup links and display them
@@ -2126,11 +2126,11 @@ public class MainActivity extends BaseActivity{
                     View convertView = LayoutInflater.from(ctx).inflate(R.layout.signup_link, (ViewGroup) referLayout, false);
                     //set link content
                     TextView linkTxt = convertView.findViewById(R.id.signupLink);
-                    String fullLink = Utils.apiUrl(this)+getString(R.string.signup_link_format)
+                    String fullLink = getString(R.string.signup_link_format)
                             .replace("PROMO", entry.getString("code"))
                             .replace("REFERRER", username);
                     linkTxt.setText(fullLink);
-                    //linksView.addView(convertView);
+                    linksView.addView(convertView);
 
                     //add copy link functionality
                     TextView copyBtn = convertView.findViewById(R.id.copyBtn);
