@@ -148,8 +148,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingTop="5dp">
-            >
-
 
 
         </LinearLayout>
