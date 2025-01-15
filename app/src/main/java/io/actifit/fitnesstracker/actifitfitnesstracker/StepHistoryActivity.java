@@ -90,9 +90,12 @@ public class StepHistoryActivity extends Activity {
             super.onPostExecute(aVoid);
 
 
-
+            /*if (mStepFinalList!=null && !mStepFinalList.isEmpty()){
+                mStepFinalList.clear();
+            }
             mStepFinalList = new ArrayList<>();
 
+            */
             fillData();
 
         }
@@ -158,6 +161,8 @@ public class StepHistoryActivity extends Activity {
         SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
         //output format
         SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd/yyyy");
+
+        mStepFinalList = new ArrayList<>();
 
         //loop through the data to prepare it for proper display
         for (int position=0;position<mStepCountList.size();position++){
