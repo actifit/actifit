@@ -35,3 +35,8 @@
 -dontwarn javax.annotation.concurrent.Immutable
 -dontwarn javax.annotation.concurrent.ThreadSafe
 -dontwarn javax.annotation.concurrent.NotThreadSafe
+
+#Add the following to ensure GSON and OkHttp aren't obfuscated incorrectly
+-keep class com.google.gson.** { *; }
+-keep class okhttp3.** { *; }
+-keepattributes *Annotation*
