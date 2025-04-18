@@ -52,6 +52,10 @@ android {
                     output.outputFileName = "Actifit " + defaultConfig.versionName + ".apk"
                 }
             }
+            buildConfigField("String", "GEMINI_API_KEY", "\"${getLocalProperty('gemini.api.key')}\"")
+        }
+        debug {
+            buildConfigField("String", "GEMINI_API_KEY", "\"${getLocalProperty('gemini.api.key')}\"")
         }
     }
     buildFeatures{
@@ -60,6 +64,20 @@ android {
     lint {
         checkReleaseBuilds false
     }
+}
+
+def getLocalProperty(String propertyName) {
+    Properties properties = new Properties()
+    try {
+        File localProperties = project.rootProject.file('local.properties')
+        if (localProperties.exists()) {
+            properties.load(localProperties.newDataInputStream())
+        }
+    } catch (IOException e) {
+        System.err.println("Failed to read local.properties - " + e.getMessage())
+    }
+
+    return properties.getProperty(propertyName)
 }
 
 dependencies {
