@@ -1,0 +1,241 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbarStyle="insideInset"
+    android:scrollbars="vertical"
+    tools:context=".WorkoutWizardActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Workout Planning"
+            android:textColor="@android:color/black"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textAlignment="center"
+            android:layout_marginBottom="16dp"/>
+
+
+        <!-- Fitness Goal -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fitness Goal:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+
+        <Spinner
+            android:id="@+id/fitnessGoalSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/fitness_goals"
+            android:layout_marginBottom="8dp"
+            />
+
+
+        <!-- Experience Level -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Experience Level:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+
+        <Spinner
+            android:id="@+id/experienceLevelSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/experience_levels"
+            android:layout_marginBottom="8dp"
+            />
+
+
+        <!-- Weekly Time -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weekly Time:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+        <Spinner
+            android:id="@+id/weeklyTimeSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/weekly_times"
+            android:layout_marginBottom="8dp"
+            />
+
+
+        <!-- Daily Frequency -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Workout Frequency:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+        <Spinner
+            android:id="@+id/dailyFrequencySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/daily_frequencies"
+            android:layout_marginBottom="8dp"
+            />
+
+
+        <!-- Preferred Workout Style -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Preferred Workout Style:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+        <Spinner
+            android:id="@+id/preferredWorkoutSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/workout_styles"
+            android:layout_marginBottom="8dp"
+            />
+
+
+        <!-- Equipment Options -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Equipment:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+        <Spinner
+            android:id="@+id/equipmentSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/equipment_options"
+            android:layout_marginBottom="8dp"
+            />
+        <!-- Limitations Options -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Physical Limitations:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        <Spinner
+            android:id="@+id/limitationsSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/limitations_options"
+            android:layout_marginBottom="8dp"
+            />
+
+        <EditText
+            android:id="@+id/otherLimitationsEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter details for 'Other' limitations"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/generateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate Workout Plan"/>
+
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@android:color/darker_gray"/>
+
+        <!-- Workout Plan Overview Section -->
+        <LinearLayout
+            android:id="@+id/workoutDetailsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Workout Plan Overview"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:layout_marginBottom="8dp"
+                android:textAlignment="center"/>
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/workoutPlanDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:layout_marginBottom="8dp" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@android:color/darker_gray"/>
+                    <TextView
+                        android:id="@+id/workoutPlanExplanation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <!-- Exercise List Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Exercises"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:layout_marginBottom="8dp"
+                android:textAlignment="center"/>
+
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+            <include layout="@layout/exercise_header" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/exercisesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
