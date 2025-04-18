@@ -40,6 +40,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.rjeschke.txtmark.Processor;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,8 +58,10 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -70,6 +73,9 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 
 public class Utils {
 
@@ -1203,6 +1209,83 @@ public class Utils {
         Random r = new Random();
         int index = r.nextInt(apis.length);
         return apis[index];
+    }
+
+
+    /***********************************************************/
+    /** implementation of exercise data mapping portion
+     * relying on github repo
+     * https://github.com/yuhonas/free-exercise-db
+     * */
+
+    private static final String IMAGE_BASE_URL = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
+
+    public static List<Exercise> loadExercisesFromAssets(Context context) {
+        List<Exercise> exercises = new ArrayList<>();
+        try {
+            InputStream inputStream = context.getAssets().open("exercises.json");
+            int size = inputStream.available();
+            byte[] buffer = new byte[size];
+            inputStream.read(buffer);
+            inputStream.close();
+
+            String json = new String(buffer, "UTF-8");
+            //Create type of list for gson parsing
+            Type listType = new TypeToken<List<ExerciseModel>>(){}.getType();
+            List<ExerciseModel> exerciseModels = new Gson().fromJson(json,listType );
+
+            //map from ExerciseModel to Exercise objects
+            for (ExerciseModel model : exerciseModels) {
+                List<String> days = new ArrayList<>();
+                days.add(model.getDay());
+                model.setFirstImage(IMAGE_BASE_URL);
+                exercises.add(new Exercise(model.getName(), String.valueOf(model.getSets()), model.getReps(),
+                        model.getDuration(), model.getImages(), days, model.getBodyPart(), model.getEquipment(), model.getId(), model.getTarget(), model.getPrimaryMuscles(),model.getSecondaryMuscles(), model.getInstructions()));
+            }
+        } catch (IOException e) {
+            Log.e("WorkoutWizardActivity", "Error reading exercises.json", e);
+            return null;
+        }
+
+        return exercises;
+    }
+    public static  ExerciseModel findMatchingExercise(String aiExerciseName,  Map<String, ExerciseModel> allExercisesMap) {
+        if (allExercisesMap == null || allExercisesMap.isEmpty()) {
+            return null;
+        }
+        String normalizedAIExerciseName = normalizeString(aiExerciseName);
+        for(Map.Entry<String, ExerciseModel> entry : allExercisesMap.entrySet()){
+            String databaseExerciseName = normalizeString(entry.getKey());
+            if(databaseExerciseName.contains(normalizedAIExerciseName) || normalizedAIExerciseName.contains(databaseExerciseName)){
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+
+    public static  ExerciseModel getExerciseModel(Exercise exercise) {
+        ExerciseModel model = new ExerciseModel();
+        model.setName(exercise.getName());
+        model.setDuration(exercise.getDuration());
+        model.setImages(exercise.getImages());//Setting images here
+        model.setReps(exercise.getReps());
+        model.setSets(exercise.getSets());
+        if(exercise.getDays() != null && !exercise.getDays().isEmpty()){
+            model.setDay(exercise.getDays().get(0));
+        }
+        model.setBodyPart(exercise.getBodyPart());
+        model.setEquipment(exercise.getEquipment());
+        model.setId(exercise.getId());
+        model.setTarget(exercise.getTarget());
+        model.setPrimaryMuscles(exercise.getPrimaryMuscles());
+        model.setSecondaryMuscles(exercise.getSecondaryMuscles());
+        model.setInstructions(exercise.getInstructions());
+        return model;
+    }
+    private static String normalizeString(String input){
+        if (input == null) return "";
+        return input.trim().toLowerCase();
     }
 
 }

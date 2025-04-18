@@ -953,6 +953,17 @@ public class MainActivity extends BaseActivity{
         );
 
 
+        Button launchWorkoutWizardButton = findViewById(R.id.launch_workout_wizard_button); // Assuming you have this button in MainActivity layout
+        launchWorkoutWizardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start the WorkoutWizardActivity when the button is clicked
+                //launchWorkoutWizard();
+                Intent intent = new Intent(ctx, WorkoutWizardActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         Uri returnUrl = getIntent().getData();
         if (returnUrl != null) {
@@ -3879,7 +3890,7 @@ public class MainActivity extends BaseActivity{
         String claimableSignups = Utils.apiUrl(this)+getString(R.string.claimable_free_signup_links)+username;
 
 
-        // Request the user's active gadgets list
+        // Request the user's claimable signup links list
         JsonObjectRequest claimableSignupsRequest = new JsonObjectRequest
                 (Request.Method.GET, claimableSignups, null, response -> {
 
