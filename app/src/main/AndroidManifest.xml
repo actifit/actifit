@@ -71,7 +71,12 @@
                 android:scheme="actifitcb" /> <!--ftbmaincb-->
         </intent-filter>
     </activity>
-    <activity android:name=".StepHistoryActivity" />
+
+    <activity android:name=".WorkoutWizardActivity" android:exported="false"/>
+    <activity android:name=".StepHistoryActivity" android:exported="false"/>
+    <activity
+        android:name=".ExerciseDetailActivity"
+        android:exported="false"/>
     <activity
         android:name=".PostSteemitActivity"
         android:theme="@style/NoToolbarTheme"
@@ -111,10 +116,6 @@
             count increase throughout their tracking period"/>
 
     </service>
-    <service
-        android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
-        android:enabled="true" />
-        <!--android:foregroundServiceType="dataSync"/>
 
     <service
         android:name=".ActifitFirebaseMessagingService"
