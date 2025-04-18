@@ -506,6 +506,7 @@
                                     android:textSize="16dp"
                                     android:fontFamily="@font/font_awesome_6_solid"
                                     />
+
                                 <!--android:text="\uf773"-->
 
                                 <!--<TextView
@@ -793,10 +794,32 @@
 
                         <LinearLayout
                             android:id="@+id/chart_switcher"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:layout_gravity="right">
+                            >
+                            <LinearLayout
+
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_gravity="right">
+                            <Button
+                                style="@style/AppTheme.ActifitButton"
+                                android:id="@+id/launch_workout_wizard_button"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:text="\uf44b"
+                                android:textSize="16dp"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                />
+                            </LinearLayout>
+                            <LinearLayout
+
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_gravity="right">
                             <Button
                                 android:id="@+id/daily_chart_btn"
                                 android:theme="@style/AppTheme.ActifitButton"
@@ -812,7 +835,7 @@
                                 android:layout_gravity="end"
                                 android:visibility="gone"
                                 android:text="Hourly"/>
-
+                            </LinearLayout>
                         </LinearLayout>
 
                     </LinearLayout>
