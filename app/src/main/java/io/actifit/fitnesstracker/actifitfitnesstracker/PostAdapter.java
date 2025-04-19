@@ -6,11 +6,17 @@ import static android.view.View.VISIBLE;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -36,6 +42,7 @@ import com.deepl.api.DeepLException;
 import com.deepl.api.Translator;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Target;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
@@ -44,6 +51,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.Markwon;
@@ -171,15 +180,18 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             //TextView threadType = convertView.findViewById(R.id.threadType);
             ImageView threadTypeImage = convertView.findViewById(R.id.threadTypeImage);
 
-            if (postEntry!=null && postEntry.isThread){
+            if (postEntry!=null && postEntry.isThread) {
                 //threadType.setVisibility(VISIBLE);
                 //threadType.setText(postEntry.threadType);
                 //threadImage.setIcon(getResources().getDrawable(R.drawable.actifit_logo));
                 if (postEntry.threadType.equals(ctx.getString(R.string.peakd_snaps_account))) {
                     threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.peakd));
-                }else if (postEntry.threadType.equals(ctx.getString(R.string.ecency_waves_account)))
+                } else if (postEntry.threadType.equals(ctx.getString(R.string.ecency_waves_account))) {
                     threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.ecency));
-            }else{
+                } else if (postEntry.threadType.equals(ctx.getString(R.string.leo_threads_account))) {
+                    threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.leothreads));
+                }
+            //}else{
                 //threadType.setVisibility(GONE);
             }
 
@@ -456,6 +468,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                             });
                         }
                     })
+
 
                     //handle images via available picasso
                     //.usePlugin(PicassoImagesPlugin.create(Picasso.get()))
@@ -797,8 +810,13 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 finalText = postEntry.getTrimmedTranslatedContent();
             }
         }
-
+        //finalText += "ttt";
         Spanned markdown = markwon.toMarkdown(Utils.sanitizeContent(finalText, true));
+
+        // Convert image links to actual images
+        SpannableString spannableString = new SpannableString(markdown);
+        detectAndConvertImageLinks(body, spannableString, ctx);
+
 
         // use it on a TextView
         markwon.setParsedMarkdown(body, markdown);
@@ -826,6 +844,37 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 Double.parseDouble(postEntry.pending_payout_value.replaceAll("[^\\d.]", "")) != 0)
             return postEntry.pending_payout_value;
         return "0.0";
+    }
+
+    private void detectAndConvertImageLinks(TextView body, SpannableString spannableString, Context context) {
+        Pattern pattern = Pattern.compile("(https?://\\S+?\\.(jpg|jpeg|png|gif))");
+        Matcher matcher = pattern.matcher(spannableString.toString());
+
+        while (matcher.find()) {
+            String imageUrl = matcher.group();
+            int start = matcher.start();
+            int end = matcher.end();
+
+            Picasso.get()
+                    .load(imageUrl)
+                    .into(new Target() {
+                        @Override
+                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                            Drawable drawable = new BitmapDrawable(context.getResources(), bitmap);
+                            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+
+                            ImageSpan imageSpan = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
+                            spannableString.setSpan(imageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            body.setText(spannableString);
+                        }
+
+                        @Override
+                        public void onBitmapFailed(Exception e, Drawable errorDrawable) {}
+
+                        @Override
+                        public void onPrepareLoad(Drawable placeHolderDrawable) {}
+                    });
+        }
     }
 
 }

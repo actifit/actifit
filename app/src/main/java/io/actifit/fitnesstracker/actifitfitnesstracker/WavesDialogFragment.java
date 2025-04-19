@@ -70,7 +70,7 @@ import io.noties.markwon.image.picasso.PicassoImagesPlugin;
 public class WavesDialogFragment extends DialogFragment {
     public Context ctx;
     //JSONArray extraVotesList;
-    SingleHivePostModel postEntry, postEntryWaves, postEntrySnaps;
+    SingleHivePostModel postEntry, postEntryWaves, postEntrySnaps, postEntryLeoThreads, tempPostEntryCont;
     ListView socialView;
     RequestQueue queue = null;
     Button loadMoreBtn, postWaveBtn, expandPreview, retractPreview;
@@ -406,7 +406,8 @@ public class WavesDialogFragment extends DialogFragment {
             loadMoreBtn.setVisibility(GONE);
             //progressMore.setVisibility(View.VISIBLE);
             //load older posts' content
-            postDateContent += 1;
+            //add 2 as we are fetching 2 posts at a time
+            postDateContent += 2;
             loadContent(false);
         });
 
@@ -585,22 +586,60 @@ public class WavesDialogFragment extends DialogFragment {
                 //SingleHivePostModel lastPost = null;
 
                 if (result.length() > postDateContent){
+                    //fill top most post comments
                     postEntryWaves = new SingleHivePostModel((result.getJSONObject(postDateContent)), ctx);
                     postEntryWaves.isThread = true;
                     postEntryWaves.threadType = getString(R.string.ecency_waves_account);
                     //lastPost = postEntry;
                     comments.addAll(loadComments(postEntryWaves));
+                    //also use 2nd post comments to avoid having empty content if post is brand new
+                    if (result.length() > postDateContent + 1) {
+                        tempPostEntryCont = new SingleHivePostModel((result.getJSONObject(postDateContent + 1)), ctx);
+                        tempPostEntryCont.isThread = true;
+                        tempPostEntryCont.threadType = getString(R.string.ecency_waves_account);
+                        //lastPost = postEntry;
+                        comments.addAll(loadComments(tempPostEntryCont));
+                    }
                 }
 
                 //also load snaps (by peakd) content
                 params.put("account", getString(R.string.peakd_snaps_account));
                 JSONArray snaps = hiveReq.getAccountPosts(params);
-                if (result.length() > postDateContent){
+                if (snaps.length() > postDateContent){
+                    //fill top most post comments
                     postEntrySnaps = new SingleHivePostModel((snaps.getJSONObject(postDateContent)), ctx);
                     postEntrySnaps.isThread = true;
                     postEntrySnaps.threadType = getString(R.string.peakd_snaps_account);
                     //lastPost = postEntry;
                     comments.addAll(loadComments(postEntrySnaps));
+                    //also use 2nd post comments to avoid having empty content if post is brand new
+                    if (snaps.length() > postDateContent + 1) {
+                        tempPostEntryCont = new SingleHivePostModel((snaps.getJSONObject(postDateContent + 1)), ctx);
+                        tempPostEntryCont.isThread = true;
+                        tempPostEntryCont.threadType = getString(R.string.peakd_snaps_account);
+                        //lastPost = postEntry;
+                        comments.addAll(loadComments(tempPostEntryCont));
+                    }
+                }
+
+                //also load threads (by leo) content
+                params.put("account", getString(R.string.leo_threads_account));
+                JSONArray leothreads = hiveReq.getAccountPosts(params);
+                if (leothreads.length() > postDateContent){
+                    //fill top most post comments
+                    postEntryLeoThreads = new SingleHivePostModel((leothreads.getJSONObject(postDateContent)), ctx);
+                    postEntryLeoThreads.isThread = true;
+                    postEntryLeoThreads.threadType = getString(R.string.leo_threads_account);
+                    //lastPost = postEntry;
+                    comments.addAll(loadComments(postEntryLeoThreads));
+                    //also use 2nd post comments to avoid having empty content if post is brand new
+                    if (leothreads.length() > postDateContent + 1) {
+                        tempPostEntryCont = new SingleHivePostModel((leothreads.getJSONObject(postDateContent + 1)), ctx);
+                        tempPostEntryCont.isThread = true;
+                        tempPostEntryCont.threadType = getString(R.string.leo_threads_account);
+                        //lastPost = postEntry;
+                        comments.addAll(loadComments(tempPostEntryCont));
+                    }
                 }
 
                 Collections.sort(comments);
