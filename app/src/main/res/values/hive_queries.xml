@@ -13,4 +13,5 @@
     <string name="hive_image_host_url" translatable="false">https://images.hive.blog/u/USERNAME/avatar</string>
     <string name="ecency_waves_account" translatable="false">ecency.waves</string>
     <string name="peakd_snaps_account" translatable="false">peak.snaps</string>
+    <string name="leo_threads_account" translatable="false">leothreads</string>
 </resources>
