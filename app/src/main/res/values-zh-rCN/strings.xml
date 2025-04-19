@@ -35,7 +35,7 @@
     <string name="min_char_count_error">您需要至少描述 </string>
     <string name="characters_plural_label">字符</string>
     <string name="social_title_desc">社交 Actifit 报告</string>
-    <string name="waves_description">由 Ecency 提供的 Waves 和由 Peakd 提供的 Snaps 是 Hive 区块链上附加的短暂快速的沟通方式。与他人互动，在日常旅程中分享你的更新，还可以获得一些额外的奖励。</string>
+    <string name="waves_description">由 Ecency 提供的 Waves 和由 Peakd 提供的 Snaps Inleo Threads 是 Hive 区块链上附加的短暂快速的沟通方式。与他人互动，在日常旅程中分享你的更新，还可以获得一些额外的奖励。</string>
     <string name="social_description">通过他们的每日报告与 actifit 社区互动。 <br/>激励自己和他人。 <br/>通过评论和点赞来增加您的奖励。 <br/>创建您的最终社交支持。 </string>
 	<string name="vids_list_description">下方列表包含您之前上传和提交的所有视频。要将这些视频中的任何一个包含在您的 actifit 报告内容中，您需要进入“发布并赚取”屏幕，并且您的视频状态需要准备发布。您可以点击刷新按钮刷新所有视频的状态。</string>
 <string name="upload_vid_description">使用下面的任一选项（录制或上传）上传视频并提交，以包含在您当前上传的视频列表中。请检查上传视频列表旁边的信息按钮以获取更多详细信息。</string>
