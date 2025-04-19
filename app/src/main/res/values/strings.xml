@@ -35,7 +35,7 @@
     <string name="min_char_count_error">You need to describe your activity in at least </string>
     <string name="characters_plural_label">characters</string>
     <string name="social_title_desc">Social Actifit Reports</string>
-    <string name="waves_description">Waves by Ecency and Snaps by Peakd are additional short and quick communication means on hive blockchain. Engage with others, share your updates as you go through your daily journeys, and earn some extra rewards as well.</string>
+    <string name="waves_description">Waves by Ecency, Snaps by Peakd &amp; Threads by InLeo are additional short and quick communication means on hive blockchain. Engage with others, share your updates as you go through your daily journeys, and earn some extra rewards as well.</string>
     <string name="social_description">Engage with the actifit community via their daily reports. <br/>Motivate yourself and others. <br/>Increase your rewards by interacting via comments &amp; upvotes. <br/>Create your ultimate social backing. </string>
     <string name="vids_list_description">List below contains all videos you had previously uploaded and submitted. To include any of those videos onto your actifit report content, you need to be on the "Post &amp; Earn" screen, and your video status needs to be ready to publish. You can click the refresh button to refresh the status of all videos.</string>
     <string name="upload_vid_description">Use either options below (record or upload) to upload a video and submit it to be included in your current uploaded vids list. Please check the info button next to the uploaded vids list for further details.</string>
