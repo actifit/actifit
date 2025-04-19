@@ -36,7 +36,7 @@
     <string name="min_char_count_error">활동을 설명하는 데 최소한 </string>
     <string name="characters_plural_label">글자가 필요합니다</string>
     <string name="social_title_desc">Actifit 소셜 보고서</string>
-    <string name="waves_description">Ecency의 웨이브와 Peakd의 스냅은 Hive 블록체인에서 추가적인 짧고 빠른 소통 수단입니다. 다른 사람들과 교류하고, 일상적인 여정을 통해 업데이트를 공유하며, 추가 보상을 받으세요.</string>
+    <string name="waves_description">Ecency의 웨이브와 Peakd의 스냅은 InLeo Threads Hive 블록체인에서 추가적인 짧고 빠른 소통 수단입니다. 다른 사람들과 교류하고, 일상적인 여정을 통해 업데이트를 공유하며, 추가 보상을 받으세요.</string>
     <string name="social_description">일일 보고서를 통해 Actifit 커뮤니티와 교류하세요. <br/>자신과 다른 사람들에게 동기를 부여하세요. <br/>댓글 및 업보트를 통해 보상을 증가시키세요. <br/>궁극적인 소셜 백업을 만드세요. </string>
     <string name="vids_list_description">아래 목록에는 이전에 업로드 및 제출한 모든 비디오가 포함되어 있습니다. 이러한 비디오 중 하나를 Actifit 보고서 내용에 포함시키려면 "게시하고 적립" 화면에 있어야 하며 비디오 상태가 게시 준비 완료 상태여야 합니다. 상태를 새로 고치려면 새로 고침 버튼을 클릭하세요.</string>
     <string name="upload_vid_description">비디오를 업로드하고 현재 업로드된 비디오 목록에 포함시키려면 아래 옵션 중 하나를 사용하세요 (녹화 또는 업로드). 자세한 내용은 업로드된 비디오 목록 옆에 있는 정보 버튼을 확인하세요.</string>

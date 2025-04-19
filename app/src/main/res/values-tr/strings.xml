@@ -35,7 +35,7 @@
     <string name="min_char_count_error">Etkinliğinizi en az </string>
     <string name="characters_plural_label">karakterle tanımlamanız gerekiyor</string>
     <string name="social_title_desc">Sosyal Actifit Raporları</string>
-    <string name="waves_description">Ecency tarafından Waves ve Peakd tarafından Snaps, Hive blok zincirinde ek kısa ve hızlı iletişim araçlarıdır. Diğerleriyle etkileşim kurun, günlük yolculuklarınız boyunca güncellemelerinizi paylaşın ve bazı ekstra ödüller kazanın.</string>
+    <string name="waves_description">Ecency tarafından Waves ve Peakd tarafından Snaps InLeo tarafından Threads, Hive blok zincirinde ek kısa ve hızlı iletişim araçlarıdır. Diğerleriyle etkileşim kurun, günlük yolculuklarınız boyunca güncellemelerinizi paylaşın ve bazı ekstra ödüller kazanın.</string>
     <string name="social_description">Günlük raporları aracılığıyla actifit topluluğu ile etkileşime geçin. <br/>Kendinizi ve başkalarını motive edin. <br/>Yorumlar ve beğeniler aracılığıyla ödüllerinizi artırın. <br/>Son derece sosyal destek oluşturun. </string>
     <string name="vids_list_description">Aşağıdaki liste, daha önce yüklediğiniz ve gönderdiğiniz tüm videoları içerir. Bu videolardan herhangi birini actifit rapor içeriğinize dahil etmek için "Gönder &amp; Kazan" ekranında olmanız ve videonuzun durumunun yayımlanmaya hazır olması gerekir. Tüm videoların durumunu güncellemek için yenileme düğmesine tıklayabilirsiniz.</string>
     <string name="upload_vid_description">Bir video yüklemek ve mevcut gönderilen videolar listenize dahil etmek için aşağıdaki seçenekleri kullanın (kayıt veya yükleme). Daha fazla bilgi için yüklenen videolar listesinin yanındaki bilgi düğmesini kontrol edin.</string>
