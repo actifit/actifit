@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
 import android.util.Log;
@@ -811,11 +812,13 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             }
         }
         //finalText += "ttt";
-        Spanned markdown = markwon.toMarkdown(Utils.sanitizeContent(finalText, true));
+
+        String processedText = convertImageLinksToMarkdown(finalText); // Detect & format image URLs
+        Spanned markdown = markwon.toMarkdown(Utils.sanitizeContent(processedText, true));
 
         // Convert image links to actual images
-        SpannableString spannableString = new SpannableString(markdown);
-        detectAndConvertImageLinks(body, spannableString, ctx);
+//        SpannableString spannableString = new SpannableString(markdown);
+//        detectAndConvertImageLinks(body, spannableString, ctx);
 
 
         // use it on a TextView
@@ -846,35 +849,18 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         return "0.0";
     }
 
-    private void detectAndConvertImageLinks(TextView body, SpannableString spannableString, Context context) {
+    private String convertImageLinksToMarkdown(String text) {
         Pattern pattern = Pattern.compile("(https?://\\S+?\\.(jpg|jpeg|png|gif))");
-        Matcher matcher = pattern.matcher(spannableString.toString());
+        Matcher matcher = pattern.matcher(text);
+        StringBuffer modifiedText = new StringBuffer();
 
         while (matcher.find()) {
             String imageUrl = matcher.group();
-            int start = matcher.start();
-            int end = matcher.end();
-
-            Picasso.get()
-                    .load(imageUrl)
-                    .into(new Target() {
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                            Drawable drawable = new BitmapDrawable(context.getResources(), bitmap);
-                            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-
-                            ImageSpan imageSpan = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
-                            spannableString.setSpan(imageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            body.setText(spannableString);
-                        }
-
-                        @Override
-                        public void onBitmapFailed(Exception e, Drawable errorDrawable) {}
-
-                        @Override
-                        public void onPrepareLoad(Drawable placeHolderDrawable) {}
-                    });
+            matcher.appendReplacement(modifiedText, "![](" + imageUrl + ")"); // Convert to Markdown
         }
+        matcher.appendTail(modifiedText);
+        return modifiedText.toString();
     }
+
 
 }
