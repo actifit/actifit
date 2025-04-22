@@ -1,12 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="io.actifit.fitnesstracker.actifitfitnesstracker">
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
 
     <!-- required by android 13 / post notifications permission  -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- required by android 13 /  for high sensor usage  -->
     <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS"/>
+
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- required as of Android 9 (API level 28) for startforeground service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+    <!-- new permission type for starting service in background -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <!--tools:node="remove"/>-->
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
     android:allowBackup="true"
@@ -165,27 +188,5 @@
         android:value="@string/admob_app_id"/>
 
 </application>
-
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.WAKE_LOCK" />
-
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-<uses-feature
-    android:name="android.hardware.camera"
-    android:required="false" />
-
-<!-- required as of Android 9 (API level 28) for startforeground service -->
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-
-<!-- new permission type for starting service in background -->
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
-    <!--tools:node="remove"/>-->
 
 </manifest>

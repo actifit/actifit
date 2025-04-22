@@ -2,7 +2,7 @@
 <resources
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingTranslation">
-    <string name="hive_default_node" translatable="false">https://api.syncad.com</string>
+    <string name="hive_default_node" translatable="false">https://hiveapi.actifit.io</string>
     <string name="hive_alt_node_1" translatable="false">https://api.deathwing.me</string>
     <string name="get_ranked_posts" translatable="false">bridge.get_ranked_posts</string>
     <string name="get_account_posts" translatable="false">bridge.get_account_posts</string>
