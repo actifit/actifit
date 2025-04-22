@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item android:id="@+id/profile_menu_item"
+        android:title="@string/profile"
+        android:icon="@drawable/actifit_logo"
+        app:showAsAction="ifRoom|withText"/>
+    <!--<group android:id="@+id/group">
+        <item android:id="@+id/group_item1"
+            android:onClick="onGroupItemClick"
+            android:title="@string/group_item1"
+            android:icon="@drawable/group_item1_icon" />
+        <item android:id="@+id/group_item2"
+            android:onClick="onGroupItemClick"
+            android:title="@string/group_item2"
+            android:icon="@drawable/group_item2_icon" />
+    </group>-->
+    <item android:id="@+id/wallet_menu_item"
+        android:title="@string/wallet"
+        app:showAsAction="ifRoom|withText" >
+        <!--<menu>
+            <item android:id="@+id/submenu_item1"
+                android:title="@string/submenu_item1" />
+        </menu>-->
+    </item>
+</menu>
