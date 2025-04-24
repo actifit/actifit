@@ -35,7 +35,7 @@ android {
     compileSdk 34
     defaultConfig {
         applicationId "io.actifit.fitnesstracker.actifitfitnesstracker"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 34
         versionCode 49
         versionName "v0.12.3.1"
@@ -158,7 +158,7 @@ dependencies {
 
     implementation 'com.google.android.material:material:1.6.1'
 
-    implementation ('androidx.annotation:annotation:1.6.0')
+    implementation ('androidx.annotation:annotation:1.9.1')
 
     implementation ("androidx.localbroadcastmanager:localbroadcastmanager:1.0.0")
 

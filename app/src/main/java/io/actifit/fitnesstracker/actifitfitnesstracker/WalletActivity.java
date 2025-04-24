@@ -544,7 +544,6 @@ public class WalletActivity extends BaseActivity {
     TextView hiveBalance;
     TextView hbdBalance;
     TextView hpBalance;
-    TextView steemBalance;
     TextView blurtBalance, bpBalance;
     TextView sportsBalance;
     TextView actifitBalance;
@@ -825,7 +824,6 @@ public class WalletActivity extends BaseActivity {
             hiveBalance = findViewById(R.id.hive_balance);
             hbdBalance = findViewById(R.id.hbd_balance);
             hpBalance = findViewById(R.id.hp_balance);
-            steemBalance = findViewById(R.id.steem_balance);
             blurtBalance = findViewById(R.id.blurt_balance);
             bpBalance = findViewById(R.id.bp_balance);
             sportsBalance = findViewById(R.id.sports_balance);
@@ -1202,27 +1200,6 @@ public class WalletActivity extends BaseActivity {
 
             TextView hiveRewardsTxt = findViewById(R.id.hive_rewards);
             hiveRewardsTxt.setText(hiveRewards);
-
-            if (balanceData.has("STEEM")) {
-                JSONObject steemData = balanceData.getJSONObject("STEEM");
-                String steemBalances = steemData.getString("balance") + " ";
-                steemChainInfo.put("chainName", "steem");
-                steemBalances += steemData.getString("sbd_balance");
-                steemBalances += " " + MainActivity.formatValue(vestsToPower(steemChainInfo, steemData.getString("vesting_shares"))) + " SP";
-
-                steemBalances += " \r\n";
-
-                steemBalance.setText(" " + Html.fromHtml(steemBalances));
-
-
-                String steemRewards = "";
-                steemRewards += steemData.getString("reward_sbd_balance") + " ";
-                steemRewards += steemData.getString("reward_steem_balance") + " ";
-                steemRewards += steemData.getString("reward_vesting_steem").replace("STEEM", "SP");
-
-                TextView steemRewardsTxt = findViewById(R.id.steem_rewards);
-                steemRewardsTxt.setText(steemRewards);
-            }
 
             if (balanceData.has("BLURT")) {
                 JSONObject blurtData = balanceData.getJSONObject("BLURT");

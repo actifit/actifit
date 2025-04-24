@@ -232,6 +232,8 @@ public class MainActivity extends BaseActivity{
     public static String ACTIFIT_CORE_URL = "https://actifit.io";
     public static String ACTIFIT_RANK_URL = "https://actifit.io/userrank";
 
+    public static final String[] tutVidUrl = {""};
+
     //enforcing active sensor by default as ACC
     public static String activeSensor = MainActivity.ACCEL_SENSOR;
 
@@ -272,7 +274,7 @@ public class MainActivity extends BaseActivity{
     public boolean hasBlurtAccount = false;
     public Double blurtBalance = 0.0;
 
-    int lastChatCount = 0;
+    public static int lastChatCount = 0;
 
     public static Double minTokenCount;
     TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText, newbieLink,
@@ -900,7 +902,6 @@ public class MainActivity extends BaseActivity{
 
 
         TextView BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
-        TextView BtnViewHistory = findViewById(R.id.btn_view_history);
         TextView BtnWallet = findViewById(R.id.btn_view_wallet);
         TextView BtnViewNotifications = findViewById(R.id.btn_view_notifications);
         LinearLayout BtnWalletAltContainer = findViewById(R.id.wallet_alt_container);
@@ -910,10 +911,7 @@ public class MainActivity extends BaseActivity{
 
         BtnSettings = findViewById(R.id.btn_settings);
         TextView BtnMarket = findViewById(R.id.btn_view_market);
-        TextView BtnSocials = findViewById(R.id.btn_socials);
         TextView BtnPosts = findViewById(R.id.btn_view_social);
-        TextView BtnHelp = findViewById(R.id.btn_help);
-        TextView BtnChat = findViewById(R.id.btn_chat);
         BtnWaves = findViewById(R.id.btn_waves);
         TextView BtnSwitchSettings = findViewById(R.id.switchSettings);
 
@@ -1101,7 +1099,7 @@ public class MainActivity extends BaseActivity{
         //preload tutorial vid url
         Handler uiAltHandler = new Handler(Looper.getMainLooper());
         String vidFetchUrl = Utils.apiUrl(this)+getString(R.string.tut_vid_url);
-        final String[] tutVidUrl = {""};
+        //final String[] tutVidUrl = {""};
 
         // Request the rank of the user while expecting a JSON response
         JsonObjectRequest vidUrlRequest = new JsonObjectRequest
@@ -1140,111 +1138,6 @@ public class MainActivity extends BaseActivity{
 
         });
 
-        BtnChat.setOnClickListener(view -> {
-
-            //store that user has opened chat to avoid showing notifications predating this event
-
-            storeNotifDate(new Date(), "");
-            storeNotifCount(lastChatCount);
-
-            //open chat
-            ChatDialogFragment chatDialog = ChatDialogFragment.newInstance(getCtx());
-            chatDialog.show(getSupportFragmentManager(), "chat_dialog");
-        });
-
-        BtnHelp.setOnClickListener(view -> {
-
-            VideoDialogFragment dialogFragment = VideoDialogFragment.newInstance(tutVidUrl[0]);
-            dialogFragment.show(getSupportFragmentManager(), "video_dialog");
-
-            /*AlertDialog.Builder helpDialogBuilder = new AlertDialog.Builder(ctx);
-            View helpLayout = getLayoutInflater().inflate(R.layout.help_actifit, null);
-
-            VideoView videoView = helpLayout.findViewById(R.id.videoView);
-            videoView.setVideoURI(Uri.parse(tutVidUrl[0]));
-            videoView.start();
-
-
-            AlertDialog pointer = helpDialogBuilder.setView(helpLayout)
-                    .setTitle(getString(R.string.socials_note))
-                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                    .setPositiveButton(getString(R.string.close_button),null).create();
-
-            helpDialogBuilder.show();*/
-
-        });
-
-        BtnSocials.setOnClickListener(view -> {
-            AlertDialog.Builder socialDialogBuilder = new AlertDialog.Builder(ctx);
-            View socialLayout = getLayoutInflater().inflate(R.layout.social_actifit, null);
-            socialLayout.findViewById(R.id.facebook_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.facebook_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.twitter_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.twitter_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.telegram_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.telegram_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.discord_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.discord_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.instagram_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.instagram_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.linkedin_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.linkedin_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.youtube_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.youtube_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-
-            //set style for dialog
-            //socialDialogBuilder. getWindow()
-
-
-            AlertDialog pointer = socialDialogBuilder.setView(socialLayout)
-                    .setTitle(getString(R.string.socials_note))
-                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                    .setPositiveButton(getString(R.string.close_button),null).create();
-
-            socialDialogBuilder.show();
-            /*
-            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-            pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-            pointer.show();
-            */
-
-
-        });
 
         BtnReferFriend.setOnClickListener(view -> {
 
@@ -1723,14 +1616,6 @@ public class MainActivity extends BaseActivity{
             VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken, this, false);
             //dialog.getView().setMinimumWidth(400);
             dialog.show(getSupportFragmentManager(), "video_upload_fragment");
-        });
-
-        //handle activity to move to step history screen
-        BtnViewHistory.setOnClickListener(arg0 -> {
-
-            Intent intent = new Intent(MainActivity.this, StepHistoryActivity.class);
-            MainActivity.this.startActivity(intent);
-
         });
 
         //handle activity to move to post to steemit screen
@@ -5116,31 +5001,9 @@ public class MainActivity extends BaseActivity{
 
     }
 
-    private void storeNotifCount(int commCount){
-        SharedPreferences shPrefs = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        SharedPreferences.Editor editor = shPrefs.edit();
-        editor.putInt(getString(R.string.sting_chat_comm_count), commCount);
-        editor.commit();
-    }
 
-    private void storeNotifDate(Date date, String dateStr){
-        SharedPreferences shPrefs = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        SharedPreferences.Editor editor = shPrefs.edit();
 
-        //Date date = new Date();
-        String strDate = "";
-        if (!dateStr.equals("")){
-            strDate = dateStr;
-        }else{
-            DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-            strDate = dateFormat.format(date);
-        }
 
-        //String strDate = dateFormat.format(date);
-
-        editor.putString(getString(R.string.sting_chat_update), strDate);
-        editor.commit();
-    }
 
     private void loadNotifCount(RequestQueue queue){
         String notificationsUrl = Utils.apiUrl(this)+getString(R.string.user_active_notifications_url)+MainActivity.username;

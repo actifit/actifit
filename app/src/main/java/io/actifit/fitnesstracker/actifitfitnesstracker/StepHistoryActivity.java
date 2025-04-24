@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
 
-public class StepHistoryActivity extends Activity {
+public class StepHistoryActivity extends BaseActivity {
     private ListView mStepsListView;
     private StepsDBHelper mStepsDBHelper;
     private ArrayList<DateStepsModel> mStepCountList;

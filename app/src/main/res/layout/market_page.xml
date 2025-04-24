@@ -31,9 +31,17 @@
     <ListView
         android:id="@+id/productList"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dp"
         android:dividerHeight="0dp"
         android:divider="#0000CC"
+        android:layout_weight="1"
+        />
+
+    <include
+        android:id="@+id/bottom_menu_container"
+        layout="@layout/footer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         />
 
 

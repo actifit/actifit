@@ -465,38 +465,23 @@
     <ListView
         android:id="@+id/actifit_transactions"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dp"
         android:dividerHeight="0.1dp"
         android:divider="#0000CC"
-        android:paddingLeft="10dp"
+        android:paddingStart="10dp"
         android:fadeScrollbars="false"
         android:scrollbarFadeDuration="0"
+        android:layout_weight="1"
         />
 
+            <include
+                android:id="@+id/bottom_menu_container"
+                layout="@layout/footer_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
         </LinearLayout>
-
-
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        android:visibility="invisible"
-
-        >
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/steem"
-            />
-        <TextView
-            android:id="@+id/steem_balance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="" />
-
-    </LinearLayout>
 
 
 
