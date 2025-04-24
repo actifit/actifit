@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:orientation="vertical"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
     >
 
 
-<TextView
-    android:id="@+id/textView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/activity_leaderboard_title"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:textColor="@color/actifitRed"
-    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/activity_leaderboard_title"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textColor="@color/actifitRed"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:id="@+id/progressBarRelLayout"
         android:visibility="visible"
+        android:layout_weight="1"
         >
 
         <ProgressBar
@@ -33,13 +35,19 @@ android:orientation="vertical"
 
     </RelativeLayout>
 
-<ListView
-    android:id="@+id/accounts_list"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:dividerHeight="0.1dp"
-    android:divider="#0000CC"
-    />
-
+    <ListView
+        android:id="@+id/accounts_list"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:dividerHeight="0.1dp"
+        android:divider="#0000CC"
+        android:layout_weight="1"
+        />
+    <include
+        android:id="@+id/bottom_menu_container"
+        layout="@layout/footer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 
 </LinearLayout>

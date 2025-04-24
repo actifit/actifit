@@ -248,9 +248,6 @@
 
             </RelativeLayout>
 
-
-
-
             <TextView
                 android:id="@+id/body"
                 android:text=""
