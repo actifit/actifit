@@ -530,4 +530,5 @@
 	<string name="tweet_button">Tweet Beloning</string>
 	<string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
 	<string name="switch_settings_btn" translatable="false">\uf362</string>
+	<string name="extra_beneficiary">Aanvullende begunstigde</string>
 </resources>

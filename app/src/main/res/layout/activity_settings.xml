@@ -271,16 +271,16 @@
             android:layout_width="100dp"
             android:layout_height="50dp"
             android:inputType="number"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="40dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="40dp"
             android:hint="0"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="2dp"
-            android:paddingRight="20dp"
-            android:textSize="18dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="20dp"
+            android:textSize="18sp"
             android:text="%" />
 
 
@@ -295,6 +295,77 @@
         android:textColor="@color/actifitRed"
         android:textSize="14dp"
         android:text="@string/defaultVoteValueNotice" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textSize="18dp"
+        android:text="@string/extra_beneficiary" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:fitsSystemWindows="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="0dp"
+            android:paddingTop="5dp"
+            android:textSize="18dp"
+            android:text="\@" />
+
+        <EditText
+            android:id="@+id/extraBeneficiary"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:inputType="textNoSuggestions"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="10dp"
+            android:hint="username"/>
+
+        <EditText
+            android:id="@+id/beneficPerct"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:inputType="number"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="3dp"
+            android:hint="%"/>
+
+
+        <Button
+            android:id="@+id/addBeneficBtn"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_gravity="end"
+            android:layout_marginEnd="5sp"
+            android:textSize="16sp"
+            android:text="+"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/beneficiaryTable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp" />
 
     <View
         android:layout_width="match_parent"
