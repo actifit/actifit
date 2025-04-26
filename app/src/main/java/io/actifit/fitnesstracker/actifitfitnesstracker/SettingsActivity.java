@@ -556,6 +556,77 @@ public class SettingsActivity extends BaseActivity {
             notificationsInactive.setChecked(true);
         }
         */
+
+        //handle beneficiaries
+
+        String data = sharedPreferences.getString("AdditionalBeneficiaries", "");
+
+        // Populate the beneficiary table
+        updateBeneficiaryTable(data);
+
+        Button addBeneficBtn = findViewById(R.id.addBeneficBtn);
+        addBeneficBtn.setOnClickListener(v -> {
+            EditText beneficiaryField = findViewById(R.id.extraBeneficiary);
+            EditText percentageField = findViewById(R.id.beneficPerct);
+
+            String beneficiary = beneficiaryField.getText().toString().trim();
+            String percentageStr = percentageField.getText().toString().trim();
+
+            /*SharedPreferences.Editor editor1 = sharedPreferences.edit();
+            editor1.remove("AdditionalBeneficiaries");
+            editor1.apply();*/
+
+            if (!beneficiary.isEmpty() && !percentageStr.isEmpty()) {
+                try {
+                    int percentage = Integer.parseInt(percentageStr);
+
+                    // Convert percentage to weight (percentage * 100)
+                    int weight = percentage * 100;
+
+                    String existingData = sharedPreferences.getString("AdditionalBeneficiaries", "[]");
+
+                    // Parse existing JSON array
+                    JSONArray beneficiariesArray = new JSONArray(existingData);
+
+                    // Calculate current total weight
+                    int totalWeight = 0;
+                    for (int i = 0; i < beneficiariesArray.length(); i++) {
+                        JSONObject beneficiaryObj = beneficiariesArray.getJSONObject(i);
+                        totalWeight += beneficiaryObj.getInt("weight");
+                    }
+
+                    // Validate that adding this weight doesn't exceed 9500
+                    if (totalWeight + weight > 9500) {
+                        Toast.makeText(this, "Total weight cannot exceed 95%", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Create new beneficiary object
+                    JSONObject newBeneficiary = new JSONObject();
+                    newBeneficiary.put("account", beneficiary);
+                    newBeneficiary.put("weight", weight);
+
+                    // Add new beneficiary to array
+                    beneficiariesArray.put(newBeneficiary);
+
+                    // Save updated JSON array back to SharedPreferences
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("AdditionalBeneficiaries", beneficiariesArray.toString());
+                    editor.apply();
+
+                    // Update UI
+                    updateBeneficiaryTable(beneficiariesArray.toString());
+                    beneficiaryField.setText("");
+                    percentageField.setText("");
+
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Enter a valid percentage", Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    Toast.makeText(this, "Error saving data", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         //select proper language
 
         languageSelected.setSelection(LocaleManager.getSelectedLang(this));
@@ -836,6 +907,8 @@ public class SettingsActivity extends BaseActivity {
                     FirebaseMessaging.getInstance().unsubscribeFromTopic(getString(R.string.actif_def_not_topic));
                     editor.putBoolean(getString(R.string.notification_status), false);
                 }
+
+
 
                 //commit to server
 
@@ -1140,6 +1213,94 @@ public class SettingsActivity extends BaseActivity {
             metricSysRadioBtn.setChecked(true);
         }
 
+    }
+
+    private void removeBeneficiary(int index, String data) {
+        try {
+            JSONArray beneficiariesArray = new JSONArray(data);
+
+            // Remove the specified beneficiary
+            beneficiariesArray.remove(index); // Only available in API 19+
+
+            // Save updated JSON array back to SharedPreferences
+            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("AdditionalBeneficiaries", beneficiariesArray.toString());
+            editor.apply();
+
+            // Update UI
+            updateBeneficiaryTable(beneficiariesArray.toString());
+        } catch (JSONException e) {
+            Toast.makeText(this, "Error removing data", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateBeneficiaryTable(String data) {
+        LinearLayout tableLayout = findViewById(R.id.beneficiaryTable); // Ensure this layout exists in XML
+        tableLayout.removeAllViews(); // Clear existing rows
+
+        try {
+            JSONArray beneficiariesArray = new JSONArray(data);
+            for (int i = 0; i < beneficiariesArray.length(); i++) {
+                JSONObject beneficiaryObj = beneficiariesArray.getJSONObject(i);
+
+                String account = beneficiaryObj.getString("account");
+                int weight = beneficiaryObj.getInt("weight");
+                int percentage = weight / 100; // Convert weight back to percentage for display
+
+                // Create a horizontal row layout
+                LinearLayout row = new LinearLayout(this);
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setPadding(20, 0, 0, 0); // Add padding to the row
+
+                // Define LayoutParams for fixed widths
+                LinearLayout.LayoutParams usernameParams = new LinearLayout.LayoutParams(
+                        250, // Width for username
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                LinearLayout.LayoutParams percentageParams = new LinearLayout.LayoutParams(
+                        100, // Width for percentage
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                        150, // Width for button
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+
+                // Create TextView for username
+                TextView beneficiaryText = new TextView(this);
+                beneficiaryText.setText("@" + account);
+                beneficiaryText.setLayoutParams(usernameParams);
+
+                // Create TextView for percentage
+                TextView percentageText = new TextView(this);
+                percentageText.setText(percentage + "%");
+                percentageText.setLayoutParams(percentageParams);
+
+                // Create "Remove" button
+                Button removeButton = new Button(this);
+                removeButton.setText("-");
+                removeButton.setTextSize(16); // Matches your XML size
+                removeButton.setTextColor(getResources().getColor(android.R.color.white));
+                removeButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.darker_gray));
+                removeButton.setLayoutParams(buttonParams);
+                int finalI = i;
+                removeButton.setOnClickListener(v -> {
+                    // Remove entry logic
+                    removeBeneficiary(finalI, data);
+                });
+
+                // Add components to the row layout
+                row.addView(beneficiaryText);
+                row.addView(percentageText);
+                row.addView(removeButton);
+
+                // Add the row to the table layout
+                tableLayout.addView(row);
+            }
+        } catch (JSONException e) {
+            Toast.makeText(this, "Error loading data", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

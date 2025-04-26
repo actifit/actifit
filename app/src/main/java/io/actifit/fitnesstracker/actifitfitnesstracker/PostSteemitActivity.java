@@ -1429,6 +1429,15 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     }
 
+                    //also send out any additional beneficiaries
+                    String extraBeneficList = sharedPreferences[0].getString("AdditionalBeneficiaries", "");
+                    if (!extraBeneficList.isEmpty()) {
+                        data.put("addBenefic", extraBeneficList);
+                    }
+
+                    Log.d("PostHive", extraBeneficList);
+
+                    //if (true) return null;
                     /************************************/
 
                     //choose a charity if one is already selected before
