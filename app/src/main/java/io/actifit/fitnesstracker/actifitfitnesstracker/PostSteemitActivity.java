@@ -310,7 +310,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         if (i == R.id.btn_choose_file) {
             showChoosingFile(0);
-        } else if (i == R.id.btn_video) {
+        } else if (i == R.id.btn_video_post) {
             //show video modal
             VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken, this, true);
             //dialog.getView().setMinimumWidth(400);
@@ -773,7 +773,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         findViewById(R.id.btn_choose_file).setOnClickListener(this);
 
-        findViewById(R.id.btn_video).setOnClickListener(this);
+        findViewById(R.id.btn_video_post).setOnClickListener(this);
 
         //AWSMobileClient.getInstance().initialize(this).execute();
 
