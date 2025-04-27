@@ -65,6 +65,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -4039,9 +4040,19 @@ public class MainActivity extends BaseActivity{
                 userGadgets.removeView(gadgetsll);
             }
 
-            gadgetsll = new LinearLayout(getApplicationContext());
+            HorizontalScrollView horizontalScrollView = new HorizontalScrollView(getApplicationContext());
+            horizontalScrollView.setLayoutParams(new HorizontalScrollView.LayoutParams(
+                    HorizontalScrollView.LayoutParams.MATCH_PARENT,
+                    HorizontalScrollView.LayoutParams.MATCH_PARENT));
+            horizontalScrollView.setScrollContainer(true);
 
-            userGadgets.addView(gadgetsll);
+            gadgetsll = new LinearLayout(getApplicationContext());
+            //android:isScrollContainer="true"
+            //gadgetsll.setScrollContainer(true);
+
+            horizontalScrollView.addView(gadgetsll);
+
+            userGadgets.addView(horizontalScrollView);
 
             //hide no gadgets display as we do have active gadgets
             //LinearLayout noActiveGadgets = findViewById(R.id.missing_active_gadgets_container);
@@ -4061,6 +4072,7 @@ public class MainActivity extends BaseActivity{
                             //LinearLayout pll = new LinearLayout(getApplicationContext());
 
                             FrameLayout fl = new FrameLayout(getApplicationContext());
+                            //fl.setScrollContainer(true);
 
                             //add image
                             ImageView iv = new ImageView(getApplicationContext());
