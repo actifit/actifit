@@ -109,6 +109,13 @@
         android:textSize="23sp"
         android:padding="5dp" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        >
+
     <TextView
         android:id="@+id/btn_chat"
         android:layout_width="wrap_content"
@@ -123,13 +130,14 @@
         android:layout_width="wrap_content"
         android:layout_height="15dp"
         android:layout_gravity="top|start"
-        android:gravity="start"
         android:paddingTop="2dp"
         android:textColor="@color/actifitRed"
         android:fontFamily="@font/font_awesome_6_solid"
         android:text="\uf111"
         android:textSize="11sp"
-        android:visibility="gone"
+        android:visibility="visible"
         />
+
+    </LinearLayout>
 
 </LinearLayout>
