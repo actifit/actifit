@@ -182,7 +182,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 } else if (postEntry.threadType.equals(ctx.getString(R.string.ecency_waves_account))) {
                     threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.ecency));
                 } else if (postEntry.threadType.equals(ctx.getString(R.string.leo_threads_account))) {
-                    threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.leothreads));
+                    threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.inleo));
                 }
             //}else{
                 //threadType.setVisibility(GONE);
