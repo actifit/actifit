@@ -18,3 +18,4 @@ local.properties
 /.idea/vcs.xml
 /app/build/*
 /.idea/assetWizardSettings.xml
+/.idea/render.experimental.xml

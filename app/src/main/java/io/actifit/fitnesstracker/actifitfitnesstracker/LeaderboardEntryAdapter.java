@@ -47,7 +47,7 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
         TextView userName = convertView.findViewById(R.id.userName);
         TextView entryCount = convertView.findViewById(R.id.activityCount);
         ImageView userProfilePic = convertView.findViewById(R.id.userProfilePic);
-        FrameLayout picFrame = convertView.findViewById(R.id.picFrame);
+        //FrameLayout picFrame = convertView.findViewById(R.id.picFrame);
         TextView detailsButton = convertView.findViewById(R.id.entryDetailsBtn);
 
         // Populate the data into the template view using the data object
@@ -63,27 +63,17 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
         //Picasso.with(leaderboardContext).load(postEntry.userProfilePic).into(userProfilePic);
 
         //handle click on user profile
-        picFrame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openUserAccount(postEntry);
-            }
-
-        });
+        userProfilePic.setOnClickListener(view -> openUserAccount(postEntry));
 
         //handle click on username
-        userName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openUserAccount(postEntry);
-            }
-        });
+        userName.setOnClickListener(view -> openUserAccount(postEntry));
 
         //highlight the user's entry in the list
         if (!currentUser.isEmpty() && currentUser.equals(postEntry.username) ){
             entryContainer.setBackgroundColor(getContext().getResources().getColor(R.color.actifitRed));
         }else{
-            entryContainer.setBackgroundColor(getContext().getResources().getColor(R.color.colorWhite));
+            Utils.setBackgroundFromThemeAttribute(entryContainer, android.R.attr.windowBackground);
+            //entryContainer.setBackgroundColor(getContext().getResources().getColor(R.color.colorWhite));
         }
 
         //decimal format the numbers to add thousands separator
