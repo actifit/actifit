@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -31,6 +32,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -1288,6 +1290,54 @@ public class Utils {
     private static String normalizeString(String input){
         if (input == null) return "";
         return input.trim().toLowerCase();
+    }
+
+    /**
+     * Resolves a theme attribute and sets it as the background of a View.
+     * Particularly useful for attributes that reference Drawables or Colors,
+     * like ?android:attr/windowBackground or ?attr/colorSurface.
+     *
+     * @param view The View to set the background on.
+     * @param attributeId The Android resource ID of the theme attribute (e.g., android.R.attr.windowBackground).
+     * @return true if the attribute was resolved and applied, false otherwise.
+     */
+    public static boolean setBackgroundFromThemeAttribute(View view, int attributeId) {
+        if (view == null) {
+            return false;
+        }
+        Context context = view.getContext();
+        TypedValue typedValue = new TypedValue();
+
+        // Resolve the theme attribute
+        boolean resolved = context.getTheme().resolveAttribute(attributeId, typedValue, true);
+
+        if (resolved) {
+            // The attribute was resolved successfully
+            if (typedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT && typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                // The resolved value is a direct color integer (e.g., #RRGGBB or #AARRGGBB)
+                view.setBackgroundColor(typedValue.data);
+                return true;
+            } else {
+                // The resolved value is likely a reference to a resource (Drawable or Color Resource)
+                // Use getDrawable to correctly load the resource from its ID
+                if (typedValue.resourceId != 0) {
+                    try {
+                        Drawable drawable = ContextCompat.getDrawable(context, typedValue.resourceId);
+                        if (drawable != null) {
+                            view.setBackground(drawable); // Set the Drawable background
+                            return true;
+                        }
+                    } catch (Exception e) {
+                        // Handle potential errors if the resource ID is invalid or cannot be loaded
+                        e.printStackTrace();
+                    }
+                }
+                // If resourceId is 0 and not a direct color, it might be a complex type not handled here,
+                // or the attribute resolved but points to nothing loadable as a background.
+            }
+        }
+        // Attribute did not resolve, or resource loading failed
+        return false;
     }
 
 }
