@@ -16,6 +16,7 @@
     android:paddingTop="10dp"
     android:paddingStart="10dp"
     android:paddingEnd="10dp"
+    android:background="?android:attr/windowBackground"
 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -27,7 +28,16 @@
         android:layout_height="wrap_content"
         >
 
-        <FrameLayout android:id="@+id/pic_frame"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/user_profile_pic"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/actifit_logo"
+            app:civ_border_width="0dp"
+            android:layout_gravity="top|start"
+        />
+
+        <!--<FrameLayout android:id="@+id/pic_frame"
             android:layout_width="36dp"
             android:layout_height="wrap_content"
             android:paddingTop="0dp"
@@ -43,7 +53,7 @@
                 android:layout_height="30dp"
                 android:src="@drawable/circle_crop" />
 
-        </FrameLayout>
+        </FrameLayout>-->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -74,7 +84,7 @@
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf091"
                     android:textSize="20sp"
-                    android:paddingRight="5dp"
+                    android:paddingEnd="5dp"
                     />
 
                 <TextView android:id="@+id/user_rank"
@@ -179,7 +189,7 @@
                         android:textSize="25dp"
                         android:text="\uf0f3"
                         android:gravity="center"
-                        android:paddingRight="30dp"
+                        android:paddingEnd="30dp"
                         android:layout_gravity="right"
                         android:fontFamily="@font/font_awesome_6_solid"
                         />
@@ -194,7 +204,7 @@
                     android:textSize="25dp"
                     android:layout_gravity="right"
                     android:text="@string/fa_wallet_solid"
-                    android:paddingRight="5dp"
+                    android:paddingEnd="5dp"
                     android:fontFamily="@font/font_awesome_6_solid"
                     />
 
@@ -204,7 +214,7 @@
                     android:textColor="@color/actifitRed"
                     android:textSize="25dp"
                     android:paddingTop="5dp"
-                    android:paddingRight="5dp"
+                    android:paddingEnd="5dp"
                     android:layout_gravity="left"
                     android:gravity="left"
                     android:fontFamily="@font/font_awesome_6_solid"
@@ -215,7 +225,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
                     android:paddingTop="5dp"
-                    android:paddingRight="5dp"
+                    android:paddingEnd="5dp"
                     android:layout_gravity="right"
                     android:textColor="@color/actifitRed"
                     android:textSize="20sp"
@@ -225,9 +235,9 @@
                     android:layout_width="40dp"
                     android:layout_height="30dp"
                     android:textColor="@color/actifitRed"
-                    android:textSize="25dp"
+                    android:textSize="25sp"
                     android:paddingTop="5dp"
-                    android:paddingRight="5dp"
+                    android:paddingEnd="5dp"
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:fontFamily="@font/font_awesome_6_solid"
@@ -270,7 +280,7 @@
                     android:gravity="end"
                     android:textColor="@color/actifitRed"
                     android:textSize="20sp"
-                    android:paddingRight="5dp"
+                    android:paddingEnd="5dp"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf624"
                     />
@@ -306,8 +316,6 @@
                     <!-- top news view -->
 
                     <androidx.constraintlayout.widget.ConstraintLayout
-                        xmlns:android="http://schemas.android.com/apk/res/android"
-                        xmlns:app="http://schemas.android.com/apk/res-auto"
                         android:layout_width="match_parent"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
@@ -484,7 +492,7 @@
                                 android:id="@+id/post_action_container"
                                 android:orientation="horizontal"
                                 android:gravity="left"
-                                android:paddingLeft="5dp"
+                                android:paddingStart="5dp"
                                 android:paddingBottom="5dp"
                                 android:layout_gravity="start"
                                 android:layout_width="match_parent"
@@ -531,7 +539,7 @@
                                 android:id="@+id/voting_status_container"
                                 android:orientation="horizontal"
                                 android:gravity="left"
-                                android:paddingLeft="5dp"
+                                android:paddingStart="5dp"
                                 android:paddingBottom="5dp"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -552,8 +560,8 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
                                     android:singleLine="true"
-                                    android:paddingLeft="5dp"
-                                    android:paddingRight="5dp"
+                                    android:paddingStart="5dp"
+                                    android:paddingEnd="5dp"
                                     android:scrollHorizontally="true"
                                     android:text="@string/rewards_processing"/>
 
@@ -563,7 +571,7 @@
                                 android:id="@+id/earnings_panel"
                                 android:orientation="horizontal"
                                 android:gravity="left"
-                                android:paddingLeft="5dp"
+                                android:paddingStart="5dp"
                                 android:paddingBottom="5dp"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -654,8 +662,8 @@
                                             android:layout_width="match_parent"
                                             android:layout_height="match_parent"
                                             android:text="@string/no_active_gadgets_found"
-                                            android:paddingLeft="5dp"
-                                            android:paddingRight="5dp"
+                                            android:paddingStart="5dp"
+                                            android:paddingEnd="5dp"
                                             />
 
                                     </LinearLayout>

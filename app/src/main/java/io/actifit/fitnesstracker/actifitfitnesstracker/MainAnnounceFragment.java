@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.squareup.picasso.Picasso;
@@ -78,6 +79,8 @@ public class MainAnnounceFragment extends DialogFragment {
         });
 
         //featured_image.setImageResource();
+        int textColor = ContextCompat.getColor(ctx, R.color.colorBlack);
+        caption_title.setTextColor(textColor);
         caption_title.setText(this.mainAnnounce.getNews_title());
 
         // Find and set click listener for the close button

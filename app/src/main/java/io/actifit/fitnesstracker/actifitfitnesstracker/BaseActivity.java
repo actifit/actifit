@@ -513,7 +513,9 @@ public class BaseActivity extends AppCompatActivity {
         new Thread(() -> {
             runOnUiThread(() -> {
                 //load chat notifications
-                loadChatNotif(queue);
+                if (queue!=null) {
+                    loadChatNotif(queue);
+                }
             });
         }).start();
     }
