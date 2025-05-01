@@ -423,8 +423,7 @@
 <string name="Share">分享</string>
 <string name="successful_referrals_txt">成功推荐</string>
 <string name="referral_link_txt">您的推荐链接</string>
-<string name="referrals_format" translatable="false">https://actifit.io/signup?referrer=</string>
-<string name="referral_title">立即加入 Actifit - 社交 Move2Earn 项目！</string>
+    <string name="referral_title">立即加入 Actifit - 社交 Move2Earn 项目！</string>
 <string name="referral_description">Actifit 奖励您跟踪日常活动，赚取多个加密资产。</string>
 <string name="post_title">查看我在 actifit 上发布的酷新帖子，社交 Move2Earn 项目！</string>
 <string name="post_title_other">查看这个在 actifit 上发布的酷帖子，社交 Move2Earn 项目！</string>
@@ -441,9 +440,7 @@
 <string name="daily_5k_reward">5K 额外奖励</string>
 <string name="daily_7k_reward">7K 额外奖励</string>
 <string name="daily_10k_reward">10K 额外奖励</string>
-<string name="sting_chat_update" translatable="false">Sting_chat_update</string>
-<string name="sting_chat_comm_count" translatable="false">Sting_chat_comm_count</string>
-<string name="voting_on">投票中</string>
+    <string name="voting_on">投票中</string>
 <string name="select_option">请先选择一个选项</string>
 <string name="voters_list">投票者名单</string>
 <string name="reply_action">回复</string>
@@ -461,18 +458,9 @@
 <string name="not_eligible">您尚未符合领取此奖励的资格</string>
 <string name="rewards_processing"> 奖励周期进行中 - 分发奖励 </string>
 <string name="not_enough_afit_balance">您的 AFIT 余额不足以购买 </string>
-<string name="facebook_actifit" translatable="false">https://www.facebook.com/Actifit.fitness</string>
-<string name="twitter_actifit" translatable="false">https://www.twitter.com/Actifit_fitness</string>
-<string name="telegram_actifit" translatable="false">https://t.me/actifit</string>
-<string name="discord_actifit" translatable="false">https://links.actifit.io/discord</string>
-<string name="youtube_actifit" translatable="false">https://www.youtube.com/c/Actifitfitness</string>
-<string name="instagram_actifit" translatable="false">https://www.instagram.com/actifit.fitness</string>
-<string name="medium_actifit" translatable="false">https://medium.com/@actifit.fitness</string>
-<string name="linkedin_actifit" translatable="false">https://www.linkedin.com/company/actifit-io</string>
-<string name="logout_confirmation">您确定要注销吗？</string>
+    <string name="logout_confirmation">您确定要注销吗？</string>
 <string name="gadgets_description">虚拟设备允许您增加每日收入。通过购买和激活设备，您可以在 actifit 奖励中为自己（或您的朋友）赚取额外的各种类型的奖励。</string>
-<string name="default_login_img" translatable="false">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
-<string name="ad_not_ready">奖励广告尚未准备好。</string>
+    <string name="ad_not_ready">奖励广告尚未准备好。</string>
 <string name="err_load_ad">加载广告时出错</string>
 <string name="wave_hint_1">分享快速更新...</string>
 <string name="wave_preview">波浪预览</string>
@@ -530,4 +518,7 @@
 <string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
 <string name="switch_settings_btn" translatable="false">\uf362</string>
     <string name="extra_beneficiary">"额外受益人 "</string>
+    <string name="setting_dark_mode_label">深色模式</string>
+    <string name="icon_sun_desc">太阳图标</string>
+    <string name="icon_moon_desc">月亮图标</string>
 </resources>

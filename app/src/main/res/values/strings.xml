@@ -530,4 +530,7 @@
     <string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
     <string name="switch_settings_btn" translatable="false">\uf362</string>
     <string name="extra_beneficiary">Additional Beneficiary</string>
+    <string name="setting_dark_mode_label">Dark Mode</string>
+    <string name="icon_sun_desc">Sun icon</string>
+    <string name="icon_moon_desc">Moon icon</string>
 </resources>

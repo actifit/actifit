@@ -424,7 +424,6 @@
 	<string name="Share">साझा करें</string>
 	<string name="successful_referrals_txt">सफल संदर्भ</string>
 	<string name="referral_link_txt">आपका रेफरल लिंक</string>
-	<string name="referrals_format" translatable="false">https://actifit.io/signup?referrer=</string>
 	<string name="referral_title">Actifit में शामिल हों अभी - सामाजिक Move2Earn परियोजना!</string>
 	<string name="referral_description">Actifit आपको अपनी दैनिक गतिविधि को ट्रैक करने के लिए पुरस्कृत करता है, कई क्रिप्टो संपत्तियां अर्जित करते हुए।</string>
 	<string name="post_title">मेरी नई पोस्ट पर नजर डालें actifit पर, सामाजिक Move2Earn परियोजना!</string>
@@ -442,8 +441,6 @@
 	<string name="daily_5k_reward">5K अतिरिक्त इनाम</string>
 	<string name="daily_7k_reward">7K अतिरिक्त इनाम</string>
 	<string name="daily_10k_reward">10K अतिरिक्त इनाम</string>
-	<string name="sting_chat_update" translatable="false">Sting_chat_update</string>
-	<string name="sting_chat_comm_count" translatable="false">Sting_chat_comm_count</string>
 	<string name="voting_on">वोटिंग</string>
 	<string name="select_option">कृपया पहले एक विकल्प चुनें</string>
 	<string name="voters_list">मतदाताओं की सूची</string>
@@ -462,17 +459,8 @@
 	<string name="not_eligible">आप अभी तक इस इनाम के लिए पात्र नहीं हैं</string>
 	<string name="rewards_processing">💰 इनाम चक्र प्रगति में - इनाम वितरित किए जा रहे हैं 💰</string>
 	<string name="not_enough_afit_balance">आपके पास खरीदने के लिए पर्याप्त AFIT नहीं है </string>
-	<string name="facebook_actifit" translatable="false">https://www.facebook.com/Actifit.fitness</string>
-	<string name="twitter_actifit" translatable="false">https://www.twitter.com/Actifit_fitness</string>
-	<string name="telegram_actifit" translatable="false">https://t.me/actifit</string>
-	<string name="discord_actifit" translatable="false">https://links.actifit.io/discord</string>
-	<string name="youtube_actifit" translatable="false">https://www.youtube.com/c/Actifitfitness</string>
-	<string name="instagram_actifit" translatable="false">https://www.instagram.com/actifit.fitness</string>
-	<string name="medium_actifit" translatable="false">https://medium.com/@actifit.fitness</string>
-	<string name="linkedin_actifit" translatable="false">https://www.linkedin.com/company/actifit-io</string>
-	<string name="logout_confirmation">क्या आप वाकई लॉगआउट करना चाहते हैं?</string>
+    <string name="logout_confirmation">क्या आप वाकई लॉगआउट करना चाहते हैं?</string>
 	<string name="gadgets_description">वर्चुअल गैजेट आपको अपनी दैनिक कमाई को बढ़ाने की अनुमति देते हैं। गैजेट खरीदने और सक्रिय करने से, आप अपने या अपने मित्र को actifit पुरस्कारों में अतिरिक्त विविध प्रकार के इनाम कमा सकते हैं।</string>
-	<string name="default_login_img" translatable="false">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
 	<string name="ad_not_ready">पुरस्कृत विज्ञापन अभी तैयार नहीं था।</string>
 	<string name="err_load_ad">विज्ञापन लोड करने में त्रुटि</string>
 	<string name="wave_hint_1">एक त्वरित अपडेट साझा करें...</string>
@@ -531,4 +519,7 @@
 	<string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
 	<string name="switch_settings_btn" translatable="false">\uf362</string>
 	<string name="extra_beneficiary">अतिरिक्त लाभार्थी</string>
+    <string name="setting_dark_mode_label">डार्क मोड / गहरा मोड</string>
+	<string name="icon_sun_desc">सूर्य चिह्न</string>
+	<string name="icon_moon_desc">चंद्रमा चिह्न</string>
 </resources>

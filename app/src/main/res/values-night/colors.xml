@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF5252</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#FF5252</color>
+    <color name="actifitRed">#FF5252</color>
+    <color name="actifitGreen">#32CD32</color>
+    <color name="actifitDarkGreen">#008000</color>
+    <color name="colorWhite">#121212</color><!-- White in light becomes dark gray in dark (common Material dark background) -->
+    <color name="colorBlack">#FFFFFF</color><!-- Black in light becomes white/light gray in dark -->
+</resources>
