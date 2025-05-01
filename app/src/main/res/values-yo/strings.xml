@@ -424,8 +424,7 @@
 <string name="Share">Pin</string>
 <string name="successful_referrals_txt">Awọn itọkasi Aṣeyọri</string>
 <string name="referral_link_txt">Ọna asopọ itọkasi rẹ</string>
-<string name="referrals_format" translatable="false">https://actifit.io/signup?referrer=</string>
-<string name="referral_title">Darapọ mọ Actifit BAYI - Awọn iṣẹ akanṣe Awujọ Move2Earn!</string>
+    <string name="referral_title">Darapọ mọ Actifit BAYI - Awọn iṣẹ akanṣe Awujọ Move2Earn!</string>
 <string name="referral_description">Actifit san ọ lọwọ fun titọpinpin iṣẹ ojoojumọ rẹ, gbigba ọpọlọpọ awọn ohun-ini crypto.</string>
 <string name="post_title">Ṣayẹwo ifiweranṣẹ tuntun mi lori actifit, iṣẹ akanṣe Move2Earn awujọ!</string>
 <string name="post_title_other">Ṣayẹwo ifiweranṣẹ yii lori actifit, iṣẹ akanṣe Move2Earn awujọ!</string>
@@ -442,9 +441,7 @@
 <string name="daily_5k_reward">5K Ẹbun afikun</string>
 <string name="daily_7k_reward">7K Ẹbun afikun</string>
 <string name="daily_10k_reward">10K Ẹbun afikun</string>
-<string name="sting_chat_update" translatable="false">Sting_chat_update</string>
-<string name="sting_chat_comm_count" translatable="false">Sting_chat_comm_count</string>
-<string name="voting_on">Idibo</string>
+    <string name="voting_on">Idibo</string>
 <string name="select_option">Jọwọ yan aṣayan akọkọ</string>
 <string name="voters_list">Akojọ Awọn idibo</string>
 <string name="reply_action">Jẹki</string>
@@ -462,18 +459,9 @@
 <string name="not_eligible">Iwọ ko si ti yẹ fun ere yii</string>
 <string name="rewards_processing"> Awọn Ere ni Ilọsiwaju - Pipin Awọn Ere </string>
 <string name="not_enough_afit_balance">Iwọ ko ni AFIT to lati ra </string>
-<string name="facebook_actifit" translatable="false">https://www.facebook.com/Actifit.fitness</string>
-<string name="twitter_actifit" translatable="false">https://www.twitter.com/Actifit_fitness</string>
-<string name="telegram_actifit" translatable="false">https://t.me/actifit</string>
-<string name="discord_actifit" translatable="false">https://links.actifit.io/discord</string>
-<string name="youtube_actifit" translatable="false">https://www.youtube.com/c/Actifitfitness</string>
-<string name="instagram_actifit" translatable="false">https://www.instagram.com/actifit.fitness</string>
-<string name="medium_actifit" translatable="false">https://medium.com/@actifit.fitness</string>
-<string name="linkedin_actifit" translatable="false">https://www.linkedin.com/company/actifit-io</string>
-<string name="logout_confirmation">Ṣe o da ọ loju pe o fẹ jade kuro?</string>
+    <string name="logout_confirmation">Ṣe o da ọ loju pe o fẹ jade kuro?</string>
 <string name="gadgets_description">Awọn gadget foju ngbanilaaye fun ọ lati pọ si awọn ere lojoojumọ rẹ. Nipa rira ati mu ṣiṣẹ awọn gadget, o le jo\'ere awọn oriṣiriṣi oriṣiriṣi awọn ere diẹ sii fun ara rẹ (tabi ọrẹ rẹ) kọja awọn ere actifit.</string>
-<string name="default_login_img" translatable="false">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
-<string name="ad_not_ready">Ipolowo ti a fun un ko ṣi ṣetan sibẹsibẹ.</string>
+    <string name="ad_not_ready">Ipolowo ti a fun un ko ṣi ṣetan sibẹsibẹ.</string>
 <string name="err_load_ad">aṣiṣe ni ikojọpọ ipolowo</string>
 <string name="wave_hint_1">Pin imudojuiwọn iyara...</string>
 <string name="wave_preview">Ifihan Igbi</string>
@@ -531,4 +519,7 @@
 <string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
 <string name="switch_settings_btn" translatable="false">\uf362</string>
     <string name="extra_beneficiary">Olugba afikun</string>
+    <string name="setting_dark_mode_label">Àdàkọ Dúdú</string>
+    <string name="icon_sun_desc">Àṣàyàn Oòrùn</string>
+    <string name="icon_moon_desc">Àṣàyàn Òṣùpá</string>
 </resources>

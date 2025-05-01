@@ -423,7 +423,6 @@
     <string name="Share">Paylaş</string>
     <string name="successful_referrals_txt">Başarılı Yönlendirmeler</string>
     <string name="referral_link_txt">Yönlendirme Bağlantınız</string>
-    <string name="referrals_format" translatable="false">https://actifit.io/signup?referrer=</string>
     <string name="referral_title">Şimdi Actifit\'e Katılın - Sosyal Move2Earn Projesi!</string>
     <string name="referral_description">Actifit, günlük aktivitelerinizi takip ettiğiniz için sizi ödüllendirir, birden fazla kripto varlık kazandırır.</string>
     <string name="post_title">Actifit\'teki havalı yeni gönderime bir göz atın, sosyal Move2Earn Projesi!</string>
@@ -441,8 +440,6 @@
     <string name="daily_5k_reward">5K Ekstra Ödül</string>
     <string name="daily_7k_reward">7K Ekstra Ödül</string>
     <string name="daily_10k_reward">10K Ekstra Ödül</string>
-    <string name="sting_chat_update" translatable="false">Sting_chat_update</string>
-    <string name="sting_chat_comm_count" translatable="false">Sting_chat_comm_count</string>
     <string name="voting_on">Oylama</string>
     <string name="select_option">Lütfen önce bir seçenek seçin</string>
     <string name="voters_list">Oy Kullananlar Listesi</string>
@@ -461,17 +458,8 @@
     <string name="not_eligible">Henüz bu ödül için uygun değilsiniz</string>
     <string name="rewards_processing"> Ödül Döngüsü Devam Ediyor - Ödüller Dağıtılıyor </string>
     <string name="not_enough_afit_balance">Satın almak için yeterli AFIT\'iniz yok</string>
-    <string name="facebook_actifit" translatable="false">https://www.facebook.com/Actifit.fitness</string>
-    <string name="twitter_actifit" translatable="false">https://www.twitter.com/Actifit_fitness</string>
-    <string name="telegram_actifit" translatable="false">https://t.me/actifit</string>
-    <string name="discord_actifit" translatable="false">https://links.actifit.io/discord</string>
-    <string name="youtube_actifit" translatable="false">https://www.youtube.com/c/Actifitfitness</string>
-    <string name="instagram_actifit" translatable="false">https://www.instagram.com/actifit.fitness</string>
-    <string name="medium_actifit" translatable="false">https://medium.com/@actifit.fitness</string>
-    <string name="linkedin_actifit" translatable="false">https://www.linkedin.com/company/actifit-io</string>
     <string name="logout_confirmation">Çıkış yapmak istediğinizden emin misiniz?</string>
     <string name="gadgets_description">Sanal gadget\'lar günlük kazançlarınızı artırmanıza olanak tanır. Gadget satın alarak ve etkinleştirerek, actifit ödüllerinizde kendinize (veya arkadaşınıza) ekstra çeşitli ödüller kazanabilirsiniz.</string>
-    <string name="default_login_img" translatable="false">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
     <string name="ad_not_ready">Ödüllendirilen reklam henüz hazır değildi.</string>
     <string name="err_load_ad">reklam yüklenirken hata</string>
     <string name="wave_hint_1">Hızlı bir güncelleme paylaş...</string>
@@ -530,4 +518,7 @@
     <string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
     <string name="switch_settings_btn" translatable="false">\uf362</string>
     <string name="extra_beneficiary">Ek lehdar</string>
+    <string name="setting_dark_mode_label">Karanlık mod</string>
+    <string name="icon_sun_desc">Güneş simgesi</string>
+    <string name="icon_moon_desc">Ay simgesi</string>
 </resources>

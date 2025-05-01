@@ -73,6 +73,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -199,7 +200,7 @@ public class MainActivity extends BaseActivity{
 
     private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
 
-
+    private static final String PREF_KEY_DARK_MODE = "theme_mode";
 
     private AlertDialog.Builder pendingRewardsDialogBuilder;
     private AlertDialog pendingRewardsDialog;
@@ -763,6 +764,24 @@ public class MainActivity extends BaseActivity{
         //CookieHandler.setDefault(cookieManager);
         CookieManager manager = new CookieManager();
         CookieHandler.setDefault( manager  );
+
+        //support dark mode
+        // In Application class or base Activity's onCreate()
+        SharedPreferences sharedPrefs = getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
+
+        int initialNightMode;
+        if (sharedPrefs.contains(PREF_KEY_DARK_MODE)) {
+            // If the preference exists, use the saved boolean state
+            boolean isDarkModeEnabled = sharedPrefs.getBoolean(PREF_KEY_DARK_MODE, false); // Default false doesn't matter here
+            initialNightMode = isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+        } else {
+            // If the preference does NOT exist, default to following the system
+            initialNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+        }
+
+        AppCompatDelegate.setDefaultNightMode(initialNightMode);
+
+        //AppCompatDelegate.setDefaultNightMode(savedThemeMode);
 
         //short rotate animation
         rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);

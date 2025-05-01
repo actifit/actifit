@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.os.PowerManager;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
 
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -28,12 +30,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,6 +98,11 @@ public class SettingsActivity extends BaseActivity {
     GmsBarcodeScanner scanner;
 
     TextView logoutLink;
+
+    private SwitchCompat darkModeSwitch;
+    //private ImageView iconSun; // Optional
+    //private ImageView iconMoon;
+    private static final String PREF_KEY_DARK_MODE = "theme_mode";
 
     /*@Bind(R.id.main_toolbar)
     Toolbar toolbar;*/
@@ -174,6 +183,47 @@ public class SettingsActivity extends BaseActivity {
         notifListView = findViewById(R.id.notif_settings_list);
 
         Spinner charitySelected = findViewById(R.id.charity_options);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        boolean isDarkModeEnabled = sharedPreferences.getBoolean(PREF_KEY_DARK_MODE, false);
+        if (isDarkModeEnabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO); // Or MODE_NIGHT_FOLLOW_SYSTEM
+        }
+
+        darkModeSwitch = findViewById(R.id.darkModeSwitch);
+        //iconSun = findViewById(R.id.icon_sun);
+        //iconMoon = findViewById(R.id.icon_moon);
+
+        darkModeSwitch.setChecked(isDarkModeEnabled);
+        //updateSunMoonIcons(isDarkModeEnabled);
+
+        darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // isChecked is the new state of the switch
+
+            // 1. Save the new preference value
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(PREF_KEY_DARK_MODE, isChecked);
+            editor.apply(); // Use apply() for asynchronous save
+
+            // 2. Update the icon visibility (Optional)
+            //updateSunMoonIcons(isChecked);
+
+            // 3. Apply the new theme mode
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                // When dark mode is toggled off, switch back to Light Mode
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                // If you want turning off the toggle to mean "follow system setting":
+                // AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+            }
+
+            // Note: Calling setDefaultNightMode() typically causes the Activity to be recreated,
+            // so the new theme is applied. The onCreate() method will run again.
+        });
+
 
         qrCodeBtn = findViewById(R.id.qrCodeButton);
 
@@ -287,7 +337,7 @@ public class SettingsActivity extends BaseActivity {
         queue = Volley.newRequestQueue(this);
 
         //if there is an assigned user, fetch his settings
-        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        //final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
         final String username = sharedPreferences.getString("actifitUser","");
 
         activeKey.setText(sharedPreferences.getString("actvKey", ""));
@@ -725,7 +775,7 @@ public class SettingsActivity extends BaseActivity {
         //need to update the info based on charity selection
         charitySelected.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             TextView charityInfo = findViewById(R.id.charity_info);
-            Spinner charitySelected = findViewById(R.id.charity_options);
+            //Spinner charitySelected = findViewById(R.id.charity_options);
 
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -831,10 +881,10 @@ public class SettingsActivity extends BaseActivity {
 
             //check if charity mode is on and a charity has been selected
             if (donateCharityChckBox.isChecked()){
-                Spinner charitySelected1 = findViewById(R.id.charity_options);
-                if (charitySelected1.getSelectedItem() !=null){
-                    editor.putString("selectedCharity", ((Charity) charitySelected1.getSelectedItem()).getCharityName());
-                    editor.putString("selectedCharityDisplayName", charitySelected1.getSelectedItem().toString());
+                //Spinner charitySelected1 = findViewById(R.id.charity_options);
+                if (charitySelected.getSelectedItem() !=null){
+                    editor.putString("selectedCharity", ((Charity) charitySelected.getSelectedItem()).getCharityName());
+                    editor.putString("selectedCharityDisplayName", charitySelected.getSelectedItem().toString());
                 }
             }
 
@@ -1092,7 +1142,7 @@ public class SettingsActivity extends BaseActivity {
             public void onResponse(JSONArray transactionListArray) {
 
                 ArrayList<Charity> transactionList = new ArrayList<Charity>();
-                Spinner charityOptions = findViewById(R.id.charity_options);
+                //Spinner charityOptions = findViewById(R.id.charity_options);
                 // Handle the result
                 try {
 
@@ -1124,7 +1174,8 @@ public class SettingsActivity extends BaseActivity {
                                 }
                             };
 
-                    charityOptions.setAdapter(arrayAdapter);
+                    //charityOptions.setAdapter(arrayAdapter);
+                    charitySelected.setAdapter(arrayAdapter);
 
                     //choose a charity if one is already selected before
 
@@ -1134,7 +1185,7 @@ public class SettingsActivity extends BaseActivity {
                     String currentCharityDisplayName = (sharedPreferences.getString("selectedCharityDisplayName",""));
 
                     if (!currentCharity.equals("")){
-                        Spinner charitySelected = findViewById(R.id.charity_options);
+                        //Spinner charitySelected = findViewById(R.id.charity_options);
                         TextView charityInfo = findViewById(R.id.charity_info);
 
                         donateCharityChckBox.setChecked(true);
