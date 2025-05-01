@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -305,7 +305,7 @@
                     android:stretchColumns="*"
                     android:shrinkColumns="*">
 
-            </TableLayout>
+                </TableLayout>
 
                 <!--<LinearLayout
                     android:id="@+id/he_tokens_container"
