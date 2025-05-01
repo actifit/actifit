@@ -17,3 +17,4 @@ local.properties
 /.idea/caches/deviceStreaming.xml
 /.idea/vcs.xml
 /app/build/*
+/.idea/assetWizardSettings.xml

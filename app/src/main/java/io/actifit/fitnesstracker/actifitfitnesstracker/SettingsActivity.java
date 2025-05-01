@@ -99,7 +99,6 @@ public class SettingsActivity extends BaseActivity {
 
     TextView logoutLink;
 
-    private SwitchCompat darkModeSwitch;
     //private ImageView iconSun; // Optional
     //private ImageView iconMoon;
     private static final String PREF_KEY_DARK_MODE = "theme_mode";
@@ -192,7 +191,7 @@ public class SettingsActivity extends BaseActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO); // Or MODE_NIGHT_FOLLOW_SYSTEM
         }
 
-        darkModeSwitch = findViewById(R.id.darkModeSwitch);
+        SwitchCompat darkModeSwitch = findViewById(R.id.darkModeSwitch);
         //iconSun = findViewById(R.id.icon_sun);
         //iconMoon = findViewById(R.id.icon_moon);
 
@@ -939,8 +938,8 @@ public class SettingsActivity extends BaseActivity {
             }
 
             //store fitbit setting to see if user wants to grab measurements too
-            CheckBox fitbitMeasurements1 = findViewById(R.id.fitbit_measurements);
-            if (fitbitMeasurements1.isChecked()){
+            //CheckBox fitbitMeasurements1 = findViewById(R.id.fitbit_measurements);
+            if (fitbitMeasurementsChckBox.isChecked()){
                 editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_on_ntt));
             }else{
                 editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_off_ntt));

@@ -77,6 +77,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
@@ -92,6 +93,7 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -155,6 +157,8 @@ import java.util.Random;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 /**
@@ -706,7 +710,7 @@ public class MainActivity extends BaseActivity{
      *
      */
     private void sendRegistrationToServer() {
-        if (!username.equals("")) {
+        if (!username.isEmpty()) {
             String urlStr = Utils.apiUrl(this)+ getString(R.string.register_user_token_notifications);
             Log.d(MainActivity.TAG, "sendRegistrationToServer - urlStr:" + urlStr);
             ArrayList<String[]> headers = new ArrayList<>();
@@ -1479,7 +1483,8 @@ public class MainActivity extends BaseActivity{
 
         dailyRewardButton.startAnimation(scaler);
 
-        final FrameLayout picFrame = findViewById(R.id.pic_frame);
+        //final FrameLayout picFrame = findViewById(R.id.pic_frame);
+        final CircleImageView picFrame = findViewById(R.id.user_profile_pic);
         final TextView welcomeUser = findViewById(R.id.welcome_user);
         final TextView userRankTV = findViewById(R.id.user_rank);
 
@@ -3099,33 +3104,22 @@ public class MainActivity extends BaseActivity{
 
             //customize X-axis
 
-            IAxisValueFormatter formatter = new IAxisValueFormatter() {
-
-                @Override
-                public String getFormattedValue(float value, AxisBase axis) {
-                    return labels[(int) value];
-                }
-
-            };
+            IAxisValueFormatter formatter = (value, axis) -> labels[(int) value];
 
             XAxis xAxis = dayChart.getXAxis();
             xAxis.setGranularity(1f); // minimum axis-step (interval)
             xAxis.setValueFormatter(formatter);
 
-            IValueFormatter yFormatter = new IValueFormatter() {
-
-                @Override
-                public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                    if (value < 1) {
-                        return "";
-                    }
-                    return "" + (int) value;
+            IValueFormatter yFormatter = (value, entry, dataSetIndex, viewPortHandler) -> {
+                if (value < 1) {
+                    return "";
                 }
-
+                return "" + (int) value;
             };
 
-            //add limit lines to show marker of min 5K activity
-            //YAxis yAxis = chart.getAxisLeft();
+            YAxis yAxisLeft = dayChart.getAxisLeft();
+            YAxis yAxisRight = dayChart.getAxisRight();
+
             dayBarData.setValueFormatter(yFormatter);
             //yAxis.setAxisMinimum(0);
 
@@ -3134,10 +3128,21 @@ public class MainActivity extends BaseActivity{
             Description chartDescription = new Description();
             chartDescription.setText(getString(R.string.activity_details_chart_title));
             dayChart.setDescription(chartDescription);
+
             dayChart.getLegend().setEnabled(false);
 
             //fill chart with data
             dayChart.setData(dayBarData);
+
+            int textColor = ContextCompat.getColor(ctx, R.color.colorBlack);
+            Legend legend = dayChart.getLegend();
+            legend.setTextColor(textColor);
+
+            xAxis.setTextColor(textColor);
+            yAxisLeft.setTextColor(textColor);
+            yAxisRight.setTextColor(textColor);
+            dataSet.setValueTextColor(textColor);
+            chartDescription.setTextColor(textColor);
 
             if (animate) {
                 //display data with cool animation
@@ -3345,44 +3350,40 @@ public class MainActivity extends BaseActivity{
 
             //customize X-axis
 
-            IAxisValueFormatter formatter = new IAxisValueFormatter() {
-
-                @Override
-                public String getFormattedValue(float value, AxisBase axis) {
-                    return labels[(int) value];
-                }
-
-            };
+            IAxisValueFormatter formatter = (value, axis) -> labels[(int) value];
 
             XAxis xAxis = fullChart.getXAxis();
             xAxis.setGranularity(1f); // minimum axis-step (interval)
             xAxis.setValueFormatter(formatter);
 
             //add limit lines to show marker of min 5K activity
-            YAxis yAxis = fullChart.getAxisLeft();
+            YAxis yAxisLeft = fullChart.getAxisLeft();
+            YAxis yAxisRight = fullChart.getAxisRight();
 
-            if (yAxis.getLimitLines().size()==0) {
+            int textColor = ContextCompat.getColor(ctx, R.color.colorBlack);
+
+            if (yAxisLeft.getLimitLines().isEmpty()) {
 
                 LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
                 line.enableDashedLine(10f, 10f, 10f);
-                line.setLineColor(Color.RED);
+                line.setLineColor(ContextCompat.getColor(ctx, R.color.actifitRed));
                 line.setLineWidth(2f);
                 line.setTextStyle(Paint.Style.FILL_AND_STROKE);
                 line.setTextColor(Color.BLACK);
                 line.setTextSize(12f);
 
-                yAxis.addLimitLine(line);
+                yAxisLeft.addLimitLine(line);
 
                 //add Limit line for max rewarded activity
                 line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
-                line.setLineColor(Color.GREEN);
+                line.setLineColor(ContextCompat.getColor(ctx, R.color.actifitDarkGreen));
                 line.setLineWidth(2f);
                 line.setTextStyle(Paint.Style.FILL_AND_STROKE);
-                line.setTextColor(Color.BLACK);
+                line.setTextColor(textColor);
                 line.setTextSize(12f);
 
 
-                yAxis.addLimitLine(line);
+                yAxisLeft.addLimitLine(line);
 
             }
 
@@ -3393,6 +3394,16 @@ public class MainActivity extends BaseActivity{
 
             fullChart.setDescription(chartDescription);
             fullChart.getLegend().setEnabled(false);
+
+
+            Legend legend = fullChart.getLegend();
+            legend.setTextColor(textColor);
+
+            xAxis.setTextColor(textColor);
+            yAxisLeft.setTextColor(textColor);
+            yAxisRight.setTextColor(textColor);
+            dataSet.setValueTextColor(textColor);
+            chartDescription.setTextColor(textColor);
 
             //fill chart with data
             fullChart.setData(chartBarData);
@@ -4199,15 +4210,12 @@ public class MainActivity extends BaseActivity{
 
 
             Handler uiHandler = new Handler(Looper.getMainLooper());
-            uiHandler.post(new Runnable(){
-                @Override
-                public void run() {
-                    //Picasso.with(ctx)
-                    //load user image
-                    Picasso.get()
-                            .load(userImgUrl)
-                            .into(userProfilePic);
-                }
+            uiHandler.post(() -> {
+                //Picasso.with(ctx)
+                //load user image
+                Picasso.get()
+                        .load(userImgUrl)
+                        .into(userProfilePic);
             });
 
 
