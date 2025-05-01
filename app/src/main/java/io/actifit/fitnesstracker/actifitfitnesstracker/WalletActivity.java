@@ -13,6 +13,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
@@ -510,21 +511,17 @@ public class WalletActivity extends BaseActivity {
                                 loadPendingRewards.clearAnimation();
                             }
                         }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //hide dialog
-                            //error.printStackTrace();
-                            Log.e(MainActivity.TAG, "error fetching pending rewards");
-                            if (progress!=null &&  progress.isShowing()) {
-                                progress.dismiss();
-                                Toast.makeText(ctx, getString(R.string.error_fetching_data),Toast.LENGTH_LONG).show();
-                            }
-                            queriesFetchedPendingRewards +=1;
-                            if (queriesFetchedPendingRewards >= totalQueryCountPendingRewards){
-                                loadPendingRewards.clearAnimation();
-                            }
+                    }, error -> {
+                        //hide dialog
+                        //error.printStackTrace();
+                        Log.e(MainActivity.TAG, "error fetching pending rewards");
+                        if (progress!=null &&  progress.isShowing()) {
+                            progress.dismiss();
+                            Toast.makeText(ctx, getString(R.string.error_fetching_data),Toast.LENGTH_LONG).show();
+                        }
+                        queriesFetchedPendingRewards +=1;
+                        if (queriesFetchedPendingRewards >= totalQueryCountPendingRewards){
+                            loadPendingRewards.clearAnimation();
                         }
                     });
 
@@ -590,7 +587,7 @@ public class WalletActivity extends BaseActivity {
                             try {
                                 JSONObject entry = heTokens.getJSONObject(i);
                                 //populate tokens to the main wallet view
-                                View tokenView = LayoutInflater.from(getApplicationContext())
+                                View tokenView = LayoutInflater.from(WalletActivity.this)
                                         .inflate(R.layout.he_token_entry, null, false);
 
                                 ImageView tokenIcon = tokenView.findViewById(R.id.token_icon);
@@ -610,7 +607,7 @@ public class WalletActivity extends BaseActivity {
                                 boolean stakable = false;
                                 String unstakePeriod = "";
 
-                                if (!symbol.equals("")) {
+                                if (!symbol.isEmpty()) {
                                     //match icon
                                     JSONObject matchEntry = null;
                                     JSONObject tokenDetail = null;
@@ -630,7 +627,7 @@ public class WalletActivity extends BaseActivity {
                                                 icon = metadataJson.getString("icon");
                                                 stakable = tokenDetail.has("stakingEnabled") && tokenDetail.getBoolean("stakingEnabled");
                                                 unstakePeriod = tokenDetail.has("unstakingCooldown")?tokenDetail.getInt("unstakingCooldown")+" days":"";
-                                                if (!icon.equals("")) {
+                                                if (!icon.isEmpty()) {
 
                                                         //placeholder or error fallback
                                                         LetterDrawable placeholderDrawable = new LetterDrawable(symbol.substring(0, 1));
@@ -658,9 +655,8 @@ public class WalletActivity extends BaseActivity {
                                 //transfer action
                                 TextView expander = tokenView.findViewById(R.id.expand_view);
 
-
                                 //actions container view
-                                View expandedView = LayoutInflater.from(getApplicationContext())
+                                View expandedView = LayoutInflater.from(WalletActivity.this)
                                         .inflate(R.layout.he_token_actions, null, false);
 
                                 //LinearLayout expandedView = tokenView.findViewById(R.id.token_expanded_view);
@@ -799,7 +795,7 @@ public class WalletActivity extends BaseActivity {
 
     void loadAccountBalance(String username, Activity callerActivity, Context callerContext){
 
-        if (!username.equals("")) {
+        if (!username.isEmpty()) {
 
             chainInfoFetched = false;
 
@@ -845,39 +841,32 @@ public class WalletActivity extends BaseActivity {
             //actifitBalanceLbl.setVisibility(View.VISIBLE);
             // Request the balance of the user while expecting a JSON response
             JsonObjectRequest balanceRequest = new JsonObjectRequest
-                    (Request.Method.GET, balanceUrl, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            //hide dialog
-                            progress.hide();
-                            // Display the result
-                            try {
-                                afitBal = response.getString("tokens").replace(",","");
-                                //grab current token count
+                    (Request.Method.GET, balanceUrl, null, response -> {
+                        //hide dialog
+                        progress.hide();
+                        // Display the result
+                        try {
+                            afitBal = response.getString("tokens").replace(",","");
+                            //grab current token count
 
-                                DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
-                                actifitBalance.setText(decimalFormat.format(Float.parseFloat(afitBal)) +" AFIT");
-                            }catch(JSONException e){
-                                //hide dialog
-                                progress.hide();
-                                actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
-                            }
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
+                            DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
+                            actifitBalance.setText(decimalFormat.format(Float.parseFloat(afitBal)) +" AFIT");
+                        }catch(JSONException e){
                             //hide dialog
                             progress.hide();
                             actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
+                        }
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
+                        }
+                    }, error -> {
+                        //hide dialog
+                        progress.hide();
+                        actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
                         }
                     });
 
@@ -887,37 +876,30 @@ public class WalletActivity extends BaseActivity {
             //grab chain info to convert vests to power value
             String chainDataUrl = Utils.apiUrl(this)+getString(R.string.get_chain_info);
             JsonObjectRequest chainInfoRequest = new JsonObjectRequest
-                    (Request.Method.GET, chainDataUrl, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
+                    (Request.Method.GET, chainDataUrl, null, response -> {
+                        //hide dialog
+                        //progress.hide();
+                        try {
+                            chainInfoFetched = true;
+                            hiveChainInfo = response.getJSONObject("HIVE");
+                            steemChainInfo = response.getJSONObject("STEEM");
+                            blurtChainInfo = response.getJSONObject("BLURT");
+                            loadData();
+                        }catch(Exception e){
                             //hide dialog
-                            //progress.hide();
-                            try {
-                                chainInfoFetched = true;
-                                hiveChainInfo = response.getJSONObject("HIVE");
-                                steemChainInfo = response.getJSONObject("STEEM");
-                                blurtChainInfo = response.getJSONObject("BLURT");
-                                loadData();
-                            }catch(Exception e){
-                                //hide dialog
-                                e.printStackTrace();
-                            }
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
+                            e.printStackTrace();
                         }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //hide dialog
-                            progress.hide();
-                            actifitBalance.setText(getString(R.string.unable_fetch_balance));
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
+                        }
+                    }, error -> {
+                        //hide dialog
+                        progress.hide();
+                        actifitBalance.setText(getString(R.string.unable_fetch_balance));
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
                         }
                     });
 
@@ -933,25 +915,18 @@ public class WalletActivity extends BaseActivity {
             //actifitBalanceLbl.setVisibility(View.VISIBLE);
             // Request the balance of the user while expecting a JSON response
             JsonObjectRequest userDataRequest = new JsonObjectRequest
-                    (Request.Method.GET, accountDataUrl, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            //hide dialog
-                            //progress.hide();
-                            balanceData = response;
-                            loadData();
-                        }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //hide dialog
-                            progress.hide();
-                            actifitBalance.setText(getString(R.string.unable_fetch_balance));
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
+                    (Request.Method.GET, accountDataUrl, null, response -> {
+                        //hide dialog
+                        //progress.hide();
+                        balanceData = response;
+                        loadData();
+                    }, error -> {
+                        //hide dialog
+                        progress.hide();
+                        actifitBalance.setText(getString(R.string.unable_fetch_balance));
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
                         }
                     });
 
