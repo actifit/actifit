@@ -52,7 +52,7 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
 
         // Populate the data into the template view using the data object
 
-        entryRank.setText("" + postEntry.leaderRank);
+        entryRank.setText(String.format("%d", postEntry.leaderRank));
         userName.setText(postEntry.username);
 
         final Context leaderboardContext = this.getContext();
