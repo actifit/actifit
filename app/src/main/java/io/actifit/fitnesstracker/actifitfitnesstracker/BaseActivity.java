@@ -476,6 +476,10 @@ public class BaseActivity extends AppCompatActivity {
             // Set the valueFrom and valueTo properties of the ValueAnimator object.
             //valueAnimator.setFloatValues(Color.RED, Color.parseColor("#FFFFFF"), Color.RED);
             valueAnimator.setFloatValues(getResources().getColor(R.color.actifitRed), getResources().getColor(R.color.colorWhite));//Color.parseColor("#FFFFFF"));
+            if (Utils.isDarkModeActive(this)){
+                valueAnimator.setFloatValues(getResources().getColor(R.color.colorBlack), getResources().getColor(R.color.actifitRed));//Color.parseColor("#FFFFFF"));
+            }
+
 
 
             // Add an AnimatorUpdateListener to the ValueAnimator object.
