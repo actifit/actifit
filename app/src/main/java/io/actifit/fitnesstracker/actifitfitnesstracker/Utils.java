@@ -1340,4 +1340,21 @@ public class Utils {
         return false;
     }
 
+    /**
+     * Checks if the current configuration's UI mode is set to night (dark mode).
+     * This reflects the actual theme currently applied to the given Context.
+     *
+     * @param context The Context whose configuration should be checked (e.g., Activity context).
+     * @return true if the current UI mode is night, false otherwise.
+     */
+    public static boolean isDarkModeActive(Context context) {
+        if (context == null) {
+            // Cannot determine UI mode without a valid context
+            return false;
+        }
+        int nightModeFlags = context.getResources().getConfiguration().uiMode &
+                Configuration.UI_MODE_NIGHT_MASK;
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+    }
+
 }
