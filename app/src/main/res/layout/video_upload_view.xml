@@ -2,13 +2,14 @@
 
 <ScrollView android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-<LinearLayout xmlns:android = "http://schemas.android.com/apk/res/android"
+<LinearLayout
     android:layout_width = "match_parent"
     android:gravity = "top"
     android:layout_gravity="top"
-    android:layout_height = "match_parent"
+    android:layout_height = "wrap_content"
     android:orientation="vertical"
     android:padding="10dp">
 
@@ -24,7 +25,7 @@
 
         android:layout_gravity="center"
         android:text="@string/video_upload_3speak"
-        android:drawableStart="@drawable/actifit_logo"
+        app:drawableStartCompat="@drawable/actifit_logo"
         android:visibility="gone"/> <!-- Add your icon drawable here -->
 
     <LinearLayout style="@style/Theme.AppCompat.Light"
@@ -56,7 +57,7 @@
             android:text="@string/uploaded_vids_list"
             android:textColor="@color/actifitRed"
             android:textSize="20sp"
-            android:background="@android:color/white"
+
         />
 
         <TextView
@@ -104,7 +105,6 @@
                 android:id="@+id/loader"
                 android:layout_width="match_parent"
                 android:layout_height="25dp"
-                android:layout_centerInParent="true"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:progress="@integer/material_motion_duration_long_1"
@@ -154,7 +154,7 @@
         android:text="@string/upload_new_vid"
         android:textColor="@color/actifitRed"
         android:textSize="20sp"
-        android:background="@android:color/white"
+
         />
 
         <TextView
@@ -213,7 +213,7 @@
         android:layout_height="wrap_content"
         android:minHeight="200dp"
         android:orientation="horizontal"
-        android:paddingLeft="20dp"
+        android:paddingStart="20dp"
         >
 
 
@@ -279,8 +279,6 @@
             android:layout_gravity="top|end"
             android:padding="16dp"
             android:text="@string/close_button" />
-
-         />
 
     </LinearLayout>
 
