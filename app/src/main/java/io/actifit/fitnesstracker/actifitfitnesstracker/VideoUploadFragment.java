@@ -267,7 +267,7 @@ public class VideoUploadFragment extends DialogFragment {
             UploadedVideoModel vidEntry = vidsList.get(i);
             String videoUrl = vidEntry.filename;//vidEntry.video_v2;//"https://example.com/video.mp4";
             if (videoUrl != null && !videoUrl.equals("")) {
-                View convertView = LayoutInflater.from(getContext()).inflate(R.layout.vid_single_entry, container, false);
+                View convertView = LayoutInflater.from(ctx).inflate(R.layout.vid_single_entry, container, false);
 
 
                 //load video
@@ -519,7 +519,9 @@ public class VideoUploadFragment extends DialogFragment {
             getActivity().runOnUiThread( () -> {
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
 
-                AlertDialog pointer = dialogBuilder.setMessage(Html.fromHtml(getString(R.string.vids_list_description)))
+                AlertDialog pointer = dialogBuilder
+                        .setMessage(Html
+                                .fromHtml(getString(R.string.vids_list_description)))
                         .setTitle(getString(R.string.actifit_info))
                         .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                         .setPositiveButton(getString(R.string.close_button), null)
@@ -580,7 +582,7 @@ public class VideoUploadFragment extends DialogFragment {
                 newVidLayoutContainer.removeView(newVidInnerView);
             }
             //create new section for video display/upload
-            newVidInnerView = LayoutInflater.from(getContext()).inflate(R.layout.vid_single_entry, container, false);
+            newVidInnerView = LayoutInflater.from(ctx).inflate(R.layout.vid_single_entry, container, false);
             newVidLayoutContainer.addView(newVidInnerView);
             // on below line opening an intent to capture a video.
             Intent i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
