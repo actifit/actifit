@@ -1,28 +1,14 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import androidx.browser.customtabs.CustomTabsIntent;
-
-import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
-
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 
