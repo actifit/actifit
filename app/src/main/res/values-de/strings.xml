@@ -526,4 +526,5 @@
     <string name="setting_dark_mode_label">Dunkler Modus</string>
     <string name="icon_sun_desc">Sonnen-Symbol</string>
     <string name="icon_moon_desc">Mond-Symbol</string>
+    <string name="skip">überspringen</string>
 </resources>

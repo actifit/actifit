@@ -522,4 +522,5 @@
     <string name="setting_dark_mode_label">डार्क मोड / गहरा मोड</string>
 	<string name="icon_sun_desc">सूर्य चिह्न</string>
 	<string name="icon_moon_desc">चंद्रमा चिह्न</string>
+    <string name="skip">छोड़ना</string>
 </resources>

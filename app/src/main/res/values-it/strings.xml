@@ -522,4 +522,5 @@
     <string name="setting_dark_mode_label">Modalità scura</string>
 	<string name="icon_sun_desc">Icona sole</string>
 	<string name="icon_moon_desc">Icona luna</string>
+    <string name="skip">saltare</string>
 </resources>

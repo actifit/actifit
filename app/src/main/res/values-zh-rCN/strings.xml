@@ -521,4 +521,5 @@
     <string name="setting_dark_mode_label">深色模式</string>
     <string name="icon_sun_desc">太阳图标</string>
     <string name="icon_moon_desc">月亮图标</string>
+    <string name="skip">跳过</string>
 </resources>

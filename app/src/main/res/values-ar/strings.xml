@@ -535,4 +535,5 @@
     <string name="setting_dark_mode_label">الوضع الليلي</string>
     <string name="icon_sun_desc">أيقونة الشمس</string>
     <string name="icon_moon_desc">أيقونة القمر</string>
+    <string name="skip">تخطي</string>
 </resources>

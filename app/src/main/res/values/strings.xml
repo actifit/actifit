@@ -533,4 +533,5 @@
     <string name="setting_dark_mode_label">Dark Mode</string>
     <string name="icon_sun_desc">Sun icon</string>
     <string name="icon_moon_desc">Moon icon</string>
+    <string name="skip">SKIP</string>
 </resources>
