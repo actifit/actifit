@@ -522,4 +522,5 @@
     <string name="setting_dark_mode_label">Modo escuro</string>
 	<string name="icon_sun_desc">Ícone de sol</string>
 	<string name="icon_moon_desc">Ícone de lua</string>
+    <string name="skip">pular</string>
 </resources>

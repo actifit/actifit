@@ -521,4 +521,5 @@
     <string name="setting_dark_mode_label">Karanlık mod</string>
     <string name="icon_sun_desc">Güneş simgesi</string>
     <string name="icon_moon_desc">Ay simgesi</string>
+    <string name="skip">atlamak</string>
 </resources>

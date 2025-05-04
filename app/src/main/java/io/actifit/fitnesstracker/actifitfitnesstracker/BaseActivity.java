@@ -2,6 +2,7 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.animation.ValueAnimator;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -47,6 +48,12 @@ public class BaseActivity extends AppCompatActivity {
         super.setContentView(layoutResID);
 
         setupCommonActionButtons();
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        // Use the locale set in LocaleManager to create the correct context
+        super.attachBaseContext(LocaleManager.setLocale(newBase));
     }
 
     protected void updateNavigationButtonStates() {

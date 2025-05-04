@@ -521,4 +521,5 @@
     <string name="setting_dark_mode_label">Темний режим</string>
     <string name="icon_sun_desc">Значок сонця</string>
     <string name="icon_moon_desc">Значок місяця</string>
+    <string name="skip">пропустити</string>
 </resources>

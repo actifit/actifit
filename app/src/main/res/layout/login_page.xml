@@ -9,7 +9,7 @@
     android:paddingRight="10dp"
 
     >
-    <TextView
+    <!--<TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
 
         android:textColor="@color/colorPrimary"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
+    -->
     <LinearLayout
         android:id="@+id/login_hero"
         android:layout_width="match_parent"
@@ -164,7 +164,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            android:text="SKIP"
+            android:text="@string/skip"
             android:textColor="@color/colorPrimary" />
 
         <Button
@@ -173,7 +173,7 @@
             android:layout_height="wrap_content"
 
             android:backgroundTint="@color/colorPrimary"
-            android:text="PROCEED"
+            android:text="@string/login_title"
             android:textColor="@android:color/white"
              />
 
