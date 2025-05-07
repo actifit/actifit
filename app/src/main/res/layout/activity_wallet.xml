@@ -6,8 +6,7 @@
     android:orientation="vertical"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    >
-
+    android:id="@+id/root_layout"> <!-- Added ID for TransitionManager -->
 
     <TextView
         android:id="@+id/textView"
@@ -17,49 +16,60 @@
         android:text="@string/your_wallet_title"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
+    <!-- CORE BALANCE SECTION -->
+    <LinearLayout
+        android:id="@+id/section_core_balance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
 
+        <!-- Header -->
         <LinearLayout
+            android:id="@+id/header_core_balance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fa_wallet_solid"
+                android:textColor="@color/actifitRed"
+                android:fontFamily="@font/font_awesome_6_solid"/>
+
+            <TextView
+                android:id="@+id/balance_lbl"
+                android:paddingLeft="10dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16dp"
+                android:text="@string/core_balance_lbl"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+            <TextView
+                android:id="@+id/btn_refresh_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf2f1"
+                android:textSize="20dp"
+                android:padding="10dp"/>
+        </LinearLayout>
+
+        <!-- Content -->
+        <LinearLayout
+            android:id="@+id/content_core_balance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            >
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fa_wallet_solid"
-                    android:textColor="@color/actifitRed"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    />
-
-
-                <TextView
-                    android:id="@+id/balance_lbl"
-                    android:paddingLeft="10dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="16dp"
-                    android:text="@string/core_balance_lbl"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                <TextView
-                    android:id="@+id/btn_refresh_balance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:textColor="@color/actifitRed"
-                    android:text="\uf2f1"
-                    android:textSize="20dp"
-                    android:padding="10dp"
-                    />
-
-            </LinearLayout>
+            android:visibility="visible">
 
             <TableLayout
                 android:layout_width="match_parent"
@@ -67,29 +77,23 @@
                 android:stretchColumns="*"
                 android:shrinkColumns="*">
 
-                <!-- header -->
                 <include
                     layout="@layout/wallet_header" />
 
                 <TableRow>
-
                     <ImageView
                         android:layout_width="28sp"
                         android:layout_height="28sp"
-                        android:src="@drawable/actifit_logo"
-                        />
-
+                        android:src="@drawable/actifit_logo"/>
                     <TextView
                         android:id="@+id/actifit_balance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
-
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
-
                     <TextView
                         android:id="@+id/btn_send_afit"
                         android:layout_width="wrap_content"
@@ -99,45 +103,35 @@
                         android:text="\uf14d"
                         android:textSize="20dp"
                         android:paddingRight="5dp"
-                        android:gravity="center"
-                        />
-
+                        android:gravity="center"/>
                 </TableRow>
 
-
                 <TableRow>
-
                     <ImageView
                         android:layout_width="25sp"
                         android:layout_height="25sp"
-                        android:src="@drawable/hive"
-                        />
-
+                        android:src="@drawable/hive"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_gravity="center_vertical">
-
                         <TextView
                             android:id="@+id/hive_balance"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:text="" />
-
                         <TextView
                             android:id="@+id/hbd_balance"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:text="" />
                     </LinearLayout>
-
                     <TextView
                         android:id="@+id/hp_balance"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:text="" />
-
                     <TextView
                         android:id="@+id/expand_view"
                         android:layout_width="match_parent"
@@ -147,9 +141,7 @@
                         android:fontFamily="@font/font_awesome_6_solid"
                         android:text="\uf0ab"
                         android:textSize="25sp"
-                        android:paddingRight="5dp"
-                        />
-
+                        android:paddingRight="5dp"/>
                 </TableRow>
 
                 <LinearLayout
@@ -159,8 +151,7 @@
                     android:orientation="horizontal"
                     android:padding="5dp"
                     android:gravity="center"
-                    android:visibility="gone"
-                    >
+                    android:visibility="gone">
 
                     <TextView
                         android:id="@+id/btn_send_token"
@@ -170,8 +161,7 @@
                         android:textColor="@color/actifitRed"
                         android:text="\uf14d"
                         android:textSize="20sp"
-                        android:padding="5dp"
-                        />
+                        android:padding="5dp"/>
 
                     <TextView
                         android:id="@+id/btn_stake_token"
@@ -181,8 +171,7 @@
                         android:textColor="@color/actifitRed"
                         android:padding="5dp"
                         android:text="\uf023"
-                        android:textSize="20sp"
-                        />
+                        android:textSize="20sp"/>
 
                     <TextView
                         android:id="@+id/btn_unstake_token"
@@ -192,151 +181,154 @@
                         android:textColor="@color/actifitRed"
                         android:padding="5dp"
                         android:text="\uf09c"
-                        android:textSize="20sp"
-                        />
+                        android:textSize="20sp"/>
                 </LinearLayout>
 
-                <!-- Add more TableRows for additional rows and their data -->
-
                 <TableRow>
-
                     <ImageView
                         android:layout_width="25sp"
                         android:layout_height="25sp"
-                        android:src="@drawable/blurt"
-                        />
+                        android:src="@drawable/blurt"/>
                     <TextView
                         android:id="@+id/blurt_balance"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:text="" />
-
                     <TextView
                         android:id="@+id/bp_balance"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:text="" />
-
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </TableRow>
 
             </TableLayout>
-
-
-
-
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:src="@drawable/sports"
-                    android:visibility="gone"
-                    />
-                <TextView
-                    android:id="@+id/sports_balance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:visibility="gone"
-                    android:text="" />
-
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                >
-
+                android:layout_marginTop="8dp">
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/sports"
+                    android:visibility="gone"/>
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fa_wallet_solid"
-                    android:textColor="@color/actifitRed"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    />
-
-                <TextView
-                    android:id="@+id/he_balance_lbl"
-                    android:paddingLeft="10dp"
+                    android:id="@+id/sports_balance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16dp"
-                    android:text="@string/he_balance_lbl"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                <TextView
-                    android:id="@+id/btn_refresh_he_balance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:textColor="@color/actifitRed"
-                    android:text="\uf2f1"
-                    android:textSize="20dp"
-                    android:padding="10dp"
-                    />
-
+                    android:textSize="16sp"
+                    android:visibility="gone" />
             </LinearLayout>
 
-            <!--<ProgressBar
-                android:id="@+id/loader"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="left"
-                android:progress="@integer/material_motion_duration_long_1"
-                android:visibility="visible" />-->
+        </LinearLayout>
 
-            <ScrollView
-                android:id="@+id/he_token_scrollview"
-                android:layout_width="match_parent"
-                android:layout_height="200sp"
-                android:maxHeight="200sp"
-                android:fadeScrollbars="false"
-                android:scrollbarFadeDuration="0">
+    </LinearLayout>
 
-                <TableLayout
-                    android:id="@+id/he_tokens_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:stretchColumns="*"
-                    android:shrinkColumns="*">
+    <!-- HE BALANCE SECTION -->
+    <LinearLayout
+        android:id="@+id/section_he_balance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
 
-                </TableLayout>
-
-                <!--<LinearLayout
-                    android:id="@+id/he_tokens_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:maxHeight="200sp"
-                    />-->
-
-            </ScrollView>
-
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content"
+        <!-- Header -->
+        <LinearLayout
+            android:id="@+id/header_he_balance"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            >
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fa_wallet_solid"
+                android:textColor="@color/actifitRed"
+                android:fontFamily="@font/font_awesome_6_solid"/>
+
+            <TextView
+                android:id="@+id/he_balance_lbl"
+                android:paddingLeft="10dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16dp"
+                android:text="@string/he_balance_lbl"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+            <TextView
+                android:id="@+id/btn_refresh_he_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf2f1"
+                android:textSize="20dp"
+                android:padding="10dp"/>
+        </LinearLayout>
+
+        <!-- Content -->
+        <ScrollView
+            android:id="@+id/content_he_balance_scrollview"
+            android:layout_width="match_parent"
+            android:layout_height="200sp"
+            android:maxHeight="200sp"
+            android:fadeScrollbars="false"
+            android:scrollbarFadeDuration="0"
+            android:visibility="gone">
+
+            <TableLayout
+                android:id="@+id/he_tokens_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*"
+                android:shrinkColumns="*">
+
+            </TableLayout>
+        </ScrollView>
+
+    </LinearLayout>
+
+    <!-- CLAIMABLE REWARDS SECTION -->
+    <LinearLayout
+        android:id="@+id/section_claimable_rewards"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:id="@+id/header_claimable_rewards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/fa_coins_solid"
                 android:textColor="@color/actifitRed"
-                android:fontFamily="@font/font_awesome_6_solid"
-                />
-
+                android:fontFamily="@font/font_awesome_6_solid"/>
 
             <TextView
                 android:id="@+id/claimable_rewards_lbl"
                 android:padding="10dp"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:textSize="16dp"
                 android:text="@string/claimable_rewards_lbl"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title" />
@@ -349,8 +341,7 @@
                 android:textColor="@color/actifitRed"
                 android:text="\uf81d"
                 android:textSize="20dp"
-                android:padding="10dp"
-                />
+                android:padding="10dp"/>
 
             <TextView
                 android:id="@+id/btn_get_pending_rewards"
@@ -360,130 +351,143 @@
                 android:textColor="@color/actifitRed"
                 android:text="\uf254"
                 android:textSize="20dp"
-                android:padding="10dp"
-                />
+                android:padding="10dp"/>
 
         </LinearLayout>
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content"
+        <!-- Content -->
+        <LinearLayout
+            android:id="@+id/content_claimable_rewards"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
+            android:orientation="vertical"
+            android:visibility="gone">
 
-            <ImageView
-                android:layout_width="25sp"
-                android:layout_height="25sp"
-                android:src="@drawable/hive"
-                />
-
-            <TextView
-                android:id="@+id/hive_rewards"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="" />
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="25sp"
+                    android:layout_height="25sp"
+                    android:src="@drawable/hive"/>
+                <TextView
+                    android:id="@+id/hive_rewards"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+            </LinearLayout>
 
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                android:visibility="invisible">
+                <ImageView
+                    android:layout_width="25sp"
+                    android:layout_height="25sp"
+                    android:src="@drawable/steem"/>
+                <TextView
+                    android:id="@+id/steem_rewards"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+            </LinearLayout>
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:orientation="horizontal"
-            android:visibility="invisible"
-            >
-
-            <ImageView
-                android:layout_width="25sp"
-                android:layout_height="25sp"
-                android:src="@drawable/steem"
-                />
-            <TextView
-                android:id="@+id/steem_rewards"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="" />
-
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/blurt"/>
+                <TextView
+                    android:id="@+id/blurt_rewards"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+            </LinearLayout>
         </LinearLayout>
 
+    </LinearLayout>
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/blurt"
-                />
-            <TextView
-                android:id="@+id/blurt_rewards"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="" />
-
-        </LinearLayout>
-
-
-
-
+    <!-- ACTIFIT TRANSACTIONS SECTION -->
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:id="@+id/section_transactions"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:id="@+id/header_transactions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/fa_file"
                 android:textColor="@color/actifitRed"
-                android:fontFamily="@font/font_awesome_6_solid"
-                />
+                android:fontFamily="@font/font_awesome_6_solid"/>
 
             <TextView
                 android:id="@+id/actifit_transactions_lbl"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:textSize="16dp"
                 android:padding="10dp"
                 android:text="@string/actifit_transactions_lbl"
-                android:visibility="invisible"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                />
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/actifit_transactions_error"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/actifit_transactions_error"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:visibility="gone"/>
-
-    <ListView
-        android:id="@+id/actifit_transactions"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:dividerHeight="0.1dp"
-        android:divider="#0000CC"
-        android:paddingStart="10dp"
-        android:fadeScrollbars="false"
-        android:scrollbarFadeDuration="0"
-        android:layout_weight="1"
-        />
-
-            <include
-                android:id="@+id/bottom_menu_container"
-                layout="@layout/footer_menu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
         </LinearLayout>
 
+        <!-- Content -->
+        <LinearLayout
+            android:id="@+id/content_transactions"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:visibility="gone">
 
+            <TextView
+                android:id="@+id/actifit_transactions_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/actifit_transactions_error"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:visibility="gone"/>
 
+            <ListView
+                android:id="@+id/actifit_transactions"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:dividerHeight="0.1dp"
+                android:divider="#0000CC"
+                android:paddingStart="10dp"
+                android:fadeScrollbars="false"
+                android:scrollbarFadeDuration="0"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <include
+        android:id="@+id/bottom_menu_container"
+        layout="@layout/footer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 
 </LinearLayout>
