@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.text.Html;
 import android.transition.TransitionManager;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,69 +96,61 @@ public class WalletActivity extends BaseActivity {
     String afitBal = "";
 
 
-    // Get references to your header and content views
+    private ViewGroup rootView; // Root layout for transitions
+
+    // Headers
     private LinearLayout headerCoreBalance;
-    private LinearLayout contentCoreBalance;
-
     private LinearLayout headerHeBalance;
-    private ScrollView contentHeBalanceScrollView; // Use ScrollView ID
-
     private LinearLayout headerClaimableRewards;
-    private LinearLayout contentClaimableRewards;
-
     private LinearLayout headerTransactions;
-    private LinearLayout contentTransactions; // Container for Error and ListView
 
-    private List<View> contentViews; // List to easily hide all content
+    // Content Containers
+    private LinearLayout contentCoreBalance;
+    private ScrollView contentHeBalanceScrollView;
+    private LinearLayout contentClaimableRewards;
+    private LinearLayout contentTransactions;
 
-    // Optional: Add a reference to the root layout for transitions
-    private ViewGroup rootView;
+    // Indicators
+    private TextView indicatorCoreBalance;
+    private TextView indicatorHeBalance;
+    private TextView indicatorClaimableRewards;
+    private TextView indicatorTransactions;
+
+
+    // List to hold pairs of (contentView, indicatorView) for easy management
+    private List<Pair<View, TextView>> sectionPairs;
 
 
     // Method to toggle visibility and hide others (Accordion behavior)
-    private void toggleSectionVisibility(View contentToToggle) {
+    // Now takes both the content view and its indicator
+    private void toggleSectionVisibility(View contentToToggle, TextView indicatorToToggle) {
         // Optional: Add animation for smoother transitions
         if (rootView != null) {
             TransitionManager.beginDelayedTransition(rootView);
         }
 
-
         if (contentToToggle.getVisibility() == View.VISIBLE) {
             // If the clicked section is already open, close it
             contentToToggle.setVisibility(View.GONE);
+            // Rotate indicator down (0 degrees)
+            indicatorToToggle.animate().rotation(0).setDuration(200).start();
         } else {
             // Otherwise, close all sections and open the clicked one
-            for (View contentView : contentViews) {
+            for (Pair<View, TextView> section : sectionPairs) {
+                View contentView = section.first;
+                TextView indicatorView = section.second;
+
                 if (contentView.getVisibility() == View.VISIBLE) {
-                    // Optional: Add animation per view if not using TransitionManager on root
-                    // contentView.animate().alpha(0f).setDuration(200).withEndAction(() -> contentView.setVisibility(View.GONE));
                     contentView.setVisibility(View.GONE);
+                    // Rotate indicator down (0 degrees) for the section being closed
+                    indicatorView.animate().rotation(0).setDuration(200).start();
                 }
             }
-            // Optional: Add animation per view if not using TransitionManager on root
-            // contentToToggle.setAlpha(0f);
+            // Now open the selected section
             contentToToggle.setVisibility(View.VISIBLE);
-            // contentToToggle.animate().alpha(1f).setDuration(200);
+            // Rotate indicator up (180 degrees) for the section being opened
+            indicatorToToggle.animate().rotation(180).setDuration(200).start();
         }
-    }
-
-    // Method to close all sections (optional utility)
-    private void closeAllSections() {
-        if (rootView != null) {
-            TransitionManager.beginDelayedTransition(rootView);
-        }
-        for (View contentView : contentViews) {
-            contentView.setVisibility(View.GONE);
-        }
-    }
-
-    // Method to open a specific section (optional utility)
-    private void openSection(View contentToOpen) {
-        if (rootView != null) {
-            TransitionManager.beginDelayedTransition(rootView);
-        }
-        closeAllSections(); // Close others first
-        contentToOpen.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -166,35 +159,38 @@ public class WalletActivity extends BaseActivity {
         setContentView(R.layout.activity_wallet);
 
 
-        // 1. Get references to Headers and Content containers
+        // 1. Get references to Views
+        rootView = findViewById(R.id.root_layout);
+
         headerCoreBalance = findViewById(R.id.header_core_balance);
         contentCoreBalance = findViewById(R.id.content_core_balance);
+        indicatorCoreBalance = findViewById(R.id.indicator_core_balance);
 
         headerHeBalance = findViewById(R.id.header_he_balance);
-        contentHeBalanceScrollView = findViewById(R.id.content_he_balance_scrollview); // Reference the ScrollView
+        contentHeBalanceScrollView = findViewById(R.id.content_he_balance_scrollview);
+        indicatorHeBalance = findViewById(R.id.indicator_he_balance);
 
         headerClaimableRewards = findViewById(R.id.header_claimable_rewards);
         contentClaimableRewards = findViewById(R.id.content_claimable_rewards);
+        indicatorClaimableRewards = findViewById(R.id.indicator_claimable_rewards);
 
         headerTransactions = findViewById(R.id.header_transactions);
-        contentTransactions = findViewById(R.id.content_transactions); // Reference the container
+        contentTransactions = findViewById(R.id.content_transactions);
+        indicatorTransactions = findViewById(R.id.indicator_transactions);
 
-        // Initialize the list of content views
-        contentViews = new ArrayList<>();
-        contentViews.add(contentCoreBalance);
-        contentViews.add(contentHeBalanceScrollView);
-        contentViews.add(contentClaimableRewards);
-        contentViews.add(contentTransactions);
+        // 2. Create the list of section pairs
+        sectionPairs = new ArrayList<>();
+        sectionPairs.add(new Pair<>(contentCoreBalance, indicatorCoreBalance));
+        sectionPairs.add(new Pair<>(contentHeBalanceScrollView, indicatorHeBalance));
+        sectionPairs.add(new Pair<>(contentClaimableRewards, indicatorClaimableRewards));
+        sectionPairs.add(new Pair<>(contentTransactions, indicatorTransactions));
 
-        // Optional: Get root view for transitions
-        rootView = findViewById(R.id.root_layout); // Make sure your root LinearLayout has an ID, e.g., 'root_layout_id'
-
-
-        // 2. Set up Click Listeners
-        headerCoreBalance.setOnClickListener(v -> toggleSectionVisibility(contentCoreBalance));
-        headerHeBalance.setOnClickListener(v -> toggleSectionVisibility(contentHeBalanceScrollView));
-        headerClaimableRewards.setOnClickListener(v -> toggleSectionVisibility(contentClaimableRewards));
-        headerTransactions.setOnClickListener(v -> toggleSectionVisibility(contentTransactions));
+        // 3. Set up Click Listeners
+        // Pass both the content and the indicator to the toggle method
+        headerCoreBalance.setOnClickListener(v -> toggleSectionVisibility(contentCoreBalance, indicatorCoreBalance));
+        headerHeBalance.setOnClickListener(v -> toggleSectionVisibility(contentHeBalanceScrollView, indicatorHeBalance));
+        headerClaimableRewards.setOnClickListener(v -> toggleSectionVisibility(contentClaimableRewards, indicatorClaimableRewards));
+        headerTransactions.setOnClickListener(v -> toggleSectionVisibility(contentTransactions, indicatorTransactions));
 
         //define standard rotate animation
 

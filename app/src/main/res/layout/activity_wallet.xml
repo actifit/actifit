@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:id="@+id/root_layout"> <!-- Added ID for TransitionManager -->
+    android:id="@+id/root_layout">
 
     <TextView
         android:id="@+id/textView"
@@ -61,6 +61,20 @@
                 android:text="\uf2f1"
                 android:textSize="20dp"
                 android:padding="10dp"/>
+
+            <!-- Indicator Added Here -->
+            <TextView
+                android:id="@+id/indicator_core_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf078"
+            android:textSize="18dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:rotation="180" /> <!-- Initially rotated for the default open section -->
+
         </LinearLayout>
 
         <!-- Content -->
@@ -273,6 +287,20 @@
                 android:text="\uf2f1"
                 android:textSize="20dp"
                 android:padding="10dp"/>
+
+            <!-- Indicator Added Here -->
+            <TextView
+                android:id="@+id/indicator_he_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf078"
+            android:textSize="18dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
+
         </LinearLayout>
 
         <!-- Content -->
@@ -352,6 +380,19 @@
                 android:text="\uf254"
                 android:textSize="20dp"
                 android:padding="10dp"/>
+
+            <!-- Indicator Added Here -->
+            <TextView
+                android:id="@+id/indicator_claimable_rewards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf078"
+            android:textSize="18dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
 
         </LinearLayout>
 
@@ -448,6 +489,19 @@
                 android:padding="10dp"
                 android:text="@string/actifit_transactions_lbl"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+            <!-- Indicator Added Here -->
+            <TextView
+                android:id="@+id/indicator_transactions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf078"
+            android:textSize="18dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
 
         </LinearLayout>
 
