@@ -89,10 +89,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:stretchColumns="*"
-                android:shrinkColumns="*">
+                android:shrinkColumns="1,2">
 
                 <include
                     layout="@layout/wallet_header" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider" />
 
                 <TableRow>
                     <ImageView
@@ -296,10 +301,10 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:textColor="@color/actifitRed"
                 android:text="\uf078"
-            android:textSize="18dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
+                android:textSize="18dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
 
         </LinearLayout>
 
@@ -318,7 +323,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:stretchColumns="*"
-                android:shrinkColumns="*">
+                android:shrinkColumns="1,2">
 
             </TableLayout>
         </ScrollView>
@@ -485,7 +490,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="16dp"
+                android:textSize="16sp"
                 android:padding="10dp"
                 android:text="@string/actifit_transactions_lbl"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
@@ -498,10 +503,10 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:textColor="@color/actifitRed"
                 android:text="\uf078"
-            android:textSize="18dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
+                android:textSize="18sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
 
         </LinearLayout>
 
@@ -528,7 +533,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:dividerHeight="0.1dp"
-                android:divider="#0000CC"
+                android:divider="@color/colorBlack"
                 android:paddingStart="10dp"
                 android:fadeScrollbars="false"
                 android:scrollbarFadeDuration="0"
