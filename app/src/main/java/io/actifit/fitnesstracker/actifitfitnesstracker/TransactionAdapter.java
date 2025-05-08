@@ -167,15 +167,15 @@ public class TransactionAdapter extends ArrayAdapter<TransactionItem> {
 
         // ---------------------------------------------------------
         // URL Display and Clicking (Same as before)
-        if (item.url != null && !item.url.isEmpty()) {
+        if (item.url != null && !item.url.isEmpty()
+                && !item.url.equals("undefined")) {
             holder.tvUrl.setVisibility(View.VISIBLE);
             holder.tvUrl.setText(R.string.details_button); // e.g., "View Post" from strings.xml
 
             // Set click listener to open the URL
             holder.tvUrl.setOnClickListener(v -> {
                 TransactionItem currentItem = holder.item; // Use holder.item
-                if (currentItem.url != null && !currentItem.url.isEmpty()
-                        && !currentItem.url.equals("undefined")) {
+                if (currentItem.url != null && !currentItem.url.isEmpty()) {
                     try {
                         String urlToParse = currentItem.url; // Start with the original URL
                         if (urlToParse.startsWith("/")) {
