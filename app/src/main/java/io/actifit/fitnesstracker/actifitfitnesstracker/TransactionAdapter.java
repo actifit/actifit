@@ -1,7 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.content.Context;
-import android.graphics.Color; // Android Color class
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,104 +9,116 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat; // Recommended way to get colors
+import androidx.core.content.ContextCompat;
 
 import java.util.List;
-import java.util.Locale; // For formatting numbers
+import java.util.Locale;
 
-// Make sure you have these colors defined in res/values/colors.xml
-// and res/values-night/colors.xml for dark mode support:
-// <color name="positive_amount_color">#00AA00</color> <!-- Green for light mode -->
-// <color name="negative_amount_color">#CC0000</color> <!-- Red for light mode -->
-// Example dark mode colors in res/values-night/colors.xml:
-// <color name="positive_amount_color">#66FF66</color> <!-- Lighter green for dark mode -->
-// <color name="negative_amount_color">#FF6666</color> <!-- Lighter red for dark mode -->
+import io.actifit.fitnesstracker.actifitfitnesstracker.TransactionItem;
 
+// Keep your colors defined in res/values/colors.xml and res/values-night/colors.xml
 
 public class TransactionAdapter extends ArrayAdapter<TransactionItem> {
 
     private Context mContext;
     private int mResource;
 
-    /**
-     * Default constructor for the TransactionAdapter
-     * @param context The application context
-     * @param resource The layout resource id for the list items
-     * @param objects The list of TransactionItem objects to display
-     */
     public TransactionAdapter(@NonNull Context context, int resource, @NonNull List<TransactionItem> objects) {
         super(context, resource, objects);
         this.mContext = context;
-        this.mResource = resource; // This will be R.layout.list_item_transaction
+        this.mResource = resource; // This will now be R.layout.list_item_transaction_modern
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        // Get the transaction item for this position
         TransactionItem item = getItem(position);
 
-        // ViewHolder pattern for performance (optional but recommended for ListViews)
         ViewHolder holder;
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            convertView = inflater.inflate(mResource, parent, false); // Inflate your custom layout
+            // !!! Inflate the new modern layout !!!
+            convertView = inflater.inflate(R.layout.list_item_transaction, parent, false);
 
             holder = new ViewHolder();
             holder.tvActivityType = convertView.findViewById(R.id.textViewActivityType);
             holder.tvTokenAmount = convertView.findViewById(R.id.textViewTokenAmount);
-            holder.tvUser = convertView.findViewById(R.id.textViewUser);
+            // !!! Find the new TextView for User/Recipient !!!
+            holder.tvUserRecipient = convertView.findViewById(R.id.textViewUserRecipient);
             holder.tvDate = convertView.findViewById(R.id.textViewDate);
             holder.tvNote = convertView.findViewById(R.id.textViewNote);
-            // Find other TextViews for Recipient etc.
-            convertView.setTag(holder); // Store the holder with the view
+
+            convertView.setTag(holder);
         } else {
-            holder = (ViewHolder) convertView.getTag(); // Reuse the holder
+            holder = (ViewHolder) convertView.getTag();
         }
 
-        // Populate the TextViews with data from the TransactionItem
-        // Use helper method or check for nulls and set text/visibility
-
+        // Populate the TextViews
         // Activity Type
         if (item.activityType != null && !item.activityType.isEmpty()) {
             holder.tvActivityType.setVisibility(View.VISIBLE);
-            holder.tvActivityType.setText(mContext.getString(R.string.activity_type_lbl) + ": " + item.activityType);
+            holder.tvActivityType.setText(item.activityType); // Just set the type directly now
         } else {
-            holder.tvActivityType.setVisibility(View.GONE); // Hide if no data
-        }
-
-        // Token Amount (This is where the coloring happens)
-        // Format the number and add " AFIT(s)"
-        // Using String.format for cleaner number display, e.g., 5.123 or -2.000
-        String amountText = String.format(Locale.getDefault(), "%.3f AFIT(s)", item.tokenCount);
-        holder.tvTokenAmount.setText(mContext.getString(R.string.token_count_lbl) + ": " + amountText);
-
-        // --- Conditional Coloring for the Token Amount TextView ---
-        if (item.tokenCount > 0) {
-            holder.tvTokenAmount.setTextColor(ContextCompat.getColor(mContext, R.color.actifitDarkGreen));
-        } else if (item.tokenCount < 0) {
-            holder.tvTokenAmount.setTextColor(ContextCompat.getColor(mContext, R.color.actifitRed));
-        } else {
-            // Amount is zero, use a default/neutral color (e.g., gray or default text color)
-            holder.tvTokenAmount.setTextColor(Color.GRAY); // Or get a neutral color from colors.xml
-        }
-        // ---------------------------------------------------------
-
-        // User
-        if (item.user != null && !item.user.isEmpty()) {
-            holder.tvUser.setVisibility(View.VISIBLE);
-            holder.tvUser.setText(mContext.getString(R.string.user_lbl) + ": " + item.user);
-        } else {
-            holder.tvUser.setVisibility(View.GONE);
+            holder.tvActivityType.setVisibility(View.GONE);
         }
 
         // Date
         if (item.date != null && !item.date.isEmpty()) {
             holder.tvDate.setVisibility(View.VISIBLE);
-            holder.tvDate.setText(mContext.getString(R.string.date_added_lbl) + ": " + item.date);
+            holder.tvDate.setText(item.date); // Just set the date
         } else {
             holder.tvDate.setVisibility(View.GONE);
         }
+
+        // Token Amount (Coloring logic remains)
+        String amountText = String.format(Locale.getDefault(), "%.3f AFIT(s)", item.tokenCount);
+        // Decide prefix based on sign
+        String prefix = "";
+        if (item.tokenCount > 0) {
+            prefix = "+"; // Add plus sign for positive amounts
+            holder.tvTokenAmount.setTextColor(ContextCompat.getColor(mContext, R.color.actifitDarkGreen));
+        } else if (item.tokenCount < 0) {
+            // Minus sign is already part of the number
+            holder.tvTokenAmount.setTextColor(ContextCompat.getColor(mContext, R.color.actifitRed));
+        } else {
+            // Zero amount
+            holder.tvTokenAmount.setTextColor(Color.GRAY); // Neutral color for zero
+        }
+        holder.tvTokenAmount.setText(prefix + amountText);
+
+
+        // User/Recipient (Logic to combine/choose)
+        String userRecipientText = "";
+        if (item.user != null && !item.user.isEmpty() && item.recipient != null && !item.recipient.isEmpty()) {
+            // It's likely a transfer between two different users
+            if (item.user.equals(item.recipient)) {
+                // If user sends to self (less common, but handles edge cases)
+                userRecipientText = mContext.getString(R.string.user_lbl) + ": " + item.user; // Or "Self transfer"
+            } else if (item.tokenCount > 0) {
+                // Received tokens: From User X
+                userRecipientText = mContext.getString(R.string.user_lbl) + ": " + item.user;
+            } else if (item.tokenCount < 0) {
+                // Sent tokens: To Recipient Y
+                userRecipientText = mContext.getString(R.string.recipient_lbl) + ": " + item.recipient;
+            } else {
+                // Amount is zero, maybe show both? Or neither?
+                userRecipientText = mContext.getString(R.string.user_lbl) + ": " + item.user + ", " + mContext.getString(R.string.recipient_lbl) + ": " + item.recipient;
+            }
+        } else if (item.user != null && !item.user.isEmpty()) {
+            // Only user populated (e.g., rewards, or sender in some APIs)
+            userRecipientText = mContext.getString(R.string.user_lbl) + ": " + item.user;
+        } else if (item.recipient != null && !item.recipient.isEmpty()) {
+            // Only recipient populated (e.g., receiver in some APIs)
+            userRecipientText = mContext.getString(R.string.recipient_lbl) + ": " + item.recipient;
+        }
+        // Set the text and visibility for the User/Recipient TextView
+        if (!userRecipientText.isEmpty()) {
+            holder.tvUserRecipient.setVisibility(View.VISIBLE);
+            holder.tvUserRecipient.setText(userRecipientText);
+        } else {
+            holder.tvUserRecipient.setVisibility(View.GONE); // Hide if no user/recipient info
+        }
+
 
         // Note
         if (item.note != null && !item.note.isEmpty()) {
@@ -116,19 +128,17 @@ public class TransactionAdapter extends ArrayAdapter<TransactionItem> {
             holder.tvNote.setVisibility(View.GONE);
         }
 
-        // Populate other fields (Recipient etc.) similarly
+        // If you add URL, you might add another TextView or make the Note clickable etc.
 
-        // Return the completed view
         return convertView;
     }
 
-    // ViewHolder class to cache view lookups for smoother scrolling
+    // ViewHolder class updated with the new TextView reference
     static class ViewHolder {
         TextView tvActivityType;
         TextView tvTokenAmount;
-        TextView tvUser;
+        TextView tvUserRecipient; // Updated field
         TextView tvDate;
         TextView tvNote;
-        // Add other TextViews
     }
 }
