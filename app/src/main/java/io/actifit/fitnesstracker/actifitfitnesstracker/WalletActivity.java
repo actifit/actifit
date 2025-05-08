@@ -1,5 +1,9 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static com.google.android.material.internal.ViewUtils.dpToPx;
+
+import static io.actifit.fitnesstracker.actifitfitnesstracker.Utils.setBackgroundFromThemeAttribute;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -37,6 +41,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -654,6 +659,33 @@ public class WalletActivity extends BaseActivity {
                 .inflate(R.layout.wallet_header, tokensContainer, false);
 
         tokensContainer.addView(walletHeader);
+
+
+        // Add a separator line below the header row (can be a separate View row)
+        TableRow separatorRow = new TableRow(this);
+        View separatorLine = new View(this);
+        TableRow.LayoutParams separatorParams = new TableRow.LayoutParams(
+                TableRow.LayoutParams.MATCH_PARENT,
+                Utils.dpToPx(this,1) // 1dp height
+        );
+        separatorParams.span = 4; // Make the line span all columns
+        separatorLine.setLayoutParams(separatorParams);
+        //separatorLine.setBackgroundColor(ContextCompat.getColor(this, R.color.medium_gray_like_CCCCCC)); // Define medium_gray_like_CCCCCC
+
+        separatorRow.addView(separatorLine);
+
+        boolean success = setBackgroundFromThemeAttribute(separatorLine, android.R.attr.listDivider);
+        if (!success) {
+            // Handle the case where the attribute couldn't be resolved or applied
+            // Maybe set a fallback color?
+            // separatorLine.setBackgroundColor(Color.GRAY); // Example fallback
+            Log.w("WalletActivity", "Failed to set listDivider background from theme attribute.");
+        }else{
+            Log.w("WalletActivity", "set listDivider background from theme attribute.");
+        }
+
+        // Add separatorRow to he_tokens_container
+        tokensContainer.addView(separatorRow);
 
         HiveEngineAPI herpc = new HiveEngineAPI(getApplicationContext());
 

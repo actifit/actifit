@@ -1357,4 +1357,9 @@ public class Utils {
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
     }
 
+    // Helper function to convert dp to pixels
+    public static int dpToPx(Context ctx, int dp) {
+        return (int) (dp * ctx.getResources().getDisplayMetrics().density);
+    }
+
 }
