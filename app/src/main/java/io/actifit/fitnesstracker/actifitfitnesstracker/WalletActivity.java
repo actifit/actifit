@@ -64,6 +64,7 @@ import org.w3c.dom.Text;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1079,6 +1080,9 @@ public class WalletActivity extends BaseActivity {
                     progress.hide();
 
                     ArrayList<TransactionItem> transactionList = new ArrayList<>();
+
+                    SimpleDateFormat jsonDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.ROOT);
+
                     // Handle the result
                     try {
 
@@ -1094,9 +1098,23 @@ public class WalletActivity extends BaseActivity {
                             item.tokenCount = jsonObject.optDouble("token_count", 0.0); // IMPORTANT: Parse as double
                             item.user = jsonObject.optString("user", null);
                             item.recipient = jsonObject.optString("recipient", null);
-                            item.date = jsonObject.optString("date", null);
+
+                            item.date = jsonObject.optString("date", null); // Store original date string
+                            // --- Parse the date string into a Date object ---
+                            item.parsedDate = null; // Initialize to null
+                            if (item.date != null && !item.date.isEmpty()) {
+                                try {
+                                    item.parsedDate = jsonDateFormat.parse(item.date);
+                                } catch (Exception e) {
+                                    // Log the parsing error but allow the app to continue
+                                    Log.e("WalletActivity", "Failed to parse date: " + item.date, e);
+                                    // item.parsedDate remains null
+                                }
+                            }
+                            // ------------------------------------------------
+
                             item.note = jsonObject.optString("note", null);
-                            // item.url = jsonObject.optString("url", null); // If you add URL to the data class
+                            item.url = jsonObject.optString("url", null); // Populate URL field
 
                             transactionList.add(item);
                         }
