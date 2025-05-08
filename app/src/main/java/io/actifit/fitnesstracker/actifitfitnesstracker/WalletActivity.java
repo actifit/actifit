@@ -1078,7 +1078,7 @@ public class WalletActivity extends BaseActivity {
                     //hide dialog
                     progress.hide();
 
-                    ArrayList<String> transactionList = new ArrayList<String>();
+                    ArrayList<TransactionItem> transactionList = new ArrayList<>();
                     // Handle the result
                     try {
 
@@ -1086,45 +1086,30 @@ public class WalletActivity extends BaseActivity {
                             // Retrieve each JSON object within the JSON array
                             JSONObject jsonObject = transactionListArray.getJSONObject(i);
 
-                            // Build output
-                            String transactionString = "";
-                            // Capture individual values
+                            TransactionItem item = new TransactionItem();
 
-                            transactionString += jsonObject.has("reward_activity") ? getString(R.string.activity_type_lbl) + ": " + jsonObject.getString("reward_activity") + "\n":"";
-                            transactionString += jsonObject.has("token_count") ? getString(R.string.token_count_lbl) + ": " + jsonObject.getString("token_count") + " AFIT(s)\n":"";
-                            transactionString += jsonObject.has("user") ? getString(R.string.user_lbl) + ": " + jsonObject.getString("user") + "\n":"";
-                            transactionString += jsonObject.has("recipient") ? getString(R.string.recipient_lbl) + ": " + jsonObject.getString("recipient") + "\n":"";
-                            transactionString += jsonObject.has("date") ?  getString(R.string.date_added_lbl) + ": " + jsonObject.getString("date") + "\n":"";
-                            //transactionString += jsonObject.has("url")?"Relevant Post: <a href='"+jsonObject.getString("url") + "'>Post</a>\n":"";
-                            transactionString += jsonObject.has("note") ? getString(R.string.note_lbl) + ": " +jsonObject.getString("note") + "\n":"";
-                                    /*String url = jsonObject.getString("url");
+                            // Use optString and optDouble for safe parsing of potentially missing fields
+                            // provide a default value (like null or 0.0) if the key doesn't exist
+                            item.activityType = jsonObject.optString("reward_activity", null);
+                            item.tokenCount = jsonObject.optDouble("token_count", 0.0); // IMPORTANT: Parse as double
+                            item.user = jsonObject.optString("user", null);
+                            item.recipient = jsonObject.optString("recipient", null);
+                            item.date = jsonObject.optString("date", null);
+                            item.note = jsonObject.optString("note", null);
+                            // item.url = jsonObject.optString("url", null); // If you add URL to the data class
 
-                                    String note = jsonObject.getString("note");*/
-                            // Adds strings from the current object to the data string
-                            transactionList.add(transactionString);
+                            transactionList.add(item);
                         }
-                        // convert content to adapter display, and render it
-                        ArrayAdapter<String> arrayAdapter =
-                                new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1, transactionList){
-                                    @Override
-                                    public View getView(int position, View convertView, ViewGroup parent){
-                                        // Get the Item from ListView
-                                        View view = super.getView(position, convertView, parent);
+                        // Create your custom adapter
+                        TransactionAdapter adapter = new TransactionAdapter(
+                                callerContext, // Use 'this' in Activity, or 'getContext()' in Fragment
+                                R.layout.list_item_transaction, // Use your custom list item layout
+                                transactionList
+                        );
 
-                                        // Initialize a TextView for ListView each Item
-                                        TextView tv = view.findViewById(android.R.id.text1);
+                        // Set the adapter to the ListView
+                        actifitTransactionsView.setAdapter(adapter);
 
-                                        // Set the text color of TextView (ListView Item)
-                                        tv.setPadding(0,10,0,0);
-                                        tv.setTextColor(Color.GRAY);
-                                        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-
-                                        // Generate ListView Item using TextView
-                                        return view;
-                                    }
-                                };
-
-                        actifitTransactionsView.setAdapter(arrayAdapter);
                         //actifitTransactions.setText("Response is: "+ response);
                     }catch (Exception e) {
                         //hide dialog
