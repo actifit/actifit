@@ -19,32 +19,35 @@
 
         <!-- Activity Type -->
         <TextView
-        android:id="@+id/textViewActivityType"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textViewDate"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        tools:text="Activity Type" /> <!-- tools:text is for preview -->
+            android:id="@+id/textViewActivityType"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/textViewDate"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            tools:text="Activity Type" />
 
-        <!-- Date -->
+        <!-- Date (Will be toggled) -->
         <TextView
             android:id="@+id/textViewDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
             android:textColor="#666666"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textViewActivityType"
             app:layout_constraintBaseline_toBaselineOf="@+id/textViewActivityType"
-            tools:text="YYYY-MM-DD" />
+            tools:text="X time ago" /> <!-- Updated example text -->
 
-
+        <!-- Token Amount (Prominent) -->
         <TextView
             android:id="@+id/textViewTokenAmount"
             android:layout_width="0dp"
@@ -70,8 +73,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="User: username / Recipient: recipientname"/>
 
-
-        <!-- Note (Optional, spanning width) -->
+        <!-- Note (Optional) -->
         <TextView
             android:id="@+id/textViewNote"
             android:layout_width="0dp"
@@ -83,6 +85,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="Note: This is an optional note..." />
+
+
+        <TextView
+            android:id="@+id/textViewUrl"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/actifitRed"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
+            app:layout_constraintTop_toBottomOf="@+id/textViewNote"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="View Post" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
