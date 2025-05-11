@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:scrollbarStyle="insideInset"
     android:scrollbars="vertical"
-    tools:context=".WorkoutWizardActivity">
+    tools:context=".WorkoutWizardActivity"
+    android:background="?android:colorBackground"> <!-- Use theme background color -->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,115 +19,129 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Workout Planning"
-            android:textColor="@android:color/black"
+            android:textColor="@color/actifitRed"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textAlignment="center"
             android:layout_marginBottom="16dp"/>
 
 
         <!-- Fitness Goal -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Fitness Goal:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="4dp"/> <!-- Reduced space above spinner -->
 
         <Spinner
             android:id="@+id/fitnessGoalSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/fitness_goals"
-            android:layout_marginBottom="8dp"
-            />
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" /><!-- Ensure minimum touch target size -->
 
 
         <!-- Experience Level -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Experience Level:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="4dp"/>
 
         <Spinner
             android:id="@+id/experienceLevelSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/experience_levels"
-            android:layout_marginBottom="8dp"
-            />
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" />
 
 
         <!-- Weekly Time -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Weekly Time:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="4dp"/>
         <Spinner
             android:id="@+id/weeklyTimeSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/weekly_times"
-            android:layout_marginBottom="8dp"
-            />
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" />
 
 
         <!-- Daily Frequency -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Workout Frequency:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="4dp"/>
         <Spinner
             android:id="@+id/dailyFrequencySpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/daily_frequencies"
-            android:layout_marginBottom="8dp"
-            />
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" />
 
 
         <!-- Preferred Workout Style -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Preferred Workout Style:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="4dp"/>
         <Spinner
             android:id="@+id/preferredWorkoutSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/workout_styles"
-            android:layout_marginBottom="8dp"
-            />
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" />
 
 
         <!-- Equipment Options -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Equipment:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="4dp"/>
         <Spinner
             android:id="@+id/equipmentSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/equipment_options"
-            android:layout_marginBottom="8dp"
-            />
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" />
+
         <!-- Limitations Options -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Physical Limitations:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="4dp"/>
         <Spinner
             android:id="@+id/limitationsSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/limitations_options"
             android:layout_marginBottom="8dp"
-            />
+            android:minHeight="48dp" />
 
         <EditText
             android:id="@+id/otherLimitationsEditText"
@@ -134,13 +149,21 @@
             android:layout_height="wrap_content"
             android:hint="Enter details for 'Other' limitations"
             android:layout_marginBottom="16dp"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:background="?android:attr/editTextBackground"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorHint"/>
 
         <Button
             android:id="@+id/generateButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Generate Workout Plan"/>
+            android:text="Generate Workout Plan"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:backgroundTint="@color/actifitRed"
+            android:textColor="@color/colorWhite"/> <!-- White text on red button (define background_light in colors.xml) -->
 
 
         <ProgressBar
@@ -148,14 +171,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone"/>
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            style="?android:attr/progressBarStyle"/> <!-- Use theme progress bar style -->
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@android:color/darker_gray"/>
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:background="@color/colorBlack"/>
 
         <!-- Workout Plan Overview Section -->
         <LinearLayout
@@ -218,6 +243,10 @@
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:scrollbarStyle="insideInset"
+                android:scrollbarFadeDuration="0"
+                android:fadeScrollbars="false"
+                android:scrollbarSize="4dp"
                 >
 
                 <LinearLayout
@@ -225,13 +254,13 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-            <include layout="@layout/exercise_header" />
+                    <include layout="@layout/exercise_header" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/exercisesRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/exercisesRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"/>
 
                 </LinearLayout>
             </HorizontalScrollView>
