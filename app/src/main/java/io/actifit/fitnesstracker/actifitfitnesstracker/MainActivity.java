@@ -78,6 +78,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
@@ -303,6 +304,18 @@ public class MainActivity extends BaseActivity{
     private Button BtnWaves;
     private boolean dailyRewardClaimed = false, fivekRewardClaimed = false
             , sevenkRewardClaimed = false, tenkRewardClaimed = false;
+
+
+    // Reward Status TextViews (New references)
+    private TextView textViewFreeRewardStatus;
+    private TextView textView5kRewardStatus;
+    private TextView textView7kRewardStatus;
+    private TextView textView10kRewardStatus;
+
+    // Current Steps TextView (New reference)
+    private TextView textViewCurrentSteps;
+
+
     private boolean isAdLoading;
 
     Button fullChartButton, dayChartButton;
@@ -1328,7 +1341,7 @@ public class MainActivity extends BaseActivity{
 
             //show popup for rewards
             AlertDialog.Builder rewardsDialogBuilder = new AlertDialog.Builder(ctx);
-            final View rewardsLayout = getLayoutInflater().inflate(R.layout.reward_popup, null);
+            final View rewardsLayout = getLayoutInflater().inflate(R.layout.reward_popup_v2, null);
 
             giftLoader = rewardsLayout.findViewById(R.id.daily_reward_icon);
 
@@ -1337,6 +1350,16 @@ public class MainActivity extends BaseActivity{
             fivekRewardButton = rewardsLayout.findViewById(R.id.daily_5k_reward);
             sevenkRewardButton = rewardsLayout.findViewById(R.id.daily_7k_reward);
             tenkRewardButton = rewardsLayout.findViewById(R.id.daily_10k_reward);
+
+
+            // Get references to the new Status TextViews
+            textViewFreeRewardStatus = rewardsLayout.findViewById(R.id.textViewFreeRewardStatus);
+            textView5kRewardStatus = rewardsLayout.findViewById(R.id.textView5kRewardStatus);
+            textView7kRewardStatus = rewardsLayout.findViewById(R.id.textView7kRewardStatus);
+            textView10kRewardStatus = rewardsLayout.findViewById(R.id.textView10kRewardStatus);
+
+            // Get reference to the Current Steps TextView
+            textViewCurrentSteps = rewardsLayout.findViewById(R.id.textViewCurrentSteps);
             /*
             moveTotweets = rewardsLayout.findViewById(R.id.displayTweets);
 
@@ -1388,6 +1411,8 @@ public class MainActivity extends BaseActivity{
             fivekRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 2));
             sevenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 3));
             tenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 4));
+
+
             //fetch existing reward status
 
             Date date = new Date();
@@ -1403,12 +1428,23 @@ public class MainActivity extends BaseActivity{
             sevenkRewardClaimed = false;
             tenkRewardClaimed = false;
 
+
+            //used to temporarly remove rewards
+            if (getString(R.string.test_mode).equals("on")){
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.remove(getString(R.string.daily_free_reward));
+                editor.remove("freerewardedValue");
+                editor.commit();
+            }
+
             if (!strDate.equals("")){
                 if (curDate<= parseInt(strDate)){
                     //user has already received reward
                     dailyRewardClaimed = true;
                 }
             }
+
+
 
             strDate = sharedPreferences.getString(getString(R.string.daily_5k_reward), "");
             if (!strDate.equals("")){
@@ -1434,18 +1470,87 @@ public class MainActivity extends BaseActivity{
                 }
             }
 
+
+            /*
+            dailyRewardClaimed = false;
+            fivekRewardClaimed = false;
+            sevenkRewardClaimed = false;
+            tenkRewardClaimed = false;
+
+             */
+
+
+            /*
             if (!dailyRewardClaimed){
                 freeRewardButton.setAnimation(scaler);
             }else{
                 Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+ sharedPreferences.getString("freerewardedValue","")+" AFIT "+checkMark);
                 freeRewardButton.setText(text);
             }
+            */
 
             int curStepCount = mStepsDBHelper.fetchTodayStepCount();
 
+            // Display Current Steps
+            // Get the static label string from resources
+            String stepsLabel = getString(R.string.activity_count_lbl);
+
+            // Concatenate the label with the current step count
+            // You might want to add a separator like ": " or a space
+            String stepsDisplayText = stepsLabel + ": " + curStepCount;
+
+            // Set the combined text to the TextView
+            textViewCurrentSteps.setText(stepsDisplayText);
+
+
+            // Function to update the UI for a specific reward
+            // This makes the logic cleaner and reusable
+            updateRewardButtonAndStatus(
+                    freeRewardButton,
+                    textViewFreeRewardStatus,
+                    dailyRewardClaimed,
+                    0, // Steps needed for Free reward
+                    sharedPreferences.getString("freerewardedValue",""), // Replace with how you get the claimed value for Free
+                    scaler, // Animation object
+                    checkMark,
+                    curStepCount
+            );
+
+            updateRewardButtonAndStatus(
+                    fivekRewardButton,
+                    textView5kRewardStatus,
+                    fivekRewardClaimed,
+                    5000, // Steps needed for 5k reward
+                    sharedPreferences.getString("5krewardedValue",""), // Get claimed value from preferences
+                    scaler,
+                    checkMark,
+                    curStepCount
+            );
+
+            updateRewardButtonAndStatus(
+                    sevenkRewardButton,
+                    textView7kRewardStatus,
+                    sevenkRewardClaimed,
+                    7000, // Steps needed for 7k reward
+                    sharedPreferences.getString("7krewardedValue",""), // Get claimed value
+                    scaler,
+                    checkMark,
+                    curStepCount
+            );
+
+            updateRewardButtonAndStatus(
+                    tenkRewardButton,
+                    textView10kRewardStatus,
+                    tenkRewardClaimed,
+                    10000, // Steps needed for 10k reward
+                    sharedPreferences.getString("10krewardedValue",""), // Get claimed value
+                    scaler,
+                    checkMark,
+                    curStepCount
+            );
 
             //animate reward button
-            if (!fivekRewardClaimed && curStepCount >= 5000){
+            /*if (!fivekRewardClaimed && curStepCount >= 5000){
                 fivekRewardButton.setAnimation(scaler);
             }else if (fivekRewardClaimed){
                 Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+sharedPreferences.getString("5krewardedValue","")+" AFIT "+checkMark);
@@ -1464,10 +1569,10 @@ public class MainActivity extends BaseActivity{
             }else if (tenkRewardClaimed){
                 Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+sharedPreferences.getString("10krewardedValue","")+" AFIT "+checkMark);
                 tenkRewardButton.setText(text);
-            }
+            }*/
 
             AlertDialog pointer = rewardsDialogBuilder.setView(rewardsLayout)
-                    .setTitle(getString(R.string.rewards_note))
+                    //.setTitle(getString(R.string.rewards_note))
                     .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                     .setPositiveButton(getString(R.string.close_button),null)
                     .create();
@@ -2161,6 +2266,92 @@ public class MainActivity extends BaseActivity{
         }
     }
 
+    // Helper method to update a single reward's UI state
+    // ... inside your MainActivity class ...
+
+    // Helper method to update a single reward's UI state
+    // Added 'currentStepCount' parameter at the end
+    private void updateRewardButtonAndStatus(Button button, TextView statusTextView,
+                                             boolean isClaimed, int requiredSteps,
+                                             String claimedValue, Animation animation,
+                                             String checkMarkIcon, int currentStepCount) {
+
+        // Always set the default button text at the beginning
+        button.setText(getString(R.string.claim_now)); // Define a string like "Claim Reward"
+
+        if (isClaimed) {
+            // Reward has been claimed
+            button.setEnabled(false); // Disable the button
+            // Keep the default "Claim Reward" text, just disable it
+
+            // Show claimed status in the status TextView
+            String claimedStatusText;
+
+            // We need to format the status text to include the claimed amount and checkmark
+            // Define a string resource like: <string name="reward_status_claimed_amount">Claimed: %1$s AFIT %2$s</string>
+            // Where %1$s will be the amount string and %2$s will be the checkmark icon string (HTML)
+
+            if (claimedValue != null && !claimedValue.isEmpty()) {
+                // Get the checkmark HTML string
+                String checkmarkHtml = HtmlCompat.fromHtml(checkMarkIcon, HtmlCompat.FROM_HTML_MODE_COMPACT).toString();
+                claimedStatusText = getString(R.string.reward_claimed) + claimedValue + "AFIT" + checkmarkHtml;
+
+            } else {
+                // Fallback status if value is not available
+                // Define string like "Status: Claimed Today" or similar generic message
+                claimedStatusText = getString(R.string.reward_claimed);
+            }
+
+            statusTextView.setText(HtmlCompat.fromHtml(claimedStatusText, HtmlCompat.FROM_HTML_MODE_COMPACT)); // Set the claimed status text
+            statusTextView.setVisibility(View.VISIBLE); // Make status visible
+
+            // Stop any animation on the button
+            button.clearAnimation();
+
+        } else {
+            // Reward has NOT been claimed
+            if (currentStepCount >= requiredSteps) {
+                // Steps requirement met - Available to claim
+                button.setEnabled(true); // Enable button
+                // Button text is already "Claim Reward"
+
+                // Set status to "Available"
+                statusTextView.setText(getString(R.string.available_lbl)); // Define string like "Available to Claim"
+                statusTextView.setVisibility(View.VISIBLE);
+                // Optional: Change status text color for emphasis
+
+                // Apply animation to indicate it's ready to claim
+                if (animation != null) {
+                    button.startAnimation(animation);
+                }
+
+            } else {
+                // Steps requirement NOT met
+                button.setEnabled(false); // Disable button
+                // Button text is already "Claim Reward"
+
+                // Set status to "Steps Not Met"
+                statusTextView.setText("Not Met");//getString(R.string., requiredSteps)); // Define string like "Needs %d steps"
+                statusTextView.setVisibility(View.VISIBLE);
+                // Optional: Change status text color to indicate not ready
+
+                // Stop any animation
+                button.clearAnimation();
+            }
+        }
+    }
+
+    // ... rest of your MainActivity code ...
+
+    // Define these string resources in res/values/strings.xml
+    /*
+    <string name="claim_reward_button_text">Claim Reward</string>
+    <string name="reward_status_available">Available to Claim</string>
+    <string name="reward_status_steps_needed">Needs %d steps</string>
+    <string name="reward_status_claimed_amount">Claimed: %1$s AFIT %2$s</string> // %1$s is amount, %2$s is checkmark HTML
+    <string name="reward_claimed_status_no_value">Status: Claimed Today</string> // Fallback
+    */
+
     private void showRewardedVideo(View view, int tier) {
         int curStepCount = mStepsDBHelper.fetchTodayStepCount();
         giftLoader.startAnimation(rotate);
@@ -2333,29 +2524,50 @@ public class MainActivity extends BaseActivity{
                     String strDate = dateFormat.format(date);
 
                     int id = view.getId();
+                    int reqSteps = 0;
+                    TextView rewardStatus = textViewFreeRewardStatus;
                     if (id == R.id.daily_free_reward) {
                         dailyRewardClaimed = true;
                         editor.putString(getString(R.string.daily_free_reward), strDate);
                         editor.putString("freerewardedValue", finalRewardValue + "");
                         editor.commit();
                     } else if (id == R.id.daily_5k_reward) {
+                        reqSteps = 5000;
                         fivekRewardClaimed = true;
+                        rewardStatus = textView5kRewardStatus;
                         editor.putString(getString(R.string.daily_5k_reward), strDate);
                         editor.putString("5krewardedValue", finalRewardValue + "");
                         editor.commit();
                     } else if (id == R.id.daily_7k_reward) {
+                        reqSteps = 7000;
                         sevenkRewardClaimed = true;
+                        rewardStatus = textView7kRewardStatus;
                         editor.putString(getString(R.string.daily_7k_reward), strDate);
                         editor.putString("7krewardedValue", finalRewardValue + "");
                         editor.commit();
                     } else if (id == R.id.daily_10k_reward) {
+                        reqSteps = 10000;
                         tenkRewardClaimed = true;
+                        rewardStatus = textView10kRewardStatus;
                         editor.putString(getString(R.string.daily_10k_reward), strDate);
                         editor.putString("10krewardedValue", finalRewardValue + "");
                         editor.commit();
                     }
+
+
+                    updateRewardButtonAndStatus(
+                            (Button)view,
+                            rewardStatus,
+                            true,
+                            reqSteps, // Steps needed for 5k reward
+                            finalRewardValue + "", // Get claimed value from preferences
+                            scaler,
+                            checkMark,
+                            curStepCount
+                    );
+
                     //adjust button text
-                    ((Button) view).setText(Html.fromHtml (((Button) view).getText()+"<br/> "+finalRewardValue+" AFIT "+checkMark));
+                    //((Button) view).setText(HtmlCompat.fromHtml (finalRewardValue+" AFIT "+checkMark, HtmlCompat.FROM_HTML_MODE_COMPACT));
                     adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
                 });
     }
