@@ -179,7 +179,7 @@ dependencies {
     implementation ('androidx.work:work-runtime:2.5.1')
 
     //for proper reading and formatting of image EXIF data
-    implementation "androidx.exifinterface:exifinterface:1.1.0"
+    implementation "androidx.exifinterface:exifinterface:1.4.1"
 
     //for hive signing
     implementation 'org.bitcoinj:bitcoinj-core:0.16'
