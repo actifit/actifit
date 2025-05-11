@@ -8,4 +8,21 @@
     <color name="actifitDarkGreen">#006400</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
+
+    <!-- Neutral colors - Use semantic names -->
+    <color name="color_text_primary">#212121</color> <!-- Dark text for light backgrounds -->
+    <color name="color_text_secondary">#757575</color> <!-- Medium gray text -->
+    <color name="color_background">#FFFFFF</color> <!-- Main screen background -->
+    <color name="color_surface">#FAFAFA</color> <!-- Card/surface background -->
+    <color name="color_separator">#E0E0E0</color> <!-- Divider color -->
+    <color name="color_header_background">#EEEEEE</color> <!-- Table/section header background -->
+    <color name="color_header_text">#333333</color> <!-- Table/section header text -->
+    <color name="color_text_hint">#A0A0A0</color> <!-- Hint text color -->
+
+    <!-- Specific colors (if needed) -->
+    <color name="text_on_actifit_red">#FFFFFF</color> <!-- White text for red background -->
+
+    <!-- Define positive/negative colors for transaction list -->
+    <color name="positive_amount_color">#00AA00</color> <!-- Green for light mode -->
+    <color name="negative_amount_color">#CC0000</color> <!-- Red for light mode -->
 </resources>

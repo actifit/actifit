@@ -9,7 +9,8 @@
     >-->
 
 
-<LinearLayout android:id="@+id/content"
+<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -38,23 +39,6 @@
             android:paddingEnd="3dp"
         />
 
-        <!--<FrameLayout android:id="@+id/pic_frame"
-            android:layout_width="36dp"
-            android:layout_height="wrap_content"
-            android:paddingTop="0dp"
-            >
-
-            <ImageView android:id="@+id/user_profile_pic"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/actifit_logo" />
-
-            <ImageView android:id="@+id/circle_crop"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/circle_crop" />
-
-        </FrameLayout>-->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -80,18 +64,16 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="left"
                     android:textColor="@color/actifitRed"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf091"
                     android:textSize="20sp"
                     android:paddingEnd="5dp"
-                    />
+                    tools:ignore="HardcodedText" />
 
                 <TextView android:id="@+id/user_rank"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="left"
                     android:textColor="@color/actifitRed"
                     android:textSize="20sp"
                     />
@@ -129,7 +111,7 @@
                     android:textColor="@color/actifitRed"
                     android:textSize="20sp"
                     android:text=" | "
-                    />
+                    tools:ignore="HardcodedText" />
 
                 <TextView android:id="@+id/login_action"
                     android:layout_width="match_parent"
@@ -147,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:columnCount="3"
                 android:rowCount="2"
-                android:layout_gravity="right"
+                android:layout_gravity="end"
                 android:id="@+id/top_icons_container">
 
                 <TextView
@@ -155,12 +137,12 @@
                     android:layout_width="35dp"
                     android:layout_height="30dp"
                     android:textColor="@color/actifitRed"
-                    android:textSize="25dp"
+                    android:textSize="25sp"
                     android:text="\uf013"
-                    android:layout_gravity="left"
-                    android:gravity="left"
+                    android:layout_gravity="start"
+                    android:gravity="start"
                     android:fontFamily="@font/font_awesome_6_solid"
-                    />
+                    tools:ignore="HardcodedText" />
 
 
 
@@ -187,13 +169,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="30dp"
                         android:textColor="@color/actifitRed"
-                        android:textSize="25dp"
+                        android:textSize="25sp"
                         android:text="\uf0f3"
                         android:gravity="center"
                         android:paddingEnd="30dp"
-                        android:layout_gravity="right"
+                        android:layout_gravity="end"
                         android:fontFamily="@font/font_awesome_6_solid"
-                        />
+                        tools:ignore="HardcodedText" />
 
                 </LinearLayout>
 
@@ -202,8 +184,8 @@
                     android:layout_width="35dp"
                     android:layout_height="30dp"
                     android:textColor="@color/actifitRed"
-                    android:textSize="25dp"
-                    android:layout_gravity="right"
+                    android:textSize="25sp"
+                    android:layout_gravity="end"
                     android:text="@string/fa_wallet_solid"
                     android:paddingEnd="5dp"
                     android:fontFamily="@font/font_awesome_6_solid"
@@ -213,21 +195,21 @@
                     android:layout_width="35dp"
                     android:layout_height="30dp"
                     android:textColor="@color/actifitRed"
-                    android:textSize="25dp"
+                    android:textSize="25sp"
                     android:paddingTop="5dp"
                     android:paddingEnd="5dp"
-                    android:layout_gravity="left"
-                    android:gravity="left"
+                    android:layout_gravity="start"
+                    android:gravity="start"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf624"
-                    />
+                    tools:ignore="HardcodedText" />
 
                 <TextView android:id="@+id/account_rc"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
                     android:paddingTop="5dp"
                     android:paddingEnd="5dp"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:textColor="@color/actifitRed"
                     android:textSize="20sp"
                     />
@@ -243,7 +225,7 @@
                     android:gravity="center"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf2c1"
-                    />
+                    tools:ignore="HardcodedText" />
 
             </GridLayout>
 
@@ -284,570 +266,560 @@
                     android:paddingEnd="5dp"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf624"
-                    />
+                    tools:ignore="HardcodedText" />
 
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:orientation="vertical"
+
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
         >
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
 
             <LinearLayout
+                android:id="@+id/main_center"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 >
 
-                <LinearLayout
-                    android:id="@+id/main_center"
-                    android:orientation="vertical"
+                <!-- top news view -->
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    >
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:background="@drawable/slider_background"
+                    android:layout_height="wrap_content">
 
-                    <!-- top news view -->
+                    <androidx.viewpager.widget.ViewPager
+                        android:id="@+id/news_pager"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_width="0dp"
+                        android:layout_height="130dp"
+                        android:importantForAccessibility="no"
+                        app:layout_constraintStart_toStartOf="parent"/>
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_marginLeft="5dp"
-                        android:layout_marginRight="5dp"
-                        android:background="@drawable/slider_background"
-                        android:layout_height="wrap_content">
-
-                        <androidx.viewpager.widget.ViewPager
-                            android:id="@+id/news_pager"
-                            app:layout_constraintHorizontal_bias="0.0"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            android:layout_width="0dp"
-                            android:layout_height="130dp"
-                            android:importantForAccessibility="no"
-                            app:layout_constraintStart_toStartOf="parent"/>
-
-                        <com.google.android.material.tabs.TabLayout
-                            app:layout_constraintBottom_toBottomOf="@+id/news_pager"
-                            app:tabGravity="center"
-                            android:id="@+id/news_tablayout"
-                            app:tabBackground="@drawable/indicator_selector"
-                            app:tabIndicatorHeight="0dp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:importantForAccessibility="no"
-                            >
-                        </com.google.android.material.tabs.TabLayout>
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <ImageView
-                        android:id="@+id/image_view"
+                    <com.google.android.material.tabs.TabLayout
+                        app:layout_constraintBottom_toBottomOf="@+id/news_pager"
+                        app:tabGravity="center"
+                        android:id="@+id/news_tablayout"
+                        app:tabBackground="@drawable/indicator_selector"
+                        app:tabIndicatorHeight="0dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:minHeight="40dp"
-                        app:srcCompat="@drawable/actifit_logo"
-                        android:contentDescription="@string/actifit_logo_desc"
-                        android:layout_weight="1"
-                        android:visibility="gone"
-                        />
+                        android:importantForAccessibility="no"
+                        >
+                    </com.google.android.material.tabs.TabLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
+                <ImageView
+                    android:id="@+id/image_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:minHeight="40dp"
+                    app:srcCompat="@drawable/actifit_logo"
+                    android:contentDescription="@string/actifit_logo_desc"
+                    android:layout_weight="1"
+                    android:visibility="gone"
+                    />
+
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="top"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:weightSum="2"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="5dp"
+                    >
 
                     <LinearLayout
-                        android:orientation="horizontal"
-                        android:gravity="top"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:weightSum="2"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="5dp"
-                        >
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
+
+                        <TextView
+                            android:id="@+id/current_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/actifitRed"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:textSize="18sp"
+                            android:paddingBottom="2dp"
+                            />
 
-
-                            <TextView
-                                android:id="@+id/current_date"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/actifitRed"
-                                android:gravity="center"
-                                android:textSize="18sp"
-                                android:paddingBottom="2dp"
-                                />
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:id="@+id/third_party_active"
-                                android:visibility="gone"
-                                android:layout_height="match_parent">
-
-                                <com.github.mikephil.charting.charts.PieChart
-                                    android:id="@+id/step_pie_chart_fitbit"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center" />
-
-                                <ImageView
-                                    android:id="@+id/fitbit_logo"
-                                    android:layout_width="25dp"
-                                    android:layout_height="25dp"
-
-                                    android:contentDescription="Fitbit Logo"
-                                    android:src="@drawable/fitbit_app_icon" />
-
-                                <TextView
-                                    android:id="@+id/sync"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    android:text="@string/fitbit_sync_btn"
-                                    android:textColor="@color/actifitRed"
-
-                                    android:textSize="25sp"
-                                    android:layout_alignEnd="@id/step_pie_chart_fitbit"
-                                    android:layout_alignTop="@id/step_pie_chart_fitbit"
-                                    />
-
-                                <TextView
-                                    android:id="@+id/switchSettingsFitbit"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textColor="@color/actifitRed"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    android:textSize="25sp"
-                                    android:padding="5dp"
-                                    android:text="@string/switch_settings_btn"
-                                    android:layout_alignBottom="@+id/step_pie_chart_fitbit"
-                                    android:layout_alignEnd="@+id/step_pie_chart_fitbit"
-                                    />
-
-
-
-                            </RelativeLayout>
-
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:visibility="visible"
-                                android:layout_height="match_parent">
-
-                                <com.github.mikephil.charting.charts.PieChart
-                                    android:id="@+id/step_pie_chart"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center"
-                                    />
-
-                                <TextView
-                                    android:id="@+id/battery_notice"
-                                    android:layout_width="25dp"
-                                    android:layout_height="25dp"
-                                    android:textColor="@color/actifitRed"
-                                    android:textSize="20sp"
-                                    android:text="@string/fa_exclamation_circle_solid"
-
-                                    android:layout_alignBottom="@+id/step_pie_chart"
-                                    android:layout_alignStart="@+id/step_pie_chart"
-                                    android:gravity="center"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    />
-
-                                <TextView
-                                    android:id="@+id/switchSettings"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textColor="@color/actifitRed"
-                                    android:textSize="25sp"
-                                    android:padding="5dp"
-                                    android:text="@string/switch_settings_btn"
-                                    android:layout_alignBottom="@+id/step_pie_chart"
-                                    android:layout_alignEnd="@+id/step_pie_chart"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    />
-
-
-                            </RelativeLayout>
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:layout_weight="1"
-                            android:layout_width="0dp"
-                            android:paddingEnd="5dp"
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:id="@+id/third_party_active"
+                            android:visibility="gone"
                             android:layout_height="match_parent">
 
-                            <LinearLayout
-                                android:id="@+id/post_action_container"
-                                android:orientation="horizontal"
-                                android:gravity="left"
-                                android:paddingStart="5dp"
-                                android:paddingBottom="5dp"
-                                android:layout_gravity="start"
+                            <com.github.mikephil.charting.charts.PieChart
+                                android:id="@+id/step_pie_chart_fitbit"
                                 android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center" />
+
+                            <ImageView
+                                android:id="@+id/fitbit_logo"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+
+                                android:contentDescription="Fitbit Logo"
+                                android:src="@drawable/fitbit_app_icon"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:id="@+id/sync"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                >
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:text="@string/fitbit_sync_btn"
+                                android:textColor="@color/actifitRed"
 
-                                <androidx.appcompat.widget.AppCompatButton
-                                    style="@style/AppTheme.ActifitButton"
-                                    android:id="@+id/btn_post_steemit"
-                                    android:textSize="14sp"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="48dp"
-                                    android:text="@string/post_to_steem_btn_txt" />
+                                android:textSize="25sp"
+                                android:layout_alignEnd="@id/step_pie_chart_fitbit"
+                                android:layout_alignTop="@id/step_pie_chart_fitbit"
+                                />
 
-                                <Button
-                                    style="@style/AppTheme.ActifitButton"
-                                    android:id="@+id/btn_waves"
-                                    android:layout_width="48dp"
-                                    android:layout_height="48dp"
-
-                                    android:text="\uf086"
-                                    android:textSize="16dp"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    />
-
-                                <!--android:text="\uf773"-->
-
-                                <!--<TextView
-                                    android:id="@+id/btn_waves"
-                                    style="@style/AppTheme.ActifitButton"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="0.5"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-
-                                    android:text="\uf773"
-                                    android:textSize="25dp"
-                                    android:padding="7dp"
-                                    />
-                                -->
-
-                            </LinearLayout>
-                            <LinearLayout
-                                android:id="@+id/voting_status_container"
-                                android:orientation="horizontal"
-                                android:gravity="left"
-                                android:paddingStart="5dp"
-                                android:paddingBottom="5dp"
-                                android:layout_width="match_parent"
+                            <TextView
+                                android:id="@+id/switchSettingsFitbit"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:weightSum="1.0">
+                                android:textColor="@color/actifitRed"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:textSize="25sp"
+                                android:padding="5dp"
+                                android:text="@string/switch_settings_btn"
+                                android:layout_alignBottom="@+id/step_pie_chart_fitbit"
+                                android:layout_alignEnd="@+id/step_pie_chart_fitbit"
+                                />
+                        </RelativeLayout>
 
-                                <TextView
-                                    android:id="@+id/voting_cycle"
-                                    android:layout_width="25dp"
-                                    android:layout_height="25dp"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    android:textColor="@color/actifitRed"
-                                    android:text="\uf4b9"
-                                    android:textSize="20dp"
-                                    />
 
-                                <TextView
-                                    android:id="@+id/voting_status_text"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:singleLine="true"
-                                    android:paddingStart="5dp"
-                                    android:paddingEnd="5dp"
-                                    android:scrollHorizontally="true"
-                                    android:text="@string/rewards_processing"/>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:visibility="visible"
+                            android:layout_height="match_parent">
 
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:id="@+id/earnings_panel"
-                                android:orientation="horizontal"
-                                android:gravity="left"
-                                android:paddingStart="5dp"
-                                android:paddingBottom="5dp"
+                            <com.github.mikephil.charting.charts.PieChart
+                                android:id="@+id/step_pie_chart"
                                 android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                />
+
+                            <TextView
+                                android:id="@+id/battery_notice"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:textColor="@color/actifitRed"
+                                android:textSize="20sp"
+                                android:text="@string/fa_exclamation_circle_solid"
+
+                                android:layout_alignBottom="@+id/step_pie_chart"
+                                android:layout_alignStart="@+id/step_pie_chart"
+                                android:gravity="center"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                />
+
+                            <TextView
+                                android:id="@+id/switchSettings"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:weightSum="1.0">
+                                android:textColor="@color/actifitRed"
+                                android:textSize="25sp"
+                                android:padding="5dp"
+                                android:text="@string/switch_settings_btn"
+                                android:layout_alignBottom="@+id/step_pie_chart"
+                                android:layout_alignEnd="@+id/step_pie_chart"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                />
 
 
-                                <TextView
-                                    android:id="@+id/token_notice"
-                                    android:layout_width="25dp"
-                                    android:layout_height="25dp"
-                                    android:textColor="@color/actifitRed"
-                                    android:textSize="20dp"
-                                    android:text="@string/fa_exclamation_circle_solid"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    />
-
-
-                                <ImageView
-                                    android:id="@+id/afit_logo"
-                                    android:src="@drawable/actifit_logo"
-                                    android:layout_height="25dp"
-                                    android:layout_width="25dp"
-                                    />
-                                <ImageView
-                                    android:id="@+id/hive_logo"
-                                    android:src="@drawable/hive"
-                                    android:layout_height="25dp"
-                                    android:layout_width="25dp"
-                                    />
-                                <ImageView
-                                    android:id="@+id/steem_logo"
-                                    android:src="@drawable/steem"
-                                    android:layout_height="25dp"
-                                    android:layout_width="0dp"
-                                    android:visibility="invisible"
-                                    />
-                                <ImageView
-                                    android:id="@+id/blurt_logo"
-                                    android:src="@drawable/blurt"
-                                    android:layout_height="25dp"
-                                    android:layout_width="25dp"
-                                    />
-
-                                <ImageView
-                                    android:id="@+id/sports_logo"
-                                    android:src="@drawable/sports"
-                                    android:layout_width="25dp"
-                                    android:layout_height="25dp"
-                                    />
-                            </LinearLayout>
-
-
-
-                                <LinearLayout
-                                    android:id="@+id/user_gadgets"
-                                    android:orientation="horizontal"
-                                    android:paddingBottom="5dp"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:minHeight="40dp"
-                                    android:weightSum="1.0">
-
-                                    <!--<LinearLayout
-                                        android:id="@+id/user_gadgets_view_container"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:orientation="horizontal"
-                                        />-->
-                                    <LinearLayout
-                                        android:id="@+id/missing_active_gadgets_container"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:orientation="horizontal"
-                                        android:paddingStart="5dp">
-
-                                        <TextView
-                                            android:layout_width="25dp"
-                                            android:layout_height="25dp"
-                                            android:fontFamily="@font/font_awesome_6_solid"
-                                            android:textColor="@color/actifitRed"
-                                            android:text="\uf54e"
-                                            android:textSize="20sp"
-                                            android:gravity="left"
-                                            />
-
-                                        <TextView
-                                            android:id="@+id/missing_active_gadgets"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
-                                            android:text="@string/no_active_gadgets_found"
-                                            android:paddingStart="5dp"
-                                            android:paddingEnd="5dp"
-                                            />
-
-                                    </LinearLayout>
-
-                                </LinearLayout>
-
-
-
-                            <LinearLayout
-                                android:id="@+id/wallet_alt_container"
-                                android:orientation="horizontal"
-                                android:paddingStart="5dp"
-                                android:paddingBottom="5dp"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:weightSum="1.0">
-
-
-                                <TextView
-                                    android:id="@+id/wallet_alt_btn"
-                                    android:layout_width="25dp"
-                                    android:layout_height="25dp"
-                                    android:text="@string/fa_wallet_solid"
-                                    android:textSize="20dp"
-                                    android:textColor="@color/actifitRed"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    />
-
-                                <TextView
-                                    android:id="@+id/token_notice_wallet"
-                                    android:layout_width="25dp"
-                                    android:layout_height="25dp"
-                                    android:text="@string/fa_exclamation_circle_solid"
-                                    android:textColor="@color/actifitRed"
-                                    android:textSize="20dp"
-                                    android:visibility="gone"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    />
-
-
-                                <TextView
-                                    android:id="@+id/bal_display"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="left"
-                                    android:textSize="16sp"
-                                    android:paddingStart="5dp"
-                                    />
-
-                            </LinearLayout>
-
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="50dp"
-                                android:orientation="horizontal">
-
-
-                                <!--<LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@drawable/actifitnp">-->
-                                <Button
-                                    style="@style/AppTheme.ActifitButton"
-                                    android:id="@+id/daily_reward"
-                                    android:layout_width="70dp"
-                                    android:layout_height="wrap_content"
-                                    android:text="&#127873;"
-                                    android:textSize="20dp"
-                                    android:textStyle="bold"
-                                    android:layout_weight="1"
-                                    />
-
-                                <!--</LinearLayout>-->
-
-                                <Button
-                                    style="@style/AppTheme.ActifitButton"
-                                    android:id="@+id/refer_friend_button"
-                                    android:layout_width="70dp"
-                                    android:layout_height="wrap_content"
-                                    android:textSize="20dp"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    android:text="\uf234"
-                                    android:layout_weight="1"
-                                    />
-
-                                <Button
-                                    style="@style/AppTheme.ActifitButton"
-                                    android:id="@+id/btn_buy_afit"
-                                    android:layout_width="70dp"
-                                    android:layout_height="wrap_content"
-                                    android:textSize="20dp"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    android:text="\uf201"
-                                    android:layout_weight="1"/>
-
-                            </LinearLayout>
-
-                        </LinearLayout>
-
+                        </RelativeLayout>
 
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <LinearLayout
-                            android:id="@+id/bar_chart_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:minHeight="130dp"
-                            android:orientation="horizontal">
-
-
-                            <com.github.mikephil.charting.charts.BarChart
-                                android:id="@+id/main_today_activity_chart"
-                                android:layout_width="match_parent"
-                                android:layout_height="130dp"
-                                android:paddingTop="10dp"
-                                android:layout_weight="1"/>
-
-                            <com.github.mikephil.charting.charts.BarChart
-                                android:id="@+id/main_history_activity_chart"
-                                android:layout_width="match_parent"
-                                android:layout_height="130dp"
-                                android:paddingTop="10dp"
-                                android:layout_weight="1"
-                                android:visibility="gone"/>
-
-                        </LinearLayout>
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:paddingEnd="5dp"
+                        android:layout_height="match_parent">
 
                         <LinearLayout
-                            android:id="@+id/chart_switcher"
+                            android:id="@+id/post_action_container"
+                            android:orientation="horizontal"
+                            android:gravity="left"
+                            android:paddingStart="5dp"
+                            android:paddingBottom="5dp"
+                            android:layout_gravity="start"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
                             >
+
+                            <androidx.appcompat.widget.AppCompatButton
+                                style="@style/AppTheme.ActifitButton"
+                                android:id="@+id/btn_post_steemit"
+                                android:textSize="14sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="48dp"
+                                android:text="@string/post_to_steem_btn_txt" />
 
                             <Button
                                 style="@style/AppTheme.ActifitButton"
-                                android:id="@+id/launch_workout_wizard_button"
+                                android:id="@+id/btn_waves"
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
-                                android:layout_gravity="start"
 
-                                android:text="\uf44b"
-                                android:textSize="16dp"
+                                android:text="\uf086"
+                                android:textSize="16sp"
                                 android:fontFamily="@font/font_awesome_6_solid"
                                 />
 
-                            <View
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1" />
+                            <!--android:text="\uf773"-->
 
-
-
-                            <Button
-                                android:id="@+id/daily_chart_btn"
-                                android:theme="@style/AppTheme.ActifitButton"
+                            <!--<TextView
+                                android:id="@+id/btn_waves"
+                                style="@style/AppTheme.ActifitButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="end"
-                                android:text="Daily"/>
-                            <Button
-                                android:id="@+id/hourly_chart_btn"
-                                android:theme="@style/AppTheme.ActifitButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="end"
-                                android:visibility="gone"
-                                android:text="Hourly"/>
+                                android:layout_weight="0.5"
+                                android:fontFamily="@font/font_awesome_6_solid"
+
+                                android:text="\uf773"
+                                android:textSize="25dp"
+                                android:padding="7dp"
+                                />
+                            -->
 
                         </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/voting_status_container"
+                            android:orientation="horizontal"
+                            android:paddingStart="5dp"
+                            android:paddingBottom="5dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:weightSum="1.0">
+
+                            <TextView
+                                android:id="@+id/voting_cycle"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:textColor="@color/actifitRed"
+                                android:text="\uf4b9"
+                                android:textSize="20sp"
+                                />
+
+                            <TextView
+                                android:id="@+id/voting_status_text"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:singleLine="true"
+                                android:paddingStart="5dp"
+                                android:paddingEnd="5dp"
+                                android:scrollHorizontally="true"
+                                android:text="@string/rewards_processing"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/earnings_panel"
+                            android:orientation="horizontal"
+                            android:paddingStart="5dp"
+                            android:paddingBottom="5dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:weightSum="1.0">
+
+
+                            <TextView
+                                android:id="@+id/token_notice"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:textColor="@color/actifitRed"
+                                android:textSize="20sp"
+                                android:text="@string/fa_exclamation_circle_solid"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                />
+
+
+                            <ImageView
+                                android:id="@+id/afit_logo"
+                                android:contentDescription="AFIT icon"
+                                android:src="@drawable/actifit_logo"
+                                android:layout_height="25dp"
+                                android:layout_width="25dp"
+                                />
+                            <ImageView
+                                android:id="@+id/hive_logo"
+                                android:contentDescription="HIVE icon"
+                                android:src="@drawable/hive"
+                                android:layout_height="25dp"
+                                android:layout_width="25dp"
+                                />
+                            <ImageView
+                                android:id="@+id/steem_logo"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/steem"
+                                android:layout_height="25dp"
+                                android:layout_width="0dp"
+                                android:visibility="invisible"
+                                />
+                            <ImageView
+                                android:id="@+id/blurt_logo"
+                                android:contentDescription="BLURT icon"
+                                android:src="@drawable/blurt"
+                                android:layout_height="25dp"
+                                android:layout_width="25dp"
+                                />
+
+                            <ImageView
+                                android:id="@+id/sports_logo"
+                                android:contentDescription="SPORTS icon"
+                                android:src="@drawable/sports"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                />
+                        </LinearLayout>
+
+
+
+                            <LinearLayout
+                                android:id="@+id/user_gadgets"
+                                android:orientation="horizontal"
+                                android:paddingBottom="5dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="40dp"
+                                android:weightSum="1.0">
+
+                                <!--<LinearLayout
+                                    android:id="@+id/user_gadgets_view_container"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    />-->
+                                <LinearLayout
+                                    android:id="@+id/missing_active_gadgets_container"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:paddingStart="5dp">
+
+                                    <TextView
+                                        android:layout_width="25dp"
+                                        android:layout_height="25dp"
+                                        android:fontFamily="@font/font_awesome_6_solid"
+                                        android:textColor="@color/actifitRed"
+                                        android:text="\uf54e"
+                                        android:textSize="20sp"
+                                        />
+
+                                    <TextView
+                                        android:id="@+id/missing_active_gadgets"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:text="@string/no_active_gadgets_found"
+                                        android:paddingStart="5dp"
+                                        android:paddingEnd="5dp"
+                                        />
+
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+
+
+                        <LinearLayout
+                            android:id="@+id/wallet_alt_container"
+                            android:orientation="horizontal"
+                            android:paddingStart="5dp"
+                            android:paddingBottom="5dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:weightSum="1.0">
+
+
+                            <TextView
+                                android:id="@+id/wallet_alt_btn"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:text="@string/fa_wallet_solid"
+                                android:textSize="20sp"
+                                android:textColor="@color/actifitRed"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                />
+
+                            <TextView
+                                android:id="@+id/token_notice_wallet"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:text="@string/fa_exclamation_circle_solid"
+                                android:textColor="@color/actifitRed"
+                                android:textSize="20sp"
+                                android:visibility="gone"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                />
+
+
+                            <TextView
+                                android:id="@+id/bal_display"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="left"
+                                android:textSize="16sp"
+                                android:paddingStart="5dp"
+                                />
+
+                        </LinearLayout>
+
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:orientation="horizontal">
+
+
+                            <!--<LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/actifitnp">-->
+                            <Button
+                                style="@style/AppTheme.ActifitButton"
+                                android:id="@+id/daily_reward"
+                                android:layout_width="70dp"
+                                android:layout_height="wrap_content"
+                                android:text="&#127873;"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:layout_weight="1"
+                                />
+
+                            <!--</LinearLayout>-->
+
+                            <Button
+                                style="@style/AppTheme.ActifitButton"
+                                android:id="@+id/refer_friend_button"
+                                android:layout_width="70dp"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:text="\uf234"
+                                android:layout_weight="1"
+                                />
+
+                            <Button
+                                style="@style/AppTheme.ActifitButton"
+                                android:id="@+id/btn_buy_afit"
+                                android:layout_width="70dp"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:text="\uf201"
+                                android:layout_weight="1"
+                                tools:ignore="HardcodedText" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <LinearLayout
+                        android:id="@+id/bar_chart_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:minHeight="130dp"
+                        android:orientation="horizontal">
+
+
+                        <com.github.mikephil.charting.charts.BarChart
+                            android:id="@+id/main_today_activity_chart"
+                            android:layout_width="match_parent"
+                            android:layout_height="130dp"
+                            android:paddingTop="10dp"
+                            android:layout_weight="1"/>
+
+                        <com.github.mikephil.charting.charts.BarChart
+                            android:id="@+id/main_history_activity_chart"
+                            android:layout_width="match_parent"
+                            android:layout_height="130dp"
+                            android:paddingTop="10dp"
+                            android:layout_weight="1"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/chart_switcher"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
+
+                        <Button
+                            style="@style/AppTheme.ActifitButton"
+                            android:id="@+id/launch_workout_wizard_button"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="start"
+                            android:text="\uf44b"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            tools:ignore="HardcodedText" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+
+
+                        <Button
+                            android:id="@+id/daily_chart_btn"
+                            android:theme="@style/AppTheme.ActifitButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:text="Daily"/>
+                        <Button
+                            android:id="@+id/hourly_chart_btn"
+                            android:theme="@style/AppTheme.ActifitButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:visibility="gone"
+                            android:text="Hourly"/>
 
                     </LinearLayout>
 
                 </LinearLayout>
 
             </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
+
+    </ScrollView>
 
     <include
         android:id="@+id/bottom_menu_container"
