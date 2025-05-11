@@ -296,6 +296,10 @@ public class MainActivity extends BaseActivity{
     JSONArray userReferrals;
     boolean userCanClaimSignupLinks = false;
 
+    final int activityMilestoneOne = 5000;
+    final int activityMilestoneTwo = 7000;
+    final int activityMilestoneThree = 10000;
+
 
     private RewardedAd rewardedAd;
     private Button dailyRewardButton;
@@ -1520,7 +1524,7 @@ public class MainActivity extends BaseActivity{
                     fivekRewardButton,
                     textView5kRewardStatus,
                     fivekRewardClaimed,
-                    5000, // Steps needed for 5k reward
+                    activityMilestoneOne, // Steps needed for 5k reward
                     sharedPreferences.getString("5krewardedValue",""), // Get claimed value from preferences
                     scaler,
                     checkMark,
@@ -1531,7 +1535,7 @@ public class MainActivity extends BaseActivity{
                     sevenkRewardButton,
                     textView7kRewardStatus,
                     sevenkRewardClaimed,
-                    7000, // Steps needed for 7k reward
+                    activityMilestoneTwo, // Steps needed for 7k reward
                     sharedPreferences.getString("7krewardedValue",""), // Get claimed value
                     scaler,
                     checkMark,
@@ -1542,7 +1546,7 @@ public class MainActivity extends BaseActivity{
                     tenkRewardButton,
                     textView10kRewardStatus,
                     tenkRewardClaimed,
-                    10000, // Steps needed for 10k reward
+                    activityMilestoneThree, // Steps needed for 10k reward
                     sharedPreferences.getString("10krewardedValue",""), // Get claimed value
                     scaler,
                     checkMark,
@@ -2372,7 +2376,7 @@ public class MainActivity extends BaseActivity{
                             .show();
                     return;
                 }
-                if (curStepCount < 5000) {
+                if (curStepCount < activityMilestoneOne) {
                     Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
                             .show();
                     return;
@@ -2383,7 +2387,7 @@ public class MainActivity extends BaseActivity{
                             .show();
                     return;
                 }
-                if (curStepCount < 7000) {
+                if (curStepCount < activityMilestoneTwo) {
                     Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
                             .show();
                     return;
@@ -2394,7 +2398,7 @@ public class MainActivity extends BaseActivity{
                             .show();
                     return;
                 }
-                if (curStepCount < 10000) {
+                if (curStepCount < activityMilestoneThree) {
                     Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
                             .show();
                     return;
@@ -2532,21 +2536,21 @@ public class MainActivity extends BaseActivity{
                         editor.putString("freerewardedValue", finalRewardValue + "");
                         editor.commit();
                     } else if (id == R.id.daily_5k_reward) {
-                        reqSteps = 5000;
+                        reqSteps = activityMilestoneOne;
                         fivekRewardClaimed = true;
                         rewardStatus = textView5kRewardStatus;
                         editor.putString(getString(R.string.daily_5k_reward), strDate);
                         editor.putString("5krewardedValue", finalRewardValue + "");
                         editor.commit();
                     } else if (id == R.id.daily_7k_reward) {
-                        reqSteps = 7000;
+                        reqSteps = activityMilestoneTwo;
                         sevenkRewardClaimed = true;
                         rewardStatus = textView7kRewardStatus;
                         editor.putString(getString(R.string.daily_7k_reward), strDate);
                         editor.putString("7krewardedValue", finalRewardValue + "");
                         editor.commit();
                     } else if (id == R.id.daily_10k_reward) {
-                        reqSteps = 10000;
+                        reqSteps = activityMilestoneThree;
                         tenkRewardClaimed = true;
                         rewardStatus = textView10kRewardStatus;
                         editor.putString(getString(R.string.daily_10k_reward), strDate);
@@ -3066,10 +3070,10 @@ public class MainActivity extends BaseActivity{
                 }
             }
 
-            if (stepCount < 5000) {
-                activityArray.add(new PieEntry(5000 - stepCount, ""));
-                activityArray.add(new PieEntry(5000, ""));
-            } else if (stepCount < 10000) {
+            if (stepCount < activityMilestoneOne) {
+                activityArray.add(new PieEntry(activityMilestoneOne - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneOne, ""));
+            } else if (stepCount < activityMilestoneThree) {
                 //enable animation on post & earn button
                 //ensure animation is running
                 if (BtnPostSteemit!=null && scaler!=null) {
@@ -3078,7 +3082,7 @@ public class MainActivity extends BaseActivity{
                     }
                 }
 
-                activityArray.add(new PieEntry(10000 - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
             }
 
             PieDataSet dataSet = new PieDataSet(activityArray, "");
@@ -3099,10 +3103,10 @@ public class MainActivity extends BaseActivity{
 
             //dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
             //let's set proper color
-            if (stepCount < 5000) {
+            if (stepCount < activityMilestoneOne) {
                 //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
                 dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
-            } else if (stepCount < 10000) {
+            } else if (stepCount < activityMilestoneThree) {
                 dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
                 //enable second level reward
                 //fivekRewardButton.setEnabled(true);
@@ -3145,10 +3149,10 @@ public class MainActivity extends BaseActivity{
                 }
             }
 
-            if (stepCount < 5000) {
-                activityArray.add(new PieEntry(5000 - stepCount, ""));
-                activityArray.add(new PieEntry(5000, ""));
-            } else if (stepCount < 10000) {
+            if (stepCount < activityMilestoneOne) {
+                activityArray.add(new PieEntry(activityMilestoneOne - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneOne, ""));
+            } else if (stepCount < activityMilestoneThree) {
                 //enable animation on post & earn button
                 //ensure animation is running
                 if (BtnPostSteemit!=null && scaler!=null) {
@@ -3157,7 +3161,7 @@ public class MainActivity extends BaseActivity{
                     }
                 }
 
-                activityArray.add(new PieEntry(10000 - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
             }
 
             PieDataSet dataSet = new PieDataSet(activityArray, "");
@@ -3178,10 +3182,10 @@ public class MainActivity extends BaseActivity{
 
             //dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
             //let's set proper color
-            if (stepCount < 5000) {
+            if (stepCount < activityMilestoneOne) {
                 //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
                 dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
-            } else if (stepCount < 10000) {
+            } else if (stepCount < activityMilestoneThree) {
                 dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
                 //enable second level reward
                 //fivekRewardButton.setEnabled(true);
@@ -3219,19 +3223,19 @@ public class MainActivity extends BaseActivity{
             }
             if (fivekRewardClaimed) {
                 fivekRewardButton.clearAnimation();
-            } else if (stepCount >= 5000 && (fivekRewardButton.getAnimation() == null || !fivekRewardButton.getAnimation().hasStarted())) {
+            } else if (stepCount >= activityMilestoneOne && (fivekRewardButton.getAnimation() == null || !fivekRewardButton.getAnimation().hasStarted())) {
                 fivekRewardButton.setAnimation(scaler);
                 //dailyRewardButton
             }
             if (sevenkRewardClaimed) {
                 sevenkRewardButton.clearAnimation();
-            } else if (stepCount >= 7000 && (sevenkRewardButton.getAnimation() == null || !sevenkRewardButton.getAnimation().hasStarted())) {
+            } else if (stepCount >= activityMilestoneTwo && (sevenkRewardButton.getAnimation() == null || !sevenkRewardButton.getAnimation().hasStarted())) {
                 sevenkRewardButton.setAnimation(scaler);
                 //dailyRewardButton
             }
             if (tenkRewardClaimed) {
                 tenkRewardButton.clearAnimation();
-            } else if (stepCount >= 10000 && (tenkRewardButton.getAnimation() == null || !tenkRewardButton.getAnimation().hasStarted())) {
+            } else if (stepCount >= activityMilestoneThree && (tenkRewardButton.getAnimation() == null || !tenkRewardButton.getAnimation().hasStarted())) {
                 tenkRewardButton.setAnimation(scaler);
                 //dailyRewardButton
             }
@@ -3576,7 +3580,7 @@ public class MainActivity extends BaseActivity{
 
             if (yAxisLeft.getLimitLines().isEmpty()) {
 
-                LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
+                LimitLine line = new LimitLine(activityMilestoneOne, getString(R.string.min_reward_level_chart));
                 line.enableDashedLine(10f, 10f, 10f);
                 line.setLineColor(ContextCompat.getColor(ctx, R.color.actifitRed));
                 line.setLineWidth(2f);
@@ -3587,7 +3591,7 @@ public class MainActivity extends BaseActivity{
                 yAxisLeft.addLimitLine(line);
 
                 //add Limit line for max rewarded activity
-                line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
+                line = new LimitLine(activityMilestoneThree, getString(R.string.max_reward_level_chart));
                 line.setLineColor(ContextCompat.getColor(ctx, R.color.actifitDarkGreen));
                 line.setLineWidth(2f);
                 line.setTextStyle(Paint.Style.FILL_AND_STROKE);
@@ -3712,7 +3716,7 @@ public class MainActivity extends BaseActivity{
 
                 if (yAxis.getLimitLines().size()==0) {
 
-                    LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
+                    LimitLine line = new LimitLine(activityMilestoneOne, getString(R.string.min_reward_level_chart));
                     line.enableDashedLine(10f, 10f, 10f);
                     line.setLineColor(Color.RED);
                     line.setLineWidth(2f);
@@ -3723,7 +3727,7 @@ public class MainActivity extends BaseActivity{
                     yAxis.addLimitLine(line);
 
                     //add Limit line for max rewarded activity
-                    line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
+                    line = new LimitLine(activityMilestoneThree, getString(R.string.max_reward_level_chart));
                     line.setLineColor(Color.GREEN);
                     line.setLineWidth(2f);
                     line.setTextStyle(Paint.Style.FILL_AND_STROKE);
