@@ -5,6 +5,7 @@ import static java.lang.Integer.parseInt;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -36,6 +37,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -54,7 +59,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -64,6 +71,8 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.Markwon;
@@ -109,15 +118,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     private String fitbitUserId;
 
-    private String vidName;
-    private String vidUrl;
-    private String vidThumbName;
-    private String vidThumbUrl;
 
     EditText steemitPostTitle;
-    //EditText steemitUsername;
-    //EditText steemitPostingKey;
-    EditText steemitStepCount;
+
     TextView measureSectionLabel;
 
     //references to the new points system in post
@@ -156,13 +159,20 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     //Boolean fullAFITPayVal;
 
-    Double userFullBalance = 0.0;
+
+    /* CHANGES FOR FIXING IMAGE UPLOAD */
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private ActivityResultLauncher<Intent> videoPickerLauncher; // Added launcher for video
+    // Use an ExecutorService for background tasks
+    private ExecutorService executorService;
+    final String TAG = "PostSteemitActivity";
+    /* CHANGES FOR FIXING IMAGE UPLOAD */
+
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
-        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+        return true;
     }
 
-    @TargetApi(23)
     protected void askPermissions() {
         String[] permissions = {
                 "android.permission.READ_EXTERNAL_STORAGE",
@@ -172,137 +182,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         requestPermissions(permissions, requestCode);
     }
 
-/*
-    private void createFile(Context context, Uri srcUri, File dstFile) {
-        try (InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
-             OutputStream outputStream = new FileOutputStream(dstFile)) {
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, length);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-*/
-
-
-
-/*
-    //implementing file upload functionality
-    private void uploadFile() {
-        final ProgressDialog uploadProgress;
-        if (fileUri != null) {
-
-            //create unique image file name
-            final String fileName = UUID.randomUUID().toString();
-
-            // final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            final File file = new File(getApplicationContext().getFilesDir(), fileName);
-
-            createFile(getApplicationContext(), fileUri, file);
-
-            TransferUtility transferUtility =
-                    TransferUtility.builder()
-                            .context(getApplicationContext())
-                            .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                            .s3Client(new AmazonS3Client(AWSMobileClient.getInstance().getCredentialsProvider()))
-                            .build();
-
-            //specify content type to be image to be properly recognizable upon rendering
-            ObjectMetadata imgMetaData = new ObjectMetadata();
-            imgMetaData.setContentType("image/jpeg");
-
-            TransferObserver uploadObserver =
-                    transferUtility.upload(fileName, file, imgMetaData);
-
-            //create a new progress dialog to show action is underway
-            uploadProgress = new ProgressDialog(steemit_post_context);
-            uploadProgress.setMessage(getString(R.string.start_upload));
-            uploadProgress.show();
-
-            uploadObserver.setTransferListener(new TransferListener() {
-
-                @Override
-                public void onStateChanged(int id, TransferState state) {
-                    if (TransferState.COMPLETED == state) {
-                        try {
-                            if (uploadProgress != null && uploadProgress.isShowing()) {
-                                uploadProgress.dismiss();
-                            }
-                        }catch (Exception ex){
-                            //Log.d(MainActivity.TAG,ex.getMessage());
-                        }
-
-                        Toast.makeText(getApplicationContext(), getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
-
-                        String full_img_url = getString(R.string.actifit_usermedia_url)+fileName;
-                        String img_markdown_text = "![]("+full_img_url+")";
-
-                        //append the uploaded image url to the text as markdown
-                        //if there is any particular selection, replace it too
-
-                        int start = Math.max(steemitPostContent.getSelectionStart(), 0);
-                        int end = Math.max(steemitPostContent.getSelectionEnd(), 0);
-                        steemitPostContent.getText().replace(Math.min(start, end), Math.max(start, end),
-                                img_markdown_text, 0, img_markdown_text.length());
-
-                        file.delete();
-
-                    } else if (TransferState.FAILED == state) {
-                        Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.upload_failed), Toast.LENGTH_SHORT);
-                        TextView v = toast.getView().findViewById(android.R.id.message);
-                        v.setTextColor(Color.RED);
-                        toast.show();
-                        file.delete();
-                    }
-                }
-
-                @Override
-                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                    float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
-                    int percentDone = (int) percentDonef;
-                    uploadProgress.setMessage(getString(R.string.uploading) + percentDone + "%");
-                    //tvFileName.setText("ID:" + id + "|bytesCurrent: " + bytesCurrent + "|bytesTotal: " + bytesTotal + "|" + percentDone + "%");
-                }
-
-                @Override
-                public void onError(int id, Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            });
-
-            // If your upload does not trigger the onStateChanged method inside your
-            // TransferListener, you can directly check the transfer state as shown here.
-            if (TransferState.COMPLETED == uploadObserver.getState()) {
-                // Handle a completed upload.
-                try {
-                    if (uploadProgress != null && uploadProgress.isShowing()) {
-                        uploadProgress.dismiss();
-                    }
-                }catch (Exception ex){
-                    //Log.d(MainActivity.TAG,ex.getMessage());
-                }
-
-                Toast.makeText(getApplicationContext(), getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
-
-                String full_img_url = getString(R.string.actifit_usermedia_url)+fileName;
-                String img_markdown_text = "![]("+full_img_url+")";
-
-                //append the uploaded image url to the text as markdown
-                //if there is any particular selection, replace it too
-
-                int start = Math.max(steemitPostContent.getSelectionStart(), 0);
-                int end = Math.max(steemitPostContent.getSelectionEnd(), 0);
-                steemitPostContent.getText().replace(Math.min(start, end), Math.max(start, end),
-                        img_markdown_text, 0, img_markdown_text.length());
-
-                file.delete();
-            }
-        }
-    }*/
 
     @Override
     public void onClick(View view) {
@@ -318,6 +197,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Shut down the executor service when the activity is destroyed
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdownNow(); // Use shutdownNow to interrupt ongoing tasks
+        }
+        // No need to explicitly recycle the bitmap here anymore
+        // if you are only creating it within the background task
+    }
+
     //handles the display of image selection
     private void showChoosingFile(int type) {
 
@@ -326,17 +216,149 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             askPermissions();
         }
 
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
         if (type==0) {
             intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, getString(R.string.select_img_title)), CHOOSING_IMAGE_REQUEST);
-        }else{
+            imagePickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_img_title)));
+       }else{
             intent.setType("video/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, getString(R.string.select_img_title)), CHOOSING_VID_REQUEST);
+            videoPickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_img_title)));
         }
 
+    }
+
+    /**
+     * Processes the selected image URI by loading a scaled bitmap off the main thread
+     * and then initiating the upload.
+     *
+     * @param imageUri The content URI of the selected image.
+     */
+    private void processImageForUpload(Uri imageUri) {
+        // Store the URI if needed elsewhere
+        fileUri = imageUri;
+
+        // Show a message or progress indicator on the UI thread
+        runOnUiThread(() -> {
+            // Example: Toast, update a TextView, show a progress bar
+            Toast.makeText(PostSteemitActivity.this, "Processing image...", Toast.LENGTH_SHORT).show();
+            // showProgressBar();
+        });
+
+        executorService.submit(() -> {
+            Bitmap scaledBitmap = null;
+            InputStream inputStream = null;
+            try {
+                // --- Step 1: Load scaled bitmap for preview/processing ---
+                // Open input stream from the Uri using ContentResolver
+                inputStream = getContentResolver().openInputStream(imageUri);
+                if (inputStream == null) {
+                    throw new FileNotFoundException("Could not open input stream for URI: " + imageUri);
+                }
+
+                // Decode bounds to get image dimensions without loading the full image
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeStream(inputStream, null, options);
+
+                // Close the stream after decoding bounds and open a new one for full decode
+                try { inputStream.close(); } catch (IOException e) { Log.e(TAG, "Error closing stream after bounds decode", e); }
+                inputStream = getContentResolver().openInputStream(imageUri);
+                if (inputStream == null) {
+                    throw new FileNotFoundException("Could not re-open input stream for URI: " + imageUri);
+                }
+
+
+                // Calculate inSampleSize to scale down the image
+                // Example: Target max dimensions 1024x1024. Adjust as needed.
+                final int MAX_DIMENSION = 1024;
+                int photoW = options.outWidth;
+                int photoH = options.outHeight;
+                int scaleFactor = 1;
+                if (photoW > MAX_DIMENSION || photoH > MAX_DIMENSION) {
+                    scaleFactor = Math.min(photoW / MAX_DIMENSION, photoH / MAX_DIMENSION);
+                }
+                // Ensure scale factor is at least 1
+                if (scaleFactor < 1) {
+                    scaleFactor = 1;
+                }
+                options.inSampleSize = scaleFactor;
+
+                // Decode the image with inSampleSize set
+                options.inJustDecodeBounds = false; // Now load the actual bitmap
+                scaledBitmap = BitmapFactory.decodeStream(inputStream, null, options);
+
+                if (scaledBitmap == null) {
+                    throw new IOException("Failed to decode bitmap from stream for URI: " + imageUri);
+                }
+
+                // --- Step 2: Initiate Upload ---
+                // Pass the original Uri and potentially the scaled bitmap to your upload utility
+                // Make sure Utils.uploadFile is thread-safe or correctly uses background threads itself.
+                // Assuming Utils.uploadFile takes the original Uri for data streaming
+                // and the scaled bitmap for related operations (like preview/thumbnail).
+                Log.d(TAG, "Bitmap decoded (scaled). Dimensions: " + scaledBitmap.getWidth() + "x" + scaledBitmap.getHeight());
+
+                // This call *must not* block the current background thread excessively.
+                // If Utils.uploadFile does heavy work (like actual network upload),
+                // it should handle its own threading internally.
+                Utils.uploadFile( scaledBitmap, imageUri, steemitPostContent, getApplicationContext(),
+                        PostSteemitActivity.this );
+
+                // --- Step 3: Update UI or indicate completion ---
+                runOnUiThread(() -> {
+                    // Example: Hide progress bar, show success message
+                    Toast.makeText(PostSteemitActivity.this, "Image processed and upload initiated.", Toast.LENGTH_SHORT).show();
+                    // hideProgressBar();
+                });
+
+            } catch (FileNotFoundException e) {
+                Log.e(TAG, "File not found processing URI: " + imageUri, e);
+                handleProcessingError("Error: File not found.", e);
+            } catch (IOException e) {
+                Log.e(TAG, "IO Error processing URI: " + imageUri, e);
+                handleProcessingError("Error reading image data.", e);
+            } catch (OutOfMemoryError e) {
+                // Catch OOM here specifically, although scaled loading significantly reduces risk
+                Log.e(TAG, "OutOfMemoryError processing URI: " + imageUri, e);
+                handleProcessingError("Error: Image too large or memory issue.", e);
+            } catch (Exception e) {
+                // Catch any other unexpected errors during processing
+                Log.e(TAG, "Unexpected error processing URI: " + imageUri, e);
+                handleProcessingError("An unexpected error occurred.", e);
+            } finally {
+                // Close the input stream in finally block
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error closing input stream", e);
+                    }
+                }
+                // The scaledBitmap might be recycled by the caller (Utils.uploadFile)
+                // or if not needed afterwards. If you store it as a member,
+                // manage its lifecycle (recycle when done or before loading new).
+                // For this example, we pass it to Utils.uploadFile and assume
+                // Utils or subsequent logic handles its lifecycle.
+                // if (scaledBitmap != null && !scaledBitmap.isRecycled()) {
+                //     // If you don't need the scaledBitmap after passing it to Utils.uploadFile
+                //     // you might recycle it here, *but* ensure Utils.uploadFile is done with it.
+                //     // scaledBitmap.recycle();
+                // }
+            }
+        });
+    }
+
+    /**
+     * Helper to handle processing errors and update UI on the main thread.
+     */
+    private void handleProcessingError(final String userMessage, final Throwable error) {
+        runOnUiThread(() -> {
+            // Example: Show toast and hide progress bar
+            Toast.makeText(PostSteemitActivity.this, userMessage, Toast.LENGTH_LONG).show();
+            // hideProgressBar();
+        });
     }
 
     @Override
@@ -367,68 +389,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
-    //handle displaying a preview of selected image
-    private void setPic(String mCurrentPhotoPath) {
-        // Get the dimensions of the View
-        int targetW = image_preview.getWidth();
-        int targetH = image_preview.getHeight();
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        image_preview.setImageBitmap(bitmap);
-    }
-
-
-
-
-    /*
-    //Compression Based Update
-
-    private void createFile(Context context, Uri srcUri, File dstFile) {
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
-            if (inputStream == null) return;
-
-            OutputStream outputStream = new FileOutputStream(dstFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);
-
-            //special copyexif from stream to file
-            copyExif(inputStream, dstFile.getAbsolutePath());
-
-            inputStream.close();
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
-
-    //OLD version no compression
-    /*private void createFile(Context context, Uri srcUri, File dstFile) {
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
-            if (inputStream == null) return;
-            OutputStream outputStream = new FileOutputStream(dstFile);
-            IOUtils.copy(inputStream, outputStream);
-            inputStream.close();
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -455,7 +415,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         //set initial steps display value
         int stepCount = mStepsDBHelper.fetchTodayStepCount();
         //display step count while ensuring we don't display negative value if no steps tracked yet
-        stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
+        stepCountContainer.setText(String.valueOf((Math.max(stepCount, 0))), TextView.BufferType.EDITABLE);
 
 
         //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
@@ -468,7 +428,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         steemitPostTitle = findViewById(R.id.steemit_post_title);
 
         steemitPostContent = findViewById(R.id.steemit_post_text);
-        steemitStepCount = findViewById(R.id.steemit_step_count);
+
         measureSectionLabel = findViewById(R.id.measurements_section_lbl);
 
         nestedScrollView = findViewById(R.id.nestedScrollView);
@@ -535,7 +495,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void afterTextChanged(Editable editable) {
                 String title = steemitPostTitle.getText().toString();
-                if (title.trim().length() < 1){
+                if (title.trim().isEmpty()){
                     titleCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
                 }else{
                     titleCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
@@ -559,7 +519,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void afterTextChanged(Editable editable) {
                 String text = steemitPostTags.getText().toString();
-                if (text.trim().length() < 1){
+                if (text.trim().isEmpty()){
                     tagsCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
                 }else{
                     tagsCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
@@ -679,7 +639,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         //try to load editor content if it was stored previously
         String priorContent = sharedPreferences.getString("steemPostContent","");
-        if (!priorContent.trim().equals("")) {
+        if (!priorContent.trim().isEmpty()) {
             steemitPostContent.setText(priorContent);
 
         }else{
@@ -716,7 +676,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         //check last recorded post date
         String lastPostDate = sharedPreferences.getString("actifitLastPostDate","");
 
-        if (!lastPostDate.equals("")){
+        if (!lastPostDate.isEmpty()){
             if (parseInt(lastPostDate) >= parseInt(currentDate)) {
                 //need to disable yesterday's option
                 RadioButton yesterdayOption = findViewById(R.id.report_yesterday_option);
@@ -736,46 +696,95 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         final TextView fitbitSyncNotice = findViewById(R.id.fitbit_sync_notice);
 
         //event listener for change in selection
-        reportDateOptionGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
-        {
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                //common code for both cases
+        reportDateOptionGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            //common code for both cases
 
-                //if user had synced Fitbit before, we need to notify that they need to sync again after change of date
-                if (fitbitSyncDone > 0) {
-                    fitbitSyncNotice.setVisibility(View.VISIBLE);
-                    //reset that we fetched fitbit data
-                    fitbitSyncDone = 0;
-                }
+            //if user had synced Fitbit before, we need to notify that they need to sync again after change of date
+            if (fitbitSyncDone > 0) {
+                fitbitSyncNotice.setVisibility(View.VISIBLE);
+                //reset that we fetched fitbit data
+                fitbitSyncDone = 0;
+            }
 
-                if (checkedId == R.id.report_today_option) {//we have today's option
-                    //set initial steps display value
-                    int stepCount = mStepsDBHelper.fetchTodayStepCount();
-                    //display step count while ensuring we don't display negative value if no steps tracked yet
-                    stepCountContainer.setText(String.valueOf((Math.max(stepCount, 0))), TextView.BufferType.EDITABLE);
+            if (checkedId == R.id.report_today_option) {//we have today's option
+                //set initial steps display value
+                int stepCount1 = mStepsDBHelper.fetchTodayStepCount();
+                //display step count while ensuring we don't display negative value if no steps tracked yet
+                stepCountContainer.setText(String.valueOf((Math.max(stepCount1, 0))), TextView.BufferType.EDITABLE);
 
-                    yesterdayReport = false;
-                } else if (checkedId == R.id.report_yesterday_option) {
-                    int stepCount;//yesterday's option
-                    //set initial steps display value
-                    stepCount = mStepsDBHelper.fetchYesterdayStepCount();
-                    //display step count while ensuring we don't display negative value if no steps tracked yet
-                    stepCountContainer.setText(String.valueOf((Math.max(stepCount, 0))), TextView.BufferType.EDITABLE);
+                yesterdayReport = false;
+            } else if (checkedId == R.id.report_yesterday_option) {
+                int stepCount1;//yesterday's option
+                //set initial steps display value
+                stepCount1 = mStepsDBHelper.fetchYesterdayStepCount();
+                //display step count while ensuring we don't display negative value if no steps tracked yet
+                stepCountContainer.setText(String.valueOf((Math.max(stepCount1, 0))), TextView.BufferType.EDITABLE);
 
-                    yesterdayReport = true;
-                }
+                yesterdayReport = true;
             }
         });
 
-        //image_preview = findViewById(R.id.image_preview);
-
-        //initialize AWS settings and configuration
+        // Initialize the ExecutorService
+        executorService = Executors.newSingleThreadExecutor(); // Use a single thread for serial processing
 
         findViewById(R.id.btn_choose_file).setOnClickListener(this);
 
         findViewById(R.id.btn_video_post).setOnClickListener(this);
 
-        //AWSMobileClient.getInstance().initialize(this).execute();
+        // Launcher for picking images
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (uri != null) {
+                            // Process the selected image Uri off the main thread
+                            processImageForUpload(uri);
+                        } else {
+                            Log.e(TAG, "Image picker returned null Uri");
+                            // Optional: Show a message to the user
+                            Toast.makeText(PostSteemitActivity.this, "Failed to get image URI", Toast.LENGTH_SHORT).show();
+                        }
+                    } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                        // User cancelled the operation
+                        Log.d(TAG, "Image selection cancelled");
+                        // Optional: Show a message or perform other action
+                    } else {
+                        // Handle other result codes if necessary
+                        Log.e(TAG, "Image picker returned result code: " + result.getResultCode());
+                        // Optional: Show an error message
+                        Toast.makeText(PostSteemitActivity.this, "Image selection failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+        // Launcher for picking videos (assuming similar handling structure needed)
+        videoPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (uri != null) {
+                            // Handle the video Uri - this is where your original video logic goes
+                            fileUri = uri; // Store video Uri if needed
+                            // Assuming your video handling is separate from image bitmap loading
+                            // Call your video processing/upload logic here, potentially also off the main thread
+                            // uploadThumbnail(Utils.generateThumbnail(getApplicationContext(), fileUri)); // This might need background thread
+                            // uploadVideo(); // This definitely needs background thread
+                            Log.d(TAG, "Video selected: " + uri);
+                            Toast.makeText(PostSteemitActivity.this, "Video Selected (Processing not implemented)", Toast.LENGTH_SHORT).show(); // Placeholder
+                        } else {
+                            Log.e(TAG, "Video picker returned null Uri");
+                            Toast.makeText(PostSteemitActivity.this, "Failed to get video URI", Toast.LENGTH_SHORT).show();
+                        }
+                    } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                        Log.d(TAG, "Video selection cancelled");
+                    } else {
+                        Log.e(TAG, "Video picker returned result code: " + result.getResultCode());
+                        Toast.makeText(PostSteemitActivity.this, "Video selection failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
 
         //Adding default title content for the daily post
 
@@ -1040,105 +1049,102 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                              final Context context, final Activity currentActivity,
                              final String success, final String permLink){
         //render result
-        currentActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //hide the progressDialog
-                try{
-                    if (progress != null && progress.isShowing()) {
-                        progress.dismiss();
-                    }
-                }catch(Exception e){
-                    e.printStackTrace();
+        currentActivity.runOnUiThread(() -> {
+            //hide the progressDialog
+            try{
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
                 }
-                /*spinner=findViewById(R.id.progressBar);
-                spinner.setVisibility(View.GONE);*/
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            /*spinner=findViewById(R.id.progressBar);
+            spinner.setVisibility(View.GONE);*/
 
-                final AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-                builder1.setMessage(notification);
+            final AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+            builder1.setMessage(notification);
 
-                if (success.equals("success")){
-                    builder1.setIcon(getResources().getDrawable(R.drawable.success_icon));
-                    builder1.setTitle("Actifit Success");
-                    builder1.setNeutralButton(getString(R.string.view_post_button),
-                            (dialog, id) -> {
+            if (success.equals("success")){
+                builder1.setIcon(getResources().getDrawable(R.drawable.success_icon));
+                builder1.setTitle("Actifit Success");
+                builder1.setNeutralButton(getString(R.string.view_post_button),
+                        (dialog, id) -> {
 
-                                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
-                                builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+                            builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
 
-                                //animation for showing and closing screen
-                                builder.setStartAnimations(steemit_post_context, R.anim.slide_in_right, R.anim.slide_out_left);
+                            //animation for showing and closing screen
+                            builder.setStartAnimations(steemit_post_context, R.anim.slide_in_right, R.anim.slide_out_left);
 
-                                //animation for back button clicks
-                                builder.setExitAnimations(steemit_post_context, android.R.anim.slide_in_left,
-                                        android.R.anim.slide_out_right);
+                            //animation for back button clicks
+                            builder.setExitAnimations(steemit_post_context, android.R.anim.slide_in_left,
+                                    android.R.anim.slide_out_right);
 
-                                CustomTabsIntent customTabsIntent = builder.build();
-                                customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            CustomTabsIntent customTabsIntent = builder.build();
+                            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                                try {
-                                    customTabsIntent.launchUrl(steemit_post_context, Uri.parse(getString(R.string.actifit_url)+accountUsername+"/"+permLink));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                if (success.equals("success")) {
-                                    //close current screen
-                                    Log.d(MainActivity.TAG,">>>Finish");
-                                    currentActivity.finish();
-                                }
-                                //dialog.cancel();
-                            });
-
-                    builder1.setNegativeButton(getString(R.string.share_post_button),
-                            (dialog, id) -> {
-                                //dialog.cancel();
-
-                                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                                sharingIntent.setType("text/plain");
-                                String shareSubject = getString(R.string.post_title);
-                                String shareBody = getString(R.string.post_description);
-                                shareBody += getString(R.string.post_title) + " "+getString(R.string.actifit_url)+accountUsername+"/"+permLink;
-
-                                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
-                                sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
-
-                                PostSteemitActivity.this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
-                                if (success.equals("success")) {
-                                    //close current screen
-                                    Log.d(MainActivity.TAG,">>>Finish");
-                                    currentActivity.finish();
-                                }
-                            });
-                }else{
-                    builder1.setIcon(getResources().getDrawable(R.drawable.error_icon));
-                    builder1.setTitle("Actifit Error");
-                }
-
-                builder1.setCancelable(true);
-
-                builder1.setPositiveButton(
-                        getString(R.string.dismiss_button),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                                if (success.equals("success")) {
-                                    //close current screen
-                                    Log.d(MainActivity.TAG,">>>Finish");
-                                    currentActivity.finish();
-                                }
+                            try {
+                                customTabsIntent.launchUrl(steemit_post_context, Uri.parse(getString(R.string.actifit_url)+accountUsername+"/"+permLink));
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
+                            if (success.equals("success")) {
+                                //close current screen
+                                Log.d(MainActivity.TAG,">>>Finish");
+                                currentActivity.finish();
+                            }
+                            //dialog.cancel();
                         });
 
+                builder1.setNegativeButton(getString(R.string.share_post_button),
+                        (dialog, id) -> {
+                            //dialog.cancel();
 
-                //create and display alert window
-                try {
-                    AlertDialog alert11 = builder1.create();
-                    //alert11.show();
-                    builder1.show();
-                }catch(Exception e){
-                    //Log.e(MainActivity.TAG, e.getMessage());
-                }
+                            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                            sharingIntent.setType("text/plain");
+                            String shareSubject = getString(R.string.post_title);
+                            String shareBody = getString(R.string.post_description);
+                            shareBody += getString(R.string.post_title) + " "+getString(R.string.actifit_url)+accountUsername+"/"+permLink;
+
+                            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
+                            sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+
+                            PostSteemitActivity.this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
+                            if (success.equals("success")) {
+                                //close current screen
+                                Log.d(MainActivity.TAG,">>>Finish");
+                                currentActivity.finish();
+                            }
+                        });
+            }else{
+                builder1.setIcon(getResources().getDrawable(R.drawable.error_icon));
+                builder1.setTitle("Actifit Error");
+            }
+
+            builder1.setCancelable(true);
+
+            builder1.setPositiveButton(
+                    getString(R.string.dismiss_button),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                            if (success.equals("success")) {
+                                //close current screen
+                                Log.d(MainActivity.TAG,">>>Finish");
+                                currentActivity.finish();
+                            }
+                        }
+                    });
+
+
+            //create and display alert window
+            try {
+                AlertDialog alert11 = builder1.create();
+                //alert11.show();
+                builder1.show();
+            }catch(Exception e){
+                //Log.e(MainActivity.TAG, e.getMessage());
             }
         });
 
@@ -1629,7 +1635,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         //accountUsername = steemitUsername.getText().toString();
         //accountPostingKey = steemitPostingKey.getText().toString();
-        accountActivityCount = steemitStepCount.getText().toString();
+        accountActivityCount = stepCountContainer.getText().toString();
         finalPostTitle = steemitPostTitle.getText().toString();
         selectedActivityCount = activityTypeSelector.getSelectedIndicies().size();
 
@@ -1670,7 +1676,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     }
 
     private void processPostFinal(String currentCharity){
-        if (!currentCharity.equals("")){
+        if (!currentCharity.isEmpty()){
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
