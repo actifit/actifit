@@ -522,4 +522,6 @@
     <string name="icon_sun_desc">Значок сонця</string>
     <string name="icon_moon_desc">Значок місяця</string>
     <string name="skip">пропустити</string>
+    <string name="daily">Щодня</string>
+    <string name="hourly">Щогодини</string>
 </resources>

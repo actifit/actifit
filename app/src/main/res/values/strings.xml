@@ -1,5 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Actifit</string>
     <string name="sending_post">Sending your post...</string>
     <string name="success_post">Your post has been successfully submitted</string>
     <string name="failed_post">There was an error submitting your post</string>
@@ -534,4 +533,6 @@
     <string name="icon_sun_desc">Sun icon</string>
     <string name="icon_moon_desc">Moon icon</string>
     <string name="skip">SKIP</string>
+    <string name="daily">Daily</string>
+    <string name="hourly">Hourly</string>
 </resources>

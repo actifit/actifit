@@ -526,4 +526,6 @@
     <string name="icon_sun_desc">Icono de sol</string>
     <string name="icon_moon_desc">Icono de luna</string>
     <string name="skip">saltar</string>
+    <string name="daily">Diario</string>
+    <string name="hourly">Por hora</string>
 </resources>

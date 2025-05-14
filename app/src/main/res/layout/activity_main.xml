@@ -787,6 +787,7 @@
                             android:layout_gravity="start"
                             android:text="\uf44b"
                             android:textSize="16sp"
+                            android:visibility="gone"
                             android:fontFamily="@font/font_awesome_6_solid"
                             tools:ignore="HardcodedText" />
 
@@ -803,7 +804,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
-                            android:text="Daily"/>
+                            android:text="@string/daily"/>
                         <Button
                             android:id="@+id/hourly_chart_btn"
                             android:theme="@style/AppTheme.ActifitButton"
@@ -811,7 +812,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
                             android:visibility="gone"
-                            android:text="Hourly"/>
+                            android:text="@string/hourly"/>
 
                     </LinearLayout>
 

@@ -523,5 +523,7 @@
     <string name="icon_sun_desc">Ícone de sol</string>
     <string name="icon_moon_desc">Ícone de lua</string>
     <string name="skip">pular</string>
+    <string name="daily">Diário</string>
+    <string name="hourly">Horário</string>
 </resources>
 
