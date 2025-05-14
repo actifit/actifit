@@ -523,4 +523,6 @@
 	<string name="icon_sun_desc">태양 아이콘</string>
 	<string name="icon_moon_desc">달 아이콘</string>
     <string name="skip">건너뛰다</string>
+    <string name="daily">매일</string>
+	<string name="hourly">매시간</string>
 </resources>

@@ -523,4 +523,6 @@
 	<string name="icon_sun_desc">Zonpictogram</string>
 	<string name="icon_moon_desc">Maanpictogram</string>
     <string name="skip">overslaan</string>
+    <string name="daily">Dagelijks</string>
+	<string name="hourly">Elk uur</string>
 </resources>

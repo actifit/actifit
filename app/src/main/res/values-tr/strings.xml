@@ -522,4 +522,6 @@
     <string name="icon_sun_desc">Güneş simgesi</string>
     <string name="icon_moon_desc">Ay simgesi</string>
     <string name="skip">atlamak</string>
+    <string name="daily">Günlük</string>
+    <string name="hourly">Saatlik</string>
 </resources>

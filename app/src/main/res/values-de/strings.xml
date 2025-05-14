@@ -527,4 +527,6 @@
     <string name="icon_sun_desc">Sonnen-Symbol</string>
     <string name="icon_moon_desc">Mond-Symbol</string>
     <string name="skip">überspringen</string>
+    <string name="daily">Täglich</string>
+    <string name="hourly">Stündlich</string>
 </resources>

@@ -523,4 +523,6 @@
 	<string name="icon_sun_desc">सूर्य चिह्न</string>
 	<string name="icon_moon_desc">चंद्रमा चिह्न</string>
     <string name="skip">छोड़ना</string>
+    <string name="daily">दैनिक</string>
+	<string name="hourly">प्रति घंटा</string>
 </resources>

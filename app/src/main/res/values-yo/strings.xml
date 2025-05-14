@@ -523,4 +523,6 @@
     <string name="icon_sun_desc">Àṣàyàn Oòrùn</string>
     <string name="icon_moon_desc">Àṣàyàn Òṣùpá</string>
     <string name="skip">fo\' kọja</string>
+    <string name="daily">Lojojumo</string>
+    <string name="hourly">Loosooko</string>
 </resources>
