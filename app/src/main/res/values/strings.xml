@@ -535,4 +535,5 @@
     <string name="skip">SKIP</string>
     <string name="daily">Daily</string>
     <string name="hourly">Hourly</string>
+    <string name="app_name">Actifit</string>
 </resources>
