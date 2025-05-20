@@ -51,6 +51,7 @@ public class WorkoutWizardActivity extends AppCompatActivity {
     private Spinner dailyFrequencySpinner;
     private Spinner limitationsSpinner;
     private EditText otherLimitationsEditText;
+    private EditText workoutNameEditText;
     private Button generateButton;
     private Map<String, ExerciseModel> allExercisesMap = new HashMap<>();
     private static final String TAG = "WorkoutWizardActivity";
@@ -75,6 +76,7 @@ public class WorkoutWizardActivity extends AppCompatActivity {
         limitationsSpinner = findViewById(R.id.limitationsSpinner);
         otherLimitationsEditText = findViewById(R.id.otherLimitationsEditText);
         generateButton = findViewById(R.id.generateButton);
+        workoutNameEditText = findViewById(R.id.workoutNameEditText);
 
         // Load exercises from assets
         List<Exercise> allExercises = Utils.loadExercisesFromAssets(this);
@@ -106,6 +108,18 @@ public class WorkoutWizardActivity extends AppCompatActivity {
 
 
         generateButton.setOnClickListener(v -> {
+            String workoutName = workoutNameEditText.getText().toString().trim();
+
+            // Validate workout name
+            if (workoutName.isEmpty()) {
+                workoutNameEditText.setError("Workout name is required."); // Show error on EditText
+                // Optional: Show a Toast message as well
+                Toast.makeText(this, "Please enter a name for your workout.", Toast.LENGTH_SHORT).show();
+                return; // Stop the process
+            } else {
+                workoutNameEditText.setError(null); // Clear any previous error
+            }
+
             grabBalanceAndProceed();
         });
 
@@ -137,7 +151,43 @@ public class WorkoutWizardActivity extends AppCompatActivity {
             public void onSuccess(AiResponse response) {
                 runOnUiThread(() ->{
                     hideLoading();
-                    displayWorkoutPlan(response.getWorkoutPlan(), response.getExplanation());
+                    WorkoutPlan generatedPlan = response.getWorkoutPlan();
+                    String generatedExplanation = response.getExplanation();
+                    displayWorkoutPlan(generatedPlan, generatedExplanation);
+
+                    String workoutName = workoutNameEditText.getText().toString().trim();
+
+                    //also save workout plan
+                    WorkoutApiClient.saveWorkoutPlan(
+                            WorkoutWizardActivity.this, // Use Activity context for Volley requests
+                            username,
+                            LoginActivity.accessToken,
+                            workoutName,
+                            generatedPlan,
+                            generatedExplanation,
+                            new WorkoutApiClient.SaveWorkoutCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(WorkoutWizardActivity.this, "Workout plan saved successfully!", Toast.LENGTH_SHORT).show();
+                                        // Enable button if you disabled it
+                                        // findViewById(R.id.generateButton).setEnabled(true);
+                                    });
+                                }
+
+                                @Override
+                                public void onFailure(String errorMessage) {
+                                    runOnUiThread(() -> {
+                                        Log.e(TAG, "Failed to save workout plan to backend: " + errorMessage);
+                                        // Optional: Inform the user saving failed (doesn't prevent them seeing the generated plan)
+                                        Toast.makeText(WorkoutWizardActivity.this, "Failed to save workout: " + errorMessage, Toast.LENGTH_LONG).show();
+                                        // Enable button if you disabled it
+                                        // findViewById(R.id.generateButton).setEnabled(true);
+                                    });
+                                }
+                            }
+                    );
+
                 } );
             }
 
@@ -324,12 +374,12 @@ public class WorkoutWizardActivity extends AppCompatActivity {
             operation.put(0, op_name);
             operation.put(1, cstm_params);
 
-            String bcastUrl = Utils.apiUrl(ctx)+
-                    ctx.getString(R.string.perform_trx_link) +
-                    username +
-                    "&operation=[" + operation + "]" +
-                    "&bchain=HIVE";//hardcoded for now
-            ;
+            String bcastUrl = getString(R.string.test_mode).equals("on")?
+                                    getString(R.string.test_server):Utils.apiUrl(ctx)+
+                                ctx.getString(R.string.perform_trx_link) +
+                                username +
+                                "&operation=[" + operation + "]" +
+                                "&bchain=HIVE";//hardcoded for now
 
 
             //send out transaction
@@ -343,17 +393,19 @@ public class WorkoutWizardActivity extends AppCompatActivity {
                         if (isSuccessful){
                             //successfully wrote to chain gadget purchase
                             try {
-                                JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
+                                JSONObject bcastRes = response.getJSONObject("trx").
+                                        getJSONObject("tx");
 
                                 Log.d(TAG, LoginActivity.accessToken);
 
-                                String buyUrl = Utils.apiUrl(ctx)+
+                                String buyUrl = getString(R.string.test_mode).equals("on")?
+                                        getString(R.string.test_server):Utils.apiUrl(ctx)+
                                         ctx.getString(R.string.generate_workout_link)+
-                                        MainActivity.username+"/"+
+                                        username+"/"+
                                         bcastRes.get("ref_block_num")+"/"+
                                         bcastRes.get("id")+"/"+
                                         "HIVE"+
-                                        "/?user="+MainActivity.username;
+                                        "/?user="+username;
 
 
                                 //send out transaction

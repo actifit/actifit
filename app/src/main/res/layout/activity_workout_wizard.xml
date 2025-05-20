@@ -23,6 +23,61 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:layout_marginBottom="16dp"/>
 
+        <!-- NEW: Saved Workouts List Section -->
+        <LinearLayout
+            android:id="@+id/savedWorkoutsListLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"  android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Your Saved Workouts"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginBottom="8dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/savedWorkoutsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/> <!-- Important if inside ScrollView -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="@android:color/darker_gray"/>
+
+
+        </LinearLayout>
+        <!-- End Saved Workouts List Section -->
+
+
+        <!-- NEW: Workout Name Input -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Workout Name:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/workoutNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter a name for your workout"
+            android:inputType="textCapWords|textNoSuggestions"
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp"
+            android:background="?android:attr/editTextBackground"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorHint"/>
+
+
 
         <!-- Fitness Goal -->
         <TextView
