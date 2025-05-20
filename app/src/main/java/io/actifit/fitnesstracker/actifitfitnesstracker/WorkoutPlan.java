@@ -1,8 +1,16 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
 import java.util.List;
 
-public class WorkoutPlan {
+public class WorkoutPlan implements Serializable {
+
+    @SerializedName("_id")
+    private String mongoId;
+
+    private String workoutName;
     private List<Exercise> exercises;
     private String description;
 
