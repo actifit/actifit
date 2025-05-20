@@ -787,7 +787,6 @@
                             android:layout_gravity="start"
                             android:text="\uf44b"
                             android:textSize="16sp"
-                            android:visibility="gone"
                             android:fontFamily="@font/font_awesome_6_solid"
                             tools:ignore="HardcodedText" />
 
