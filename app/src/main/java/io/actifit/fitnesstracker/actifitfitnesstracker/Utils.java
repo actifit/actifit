@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -79,6 +78,7 @@ import retrofit2.Callback;
 
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.exifinterface.media.ExifInterface;
 
@@ -116,18 +116,12 @@ import androidx.exifinterface.media.ExifInterface;
 
                 // Read EXIF from the input stream
                 // Requires AndroidX ExifInterface library and API 24+ for InputStream constructor
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    try {
-                        oldExif = new ExifInterface(inputStream);
-                        Log.d(TAG, "Successfully read EXIF data from source URI.");
-                    } catch (IOException e) {
-                        Log.e(TAG, "Failed to read EXIF data from source URI: " + srcUri, e);
-                        // Continue without EXIF if reading fails, or handle as a critical error
-                        oldExif = null; // Ensure it's null if reading failed
-                    }
-                } else {
-                    Log.w(TAG, "EXIF reading from InputStream requires API 24+.");
-                    oldExif = null; // Cannot read EXIF from stream on older APIs
+                try {
+                    oldExif = new ExifInterface(inputStream);
+                    Log.d(TAG, "Successfully read EXIF data from source URI.");
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to read EXIF data from source URI: " + srcUri, e);
+                    // Continue without EXIF if reading fails, or handle as a critical error
                 }
 
 
@@ -968,15 +962,13 @@ import androidx.exifinterface.media.ExifInterface;
 
             builder1.setPositiveButton(
                     context.getString(R.string.dismiss_button),
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                            //if we need to close current Activity
-                            if (closeScreen) {
-                                //close current screen
-                                Log.d(MainActivity.TAG,">>>Finish");
-                                currentActivity.finish();
-                            }
+                    (dialog, id) -> {
+                        dialog.cancel();
+                        //if we need to close current Activity
+                        if (closeScreen) {
+                            //close current screen
+                            Log.d(MainActivity.TAG,">>>Finish");
+                            currentActivity.finish();
                         }
                     });
             //create and display alert window
@@ -1673,6 +1665,66 @@ import androidx.exifinterface.media.ExifInterface;
     // Helper function to convert dp to pixels
     public static int dpToPx(Context ctx, int dp) {
         return (int) (dp * ctx.getResources().getDisplayMetrics().density);
+    }
+
+    /***************** Fetch user balance ********************/
+    public interface BalanceFetchListener {
+        void onBalanceFetched(double balance);
+        void onBalanceFetchFailed(String errorMessage); // Or pass an Exception
+    }
+
+    public static void fetchUserBalance(Context ctx, String username, boolean fullBalance, BalanceFetchListener listener) {
+
+        if (username.isEmpty()) {
+            // Handle invalid input immediately and notify the listener
+            if (listener != null) {
+                listener.onBalanceFetchFailed("Username is empty.");
+            }
+            return;
+        }
+
+        String balanceUrl = Utils.apiUrl(ctx) + ctx.getString(R.string.user_balance_api_url) + username
+                + (fullBalance ? "?fullBalance=1" : "");
+
+        RequestQueue queue = Volley.newRequestQueue(ctx);
+
+        JsonObjectRequest balanceRequest = new JsonObjectRequest(
+                Request.Method.GET, balanceUrl, null,
+                response -> {
+                    // This block runs when the server responds successfully
+                    try {
+                        double balance = response.getDouble("tokens");
+                        Log.d(TAG, "Balance fetched: " + balance);
+                        // Pass the fetched balance back via the listener
+                        if (listener != null) {
+                            listener.onBalanceFetched(balance);
+                        }
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON parsing error fetching balance", e);
+                        // Notify the listener about the parsing error
+                        if (listener != null) {
+                            listener.onBalanceFetchFailed("Failed to parse balance data.");
+                        }
+                    }
+                },
+                error -> {
+                    // This block runs if there's a network or server error
+                    Log.e(TAG, "Volley error fetching balance", error);
+                    String errorMessage = "Network error fetching balance.";
+                    if (error != null && error.getMessage() != null) {
+                        errorMessage += " " + error.getMessage();
+                    }
+                    // Notify the listener about the error
+                    if (listener != null) {
+                        listener.onBalanceFetchFailed(errorMessage);
+                    }
+                }
+        );
+
+        // Add balance request to be processed (asynchronously)
+        queue.add(balanceRequest);
+
     }
 
 }

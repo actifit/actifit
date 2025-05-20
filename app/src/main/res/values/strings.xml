@@ -536,4 +536,5 @@
     <string name="daily">Daily</string>
     <string name="hourly">Hourly</string>
     <string name="app_name">Actifit</string>
+    <string name="error_transaction">There was an error performing the transaction</string>
 </resources>

@@ -2792,80 +2792,56 @@ public class MainActivity extends BaseActivity{
         RequestQueue queue = Volley.newRequestQueue(this);
 
         JsonObjectRequest balanceRequest = new JsonObjectRequest
-                (Request.Method.GET, balanceUrl, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
+                (Request.Method.GET, balanceUrl, null, response -> {
+                    //hide dialog
+                    //progress.hide();
+                    // Display the result
+                    try {
+                        //grab current token count
+                        userFullBalance = response.getDouble("tokens");
+
+                        TextView tv =  findViewById(R.id.bal_display);
+                        tv.setText(""+ formatValue(userFullBalance)  +" AFIT");
+
+                        //TextView tvTokens = findViewById(R.id.bal_display_note);
+                        //tvTokens.setText();
+
+                        //LinearLayout ll = findViewById(R.id.posting_key_link);
+
+                        TextView ftvWallet = findViewById(R.id.token_notice_wallet);
+                        String msg = "";
+
+                        if (userFullBalance < minTokenCount){
+                            //display warning about earning AFIT tokens
+                            ImageView iv = findViewById(R.id.afit_logo);
+                            iv.setColorFilter(Color.rgb( 210, 215, 211));// @color/cardview_dark_background);
+
+                            //ftv.setVisibility(View.VISIBLE);
+                            //ftvWallet.setVisibility(View.VISIBLE);
+
+                        }else{
+                            //ftv.setVisibility(View.GONE);
+                            //ftvWallet.setVisibility(View.GONE);
+                        }
+
+                        try {
+                            if (earningsDialog != null){// && earningsDialog.isShowing()) {
+
+                                msg = grabEarningsPanelNote();
+
+                                earningsDialog.setMessage(Html.fromHtml(msg));
+                            }
+                        }catch(Exception ex){
+
+                        }
+
+
+                    }catch(JSONException e){
                         //hide dialog
                         //progress.hide();
-                        // Display the result
-                        try {
-                            //grab current token count
-                            userFullBalance = response.getDouble("tokens");
-
-                            TextView tv =  findViewById(R.id.bal_display);
-                            tv.setText(""+ formatValue(userFullBalance)  +" AFIT");
-
-                            //TextView tvTokens = findViewById(R.id.bal_display_note);
-                            //tvTokens.setText();
-
-                            //LinearLayout ll = findViewById(R.id.posting_key_link);
-
-                            TextView ftvWallet = findViewById(R.id.token_notice_wallet);
-                            String msg = "";
-
-                            if (userFullBalance < minTokenCount){
-                                //display warning about earning AFIT tokens
-                                ImageView iv = findViewById(R.id.afit_logo);
-                                iv.setColorFilter(Color.rgb( 210, 215, 211));// @color/cardview_dark_background);
-
-                                //ftv.setVisibility(View.VISIBLE);
-                                //ftvWallet.setVisibility(View.VISIBLE);
-
-                            }else{
-                                //ftv.setVisibility(View.GONE);
-                                //ftvWallet.setVisibility(View.GONE);
-                            }
-
-                            try {
-                                if (earningsDialog != null){// && earningsDialog.isShowing()) {
-
-                                    msg = grabEarningsPanelNote();
-
-                                    earningsDialog.setMessage(Html.fromHtml(msg));
-                                }
-                            }catch(Exception ex){
-
-                            }
-
-                            /*
-                            //start animations
-                            ImageView hiveLogo = findViewById(R.id.hive_logo);
-                            ImageView steemLogo = findViewById(R.id.steem_logo);
-                            ImageView sportsLogo = findViewById(R.id.sports_logo);
-                            hiveLogo.clearAnimation();
-                            Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
-                            animation.setRepeatCount(Animation.INFINITE);
-                            //animation.setRepeatMode(Animation.RESTART);
-                            //animation.setDuration(1000);
-                            //animation.setRepeatCount(200);
-
-                            //hiveLogo.startAnimation(animation);
-                            hiveLogo.setAnimation(animation);
-                            hiveLogo.animate();
-
-                            steemLogo.setAnimation(animation);
-                            steemLogo.animate();
-
-                            sportsLogo.setAnimation(animation);
-                            sportsLogo.animate();*/
-
-                        }catch(JSONException e){
-                            //hide dialog
-                            //progress.hide();
-                            //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                            Log.e(TAG, "ERROR");
-                            e.printStackTrace();
-                        }
+                        //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                        Log.e(TAG, "ERROR");
+                        e.printStackTrace();
                     }
                 }, error -> {
                     //hide dialog

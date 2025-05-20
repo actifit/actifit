@@ -3,8 +3,6 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.content.Context;
 import android.util.Log;
 
-import androidx.media3.exoplayer.text.ExoplayerCuesDecoder;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 
 public class SingleHivePostModel implements Comparable<SingleHivePostModel>{
 
@@ -87,17 +84,17 @@ public class SingleHivePostModel implements Comparable<SingleHivePostModel>{
     }
 
     public String getTrimmedTranslatedContent(){
-        String transStr = Utils.trimText(this.translatedText, Constants.trimmedTextSize);
-        transStr += (this.translatedText.length() > Constants.trimmedTextSize)? "": "...";
+        String transStr = Utils.trimText(this.translatedText, Constants.TRIMMED_TEXT_SIZE);
+        transStr += (this.translatedText.length() > Constants.TRIMMED_TEXT_SIZE)? "": "...";
         return transStr;
     }
 
     void setShortenedContent(){
-        this.shortBody = Utils.trimText(this.body, Constants.trimmedTextSize);
+        this.shortBody = Utils.trimText(this.body, Constants.TRIMMED_TEXT_SIZE);
         //sanitize content as well for shortbody
         this.shortBody = Utils.sanitizeContent(this.shortBody,false);
         //append 3 dots if original text is long
-        this.shortBody += (this.shortBody.length() > Constants.trimmedTextSize)? "": "...";
+        this.shortBody += (this.shortBody.length() > Constants.TRIMMED_TEXT_SIZE)? "": "...";
         //also sanitize content
         this.body = Utils.sanitizeContent(this.body, true);
     }
