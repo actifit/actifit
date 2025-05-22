@@ -10,6 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson; // Requires Gson dependency
 
 import org.json.JSONArray;
@@ -17,13 +18,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.lang.reflect.Type;
 
 public class WorkoutApiClient {
     private static final String TAG = "WorkoutApiClient";
-    private static final String API_SAVE_WORKOUT_ENDPOINT = "/saveworkout"; // Matches your Node.js endpoint
+    private static final String API_SAVE_WORKOUT_ENDPOINT = "saveworkout/"; // Matches your Node.js endpoint
+    private static final String API_WORKOUTS_ENDPOINT = "workouts/";
 
     // Get a RequestQueue instance (use application context to avoid memory leaks)
     private static RequestQueue requestQueue;
@@ -32,6 +36,11 @@ public class WorkoutApiClient {
             requestQueue = Volley.newRequestQueue(context.getApplicationContext());
         }
         return requestQueue;
+    }
+
+    public interface FetchWorkoutsCallback {
+        void onSuccess(List<WorkoutPlan> workouts);
+        void onFailure(String errorMessage);
     }
 
     public interface SaveWorkoutCallback {
@@ -53,7 +62,10 @@ public class WorkoutApiClient {
                                        String workoutName, WorkoutPlan workoutPlan, String explanation,
                                        SaveWorkoutCallback callback) {
 
-        String url = Utils.apiUrl(context) + API_SAVE_WORKOUT_ENDPOINT; // Combine base URL and endpoint
+        String url = (context.getString(R.string.test_mode).equals("on")?
+                context.getString(R.string.test_server):Utils.apiUrl(context))
+                + API_SAVE_WORKOUT_ENDPOINT
+                + "?user="+userId; // Combine base URL and endpoint
 
         // --- Prepare the JSON Request Body ---
         JSONObject requestBody = new JSONObject();
@@ -61,8 +73,7 @@ public class WorkoutApiClient {
             requestBody.put("userId", userId); // Send the user ID
             requestBody.put("workoutName", workoutName);
             requestBody.put("description", workoutPlan.getDescription()); // Use plan description
-            // You might want to include the separate explanation field too if needed on backend
-            // requestBody.put("explanation", explanation);
+            requestBody.put("explanation", explanation);
             requestBody.put("timestamp", System.currentTimeMillis()); // Add a timestamp
 
             // Convert List<Exercise> to JSON Array of Exercise objects
@@ -86,79 +97,73 @@ public class WorkoutApiClient {
                 Request.Method.POST,
                 url,
                 requestBody, // Pass the JSON request body here
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        // Handle successful API response
-                        Log.d(TAG, "Workout save API response: " + response.toString());
+                response -> {
+                    // Handle successful API response
+                    Log.d(TAG, "Workout save API response: " + response.toString());
 
-                        // Use the robust success check logic
-                        boolean isSuccessful = !response.has("error") &&
-                                (response.optBoolean("success", false) ||
-                                        response.optString("status", "").equals("success"));
+                    // Use the robust success check logic
+                    boolean isSuccessful = !response.has("error") &&
+                            (response.optBoolean("success", false) ||
+                                    response.optString("status", "").equals("success"));
 
-                        if (isSuccessful) {
-                            if (callback != null) {
-                                callback.onSuccess(); // Notify callback on success
-                            }
-                        } else {
-                            // API returned a non-error response, but indicates failure
-                            String errorMessage = response.optString("message", "Unknown save error");
-                            if (response.has("error")) {
-                                errorMessage = response.optString("error", errorMessage);
-                            }
-                            Log.w(TAG, "Workout save API indicated failure: " + errorMessage);
-                            if (callback != null) {
-                                callback.onFailure(errorMessage);
-                            }
+                    if (isSuccessful) {
+                        if (callback != null) {
+                            callback.onSuccess(); // Notify callback on success
+                        }
+                    } else {
+                        // API returned a non-error response, but indicates failure
+                        String errorMessage = response.optString("message", "Unknown save error");
+                        if (response.has("error")) {
+                            errorMessage = response.optString("error", errorMessage);
+                        }
+                        Log.w(TAG, "Workout save API indicated failure: " + errorMessage);
+                        if (callback != null) {
+                            callback.onFailure(errorMessage);
                         }
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Handle Volley network/server errors
-                        Log.e(TAG, "Volley error saving workout:", error);
+                error -> {
+                    // Handle Volley network/server errors
+                    Log.e(TAG, "Volley error saving workout:", error);
 
-                        String errorMessage = "Network error saving workout plan.";
-                        // ... (Error parsing logic remains the same) ...
-                        if (error.networkResponse != null) {
-                            errorMessage += " Status code: " + error.networkResponse.statusCode;
-                            try {
-                                String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                                Log.e(TAG, "Error response body: " + responseBody);
-                                JSONObject errorJson = new JSONObject(responseBody);
-                                String apiErrorMsg = errorJson.optString("message", errorJson.optString("error", null));
-                                if (apiErrorMsg != null) {
-                                    errorMessage += " Details: " + apiErrorMsg;
-                                }
-                            } catch (Exception e) {
-                                Log.e(TAG, "Could not parse error response body", e);
+                    String errorMessage = "Network error saving workout plan.";
+                    // ... (Error parsing logic remains the same) ...
+                    if (error.networkResponse != null) {
+                        errorMessage += " Status code: " + error.networkResponse.statusCode;
+                        try {
+                            String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                            Log.e(TAG, "Error response body: " + responseBody);
+                            JSONObject errorJson = new JSONObject(responseBody);
+                            String apiErrorMsg = errorJson.optString("message", errorJson.optString("error", null));
+                            if (apiErrorMsg != null) {
+                                errorMessage += " Details: " + apiErrorMsg;
                             }
-
-                        } else if (error.getMessage() != null) {
-                            errorMessage = "Volley error: " + error.getMessage();
-                        } else {
-                            errorMessage = "Unknown network error.";
+                        } catch (Exception e) {
+                            Log.e(TAG, "Could not parse error response body", e);
                         }
 
+                    } else if (error.getMessage() != null) {
+                        errorMessage = "Volley error: " + error.getMessage();
+                    } else {
+                        errorMessage = "Unknown network error.";
+                    }
 
-                        if (callback != null) {
-                            callback.onFailure(errorMessage); // Notify callback on error
-                        }
+
+                    if (callback != null) {
+                        callback.onFailure(errorMessage); // Notify callback on error
                     }
                 }) {
 
             // --- Add Authentication Headers Here ---
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 final Map<String, String> params = new HashMap<>();
                 // Content-Type is often added automatically for JSON request bodies,
                 // but explicitly setting it doesn't hurt and can be necessary depending on Volley version/config.
                 params.put("Content-Type", "application/json");
                 // Your custom authentication header using context and static token
                 params.put(context.getString(R.string.validation_header),
-                        context.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
+                        context.getString(R.string.validation_pre_data) + " " + jwtToken);
                 return params;
             }
 
@@ -181,4 +186,125 @@ public class WorkoutApiClient {
     public static void cancelRequests(Context context) {
         getRequestQueue(context).cancelAll(TAG);
     }
+
+    /**
+     * Fetches the list of all saved workout plans for the authenticated user.
+     * Uses GET /workouts.
+     *
+     * @param context   Application context (or Activity context) - MADE FINAL
+     * @param jwtToken  The JWT token for authentication.
+     * @param callback  Listener for success or failure, returning a List<WorkoutPlan>.
+     */
+    public static void fetchUserWorkouts(final Context context, String jwtToken, // jwtToken for auth
+                                         String userId, FetchWorkoutsCallback callback) { // Callback for list of workouts
+
+        String url = (context.getString(R.string.test_mode).equals("on")?
+                context.getString(R.string.test_server):Utils.apiUrl(context))
+                + API_WORKOUTS_ENDPOINT
+                + "?user="+userId;; // Your GET endpoint URL
+
+        // --- Create the Volley GET Request ---
+        // Use JsonObjectRequest because the response is a JSON object { success: true, data: [...] }
+        JsonObjectRequest fetchRequest = new JsonObjectRequest(
+                Request.Method.GET, // Use GET method
+                url,
+                null, // No request body for GET
+                response -> {
+                    // Handle successful API response
+                    Log.d(TAG, "Fetch workouts API response: " + response.toString());
+
+                    boolean isSuccessful = !response.has("error") &&
+                            (response.optBoolean("success", false) ||
+                                    response.optString("status", "").equals("success"));
+
+                    if (isSuccessful) {
+                        try {
+                            // Get the 'data' array from the response
+                            JSONArray workoutsJsonArray = response.optJSONArray("data");
+
+                            if (workoutsJsonArray != null) {
+                                // Use Gson to deserialize the JSON array into a List<WorkoutPlan>
+                                Gson gson = new Gson();
+                                // Define the Type for List<WorkoutPlan>
+                                Type workoutListType = new TypeToken<ArrayList<WorkoutPlan>>() {}.getType();
+                                List<WorkoutPlan> workouts = gson.fromJson(workoutsJsonArray.toString(), workoutListType);
+
+                                Log.d(TAG, "Successfully parsed " + workouts.size() + " workouts.");
+
+                                if (callback != null) {
+                                    callback.onSuccess(workouts); // Notify callback with the list
+                                }
+                            } else {
+                                // 'data' field is missing or not an array
+                                Log.w(TAG, "Fetch workouts API response missing or invalid 'data' array.");
+                                if (callback != null) {
+                                    callback.onFailure("Invalid response format from server.");
+                                }
+                            }
+
+                        } catch (Exception e) { // Catch JsonSyntaxException or other parsing errors
+                            Log.e(TAG, "Error parsing workouts JSON response", e);
+                            if (callback != null) {
+                                callback.onFailure("Error processing workout data.");
+                            }
+                        }
+
+                    } else {
+                        // API returned a non-error response, but indicates failure (e.g., success: false)
+                        String errorMessage = response.optString("message", "Unknown fetch error");
+                        if (response.has("error")) {
+                            errorMessage = response.optString("error", errorMessage);
+                        }
+                        Log.w(TAG, "Fetch workouts API indicated failure: " + errorMessage);
+                        if (callback != null) {
+                            callback.onFailure(errorMessage);
+                        }
+                    }
+                },
+                error -> {
+                    // Handle Volley network/server errors
+                    Log.e(TAG, "Volley error fetching workouts:", error);
+
+                    String errorMessage = "Network error fetching workout list.";
+                    // ... (Error parsing logic remains the same as in saveWorkoutPlan) ...
+                    if (error.networkResponse != null) {
+                        errorMessage += " Status code: " + error.networkResponse.statusCode;
+                        try {
+                            String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                            Log.e(TAG, "Error response body: " + responseBody);
+                            JSONObject errorJson = new JSONObject(responseBody);
+                            String apiErrorMsg = errorJson.optString("message", errorJson.optString("error", null));
+                            if (apiErrorMsg != null) {
+                                errorMessage += " Details: " + apiErrorMsg;
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Could not parse error response body", e);
+                        }
+
+                    } else if (error.getMessage() != null) {
+                        errorMessage = "Volley error: " + error.getMessage();
+                    } else {
+                        errorMessage = "Unknown network error.";
+                    }
+
+                    if (callback != null) {
+                        callback.onFailure(errorMessage); // Notify callback on error
+                    }
+                }) {
+
+            // --- Add Authentication Headers ---
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                final Map<String, String> params = new HashMap<>();
+                // Add your authentication header using the passed token
+                params.put(context.getString(R.string.validation_header),
+                        context.getString(R.string.validation_pre_data) + " " + jwtToken); // Use jwtToken parameter
+                return params;
+            }
+        };
+
+        fetchRequest.setTag(TAG); // Use the class TAG
+        getRequestQueue(context).add(fetchRequest);
+    }
+
 }

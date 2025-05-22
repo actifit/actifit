@@ -153,28 +153,20 @@ public class MarketActivity extends BaseActivity {
                 //grab auth token for logged in user
                 JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST,
                         loginAuthUrl, loginSettings,
-                        new Response.Listener<JSONObject>() {
-
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                //store token for reuse when saving settings
-                                try {
-                                    if (response.has("success")) {
-                                        Log.d(MainActivity.TAG, response.toString());
-                                        LoginActivity.accessToken = response.getString(getString(R.string.login_token));
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                        response -> {
+                            //store token for reuse when saving settings
+                            try {
+                                if (response.has("success")) {
+                                    Log.d(MainActivity.TAG, response.toString());
+                                    LoginActivity.accessToken = response.getString(getString(R.string.login_token));
                                 }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-
                         },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // error
-                                Log.e(MainActivity.TAG, "Login error");
-                            }
+                        error -> {
+                            // error
+                            Log.e(MainActivity.TAG, "Login error");
                         });
 
                 queue.add(loginRequest);

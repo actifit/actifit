@@ -3,5 +3,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">usermedia.actifit.io</domain>
         <domain includeSubdomains="false">actifit.s3.amazonaws.com</domain>
+        <domain includeSubdomains="false">192.168.1.71:3120</domain>
+        <domain includeSubdomains="false">192.168.1.71</domain>
     </domain-config>
 </network-security-config>
