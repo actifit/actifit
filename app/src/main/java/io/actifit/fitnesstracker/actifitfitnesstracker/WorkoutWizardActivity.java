@@ -63,16 +63,15 @@ public class WorkoutWizardActivity extends AppCompatActivity
     private SavedWorkoutsAdapter savedWorkoutsAdapter; // Adapter for the list
     private ProgressBar savedWorkoutsProgressBar; // Progress bar for loading list
     private TextView noSavedWorkoutsMessage; // Message if list is empty
-    private View dividerAfterSavedWorkouts; // Divider view
-    private Button showGenerationFormButton;
+    private Button retryFetchWorkoutsButton;
 
     // NEW UI elements for the Accordion
-    private LinearLayout savedWorkoutsAccordionSection; // Parent container for Saved Workouts
+    //private LinearLayout savedWorkoutsAccordionSection; // Parent container for Saved Workouts
     private LinearLayout savedWorkoutsHeader;         // Header for Saved Workouts
     private LinearLayout savedWorkoutsContent;        // Content for Saved Workouts
     private TextView savedWorkoutsExpandIconTextView;        // Expand icon for Saved Workouts
 
-    private LinearLayout generateWorkoutAccordionSection; // Parent container for Generate New Workout
+    //private LinearLayout generateWorkoutAccordionSection; // Parent container for Generate New Workout
     private LinearLayout generateWorkoutHeader;       // Header for Generate New Workout
     private LinearLayout generateWorkoutContent;      // Content for Generate New Workout
     private TextView generateWorkoutExpandIconTextView;      // Expand icon for Generate New Workout
@@ -85,6 +84,10 @@ public class WorkoutWizardActivity extends AppCompatActivity
 
     private Map<String, ExerciseModel> allExercisesMap = new HashMap<>();
     private static final String TAG = "WorkoutWizardActivity";
+
+    private SharedPreferences sharedPreferences;
+    private static final String KEY_HAS_PAID = "hasPaidForGeneration";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +113,7 @@ public class WorkoutWizardActivity extends AppCompatActivity
 
         mainLoadingProgressBar = findViewById(R.id.mainLoadingProgressBar);
 
-        savedWorkoutsAccordionSection = findViewById(R.id.savedWorkoutsAccordionSection);
+//        savedWorkoutsAccordionSection = findViewById(R.id.savedWorkoutsAccordionSection);
         savedWorkoutsHeader = findViewById(R.id.savedWorkoutsHeader);
         savedWorkoutsContent = findViewById(R.id.savedWorkoutsContent);
         savedWorkoutsExpandIconTextView = findViewById(R.id.savedWorkoutsExpandIconTextView);
@@ -119,19 +122,16 @@ public class WorkoutWizardActivity extends AppCompatActivity
         savedWorkoutsProgressBar = findViewById(R.id.savedWorkoutsProgressBar); // List specific progress bar
         noSavedWorkoutsMessage = findViewById(R.id.noSavedWorkoutsMessage);
 
-        generateWorkoutAccordionSection = findViewById(R.id.generateWorkoutAccordionSection);
+//        generateWorkoutAccordionSection = findViewById(R.id.generateWorkoutAccordionSection);
         generateWorkoutHeader = findViewById(R.id.generateWorkoutHeader);
         generateWorkoutContent = findViewById(R.id.generateWorkoutContent);
         generateWorkoutExpandIconTextView = findViewById(R.id.generateWorkoutExpandIconTextView);
 
-
-        savedWorkoutsRecyclerView = findViewById(R.id.savedWorkoutsRecyclerView);
-        savedWorkoutsProgressBar = findViewById(R.id.savedWorkoutsProgressBar); // Find progress bar
-        noSavedWorkoutsMessage = findViewById(R.id.noSavedWorkoutsMessage); // Find empty message view
+        retryFetchWorkoutsButton = findViewById(R.id.retryFetchWorkoutsButton);
 
 
         // --- Setup RecyclerViews ---
-        exercisesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        exercisesRecyclerView.setLayoutManager(new NonScrollingLinearLayoutManager(this));
         savedWorkoutsRecyclerView.setLayoutManager(new LinearLayoutManager(this)); // Set layout manager for saved workouts list
 
         // --- Initialize Adapter for Saved Workouts List ---
@@ -187,6 +187,9 @@ public class WorkoutWizardActivity extends AppCompatActivity
                 workoutNameEditText.setError(null); // Clear any previous error
             }
 
+            sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+            hasPaidForGeneration = sharedPreferences.getBoolean(KEY_HAS_PAID, false);
+
             if (hasPaidForGeneration) {
                 // User has already paid and previous generation failed. Allow retry.
                 if (lastAttemptWorkoutName == null || lastAttemptWorkoutName.isEmpty()) {
@@ -213,6 +216,10 @@ public class WorkoutWizardActivity extends AppCompatActivity
 
         fetchAndDisplayUserWorkouts();
 
+        retryFetchWorkoutsButton.setOnClickListener(v -> {
+            fetchAndDisplayUserWorkouts(); // Call the fetch method again
+        });
+
         noSavedWorkoutsMessage.setOnClickListener(v -> fetchAndDisplayUserWorkouts());
     }
 
@@ -228,21 +235,19 @@ public class WorkoutWizardActivity extends AppCompatActivity
         grabBalanceAndProceed(workoutName);
     }
 
-    private void resetGenerationState() {
-        hasPaidForGeneration = false;
-        lastAttemptWorkoutName = null;
-        // Optional: Update button text back to "Generate Workout Plan" if you changed it for retry
-        generateButton.setText("Generate Workout Plan");
-    }
-
 
     // --- Accordion Toggle Logic ---
     private void toggleAccordionContent(View contentLayout, TextView expandIconTextView) {
         // Only toggle if the content isn't already hidden by being in a loading state or showing details
         if (mainLoadingProgressBar.getVisibility() == View.VISIBLE ||
-                progressBar.getVisibility() == View.VISIBLE || // Also check internal generation progress if separate
-                workoutDetailsLayout.getVisibility() == View.VISIBLE) { // Prevent toggling if workout details are open
+                progressBar.getVisibility() == View.VISIBLE
+                ) { // Prevent toggling if workout details are open
             return;
+        }
+
+        if (workoutDetailsLayout.getVisibility() == View.VISIBLE){
+            hideWorkoutDetails();
+            //workoutDetailsLayout.setVisibility(View.GONE);
         }
 
         if (contentLayout.getVisibility() == View.GONE) {
@@ -287,8 +292,8 @@ public class WorkoutWizardActivity extends AppCompatActivity
 
     // Hides all accordion sections, workout details, and all loading indicators
     private void hideAllContentSections() {
-        savedWorkoutsAccordionSection.setVisibility(View.GONE);
-        generateWorkoutAccordionSection.setVisibility(View.GONE);
+        //savedWorkoutsAccordionSection.setVisibility(View.GONE);
+        //generateWorkoutAccordionSection.setVisibility(View.GONE);
         workoutDetailsLayout.setVisibility(View.GONE);
         mainLoadingProgressBar.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
@@ -303,25 +308,28 @@ public class WorkoutWizardActivity extends AppCompatActivity
         // Hide list-specific loading/empty message within savedWorkoutsContent
         savedWorkoutsProgressBar.setVisibility(View.GONE);
         noSavedWorkoutsMessage.setVisibility(View.GONE);
+        retryFetchWorkoutsButton.setVisibility(View.GONE);
     }
 
 
     // Shows the saved workouts accordion section and opens its content
     private void showSavedWorkoutsAccordion() {
         hideAllContentSections(); // Start fresh, hides everything including main loading
-        savedWorkoutsAccordionSection.setVisibility(View.VISIBLE);
-        generateWorkoutAccordionSection.setVisibility(View.VISIBLE); // Show both headers
+        //savedWorkoutsAccordionSection.setVisibility(View.VISIBLE);
+        //generateWorkoutAccordionSection.setVisibility(View.VISIBLE); // Show both headers
         // Expand saved workouts content and rotate its icon
         expandContent(savedWorkoutsContent, savedWorkoutsExpandIconTextView);
+        collapseContent(generateWorkoutContent, generateWorkoutExpandIconTextView);
     }
 
     // Shows the generate workout accordion section and opens its content
     private void showGenerateWorkoutAccordion() {
         hideAllContentSections(); // Start fresh, hides everything including main loading
-        savedWorkoutsAccordionSection.setVisibility(View.VISIBLE);
-        generateWorkoutAccordionSection.setVisibility(View.VISIBLE); // Show both headers
+        //savedWorkoutsAccordionSection.setVisibility(View.VISIBLE);
+        //generateWorkoutAccordionSection.setVisibility(View.VISIBLE); // Show both headers
         // Expand generate workout content and rotate its icon
         expandContent(generateWorkoutContent, generateWorkoutExpandIconTextView);
+        collapseContent(savedWorkoutsContent, savedWorkoutsExpandIconTextView);
         generateButton.setText("Generate Workout Plan");
     }
 
@@ -332,6 +340,7 @@ public class WorkoutWizardActivity extends AppCompatActivity
         savedWorkoutsProgressBar.setVisibility(View.VISIBLE);
         noSavedWorkoutsMessage.setVisibility(View.GONE);
         savedWorkoutsRecyclerView.setVisibility(View.GONE);
+        retryFetchWorkoutsButton.setVisibility(View.GONE);
     }
 
     private void hideListLoading() {
@@ -358,6 +367,7 @@ public class WorkoutWizardActivity extends AppCompatActivity
         workoutDetailsLayout.setVisibility(View.GONE);
         // Clear adapter data when hiding details
         exercisesRecyclerView.setAdapter(null); // Set adapter to null or pass empty list
+        retryFetchWorkoutsButton.setVisibility(View.GONE);
     }
 
 
@@ -387,6 +397,7 @@ public class WorkoutWizardActivity extends AppCompatActivity
                         showSavedWorkoutsAccordion(); // Show accordion and open saved workouts panel
                         savedWorkoutsRecyclerView.setVisibility(View.VISIBLE); // Ensure RecyclerView visible within content
                         noSavedWorkoutsMessage.setVisibility(View.GONE); // Hide empty message within content
+                        retryFetchWorkoutsButton.setVisibility(View.GONE);
 
                         // Optional: Scroll to the top of the ScrollView to see the opened list header
                         ScrollView scrollView = findViewById(R.id.scrollView);
@@ -397,6 +408,7 @@ public class WorkoutWizardActivity extends AppCompatActivity
                         Log.d(TAG, "No saved workouts found for the user.");
                         // No workouts found, show generate form by default
                         showNoWorkoutsMessage("No saved workouts yet."); // Show empty message within the *closed* saved content initially
+                        retryFetchWorkoutsButton.setVisibility(View.GONE);
                         // Then show the generate workout section and open it
                         showGenerateWorkoutAccordion();
 
@@ -416,13 +428,13 @@ public class WorkoutWizardActivity extends AppCompatActivity
                     Log.e(TAG, "Failed to fetch user workouts: " + errorMessage);
                     showNoWorkoutsMessage("Error loading workouts: " + errorMessage); // Show error message within *closed* saved content
                     // On failure, show generate form by default
-                    showGenerateWorkoutAccordion();
-
+                    //showGenerateWorkoutAccordion();
+                    retryFetchWorkoutsButton.setVisibility(View.VISIBLE);
                     // Optional: Scroll to the top of the ScrollView
-                    ScrollView scrollView = findViewById(R.id.scrollView);
+                    /*ScrollView scrollView = findViewById(R.id.scrollView);
                     if (scrollView != null) {
                         scrollView.post(() -> scrollView.requestChildFocus(generateWorkoutHeader, generateWorkoutHeader));
-                    }
+                    }*/
                 });
             }
         });
@@ -805,6 +817,7 @@ public class WorkoutWizardActivity extends AppCompatActivity
                                                                 .equalsIgnoreCase("success"))
                                                 ) {
                                                     hasPaidForGeneration = true;
+                                                    saveGenerationState();
                                                     //successfully bought product. Generate workout
                                                     WorkoutRequest workoutRequest = getUserInputFromUI();
                                                     generateWorkoutPlan(workoutName, workoutRequest);
@@ -880,6 +893,29 @@ public class WorkoutWizardActivity extends AppCompatActivity
             generateWorkoutPlan(workoutName, workoutRequest);
         }
 
+    }
+
+    private void saveGenerationState() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_HAS_PAID, hasPaidForGeneration);
+        editor.apply(); // Use apply() for asynchronous saving
+        //Log.d(TAG, "Saved state: hasPaidForGeneration=" + hasPaidForGeneration + ", lastAttemptWorkoutName=" + lastAttemptWorkoutName);
+    }
+
+    private void clearGenerationState() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(KEY_HAS_PAID);
+        editor.apply();
+        Log.d(TAG, "Cleared state from SharedPreferences.");
+    }
+
+    // Helper method to reset the payment/generation state (in-memory and persistent)
+    // MODIFIED: Now calls clearGenerationState()
+    private void resetGenerationState() {
+        hasPaidForGeneration = false;
+        lastAttemptWorkoutName = null;
+        generateButton.setText("Generate Workout Plan"); // Reset button text
+        clearGenerationState(); // <-- Clear from SharedPreferences
     }
 
     private void showPaymentConfirmationDialog(String workoutName) {

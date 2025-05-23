@@ -33,82 +33,83 @@
             android:visibility="gone"
             style="?android:attr/progressBarStyleLarge"/>
 
-
         <!-- === Accordion Section: Saved Workouts === -->
+        <!-- Header for Saved Workouts -->
         <LinearLayout
-            android:id="@+id/savedWorkoutsAccordionSection"
+            android:id="@+id/savedWorkoutsHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="12dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Saved Workouts"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="?android:attr/textColorPrimary"/>
+
+            <TextView
+                android:id="@+id/savedWorkoutsExpandIconTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf078"
+                android:textSize="18sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:rotation="0" />
+
+        </LinearLayout>
+
+        <!-- Content for Saved Workouts -->
+        <LinearLayout
+            android:id="@+id/savedWorkoutsContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:visibility="gone"
             android:layout_marginBottom="8dp">
 
-            <!-- Header for Saved Workouts -->
-            <LinearLayout
-                android:id="@+id/savedWorkoutsHeader"
+            <ProgressBar
+                android:id="@+id/savedWorkoutsProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/noSavedWorkoutsMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="12dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
+                android:text="No saved workouts yet."
+                android:textAlignment="center"
+                android:paddingVertical="16dp"
+                android:visibility="gone" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Saved Workouts"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:textColor="?android:attr/textColorPrimary"/>
+            <!-- NEW: Retry Button -->
+            <Button
+                android:id="@+id/retryFetchWorkoutsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Retry Loading Workouts"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/savedWorkoutsExpandIconTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:textColor="@color/actifitRed"
-                    android:text="\uf078"
-                    android:textSize="18sp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:rotation="0" />
-
-
-
-            </LinearLayout>
-
-            <!-- Content for Saved Workouts -->
-            <LinearLayout
-                android:id="@+id/savedWorkoutsContent"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/savedWorkoutsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"> <!-- Initially hidden -->
+                android:nestedScrollingEnabled="false"/>
 
-                <ProgressBar
-                    android:id="@+id/savedWorkoutsProgressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/noSavedWorkoutsMessage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="No saved workouts yet."
-                    android:textAlignment="center"
-                    android:paddingVertical="16dp"
-                    android:visibility="gone" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/savedWorkoutsRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"/>
-
-            </LinearLayout>
         </LinearLayout>
 
         <View
@@ -119,221 +120,214 @@
 
 
         <!-- === Accordion Section: Generate New Workout === -->
+        <!-- Header for Generate New Workout -->
         <LinearLayout
-            android:id="@+id/generateWorkoutAccordionSection"
+            android:id="@+id/generateWorkoutHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="12dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Generate New Workout"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="?android:attr/textColorPrimary"/>
+
+            <TextView
+                android:id="@+id/generateWorkoutExpandIconTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="\uf078"
+                android:textSize="18sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:rotation="0" />
+
+        </LinearLayout>
+
+        <!-- Content for Generate New Workout (The Form) -->
+        <LinearLayout
+            android:id="@+id/generateWorkoutContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="16dp">
+            android:visibility="gone"
+            android:layout_marginBottom="16dp"> <!-- Initially hidden -->
 
-            <!-- Header for Generate New Workout -->
-            <LinearLayout
-                android:id="@+id/generateWorkoutHeader"
+            <!-- Workout Name Input -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="12dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Generate New Workout"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:textColor="?android:attr/textColorPrimary"/>
-
-                <TextView
-                    android:id="@+id/generateWorkoutExpandIconTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:textColor="@color/actifitRed"
-                    android:text="\uf078"
-                    android:textSize="18sp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:rotation="0" />
-
-            </LinearLayout>
-
-            <!-- Content for Generate New Workout -->
-            <LinearLayout
-                android:id="@+id/generateWorkoutContent"
+                android:text="Workout Name:"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginBottom="4dp"/>
+            <EditText
+                android:id="@+id/workoutNameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"> <!-- Initially hidden -->
+                android:hint="Enter a name for your workout"
+                android:inputType="textCapWords|textNoSuggestions"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"
+                android:background="?android:attr/editTextBackground"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textColorHint="?android:attr/textColorHint"/>
 
-                <!-- Workout Name Input -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Workout Name:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp"/>
-                <EditText
-                    android:id="@+id/workoutNameEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Enter a name for your workout"
-                    android:inputType="textCapWords|textNoSuggestions"
-                    android:layout_marginBottom="16dp"
-                    android:minHeight="48dp"
-                    android:background="?android:attr/editTextBackground"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textColorHint="?android:attr/textColorHint"/>
+            <!-- Fitness Goal -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fitness Goal:"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginBottom="4dp"/>
+            <Spinner
+                android:id="@+id/fitnessGoalSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/fitness_goals"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp" />
 
-                <!-- Fitness Goal -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Fitness Goal:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp"/>
-                <Spinner
-                    android:id="@+id/fitnessGoalSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:entries="@array/fitness_goals"
-                    android:layout_marginBottom="16dp"
-                    android:minHeight="48dp" />
+            <!-- Experience Level -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Experience Level:"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginBottom="4dp"/>
+            <Spinner
+                android:id="@+id/experienceLevelSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/experience_levels"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp" />
 
-                <!-- Experience Level -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Experience Level:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp"/>
-                <Spinner
-                    android:id="@+id/experienceLevelSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:entries="@array/experience_levels"
-                    android:layout_marginBottom="16dp"
-                    android:minHeight="48dp" />
+            <!-- Weekly Time -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Weekly Time:"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginBottom="4dp"/>
+            <Spinner
+                android:id="@+id/weeklyTimeSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/weekly_times"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp" />
 
-                <!-- Weekly Time -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Weekly Time:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp"/>
-                <Spinner
-                    android:id="@+id/weeklyTimeSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:entries="@array/weekly_times"
-                    android:layout_marginBottom="16dp"
-                    android:minHeight="48dp" />
+            <!-- Daily Frequency -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Workout Frequency:"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginBottom="4dp"/>
+            <Spinner
+                android:id="@+id/dailyFrequencySpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/daily_frequencies"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp" />
 
-                <!-- Daily Frequency -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Workout Frequency:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp"/>
-                <Spinner
-                    android:id="@+id/dailyFrequencySpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:entries="@array/daily_frequencies"
-                    android:layout_marginBottom="16dp"
-                    android:minHeight="48dp" />
+            <!-- Preferred Workout Style -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Preferred Workout Style:"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginBottom="4dp"/>
+            <Spinner
+                android:id="@+id/preferredWorkoutSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/workout_styles"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp" />
 
-                <!-- Preferred Workout Style -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Preferred Workout Style:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp"/>
-                <Spinner
-                    android:id="@+id/preferredWorkoutSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:entries="@array/workout_styles"
-                    android:layout_marginBottom="16dp"
-                    android:minHeight="48dp" />
+            <!-- Equipment Options -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Equipment:"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginBottom="4dp"/>
+            <Spinner
+                android:id="@+id/equipmentSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/equipment_options"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp" />
 
-                <!-- Equipment Options -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Equipment:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp"/>
-                <Spinner
-                    android:id="@+id/equipmentSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:entries="@array/equipment_options"
-                    android:layout_marginBottom="16dp"
-                    android:minHeight="48dp" />
+            <!-- Limitations Options -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Physical Limitations:"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:layout_marginBottom="4dp"/>
+            <Spinner
+                android:id="@+id/limitationsSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/limitations_options"
+                android:layout_marginBottom="8dp"
+                android:minHeight="48dp" />
 
-                <!-- Limitations Options -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Physical Limitations:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp"/>
-                <Spinner
-                    android:id="@+id/limitationsSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:entries="@array/limitations_options"
-                    android:layout_marginBottom="8dp"
-                    android:minHeight="48dp" />
+            <EditText
+                android:id="@+id/otherLimitationsEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter details for 'Other' limitations"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                android:background="?android:attr/editTextBackground"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textColorHint="?android:attr/textColorHint"/>
 
-                <EditText
-                    android:id="@+id/otherLimitationsEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Enter details for 'Other' limitations"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone"
-                    android:background="?android:attr/editTextBackground"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textColorHint="?android:attr/textColorHint"/>
+            <!-- Generate Button -->
+            <Button
+                android:id="@+id/generateButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Generate Workout Plan"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:backgroundTint="@color/actifitRed"
+                android:textColor="@color/colorWhite"/>
 
-                <!-- Generate Button -->
-                <Button
-                    android:id="@+id/generateButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Generate Workout Plan"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:backgroundTint="@color/actifitRed"
-                    android:textColor="@color/colorWhite"/>
+            <!-- Progress bar specific to generation (optional) -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                style="?android:attr/progressBarStyle"/>
 
-                <!-- Main Generation Progress Bar -->
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="16dp"
-                    android:visibility="gone"
-                    style="?android:attr/progressBarStyle"/>
-
-            </LinearLayout>
         </LinearLayout>
 
         <View

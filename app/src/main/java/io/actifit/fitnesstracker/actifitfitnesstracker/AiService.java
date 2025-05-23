@@ -26,7 +26,6 @@ public class AiService {
 
 
     private static final String API_KEY = BuildConfig.GEMINI_API_KEY; // **REPLACE WITH YOUR ACTUAL API KEY!**
-    //private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + API_KEY;
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
     //private final OkHttpClient client = new OkHttpClient();
     private final OkHttpClient client = NetworkClient.getInstance(); // use singleton client
