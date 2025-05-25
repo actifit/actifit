@@ -1,6 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
 
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
+        Log.d("wokroutwizardactivity EA", "item at "+position);
         Exercise exercise = exerciseList.get(position);
         holder.exerciseNameTextView.setText(exercise.getName());
         holder.exerciseSetsTextView.setText(exercise.getSets());

@@ -24,15 +24,6 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:layout_marginBottom="16dp"/>
 
-        <!-- Optional: Main Loading Indicator for Initial Data Fetch -->
-        <ProgressBar
-            android:id="@+id/mainLoadingProgressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            style="?android:attr/progressBarStyleLarge"/>
-
         <!-- === Accordion Section: Saved Workouts === -->
         <!-- Header for Saved Workouts -->
         <LinearLayout
@@ -330,6 +321,16 @@
 
         </LinearLayout>
 
+
+        <!-- Optional: Main Loading Indicator for Initial Data Fetch -->
+        <ProgressBar
+            android:id="@+id/mainLoadingProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            style="?android:attr/progressBarStyleLarge"/>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -411,7 +412,7 @@
                         android:id="@+id/exercisesRecyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"/>
+                        />
                 </LinearLayout>
             </HorizontalScrollView>
         </LinearLayout>

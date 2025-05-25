@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -560,7 +561,10 @@ public class WorkoutWizardActivity extends AppCompatActivity
         // --- Process and Display Exercises ---
         List<Exercise> exercises = plan.getExercises();
 
-        if (exercises != null) {
+        Log.d(TAG, exercises.size()+"");
+        Log.d(TAG, exercises.toString());
+
+        if (!exercises.isEmpty()) {
             // --- Exercise Enhancement Loop ---
             // This loop enhances exercise objects using a local map (allExercisesMap)
             // Assuming allExercisesMap is a class member available here
@@ -596,23 +600,87 @@ public class WorkoutWizardActivity extends AppCompatActivity
 
             // Pass the potentially enhanced exercises to the adapter
             ExerciseAdapter adapter = new ExerciseAdapter(exercises);
+            Log.d(TAG,"display:"+adapter.getItemCount());
             exercisesRecyclerView.setAdapter(adapter);
+
+            // Calculate and set RecyclerView height after layout pass ---
+            // Post to the RecyclerView to wait for it to be laid out
+            exercisesRecyclerView.post(() -> {
+                int totalHeight = 0;
+                // Iterate through all visible items (or all items if laid out) and sum their heights
+                // This is a pragmatic approach; getting the exact total height of *all* items
+                // when wrap_content and canScrollVertically=false isn't working is tricky.
+                // We can iterate through the adapter and measure views if necessary,
+                // or rely on the LayoutManager if it provides a useful method despite canScrollVertically=false.
+                // Let's try iterating through the children the LayoutManager HAS laid out.
+                // For a NonScrollingLinearLayoutManager, it should attempt to lay out *all* items.
+
+                // A more reliable way to get total height when canScrollVertically is false:
+                // Iterate through the adapter's items, inflate and measure their view if not laid out yet.
+                // This can be complex. A simpler heuristic might be needed if item heights are variable.
+                // If item heights are relatively consistent, you might estimate.
+
+                // *** Let's try a common pattern for this scenario: ***
+                // Sum the height of children *after* the initial layout.
+                // This often works because the LayoutManager *tries* to lay out all items
+                // when told it cannot scroll.
+                for (int i = 0; i < exercisesRecyclerView.getChildCount(); i++) {
+                    totalHeight += exercisesRecyclerView.getChildAt(i).getHeight();
+                }
+
+                // If the RecyclerView's padding/margin needs to be accounted for
+                // totalHeight += exercisesRecyclerView.getPaddingTop() + exercisesRecyclerView.getPaddingBottom();
+
+                // Ensure height is not zero if there are items
+                if (totalHeight > 0) {
+                    // Get the current LayoutParams
+                    ViewGroup.LayoutParams params = exercisesRecyclerView.getLayoutParams();
+                    // Set the height to the calculated total
+                    params.height = totalHeight;
+                    // Apply the updated LayoutParams
+                    exercisesRecyclerView.setLayoutParams(params);
+                    Log.d(TAG, "Set exercisesRecyclerView height to: " + totalHeight);
+
+                    // Optional: Scroll the main ScrollView to the end of the exercises section
+                    // after setting the height
+                    ScrollView scrollView = findViewById(R.id.scrollView);
+                    if (scrollView != null) {
+                        // Need to scroll past the header within the HorizontalScrollView
+                        // Finding the right scroll target can be tricky here.
+                        // Maybe scroll to the bottom of the workoutDetailsLayout
+                        scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+                    }
+
+                } else {
+                    // If totalHeight is 0 (e.g., adapter set but layout not finished immediately)
+                    // or if the list is empty, you might need a fallback or re-post
+                    Log.w(TAG, "Calculated total height is 0 for exercisesRecyclerView. Height not set.");
+                    // If the list is confirmed non-empty, this is a layout timing issue.
+                    // You might need a more sophisticated approach or a slight delay before calculating.
+                }
+
+            }); // End exercisesRecyclerView.post()
             // notifyDataSetChanged is often called implicitly when setting adapter
             // adapter.notifyDataSetChanged();
         } else {
             Log.w(TAG, "Workout plan exercises list is null.");
             // Handle case where exercise list is null (e.g., clear adapter, show message)
             exercisesRecyclerView.setAdapter(null); // Clear existing adapter
+            // Set height to 0 if the list is empty
+            ViewGroup.LayoutParams params = exercisesRecyclerView.getLayoutParams();
+            params.height = 0;
+            exercisesRecyclerView.setLayoutParams(params);
+            Log.d(TAG, "Set exercisesRecyclerView height to 0 as list is empty.");
         }
 
         showWorkoutDetailsPanel();
 
 
         // Optional: Scroll the ScrollView down to the workout details after display
-        ScrollView scrollView = findViewById(R.id.scrollView); // Get reference to your ScrollView
+        /*ScrollView scrollView = findViewById(R.id.scrollView); // Get reference to your ScrollView
         if (scrollView != null) {
             scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
-        }
+        }*/
     }
 
 
