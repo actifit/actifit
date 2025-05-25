@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:layout_marginStart="2dp"
+    android:layout_marginEnd="2dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Activity Type -->
+        <TextView
+            android:id="@+id/textViewActivityType"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/textViewDate"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            tools:text="Activity Type" />
+
+        <!-- Date (Will be toggled) -->
+        <TextView
+            android:id="@+id/textViewDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#666666"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textViewActivityType"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textViewActivityType"
+            tools:text="X time ago" /> <!-- Updated example text -->
+
+        <!-- Token Amount (Prominent) -->
+        <TextView
+            android:id="@+id/textViewTokenAmount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/textViewActivityType"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="+123.456 AFIT(s)" />
+
+        <!-- User/Recipient (Contextual) -->
+        <TextView
+            android:id="@+id/textViewUserRecipient"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="#333333"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@+id/textViewTokenAmount"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="User: username / Recipient: recipientname"/>
+
+        <!-- Note (Optional) -->
+        <TextView
+            android:id="@+id/textViewNote"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#666666"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/textViewUserRecipient"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Note: This is an optional note..." />
+
+
+        <TextView
+            android:id="@+id/textViewUrl"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/actifitRed"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
+            app:layout_constraintTop_toBottomOf="@+id/textViewNote"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="View Post" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

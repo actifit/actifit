@@ -6,12 +6,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.media.ExifInterface;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -19,6 +19,7 @@ import android.provider.OpenableColumns;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -76,143 +78,452 @@ import retrofit2.Callback;
 
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class Utils {
+import androidx.exifinterface.media.ExifInterface;
 
-    public static JSONArray extraVotesList;
+    public class Utils {
 
-    //Compression Based Update
+        private static final String TAG = "Utils";
 
-    public static void createFile(Bitmap bitmap, Context context, Uri srcUri, File dstFile) {
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
-            if (inputStream == null) return;
+        // --- Your other Utils methods (uploadFile, etc.) ---
 
-            OutputStream outputStream = new FileOutputStream(dstFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);
+        /**
+         * Creates a temporary file from a bitmap and copies EXIF data from the source URI.
+         * This method must be called on a background thread.
+         *
+         * @param bitmap   The scaled bitmap to compress and save.
+         * @param context  The application context.
+         * @param srcUri   The content URI of the original image source (for EXIF).
+         * @param dstFile  The temporary file to write the bitmap and EXIF data to.
+         * @throws IOException if a file operation fails.
+         */
+        public static void createFile(Bitmap bitmap, Context context, Uri srcUri, File dstFile) throws IOException {
 
-            //special copyexif from stream to file
-            copyExif(inputStream, dstFile.getAbsolutePath());
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            ExifInterface oldExif = null; // Hold EXIF data from the original source
 
-            inputStream.close();
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+            try {
+                // --- Step 1: Read EXIF data from the original source URI ---
+                // Open the source stream
+                inputStream = context.getContentResolver().openInputStream(srcUri);
+                if (inputStream == null) {
+                    Log.w(TAG, "createFile: Could not open input stream for URI: " + srcUri);
+                    // Decide if this should throw an exception or just return
+                    throw new IOException("Could not open input stream for URI: " + srcUri);
+                }
 
-    public static void copyExif(InputStream originalPath, String newPath) throws IOException {
+                // Read EXIF from the input stream
+                // Requires AndroidX ExifInterface library and API 24+ for InputStream constructor
+                try {
+                    oldExif = new ExifInterface(inputStream);
+                    Log.d(TAG, "Successfully read EXIF data from source URI.");
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to read EXIF data from source URI: " + srcUri, e);
+                    // Continue without EXIF if reading fails, or handle as a critical error
+                }
 
-        String[] attributes = new String[]
-                {
-                        ExifInterface.TAG_DATETIME,
-                        ExifInterface.TAG_DATETIME_DIGITIZED,
-                        ExifInterface.TAG_EXPOSURE_TIME,
-                        ExifInterface.TAG_FLASH,
-                        ExifInterface.TAG_FOCAL_LENGTH,
-                        ExifInterface.TAG_GPS_ALTITUDE,
-                        ExifInterface.TAG_GPS_ALTITUDE_REF,
-                        ExifInterface.TAG_GPS_DATESTAMP,
-                        ExifInterface.TAG_GPS_LATITUDE,
-                        ExifInterface.TAG_GPS_LATITUDE_REF,
-                        ExifInterface.TAG_GPS_LONGITUDE,
-                        ExifInterface.TAG_GPS_LONGITUDE_REF,
-                        ExifInterface.TAG_GPS_PROCESSING_METHOD,
-                        ExifInterface.TAG_GPS_TIMESTAMP,
-                        ExifInterface.TAG_MAKE,
-                        ExifInterface.TAG_MODEL,
-                        ExifInterface.TAG_ORIENTATION,
-                        ExifInterface.TAG_SUBSEC_TIME,
-                        ExifInterface.TAG_WHITE_BALANCE
-                };
 
-        ExifInterface oldExif = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            oldExif = new ExifInterface(originalPath);
-        }
-        ExifInterface newExif = new ExifInterface(newPath);
-
-        if (attributes.length > 0) {
-            for (int i = 0; i < attributes.length; i++) {
-                String value = oldExif.getAttribute(attributes[i]);
-                if (value != null)
-                    newExif.setAttribute(attributes[i], value);
+            } finally {
+                // --- Close the source input stream immediately after reading EXIF ---
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                        Log.d(TAG, "Closed source input stream.");
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error closing source input stream", e);
+                    }
+                }
             }
-            newExif.saveAttributes();
+
+            try {
+                // --- Step 2: Write the compressed bitmap to the destination file ---
+                outputStream = new FileOutputStream(dstFile);
+                // Use a reasonable compression quality, 50 might be too low. Try 80-90.
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream);
+                Log.d(TAG, "Compressed bitmap to destination file: " + dstFile.getAbsolutePath());
+
+            } finally {
+                // --- Close the destination output stream after writing the bitmap ---
+                if (outputStream != null) {
+                    try {
+                        outputStream.close();
+                        Log.d(TAG, "Closed destination output stream.");
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error closing destination output stream", e);
+                    }
+                }
+            }
+
+            // --- Step 3: Copy EXIF data to the destination file if available ---
+            if (oldExif != null) {
+                try {
+                    // Open the destination file *again* with ExifInterface for writing
+                    ExifInterface newExif = new ExifInterface(dstFile.getAbsolutePath());
+
+                    // Use the copyExif helper to transfer attributes
+                    copyExifAttributes(oldExif, newExif);
+
+                    // Save the attributes to the new file
+                    newExif.saveAttributes();
+                    Log.d(TAG, "Successfully copied and saved EXIF attributes to destination file.");
+
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to copy or save EXIF data to destination file: " + dstFile.getAbsolutePath(), e);
+                    // Log the error but allow the upload to proceed without EXIF if saving fails
+                }
+            } else {
+                Log.d(TAG, "No source EXIF data to copy or API < 24.");
+            }
+
+            // Note: bitmap.recycle() should be called *after* this method returns
+            // by the code that called createFile (e.g., in processImageForUpload or uploadFile)
+            // as the caller passed the bitmap and knows when its lifecycle ends.
+            // In the previous refactoring of uploadFile, we added recycle there, which is appropriate.
         }
-    }
+
+        /**
+         * Copies selected EXIF attributes from a source ExifInterface object to a destination.
+         *
+         * @param oldExif The source ExifInterface (from original file).
+         * @param newExif The destination ExifInterface (for the temporary file).
+         */
+        private static void copyExifAttributes(ExifInterface oldExif, ExifInterface newExif) {
+            String[] attributes = new String[]
+                    {
+                            ExifInterface.TAG_APERTURE_VALUE, // Added common tags
+                            ExifInterface.TAG_ARTIST,
+                            ExifInterface.TAG_BITS_PER_SAMPLE,
+                            ExifInterface.TAG_BRIGHTNESS_VALUE,
+                            ExifInterface.TAG_CAMERA_OWNER_NAME,
+                            ExifInterface.TAG_COLOR_SPACE,
+                            ExifInterface.TAG_COMPONENTS_CONFIGURATION,
+                            ExifInterface.TAG_COMPRESSED_BITS_PER_PIXEL,
+                            ExifInterface.TAG_CONTRAST,
+                            ExifInterface.TAG_CUSTOM_RENDERED,
+                            ExifInterface.TAG_DATETIME, // Original tags
+                            ExifInterface.TAG_DATETIME_DIGITIZED, // Original tags
+                            ExifInterface.TAG_DATETIME_ORIGINAL, // Added
+                            ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION,
+                            ExifInterface.TAG_DIGITAL_ZOOM_RATIO,
+                            ExifInterface.TAG_EXIF_VERSION, // Added
+                            ExifInterface.TAG_EXPOSURE_BIAS_VALUE,
+                            ExifInterface.TAG_EXPOSURE_INDEX,
+                            ExifInterface.TAG_EXPOSURE_MODE,
+                            ExifInterface.TAG_EXPOSURE_TIME, // Original tags
+                            ExifInterface.TAG_FLASH, // Original tags
+                            ExifInterface.TAG_FLASH_ENERGY,
+                            ExifInterface.TAG_FOCAL_LENGTH, // Original tags
+                            ExifInterface.TAG_FOCAL_PLANE_RESOLUTION_UNIT,
+                            ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION,
+                            ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION,
+                            ExifInterface.TAG_GAIN_CONTROL,
+                            ExifInterface.TAG_GPS_ALTITUDE, // Original tags
+                            ExifInterface.TAG_GPS_ALTITUDE_REF, // Original tags
+                            ExifInterface.TAG_GPS_AREA_INFORMATION,
+                            ExifInterface.TAG_GPS_DATESTAMP, // Original tags
+                            ExifInterface.TAG_GPS_DEST_BEARING,
+                            ExifInterface.TAG_GPS_DEST_BEARING_REF,
+                            ExifInterface.TAG_GPS_DEST_DISTANCE,
+                            ExifInterface.TAG_GPS_DEST_DISTANCE_REF,
+                            ExifInterface.TAG_GPS_DEST_LATITUDE,
+                            ExifInterface.TAG_GPS_DEST_LATITUDE_REF,
+                            ExifInterface.TAG_GPS_DEST_LONGITUDE,
+                            ExifInterface.TAG_GPS_DEST_LONGITUDE_REF,
+                            ExifInterface.TAG_GPS_DIFFERENTIAL,
+                            ExifInterface.TAG_GPS_DOP,
+                            ExifInterface.TAG_GPS_IMG_DIRECTION,
+                            ExifInterface.TAG_GPS_IMG_DIRECTION_REF,
+                            ExifInterface.TAG_GPS_LATITUDE, // Original tags
+                            ExifInterface.TAG_GPS_LATITUDE_REF, // Original tags
+                            ExifInterface.TAG_GPS_LONGITUDE, // Original tags
+                            ExifInterface.TAG_GPS_LONGITUDE_REF, // Original tags
+                            ExifInterface.TAG_GPS_MEASURE_MODE,
+                            ExifInterface.TAG_GPS_PROCESSING_METHOD, // Original tags
+                            ExifInterface.TAG_GPS_SATELLITES,
+                            ExifInterface.TAG_GPS_SPEED,
+                            ExifInterface.TAG_GPS_SPEED_REF,
+                            ExifInterface.TAG_GPS_STATUS,
+                            ExifInterface.TAG_GPS_TIMESTAMP, // Original tags
+                            ExifInterface.TAG_GPS_TRACK,
+                            ExifInterface.TAG_GPS_TRACK_REF,
+                            ExifInterface.TAG_GPS_VERSION_ID,
+                            ExifInterface.TAG_IMAGE_DESCRIPTION,
+                            ExifInterface.TAG_IMAGE_UNIQUE_ID,
+                            ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT,
+                            ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
+                            ExifInterface.TAG_LENS_MAKE, // Added
+                            ExifInterface.TAG_LENS_MODEL, // Added
+                            ExifInterface.TAG_LENS_SPECIFICATION,
+                            ExifInterface.TAG_LIGHT_SOURCE,
+                            ExifInterface.TAG_MAKE, // Original tags
+                            ExifInterface.TAG_MAX_APERTURE_VALUE,
+                            ExifInterface.TAG_METERING_MODE,
+                            ExifInterface.TAG_MODEL, // Original tags
+                            ExifInterface.TAG_NEW_SUBFILE_TYPE,
+                            ExifInterface.TAG_OECF,
+                            ExifInterface.TAG_OFFSET_TIME, // Added
+                            ExifInterface.TAG_OFFSET_TIME_DIGITIZED, // Added
+                            ExifInterface.TAG_OFFSET_TIME_ORIGINAL, // Added
+                            ExifInterface.TAG_ORF_ASPECT_FRAME,
+                            ExifInterface.TAG_ORF_PREVIEW_IMAGE_START,
+                            ExifInterface.TAG_ORF_THUMBNAIL_IMAGE,
+                            ExifInterface.TAG_ORIENTATION, // Original tags - IMPORTANT for correct display
+                            ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION,
+                            ExifInterface.TAG_PIXEL_X_DIMENSION,
+                            ExifInterface.TAG_PIXEL_Y_DIMENSION,
+                            ExifInterface.TAG_PLANAR_CONFIGURATION,
+                            ExifInterface.TAG_PRIMARY_CHROMATICITIES,
+                            ExifInterface.TAG_REFERENCE_BLACK_WHITE,
+                            ExifInterface.TAG_RELATED_SOUND_FILE,
+                            ExifInterface.TAG_RESOLUTION_UNIT, // Added
+                            ExifInterface.TAG_ROWS_PER_STRIP,
+                            ExifInterface.TAG_SAMPLES_PER_PIXEL,
+                            ExifInterface.TAG_SATURATION,
+                            ExifInterface.TAG_SCENE_CAPTURE_TYPE,
+                            ExifInterface.TAG_SCENE_TYPE,
+                            ExifInterface.TAG_SENSING_METHOD,
+                            ExifInterface.TAG_SHARPNESS,
+                            ExifInterface.TAG_SHUTTER_SPEED_VALUE,
+                            ExifInterface.TAG_SPATIAL_FREQUENCY_RESPONSE,
+                            ExifInterface.TAG_SPECTRAL_SENSITIVITY,
+                            ExifInterface.TAG_STANDARD_OUTPUT_SENSITIVITY,
+                            ExifInterface.TAG_STRIP_BYTE_COUNTS,
+                            ExifInterface.TAG_STRIP_OFFSETS,
+                            ExifInterface.TAG_SUBSEC_TIME, // Original tags
+                            ExifInterface.TAG_SUBSEC_TIME_DIGITIZED, // Added
+                            ExifInterface.TAG_SUBSEC_TIME_ORIGINAL, // Added
+                            ExifInterface.TAG_SUBJECT_AREA,
+                            ExifInterface.TAG_SUBJECT_DISTANCE,
+                            ExifInterface.TAG_SUBJECT_DISTANCE_RANGE,
+                            ExifInterface.TAG_SUBJECT_LOCATION,
+                            ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH,
+                            ExifInterface.TAG_THUMBNAIL_IMAGE_WIDTH,
+                            ExifInterface.TAG_TRANSFER_FUNCTION,
+                            ExifInterface.TAG_USER_COMMENT,
+                            ExifInterface.TAG_WHITE_BALANCE, // Original tags
+                            ExifInterface.TAG_WHITE_POINT,
+                            ExifInterface.TAG_X_RESOLUTION, // Added
+                            ExifInterface.TAG_Y_RESOLUTION // Added
+                    };
+
+            for (String attribute : attributes) {
+                String value = oldExif.getAttribute(attribute);
+                if (value != null) {
+                    newExif.setAttribute(attribute, value);
+                    // Log.d(TAG, "Copied EXIF attribute: " + attribute + " = " + value); // Optional: Log copied tags
+                }
+            }
+        }
 
     public static void uploadFile(Bitmap bitmap, Uri fileUri, EditText textBox,
                                   Context ctx, Activity activity) {
-        final ProgressDialog uploadProgress;
+
+        // Declare dialog here so it can be accessed in the UI thread runnable and callbacks
+        //final ProgressDialog uploadProgress;
+
         if (fileUri != null) {
-            // Create unique image file name
-            final String fileName = UUID.randomUUID().toString();
-            final File file = new File(ctx.getFilesDir(), fileName);
 
-            // Create file from URI
-            createFile(bitmap, ctx, fileUri, file);
-
-            // Show progress dialog
-            uploadProgress = new ProgressDialog(activity);
-            uploadProgress.setMessage(ctx.getString(R.string.start_upload));
-
+            // --- CREATE AND SHOW DIALOG ON THE MAIN THREAD ---
+            // This block needs to run on the UI thread
+            // Use the activity's runOnUiThread method
+            // Declare a *final* dialog variable to be able to access it inside the runOnUiThread runnable
+            //final ProgressDialog[] dialogHolder = new ProgressDialog[1]; // Use an array or AtomicReference to hold the dialog
+            /*
             activity.runOnUiThread(() -> {
-                uploadProgress.show();
+                try {
+                    // CREATE the ProgressDialog here on the UI thread
+                    dialogHolder[0] = new ProgressDialog(activity);
+                    dialogHolder[0].setMessage(ctx.getString(R.string.start_upload));
+                    // SHOW the dialog here on the UI thread
+                    dialogHolder[0].show();
+                    Log.d(TAG, "ProgressDialog created and shown on UI thread.");
+                } catch (Exception e) {
+                    // Log potential errors during dialog creation/showing, though less likely now
+                    Log.e(TAG, "Error showing progress dialog", e);
+                    // You might want to notify the user or handle this failure
+                    Toast.makeText(ctx, "Could not show progress dialog.", Toast.LENGTH_SHORT).show();
+                }
             });
 
-            // Prepare the file to be uploaded
-            RequestBody requestFile = RequestBody.create(MediaType.parse(ctx.getContentResolver().getType(fileUri)), file);
-            MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+            */
+
+            // --- END CREATE AND SHOW DIALOG ON THE MAIN THREAD ---
+
+            // Assign the dialog reference *after* the UI thread block has likely executed
+            // Note: runOnUiThread is asynchronous, but the next lines will likely run
+            // shortly after the UI thread picks up the runnable. Using the holder array
+            // ensures you get the instance created on the UI thread.
+            //uploadProgress = dialogHolder[0];
+
+
+            // IMPORTANT: Ensure the remaining file operations and network call
+            // are still happening on a BACKGROUND thread.
+            // This whole `uploadFile` method is currently called within the
+            // ExecutorService's Runnable from processImageForUpload, which is correct.
+
+
+            // Create unique image file name
+            final String fileName = UUID.randomUUID().toString() + ".jpg"; // Add extension
+            // Using cache dir is often better for temporary files than getFilesDir()
+            final File file = new File(ctx.getCacheDir(), fileName); // Changed to cacheDir
+
+            try {
+                // Create file from Bitmap or original Uri - THIS NEEDS TO BE ON A BACKGROUND THREAD
+                // Since uploadFile is already on a background thread, calling createFile here is fine.
+                Log.d(TAG, "Creating temporary file: " + file.getAbsolutePath());
+                createFile(bitmap, ctx, fileUri, file); // Call your createFile method
+                Log.d(TAG, "Temporary file created.");
+
+            } catch (IOException e) {
+                Log.e(TAG, "Error creating temporary file for upload", e);
+                // Dismiss dialog and show error on the main thread if file creation fails
+                activity.runOnUiThread(() -> {
+                    /*if (uploadProgress != null && uploadProgress.isShowing()) {
+                        uploadProgress.dismiss();
+                    }*/
+                    Toast.makeText(ctx, "Failed to prepare image for upload.", Toast.LENGTH_SHORT).show();
+                });
+                // Exit the method early as we can't proceed
+                return;
+            }
+
+
+            // Prepare the file to be uploaded - THIS NEEDS TO BE ON A BACKGROUND THREAD
+            // Read the created temporary file
+            String mimeType = ctx.getContentResolver().getType(fileUri);
+            if (mimeType == null) {
+                // Fallback if getContentResolver().getType() returns null
+                mimeType = "image/*"; // Or a more specific default like "image/jpeg"
+                Log.w(TAG, "Could not determine MIME type for URI, using default: " + mimeType);
+            }
+            RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile); // "image" should match server's expected field name
             String token = ctx.getString(R.string.media_upload_key); // Replace with your token
 
-            // Create Retrofit client and call API
+
+            // Create Retrofit client and call API - Can be on background thread
+            // NOTE: Ensure RetrofitClient.getClient() is thread-safe or created once.
             ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
             Call<ResponseBody> call = apiService.uploadImage(body, token);
+
+            // Enqueue the call - Can be on background thread. Callback runs on Main Thread by default.
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull retrofit2.Response<ResponseBody> response) {
-                    activity.runOnUiThread(() -> {
-                        if (uploadProgress != null && uploadProgress.isShowing()) {
-                            uploadProgress.dismiss();
-                        }
-                        if (response.isSuccessful()) {
-                            Toast.makeText(ctx, ctx.getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
-                            String fullImgUrl = ctx.getString(R.string.actifit_usermedia_url) + fileName;
-                            String imgMarkdownText = "![](" + fullImgUrl + ")";
-                            // Append the uploaded image URL to the text as markdown
+                    // This callback runs on the MAIN THREAD by default because it's enqueued.
+                    // runOnUiThread is redundant here but harmless.
+                    // activity.runOnUiThread(() -> { // Redundant
+
+                    /*if (uploadProgress != null && uploadProgress.isShowing()) {
+                        uploadProgress.dismiss();
+                    }*/
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "Upload successful. Response code: " + response.code());
+                        Toast.makeText(ctx, ctx.getString(R.string.upload_complete), Toast.LENGTH_SHORT).show();
+                        // Assuming server returns the final URL or part of it
+                        String fullImgUrl = ctx.getString(R.string.actifit_usermedia_url) + fileName; // This assumes the server serves the file using the *same* name you sent. Verify your server's API response for the actual URL.
+                        String imgMarkdownText = "![](" + fullImgUrl + ")";
+                        // Append the uploaded image URL to the text as markdown
+                        // NOTE: Modifying UI (textBox) must be on the main thread. This is fine here.
+                        if (textBox != null) { // Add null check for safety
                             int start = Math.max(textBox.getSelectionStart(), 0);
                             int end = Math.max(textBox.getSelectionEnd(), 0);
                             textBox.getText().replace(Math.min(start, end), Math.max(start, end),
                                     imgMarkdownText, 0, imgMarkdownText.length());
-                            file.delete();
                         } else {
-                            showError();
+                            Log.w(TAG, "EditText is null, cannot insert image URL.");
                         }
-                    });
+
+                    } else {
+                        Log.e(TAG, "Upload failed. Response code: " + response.code() + ", Message: " + response.message());
+                        // Attempt to read error body if available
+                        try {
+                            String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                            Log.e(TAG, "Error Body: " + errorBody);
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error reading error body", e);
+                        }
+                        showError(ctx); // Pass context
+                    }
+
+                    // Delete the temporary file regardless of success/failure
+                    if (file.exists()) {
+                        if (file.delete()) {
+                            Log.d(TAG, "Temporary file deleted: " + file.getAbsolutePath());
+                        } else {
+                            Log.w(TAG, "Failed to delete temporary file: " + file.getAbsolutePath());
+                        }
+                    }
+
+                    // }); // Redundant runOnUiThread closing bracket
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    activity.runOnUiThread(() -> {
-                        if (uploadProgress != null && uploadProgress.isShowing()) {
-                            uploadProgress.dismiss();
+                    // This callback runs on the MAIN THREAD by default.
+                    // runOnUiThread is redundant but harmless.
+                    // activity.runOnUiThread(() -> { // Redundant
+
+                    /*if (uploadProgress != null && uploadProgress.isShowing()) {
+                        uploadProgress.dismiss();
+                    }*/
+                    Log.e(TAG, "Upload network failure", t); // Log the full stack trace
+                    showError(ctx); // Pass context
+
+                    // Delete the temporary file on failure too
+                    if (file.exists()) {
+                        if (file.delete()) {
+                            Log.d(TAG, "Temporary file deleted after failure: " + file.getAbsolutePath());
+                        } else {
+                            Log.w(TAG, "Failed to delete temporary file after failure: " + file.getAbsolutePath());
                         }
-                        showError();
-                    });
+                    }
+
+                    // }); // Redundant runOnUiThread closing bracket
                 }
 
-                private void showError() {
-                    activity.runOnUiThread(() -> {
-                        Toast toast = Toast.makeText(ctx, ctx.getString(R.string.upload_failed), Toast.LENGTH_SHORT);
+                // Made showError static and accepts Context
+                private void showError(Context context) {
+                    // This method is called from Retrofit callbacks (Main Thread),
+                    // so runOnUiThread inside it is redundant but harmless.
+                    // activity.runOnUiThread(() -> { // Redundant
+                    Toast toast = Toast.makeText(context, context.getString(R.string.upload_failed), Toast.LENGTH_SHORT);
+                    // Make sure getView() and findViewById are safe - accessing internal Toast views can be fragile.
+                    // A simpler approach is just a standard red Toast if supported by system.
+                    // If you need custom Toast appearance, use a custom layout with Toast or a Snackbar/Dialog.
+                    try {
                         TextView v = toast.getView().findViewById(android.R.id.message);
-                        v.setTextColor(Color.RED);
-                        toast.show();
-                    });
+                        if (v != null) {
+                            v.setTextColor(Color.RED);
+                        }
+                    } catch (Exception e) {
+                        Log.w(TAG, "Could not set Toast text color", e);
+                        // Fallback to default Toast appearance
+                    }
+                    toast.show();
+                    // }); // Redundant runOnUiThread closing bracket
                 }
             });
+        } else {
+            // Handle case where fileUri is unexpectedly null
+            Log.e(TAG, "uploadFile called with null fileUri");
+            activity.runOnUiThread(() -> {
+                Toast.makeText(ctx, "Error: No file selected for upload.", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Ensure the bitmap is recycled *after* it's been used by createFile
+        // and any other processing. If you only use it in createFile,
+        // you could recycle it after the createFile call here (on background thread),
+        // assuming Retrofit/OkHttp doesn't need the bitmap itself (it shouldn't, it needs the file).
+        if (bitmap != null && !bitmap.isRecycled()) {
+            Log.d(TAG, "Recycling bitmap after use.");
+            bitmap.recycle();
         }
     }
+
 
     //removes any tags that do not match predefined list
     public static String sanitizeContent(String htmlContent, Boolean minimal) {
@@ -651,15 +962,13 @@ public class Utils {
 
             builder1.setPositiveButton(
                     context.getString(R.string.dismiss_button),
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                            //if we need to close current Activity
-                            if (closeScreen) {
-                                //close current screen
-                                Log.d(MainActivity.TAG,">>>Finish");
-                                currentActivity.finish();
-                            }
+                    (dialog, id) -> {
+                        dialog.cancel();
+                        //if we need to close current Activity
+                        if (closeScreen) {
+                            //close current screen
+                            Log.d(MainActivity.TAG,">>>Finish");
+                            currentActivity.finish();
                         }
                     });
             //create and display alert window
@@ -1286,6 +1595,136 @@ public class Utils {
     private static String normalizeString(String input){
         if (input == null) return "";
         return input.trim().toLowerCase();
+    }
+
+    /**
+     * Resolves a theme attribute and sets it as the background of a View.
+     * Particularly useful for attributes that reference Drawables or Colors,
+     * like ?android:attr/windowBackground or ?attr/colorSurface.
+     *
+     * @param view The View to set the background on.
+     * @param attributeId The Android resource ID of the theme attribute (e.g., android.R.attr.windowBackground).
+     * @return true if the attribute was resolved and applied, false otherwise.
+     */
+    public static boolean setBackgroundFromThemeAttribute(View view, int attributeId) {
+        if (view == null) {
+            return false;
+        }
+        Context context = view.getContext();
+        TypedValue typedValue = new TypedValue();
+
+        // Resolve the theme attribute
+        boolean resolved = context.getTheme().resolveAttribute(attributeId, typedValue, true);
+
+        if (resolved) {
+            // The attribute was resolved successfully
+            if (typedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT && typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                // The resolved value is a direct color integer (e.g., #RRGGBB or #AARRGGBB)
+                view.setBackgroundColor(typedValue.data);
+                return true;
+            } else {
+                // The resolved value is likely a reference to a resource (Drawable or Color Resource)
+                // Use getDrawable to correctly load the resource from its ID
+                if (typedValue.resourceId != 0) {
+                    try {
+                        Drawable drawable = ContextCompat.getDrawable(context, typedValue.resourceId);
+                        if (drawable != null) {
+                            view.setBackground(drawable); // Set the Drawable background
+                            return true;
+                        }
+                    } catch (Exception e) {
+                        // Handle potential errors if the resource ID is invalid or cannot be loaded
+                        e.printStackTrace();
+                    }
+                }
+                // If resourceId is 0 and not a direct color, it might be a complex type not handled here,
+                // or the attribute resolved but points to nothing loadable as a background.
+            }
+        }
+        // Attribute did not resolve, or resource loading failed
+        return false;
+    }
+
+    /**
+     * Checks if the current configuration's UI mode is set to night (dark mode).
+     * This reflects the actual theme currently applied to the given Context.
+     *
+     * @param context The Context whose configuration should be checked (e.g., Activity context).
+     * @return true if the current UI mode is night, false otherwise.
+     */
+    public static boolean isDarkModeActive(Context context) {
+        if (context == null) {
+            // Cannot determine UI mode without a valid context
+            return false;
+        }
+        int nightModeFlags = context.getResources().getConfiguration().uiMode &
+                Configuration.UI_MODE_NIGHT_MASK;
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    // Helper function to convert dp to pixels
+    public static int dpToPx(Context ctx, int dp) {
+        return (int) (dp * ctx.getResources().getDisplayMetrics().density);
+    }
+
+    /***************** Fetch user balance ********************/
+    public interface BalanceFetchListener {
+        void onBalanceFetched(double balance);
+        void onBalanceFetchFailed(String errorMessage); // Or pass an Exception
+    }
+
+    public static void fetchUserBalance(Context ctx, String username, boolean fullBalance, BalanceFetchListener listener) {
+
+        if (username.isEmpty()) {
+            // Handle invalid input immediately and notify the listener
+            if (listener != null) {
+                listener.onBalanceFetchFailed("Username is empty.");
+            }
+            return;
+        }
+
+        String balanceUrl = Utils.apiUrl(ctx) + ctx.getString(R.string.user_balance_api_url) + username
+                + (fullBalance ? "?fullBalance=1" : "");
+
+        RequestQueue queue = Volley.newRequestQueue(ctx);
+
+        JsonObjectRequest balanceRequest = new JsonObjectRequest(
+                Request.Method.GET, balanceUrl, null,
+                response -> {
+                    // This block runs when the server responds successfully
+                    try {
+                        double balance = response.getDouble("tokens");
+                        Log.d(TAG, "Balance fetched: " + balance);
+                        // Pass the fetched balance back via the listener
+                        if (listener != null) {
+                            listener.onBalanceFetched(balance);
+                        }
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON parsing error fetching balance", e);
+                        // Notify the listener about the parsing error
+                        if (listener != null) {
+                            listener.onBalanceFetchFailed("Failed to parse balance data.");
+                        }
+                    }
+                },
+                error -> {
+                    // This block runs if there's a network or server error
+                    Log.e(TAG, "Volley error fetching balance", error);
+                    String errorMessage = "Network error fetching balance.";
+                    if (error != null && error.getMessage() != null) {
+                        errorMessage += " " + error.getMessage();
+                    }
+                    // Notify the listener about the error
+                    if (listener != null) {
+                        listener.onBalanceFetchFailed(errorMessage);
+                    }
+                }
+        );
+
+        // Add balance request to be processed (asynchronously)
+        queue.add(balanceRequest);
+
     }
 
 }

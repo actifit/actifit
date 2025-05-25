@@ -1,5 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Actifit</string>
     <string name="sending_post">Sending your post...</string>
     <string name="success_post">Your post has been successfully submitted</string>
     <string name="failed_post">There was an error submitting your post</string>
@@ -529,4 +528,32 @@
     <string name="tweet_button">Tweet Reward</string>
     <string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
     <string name="switch_settings_btn" translatable="false">\uf362</string>
+    <string name="extra_beneficiary">Additional Beneficiary</string>
+    <string name="setting_dark_mode_label">Dark Mode</string>
+    <string name="icon_sun_desc">Sun icon</string>
+    <string name="icon_moon_desc">Moon icon</string>
+    <string name="skip">SKIP</string>
+    <string name="daily">Daily</string>
+    <string name="hourly">Hourly</string>
+    <string name="app_name">Actifit</string>
+    <string name="error_transaction">There was an error performing the transaction</string>
+    <string name="proceed">Proceed</string>
+    <string name="saved_workouts">Saved Workouts</string>
+    <string name="workout_planning">Workout Planning</string>
+    <string name="no_saved_workouts_yet">No saved workouts yet.</string>
+    <string name="retry_loading_workouts">Retry Loading Workouts</string>
+    <string name="generate_new_workout">Generate New Workout</string>
+    <string name="workout_name">Workout Name:</string>
+    <string name="enter_a_name_for_your_workout">Enter a name for your workout</string>
+    <string name="fitness_goal">Fitness Goal:</string>
+    <string name="experience_level">Experience Level:</string>
+    <string name="weekly_time">Weekly Time:</string>
+    <string name="workout_frequency">Workout Frequency:</string>
+    <string name="preferred_workout_style">Preferred Workout Style:</string>
+    <string name="equipment">Equipment:</string>
+    <string name="physical_limitations">Physical Limitations:</string>
+    <string name="enter_details_for_other_limitations">Enter details for \'Other\' limitations</string>
+    <string name="generate_workout_plan">Generate Workout Plan</string>
+    <string name="workout_plan_overview">Workout Plan Overview</string>
+    <string name="exercises">Exercises</string>
 </resources>

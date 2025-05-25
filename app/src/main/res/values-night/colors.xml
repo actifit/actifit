@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF5252</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#FF5252</color>
+    <color name="actifitRed">#FF5252</color>
+    <color name="actifitGreen">#32CD32</color>
+    <color name="actifitDarkGreen">#008000</color>
+    <color name="colorWhite">#121212</color><!-- White in light becomes dark gray in dark (common Material dark background) -->
+    <color name="colorBlack">#FFFFFF</color><!-- Black in light becomes white/light gray in dark -->
+
+    <!-- Neutral colors - Use the SAME semantic names -->
+    <color name="color_text_primary">#FFFFFF</color> <!-- White text for dark backgrounds -->
+    <color name="color_text_secondary">#B0B0B0</color> <!-- Lighter gray text -->
+    <color name="color_background">#121212</color> <!-- Dark main background -->
+    <color name="color_surface">#1E1E1E</color> <!-- Darker gray surface -->
+    <color name="color_separator">#424242</color> <!-- Darker divider -->
+    <color name="color_header_background">#2A2A2A</color> <!-- Even darker header background -->
+    <color name="color_header_text">#F0F0F0</color> <!-- Light header text -->
+    <color name="color_text_hint">#606060</color> <!-- Dark hint text -->
+
+    <!-- Specific colors (if needed) -->
+    <color name="text_on_actifit_red">#FFFFFF</color> <!-- White text (often same in dark mode) -->
+
+    <!-- Define positive/negative colors for transaction list -->
+    <color name="positive_amount_color">#66FF66</color> <!-- Lighter green for dark mode -->
+    <color name="negative_amount_color">#FF6666</color> <!-- Lighter red for dark mode -->
+</resources>

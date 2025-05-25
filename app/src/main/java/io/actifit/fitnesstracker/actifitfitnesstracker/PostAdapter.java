@@ -6,17 +6,11 @@ import static android.view.View.VISIBLE;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -42,7 +36,6 @@ import com.deepl.api.DeepLException;
 import com.deepl.api.Translator;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
-import com.squareup.picasso.Target;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
@@ -72,7 +65,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     ListView commentsList;
     //TextView translationNotice;
     Boolean isComment = false;//flag whether this is a post or a comment
-    Boolean isTranslated = false;
+    //Boolean isTranslated = false;
     //Boolean isExpanded = false;
     static JSONArray extraVotesList;
     static Context keyMainContext;
@@ -189,7 +182,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 } else if (postEntry.threadType.equals(ctx.getString(R.string.ecency_waves_account))) {
                     threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.ecency));
                 } else if (postEntry.threadType.equals(ctx.getString(R.string.leo_threads_account))) {
-                    threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.leothreads));
+                    threadTypeImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.inleo));
                 }
             //}else{
                 //threadType.setVisibility(GONE);
@@ -305,9 +298,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     ProgressBar loader = finalConvertView.findViewById(R.id.loader);
                     Thread thread = new Thread(() -> {
                         //load data
-                        activity.runOnUiThread(() -> {
-                            loader.setVisibility(VISIBLE);
-                        });
+                        activity.runOnUiThread(() -> loader.setVisibility(VISIBLE));
                         postEntry.comments = loadComments(postEntry);
 
 
@@ -329,17 +320,11 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             shareSocialButton.setOnClickListener(view -> shareSocial(postEntry));
 
             TextView payoutIcon = convertView.findViewById(R.id.payout_icon);
-            payoutIcon.setOnClickListener(view -> {
-                Toast.makeText(ctx, ctx.getString(R.string.payout_details),Toast.LENGTH_SHORT).show();
-            });
+            payoutIcon.setOnClickListener(view -> Toast.makeText(ctx, ctx.getString(R.string.payout_details),Toast.LENGTH_SHORT).show());
 
-            payoutVal.setOnClickListener(view -> {
-                Toast.makeText(ctx, ctx.getString(R.string.hive_payout_details),Toast.LENGTH_SHORT).show();
-            });
+            payoutVal.setOnClickListener(view -> Toast.makeText(ctx, ctx.getString(R.string.hive_payout_details),Toast.LENGTH_SHORT).show());
 
-            afitRewards.setOnClickListener(view -> {
-                Toast.makeText(ctx, ctx.getString(R.string.afit_payout_details),Toast.LENGTH_SHORT).show();
-            });
+            afitRewards.setOnClickListener(view -> Toast.makeText(ctx, ctx.getString(R.string.afit_payout_details),Toast.LENGTH_SHORT).show());
 
             expandButton.setOnClickListener(view -> {
                 if (expandButton.getVisibility() == VISIBLE) {
@@ -363,7 +348,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             //checkmark
             String checkMark = "&#10003;";//"&#9989;";//"✅";
-            String xMark = "&#10006;";//"&#10060;";//"❌";
+            //String xMark = "&#10006;";//"&#10060;";//"❌";
             String hourglass = "&#8987;";
             int colorSuccess = ctx.getResources().getColor(R.color.actifitDarkGreen);
             int colorPending = ctx.getResources().getColor(R.color.actifitRed);
@@ -811,11 +796,23 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             }
         }
         //finalText += "ttt";
-        Spanned markdown = markwon.toMarkdown(Utils.sanitizeContent(finalText, true));
+
+        String sanitizedText = Utils.sanitizeContent(finalText, true);
+        String processedText = convertImageLinksToMarkdown(sanitizedText);
+        //processedText = convertYouTubeLinksToEmbed(processedText);
+        Spanned markdown = markwon.toMarkdown(processedText);
+
+// Use it on a TextView
+        /*markwon.setParsedMarkdown(body, markdown);
+        body.setVisibility(VISIBLE);
+        progressBarBody.setVisibility(GONE);
+
+        String processedText = convertImageLinksToMarkdown(finalText); // Detect & format image URLs
+        Spanned markdown = markwon.toMarkdown(Utils.sanitizeContent(processedText, true));*/
 
         // Convert image links to actual images
-        SpannableString spannableString = new SpannableString(markdown);
-        detectAndConvertImageLinks(body, spannableString, ctx);
+//        SpannableString spannableString = new SpannableString(markdown);
+//        detectAndConvertImageLinks(body, spannableString, ctx);
 
 
         // use it on a TextView
@@ -826,9 +823,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
     private Boolean isPaid(SingleHivePostModel postEntry){
         if (postEntry!=null){
-            if (postEntry.is_paidout) {
-                return true;
-            }
+            return postEntry.is_paidout;
         }
         return false;
     }
@@ -846,35 +841,37 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         return "0.0";
     }
 
-    private void detectAndConvertImageLinks(TextView body, SpannableString spannableString, Context context) {
+    private String convertImageLinksToMarkdown(String text) {
         Pattern pattern = Pattern.compile("(https?://\\S+?\\.(jpg|jpeg|png|gif))");
-        Matcher matcher = pattern.matcher(spannableString.toString());
+        Matcher matcher = pattern.matcher(text);
+        StringBuffer modifiedText = new StringBuffer();
 
         while (matcher.find()) {
             String imageUrl = matcher.group();
-            int start = matcher.start();
-            int end = matcher.end();
-
-            Picasso.get()
-                    .load(imageUrl)
-                    .into(new Target() {
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                            Drawable drawable = new BitmapDrawable(context.getResources(), bitmap);
-                            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-
-                            ImageSpan imageSpan = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
-                            spannableString.setSpan(imageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            body.setText(spannableString);
-                        }
-
-                        @Override
-                        public void onBitmapFailed(Exception e, Drawable errorDrawable) {}
-
-                        @Override
-                        public void onPrepareLoad(Drawable placeHolderDrawable) {}
-                    });
+            matcher.appendReplacement(modifiedText, "![](" + imageUrl + ")"); // Convert to Markdown
         }
+        matcher.appendTail(modifiedText);
+        return modifiedText.toString();
     }
+
+    private String convertYouTubeLinksToEmbed(String text) {
+        Pattern pattern = Pattern.compile("(https?://(?:www\\.)?(youtube\\.com/(watch\\?v=|shorts/)|youtu\\.be/|you\\.tube/)([a-zA-Z0-9_-]+))");
+        Matcher matcher = pattern.matcher(text);
+        StringBuffer modifiedText = new StringBuffer();
+
+        while (matcher.find()) {
+            String videoId = matcher.group(4);
+            String embedCode =
+                    "<div style='position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;'>" +
+                            "<iframe style='position: absolute; top: 0; left: 0; width: 100%; height: 100%;' " +
+                            "src='https://www.youtube.com/embed/" + videoId + "' frameborder='0' allowfullscreen></iframe>" +
+                            "</div>";
+
+            matcher.appendReplacement(modifiedText, embedCode);
+        }
+        matcher.appendTail(modifiedText);
+        return modifiedText.toString();
+    }
+
 
 }

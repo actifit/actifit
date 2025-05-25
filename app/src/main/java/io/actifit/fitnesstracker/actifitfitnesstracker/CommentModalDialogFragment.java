@@ -305,7 +305,7 @@ public class CommentModalDialogFragment extends DialogFragment {
         //removed extra tags
         shortenedContent = Utils.sanitizeContent(shortenedContent, false);
 
-        shortenedContent = Utils.trimText(shortenedContent, Constants.trimmedTextSize);
+        shortenedContent = Utils.trimText(shortenedContent, Constants.TRIMMED_TEXT_SIZE);
 
         //to be used when setting value upon content retract
         //final String finalShortenedContent = shortenedContent;

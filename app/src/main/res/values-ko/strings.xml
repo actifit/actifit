@@ -424,7 +424,6 @@
 	<string name="Share">공유</string>
 	<string name="successful_referrals_txt">성공적인 추천</string>
 	<string name="referral_link_txt">귀하의 추천 링크</string>
-	<string name="referrals_format" translatable="false">https://actifit.io/signup?referrer=</string>
 	<string name="referral_title">Actifit에 지금 가입하십시오 - 사회적 Move2Earn 프로젝트!</string>
 	<string name="referral_description">Actifit은 일일 활동을 추적하여 여러 암호화 자산을 적립합니다.</string>
 	<string name="post_title">Actifit에서의 나의 멋진 새 게시물을 확인해 보세요, 사회적 Move2Earn 프로젝트!</string>
@@ -442,8 +441,6 @@
 	<string name="daily_5k_reward">5K 추가 보상</string>
 	<string name="daily_7k_reward">7K 추가 보상</string>
 	<string name="daily_10k_reward">10K 추가 보상</string>
-	<string name="sting_chat_update" translatable="false">Sting_chat_update</string>
-	<string name="sting_chat_comm_count" translatable="false">Sting_chat_comm_count</string>
 	<string name="voting_on">투표</string>
 	<string name="select_option">먼저 옵션을 선택하십시오</string>
 	<string name="voters_list">투표자 목록</string>
@@ -462,17 +459,8 @@
 	<string name="not_eligible">아직 이 보상을 받을 자격이 없습니다</string>
 	<string name="rewards_processing"> 보상 주기 진행 중 - 보상 분배 </string>
 	<string name="not_enough_afit_balance">구매할 AFIT 잔액이 충분하지 않습니다 </string>
-	<string name="facebook_actifit" translatable="false">https://www.facebook.com/Actifit.fitness</string>
-	<string name="twitter_actifit" translatable="false">https://www.twitter.com/Actifit_fitness</string>
-	<string name="telegram_actifit" translatable="false">https://t.me/actifit</string>
-	<string name="discord_actifit" translatable="false">https://links.actifit.io/discord</string>
-	<string name="youtube_actifit" translatable="false">https://www.youtube.com/c/Actifitfitness</string>
-	<string name="instagram_actifit" translatable="false">https://www.instagram.com/actifit.fitness</string>
-	<string name="medium_actifit" translatable="false">https://medium.com/@actifit.fitness</string>
-	<string name="linkedin_actifit" translatable="false">https://www.linkedin.com/company/actifit-io</string>
-	<string name="logout_confirmation">로그아웃 하시겠습니까?</string>
+    <string name="logout_confirmation">로그아웃 하시겠습니까?</string>
 	<string name="gadgets_description">가상 가젯을 통해 일일 수익을 증대할 수 있습니다. 가젯을 구매하고 활성화하면, actifit 보상을 통해 자신(또는 친구)에게 다양한 유형의 추가 보상을 받을 수 있습니다.</string>
-	<string name="default_login_img" translatable="false">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
 	<string name="ad_not_ready">보상 광고가 아직 준비되지 않았습니다.</string>
 	<string name="err_load_ad">광고 로딩 오류</string>
 	<string name="wave_hint_1">빠른 업데이트를 공유하세요...</string>
@@ -530,4 +518,31 @@
 	<string name="tweet_button">트윗 보상</string>
 	<string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
 	<string name="switch_settings_btn" translatable="false">\uf362</string>
+    <string name="extra_beneficiary">추가 수혜자</string>
+    <string name="setting_dark_mode_label">다크 모드</string>
+	<string name="icon_sun_desc">태양 아이콘</string>
+	<string name="icon_moon_desc">달 아이콘</string>
+    <string name="skip">건너뛰다</string>
+    <string name="daily">매일</string>
+	<string name="hourly">매시간</string>
+    <string name="error_transaction">거래를 수행하는 중 오류가 발생했습니다.</string>
+	<string name="proceed">진행</string>
+    <string name="saved_workouts">저장된 운동</string>
+    <string name="workout_planning">운동 계획</string>
+    <string name="no_saved_workouts_yet">저장된 운동이 아직 없습니다.</string>
+    <string name="retry_loading_workouts">운동 다시 로드</string>
+    <string name="generate_new_workout">새 운동 생성</string>
+    <string name="workout_name">운동 이름:</string>
+    <string name="enter_a_name_for_your_workout">운동 이름을 입력하세요</string>
+    <string name="fitness_goal">피트니스 목표:\t</string>
+    <string name="experience_level">경험 수준:</string>
+    <string name="weekly_time">주간 시간:</string>
+    <string name="workout_frequency">운동 빈도:</string>
+    <string name="preferred_workout_style">선호하는 운동 스타일</string>
+    <string name="equipment">장비:</string>
+    <string name="physical_limitations">신체적 제한</string>
+    <string name="enter_details_for_other_limitations">\'기타\' 제한에 대한 세부 정보 입력</string>
+    <string name="generate_workout_plan">운동 계획 생성</string>
+    <string name="workout_plan_overview">운동 계획 개요</string>
+    <string name="exercises">운동</string>
 </resources>

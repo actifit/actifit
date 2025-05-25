@@ -423,8 +423,7 @@
 <string name="Share">Paylaş</string>
 <string name="successful_referrals_txt">Başarılı Yönlendirmeler</string>
 <string name="referral_link_txt">Yönlendirme Bağlantınız</string>
-<string name="referrals_format" translatable="false">https://actifit.io/signup?referrer=</string>
-<string name="referral_title">Actifit\'e Şimdi Katılın - Sosyal Move2Earn Projesi!</string>
+    <string name="referral_title">Actifit\'e Şimdi Katılın - Sosyal Move2Earn Projesi!</string>
 <string name="referral_description">Actifit, günlük aktivitenizi takip ettiğiniz için sizi ödüllendirir ve birden fazla kripto varlık kazanmanızı sağlar.</string>
 <string name="post_title">Actifit\'teki havalı yeni gönderime göz atın, sosyal Move2Earn Projesi!</string>
 <string name="post_title_other">Actifit\'teki bu havalı gönderiye göz atın, sosyal Move2Earn Projesi!</string>
@@ -441,9 +440,7 @@
 <string name="daily_5k_reward">5K Ekstra Ödül</string>
 <string name="daily_7k_reward">7K Ekstra Ödül</string>
 <string name="daily_10k_reward">10K Ekstra Ödül</string>
-<string name="sting_chat_update" translatable="false">Sting_chat_update</string>
-<string name="sting_chat_comm_count" translatable="false">Sting_chat_comm_count</string>
-<string name="voting_on">Oylama</string>
+    <string name="voting_on">Oylama</string>
 <string name="select_option">Lütfen önce bir seçenek seçin</string>
 <string name="voters_list">Oy Verenler Listesi</string>
 <string name="reply_action">Yanıtla</string>
@@ -461,18 +458,9 @@
 <string name="not_eligible">Bu ödül için henüz uygun değilsiniz</string>
 <string name="rewards_processing"> Ödül Döngüsü Devam Ediyor - Ödüller Dağıtılıyor </string>
 <string name="not_enough_afit_balance">Satın almak için yeterli AFIT\'iniz yok </string>
-<string name="facebook_actifit" translatable="false">https://www.facebook.com/Actifit.fitness</string>
-<string name="twitter_actifit" translatable="false">https://www.twitter.com/Actifit_fitness</string>
-<string name="telegram_actifit" translatable="false">https://t.me/actifit</string>
-<string name="discord_actifit" translatable="false">https://links.actifit.io/discord</string>
-<string name="youtube_actifit" translatable="false">https://www.youtube.com/c/Actifitfitness</string>
-<string name="instagram_actifit" translatable="false">https://www.instagram.com/actifit.fitness</string>
-<string name="medium_actifit" translatable="false">https://medium.com/@actifit.fitness</string>
-<string name="linkedin_actifit" translatable="false">https://www.linkedin.com/company/actifit-io</string>
-<string name="logout_confirmation">Çıkış yapmak istediğinizden emin misiniz?</string>
+    <string name="logout_confirmation">Çıkış yapmak istediğinizden emin misiniz?</string>
 <string name="gadgets_description">Sanal gadget\'lar günlük kazançlarınızı artırmanızı sağlar. Gadget satın alarak ve etkinleştirerek, actifit ödüllerinde kendinize (veya arkadaşınıza) ekstra çeşitli ödüller kazanabilirsiniz.</string>
-<string name="default_login_img" translatable="false">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
-<string name="ad_not_ready">Ödüllü reklam henüz hazır değil.</string>
+    <string name="ad_not_ready">Ödüllü reklam henüz hazır değil.</string>
 <string name="err_load_ad">reklam yüklenirken hata oluştu</string>
 <string name="wave_hint_1">Hızlı bir güncelleme paylaş...</string>
 <string name="wave_preview">Önizleme</string>
@@ -529,4 +517,31 @@
 <string name="tweet_button">Tweet Ödülü</string>
 <string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
 <string name="switch_settings_btn" translatable="false">\uf362</string>
+    <string name="extra_beneficiary">Додатковий бенефіціар</string>
+    <string name="setting_dark_mode_label">Темний режим</string>
+    <string name="icon_sun_desc">Значок сонця</string>
+    <string name="icon_moon_desc">Значок місяця</string>
+    <string name="skip">пропустити</string>
+    <string name="daily">Щодня</string>
+    <string name="hourly">Щогодини</string>
+    <string name="error_transaction">Сталася помилка під час виконання транзакції</string>
+    <string name="proceed">Продовжити</string>
+    <string name="saved_workouts">Збережені тренування</string>
+    <string name="workout_planning">Планування тренувань</string>
+    <string name="no_saved_workouts_yet">Немає збережених тренувань ще.</string>
+    <string name="retry_loading_workouts">Повторити завантаження тренувань</string>
+    <string name="generate_new_workout">Згенерувати нове тренування</string>
+    <string name="workout_name">Назва тренування:</string>
+    <string name="enter_a_name_for_your_workout">Введіть назву для тренування</string>
+    <string name="fitness_goal">Fitness Hedefi:</string>
+    <string name="experience_level">Рівень досвіду:</string>
+    <string name="weekly_time">Тижневий час:</string>
+    <string name="workout_frequency">Частота тренувань:</string>
+    <string name="preferred_workout_style">Бажаний стиль тренувань</string>
+    <string name="equipment">Обладнання:</string>
+    <string name="physical_limitations">Фізичні обмеження:</string>
+    <string name="enter_details_for_other_limitations">Введіть деталі для обмежень \'Інше\'</string>
+    <string name="generate_workout_plan">Згенерувати план тренування</string>
+    <string name="workout_plan_overview">Огляд плану тренування</string>
+    <string name="exercises">Вправи</string>
 </resources>

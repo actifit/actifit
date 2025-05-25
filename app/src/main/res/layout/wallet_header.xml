@@ -1,18 +1,27 @@
-<TableRow xmlns:android="http://schemas.android.com/apk/res/android" >
+<TableRow
+    xmlns:android="http://schemas.android.com/apk/res/android" >
     <TextView
         android:text="@string/table_token_title"
-        android:padding="5dp"
+        android:padding="3dp"
+        android:textStyle="bold"
+        android:maxLines="1"
         android:layout_column="0"/>
     <TextView
         android:text="@string/table_balance_title"
-        android:padding="5dp"
+        android:padding="3dp"
+        android:textStyle="bold"
+        android:maxLines="1"
         android:layout_column="1"/>
     <TextView
         android:text="@string/table_staked_title"
         android:padding="5dp"
+        android:textStyle="bold"
+        android:maxLines="1"
         android:layout_column="2"/>
     <TextView
         android:text="@string/table_actions_title"
         android:padding="5dp"
+        android:textStyle="bold"
+        android:maxLines="1"
         android:layout_column="3"/>
 </TableRow>

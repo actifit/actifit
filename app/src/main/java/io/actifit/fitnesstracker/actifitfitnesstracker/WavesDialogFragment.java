@@ -581,6 +581,9 @@ public class WavesDialogFragment extends DialogFragment {
                 });
 
 
+                //check which short content is active
+                int activeShorts = Integer.parseInt(ctx.getString(R.string.active_short_content));
+                if (activeShorts ==0 || activeShorts == 1) {
                 //grab array from result
                 JSONArray result = hiveReq.getAccountPosts(params);
                 //SingleHivePostModel lastPost = null;
@@ -602,7 +605,10 @@ public class WavesDialogFragment extends DialogFragment {
                     }
                 }
 
+                }
+
                 //also load snaps (by peakd) content
+                if (activeShorts ==0 || activeShorts == 2) {
                 params.put("account", getString(R.string.peakd_snaps_account));
                 JSONArray snaps = hiveReq.getAccountPosts(params);
                 if (snaps.length() > postDateContent){
@@ -621,8 +627,10 @@ public class WavesDialogFragment extends DialogFragment {
                         comments.addAll(loadComments(tempPostEntryCont));
                     }
                 }
+                }
 
                 //also load threads (by leo) content
+                if (activeShorts ==0 || activeShorts == 3) {
                 params.put("account", getString(R.string.leo_threads_account));
                 JSONArray leothreads = hiveReq.getAccountPosts(params);
                 if (leothreads.length() > postDateContent){
@@ -639,6 +647,7 @@ public class WavesDialogFragment extends DialogFragment {
                         tempPostEntryCont.threadType = getString(R.string.leo_threads_account);
                         //lastPost = postEntry;
                         comments.addAll(loadComments(tempPostEntryCont));
+                        }
                     }
                 }
 

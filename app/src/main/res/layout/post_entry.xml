@@ -154,7 +154,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
-                android:background="@color/colorWhite"
                 android:color="@color/colorBlack"
                 android:lineSpacingMultiplier="1.3"
                 android:textStyle="italic|bold"
@@ -162,6 +161,37 @@
                 android:visibility="gone"
                 />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_margin="0dp">
+
+            <!-- TextView -->
+            <TextView
+                android:id="@+id/translate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="\uf1ab"
+                android:textColor="@color/actifitRed"
+                android:textSize="32sp"
+                android:layout_marginRight="10dp"
+                android:gravity="left"
+                android:layout_weight="1" /> <!-- Pushes ImageView to the right -->
+
+            <!-- ImageView -->
+            <ImageView
+                android:id="@+id/threadTypeImage"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="end"
+                android:gravity="end" />
         </LinearLayout>
 
         <LinearLayout android:layout_width="wrap_content"
@@ -181,13 +211,7 @@
 
                 />-->
 
-            <ImageView
-                android:id="@+id/threadTypeImage"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="10dp"
 
-                />
         </LinearLayout>
 
 
@@ -223,27 +247,6 @@
 
             </RelativeLayout>
 
-            <LinearLayout android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_gravity="end"
-                android:layout_margin="0dp">
-
-
-                <TextView
-                    android:id="@+id/translate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:text="\uf1ab"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="32sp"
-                    android:layout_marginRight="10dp"
-                    android:gravity="end" />
-
-            </LinearLayout>
-
-
             <TextView
                 android:id="@+id/body"
                 android:text=""
@@ -253,7 +256,6 @@
                 android:layout_height="100dp"
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
-                android:background="@color/colorWhite"
                 android:color="@color/colorBlack"
                 android:lineSpacingMultiplier="1.3"
                 android:visibility="gone"
@@ -267,7 +269,6 @@
                 android:layout_height="100dp"
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
-                android:background="@color/colorWhite"
                 android:color="@color/colorBlack"
                 android:lineSpacingMultiplier="1.3"
                 />

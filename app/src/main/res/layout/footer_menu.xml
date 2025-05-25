@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:background="?android:attr/windowBackground"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:divider="@drawable/menu_divider"
+    android:showDividers="middle"
+    android:dividerPadding="5dp"
+    >
+
+    <TextView
+        android:id="@+id/btn_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/footer_menu_text_color"
+        android:text="\uf015"
+        android:textSize="23sp"
+        android:padding="5dp"
+        />
+
+    <TextView
+        android:id="@+id/btn_view_social"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/footer_menu_text_color"
+        android:text="\ue068"
+        android:textSize="23sp"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/btn_view_market"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/footer_menu_text_color"
+        android:text="\uf54e"
+        android:textSize="23sp"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/btn_view_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/footer_menu_text_color"
+        android:text="@string/fa_history_solid"
+        android:textSize="23sp"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/btn_view_leaderboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/footer_menu_text_color"
+        android:text="\uf0cb"
+        android:textSize="23sp"
+        android:padding="5dp" />
+
+    <!--
+</LinearLayout>
+
+
+<LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+    -->
+
+    <!-- Row 2 -->
+
+    <TextView
+        android:id="@+id/btn_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/footer_menu_text_color"
+        android:text="\uf03d"
+        android:textSize="23sp"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/btn_socials"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/footer_menu_text_color"
+        android:text="\ue4e2"
+        android:textSize="23sp"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/btn_help"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/footer_menu_text_color"
+        android:text="/?"
+        android:textSize="23sp"
+        android:padding="5dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        >
+
+    <TextView
+        android:id="@+id/btn_chat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:textColor="@color/footer_menu_text_color"
+        android:text="\uf086"
+        android:textSize="23sp"
+        android:padding="5dp" />
+
+    <TextView android:id="@+id/chat_notif_count"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_gravity="top|start"
+        android:paddingTop="2dp"
+        android:textColor="@color/actifitRed"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:text="\uf111"
+        android:textSize="11sp"
+        android:visibility="visible"
+        />
+
+    </LinearLayout>
+
+</LinearLayout>

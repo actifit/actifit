@@ -29,10 +29,10 @@
         android:paddingBottom="20dp"
         android:gravity="center"
         android:textStyle="bold|italic"
-        android:text="The Caption Title"
+        android:text=""
         android:textColor="@color/actifitRed"
         android:textSize="22sp"
-        android:background="@android:color/white"
+
     />
 
     <ProgressBar
