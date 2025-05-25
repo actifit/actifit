@@ -990,7 +990,8 @@ public class WorkoutWizardActivity extends AppCompatActivity
         new AlertDialog.Builder(this)
                 .setTitle("Confirm Workout Generation")
                 .setMessage("Generating this custom workout plan costs " + Constants.MIN_AFIT_PER_WORKOUT + " AFIT. Do you want to proceed and pay?")
-                .setPositiveButton("Pay " + Constants.MIN_AFIT_PER_WORKOUT + " AFIT", (dialog, which) -> {
+                //.setPositiveButton("Pay " + Constants.MIN_AFIT_PER_WORKOUT + " AFIT", (dialog, which) -> {
+                .setPositiveButton(getString(R.string.proceed), (dialog, which) -> {
                     lastAttemptWorkoutName = workoutName;
                     // Initiate the actual AFIT payment process here
                     processWorkoutTrx(workoutName);

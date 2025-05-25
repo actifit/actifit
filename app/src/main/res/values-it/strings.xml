@@ -525,4 +525,6 @@
     <string name="skip">saltare</string>
     <string name="daily">Quotidiano</string>
 	<string name="hourly">Orario</string>
+    <string name="error_transaction">Si è verificato un errore durante l\'esecuzione della transazione</string>
+	<string name="proceed">Procedi</string>
 </resources>

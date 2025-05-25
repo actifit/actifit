@@ -528,4 +528,6 @@
     <string name="skip">saltar</string>
     <string name="daily">Diario</string>
     <string name="hourly">Por hora</string>
+    <string name="error_transaction">Hubo un error al realizar la transacción</string>
+    <string name="proceed">Proceder</string>
 </resources>

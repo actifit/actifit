@@ -538,4 +538,6 @@
     <string name="skip">تخطي</string>
     <string name="daily">يوميًا</string>
     <string name="hourly">كل ساعة</string>
+    <string name="error_transaction">حدث خطأ أثناء إجراء المعاملة</string>
+    <string name="proceed">متابعة</string>
 </resources>

@@ -525,4 +525,6 @@
     <string name="skip">fo\' kọja</string>
     <string name="daily">Lojojumo</string>
     <string name="hourly">Loosooko</string>
+    <string name="error_transaction">Àṣìṣe kan wáyé nígbà tí wọ́n ń ṣe ìṣòwò náà</string>
+    <string name="proceed">Tẹ̀síwájú</string>
 </resources>

@@ -525,4 +525,6 @@
     <string name="skip">pular</string>
     <string name="daily">Diário</string>
 	<string name="hourly">Horário</string>
+    <string name="error_transaction">Ocorreu um erro ao realizar a transação</string>
+	<string name="proceed">Prosseguir</string>
 </resources>

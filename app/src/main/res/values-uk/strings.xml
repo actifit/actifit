@@ -524,4 +524,6 @@
     <string name="skip">пропустити</string>
     <string name="daily">Щодня</string>
     <string name="hourly">Щогодини</string>
+    <string name="error_transaction">Сталася помилка під час виконання транзакції</string>
+    <string name="proceed">Продовжити</string>
 </resources>

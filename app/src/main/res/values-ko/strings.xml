@@ -525,4 +525,6 @@
     <string name="skip">건너뛰다</string>
     <string name="daily">매일</string>
 	<string name="hourly">매시간</string>
+    <string name="error_transaction">거래를 수행하는 중 오류가 발생했습니다.</string>
+	<string name="proceed">진행</string>
 </resources>

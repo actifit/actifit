@@ -524,4 +524,6 @@
     <string name="skip">跳过</string>
     <string name="daily">每天</string>
     <string name="hourly">每小时</string>
+    <string name="error_transaction">执行交易时出错。</string>
+    <string name="proceed">继续</string>
 </resources>
