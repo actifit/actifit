@@ -526,4 +526,22 @@
     <string name="hourly">Saatlik</string>
     <string name="error_transaction">İşlem gerçekleştirilirken bir hata oluştu</string>
     <string name="proceed">Devam et</string>
+    <string name="saved_workouts">Kaydedilmiş Antrenmanlar</string>
+    <string name="workout_planning">Antrenman Planlaması</string>
+    <string name="no_saved_workouts_yet">Henüz kaydedilmiş antrenman yok.</string>
+    <string name="retry_loading_workouts">Antrenmanları Yeniden Yükle</string>
+    <string name="generate_new_workout">Yeni Antrenman Oluştur</string>
+    <string name="workout_name">Antrenman Adı:</string>
+    <string name="enter_a_name_for_your_workout">Antrenmanınız için bir isim girin</string>
+    <string name="fitness_goal">Objetivo de Fitness</string>
+    <string name="experience_level">Deneyim Seviyesi:</string>
+    <string name="weekly_time">Haftalık Zaman:</string>
+    <string name="workout_frequency">Antrenman Sıklığı:</string>
+    <string name="preferred_workout_style">Tercih Edilen Antrenman Stili</string>
+    <string name="equipment">Ekipman:</string>
+    <string name="physical_limitations">Fiziksel Sınırlamalar:</string>
+    <string name="enter_details_for_other_limitations">\'Diğer\' kısıtlamalar için ayrıntıları girin</string>
+    <string name="generate_workout_plan">Antrenman Planı Oluştur</string>
+    <string name="workout_plan_overview">Antrenman Planına Genel Bakış</string>
+    <string name="exercises">Egzersizler</string>
 </resources>

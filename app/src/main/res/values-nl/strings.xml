@@ -527,4 +527,22 @@
 	<string name="hourly">Elk uur</string>
     <string name="error_transaction">Er is een fout opgetreden bij de transactie</string>
 	<string name="proceed">Doorgaan</string>
+    <string name="saved_workouts">Opgeslagen Workouts</string>
+    <string name="workout_planning">Workout Planning</string>
+    <string name="no_saved_workouts_yet">Nog geen opgeslagen workouts.</string>
+    <string name="retry_loading_workouts">Workouts opnieuw laden</string>
+    <string name="generate_new_workout">Nieuwe Workout genereren</string>
+    <string name="workout_name">Workout Naam:</string>
+    <string name="enter_a_name_for_your_workout">Voer een naam in voor je workout</string>
+    <string name="fitness_goal">Fitness Doel:</string>
+    <string name="experience_level">Ervaringsniveau:</string>
+    <string name="weekly_time">Wekelijkse Tijd:</string>
+    <string name="workout_frequency">Workout Frequentie:</string>
+    <string name="preferred_workout_style">Voorkeurs Workout Stijl:</string>
+    <string name="equipment">Apparatuur:</string>
+    <string name="physical_limitations">Fysieke Beperkingen:</string>
+    <string name="enter_details_for_other_limitations">Voer details in voor \'Overige\' beperkingen</string>
+    <string name="generate_workout_plan">Workout Plan genereren</string>
+    <string name="workout_plan_overview">Overzicht Workout Plan</string>
+    <string name="exercises">Oefeningen</string>
 </resources>

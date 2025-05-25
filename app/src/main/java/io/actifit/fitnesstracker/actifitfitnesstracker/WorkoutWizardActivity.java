@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class WorkoutWizardActivity extends AppCompatActivity
+public class WorkoutWizardActivity extends BaseActivity
     implements SavedWorkoutsAdapter.OnWorkoutSelectedListener{
 
     private ProgressBar progressBar;

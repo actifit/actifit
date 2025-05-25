@@ -526,4 +526,22 @@
     <string name="hourly">每小时</string>
     <string name="error_transaction">执行交易时出错。</string>
     <string name="proceed">继续</string>
+    <string name="saved_workouts">已保存的锻炼</string>
+    <string name="workout_planning">锻炼计划</string>
+    <string name="no_saved_workouts_yet">尚未保存锻炼。</string>
+    <string name="retry_loading_workouts">重试加载锻炼</string>
+    <string name="generate_new_workout">生成新的锻炼</string>
+    <string name="workout_name">锻炼名称：</string>
+    <string name="enter_a_name_for_your_workout">输入您的锻炼名称</string>
+    <string name="fitness_goal">健身目标：</string>
+    <string name="experience_level">经验水平：</string>
+    <string name="weekly_time">每周时间：</string>
+    <string name="workout_frequency">锻炼频率：</string>
+    <string name="preferred_workout_style">首选锻炼风格：</string>
+    <string name="equipment">设备：</string>
+    <string name="physical_limitations">身体限制：</string>
+    <string name="enter_details_for_other_limitations">输入“其他”限制的详细信息</string>
+    <string name="generate_workout_plan">生成锻炼计划</string>
+    <string name="workout_plan_overview">锻炼计划概述</string>
+    <string name="exercises">练习</string>
 </resources>

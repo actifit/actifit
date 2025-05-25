@@ -540,4 +540,22 @@
     <string name="hourly">كل ساعة</string>
     <string name="error_transaction">حدث خطأ أثناء إجراء المعاملة</string>
     <string name="proceed">متابعة</string>
+    <string name="saved_workouts">التمارين المحفوظة</string>
+    <string name="workout_planning">تخطيط التمارين</string>
+    <string name="no_saved_workouts_yet">لا توجد تمارين محفوظة حتى الآن.</string>
+    <string name="retry_loading_workouts">إعادة محاولة تحميل التمارين</string>
+    <string name="generate_new_workout">إنشاء تمرين جديد</string>
+    <string name="workout_name">اسم التمرين:</string>
+    <string name="enter_a_name_for_your_workout">أدخل اسمًا لتمرينك</string>
+    <string name="fitness_goal">الهدف اللياقي:</string>
+    <string name="experience_level">مستوى الخبرة:</string>
+    <string name="weekly_time">الوقت الأسبوعي:</string>
+    <string name="workout_frequency">تكرار الت تمارين:</string>
+    <string name="preferred_workout_style">نمط التمرين المفضل:</string>
+    <string name="equipment">المعدات:</string>
+    <string name="physical_limitations">القيود البدنية:</string>
+    <string name="enter_details_for_other_limitations">أدخل تفاصيل للقيود \'أخرى\'</string>
+    <string name="generate_workout_plan">إنشاء خطة تمرين</string>
+    <string name="workout_plan_overview">نظرة عامة على خطة التمرين</string>
+    <string name="exercises">التمارين</string>
 </resources>

@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Workout Planning"
+            android:text="@string/workout_planning"
             android:textColor="@color/actifitRed"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:layout_marginBottom="16dp"/>
@@ -41,7 +41,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Saved Workouts"
+                android:text="@string/saved_workouts"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="?android:attr/textColorPrimary"/>
 
@@ -79,7 +79,7 @@
                 android:id="@+id/noSavedWorkoutsMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="No saved workouts yet."
+                android:text="@string/no_saved_workouts_yet"
                 android:textAlignment="center"
                 android:paddingVertical="16dp"
                 android:visibility="gone" />
@@ -90,7 +90,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="Retry Loading Workouts"
+                android:text="@string/retry_loading_workouts"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:visibility="gone" />
@@ -127,7 +127,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Generate New Workout"
+                android:text="@string/generate_new_workout"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="?android:attr/textColorPrimary"/>
 
@@ -158,7 +158,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Workout Name:"
+                android:text="@string/workout_name"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginBottom="4dp"/>
@@ -166,7 +166,7 @@
                 android:id="@+id/workoutNameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter a name for your workout"
+                android:hint="@string/enter_a_name_for_your_workout"
                 android:inputType="textCapWords|textNoSuggestions"
                 android:layout_marginBottom="16dp"
                 android:minHeight="48dp"
@@ -178,7 +178,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Fitness Goal:"
+                android:text="@string/fitness_goal"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginBottom="4dp"/>
@@ -194,7 +194,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Experience Level:"
+                android:text="@string/experience_level"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginBottom="4dp"/>
@@ -210,7 +210,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Weekly Time:"
+                android:text="@string/weekly_time"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginBottom="4dp"/>
@@ -226,7 +226,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Workout Frequency:"
+                android:text="@string/workout_frequency"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginBottom="4dp"/>
@@ -242,7 +242,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Preferred Workout Style:"
+                android:text="@string/preferred_workout_style"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginBottom="4dp"/>
@@ -258,7 +258,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Equipment:"
+                android:text="@string/equipment"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginBottom="4dp"/>
@@ -274,7 +274,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Physical Limitations:"
+                android:text="@string/physical_limitations"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginBottom="4dp"/>
@@ -290,7 +290,7 @@
                 android:id="@+id/otherLimitationsEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter details for 'Other' limitations"
+                android:hint="@string/enter_details_for_other_limitations"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 android:background="?android:attr/editTextBackground"
@@ -302,7 +302,7 @@
                 android:id="@+id/generateButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Generate Workout Plan"
+                android:text="@string/generate_workout_plan"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
                 style="@style/Widget.AppCompat.Button.Colored"
@@ -348,7 +348,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Workout Plan Overview"
+                android:text="@string/workout_plan_overview"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 android:layout_marginBottom="8dp"
                 android:textAlignment="center"/>
@@ -390,7 +390,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Exercises"
+                android:text="@string/exercises"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 android:layout_marginBottom="8dp"
                 android:textAlignment="center"/>
