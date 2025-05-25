@@ -527,4 +527,22 @@
 	<string name="hourly">Orario</string>
     <string name="error_transaction">Si è verificato un errore durante l\'esecuzione della transazione</string>
 	<string name="proceed">Procedi</string>
+    <string name="saved_workouts">Allenamenti Salvati</string>
+    <string name="workout_planning">Pianificazione Allenamenti</string>
+    <string name="no_saved_workouts_yet">Nessun allenamento salvato ancora.</string>
+    <string name="retry_loading_workouts">Riprova a caricare gli allenamenti</string>
+    <string name="generate_new_workout">Genera Nuovo Allenamento</string>
+    <string name="workout_name">Nome Allenamento:</string>
+    <string name="enter_a_name_for_your_workout">Inserisci un nome per il tuo allenamento</string>
+    <string name="fitness_goal">Obiettivo Fitness:</string>
+    <string name="experience_level">Livello di Esperienza:</string>
+    <string name="weekly_time">Tempo Settimanale:</string>
+    <string name="workout_frequency">Frequenza Allenamento:</string>
+    <string name="preferred_workout_style">Stile Allenamento Preferito:</string>
+    <string name="equipment">Attrezzatura:</string>
+    <string name="physical_limitations">Limitazioni Fisiche:</string>
+    <string name="enter_details_for_other_limitations">Inserisci dettagli per limitazioni \'Altro\'</string>
+    <string name="generate_workout_plan">Genera Piano Allenamento</string>
+    <string name="workout_plan_overview">Panoramica Piano Allenamento</string>
+    <string name="exercises">Esercizi</string>
 </resources>

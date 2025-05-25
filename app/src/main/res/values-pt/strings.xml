@@ -527,4 +527,22 @@
 	<string name="hourly">Horário</string>
     <string name="error_transaction">Ocorreu um erro ao realizar a transação</string>
 	<string name="proceed">Prosseguir</string>
+    <string name="saved_workouts">Treinos Guardados</string>
+    <string name="workout_planning">Planeamento de Treino</string>
+    <string name="no_saved_workouts_yet">Nenhum treino guardado ainda.</string>
+    <string name="retry_loading_workouts">Recarregar Treinos</string>
+    <string name="generate_new_workout">Gerar Novo Treino</string>
+    <string name="workout_name">Nome do Treino:</string>
+    <string name="enter_a_name_for_your_workout">Introduza um nome para o seu treino</string>
+    <string name="fitness_goal">피트니스 목표:</string>
+    <string name="experience_level">Nível de Experiência</string>
+    <string name="weekly_time">Tempo Semanal</string>
+    <string name="workout_frequency">Frequência do Treino</string>
+    <string name="preferred_workout_style">Estilo de Treino Preferido</string>
+    <string name="equipment">Equipamento</string>
+    <string name="physical_limitations">Limitações Físicas</string>
+    <string name="enter_details_for_other_limitations">Introduza detalhes para limitações \'Outros\'</string>
+    <string name="generate_workout_plan">Gerar Plano de Treino</string>
+    <string name="workout_plan_overview">Visão Geral do Plano de Treino</string>
+    <string name="exercises">Exercícios</string>
 </resources>

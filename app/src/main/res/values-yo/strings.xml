@@ -527,4 +527,22 @@
     <string name="hourly">Loosooko</string>
     <string name="error_transaction">Àṣìṣe kan wáyé nígbà tí wọ́n ń ṣe ìṣòwò náà</string>
     <string name="proceed">Tẹ̀síwájú</string>
+    <string name="saved_workouts">Àwọn Eré Ìdárayá Tí A Ti Fipamọ́</string>
+    <string name="workout_planning">Gbígbèrò Eré Ìdárayá</string>
+    <string name="no_saved_workouts_yet">Kò tíì sí ìdárayá tí a ti fipamọ́ síbẹ̀.</string>
+    <string name="retry_loading_workouts">Gbìyànjú Láti Àtúnṣe Gbígbé Àwọn Ìdárayá Wọlé</string>
+    <string name="generate_new_workout">Àtúnṣe Ìṣẹ̀dá Eré Ìdárayá Titun</string>
+    <string name="workout_name">Orúkọ Eré Ìdárayá:</string>
+    <string name="enter_a_name_for_your_workout">Tẹ orúkọ fún ìdárayá rẹ</string>
+    <string name="fitness_goal">Фітнес-мета:</string>
+    <string name="experience_level">Ìpele Ìmọ̀:</string>
+    <string name="weekly_time">Àkókò Ọ̀sẹ̀:</string>
+    <string name="workout_frequency">Ìlọ́pọ̀ Eré Ìdárayá:</string>
+    <string name="preferred_workout_style">Àṣà Ìdárayá Tí A Fẹ́ Jù:</string>
+    <string name="equipment">Ìlò:</string>
+    <string name="physical_limitations">Àwọn Àlàníṣe Nípa Ara:</string>
+    <string name="enter_details_for_other_limitations">Tẹ àlàyé fún àwọn àlàníṣe \'Ẹlòmíràn\'</string>
+    <string name="generate_workout_plan">Ìṣẹ̀dá Àtòlẹsẹẹsẹ Eré Ìdárayá</string>
+    <string name="workout_plan_overview">Àtúpalẹ̀ Àtòlẹsẹẹsẹ Eré Ìdárayá</string>
+    <string name="exercises">Àwọn Ìdárayá</string>
 </resources>

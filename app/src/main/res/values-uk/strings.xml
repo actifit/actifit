@@ -526,4 +526,22 @@
     <string name="hourly">Щогодини</string>
     <string name="error_transaction">Сталася помилка під час виконання транзакції</string>
     <string name="proceed">Продовжити</string>
+    <string name="saved_workouts">Збережені тренування</string>
+    <string name="workout_planning">Планування тренувань</string>
+    <string name="no_saved_workouts_yet">Немає збережених тренувань ще.</string>
+    <string name="retry_loading_workouts">Повторити завантаження тренувань</string>
+    <string name="generate_new_workout">Згенерувати нове тренування</string>
+    <string name="workout_name">Назва тренування:</string>
+    <string name="enter_a_name_for_your_workout">Введіть назву для тренування</string>
+    <string name="fitness_goal">Fitness Hedefi:</string>
+    <string name="experience_level">Рівень досвіду:</string>
+    <string name="weekly_time">Тижневий час:</string>
+    <string name="workout_frequency">Частота тренувань:</string>
+    <string name="preferred_workout_style">Бажаний стиль тренувань</string>
+    <string name="equipment">Обладнання:</string>
+    <string name="physical_limitations">Фізичні обмеження:</string>
+    <string name="enter_details_for_other_limitations">Введіть деталі для обмежень \'Інше\'</string>
+    <string name="generate_workout_plan">Згенерувати план тренування</string>
+    <string name="workout_plan_overview">Огляд плану тренування</string>
+    <string name="exercises">Вправи</string>
 </resources>

@@ -527,4 +527,22 @@
 	<string name="hourly">प्रति घंटा</string>
     <string name="error_transaction">लेन-देन करते समय एक त्रुटि हुई</string>
 	<string name="proceed">आगे बढ़ें</string>
+    <string name="saved_workouts">सहेजे गए वर्कआउट</string>
+    <string name="workout_planning">वर्कआउट योजना</string>
+    <string name="no_saved_workouts_yet">अभी तक कोई वर्कआउट सेव नहीं किया गया है।</string>
+    <string name="retry_loading_workouts">वर्कआउट लोड करने का पुनः प्रयास करें</string>
+    <string name="generate_new_workout">नया वर्कआउट जेनरेट करें</string>
+    <string name="workout_name">वर्कआउट का नाम:</string>
+    <string name="enter_a_name_for_your_workout">अपने वर्कआउट के लिए एक नाम दर्ज करें</string>
+    <string name="fitness_goal">फिटनेस लक्ष्य:</string>
+    <string name="experience_level">अनुभव स्तर:</string>
+    <string name="weekly_time">साप्ताहिक समय:</string>
+    <string name="workout_frequency">वर्कआउट की आवृत्ति:</string>
+    <string name="preferred_workout_style">पसंदीदा वर्कआउट स्टाइल:</string>
+    <string name="equipment">उपकरण:</string>
+    <string name="physical_limitations">शारीरिक सीमाएँ:</string>
+    <string name="enter_details_for_other_limitations">\'अन्य\' सीमाओं के लिए विवरण दर्ज करें</string>
+    <string name="generate_workout_plan">वर्कआउट प्लान जेनरेट करें</string>
+    <string name="workout_plan_overview">वर्कआउट प्लान का अवलोकन</string>
+    <string name="exercises">व्यायाम</string>
 </resources>
