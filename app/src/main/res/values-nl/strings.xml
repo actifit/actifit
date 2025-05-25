@@ -525,4 +525,6 @@
     <string name="skip">overslaan</string>
     <string name="daily">Dagelijks</string>
 	<string name="hourly">Elk uur</string>
+    <string name="error_transaction">Er is een fout opgetreden bij de transactie</string>
+	<string name="proceed">Doorgaan</string>
 </resources>

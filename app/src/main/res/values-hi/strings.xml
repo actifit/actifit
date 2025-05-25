@@ -525,4 +525,6 @@
     <string name="skip">छोड़ना</string>
     <string name="daily">दैनिक</string>
 	<string name="hourly">प्रति घंटा</string>
+    <string name="error_transaction">लेन-देन करते समय एक त्रुटि हुई</string>
+	<string name="proceed">आगे बढ़ें</string>
 </resources>

@@ -529,4 +529,6 @@
     <string name="skip">überspringen</string>
     <string name="daily">Täglich</string>
     <string name="hourly">Stündlich</string>
+    <string name="error_transaction">Beim Ausführen der Transaktion ist ein Fehler aufgetreten</string>
+    <string name="proceed">Fortfahren</string>
 </resources>

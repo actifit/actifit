@@ -524,4 +524,6 @@
     <string name="skip">atlamak</string>
     <string name="daily">Günlük</string>
     <string name="hourly">Saatlik</string>
+    <string name="error_transaction">İşlem gerçekleştirilirken bir hata oluştu</string>
+    <string name="proceed">Devam et</string>
 </resources>
