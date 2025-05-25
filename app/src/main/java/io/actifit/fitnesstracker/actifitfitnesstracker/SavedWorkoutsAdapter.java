@@ -66,6 +66,8 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
             holder.workoutTimestampTextView.setText("Saved: N/A"); // Handle null timestamp
         }
 
+        holder.workoutExercisesTextView.setText(workout.getExercises().size()+" Exercises");
+
 
         // Set click listener
         holder.itemView.setOnClickListener(v -> {
@@ -86,12 +88,14 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
     static class WorkoutViewHolder extends RecyclerView.ViewHolder {
         TextView workoutNameTextView;
         TextView workoutTimestampTextView;
+        TextView workoutExercisesTextView;
 
         WorkoutViewHolder(View itemView) {
             super(itemView);
             // Find the TextViews within the workout_list_item.xml layout
             workoutNameTextView = itemView.findViewById(R.id.workoutNameTextView);
             workoutTimestampTextView = itemView.findViewById(R.id.workoutTimestampTextView);
+            workoutExercisesTextView = itemView.findViewById(R.id.workoutExerciseCountTextView);
         }
     }
 }
