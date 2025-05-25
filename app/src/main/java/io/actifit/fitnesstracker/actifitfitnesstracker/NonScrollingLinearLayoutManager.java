@@ -13,7 +13,7 @@ public class NonScrollingLinearLayoutManager extends LinearLayoutManager {
     // Override this method to disable vertical scrolling in the RecyclerView
     @Override
     public boolean canScrollVertically() {
-        return false; // Tell the LayoutManager not to allow vertical scrolling
+        return true; // Tell the LayoutManager not to allow vertical scrolling
     }
 
     // Optional: Override this method to disable horizontal scrolling if needed
