@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/textViewExerciseName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:textColor="@color/color_text_primary"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:gravity="start"
+        tools:text="Push-ups" />
+
+    <TextView
+        android:id="@+id/textViewBodyPart"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:textColor="@color/color_text_secondary"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:gravity="start"
+        tools:text="Chest" />
+
+    <TextView
+        android:id="@+id/textViewEquipment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:textColor="@color/color_text_secondary"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:gravity="start"
+        tools:text="None" />
+
+</LinearLayout>

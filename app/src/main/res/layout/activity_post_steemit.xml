@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+<LinearLayout
     android:orientation="vertical"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
@@ -13,49 +20,13 @@
         layout="@layout/toolbar_post_steemit"
         />-->
 
-    <LinearLayout
-        android:id="@+id/titlebar_section"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#00ffffff"
-        android:elevation="2dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="10dp"
-        android:shadowColor="#00A8A8A8"
-        android:shadowDx="0"
-        android:shadowDy="0"
-        android:shadowRadius="5">
-
-        <!--<TextView
-            android:id="@+id/actifit_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingRight="10dp"
-            android:text="@string/app_name"
-            android:textColor="@color/ic_launcher_background"
-            android:textSize="20sp"
-            android:textStyle="bold" />-->
-
-        <Button
-            style="@style/AppTheme.ActifitButton"
-            android:id="@+id/post_to_steem_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:ems="10"
-            android:text="@string/post_to_steem_btn_txt"
-            android:textSize="14sp"
-            />
-
-    </LinearLayout>
-
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:paddingLeft="10dp"
-        android:paddingRight="10dp">
+        android:paddingRight="10dp"
+        android:layout_weight="1">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cLayout"
@@ -79,7 +50,7 @@
                     android:layout_height="match_parent"
                     android:layout_width="wrap_content"
                     android:gravity="center_vertical"
-                    android:textSize="35dp"
+                    android:textSize="35sp"
                     android:textStyle="bold"
                     android:text="&#10112; "
                     android:textColor="@color/actifitDarkGreen"
@@ -91,7 +62,7 @@
                     android:layout_width="wrap_content"
                     android:gravity="center_vertical"
                     android:text="@string/report_title"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     tools:ignore="MissingConstraints" />
 
             </LinearLayout>
@@ -144,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:gravity="center_vertical"
-                    android:textSize="35dp"
+                    android:textSize="35sp"
                     android:textStyle="bold"
                     android:text="&#10113; "
                     android:textColor="@color/actifitDarkGreen"
@@ -156,7 +127,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="@string/report_date_option_group_title"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:gravity="center_vertical"
 
                      />
@@ -170,7 +141,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:paddingLeft="35dp"
+                android:paddingStart="35dp"
                 app:layout_constraintTop_toBottomOf="@+id/post_date_container" >
 
                 <RadioButton
@@ -205,7 +176,7 @@
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:gravity="center_vertical"
-                    android:textSize="35dp"
+                    android:textSize="35sp"
                     android:textStyle="bold"
                     android:text="&#10114; "
                     android:textColor="@color/actifitDarkGreen"
@@ -217,7 +188,7 @@
                     android:layout_height="match_parent"
                     android:text="@string/activity_count_lbl"
                     android:gravity="center_vertical"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     />
 
             </LinearLayout>
@@ -226,7 +197,7 @@
                 android:id="@+id/activity_data_section"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="35dp"
+                android:paddingStart="35dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/step_count_container">
@@ -278,7 +249,7 @@
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:gravity="center_vertical"
-                    android:textSize="35dp"
+                    android:textSize="35sp"
                     android:textStyle="bold"
                     android:text="&#10115; "
                     android:textColor="@color/actifitRed"
@@ -291,7 +262,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:text="@string/activity_type_lbl"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     />
 
             </LinearLayout>
@@ -320,7 +291,7 @@
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:gravity="center_vertical"
-                    android:textSize="35dp"
+                    android:textSize="35sp"
                     android:textStyle="bold"
                     android:text="&#10116; "
                     android:textColor="@color/actifitDarkGreen"
@@ -333,7 +304,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:text="@string/track_measurements_lbl"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/steemit_activity_type" />
@@ -377,7 +348,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:paddingLeft="5dp"
                 android:paddingStart="5dp"
                 android:text="@string/weight_lbl"
                 android:textStyle="bold"
@@ -409,7 +379,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:paddingLeft="5dp"
                 android:paddingStart="5dp"
                 android:text="@string/body_fat_lbl"
                 android:textStyle="bold"
@@ -472,7 +441,6 @@
                 android:id="@+id/measurements_thighs_lbl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
                 android:paddingStart="5dp"
                 android:text="@string/thighs_size_lbl"
                 android:textStyle="bold"
@@ -554,7 +522,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/report_tags_lbl"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:gravity="center_vertical"
                      />
 
@@ -565,7 +533,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:paddingLeft="35dp"
+                android:paddingStart="35dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tags_container" />
@@ -585,7 +553,7 @@
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:gravity="center_vertical"
-                    android:textSize="35dp"
+                    android:textSize="35sp"
                     android:textStyle="bold"
                     android:text="&#10118; "
                     android:textColor="@color/actifitRed"
@@ -597,7 +565,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:text="@string/report_content_lbl"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/steemit_post_tags" />
@@ -610,7 +578,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/markdown_content_note"
                 android:textStyle="italic"
-                android:paddingLeft="35dp"
+                android:paddingStart="35dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/post_content_container" />
@@ -638,7 +606,7 @@
 
                 <Button
                     style="@style/AppTheme.ActifitButton"
-                    android:id="@+id/btn_video"
+                    android:id="@+id/btn_video_post"
                     android:layout_width="45dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/font_awesome_6_solid"
@@ -652,8 +620,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_gravity="right"
-                android:gravity="right"
+                android:layout_gravity="end"
+                android:gravity="end"
                 >
 
 
@@ -661,7 +629,7 @@
                     android:id="@+id/charCount"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
-                    android:gravity="right"
+                    android:gravity="end"
                     android:text="0"
 
                     />
@@ -670,7 +638,7 @@
                     android:id="@+id/minCharCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="right"
+                    android:gravity="end"
                     android:text="/100"
                     android:padding="7dp"
                     />
@@ -682,7 +650,7 @@
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:textColor="@color/actifitRed"
                     android:text="\uf05a"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:padding="7dp"
                     />
 
@@ -710,7 +678,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/report_preview_lbl"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/steemit_post_text" />
@@ -742,5 +710,27 @@
 
     </androidx.core.widget.NestedScrollView>
 
+    <include
+        android:id="@+id/bottom_menu_container"
+        layout="@layout/footer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
 </LinearLayout>
-<!--</RelativeLayout>-->
+
+    <Button
+        style="@style/AppTheme.ActifitButton"
+        android:id="@+id/post_to_steem_btn"
+        android:layout_width="wrap_content"
+        android:ems="10"
+        android:text="@string/post_to_steem_btn_txt"
+        android:textSize="14sp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="70dp"
+        android:clickable="true"
+        android:focusable="true"
+        />
+
+</FrameLayout>

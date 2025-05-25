@@ -1,21 +1,30 @@
-<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:actionMenuTextColor">@color/colorWhite</item>
         <item name="windowNoTitle">true</item>
+
+        <!-- CONSIDER ADDING SEMANTIC COLORS (Material Design approach is better) -->
+        <!-- <item name="colorSurface">@color/colorWhite</item> -->
+        <!-- <item name="colorOnSurface">@color/colorBlack</item> -->
+        <!-- Then use ?attr/colorSurface and ?attr/colorOnSurface in layouts -->
     </style>
 
-    <style name="NoToolbarTheme" parent="@style/Theme.AppCompat.Light">
+    <style name="NoToolbarTheme" parent="@style/Theme.AppCompat.DayNight">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <!-- CONSIDER ADDING SEMANTIC COLORS -->
+        <!-- <item name="colorSurface">@color/colorWhite</item> -->
+        <!-- <item name="colorOnSurface">@color/colorBlack</item> -->
     </style>
 
     <style name="AppTheme.ActifitButton" parent="Widget.AppCompat.Button.Colored">
@@ -35,7 +44,7 @@
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 <!-- just added parent here -->
-    <style name="DialogAnimation" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="DialogAnimation" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowEnterAnimation">@anim/slide_in_right</item>
         <item name="android:windowExitAnimation">@anim/slide_out_left</item>
     </style>

@@ -1,5 +1,9 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static com.google.android.material.internal.ViewUtils.dpToPx;
+
+import static io.actifit.fitnesstracker.actifitfitnesstracker.Utils.setBackgroundFromThemeAttribute;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -13,12 +17,15 @@ import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
+import android.transition.TransitionManager;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +41,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,8 +64,10 @@ import org.w3c.dom.Text;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -92,10 +102,101 @@ public class WalletActivity extends BaseActivity {
     String afitBal = "";
 
 
+    private ViewGroup rootView; // Root layout for transitions
+
+    // Headers
+    private LinearLayout headerCoreBalance;
+    private LinearLayout headerHeBalance;
+    private LinearLayout headerClaimableRewards;
+    private LinearLayout headerTransactions;
+
+    // Content Containers
+    private LinearLayout contentCoreBalance;
+    private ScrollView contentHeBalanceScrollView;
+    private LinearLayout contentClaimableRewards;
+    private LinearLayout contentTransactions;
+
+    // Indicators
+    private TextView indicatorCoreBalance;
+    private TextView indicatorHeBalance;
+    private TextView indicatorClaimableRewards;
+    private TextView indicatorTransactions;
+
+
+    // List to hold pairs of (contentView, indicatorView) for easy management
+    private List<Pair<View, TextView>> sectionPairs;
+
+
+    // Method to toggle visibility and hide others (Accordion behavior)
+    // Now takes both the content view and its indicator
+    private void toggleSectionVisibility(View contentToToggle, TextView indicatorToToggle) {
+        // Optional: Add animation for smoother transitions
+        if (rootView != null) {
+            TransitionManager.beginDelayedTransition(rootView);
+        }
+
+        if (contentToToggle.getVisibility() == View.VISIBLE) {
+            // If the clicked section is already open, close it
+            contentToToggle.setVisibility(View.GONE);
+            // Rotate indicator down (0 degrees)
+            indicatorToToggle.animate().rotation(0).setDuration(200).start();
+        } else {
+            // Otherwise, close all sections and open the clicked one
+            for (Pair<View, TextView> section : sectionPairs) {
+                View contentView = section.first;
+                TextView indicatorView = section.second;
+
+                if (contentView.getVisibility() == View.VISIBLE) {
+                    contentView.setVisibility(View.GONE);
+                    // Rotate indicator down (0 degrees) for the section being closed
+                    indicatorView.animate().rotation(0).setDuration(200).start();
+                }
+            }
+            // Now open the selected section
+            contentToToggle.setVisibility(View.VISIBLE);
+            // Rotate indicator up (180 degrees) for the section being opened
+            indicatorToToggle.animate().rotation(180).setDuration(200).start();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallet);
+
+
+        // 1. Get references to Views
+        rootView = findViewById(R.id.root_layout);
+
+        headerCoreBalance = findViewById(R.id.header_core_balance);
+        contentCoreBalance = findViewById(R.id.content_core_balance);
+        indicatorCoreBalance = findViewById(R.id.indicator_core_balance);
+
+        headerHeBalance = findViewById(R.id.header_he_balance);
+        contentHeBalanceScrollView = findViewById(R.id.content_he_balance_scrollview);
+        indicatorHeBalance = findViewById(R.id.indicator_he_balance);
+
+        headerClaimableRewards = findViewById(R.id.header_claimable_rewards);
+        contentClaimableRewards = findViewById(R.id.content_claimable_rewards);
+        indicatorClaimableRewards = findViewById(R.id.indicator_claimable_rewards);
+
+        headerTransactions = findViewById(R.id.header_transactions);
+        contentTransactions = findViewById(R.id.content_transactions);
+        indicatorTransactions = findViewById(R.id.indicator_transactions);
+
+        // 2. Create the list of section pairs
+        sectionPairs = new ArrayList<>();
+        sectionPairs.add(new Pair<>(contentCoreBalance, indicatorCoreBalance));
+        sectionPairs.add(new Pair<>(contentHeBalanceScrollView, indicatorHeBalance));
+        sectionPairs.add(new Pair<>(contentClaimableRewards, indicatorClaimableRewards));
+        sectionPairs.add(new Pair<>(contentTransactions, indicatorTransactions));
+
+        // 3. Set up Click Listeners
+        // Pass both the content and the indicator to the toggle method
+        headerCoreBalance.setOnClickListener(v -> toggleSectionVisibility(contentCoreBalance, indicatorCoreBalance));
+        headerHeBalance.setOnClickListener(v -> toggleSectionVisibility(contentHeBalanceScrollView, indicatorHeBalance));
+        headerClaimableRewards.setOnClickListener(v -> toggleSectionVisibility(contentClaimableRewards, indicatorClaimableRewards));
+        headerTransactions.setOnClickListener(v -> toggleSectionVisibility(contentTransactions, indicatorTransactions));
 
         //define standard rotate animation
 
@@ -510,21 +611,17 @@ public class WalletActivity extends BaseActivity {
                                 loadPendingRewards.clearAnimation();
                             }
                         }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //hide dialog
-                            //error.printStackTrace();
-                            Log.e(MainActivity.TAG, "error fetching pending rewards");
-                            if (progress!=null &&  progress.isShowing()) {
-                                progress.dismiss();
-                                Toast.makeText(ctx, getString(R.string.error_fetching_data),Toast.LENGTH_LONG).show();
-                            }
-                            queriesFetchedPendingRewards +=1;
-                            if (queriesFetchedPendingRewards >= totalQueryCountPendingRewards){
-                                loadPendingRewards.clearAnimation();
-                            }
+                    }, error -> {
+                        //hide dialog
+                        //error.printStackTrace();
+                        Log.e(MainActivity.TAG, "error fetching pending rewards");
+                        if (progress!=null &&  progress.isShowing()) {
+                            progress.dismiss();
+                            Toast.makeText(ctx, getString(R.string.error_fetching_data),Toast.LENGTH_LONG).show();
+                        }
+                        queriesFetchedPendingRewards +=1;
+                        if (queriesFetchedPendingRewards >= totalQueryCountPendingRewards){
+                            loadPendingRewards.clearAnimation();
                         }
                     });
 
@@ -544,7 +641,6 @@ public class WalletActivity extends BaseActivity {
     TextView hiveBalance;
     TextView hbdBalance;
     TextView hpBalance;
-    TextView steemBalance;
     TextView blurtBalance, bpBalance;
     TextView sportsBalance;
     TextView actifitBalance;
@@ -564,6 +660,33 @@ public class WalletActivity extends BaseActivity {
                 .inflate(R.layout.wallet_header, tokensContainer, false);
 
         tokensContainer.addView(walletHeader);
+
+
+        // Add a separator line below the header row (can be a separate View row)
+        TableRow separatorRow = new TableRow(this);
+        View separatorLine = new View(this);
+        TableRow.LayoutParams separatorParams = new TableRow.LayoutParams(
+                TableRow.LayoutParams.MATCH_PARENT,
+                Utils.dpToPx(this,1) // 1dp height
+        );
+        separatorParams.span = 4; // Make the line span all columns
+        separatorLine.setLayoutParams(separatorParams);
+        //separatorLine.setBackgroundColor(ContextCompat.getColor(this, R.color.medium_gray_like_CCCCCC)); // Define medium_gray_like_CCCCCC
+
+        separatorRow.addView(separatorLine);
+
+        boolean success = setBackgroundFromThemeAttribute(separatorLine, android.R.attr.listDivider);
+        if (!success) {
+            // Handle the case where the attribute couldn't be resolved or applied
+            // Maybe set a fallback color?
+            // separatorLine.setBackgroundColor(Color.GRAY); // Example fallback
+            Log.w("WalletActivity", "Failed to set listDivider background from theme attribute.");
+        }else{
+            Log.w("WalletActivity", "set listDivider background from theme attribute.");
+        }
+
+        // Add separatorRow to he_tokens_container
+        tokensContainer.addView(separatorRow);
 
         HiveEngineAPI herpc = new HiveEngineAPI(getApplicationContext());
 
@@ -591,7 +714,7 @@ public class WalletActivity extends BaseActivity {
                             try {
                                 JSONObject entry = heTokens.getJSONObject(i);
                                 //populate tokens to the main wallet view
-                                View tokenView = LayoutInflater.from(getApplicationContext())
+                                View tokenView = LayoutInflater.from(WalletActivity.this)
                                         .inflate(R.layout.he_token_entry, null, false);
 
                                 ImageView tokenIcon = tokenView.findViewById(R.id.token_icon);
@@ -611,7 +734,7 @@ public class WalletActivity extends BaseActivity {
                                 boolean stakable = false;
                                 String unstakePeriod = "";
 
-                                if (!symbol.equals("")) {
+                                if (!symbol.isEmpty()) {
                                     //match icon
                                     JSONObject matchEntry = null;
                                     JSONObject tokenDetail = null;
@@ -631,7 +754,7 @@ public class WalletActivity extends BaseActivity {
                                                 icon = metadataJson.getString("icon");
                                                 stakable = tokenDetail.has("stakingEnabled") && tokenDetail.getBoolean("stakingEnabled");
                                                 unstakePeriod = tokenDetail.has("unstakingCooldown")?tokenDetail.getInt("unstakingCooldown")+" days":"";
-                                                if (!icon.equals("")) {
+                                                if (!icon.isEmpty()) {
 
                                                         //placeholder or error fallback
                                                         LetterDrawable placeholderDrawable = new LetterDrawable(symbol.substring(0, 1));
@@ -659,9 +782,8 @@ public class WalletActivity extends BaseActivity {
                                 //transfer action
                                 TextView expander = tokenView.findViewById(R.id.expand_view);
 
-
                                 //actions container view
-                                View expandedView = LayoutInflater.from(getApplicationContext())
+                                View expandedView = LayoutInflater.from(WalletActivity.this)
                                         .inflate(R.layout.he_token_actions, null, false);
 
                                 //LinearLayout expandedView = tokenView.findViewById(R.id.token_expanded_view);
@@ -800,7 +922,7 @@ public class WalletActivity extends BaseActivity {
 
     void loadAccountBalance(String username, Activity callerActivity, Context callerContext){
 
-        if (!username.equals("")) {
+        if (!username.isEmpty()) {
 
             chainInfoFetched = false;
 
@@ -825,7 +947,6 @@ public class WalletActivity extends BaseActivity {
             hiveBalance = findViewById(R.id.hive_balance);
             hbdBalance = findViewById(R.id.hbd_balance);
             hpBalance = findViewById(R.id.hp_balance);
-            steemBalance = findViewById(R.id.steem_balance);
             blurtBalance = findViewById(R.id.blurt_balance);
             bpBalance = findViewById(R.id.bp_balance);
             sportsBalance = findViewById(R.id.sports_balance);
@@ -847,39 +968,32 @@ public class WalletActivity extends BaseActivity {
             //actifitBalanceLbl.setVisibility(View.VISIBLE);
             // Request the balance of the user while expecting a JSON response
             JsonObjectRequest balanceRequest = new JsonObjectRequest
-                    (Request.Method.GET, balanceUrl, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            //hide dialog
-                            progress.hide();
-                            // Display the result
-                            try {
-                                afitBal = response.getString("tokens").replace(",","");
-                                //grab current token count
+                    (Request.Method.GET, balanceUrl, null, response -> {
+                        //hide dialog
+                        progress.hide();
+                        // Display the result
+                        try {
+                            afitBal = response.getString("tokens").replace(",","");
+                            //grab current token count
 
-                                DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
-                                actifitBalance.setText(decimalFormat.format(Float.parseFloat(afitBal)) +" AFIT");
-                            }catch(JSONException e){
-                                //hide dialog
-                                progress.hide();
-                                actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
-                            }
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
+                            DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
+                            actifitBalance.setText(decimalFormat.format(Float.parseFloat(afitBal)) +" AFIT");
+                        }catch(JSONException e){
                             //hide dialog
                             progress.hide();
                             actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
+                        }
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
+                        }
+                    }, error -> {
+                        //hide dialog
+                        progress.hide();
+                        actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
                         }
                     });
 
@@ -889,37 +1003,30 @@ public class WalletActivity extends BaseActivity {
             //grab chain info to convert vests to power value
             String chainDataUrl = Utils.apiUrl(this)+getString(R.string.get_chain_info);
             JsonObjectRequest chainInfoRequest = new JsonObjectRequest
-                    (Request.Method.GET, chainDataUrl, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
+                    (Request.Method.GET, chainDataUrl, null, response -> {
+                        //hide dialog
+                        //progress.hide();
+                        try {
+                            chainInfoFetched = true;
+                            hiveChainInfo = response.getJSONObject("HIVE");
+                            steemChainInfo = response.getJSONObject("STEEM");
+                            blurtChainInfo = response.getJSONObject("BLURT");
+                            loadData();
+                        }catch(Exception e){
                             //hide dialog
-                            //progress.hide();
-                            try {
-                                chainInfoFetched = true;
-                                hiveChainInfo = response.getJSONObject("HIVE");
-                                steemChainInfo = response.getJSONObject("STEEM");
-                                blurtChainInfo = response.getJSONObject("BLURT");
-                                loadData();
-                            }catch(Exception e){
-                                //hide dialog
-                                e.printStackTrace();
-                            }
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
+                            e.printStackTrace();
                         }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //hide dialog
-                            progress.hide();
-                            actifitBalance.setText(getString(R.string.unable_fetch_balance));
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
+                        }
+                    }, error -> {
+                        //hide dialog
+                        progress.hide();
+                        actifitBalance.setText(getString(R.string.unable_fetch_balance));
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
                         }
                     });
 
@@ -935,25 +1042,18 @@ public class WalletActivity extends BaseActivity {
             //actifitBalanceLbl.setVisibility(View.VISIBLE);
             // Request the balance of the user while expecting a JSON response
             JsonObjectRequest userDataRequest = new JsonObjectRequest
-                    (Request.Method.GET, accountDataUrl, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            //hide dialog
-                            //progress.hide();
-                            balanceData = response;
-                            loadData();
-                        }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //hide dialog
-                            progress.hide();
-                            actifitBalance.setText(getString(R.string.unable_fetch_balance));
-                            queriesFetched +=1;
-                            if (queriesFetched >= totalQueryCount){
-                                BtnCheckBalance.clearAnimation();
-                            }
+                    (Request.Method.GET, accountDataUrl, null, response -> {
+                        //hide dialog
+                        //progress.hide();
+                        balanceData = response;
+                        loadData();
+                    }, error -> {
+                        //hide dialog
+                        progress.hide();
+                        actifitBalance.setText(getString(R.string.unable_fetch_balance));
+                        queriesFetched +=1;
+                        if (queriesFetched >= totalQueryCount){
+                            BtnCheckBalance.clearAnimation();
                         }
                     });
 
@@ -979,7 +1079,10 @@ public class WalletActivity extends BaseActivity {
                     //hide dialog
                     progress.hide();
 
-                    ArrayList<String> transactionList = new ArrayList<String>();
+                    ArrayList<TransactionItem> transactionList = new ArrayList<>();
+
+                    SimpleDateFormat jsonDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.ROOT);
+
                     // Handle the result
                     try {
 
@@ -987,45 +1090,44 @@ public class WalletActivity extends BaseActivity {
                             // Retrieve each JSON object within the JSON array
                             JSONObject jsonObject = transactionListArray.getJSONObject(i);
 
-                            // Build output
-                            String transactionString = "";
-                            // Capture individual values
+                            TransactionItem item = new TransactionItem();
 
-                            transactionString += jsonObject.has("reward_activity") ? getString(R.string.activity_type_lbl) + ": " + jsonObject.getString("reward_activity") + "\n":"";
-                            transactionString += jsonObject.has("token_count") ? getString(R.string.token_count_lbl) + ": " + jsonObject.getString("token_count") + " AFIT(s)\n":"";
-                            transactionString += jsonObject.has("user") ? getString(R.string.user_lbl) + ": " + jsonObject.getString("user") + "\n":"";
-                            transactionString += jsonObject.has("recipient") ? getString(R.string.recipient_lbl) + ": " + jsonObject.getString("recipient") + "\n":"";
-                            transactionString += jsonObject.has("date") ?  getString(R.string.date_added_lbl) + ": " + jsonObject.getString("date") + "\n":"";
-                            //transactionString += jsonObject.has("url")?"Relevant Post: <a href='"+jsonObject.getString("url") + "'>Post</a>\n":"";
-                            transactionString += jsonObject.has("note") ? getString(R.string.note_lbl) + ": " +jsonObject.getString("note") + "\n":"";
-                                    /*String url = jsonObject.getString("url");
+                            // Use optString and optDouble for safe parsing of potentially missing fields
+                            // provide a default value (like null or 0.0) if the key doesn't exist
+                            item.activityType = jsonObject.optString("reward_activity", null);
+                            item.tokenCount = jsonObject.optDouble("token_count", 0.0); // IMPORTANT: Parse as double
+                            item.user = jsonObject.optString("user", null);
+                            item.recipient = jsonObject.optString("recipient", null);
 
-                                    String note = jsonObject.getString("note");*/
-                            // Adds strings from the current object to the data string
-                            transactionList.add(transactionString);
+                            item.date = jsonObject.optString("date", null); // Store original date string
+                            // --- Parse the date string into a Date object ---
+                            item.parsedDate = null; // Initialize to null
+                            if (item.date != null && !item.date.isEmpty()) {
+                                try {
+                                    item.parsedDate = jsonDateFormat.parse(item.date);
+                                } catch (Exception e) {
+                                    // Log the parsing error but allow the app to continue
+                                    Log.e("WalletActivity", "Failed to parse date: " + item.date, e);
+                                    // item.parsedDate remains null
+                                }
+                            }
+                            // ------------------------------------------------
+
+                            item.note = jsonObject.optString("note", null);
+                            item.url = jsonObject.optString("url", null); // Populate URL field
+
+                            transactionList.add(item);
                         }
-                        // convert content to adapter display, and render it
-                        ArrayAdapter<String> arrayAdapter =
-                                new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1, transactionList){
-                                    @Override
-                                    public View getView(int position, View convertView, ViewGroup parent){
-                                        // Get the Item from ListView
-                                        View view = super.getView(position, convertView, parent);
+                        // Create your custom adapter
+                        TransactionAdapter adapter = new TransactionAdapter(
+                                callerContext, // Use 'this' in Activity, or 'getContext()' in Fragment
+                                R.layout.list_item_transaction, // Use your custom list item layout
+                                transactionList
+                        );
 
-                                        // Initialize a TextView for ListView each Item
-                                        TextView tv = view.findViewById(android.R.id.text1);
+                        // Set the adapter to the ListView
+                        actifitTransactionsView.setAdapter(adapter);
 
-                                        // Set the text color of TextView (ListView Item)
-                                        tv.setPadding(0,10,0,0);
-                                        tv.setTextColor(Color.GRAY);
-                                        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
-
-                                        // Generate ListView Item using TextView
-                                        return view;
-                                    }
-                                };
-
-                        actifitTransactionsView.setAdapter(arrayAdapter);
                         //actifitTransactions.setText("Response is: "+ response);
                     }catch (Exception e) {
                         //hide dialog
@@ -1202,27 +1304,6 @@ public class WalletActivity extends BaseActivity {
 
             TextView hiveRewardsTxt = findViewById(R.id.hive_rewards);
             hiveRewardsTxt.setText(hiveRewards);
-
-            if (balanceData.has("STEEM")) {
-                JSONObject steemData = balanceData.getJSONObject("STEEM");
-                String steemBalances = steemData.getString("balance") + " ";
-                steemChainInfo.put("chainName", "steem");
-                steemBalances += steemData.getString("sbd_balance");
-                steemBalances += " " + MainActivity.formatValue(vestsToPower(steemChainInfo, steemData.getString("vesting_shares"))) + " SP";
-
-                steemBalances += " \r\n";
-
-                steemBalance.setText(" " + Html.fromHtml(steemBalances));
-
-
-                String steemRewards = "";
-                steemRewards += steemData.getString("reward_sbd_balance") + " ";
-                steemRewards += steemData.getString("reward_steem_balance") + " ";
-                steemRewards += steemData.getString("reward_vesting_steem").replace("STEEM", "SP");
-
-                TextView steemRewardsTxt = findViewById(R.id.steem_rewards);
-                steemRewardsTxt.setText(steemRewards);
-            }
 
             if (balanceData.has("BLURT")) {
                 JSONObject blurtData = balanceData.getJSONObject("BLURT");

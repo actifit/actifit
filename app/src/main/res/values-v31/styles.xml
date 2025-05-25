@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/colorPrimary</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/colorWhite</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/actifit_animated_final_2</item>
+        <item name="windowSplashScreenAnimationDuration">500</item>
+        <item name="android:windowSplashScreenBrandingImage">@drawable/actifit_word_1</item>
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
+</resources>

@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -55,7 +54,7 @@ public class NotificationEntryAdapter extends ArrayAdapter<NotificationModel> {
         //TextView notifType = convertView.findViewById(R.id.notificationType);
         TextView entryDetails = convertView.findViewById(R.id.entryDetails);
         ImageView actionTakerPic = convertView.findViewById(R.id.actionTakerPic);
-        FrameLayout picFrame = convertView.findViewById(R.id.picFrame);
+        //FrameLayout picFrame = convertView.findViewById(R.id.picFrame);
         Button detailsButton = convertView.findViewById(R.id.entryDetailsBtn);
 
         // Populate the data into the template view using the data object
@@ -79,13 +78,7 @@ public class NotificationEntryAdapter extends ArrayAdapter<NotificationModel> {
         //Picasso.with(leaderboardContext).load(postEntry.userProfilePic).into(userProfilePic);
 
         //handle click on user profile
-        picFrame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openUserAccount(notifEntry.action_taker);
-            }
-
-        });
+        actionTakerPic.setOnClickListener(view -> openUserAccount(notifEntry.action_taker));
 
         //handle click on username
         actionTaker.setOnClickListener(view -> openUserAccount(notifEntry.action_taker));

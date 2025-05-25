@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/entryContainer">
 
     <TextView
@@ -13,7 +13,18 @@
         android:layout_height="wrap_content"
         />
 
-    <FrameLayout android:id="@+id/picFrame"
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/actionTakerPic"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/actifit_logo"
+        app:civ_border_width="0dp"
+
+        android:paddingTop="10dp"
+        android:paddingEnd="3dp"
+        />
+
+    <!--<FrameLayout android:id="@+id/picFrame"
         android:layout_width="36dp"
         android:layout_height="match_parent"
         android:paddingTop="10dp"
@@ -29,7 +40,7 @@
             android:layout_height="30dp"
             android:src="@drawable/circle_crop" />
 
-    </FrameLayout>
+    </FrameLayout>-->
 
     <TextView
         android:id="@+id/actionTaker"
@@ -49,8 +60,11 @@
     <Button
         style="@style/AppTheme.ActifitButton"
         android:id="@+id/entryDetailsBtn"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:text="@string/notification_link"/>
+        android:layout_width="40sp"
+        android:layout_height="40sp"
+        android:fontFamily="@font/font_awesome_6_solid"
+        android:text="\uf15c"
+        android:textSize="18sp" />
+
 
 </LinearLayout>

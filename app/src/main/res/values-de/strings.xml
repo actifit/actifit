@@ -428,7 +428,6 @@
     <string name="Share">Teilen</string>
     <string name="successful_referrals_txt">Erfolgreiche Empfehlungen</string>
     <string name="referral_link_txt">Dein Empfehlungslink</string>
-    <string name="referrals_format" translatable="false">https://actifit.io/signup?referrer=</string>
     <string name="referral_title">Tritt jetzt Actifit bei - Das soziale Move2Earn-Projekt!</string>
     <string name="referral_description">Actifit belohnt dich dafür, dass du deine tägliche Aktivität verfolgst und mehrere Krypto-Assets verdienst.</string>
     <string name="post_title">Check out my cool new post on actifit, the social Move2Earn Project!</string>
@@ -446,8 +445,6 @@
     <string name="daily_5k_reward">5K Extra-Belohnung</string>
     <string name="daily_7k_reward">7K Extra-Belohnung</string>
     <string name="daily_10k_reward">10K Extra-Belohnung</string>
-    <string name="sting_chat_update" translatable="false">Sting_chat_update</string>
-    <string name="sting_chat_comm_count" translatable="false">Sting_chat_comm_count</string>
     <string name="voting_on">Abstimmen</string>
     <string name="select_option">Bitte zuerst eine Option auswählen</string>
     <string name="voters_list">Wählerliste</string>
@@ -466,17 +463,8 @@
     <string name="not_eligible">Sie sind noch nicht für diese Belohnung berechtigt</string>
     <string name="rewards_processing">💰 Belohnungszyklus läuft - Belohnungen werden verteilt 💰</string>
     <string name="not_enough_afit_balance">Sie haben nicht genug AFIT, um zu kaufen </string>
-    <string name="facebook_actifit" translatable="false">https://www.facebook.com/Actifit.fitness</string>
-    <string name="twitter_actifit" translatable="false">https://www.twitter.com/Actifit_fitness</string>
-    <string name="telegram_actifit" translatable="false">https://t.me/actifit</string>
-    <string name="discord_actifit" translatable="false">https://links.actifit.io/discord</string>
-    <string name="youtube_actifit" translatable="false">https://www.youtube.com/c/Actifitfitness</string>
-    <string name="instagram_actifit" translatable="false">https://www.instagram.com/actifit.fitness</string>
-    <string name="medium_actifit" translatable="false">https://medium.com/@actifit.fitness</string>
-    <string name="linkedin_actifit" translatable="false">https://www.linkedin.com/company/actifit-io</string>
     <string name="logout_confirmation">Sind Sie sicher, dass Sie sich abmelden möchten?</string>
     <string name="gadgets_description">Virtuelle Gadgets ermöglichen es Ihnen, Ihr tägliches Einkommen zu steigern. Durch den Kauf und die Aktivierung von Gadgets können Sie zusätzliche, vielfältige Belohnungen für sich selbst (oder Ihren Freund) über Actifit-Belohnungen verdienen.</string>
-    <string name="default_login_img" translatable="false">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
     <string name="ad_not_ready">Die belohnte Anzeige war noch nicht bereit.</string>
     <string name="err_load_ad">Fehler beim Laden der Anzeige</string>
     <string name="wave_hint_1">Teile ein kurzes Update...</string>
@@ -534,4 +522,31 @@
     <string name="tweet_button">Tweet-Belohnung</string>
     <string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
     <string name="switch_settings_btn" translatable="false">\uf362</string>
+    <string name="extra_beneficiary">Zusätzlicher Begünstigter</string>
+    <string name="setting_dark_mode_label">Dunkler Modus</string>
+    <string name="icon_sun_desc">Sonnen-Symbol</string>
+    <string name="icon_moon_desc">Mond-Symbol</string>
+    <string name="skip">überspringen</string>
+    <string name="daily">Täglich</string>
+    <string name="hourly">Stündlich</string>
+    <string name="error_transaction">Beim Ausführen der Transaktion ist ein Fehler aufgetreten</string>
+    <string name="proceed">Fortfahren</string>
+    <string name="saved_workouts">Gespeicherte Trainingseinheiten</string>
+    <string name="workout_planning">Trainingsplanung</string>
+    <string name="no_saved_workouts_yet">Noch keine gespeicherten Trainingseinheiten.</string>
+    <string name="retry_loading_workouts">Trainingseinheiten erneut laden</string>
+    <string name="generate_new_workout">Neues Training generieren</string>
+    <string name="workout_name">Trainingsname:</string>
+    <string name="enter_a_name_for_your_workout">Geben Sie einen Namen für Ihr Training ein</string>
+    <string name="fitness_goal">Fitness-Ziel:</string>
+    <string name="experience_level">Erfahrungslevel:</string>
+    <string name="weekly_time">Wöchentliche Zeit:</string>
+    <string name="workout_frequency">Trainingshäufigkeit:</string>
+    <string name="preferred_workout_style">Bevorzugter Trainingsstil:</string>
+    <string name="equipment">Ausrüstung:</string>
+    <string name="physical_limitations">Körperliche Einschränkungen:</string>
+    <string name="enter_details_for_other_limitations">Details für \'Andere\' Einschränkungen eingeben</string>
+    <string name="generate_workout_plan">Trainingsplan generieren</string>
+    <string name="workout_plan_overview">Überblick Trainingsplan</string>
+    <string name="exercises">Übungen</string>
 </resources>

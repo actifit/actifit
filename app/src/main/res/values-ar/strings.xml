@@ -437,8 +437,7 @@
    <string name="Share">شارك</string>
    <string name="successful_referrals_txt">الإحالات الناجحة</string>
    <string name="referral_link_txt">رابط الإحالة الخاص بك</string>
-   <string name="referrals_format" translatable="false">https://actifit.io/signup?referrer=</string>
-   <string name="referral_title">انضم إلى Actifit الآن - مشروع Move2Earn الاجتماعي!</string>
+    <string name="referral_title">انضم إلى Actifit الآن - مشروع Move2Earn الاجتماعي!</string>
    <string name="referral_description">Actifit تكافئك على تتبع نشاطك اليومي ، وكسب أصول تشفير متعددة.</string>
    <string name="post_title">اطلع على منشوري الجديد الرائع على actifit ، مشروع Move2Earn الاجتماعي!</string>
    <string name="post_title_other">تحقق من هذا المنشور الرائع على actifit ، مشروع Move2Earn الاجتماعي!</string>
@@ -455,9 +454,7 @@
    <string name="daily_5k_reward">مكافأة إضافية 5 آلاف</string>
    <string name="daily_7k_reward">مكافأة إضافية 7 آلاف</string>
    <string name="daily_10k_reward">مكافأة إضافية 10 آلاف</string>
-   <string name="sting_chat_update" translatable="false">Sting_chat_update</string>
-   <string name="sting_chat_comm_count" translatable="false">Sting_chat_comm_count</string>
-   <string name="voting_on">التصويت</string>
+    <string name="voting_on">التصويت</string>
    <string name="select_option">الرجاء تحديد خيار أولاً</string>
    <string name="voters_list">قائمة الناخبين</string>
    <string name="reply_action">رد</string>
@@ -475,7 +472,7 @@
    <string name="not_eligible">لا يحق لك الحصول على هذه المكافأة حتى الآن</string>
    <string name="rewards_processing"> دورة المكافآت جارية - توزيع المكافآت </string>
    <string name="not_enough_afit_balance">ليس لديك رصيد AFIT كافٍ لشراء</string>
-   <string name="logout_confirmation">هل أنت متأكد أنك تريد تسجيل الخروج؟</string>
+    <string name="logout_confirmation">هل أنت متأكد أنك تريد تسجيل الخروج؟</string>
    <string name="gadgets_description">تتيح لك الأدوات الافتراضية زيادة أرباحك اليومية. من خلال شراء وتنشيط الأدوات ، يمكنك كسب أنواع إضافية متنوعة من المكافآت لنفسك (أو لصديقك) عبر مكافآت Actifit.</string>
     <string name="ad_not_ready">الإعلان لم يكن جاهزًا بعد.</string>
     <string name="err_load_ad">خطأ في تحميل الإعلان</string>
@@ -534,4 +531,31 @@
    <string name="tweet_button">مكافأة التغريدة</string>
    <string name="fitbit_sync_btn" translatable="false">\uf0ed</string>
    <string name="switch_settings_btn" translatable="false">\uf362</string>
+    <string name="extra_beneficiary">المستفيد الإضافي</string>
+    <string name="setting_dark_mode_label">الوضع الليلي</string>
+    <string name="icon_sun_desc">أيقونة الشمس</string>
+    <string name="icon_moon_desc">أيقونة القمر</string>
+    <string name="skip">تخطي</string>
+    <string name="daily">يوميًا</string>
+    <string name="hourly">كل ساعة</string>
+    <string name="error_transaction">حدث خطأ أثناء إجراء المعاملة</string>
+    <string name="proceed">متابعة</string>
+    <string name="saved_workouts">التمارين المحفوظة</string>
+    <string name="workout_planning">تخطيط التمارين</string>
+    <string name="no_saved_workouts_yet">لا توجد تمارين محفوظة حتى الآن.</string>
+    <string name="retry_loading_workouts">إعادة محاولة تحميل التمارين</string>
+    <string name="generate_new_workout">إنشاء تمرين جديد</string>
+    <string name="workout_name">اسم التمرين:</string>
+    <string name="enter_a_name_for_your_workout">أدخل اسمًا لتمرينك</string>
+    <string name="fitness_goal">الهدف اللياقي:</string>
+    <string name="experience_level">مستوى الخبرة:</string>
+    <string name="weekly_time">الوقت الأسبوعي:</string>
+    <string name="workout_frequency">تكرار الت تمارين:</string>
+    <string name="preferred_workout_style">نمط التمرين المفضل:</string>
+    <string name="equipment">المعدات:</string>
+    <string name="physical_limitations">القيود البدنية:</string>
+    <string name="enter_details_for_other_limitations">أدخل تفاصيل للقيود \'أخرى\'</string>
+    <string name="generate_workout_plan">إنشاء خطة تمرين</string>
+    <string name="workout_plan_overview">نظرة عامة على خطة التمرين</string>
+    <string name="exercises">التمارين</string>
 </resources>

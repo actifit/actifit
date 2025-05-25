@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.os.PowerManager;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
 
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -28,12 +30,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,6 +98,10 @@ public class SettingsActivity extends BaseActivity {
     GmsBarcodeScanner scanner;
 
     TextView logoutLink;
+
+    //private ImageView iconSun; // Optional
+    //private ImageView iconMoon;
+    private static final String PREF_KEY_DARK_MODE = "theme_mode";
 
     /*@Bind(R.id.main_toolbar)
     Toolbar toolbar;*/
@@ -174,6 +182,47 @@ public class SettingsActivity extends BaseActivity {
         notifListView = findViewById(R.id.notif_settings_list);
 
         Spinner charitySelected = findViewById(R.id.charity_options);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        boolean isDarkModeEnabled = sharedPreferences.getBoolean(PREF_KEY_DARK_MODE, false);
+        if (isDarkModeEnabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO); // Or MODE_NIGHT_FOLLOW_SYSTEM
+        }
+
+        SwitchCompat darkModeSwitch = findViewById(R.id.darkModeSwitch);
+        //iconSun = findViewById(R.id.icon_sun);
+        //iconMoon = findViewById(R.id.icon_moon);
+
+        darkModeSwitch.setChecked(isDarkModeEnabled);
+        //updateSunMoonIcons(isDarkModeEnabled);
+
+        darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // isChecked is the new state of the switch
+
+            // 1. Save the new preference value
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(PREF_KEY_DARK_MODE, isChecked);
+            editor.apply(); // Use apply() for asynchronous save
+
+            // 2. Update the icon visibility (Optional)
+            //updateSunMoonIcons(isChecked);
+
+            // 3. Apply the new theme mode
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                // When dark mode is toggled off, switch back to Light Mode
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                // If you want turning off the toggle to mean "follow system setting":
+                // AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+            }
+
+            // Note: Calling setDefaultNightMode() typically causes the Activity to be recreated,
+            // so the new theme is applied. The onCreate() method will run again.
+        });
+
 
         qrCodeBtn = findViewById(R.id.qrCodeButton);
 
@@ -287,7 +336,7 @@ public class SettingsActivity extends BaseActivity {
         queue = Volley.newRequestQueue(this);
 
         //if there is an assigned user, fetch his settings
-        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        //final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
         final String username = sharedPreferences.getString("actifitUser","");
 
         activeKey.setText(sharedPreferences.getString("actvKey", ""));
@@ -556,6 +605,77 @@ public class SettingsActivity extends BaseActivity {
             notificationsInactive.setChecked(true);
         }
         */
+
+        //handle beneficiaries
+
+        String data = sharedPreferences.getString("AdditionalBeneficiaries", "");
+
+        // Populate the beneficiary table
+        updateBeneficiaryTable(data);
+
+        Button addBeneficBtn = findViewById(R.id.addBeneficBtn);
+        addBeneficBtn.setOnClickListener(v -> {
+            EditText beneficiaryField = findViewById(R.id.extraBeneficiary);
+            EditText percentageField = findViewById(R.id.beneficPerct);
+
+            String beneficiary = beneficiaryField.getText().toString().trim();
+            String percentageStr = percentageField.getText().toString().trim();
+
+            /*SharedPreferences.Editor editor1 = sharedPreferences.edit();
+            editor1.remove("AdditionalBeneficiaries");
+            editor1.apply();*/
+
+            if (!beneficiary.isEmpty() && !percentageStr.isEmpty()) {
+                try {
+                    int percentage = Integer.parseInt(percentageStr);
+
+                    // Convert percentage to weight (percentage * 100)
+                    int weight = percentage * 100;
+
+                    String existingData = sharedPreferences.getString("AdditionalBeneficiaries", "[]");
+
+                    // Parse existing JSON array
+                    JSONArray beneficiariesArray = new JSONArray(existingData);
+
+                    // Calculate current total weight
+                    int totalWeight = 0;
+                    for (int i = 0; i < beneficiariesArray.length(); i++) {
+                        JSONObject beneficiaryObj = beneficiariesArray.getJSONObject(i);
+                        totalWeight += beneficiaryObj.getInt("weight");
+                    }
+
+                    // Validate that adding this weight doesn't exceed 9500
+                    if (totalWeight + weight > 9500) {
+                        Toast.makeText(this, "Total weight cannot exceed 95%", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Create new beneficiary object
+                    JSONObject newBeneficiary = new JSONObject();
+                    newBeneficiary.put("account", beneficiary);
+                    newBeneficiary.put("weight", weight);
+
+                    // Add new beneficiary to array
+                    beneficiariesArray.put(newBeneficiary);
+
+                    // Save updated JSON array back to SharedPreferences
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("AdditionalBeneficiaries", beneficiariesArray.toString());
+                    editor.apply();
+
+                    // Update UI
+                    updateBeneficiaryTable(beneficiariesArray.toString());
+                    beneficiaryField.setText("");
+                    percentageField.setText("");
+
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Enter a valid percentage", Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    Toast.makeText(this, "Error saving data", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         //select proper language
 
         languageSelected.setSelection(LocaleManager.getSelectedLang(this));
@@ -654,7 +774,7 @@ public class SettingsActivity extends BaseActivity {
         //need to update the info based on charity selection
         charitySelected.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             TextView charityInfo = findViewById(R.id.charity_info);
-            Spinner charitySelected = findViewById(R.id.charity_options);
+            //Spinner charitySelected = findViewById(R.id.charity_options);
 
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -670,342 +790,341 @@ public class SettingsActivity extends BaseActivity {
         });
 
         Button BtnSaveSettings = findViewById(R.id.btn_save_settings);
-        BtnSaveSettings.setOnClickListener(new View.OnClickListener() {
+        BtnSaveSettings.setOnClickListener(arg0 -> {
+            //need to adjust the selection of the sensors and store it
 
-            @Override
-            public void onClick(final View arg0) {
-                //need to adjust the selection of the sensors and store it
+            //store as new preferences
+            SharedPreferences sharedPreferences1 = getSharedPreferences("actifitSets",MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences1.edit();
 
-                //store as new preferences
-                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
+            //test for which option the user has set
+            if (metricSysRadioBtn.isChecked()) {
+                editor.putString("activeSystem", getString(R.string.metric_system_ntt));
+            }else{
+                editor.putString("activeSystem", getString(R.string.us_system_ntt));
+            }
 
-                //test for which option the user has set
-                if (metricSysRadioBtn.isChecked()) {
-                    editor.putString("activeSystem", getString(R.string.metric_system_ntt));
-                }else{
-                    editor.putString("activeSystem", getString(R.string.us_system_ntt));
-                }
+            //store whether user wants to get rewards popup notification on main screen
+            editor.putBoolean(getString(R.string.donotshowrewards), !showPendingRewardsCheckbox.isChecked());
 
-                //store whether user wants to get rewards popup notification on main screen
-                editor.putBoolean(getString(R.string.donotshowrewards), !showPendingRewardsCheckbox.isChecked());
+            editor.putBoolean(getString(R.string.donotshowtips), !showDailyTipsCheckbox.isChecked());
 
-                editor.putBoolean(getString(R.string.donotshowtips), !showDailyTipsCheckbox.isChecked());
+            editor.putBoolean(getString(R.string.donotshowbatteryoptimization), !showBatteryOptimizationTipCheckbox.isChecked());
 
-                editor.putBoolean(getString(R.string.donotshowbatteryoptimization), !showBatteryOptimizationTipCheckbox.isChecked());
+            //store selected STEEM pay mode
 
-                //store selected STEEM pay mode
-
-                //check which pay mode for reports to be used and store it
-                if (fullSPayRadioBtn.isChecked()){
-                    editor.putString("reportSTEEMPayMode", fullSPPay);
-                }else if (liquidPayRadioBtn.isChecked()){
-                    editor.putString("reportSTEEMPayMode", liquidPay);
-                }else if (declinePayRadioBtn.isChecked()){
-                    editor.putString("reportSTEEMPayMode", declinePay);
-                }else{
-                    //default
-                    editor.putString("reportSTEEMPayMode", sbdSPPay);
-                }
+            //check which pay mode for reports to be used and store it
+            if (fullSPayRadioBtn.isChecked()){
+                editor.putString("reportSTEEMPayMode", fullSPPay);
+            }else if (liquidPayRadioBtn.isChecked()){
+                editor.putString("reportSTEEMPayMode", liquidPay);
+            }else if (declinePayRadioBtn.isChecked()){
+                editor.putString("reportSTEEMPayMode", declinePay);
+            }else{
+                //default
+                editor.putString("reportSTEEMPayMode", sbdSPPay);
+            }
 
 
 
-                //store active key to use where and if needed
-                editor.putString("actvKey",activeKey.getText().toString());
+            //store active key to use where and if needed
+            editor.putString("actvKey",activeKey.getText().toString());
 
-                //store funds password to use where and if needed
-                editor.putString("fundsPass", fundsPassword.getText().toString());
+            //store funds password to use where and if needed
+            editor.putString("fundsPass", fundsPassword.getText().toString());
 
-                //store vote weight percentage
+            //store vote weight percentage
 
 
-                //update language
+            //update language
 
-                //SettingsActivity.langChoice = languageSelected.getSelectedItemPosition();
+            //SettingsActivity.langChoice = languageSelected.getSelectedItemPosition();
 
-                //store selected tracking system
-                if (fitbitBtn.isChecked()) {
-                    editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
+            //store selected tracking system
+            if (fitbitBtn.isChecked()) {
+                editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
 
-                    //also deactivate running sensors if any instance is running
-                    try {
-                        ActivityMonitorService mSensorService = MainActivity.getmSensorService();
-                        if (mSensorService != null) {
-                            stopService(MainActivity.getmServiceIntent());
-                        }
-                    }catch(Exception e){
-                        e.printStackTrace();
+                //also deactivate running sensors if any instance is running
+                try {
+                    ActivityMonitorService mSensorService = MainActivity.getmSensorService();
+                    if (mSensorService != null) {
+                        stopService(MainActivity.getmServiceIntent());
                     }
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }else{
+                editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
+            }
+
+
+            //PowerManager pm = ActivityMonitorService.getPowerManagerInstance();
+            PowerManager.WakeLock  wl = ActivityMonitorService.getWakeLockInstance();
+
+            //we need to enable aggressive checking only if device sensors are functioning,
+            //otherwise it's pointless
+            if (aggBgTrackingChckBox.isChecked()){
+                editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_on_ntt));
+
+            }else{
+                editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_off_ntt));
+                //enable wake lock to ensure tracking functions in the background
+                if (wl!=null && wl.isHeld()) {
+                    Log.d(MainActivity.TAG,">>>>[Actifit]Settings AGG MODE OFF");
+                    wl.release();
+                }
+            }
+
+            //reset value first
+            editor.putString("selectedCharity", "");
+
+            //check if charity mode is on and a charity has been selected
+            if (donateCharityChckBox.isChecked()){
+                //Spinner charitySelected1 = findViewById(R.id.charity_options);
+                if (charitySelected.getSelectedItem() !=null){
+                    editor.putString("selectedCharity", ((Charity) charitySelected.getSelectedItem()).getCharityName());
+                    editor.putString("selectedCharityDisplayName", charitySelected.getSelectedItem().toString());
+                }
+            }
+
+            //unset alarm and the need to restart Actifit notification reminder after reboot
+            alarmManager = (AlarmManager) getApplicationContext()
+                    .getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(getApplicationContext(), ReminderNotificationService.class);
+            if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+                alarmIntent = PendingIntent.getService(getApplicationContext()
+                        , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_MUTABLE);
+            }else {
+                alarmIntent = PendingIntent.getService(getApplicationContext()
+                        , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
+            //unset any existing alarms first
+            alarmManager.cancel(alarmIntent);
+
+            //check if reminder setting is on and only set it
+            if (reminderSetChckBox.isChecked()) {
+                editor.putString("selectedReminderHour", "" + hourOptions.getValue());
+                editor.putString("selectedReminderMin", "" + minOptions.getValue());
+
+                //set the alarm at user defined value
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                calendar.set(Calendar.HOUR_OF_DAY, hourOptions.getValue());
+                calendar.set(Calendar.MINUTE, minOptions.getValue());
+
+                //PendingIntent.getService(currentActivity, ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                intent.putExtra("NOTIFICATION_ID", ReminderNotificationService.NOTIFICATION_ID);
+
+                Log.d(MainActivity.TAG,">>>>[Actifit]: set alarm manager"+hourOptions.getValue()+" "+minOptions.getValue());
+
+                if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+                    alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
+                            , 0, intent, PendingIntent.FLAG_MUTABLE);
                 }else{
-                    editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
+                    alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
+                            , 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 }
 
-
-                //PowerManager pm = ActivityMonitorService.getPowerManagerInstance();
-                PowerManager.WakeLock  wl = ActivityMonitorService.getWakeLockInstance();
-
-                //we need to enable aggressive checking only if device sensors are functioning,
-                //otherwise it's pointless
-                if (aggBgTrackingChckBox.isChecked()){
-                    editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_on_ntt));
-
-                }else{
-                    editor.putString("aggressiveBackgroundTracking", getString(R.string.aggr_back_tracking_off_ntt));
-                    //enable wake lock to ensure tracking functions in the background
-                    if (wl!=null && wl.isHeld()) {
-                        Log.d(MainActivity.TAG,">>>>[Actifit]Settings AGG MODE OFF");
-                        wl.release();
-                    }
-                }
-
-                //reset value first
-                editor.putString("selectedCharity", "");
-
-                //check if charity mode is on and a charity has been selected
-                if (donateCharityChckBox.isChecked()){
-                    Spinner charitySelected = findViewById(R.id.charity_options);
-                    if (charitySelected.getSelectedItem() !=null){
-                        editor.putString("selectedCharity", ((Charity)charitySelected.getSelectedItem()).getCharityName());
-                        editor.putString("selectedCharityDisplayName", charitySelected.getSelectedItem().toString());
-                    }
-                }
-
-                //unset alarm and the need to restart Actifit notification reminder after reboot
                 alarmManager = (AlarmManager) getApplicationContext()
                         .getSystemService(Context.ALARM_SERVICE);
-                Intent intent = new Intent(getApplicationContext(), ReminderNotificationService.class);
-                if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-                    alarmIntent = PendingIntent.getService(getApplicationContext()
-                            , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_MUTABLE);
-                }else {
-                    alarmIntent = PendingIntent.getService(getApplicationContext()
-                            , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                //specify alarm interval to be every 24 hours at user defined slot
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                        1000 * 60 * 60 * 24, alarmIntent);
+            }else{
+                //cancellation case
+                editor.putString("selectedReminderHour", "");
+                editor.putString("selectedReminderMin", "");
+            }
+
+            //store fitbit setting to see if user wants to grab measurements too
+            //CheckBox fitbitMeasurements1 = findViewById(R.id.fitbit_measurements);
+            if (fitbitMeasurementsChckBox.isChecked()){
+                editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_on_ntt));
+            }else{
+                editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_off_ntt));
+            }
+
+            //adjust notification status
+            if (notificationsActive.isChecked()){
+                FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.actif_def_not_topic));
+                editor.putBoolean(getString(R.string.notification_status), true);
+            }else{
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(getString(R.string.actif_def_not_topic));
+                editor.putBoolean(getString(R.string.notification_status), false);
+            }
+
+
+
+            //commit to server
+
+            editor.apply();
+
+            //store to user's settings
+            if (!username.equals("")) {
+
+
+                //build up settings data to be sent
+                JSONObject innerSettingsData = new JSONObject();
+
+                //check bchain posting preferences
+                try {
+                    String chain_selection = "['HIVE'";
+                    if (steemOptionCheckbox.isChecked()){
+                        chain_selection += ",'STEEM'";
+                    }
+                    if (blurtOptionCheckbox.isChecked()){
+                        chain_selection += ",'BLURT'";
+                    }
+                    chain_selection += "]";
+                    innerSettingsData.put("post_target_bchain", chain_selection);
+
+                    try {
+                        int vw = Integer.parseInt(voteWeight.getText().toString());
+
+                        if (vw < 0 || vw > 100) {
+                            Toast.makeText(cntxt, cntxt.getString(R.string.vote_percent_incorrect), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        innerSettingsData.put("default_vote_weight", vw+"");
+
+                    }catch(Exception execp){
+                        Log.e("SettingsActivity","vote weight is not an integer");
+                        //execp.printStackTrace();
+                    }
+                    /*Array chains = new Array();
+                    if (hiveOptionCheckbox.isChecked()){
+                        chains[] = 'HIVE';
+                    }
+                    innerSettingsData.put("post_target_bchain", Array)*/
+                    /*if (hiveSteemOptionRadioBtn.isChecked()) {
+                        innerSettingsData.put("post_target_bchain", "BOTH");
+                    } else {
+                        innerSettingsData.put("post_target_bchain", "HIVE");
+                    }*/
+                }catch(Exception e){
+                    //Log.e(MainActivity.TAG, e.getMessage());
                 }
-                //unset any existing alarms first
-                alarmManager.cancel(alarmIntent);
 
-                //check if reminder setting is on and only set it
-                if (reminderSetChckBox.isChecked()) {
-                    editor.putString("selectedReminderHour", "" + hourOptions.getValue());
-                    editor.putString("selectedReminderMin", "" + minOptions.getValue());
-
-                    //set the alarm at user defined value
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(System.currentTimeMillis());
-                    calendar.set(Calendar.HOUR_OF_DAY, hourOptions.getValue());
-                    calendar.set(Calendar.MINUTE, minOptions.getValue());
-
-                    //PendingIntent.getService(currentActivity, ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    intent.putExtra("NOTIFICATION_ID", ReminderNotificationService.NOTIFICATION_ID);
-
-                    Log.d(MainActivity.TAG,">>>>[Actifit]: set alarm manager"+hourOptions.getValue()+" "+minOptions.getValue());
-
-                    if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-                        alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
-                                , 0, intent, PendingIntent.FLAG_MUTABLE);
+                //check standard notification preferences
+                try {
+                    if (notificationsActive.isChecked()){
+                        innerSettingsData.put("notifications_active", true);
                     }else{
-                        alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
-                                , 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        innerSettingsData.put("notifications_active", false);
                     }
+                }catch(JSONException e){
+                    //Log.e(MainActivity.TAG, e.getMessage());
+                }
+                try {
+                    for (int i = 0; i < notificationAdapter.getCount(); i++) {
+                        SingleNotificationModel entry = notificationAdapter.getItem(i);
+                        //Toast.makeText(cntxt, entry.type + " " + entry.isChecked,Toast.LENGTH_LONG);
 
-                    alarmManager = (AlarmManager) getApplicationContext()
-                            .getSystemService(Context.ALARM_SERVICE);
+                            innerSettingsData.put(entry.type, entry.isChecked);
 
-                    //specify alarm interval to be every 24 hours at user defined slot
-                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                            1000 * 60 * 60 * 24, alarmIntent);
-                }else{
-                    //cancellation case
-                    editor.putString("selectedReminderHour", "");
-                    editor.putString("selectedReminderMin", "");
+                    }
+                } catch (JSONException e) {
+                    //Log.e(MainActivity.TAG, e.getMessage());
                 }
 
-                //store fitbit setting to see if user wants to grab measurements too
-                CheckBox fitbitMeasurements = findViewById(R.id.fitbit_measurements);
-                if (fitbitMeasurements.isChecked()){
-                    editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_on_ntt));
-                }else{
-                    editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_off_ntt));
+                //innerSettingsData.
+                try{
+                    //check if we already have the user's settings data
+                    if (userServerSettings == null){
+                        userServerSettings = new JSONObject();
+                        userServerSettings.put("user",username);
+                    }else{
+                        if (userServerSettings.has("settings")){
+                            userServerSettings.remove("settings");
+                        }
+                    }
+                    userServerSettings.put("settings", innerSettingsData);
+
+                }catch(JSONException e){
+                    //Log.e(MainActivity.TAG, e.getMessage());
                 }
 
-                //adjust notification status
-                if (notificationsActive.isChecked()){
-                    FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.actif_def_not_topic));
-                    editor.putBoolean(getString(R.string.notification_status), true);
-                }else{
-                    FirebaseMessaging.getInstance().unsubscribeFromTopic(getString(R.string.actif_def_not_topic));
-                    editor.putBoolean(getString(R.string.notification_status), false);
-                }
-
-                //commit to server
-
-                editor.apply();
-
-                //store to user's settings
-                if (!username.equals("")) {
+                // This holds the url to connect to the API and grab the settings.
+                String saveSettingsUrl = Utils.apiUrl(cntxt)+getString(R.string.save_settings) + "?user=" + username
+                        + "&settings=" + innerSettingsData.toString();
 
 
-                    //build up settings data to be sent
-                    JSONObject innerSettingsData = new JSONObject();
+                //save settings
+                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.GET,
+                        saveSettingsUrl, null,
+                        new Response.Listener<JSONObject>() {
 
-                    //check bchain posting preferences
-                    try {
-                        String chain_selection = "['HIVE'";
-                        if (steemOptionCheckbox.isChecked()){
-                            chain_selection += ",'STEEM'";
-                        }
-                        if (blurtOptionCheckbox.isChecked()){
-                            chain_selection += ",'BLURT'";
-                        }
-                        chain_selection += "]";
-                        innerSettingsData.put("post_target_bchain", chain_selection);
+                    @Override
+                    public void onResponse(JSONObject response) {
 
-                        try {
-                            Integer vw = Integer.parseInt(voteWeight.getText().toString());
+                        Log.d(MainActivity.TAG, response.toString());
+                        overridePendingTransition(0,0);
+                        currentActivity.finish();
+                        overridePendingTransition(0,0);
 
-                            if (vw < 0 || vw > 100) {
-                                Toast.makeText(cntxt, cntxt.getString(R.string.vote_percent_incorrect), Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
-                            innerSettingsData.put("default_vote_weight", vw+"");
-
-                        }catch(Exception execp){
-                            execp.printStackTrace();
-                        }
-                        /*Array chains = new Array();
-                        if (hiveOptionCheckbox.isChecked()){
-                            chains[] = 'HIVE';
-                        }
-                        innerSettingsData.put("post_target_bchain", Array)*/
-                        /*if (hiveSteemOptionRadioBtn.isChecked()) {
-                            innerSettingsData.put("post_target_bchain", "BOTH");
-                        } else {
-                            innerSettingsData.put("post_target_bchain", "HIVE");
-                        }*/
-                    }catch(Exception e){
-                        //Log.e(MainActivity.TAG, e.getMessage());
                     }
 
-                    //check standard notification preferences
-                    try {
-                        if (notificationsActive.isChecked()){
-                            innerSettingsData.put("notifications_active", true);
-                        }else{
-                            innerSettingsData.put("notifications_active", false);
-                        }
-                    }catch(JSONException e){
-                        //Log.e(MainActivity.TAG, e.getMessage());
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d( MainActivity.TAG, "save settings error");
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_saving_settings),Toast.LENGTH_LONG);
                     }
-                    try {
-                        for (int i = 0; i < notificationAdapter.getCount(); i++) {
-                            SingleNotificationModel entry = notificationAdapter.getItem(i);
-                            //Toast.makeText(cntxt, entry.type + " " + entry.isChecked,Toast.LENGTH_LONG);
-
-                                innerSettingsData.put(entry.type, entry.isChecked);
-
-                        }
-                    } catch (JSONException e) {
-                        //Log.e(MainActivity.TAG, e.getMessage());
+                }) {
+                    @NonNull
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        final Map<String, String> params = new HashMap<>();
+                        params.put("Content-Type", "application/json");
+                        params.put(getString(R.string.validation_header), getString(R.string.validation_pre_data) + " " + accessToken);
+                        return params;
                     }
-
-                    //innerSettingsData.
-                    try{
-                        //check if we already have the user's settings data
-                        if (userServerSettings == null){
-                            userServerSettings = new JSONObject();
-                            userServerSettings.put("user",username);
-                        }else{
-                            if (userServerSettings.has("settings")){
-                                userServerSettings.remove("settings");
-                            }
-                        }
-                        userServerSettings.put("settings", innerSettingsData);
-
-                    }catch(JSONException e){
-                        //Log.e(MainActivity.TAG, e.getMessage());
-                    }
-
-                    // This holds the url to connect to the API and grab the settings.
-                    String saveSettingsUrl = Utils.apiUrl(cntxt)+getString(R.string.save_settings) + "?user=" + username
-                            + "&settings=" + innerSettingsData.toString();
-
-
-                    //save settings
-                    JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.GET,
-                            saveSettingsUrl, null,
-                            new Response.Listener<JSONObject>() {
-
-                        @Override
-                        public void onResponse(JSONObject response) {
-
-                            Log.d(MainActivity.TAG, response.toString());
-                            overridePendingTransition(0,0);
-                            currentActivity.finish();
-                            overridePendingTransition(0,0);
-
-                        }
-
-                    },
-                    new Response.ErrorListener()
-                    {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            // error
-                            Log.d( MainActivity.TAG, "save settings error");
-                            Toast.makeText(getApplicationContext(), getString(R.string.error_saving_settings),Toast.LENGTH_LONG);
-                        }
-                    }) {
-                        @NonNull
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            final Map<String, String> params = new HashMap<>();
-                            params.put("Content-Type", "application/json");
-                            params.put(getString(R.string.validation_header), getString(R.string.validation_pre_data) + " " + accessToken);
-                            return params;
-                        }
 
 /*
-                        @Override
-                        public byte[] getBody() {
-                            try {
-                                String mRequestBody = userServerSettings.toString();
-                                return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
-                            } catch (UnsupportedEncodingException uee) {
-                                Log.e(MainActivity.TAG, "Unsupported Encoding while trying to get the bytes ");
-                                return null;
-                            }
-
+                    @Override
+                    public byte[] getBody() {
+                        try {
+                            String mRequestBody = userServerSettings.toString();
+                            return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
+                        } catch (UnsupportedEncodingException uee) {
+                            Log.e(MainActivity.TAG, "Unsupported Encoding while trying to get the bytes ");
+                            return null;
                         }
+
+                    }
 */
-                    };
-                    /*{
-                        @Override
-                        protected Map<String, String> getParams()
-                        {
-                            Map<String, String>  params = new HashMap<String, String>();
-                            params.put("name", "vv");
-                            params.put("domain", "fff");
+                };
+                /*{
+                    @Override
+                    protected Map<String, String> getParams()
+                    {
+                        Map<String, String>  params = new HashMap<String, String>();
+                        params.put("name", "vv");
+                        params.put("domain", "fff");
 
-                            return params;
-                        }
-                    };*/
+                        return params;
+                    }
+                };*/
 
-                    queue.add(postRequest);
-                }else{
-                    overridePendingTransition(0,0);
-                    currentActivity.finish();
-                    overridePendingTransition(0,0);
-                }
-
-                /*finish();
-                overridePendingTransition( 0, 0);
-                //startActivity(getIntent());
-                Intent mainIntent = new Intent(SettingsActivity.this, MainActivity.class);
-                SettingsActivity.this.startActivity(mainIntent);
-                overridePendingTransition( 0, 0);*/
-
+                queue.add(postRequest);
+            }else{
+                overridePendingTransition(0,0);
+                currentActivity.finish();
+                overridePendingTransition(0,0);
             }
+
+            /*finish();
+            overridePendingTransition( 0, 0);
+            //startActivity(getIntent());
+            Intent mainIntent = new Intent(SettingsActivity.this, MainActivity.class);
+            SettingsActivity.this.startActivity(mainIntent);
+            overridePendingTransition( 0, 0);*/
+
         });
 
         //grab charity list
@@ -1022,7 +1141,7 @@ public class SettingsActivity extends BaseActivity {
             public void onResponse(JSONArray transactionListArray) {
 
                 ArrayList<Charity> transactionList = new ArrayList<Charity>();
-                Spinner charityOptions = findViewById(R.id.charity_options);
+                //Spinner charityOptions = findViewById(R.id.charity_options);
                 // Handle the result
                 try {
 
@@ -1054,7 +1173,8 @@ public class SettingsActivity extends BaseActivity {
                                 }
                             };
 
-                    charityOptions.setAdapter(arrayAdapter);
+                    //charityOptions.setAdapter(arrayAdapter);
+                    charitySelected.setAdapter(arrayAdapter);
 
                     //choose a charity if one is already selected before
 
@@ -1064,7 +1184,7 @@ public class SettingsActivity extends BaseActivity {
                     String currentCharityDisplayName = (sharedPreferences.getString("selectedCharityDisplayName",""));
 
                     if (!currentCharity.equals("")){
-                        Spinner charitySelected = findViewById(R.id.charity_options);
+                        //Spinner charitySelected = findViewById(R.id.charity_options);
                         TextView charityInfo = findViewById(R.id.charity_info);
 
                         donateCharityChckBox.setChecked(true);
@@ -1140,6 +1260,95 @@ public class SettingsActivity extends BaseActivity {
             metricSysRadioBtn.setChecked(true);
         }
 
+    }
+
+    private void removeBeneficiary(int index, String data) {
+        try {
+            JSONArray beneficiariesArray = new JSONArray(data);
+
+            // Remove the specified beneficiary
+            beneficiariesArray.remove(index); // Only available in API 19+
+
+            // Save updated JSON array back to SharedPreferences
+            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("AdditionalBeneficiaries", beneficiariesArray.toString());
+            editor.apply();
+
+            // Update UI
+            updateBeneficiaryTable(beneficiariesArray.toString());
+        } catch (JSONException e) {
+            Toast.makeText(this, "Error removing data", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateBeneficiaryTable(String data) {
+        LinearLayout tableLayout = findViewById(R.id.beneficiaryTable); // Ensure this layout exists in XML
+        tableLayout.removeAllViews(); // Clear existing rows
+
+        try {
+            if (data.isEmpty()) return;
+            JSONArray beneficiariesArray = new JSONArray(data);
+            for (int i = 0; i < beneficiariesArray.length(); i++) {
+                JSONObject beneficiaryObj = beneficiariesArray.getJSONObject(i);
+
+                String account = beneficiaryObj.getString("account");
+                int weight = beneficiaryObj.getInt("weight");
+                int percentage = weight / 100; // Convert weight back to percentage for display
+
+                // Create a horizontal row layout
+                LinearLayout row = new LinearLayout(this);
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setPadding(20, 0, 0, 0); // Add padding to the row
+
+                // Define LayoutParams for fixed widths
+                LinearLayout.LayoutParams usernameParams = new LinearLayout.LayoutParams(
+                        250, // Width for username
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                LinearLayout.LayoutParams percentageParams = new LinearLayout.LayoutParams(
+                        100, // Width for percentage
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                        150, // Width for button
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+
+                // Create TextView for username
+                TextView beneficiaryText = new TextView(this);
+                beneficiaryText.setText("@" + account);
+                beneficiaryText.setLayoutParams(usernameParams);
+
+                // Create TextView for percentage
+                TextView percentageText = new TextView(this);
+                percentageText.setText(percentage + "%");
+                percentageText.setLayoutParams(percentageParams);
+
+                // Create "Remove" button
+                Button removeButton = new Button(this);
+                removeButton.setText("-");
+                removeButton.setTextSize(16); // Matches your XML size
+                removeButton.setTextColor(getResources().getColor(android.R.color.white));
+                removeButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.darker_gray));
+                removeButton.setLayoutParams(buttonParams);
+                int finalI = i;
+                removeButton.setOnClickListener(v -> {
+                    // Remove entry logic
+                    removeBeneficiary(finalI, data);
+                });
+
+                // Add components to the row layout
+                row.addView(beneficiaryText);
+                row.addView(percentageText);
+                row.addView(removeButton);
+
+                // Add the row to the table layout
+                tableLayout.addView(row);
+            }
+        } catch (JSONException e) {
+            Toast.makeText(this, "Error loading data" + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

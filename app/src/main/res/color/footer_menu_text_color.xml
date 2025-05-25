@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- State when the view is selected -->
+    <item android:state_selected="true"
+        android:color="@color/actifitDarkGreen" />
+
+    <!-- Default state (not selected) -->
+    <item android:color="@color/actifitRed" />
+    <!-- Or: <item android:state_selected="false" android:color="@color/actifitRed" /> -->
+    <!-- Or: <item android:color="@color/actifitRed" android:state_selected="false"/> -->
+</selector>

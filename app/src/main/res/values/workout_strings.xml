@@ -1,0 +1,73 @@
+<resources>
+    <!-- Fitness Goals -->
+    <string-array name="fitness_goals">
+        <item>Lose Weight</item>
+        <item>Build Muscle</item>
+        <item>Improve Cardiovascular Health</item>
+        <item>Increase Strength</item>
+        <item>Enhance Flexibility</item>
+        <item>Improve Endurance</item>
+        <item>General Fitness</item>
+        <item>Reduce Stress</item>
+    </string-array>
+
+
+    <!-- Experience Levels -->
+    <string-array name="experience_levels">
+        <item>Beginner</item>
+        <item>Intermediate</item>
+        <item>Advanced</item>
+    </string-array>
+
+
+    <!-- Workout Frequency - Per Week-->
+    <string-array name="weekly_times">
+        <item>1–2 hours</item>
+        <item>2–3 hours</item>
+        <item>3–4 hours</item>
+        <item>4–5 hours</item>
+        <item>5–6 hours</item>
+        <item>6–7 hours</item>
+        <item>7+ hours</item>
+    </string-array>
+
+    <!-- Workout Frequency - Per Day -->
+    <string-array name="daily_frequencies">
+        <item>1 day a week</item>
+        <item>2 days a week</item>
+        <item>3 days a week</item>
+        <item>4 days a week</item>
+        <item>5 days a week</item>
+        <item>6 days a week</item>
+        <item>Every day</item>
+    </string-array>
+    <!-- Workout Styles -->
+    <string-array name="workout_styles">
+        <item>Cardio</item>
+        <item>Strength Training</item>
+        <item>Yoga</item>
+        <item>Pilates</item>
+        <item>High Intensity Interval Training (HIIT)</item>
+        <item>Flexibility and Stretching</item>
+        <item>Bodyweight Exercises</item>
+        <item>Mix of all</item>
+        <item>Running</item>
+        <item>Swimming</item>
+
+    </string-array>
+    <!-- Equipment Options -->
+    <string-array name="equipment_options">
+        <item>Full Gym Access</item>
+        <item>Home Equipment (Dumbbells, resistance bands etc)</item>
+        <item>Limited Home Equipment</item>
+        <item>No Equipment</item>
+    </string-array>
+    <!-- Physical Limitations -->
+    <string-array name="limitations_options">
+        <item>None</item>
+        <item>Joint Pain</item>
+        <item>Back Pain</item>
+        <item>Limited mobility</item>
+        <item>Other</item>
+    </string-array>
+</resources>

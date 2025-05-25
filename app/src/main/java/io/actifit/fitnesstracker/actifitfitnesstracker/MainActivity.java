@@ -65,6 +65,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -72,9 +73,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
@@ -90,6 +94,7 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -154,6 +159,8 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 
 /**
  * Implementation of this project was made possible via re-use, adoption and improvement of
@@ -198,7 +205,7 @@ public class MainActivity extends BaseActivity{
 
     private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
 
-
+    private static final String PREF_KEY_DARK_MODE = "theme_mode";
 
     private AlertDialog.Builder pendingRewardsDialogBuilder;
     private AlertDialog pendingRewardsDialog;
@@ -231,6 +238,8 @@ public class MainActivity extends BaseActivity{
     public static String STEP_SENSOR = "STEP_SENSOR";
     public static String ACTIFIT_CORE_URL = "https://actifit.io";
     public static String ACTIFIT_RANK_URL = "https://actifit.io/userrank";
+
+    public static final String[] tutVidUrl = {""};
 
     //enforcing active sensor by default as ACC
     public static String activeSensor = MainActivity.ACCEL_SENSOR;
@@ -272,11 +281,9 @@ public class MainActivity extends BaseActivity{
     public boolean hasBlurtAccount = false;
     public Double blurtBalance = 0.0;
 
-    int lastChatCount = 0;
-
     public static Double minTokenCount;
     TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText, newbieLink,
-            notifCount, chatNotifCount;
+            notifCount;
     LinearLayout loginContainer, userGadgets, accountRCContainer, votingStatusContainer;
     GridLayout topIconsContainer;
     TextView BtnSettings;
@@ -289,6 +296,10 @@ public class MainActivity extends BaseActivity{
     JSONArray userReferrals;
     boolean userCanClaimSignupLinks = false;
 
+    final int activityMilestoneOne = 5000;
+    final int activityMilestoneTwo = 7000;
+    final int activityMilestoneThree = 10000;
+
 
     private RewardedAd rewardedAd;
     private Button dailyRewardButton;
@@ -297,6 +308,18 @@ public class MainActivity extends BaseActivity{
     private Button BtnWaves;
     private boolean dailyRewardClaimed = false, fivekRewardClaimed = false
             , sevenkRewardClaimed = false, tenkRewardClaimed = false;
+
+
+    // Reward Status TextViews (New references)
+    private TextView textViewFreeRewardStatus;
+    private TextView textView5kRewardStatus;
+    private TextView textView7kRewardStatus;
+    private TextView textView10kRewardStatus;
+
+    // Current Steps TextView (New reference)
+    private TextView textViewCurrentSteps;
+
+
     private boolean isAdLoading;
 
     Button fullChartButton, dayChartButton;
@@ -704,7 +727,7 @@ public class MainActivity extends BaseActivity{
      *
      */
     private void sendRegistrationToServer() {
-        if (!username.equals("")) {
+        if (!username.isEmpty()) {
             String urlStr = Utils.apiUrl(this)+ getString(R.string.register_user_token_notifications);
             Log.d(MainActivity.TAG, "sendRegistrationToServer - urlStr:" + urlStr);
             ArrayList<String[]> headers = new ArrayList<>();
@@ -763,6 +786,24 @@ public class MainActivity extends BaseActivity{
         CookieManager manager = new CookieManager();
         CookieHandler.setDefault( manager  );
 
+        //support dark mode
+        // In Application class or base Activity's onCreate()
+        SharedPreferences sharedPrefs = getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
+
+        int initialNightMode;
+        if (sharedPrefs.contains(PREF_KEY_DARK_MODE)) {
+            // If the preference exists, use the saved boolean state
+            boolean isDarkModeEnabled = sharedPrefs.getBoolean(PREF_KEY_DARK_MODE, false); // Default false doesn't matter here
+            initialNightMode = isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+        } else {
+            // If the preference does NOT exist, default to following the system
+            initialNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+        }
+
+        AppCompatDelegate.setDefaultNightMode(initialNightMode);
+
+        //AppCompatDelegate.setDefaultNightMode(savedThemeMode);
+
         //short rotate animation
         rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotate.setDuration(2000);
@@ -776,7 +817,6 @@ public class MainActivity extends BaseActivity{
         topIconsContainer = findViewById(R.id.top_icons_container);
         newbieLink = findViewById(R.id.verify_newbie);
         notifCount = findViewById(R.id.notif_count);
-        chatNotifCount = findViewById(R.id.chat_notif_count);
 
         //accountRCContainer = findViewById(R.id.rc_container);
 
@@ -900,7 +940,6 @@ public class MainActivity extends BaseActivity{
 
 
         TextView BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
-        TextView BtnViewHistory = findViewById(R.id.btn_view_history);
         TextView BtnWallet = findViewById(R.id.btn_view_wallet);
         TextView BtnViewNotifications = findViewById(R.id.btn_view_notifications);
         LinearLayout BtnWalletAltContainer = findViewById(R.id.wallet_alt_container);
@@ -910,10 +949,7 @@ public class MainActivity extends BaseActivity{
 
         BtnSettings = findViewById(R.id.btn_settings);
         TextView BtnMarket = findViewById(R.id.btn_view_market);
-        TextView BtnSocials = findViewById(R.id.btn_socials);
         TextView BtnPosts = findViewById(R.id.btn_view_social);
-        TextView BtnHelp = findViewById(R.id.btn_help);
-        TextView BtnChat = findViewById(R.id.btn_chat);
         BtnWaves = findViewById(R.id.btn_waves);
         TextView BtnSwitchSettings = findViewById(R.id.switchSettings);
 
@@ -1101,7 +1137,7 @@ public class MainActivity extends BaseActivity{
         //preload tutorial vid url
         Handler uiAltHandler = new Handler(Looper.getMainLooper());
         String vidFetchUrl = Utils.apiUrl(this)+getString(R.string.tut_vid_url);
-        final String[] tutVidUrl = {""};
+        //final String[] tutVidUrl = {""};
 
         // Request the rank of the user while expecting a JSON response
         JsonObjectRequest vidUrlRequest = new JsonObjectRequest
@@ -1140,111 +1176,6 @@ public class MainActivity extends BaseActivity{
 
         });
 
-        BtnChat.setOnClickListener(view -> {
-
-            //store that user has opened chat to avoid showing notifications predating this event
-
-            storeNotifDate(new Date(), "");
-            storeNotifCount(lastChatCount);
-
-            //open chat
-            ChatDialogFragment chatDialog = ChatDialogFragment.newInstance(getCtx());
-            chatDialog.show(getSupportFragmentManager(), "chat_dialog");
-        });
-
-        BtnHelp.setOnClickListener(view -> {
-
-            VideoDialogFragment dialogFragment = VideoDialogFragment.newInstance(tutVidUrl[0]);
-            dialogFragment.show(getSupportFragmentManager(), "video_dialog");
-
-            /*AlertDialog.Builder helpDialogBuilder = new AlertDialog.Builder(ctx);
-            View helpLayout = getLayoutInflater().inflate(R.layout.help_actifit, null);
-
-            VideoView videoView = helpLayout.findViewById(R.id.videoView);
-            videoView.setVideoURI(Uri.parse(tutVidUrl[0]));
-            videoView.start();
-
-
-            AlertDialog pointer = helpDialogBuilder.setView(helpLayout)
-                    .setTitle(getString(R.string.socials_note))
-                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                    .setPositiveButton(getString(R.string.close_button),null).create();
-
-            helpDialogBuilder.show();*/
-
-        });
-
-        BtnSocials.setOnClickListener(view -> {
-            AlertDialog.Builder socialDialogBuilder = new AlertDialog.Builder(ctx);
-            View socialLayout = getLayoutInflater().inflate(R.layout.social_actifit, null);
-            socialLayout.findViewById(R.id.facebook_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.facebook_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.twitter_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.twitter_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.telegram_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.telegram_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.discord_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.discord_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.instagram_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.instagram_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.linkedin_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.linkedin_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-            socialLayout.findViewById(R.id.youtube_actifit).setOnClickListener(view1 -> {
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.youtube_actifit))));
-                }catch(Exception e){
-                    Log.e(MainActivity.TAG, "error opening social media");
-                }
-            });
-
-            //set style for dialog
-            //socialDialogBuilder. getWindow()
-
-
-            AlertDialog pointer = socialDialogBuilder.setView(socialLayout)
-                    .setTitle(getString(R.string.socials_note))
-                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                    .setPositiveButton(getString(R.string.close_button),null).create();
-
-            socialDialogBuilder.show();
-            /*
-            pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-            pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-            pointer.show();
-            */
-
-
-        });
 
         BtnReferFriend.setOnClickListener(view -> {
 
@@ -1414,7 +1345,7 @@ public class MainActivity extends BaseActivity{
 
             //show popup for rewards
             AlertDialog.Builder rewardsDialogBuilder = new AlertDialog.Builder(ctx);
-            final View rewardsLayout = getLayoutInflater().inflate(R.layout.reward_popup, null);
+            final View rewardsLayout = getLayoutInflater().inflate(R.layout.reward_popup_v2, null);
 
             giftLoader = rewardsLayout.findViewById(R.id.daily_reward_icon);
 
@@ -1423,6 +1354,16 @@ public class MainActivity extends BaseActivity{
             fivekRewardButton = rewardsLayout.findViewById(R.id.daily_5k_reward);
             sevenkRewardButton = rewardsLayout.findViewById(R.id.daily_7k_reward);
             tenkRewardButton = rewardsLayout.findViewById(R.id.daily_10k_reward);
+
+
+            // Get references to the new Status TextViews
+            textViewFreeRewardStatus = rewardsLayout.findViewById(R.id.textViewFreeRewardStatus);
+            textView5kRewardStatus = rewardsLayout.findViewById(R.id.textView5kRewardStatus);
+            textView7kRewardStatus = rewardsLayout.findViewById(R.id.textView7kRewardStatus);
+            textView10kRewardStatus = rewardsLayout.findViewById(R.id.textView10kRewardStatus);
+
+            // Get reference to the Current Steps TextView
+            textViewCurrentSteps = rewardsLayout.findViewById(R.id.textViewCurrentSteps);
             /*
             moveTotweets = rewardsLayout.findViewById(R.id.displayTweets);
 
@@ -1474,6 +1415,8 @@ public class MainActivity extends BaseActivity{
             fivekRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 2));
             sevenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 3));
             tenkRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 4));
+
+
             //fetch existing reward status
 
             Date date = new Date();
@@ -1489,12 +1432,23 @@ public class MainActivity extends BaseActivity{
             sevenkRewardClaimed = false;
             tenkRewardClaimed = false;
 
+
+            //used to temporarly remove rewards
+            if (getString(R.string.test_mode).equals("on")){
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.remove(getString(R.string.daily_free_reward));
+                editor.remove("freerewardedValue");
+                editor.commit();
+            }
+
             if (!strDate.equals("")){
                 if (curDate<= parseInt(strDate)){
                     //user has already received reward
                     dailyRewardClaimed = true;
                 }
             }
+
+
 
             strDate = sharedPreferences.getString(getString(R.string.daily_5k_reward), "");
             if (!strDate.equals("")){
@@ -1520,18 +1474,87 @@ public class MainActivity extends BaseActivity{
                 }
             }
 
+
+            /*
+            dailyRewardClaimed = false;
+            fivekRewardClaimed = false;
+            sevenkRewardClaimed = false;
+            tenkRewardClaimed = false;
+
+             */
+
+
+            /*
             if (!dailyRewardClaimed){
                 freeRewardButton.setAnimation(scaler);
             }else{
                 Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+ sharedPreferences.getString("freerewardedValue","")+" AFIT "+checkMark);
                 freeRewardButton.setText(text);
             }
+            */
 
             int curStepCount = mStepsDBHelper.fetchTodayStepCount();
 
+            // Display Current Steps
+            // Get the static label string from resources
+            String stepsLabel = getString(R.string.activity_count_lbl);
+
+            // Concatenate the label with the current step count
+            // You might want to add a separator like ": " or a space
+            String stepsDisplayText = stepsLabel + ": " + curStepCount;
+
+            // Set the combined text to the TextView
+            textViewCurrentSteps.setText(stepsDisplayText);
+
+
+            // Function to update the UI for a specific reward
+            // This makes the logic cleaner and reusable
+            updateRewardButtonAndStatus(
+                    freeRewardButton,
+                    textViewFreeRewardStatus,
+                    dailyRewardClaimed,
+                    0, // Steps needed for Free reward
+                    sharedPreferences.getString("freerewardedValue",""), // Replace with how you get the claimed value for Free
+                    scaler, // Animation object
+                    checkMark,
+                    curStepCount
+            );
+
+            updateRewardButtonAndStatus(
+                    fivekRewardButton,
+                    textView5kRewardStatus,
+                    fivekRewardClaimed,
+                    activityMilestoneOne, // Steps needed for 5k reward
+                    sharedPreferences.getString("5krewardedValue",""), // Get claimed value from preferences
+                    scaler,
+                    checkMark,
+                    curStepCount
+            );
+
+            updateRewardButtonAndStatus(
+                    sevenkRewardButton,
+                    textView7kRewardStatus,
+                    sevenkRewardClaimed,
+                    activityMilestoneTwo, // Steps needed for 7k reward
+                    sharedPreferences.getString("7krewardedValue",""), // Get claimed value
+                    scaler,
+                    checkMark,
+                    curStepCount
+            );
+
+            updateRewardButtonAndStatus(
+                    tenkRewardButton,
+                    textView10kRewardStatus,
+                    tenkRewardClaimed,
+                    activityMilestoneThree, // Steps needed for 10k reward
+                    sharedPreferences.getString("10krewardedValue",""), // Get claimed value
+                    scaler,
+                    checkMark,
+                    curStepCount
+            );
 
             //animate reward button
-            if (!fivekRewardClaimed && curStepCount >= 5000){
+            /*if (!fivekRewardClaimed && curStepCount >= 5000){
                 fivekRewardButton.setAnimation(scaler);
             }else if (fivekRewardClaimed){
                 Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+sharedPreferences.getString("5krewardedValue","")+" AFIT "+checkMark);
@@ -1550,10 +1573,10 @@ public class MainActivity extends BaseActivity{
             }else if (tenkRewardClaimed){
                 Spanned text = Html.fromHtml(getString(R.string.reward_claimed)+sharedPreferences.getString("10krewardedValue","")+" AFIT "+checkMark);
                 tenkRewardButton.setText(text);
-            }
+            }*/
 
             AlertDialog pointer = rewardsDialogBuilder.setView(rewardsLayout)
-                    .setTitle(getString(R.string.rewards_note))
+                    //.setTitle(getString(R.string.rewards_note))
                     .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                     .setPositiveButton(getString(R.string.close_button),null)
                     .create();
@@ -1569,7 +1592,8 @@ public class MainActivity extends BaseActivity{
 
         dailyRewardButton.startAnimation(scaler);
 
-        final FrameLayout picFrame = findViewById(R.id.pic_frame);
+        //final FrameLayout picFrame = findViewById(R.id.pic_frame);
+        final CircleImageView picFrame = findViewById(R.id.user_profile_pic);
         final TextView welcomeUser = findViewById(R.id.welcome_user);
         final TextView userRankTV = findViewById(R.id.user_rank);
 
@@ -1723,14 +1747,6 @@ public class MainActivity extends BaseActivity{
             VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken, this, false);
             //dialog.getView().setMinimumWidth(400);
             dialog.show(getSupportFragmentManager(), "video_upload_fragment");
-        });
-
-        //handle activity to move to step history screen
-        BtnViewHistory.setOnClickListener(arg0 -> {
-
-            Intent intent = new Intent(MainActivity.this, StepHistoryActivity.class);
-            MainActivity.this.startActivity(intent);
-
         });
 
         //handle activity to move to post to steemit screen
@@ -2254,6 +2270,92 @@ public class MainActivity extends BaseActivity{
         }
     }
 
+    // Helper method to update a single reward's UI state
+    // ... inside your MainActivity class ...
+
+    // Helper method to update a single reward's UI state
+    // Added 'currentStepCount' parameter at the end
+    private void updateRewardButtonAndStatus(Button button, TextView statusTextView,
+                                             boolean isClaimed, int requiredSteps,
+                                             String claimedValue, Animation animation,
+                                             String checkMarkIcon, int currentStepCount) {
+
+        // Always set the default button text at the beginning
+        button.setText(getString(R.string.claim_now)); // Define a string like "Claim Reward"
+
+        if (isClaimed) {
+            // Reward has been claimed
+            button.setEnabled(false); // Disable the button
+            // Keep the default "Claim Reward" text, just disable it
+
+            // Show claimed status in the status TextView
+            String claimedStatusText;
+
+            // We need to format the status text to include the claimed amount and checkmark
+            // Define a string resource like: <string name="reward_status_claimed_amount">Claimed: %1$s AFIT %2$s</string>
+            // Where %1$s will be the amount string and %2$s will be the checkmark icon string (HTML)
+
+            if (claimedValue != null && !claimedValue.isEmpty()) {
+                // Get the checkmark HTML string
+                String checkmarkHtml = HtmlCompat.fromHtml(checkMarkIcon, HtmlCompat.FROM_HTML_MODE_COMPACT).toString();
+                claimedStatusText = getString(R.string.reward_claimed) + claimedValue + "AFIT" + checkmarkHtml;
+
+            } else {
+                // Fallback status if value is not available
+                // Define string like "Status: Claimed Today" or similar generic message
+                claimedStatusText = getString(R.string.reward_claimed);
+            }
+
+            statusTextView.setText(HtmlCompat.fromHtml(claimedStatusText, HtmlCompat.FROM_HTML_MODE_COMPACT)); // Set the claimed status text
+            statusTextView.setVisibility(View.VISIBLE); // Make status visible
+
+            // Stop any animation on the button
+            button.clearAnimation();
+
+        } else {
+            // Reward has NOT been claimed
+            if (currentStepCount >= requiredSteps) {
+                // Steps requirement met - Available to claim
+                button.setEnabled(true); // Enable button
+                // Button text is already "Claim Reward"
+
+                // Set status to "Available"
+                statusTextView.setText(getString(R.string.available_lbl)); // Define string like "Available to Claim"
+                statusTextView.setVisibility(View.VISIBLE);
+                // Optional: Change status text color for emphasis
+
+                // Apply animation to indicate it's ready to claim
+                if (animation != null) {
+                    button.startAnimation(animation);
+                }
+
+            } else {
+                // Steps requirement NOT met
+                button.setEnabled(false); // Disable button
+                // Button text is already "Claim Reward"
+
+                // Set status to "Steps Not Met"
+                statusTextView.setText("Not Met");//getString(R.string., requiredSteps)); // Define string like "Needs %d steps"
+                statusTextView.setVisibility(View.VISIBLE);
+                // Optional: Change status text color to indicate not ready
+
+                // Stop any animation
+                button.clearAnimation();
+            }
+        }
+    }
+
+    // ... rest of your MainActivity code ...
+
+    // Define these string resources in res/values/strings.xml
+    /*
+    <string name="claim_reward_button_text">Claim Reward</string>
+    <string name="reward_status_available">Available to Claim</string>
+    <string name="reward_status_steps_needed">Needs %d steps</string>
+    <string name="reward_status_claimed_amount">Claimed: %1$s AFIT %2$s</string> // %1$s is amount, %2$s is checkmark HTML
+    <string name="reward_claimed_status_no_value">Status: Claimed Today</string> // Fallback
+    */
+
     private void showRewardedVideo(View view, int tier) {
         int curStepCount = mStepsDBHelper.fetchTodayStepCount();
         giftLoader.startAnimation(rotate);
@@ -2274,7 +2376,7 @@ public class MainActivity extends BaseActivity{
                             .show();
                     return;
                 }
-                if (curStepCount < 5000) {
+                if (curStepCount < activityMilestoneOne) {
                     Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
                             .show();
                     return;
@@ -2285,7 +2387,7 @@ public class MainActivity extends BaseActivity{
                             .show();
                     return;
                 }
-                if (curStepCount < 7000) {
+                if (curStepCount < activityMilestoneTwo) {
                     Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
                             .show();
                     return;
@@ -2296,7 +2398,7 @@ public class MainActivity extends BaseActivity{
                             .show();
                     return;
                 }
-                if (curStepCount < 10000) {
+                if (curStepCount < activityMilestoneThree) {
                     Toast.makeText(MainActivity.this, getString(R.string.not_eligible), Toast.LENGTH_LONG)
                             .show();
                     return;
@@ -2426,29 +2528,50 @@ public class MainActivity extends BaseActivity{
                     String strDate = dateFormat.format(date);
 
                     int id = view.getId();
+                    int reqSteps = 0;
+                    TextView rewardStatus = textViewFreeRewardStatus;
                     if (id == R.id.daily_free_reward) {
                         dailyRewardClaimed = true;
                         editor.putString(getString(R.string.daily_free_reward), strDate);
                         editor.putString("freerewardedValue", finalRewardValue + "");
                         editor.commit();
                     } else if (id == R.id.daily_5k_reward) {
+                        reqSteps = activityMilestoneOne;
                         fivekRewardClaimed = true;
+                        rewardStatus = textView5kRewardStatus;
                         editor.putString(getString(R.string.daily_5k_reward), strDate);
                         editor.putString("5krewardedValue", finalRewardValue + "");
                         editor.commit();
                     } else if (id == R.id.daily_7k_reward) {
+                        reqSteps = activityMilestoneTwo;
                         sevenkRewardClaimed = true;
+                        rewardStatus = textView7kRewardStatus;
                         editor.putString(getString(R.string.daily_7k_reward), strDate);
                         editor.putString("7krewardedValue", finalRewardValue + "");
                         editor.commit();
                     } else if (id == R.id.daily_10k_reward) {
+                        reqSteps = activityMilestoneThree;
                         tenkRewardClaimed = true;
+                        rewardStatus = textView10kRewardStatus;
                         editor.putString(getString(R.string.daily_10k_reward), strDate);
                         editor.putString("10krewardedValue", finalRewardValue + "");
                         editor.commit();
                     }
+
+
+                    updateRewardButtonAndStatus(
+                            (Button)view,
+                            rewardStatus,
+                            true,
+                            reqSteps, // Steps needed for 5k reward
+                            finalRewardValue + "", // Get claimed value from preferences
+                            scaler,
+                            checkMark,
+                            curStepCount
+                    );
+
                     //adjust button text
-                    ((Button) view).setText(Html.fromHtml (((Button) view).getText()+"<br/> "+finalRewardValue+" AFIT "+checkMark));
+                    //((Button) view).setText(HtmlCompat.fromHtml (finalRewardValue+" AFIT "+checkMark, HtmlCompat.FROM_HTML_MODE_COMPACT));
                     adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
                 });
     }
@@ -2669,80 +2792,56 @@ public class MainActivity extends BaseActivity{
         RequestQueue queue = Volley.newRequestQueue(this);
 
         JsonObjectRequest balanceRequest = new JsonObjectRequest
-                (Request.Method.GET, balanceUrl, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
+                (Request.Method.GET, balanceUrl, null, response -> {
+                    //hide dialog
+                    //progress.hide();
+                    // Display the result
+                    try {
+                        //grab current token count
+                        userFullBalance = response.getDouble("tokens");
+
+                        TextView tv =  findViewById(R.id.bal_display);
+                        tv.setText(""+ formatValue(userFullBalance)  +" AFIT");
+
+                        //TextView tvTokens = findViewById(R.id.bal_display_note);
+                        //tvTokens.setText();
+
+                        //LinearLayout ll = findViewById(R.id.posting_key_link);
+
+                        TextView ftvWallet = findViewById(R.id.token_notice_wallet);
+                        String msg = "";
+
+                        if (userFullBalance < minTokenCount){
+                            //display warning about earning AFIT tokens
+                            ImageView iv = findViewById(R.id.afit_logo);
+                            iv.setColorFilter(Color.rgb( 210, 215, 211));// @color/cardview_dark_background);
+
+                            //ftv.setVisibility(View.VISIBLE);
+                            //ftvWallet.setVisibility(View.VISIBLE);
+
+                        }else{
+                            //ftv.setVisibility(View.GONE);
+                            //ftvWallet.setVisibility(View.GONE);
+                        }
+
+                        try {
+                            if (earningsDialog != null){// && earningsDialog.isShowing()) {
+
+                                msg = grabEarningsPanelNote();
+
+                                earningsDialog.setMessage(Html.fromHtml(msg));
+                            }
+                        }catch(Exception ex){
+
+                        }
+
+
+                    }catch(JSONException e){
                         //hide dialog
                         //progress.hide();
-                        // Display the result
-                        try {
-                            //grab current token count
-                            userFullBalance = response.getDouble("tokens");
-
-                            TextView tv =  findViewById(R.id.bal_display);
-                            tv.setText(""+ formatValue(userFullBalance)  +" AFIT");
-
-                            //TextView tvTokens = findViewById(R.id.bal_display_note);
-                            //tvTokens.setText();
-
-                            //LinearLayout ll = findViewById(R.id.posting_key_link);
-
-                            TextView ftvWallet = findViewById(R.id.token_notice_wallet);
-                            String msg = "";
-
-                            if (userFullBalance < minTokenCount){
-                                //display warning about earning AFIT tokens
-                                ImageView iv = findViewById(R.id.afit_logo);
-                                iv.setColorFilter(Color.rgb( 210, 215, 211));// @color/cardview_dark_background);
-
-                                //ftv.setVisibility(View.VISIBLE);
-                                //ftvWallet.setVisibility(View.VISIBLE);
-
-                            }else{
-                                //ftv.setVisibility(View.GONE);
-                                //ftvWallet.setVisibility(View.GONE);
-                            }
-
-                            try {
-                                if (earningsDialog != null){// && earningsDialog.isShowing()) {
-
-                                    msg = grabEarningsPanelNote();
-
-                                    earningsDialog.setMessage(Html.fromHtml(msg));
-                                }
-                            }catch(Exception ex){
-
-                            }
-
-                            /*
-                            //start animations
-                            ImageView hiveLogo = findViewById(R.id.hive_logo);
-                            ImageView steemLogo = findViewById(R.id.steem_logo);
-                            ImageView sportsLogo = findViewById(R.id.sports_logo);
-                            hiveLogo.clearAnimation();
-                            Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
-                            animation.setRepeatCount(Animation.INFINITE);
-                            //animation.setRepeatMode(Animation.RESTART);
-                            //animation.setDuration(1000);
-                            //animation.setRepeatCount(200);
-
-                            //hiveLogo.startAnimation(animation);
-                            hiveLogo.setAnimation(animation);
-                            hiveLogo.animate();
-
-                            steemLogo.setAnimation(animation);
-                            steemLogo.animate();
-
-                            sportsLogo.setAnimation(animation);
-                            sportsLogo.animate();*/
-
-                        }catch(JSONException e){
-                            //hide dialog
-                            //progress.hide();
-                            //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                            Log.e(TAG, "ERROR");
-                            e.printStackTrace();
-                        }
+                        //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                        Log.e(TAG, "ERROR");
+                        e.printStackTrace();
                     }
                 }, error -> {
                     //hide dialog
@@ -2947,10 +3046,10 @@ public class MainActivity extends BaseActivity{
                 }
             }
 
-            if (stepCount < 5000) {
-                activityArray.add(new PieEntry(5000 - stepCount, ""));
-                activityArray.add(new PieEntry(5000, ""));
-            } else if (stepCount < 10000) {
+            if (stepCount < activityMilestoneOne) {
+                activityArray.add(new PieEntry(activityMilestoneOne - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneOne, ""));
+            } else if (stepCount < activityMilestoneThree) {
                 //enable animation on post & earn button
                 //ensure animation is running
                 if (BtnPostSteemit!=null && scaler!=null) {
@@ -2959,7 +3058,7 @@ public class MainActivity extends BaseActivity{
                     }
                 }
 
-                activityArray.add(new PieEntry(10000 - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
             }
 
             PieDataSet dataSet = new PieDataSet(activityArray, "");
@@ -2980,10 +3079,10 @@ public class MainActivity extends BaseActivity{
 
             //dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
             //let's set proper color
-            if (stepCount < 5000) {
+            if (stepCount < activityMilestoneOne) {
                 //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
                 dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
-            } else if (stepCount < 10000) {
+            } else if (stepCount < activityMilestoneThree) {
                 dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
                 //enable second level reward
                 //fivekRewardButton.setEnabled(true);
@@ -3026,10 +3125,10 @@ public class MainActivity extends BaseActivity{
                 }
             }
 
-            if (stepCount < 5000) {
-                activityArray.add(new PieEntry(5000 - stepCount, ""));
-                activityArray.add(new PieEntry(5000, ""));
-            } else if (stepCount < 10000) {
+            if (stepCount < activityMilestoneOne) {
+                activityArray.add(new PieEntry(activityMilestoneOne - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneOne, ""));
+            } else if (stepCount < activityMilestoneThree) {
                 //enable animation on post & earn button
                 //ensure animation is running
                 if (BtnPostSteemit!=null && scaler!=null) {
@@ -3038,7 +3137,7 @@ public class MainActivity extends BaseActivity{
                     }
                 }
 
-                activityArray.add(new PieEntry(10000 - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
             }
 
             PieDataSet dataSet = new PieDataSet(activityArray, "");
@@ -3059,10 +3158,10 @@ public class MainActivity extends BaseActivity{
 
             //dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
             //let's set proper color
-            if (stepCount < 5000) {
+            if (stepCount < activityMilestoneOne) {
                 //dataSet.setColors(android.R.color.tab_indicator_text, android.R.color.tab_indicator_text);
                 dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
-            } else if (stepCount < 10000) {
+            } else if (stepCount < activityMilestoneThree) {
                 dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
                 //enable second level reward
                 //fivekRewardButton.setEnabled(true);
@@ -3100,19 +3199,19 @@ public class MainActivity extends BaseActivity{
             }
             if (fivekRewardClaimed) {
                 fivekRewardButton.clearAnimation();
-            } else if (stepCount >= 5000 && (fivekRewardButton.getAnimation() == null || !fivekRewardButton.getAnimation().hasStarted())) {
+            } else if (stepCount >= activityMilestoneOne && (fivekRewardButton.getAnimation() == null || !fivekRewardButton.getAnimation().hasStarted())) {
                 fivekRewardButton.setAnimation(scaler);
                 //dailyRewardButton
             }
             if (sevenkRewardClaimed) {
                 sevenkRewardButton.clearAnimation();
-            } else if (stepCount >= 7000 && (sevenkRewardButton.getAnimation() == null || !sevenkRewardButton.getAnimation().hasStarted())) {
+            } else if (stepCount >= activityMilestoneTwo && (sevenkRewardButton.getAnimation() == null || !sevenkRewardButton.getAnimation().hasStarted())) {
                 sevenkRewardButton.setAnimation(scaler);
                 //dailyRewardButton
             }
             if (tenkRewardClaimed) {
                 tenkRewardButton.clearAnimation();
-            } else if (stepCount >= 10000 && (tenkRewardButton.getAnimation() == null || !tenkRewardButton.getAnimation().hasStarted())) {
+            } else if (stepCount >= activityMilestoneThree && (tenkRewardButton.getAnimation() == null || !tenkRewardButton.getAnimation().hasStarted())) {
                 tenkRewardButton.setAnimation(scaler);
                 //dailyRewardButton
             }
@@ -3197,33 +3296,22 @@ public class MainActivity extends BaseActivity{
 
             //customize X-axis
 
-            IAxisValueFormatter formatter = new IAxisValueFormatter() {
-
-                @Override
-                public String getFormattedValue(float value, AxisBase axis) {
-                    return labels[(int) value];
-                }
-
-            };
+            IAxisValueFormatter formatter = (value, axis) -> labels[(int) value];
 
             XAxis xAxis = dayChart.getXAxis();
             xAxis.setGranularity(1f); // minimum axis-step (interval)
             xAxis.setValueFormatter(formatter);
 
-            IValueFormatter yFormatter = new IValueFormatter() {
-
-                @Override
-                public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                    if (value < 1) {
-                        return "";
-                    }
-                    return "" + (int) value;
+            IValueFormatter yFormatter = (value, entry, dataSetIndex, viewPortHandler) -> {
+                if (value < 1) {
+                    return "";
                 }
-
+                return "" + (int) value;
             };
 
-            //add limit lines to show marker of min 5K activity
-            //YAxis yAxis = chart.getAxisLeft();
+            YAxis yAxisLeft = dayChart.getAxisLeft();
+            YAxis yAxisRight = dayChart.getAxisRight();
+
             dayBarData.setValueFormatter(yFormatter);
             //yAxis.setAxisMinimum(0);
 
@@ -3232,10 +3320,21 @@ public class MainActivity extends BaseActivity{
             Description chartDescription = new Description();
             chartDescription.setText(getString(R.string.activity_details_chart_title));
             dayChart.setDescription(chartDescription);
+
             dayChart.getLegend().setEnabled(false);
 
             //fill chart with data
             dayChart.setData(dayBarData);
+
+            int textColor = ContextCompat.getColor(ctx, R.color.colorBlack);
+            Legend legend = dayChart.getLegend();
+            legend.setTextColor(textColor);
+
+            xAxis.setTextColor(textColor);
+            yAxisLeft.setTextColor(textColor);
+            yAxisRight.setTextColor(textColor);
+            dataSet.setValueTextColor(textColor);
+            chartDescription.setTextColor(textColor);
 
             if (animate) {
                 //display data with cool animation
@@ -3443,44 +3542,40 @@ public class MainActivity extends BaseActivity{
 
             //customize X-axis
 
-            IAxisValueFormatter formatter = new IAxisValueFormatter() {
-
-                @Override
-                public String getFormattedValue(float value, AxisBase axis) {
-                    return labels[(int) value];
-                }
-
-            };
+            IAxisValueFormatter formatter = (value, axis) -> labels[(int) value];
 
             XAxis xAxis = fullChart.getXAxis();
             xAxis.setGranularity(1f); // minimum axis-step (interval)
             xAxis.setValueFormatter(formatter);
 
             //add limit lines to show marker of min 5K activity
-            YAxis yAxis = fullChart.getAxisLeft();
+            YAxis yAxisLeft = fullChart.getAxisLeft();
+            YAxis yAxisRight = fullChart.getAxisRight();
 
-            if (yAxis.getLimitLines().size()==0) {
+            int textColor = ContextCompat.getColor(ctx, R.color.colorBlack);
 
-                LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
+            if (yAxisLeft.getLimitLines().isEmpty()) {
+
+                LimitLine line = new LimitLine(activityMilestoneOne, getString(R.string.min_reward_level_chart));
                 line.enableDashedLine(10f, 10f, 10f);
-                line.setLineColor(Color.RED);
+                line.setLineColor(ContextCompat.getColor(ctx, R.color.actifitRed));
                 line.setLineWidth(2f);
                 line.setTextStyle(Paint.Style.FILL_AND_STROKE);
                 line.setTextColor(Color.BLACK);
                 line.setTextSize(12f);
 
-                yAxis.addLimitLine(line);
+                yAxisLeft.addLimitLine(line);
 
                 //add Limit line for max rewarded activity
-                line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
-                line.setLineColor(Color.GREEN);
+                line = new LimitLine(activityMilestoneThree, getString(R.string.max_reward_level_chart));
+                line.setLineColor(ContextCompat.getColor(ctx, R.color.actifitDarkGreen));
                 line.setLineWidth(2f);
                 line.setTextStyle(Paint.Style.FILL_AND_STROKE);
-                line.setTextColor(Color.BLACK);
+                line.setTextColor(textColor);
                 line.setTextSize(12f);
 
 
-                yAxis.addLimitLine(line);
+                yAxisLeft.addLimitLine(line);
 
             }
 
@@ -3491,6 +3586,16 @@ public class MainActivity extends BaseActivity{
 
             fullChart.setDescription(chartDescription);
             fullChart.getLegend().setEnabled(false);
+
+
+            Legend legend = fullChart.getLegend();
+            legend.setTextColor(textColor);
+
+            xAxis.setTextColor(textColor);
+            yAxisLeft.setTextColor(textColor);
+            yAxisRight.setTextColor(textColor);
+            dataSet.setValueTextColor(textColor);
+            chartDescription.setTextColor(textColor);
 
             //fill chart with data
             fullChart.setData(chartBarData);
@@ -3587,7 +3692,7 @@ public class MainActivity extends BaseActivity{
 
                 if (yAxis.getLimitLines().size()==0) {
 
-                    LimitLine line = new LimitLine(5000, getString(R.string.min_reward_level_chart));
+                    LimitLine line = new LimitLine(activityMilestoneOne, getString(R.string.min_reward_level_chart));
                     line.enableDashedLine(10f, 10f, 10f);
                     line.setLineColor(Color.RED);
                     line.setLineWidth(2f);
@@ -3598,7 +3703,7 @@ public class MainActivity extends BaseActivity{
                     yAxis.addLimitLine(line);
 
                     //add Limit line for max rewarded activity
-                    line = new LimitLine(10000, getString(R.string.max_reward_level_chart));
+                    line = new LimitLine(activityMilestoneThree, getString(R.string.max_reward_level_chart));
                     line.setLineColor(Color.GREEN);
                     line.setLineWidth(2f);
                     line.setTextStyle(Paint.Style.FILL_AND_STROKE);
@@ -4154,9 +4259,19 @@ public class MainActivity extends BaseActivity{
                 userGadgets.removeView(gadgetsll);
             }
 
-            gadgetsll = new LinearLayout(getApplicationContext());
+            HorizontalScrollView horizontalScrollView = new HorizontalScrollView(getApplicationContext());
+            horizontalScrollView.setLayoutParams(new HorizontalScrollView.LayoutParams(
+                    HorizontalScrollView.LayoutParams.MATCH_PARENT,
+                    HorizontalScrollView.LayoutParams.MATCH_PARENT));
+            horizontalScrollView.setScrollContainer(true);
 
-            userGadgets.addView(gadgetsll);
+            gadgetsll = new LinearLayout(getApplicationContext());
+            //android:isScrollContainer="true"
+            //gadgetsll.setScrollContainer(true);
+
+            horizontalScrollView.addView(gadgetsll);
+
+            userGadgets.addView(horizontalScrollView);
 
             //hide no gadgets display as we do have active gadgets
             //LinearLayout noActiveGadgets = findViewById(R.id.missing_active_gadgets_container);
@@ -4176,6 +4291,7 @@ public class MainActivity extends BaseActivity{
                             //LinearLayout pll = new LinearLayout(getApplicationContext());
 
                             FrameLayout fl = new FrameLayout(getApplicationContext());
+                            //fl.setScrollContainer(true);
 
                             //add image
                             ImageView iv = new ImageView(getApplicationContext());
@@ -4277,9 +4393,6 @@ public class MainActivity extends BaseActivity{
             RequestQueue queue = Volley.newRequestQueue(ctx);
             loadNotifCount(queue);
 
-            //load chat notifications
-            loadChatNotif(queue);
-
             //load user settings
             Utils.loadUserSettings(queue, ctx);
 
@@ -4289,15 +4402,12 @@ public class MainActivity extends BaseActivity{
 
 
             Handler uiHandler = new Handler(Looper.getMainLooper());
-            uiHandler.post(new Runnable(){
-                @Override
-                public void run() {
-                    //Picasso.with(ctx)
-                    //load user image
-                    Picasso.get()
-                            .load(userImgUrl)
-                            .into(userProfilePic);
-                }
+            uiHandler.post(() -> {
+                //Picasso.with(ctx)
+                //load user image
+                Picasso.get()
+                        .load(userImgUrl)
+                        .into(userProfilePic);
             });
 
 
@@ -4950,197 +5060,6 @@ public class MainActivity extends BaseActivity{
         }
     }
 
-    private void renderChatData(){
-        chatNotifCount.setVisibility(View.VISIBLE);
-
-        // Create a new ValueAnimator object.
-        if (valueAnimator == null) {
-            valueAnimator = new ValueAnimator();
-
-            // Set the duration of the animation.
-            valueAnimator.setDuration(1000);
-            valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            valueAnimator.setRepeatMode(ValueAnimator.REVERSE);
-
-            // Set the valueFrom and valueTo properties of the ValueAnimator object.
-            //valueAnimator.setFloatValues(Color.RED, Color.parseColor("#FFFFFF"), Color.RED);
-            valueAnimator.setFloatValues(getResources().getColor(R.color.actifitRed), getResources().getColor(R.color.colorWhite));//Color.parseColor("#FFFFFF"));
-
-
-            // Add an AnimatorUpdateListener to the ValueAnimator object.
-            valueAnimator.addUpdateListener(animator -> {
-                // Set the background color of the TextView object to the current value of the ValueAnimator object.
-                int animatedValue = (int) (float) animator.getAnimatedValue();
-
-                chatNotifCount.setTextColor(animatedValue);
-            });
-        }
-
-// Start the ValueAnimator object.
-        if (!valueAnimator.isRunning()) {
-            valueAnimator.start();
-        }
-
-    }
-
-    private void hideChatData(){
-        chatNotifCount.setVisibility(View.GONE);
-        if (valueAnimator != null && valueAnimator.isRunning()) {
-            valueAnimator.cancel();
-        }
-    }
-
-    //check community notifications
-    private void loadCommunityNotif(RequestQueue queue, String lastChatDate, int commChatCount){
-
-        String notificationsUrl = getString(R.string.sting_chat_query_comm);
-
-        // Request the transactions of the user first via JsonArrayRequest
-        // according to our data format
-        JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET,
-                notificationsUrl, null, notificationsListArray -> {
-            try {
-                JSONObject todayObj = null;
-                if (notificationsListArray.length() > 0) {
-                    //today's stats
-                    todayObj = notificationsListArray.getJSONArray(1).getJSONArray(0).getJSONObject(6);//dual array structure
-                    //we have new messages today
-                    if (todayObj.has(getString(R.string.actifit_comm))){
-                        //new messages today, notify user
-                        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
-                        String todayDate = outputFormat.format(new Date());
-                        lastChatCount = todayObj.getInt(getString(R.string.actifit_comm));
-                        if ((Integer.parseInt(todayDate) > Integer.parseInt(lastChatDate))){
-                            //storeNotifDate(null, notifDate);
-                            renderChatData();
-                        }else if ((Integer.parseInt(todayDate) == Integer.parseInt(lastChatDate))
-                                && lastChatCount > commChatCount){
-                            storeNotifCount(lastChatCount);
-                            renderChatData();
-                        }
-                    }
-                }
-
-            }catch(Exception ex){
-                ex.printStackTrace();
-            }
-        }, error -> {
-            //hide dialog
-            error.printStackTrace();
-
-        });
-
-        // Add transaction request to be processed
-        queue.add(transactionRequest);
-    }
-
-    private void loadChatNotif(RequestQueue queue){
-        //start by hiding notifierh
-        hideChatData();
-
-        //for testing, set custom date
-        /*
-        storeNotifDate(null, "20230924");
-        storeNotifCount(0);
-
-         */
-        //grab last stored update date for sting chat notifications
-        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        String lastChatDate = sharedPreferences.getString(getString(R.string.sting_chat_update),"");
-        int commChatCount = sharedPreferences.getInt(getString(R.string.sting_chat_comm_count),0);
-        if (!lastChatDate.equals("")){//(false){//
-            //we have a stored date, grab it
-
-            // This holds the url to connect to the API and grab the transactions.
-            // We append to it the username
-            String notificationsUrl = getString(R.string.sting_chat_query_user).replace("_USER_", username);
-
-            // Request the transactions of the user first via JsonArrayRequest
-            // according to our data format
-            JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET,
-                    notificationsUrl, null, notificationsListArray -> {
-
-                boolean foundNew = false;
-                // Handle the result
-                try {
-                    JSONArray innerArray = null;
-                    if (notificationsListArray.length() > 0  ){
-                        innerArray = notificationsListArray.getJSONArray(1);
-                    }
-                    for (int i = 0; i < innerArray.length(); i++) {
-                        try{
-                            // Retrieve each JSON object within the JSON array
-                            JSONObject jsonObject = innerArray.getJSONObject(i);
-
-                            //SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
-                            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault());
-                            Date date = inputFormat.parse(jsonObject.getString("date"));
-
-                            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
-                            String notifDate = outputFormat.format(date);
-                            if ((Integer.parseInt(notifDate) > Integer.parseInt(lastChatDate))){
-                                //storeNotifDate(null, notifDate);
-                                renderChatData();
-                                foundNew = true;
-                                break;
-                            }
-                        }catch(Exception exc){
-                            exc.printStackTrace();
-                        }
-                    }
-                    if (!foundNew){
-                        //check community notifications
-                        loadCommunityNotif(queue, lastChatDate, commChatCount);
-                    }
-
-                    //actifitTransactions.setText("Response is: "+ response);
-                }catch (Exception e) {
-                    //hide dialog
-
-                    e.printStackTrace();
-                }
-            }, error -> {
-                //hide dialog
-                error.printStackTrace();
-
-            });
-
-
-            // Add transaction request to be processed
-            queue.add(transactionRequest);
-
-        }else{
-            //default case
-            renderChatData();
-        }
-
-    }
-
-    private void storeNotifCount(int commCount){
-        SharedPreferences shPrefs = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        SharedPreferences.Editor editor = shPrefs.edit();
-        editor.putInt(getString(R.string.sting_chat_comm_count), commCount);
-        editor.commit();
-    }
-
-    private void storeNotifDate(Date date, String dateStr){
-        SharedPreferences shPrefs = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        SharedPreferences.Editor editor = shPrefs.edit();
-
-        //Date date = new Date();
-        String strDate = "";
-        if (!dateStr.equals("")){
-            strDate = dateStr;
-        }else{
-            DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-            strDate = dateFormat.format(date);
-        }
-
-        //String strDate = dateFormat.format(date);
-
-        editor.putString(getString(R.string.sting_chat_update), strDate);
-        editor.commit();
-    }
 
     private void loadNotifCount(RequestQueue queue){
         String notificationsUrl = Utils.apiUrl(this)+getString(R.string.user_active_notifications_url)+MainActivity.username;

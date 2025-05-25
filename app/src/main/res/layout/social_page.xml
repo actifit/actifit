@@ -50,30 +50,32 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        >
 
-    <ListView
-        android:id="@+id/postList"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:dividerHeight="0dp"
-        android:divider="#0000CC"
-        />
+        <ListView
+            android:id="@+id/postList"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:dividerHeight="0dp"
+            android:divider="#0000CC"
+            />
 
-    <Button
-        style="@style/AppTheme.ActifitButton"
-        android:id="@+id/load_more"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14dp"
-        android:visibility="invisible"
-        android:layout_gravity="center"
-        android:elevation="20dp"
-        android:text="Load More"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        <Button
+            style="@style/AppTheme.ActifitButton"
+            android:id="@+id/load_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:visibility="invisible"
+            android:layout_gravity="center"
+            android:elevation="20dp"
+            android:text="Load More"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
 
-        />
+            />
 
         <ProgressBar
             android:id="@+id/loaderMore"
@@ -87,5 +89,12 @@
 
     </RelativeLayout>
 
+
+    <include
+        android:id="@+id/bottom_menu_container"
+        layout="@layout/footer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 
 </LinearLayout>
