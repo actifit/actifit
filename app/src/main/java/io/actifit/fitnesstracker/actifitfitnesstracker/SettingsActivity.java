@@ -1287,6 +1287,7 @@ public class SettingsActivity extends BaseActivity {
         tableLayout.removeAllViews(); // Clear existing rows
 
         try {
+            if (data.isEmpty()) return;
             JSONArray beneficiariesArray = new JSONArray(data);
             for (int i = 0; i < beneficiariesArray.length(); i++) {
                 JSONObject beneficiaryObj = beneficiariesArray.getJSONObject(i);
@@ -1346,7 +1347,7 @@ public class SettingsActivity extends BaseActivity {
                 tableLayout.addView(row);
             }
         } catch (JSONException e) {
-            Toast.makeText(this, "Error loading data", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error loading data" + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
