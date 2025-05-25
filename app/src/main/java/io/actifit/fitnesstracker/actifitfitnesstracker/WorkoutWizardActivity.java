@@ -156,7 +156,7 @@ public class WorkoutWizardActivity extends BaseActivity
 
         aiService = new AiService();
 
-        exercisesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //exercisesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         limitationsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -331,7 +331,7 @@ public class WorkoutWizardActivity extends BaseActivity
         // Expand generate workout content and rotate its icon
         expandContent(generateWorkoutContent, generateWorkoutExpandIconTextView);
         collapseContent(savedWorkoutsContent, savedWorkoutsExpandIconTextView);
-        generateButton.setText("Generate Workout Plan");
+        generateButton.setText(getString(R.string.generate_workout_plan));
     }
 
 
@@ -921,6 +921,7 @@ public class WorkoutWizardActivity extends BaseActivity
 
 
                                 } catch (JSONException e) {
+                                    Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                                     e.printStackTrace();
                                 }
                             } else {
@@ -982,7 +983,7 @@ public class WorkoutWizardActivity extends BaseActivity
     private void resetGenerationState() {
         hasPaidForGeneration = false;
         lastAttemptWorkoutName = null;
-        generateButton.setText("Generate Workout Plan"); // Reset button text
+        generateButton.setText(getString(R.string.generate_workout_plan)); // Reset button text
         clearGenerationState(); // <-- Clear from SharedPreferences
     }
 

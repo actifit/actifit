@@ -398,15 +398,16 @@
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbarStyle="insideInset"
-                android:scrollbarFadeDuration="0"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbars="horizontal"
+                android:scrollbarAlwaysDrawHorizontalTrack="true"
                 android:fadeScrollbars="false"
-                android:scrollbarSize="4dp"
                 >
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    >
                     <include layout="@layout/exercise_header" />
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/exercisesRecyclerView"
