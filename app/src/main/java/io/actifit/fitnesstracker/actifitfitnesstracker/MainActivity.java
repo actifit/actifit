@@ -51,6 +51,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -4251,6 +4252,8 @@ public class MainActivity extends BaseActivity{
 
     }
 
+//    here in this method i want to add the circle 9task number1 , nur el huda)
+
     private void populateActiveProducts(){
         if (activeProducts!=null && productsList!=null &&
                 activeProducts.length()>0 && productsList.length()>0) {
@@ -4299,21 +4302,47 @@ public class MainActivity extends BaseActivity{
                             //fl.setOrientation(LinearLayout.VERTICAL);
                             fl.addView(iv);
 
+//the part that i added for the task ( nur)
+                            TextView tv = new TextView(getApplicationContext());
+                            tv.setText(curProd.getString("gadget_level"));
+                            tv.setTextSize(10);
+                            tv.setTextColor(Color.WHITE);  // white text inside red circle
+
+                            tv.setGravity(Gravity.CENTER);
+                            tv.setBackground(ContextCompat.getDrawable(ctx, R.drawable.circle_badge));
+
+// Set fixed size to keep it circular
+                            int sizeInDp = (int) TypedValue.applyDimension(
+                                    TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
+                            tv.setWidth(sizeInDp);
+                            tv.setHeight(sizeInDp);
+
+// Position it at the bottom right of the gadget image
+                            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                                    Gravity.BOTTOM | Gravity.END
+                            );
+                            params.setMargins(0, 0, 2, 2
+                            ); // adjust margins as needed
+                            tv.setLayoutParams(params);
+
+                            fl.addView(tv);
 
                             //add level
-                            TextView tv = new TextView(getApplicationContext());
-                            tv.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
-
-                            tv.setText(curProd.getString("gadget_level"));
-                            tv.setHeight(10);
-                            tv.setWidth(10);
-                            tv.setTextSize(10);
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                //tv.setBackgroundColor(getColor(R.color.actifitRed));
-                                tv.setTextColor(getColor(R.color.actifitRed));
-                            }
-                            fl.addView(tv);
+//                            TextView tv = new TextView(getApplicationContext());
+//                            tv.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
+//
+//                            tv.setText(curProd.getString("gadget_level"));
+//                            tv.setHeight(10);
+//                            tv.setWidth(10);
+//                            tv.setTextSize(10);
+//
+//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                                //tv.setBackgroundColor(getColor(R.color.actifitRed));
+//                                tv.setTextColor(getColor(R.color.actifitRed));
+//                            }
+//                            fl.addView(tv);
 
                             //pll.addView(fl);
 
