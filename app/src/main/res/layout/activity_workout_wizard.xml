@@ -394,7 +394,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 android:layout_marginBottom="8dp"
                 android:textAlignment="center"/>
-<!--deepseek said that i have to replace the comming code so i will do this is for task 2-->
+<!--i am going to replace the coming code for task(Loading workout view shows exercises in a limited area. Need to expand area)-->
 <!--            <HorizontalScrollView-->
 <!--                android:layout_width="match_parent"-->
 <!--                android:layout_height="wrap_content"-->
@@ -416,8 +416,6 @@
 <!--                        />-->
 <!--                </LinearLayout>-->
 <!--            </HorizontalScrollView>-->
-<!--            the coming cod eis from gpt i replaced the old one -->
-            <!--                    tools:listitem="@layout/activity_exercise_detail"-->
 
 
             <LinearLayout

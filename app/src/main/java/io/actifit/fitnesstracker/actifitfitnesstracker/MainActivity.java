@@ -4302,7 +4302,7 @@ public class MainActivity extends BaseActivity{
                             //fl.setOrientation(LinearLayout.VERTICAL);
                             fl.addView(iv);
 
-//the part that i added for the task ( nur)
+//the part that i added for the task Improve layout of gadgets on main screen ( nur)
                             TextView tv = new TextView(getApplicationContext());
                             tv.setText(curProd.getString("gadget_level"));
                             tv.setTextSize(10);
@@ -4328,7 +4328,7 @@ public class MainActivity extends BaseActivity{
                             tv.setLayoutParams(params);
 
                             fl.addView(tv);
-
+//the code that i remove and i replaced for task 1(Improve layout of gadgets on main screen)
                             //add level
 //                            TextView tv = new TextView(getApplicationContext());
 //                            tv.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
