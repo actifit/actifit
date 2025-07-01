@@ -46,11 +46,11 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.telephony.TelephonyManager;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -181,7 +181,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * success alert image: <a href="https://www.freeiconspng.com/img/23186">Success Hd Icon</a>
  * error alert image: <a href="https://www.freeiconspng.com/img/25248">sign error icon</a>
  */
-
 public class MainActivity extends BaseActivity{
     public static SensorManager sensorManager;
     public static String username = "";
@@ -967,7 +966,7 @@ public class MainActivity extends BaseActivity{
 
         int fitbitStepCount = 0;
         if(!sharedPreferences.getString("dataTrackingSystem",
-                ctx.getString(R.string.device_tracking_ntt))
+                        ctx.getString(R.string.device_tracking_ntt))
                 .equals(ctx.getString(R.string.device_tracking_ntt))) {
             if (mStepsDBHelper == null) {
                 mStepsDBHelper = new StepsDBHelper(ctx);
@@ -981,16 +980,16 @@ public class MainActivity extends BaseActivity{
             fitbitSync.setTooltipText(getString(R.string.sync_steps));
         }
         fitbitSync.setOnClickListener(view -> {
-                Thread thread = new Thread(() -> {
-                    NxFitbitHelper.sendUserToAuthorisation(ctx, false);
-                });
-                thread.start();
-            }
+                    Thread thread = new Thread(() -> {
+                        NxFitbitHelper.sendUserToAuthorisation(ctx, false);
+                    });
+                    thread.start();
+                }
         );
 
 
         Button launchWorkoutWizardButton = findViewById(R.id.launch_workout_wizard_button); // Assuming you have this button in MainActivity layout
-        launchWorkoutWizardButton.setOnClickListener(new View.OnClickListener() {
+        launchWorkoutWizardButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Start the WorkoutWizardActivity when the button is clicked
@@ -2020,7 +2019,7 @@ public class MainActivity extends BaseActivity{
             else{
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 if(sharedPreferences.getString("dataTrackingSystem",
-                        getString(R.string.device_tracking_ntt))
+                                getString(R.string.device_tracking_ntt))
                         .equals(getString(R.string.device_tracking_ntt))){
                     hideCharts();
                     editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
@@ -4025,21 +4024,21 @@ public class MainActivity extends BaseActivity{
         JsonArrayRequest referralDataRequest = new JsonArrayRequest(Request.Method.GET,
                 usersReferralsUrl, null, listArray -> {
 
-                    // Handle the result
-                    try {
-                        userReferrals = listArray;
+            // Handle the result
+            try {
+                userReferrals = listArray;
                         /*if (userReferrals!=null && userReferrals.length() > 0) {
                             TextView successfulReferral = findViewById(R.id.success_referrals);
 
                             successfulReferral.setTextColor(ctx.getResources().getColor(R.color.actifitDarkGreen));
                             successfulReferral.setText(Html.fromHtml(checkMark +userReferrals.length()));
                         }*/
-                    }catch (Exception e) {
-                        //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                        Log.e(TAG, "ERROR");
-                    }
+            }catch (Exception e) {
+                //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, "ERROR");
+            }
 
-                }, e -> {
+        }, e -> {
 
             //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
             Log.e(TAG, "ERROR");
@@ -4062,62 +4061,62 @@ public class MainActivity extends BaseActivity{
 
         JsonArrayRequest productsListReq = new JsonArrayRequest(Request.Method.GET,
                 dailyTipUrl, null, listArray -> {
-                    //hide dialog
-                    //progress.hide();
+            //hide dialog
+            //progress.hide();
 
-                    // Handle the result
-                    try {
-                        dailyTip = listArray;
-                        //show tip dialog
+            // Handle the result
+            try {
+                dailyTip = listArray;
+                //show tip dialog
 
-                        //grab random tip
-                        if (dailyTip!=null && dailyTip.length()>0) {
-                            Random rand = new Random();
+                //grab random tip
+                if (dailyTip!=null && dailyTip.length()>0) {
+                    Random rand = new Random();
 
-                            JSONObject tipData = dailyTip.getJSONObject(rand.nextInt(dailyTip.length()));
-                            if (tipData.has("tip")) {
+                    JSONObject tipData = dailyTip.getJSONObject(rand.nextInt(dailyTip.length()));
+                    if (tipData.has("tip")) {
 
-                                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        switch (which) {
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
 
-                                            case DialogInterface.BUTTON_NEUTRAL:
-                                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                                editor.putBoolean(getString(R.string.donotshowtips), true);
-                                                editor.commit();
+                                    case DialogInterface.BUTTON_NEUTRAL:
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putBoolean(getString(R.string.donotshowtips), true);
+                                        editor.commit();
 
-                                        }
-                                    }
-                                };
+                                }
+                            }
+                        };
 
-                                AlertDialog.Builder tipDialogBuilder = new AlertDialog.Builder(ctx);
-                                View tipLayout = getLayoutInflater().inflate(R.layout.daily_tip, null);
-                                TextView tipContent = tipLayout.findViewById(R.id.tip_content);
-                                tipContent.setText(tipData.getString("tip"));
-                                AlertDialog pointer = tipDialogBuilder
-                                        .setView(tipLayout)
-                                        //.setMessage(tipData.getString("tip"))
-                                        .setTitle(getString(R.string.random_tip))
-                                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                                        .setNeutralButton(getString(R.string.do_not_show_again), dialogClickListener)
-                                        .setPositiveButton(getString(R.string.close_button), null).create();
-                                Button nextBtn = tipLayout.findViewById(R.id.nextButton);
-                                nextBtn.setOnClickListener(view ->{
-                                    try {
-                                        Random randInner = new Random();
-                                        JSONObject tipInnerData = dailyTip.getJSONObject(randInner.nextInt(dailyTip.length()));
-                                        tipContent.setText(tipInnerData.getString("tip"));
-                                    }catch(Exception ex){
+                        AlertDialog.Builder tipDialogBuilder = new AlertDialog.Builder(ctx);
+                        View tipLayout = getLayoutInflater().inflate(R.layout.daily_tip, null);
+                        TextView tipContent = tipLayout.findViewById(R.id.tip_content);
+                        tipContent.setText(tipData.getString("tip"));
+                        AlertDialog pointer = tipDialogBuilder
+                                .setView(tipLayout)
+                                //.setMessage(tipData.getString("tip"))
+                                .setTitle(getString(R.string.random_tip))
+                                .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                                .setNeutralButton(getString(R.string.do_not_show_again), dialogClickListener)
+                                .setPositiveButton(getString(R.string.close_button), null).create();
+                        Button nextBtn = tipLayout.findViewById(R.id.nextButton);
+                        nextBtn.setOnClickListener(view ->{
+                            try {
+                                Random randInner = new Random();
+                                JSONObject tipInnerData = dailyTip.getJSONObject(randInner.nextInt(dailyTip.length()));
+                                tipContent.setText(tipInnerData.getString("tip"));
+                            }catch(Exception ex){
 
-                                    }
-                                });
+                            }
+                        });
 
-                                tipLayout.findViewById(R.id.previousButton).setOnClickListener(view ->{
-                                    nextBtn.performClick();
-                                });
+                        tipLayout.findViewById(R.id.previousButton).setOnClickListener(view ->{
+                            nextBtn.performClick();
+                        });
 
-                                tipDialogBuilder.show();
+                        tipDialogBuilder.show();
                                 /*
                                 pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                                 pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
@@ -4126,25 +4125,25 @@ public class MainActivity extends BaseActivity{
                                 //}
 
                                  */
-                            }
-                        }
-
-                        //actifitTransactions.setText("Response is: "+ response);
-                    }catch (Exception e) {
-                        //hide dialog
-                        //progress.hide();
-                        //actifitTransactionsError.setVisibility(View.VISIBLE);
-                        //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                        Log.e(TAG, "ERROR");
                     }
+                }
 
-                }, error -> {
+                //actifitTransactions.setText("Response is: "+ response);
+            }catch (Exception e) {
+                //hide dialog
+                //progress.hide();
+                //actifitTransactionsError.setVisibility(View.VISIBLE);
+                //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, "ERROR");
+            }
+
+        }, error -> {
             Log.e(TAG, "ERROR");
-                    //hide dialog
-                    //progress.hide();
-                    //actifitTransactionsView.setText("Unable to fetch balance");
-                    //actifitTransactionsError.setVisibility(View.VISIBLE);
-                });
+            //hide dialog
+            //progress.hide();
+            //actifitTransactionsView.setText("Unable to fetch balance");
+            //actifitTransactionsError.setVisibility(View.VISIBLE);
+        });
 
         queue.add(productsListReq);
 
@@ -4251,6 +4250,8 @@ public class MainActivity extends BaseActivity{
 
     }
 
+//    here in this method i want to add the circle 9task number1 , nur el huda)
+
     private void populateActiveProducts(){
         if (activeProducts!=null && productsList!=null &&
                 activeProducts.length()>0 && productsList.length()>0) {
@@ -4299,21 +4300,47 @@ public class MainActivity extends BaseActivity{
                             //fl.setOrientation(LinearLayout.VERTICAL);
                             fl.addView(iv);
 
+//the part that i added for the task ( nur)
+                            TextView tv = new TextView(getApplicationContext());
+                            tv.setText(curProd.getString("gadget_level"));
+                            tv.setTextSize(10);
+                            tv.setTextColor(Color.WHITE);  // white text inside red circle
+
+                            tv.setGravity(Gravity.CENTER);
+                            tv.setBackground(ContextCompat.getDrawable(ctx, R.drawable.circle_badge));
+
+// Set fixed size to keep it circular
+                            int sizeInDp = (int) TypedValue.applyDimension(
+                                    TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
+                            tv.setWidth(sizeInDp);
+                            tv.setHeight(sizeInDp);
+
+// Position it at the bottom right of the gadget image
+                            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                                    Gravity.BOTTOM | Gravity.END
+                            );
+                            params.setMargins(0, 0, 2, 2
+                            ); // adjust margins as needed
+                            tv.setLayoutParams(params);
+
+                            fl.addView(tv);
 
                             //add level
-                            TextView tv = new TextView(getApplicationContext());
-                            tv.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
-
-                            tv.setText(curProd.getString("gadget_level"));
-                            tv.setHeight(10);
-                            tv.setWidth(10);
-                            tv.setTextSize(10);
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                //tv.setBackgroundColor(getColor(R.color.actifitRed));
-                                tv.setTextColor(getColor(R.color.actifitRed));
-                            }
-                            fl.addView(tv);
+//                            TextView tv = new TextView(getApplicationContext());
+//                            tv.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
+//
+//                            tv.setText(curProd.getString("gadget_level"));
+//                            tv.setHeight(10);
+//                            tv.setWidth(10);
+//                            tv.setTextSize(10);
+//
+//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                                //tv.setBackgroundColor(getColor(R.color.actifitRed));
+//                                tv.setTextColor(getColor(R.color.actifitRed));
+//                            }
+//                            fl.addView(tv);
 
                             //pll.addView(fl);
 
@@ -4536,7 +4563,7 @@ public class MainActivity extends BaseActivity{
             topIconsContainer.setVisibility(View.GONE);
             loginContainer.setVisibility(View.VISIBLE);
         }
-        loginLink.setOnClickListener(new View.OnClickListener() {
+        loginLink.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 //validate input values
@@ -4576,7 +4603,7 @@ public class MainActivity extends BaseActivity{
 
         });*/
 
-        signupLink.setOnClickListener(new View.OnClickListener() {
+        signupLink.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
@@ -4686,7 +4713,7 @@ public class MainActivity extends BaseActivity{
         queue.add(votingStatusRequest);
 
         //handle RC click
-        votingStatusContainer.setOnClickListener(new View.OnClickListener() {
+        votingStatusContainer.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
 
