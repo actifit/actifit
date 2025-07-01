@@ -394,28 +394,50 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 android:layout_marginBottom="8dp"
                 android:textAlignment="center"/>
+<!--i am going to replace the coming code for task(Loading workout view shows exercises in a limited area. Need to expand area)-->
+<!--            <HorizontalScrollView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:scrollbarStyle="insideOverlay"-->
+<!--                android:scrollbars="horizontal"-->
+<!--                android:scrollbarAlwaysDrawHorizontalTrack="true"-->
+<!--                android:fadeScrollbars="false"-->
+<!--                >-->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical"-->
+<!--                    >-->
+<!--                    <include layout="@layout/exercise_header" />-->
+<!--                    <androidx.recyclerview.widget.RecyclerView-->
+<!--                        android:id="@+id/exercisesRecyclerView"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        />-->
+<!--                </LinearLayout>-->
+<!--            </HorizontalScrollView>-->
 
-            <HorizontalScrollView
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbarStyle="insideOverlay"
-                android:scrollbars="horizontal"
-                android:scrollbarAlwaysDrawHorizontalTrack="true"
-                android:fadeScrollbars="false"
-                >
-                <LinearLayout
-                    android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <include layout="@layout/exercise_header" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/exercisesRecyclerView"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
-                    <include layout="@layout/exercise_header" />
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/exercisesRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        />
-                </LinearLayout>
-            </HorizontalScrollView>
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    tools:listitem="@layout/activity_exercise_detail"
+
+                    />
+
+            </LinearLayout>
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
