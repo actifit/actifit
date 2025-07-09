@@ -62,6 +62,7 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -81,6 +82,18 @@ import io.noties.markwon.html.HtmlPlugin;
 import io.noties.markwon.image.AsyncDrawable;
 import io.noties.markwon.image.picasso.PicassoImagesPlugin;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.EditText;
+import android.widget.Button;
+
+import io.actifit.fitnesstracker.actifitfitnesstracker.AiService;
+import io.actifit.fitnesstracker.actifitfitnesstracker.AiResponse;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Button;
+import android.widget.TextView;
 
 
 public class PostSteemitActivity extends BaseActivity implements View.OnClickListener{
@@ -150,10 +163,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     MultiSelectionSpinner activityTypeSelector;
 
     String accountUsername, accountPostingKey, accountActivityCount, finalPostTitle, finalPostTags,
-        finalPostContent;
+            finalPostContent;
     int selectedActivityCount;
     String heightVal, weightVal, waistVal, chestVal, thighsVal, bodyFatVal,
-        heightUnit, weightUnit, waistUnit, chestUnit, thighsUnit;
+            heightUnit, weightUnit, waistUnit, chestUnit, thighsUnit;
 
     String selectedActivitiesVal;
 
@@ -222,7 +235,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         if (type==0) {
             intent.setType("image/*");
             imagePickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_img_title)));
-       }else{
+        }else{
             intent.setType("video/*");
             videoPickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_img_title)));
         }
@@ -475,11 +488,14 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         // call from code
         // MarkedView mdView = new MarkedView(this);
 
+        //started here
+        Button aiButton = findViewById(R.id.btn_ai_suggest);
+        aiButton.setText("AI");
+        aiButton.setOnClickListener(v -> showAiPopup());
+
+        EditText contentField = findViewById(R.id.steemit_post_text);
 
 
-
-
-        //hook to event of adjusting color of the title point
         steemitPostTitle.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -551,8 +567,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                 view.getContext().startActivity(intent);
                             }
                         });
+
+
+
                     }
-                })
+                })//note: onCreate ends here
 
                 //handle images via available picasso
                 //.usePlugin(PicassoImagesPlugin.create(Picasso.get()))
@@ -604,7 +623,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         Log.e(MainActivity.TAG, "error ontextchanged markwon");
                     }
 
-                    //store current text
+                    //store my current text
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("steemPostContent",
                             steemitPostContent.getText().toString());
@@ -618,16 +637,14 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     contentCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
                     charCount.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
                 }
-                //set text count
+                //show count
                 charCount.setText(s.length()+"");
 
 
             }
         });
 
-        //try to load any previously selected vid
 
-        // Retrieve the JSON string from SharedPreferences
         try {
             String json = sharedPreferences.getString("selVidEntry", "");
             // Convert back to UploadedVideoModel
@@ -643,8 +660,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             steemitPostContent.setText(priorContent);
 
         }else{
-            //pick random hint
-            // Generate a random integer between 1 and 6
+            //Generate a random integer between 1 and 6
             int minValue = 1;
             int maxValue = parseInt(getString(R.string.report_text_hint_count));
             int randomNumber = random.nextInt(maxValue - minValue + 1) + minValue;
@@ -798,7 +814,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         postTitle += " "+new SimpleDateFormat("MMMM d yyyy").format(mCalendar.getTime());
 
         //postTitle += String.valueOf(mCalendar.get(Calendar.MONTH)+1)+" " +
-                //String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH))+"/"+String.valueOf(mCalendar.get(Calendar.YEAR));
+        //String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH))+"/"+String.valueOf(mCalendar.get(Calendar.YEAR));
         steemitPostTitle.setText(postTitle);
 
         //initializing activity options
@@ -1156,8 +1172,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         private final Context context;
         private Activity currentActivity;
         public PostSteemitRequest(Context c, Activity currentActivity){
-                this.context = c;
-                this.currentActivity = currentActivity;
+            this.context = c;
+            this.currentActivity = currentActivity;
         }
         protected void onPreExecute(){
             //create a new progress dialog to show action is underway
@@ -1497,7 +1513,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 //use test url only if testing mode is on
                 String urlStr = getString(R.string.test_api_url);
                 //if (getString(R.string.test_mode).equals("off")) {
-                    urlStr = getString(R.string.api_url_new);
+                urlStr = getString(R.string.api_url_new);
                 //}
 
                 RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
@@ -1562,8 +1578,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             }catch (Exception e){
 
                 //display proper notification
-    //            notification = getString(R.string.failed_post);
-    //            displayNotification(notification, progress, context, currentActivity, "");
+                //            notification = getString(R.string.failed_post);
+                //            displayNotification(notification, progress, context, currentActivity, "");
                 try {
                     displayNotification(e.getMessage(), progress, context, currentActivity, "", "");
                 }catch(Exception inner){
@@ -1625,6 +1641,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             mStepsDBHelper.manualInsertStepsEntry(trackedActivityCount);
 
         }
+
 
 
         //we need to check first if we have a charity setup
@@ -1695,8 +1712,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
             AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
             builder.setMessage(getString(R.string.current_workout_going_charity) + " "
-                    + currentCharityDisplayName + " "
-                    + getString(R.string.current_workout_settings_based))
+                            + currentCharityDisplayName + " "
+                            + getString(R.string.current_workout_settings_based))
                     .setPositiveButton(getString(R.string.yes_button), dialogClickListener)
                     .setNegativeButton(getString(R.string.no_button), dialogClickListener).show();
         }else {
@@ -1744,6 +1761,107 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             new PostSteemitRequest(steemit_post_context, currentActivity).execute();
         }
     }
+
+
+    //// This is the main content box on your main screen (e.g. steemitPostContent)
+
+    private void showAiPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.ai_popup, null);
+        builder.setView(dialogView);
+
+        // Find popup views
+        EditText aiInputText = dialogView.findViewById(R.id.ai_input_text);
+        Spinner aiActionSpinner = dialogView.findViewById(R.id.ai_action_spinner);
+        Button btnQuery = dialogView.findViewById(R.id.btn_query);
+        Button btnClear = dialogView.findViewById(R.id.btn_clear);
+        TextView aiPreviewText = dialogView.findViewById(R.id.ai_preview_text);
+        Button btnAccept = dialogView.findViewById(R.id.btn_accept);
+        btnAccept.setEnabled(false);
+        btnAccept.setAlpha(0.5f);     // this creates a faded look
+        btnAccept.setEnabled(false);  // can't click unless response is created
+
+
+        EditText steemitPostContent = findViewById(R.id.steemit_post_text);
+        TextView mdView = findViewById(R.id.md_view);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                new String[]{"None", "Summarize", "Expand"}
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        aiActionSpinner.setAdapter(adapter);
+
+        btnQuery.setOnClickListener(v -> {
+            String userText = aiInputText.getText().toString().trim();
+            String action = aiActionSpinner.getSelectedItem().toString();
+
+            if (userText.isEmpty()) {
+                aiPreviewText.setText("Please enter some text first.");
+                return;
+            }
+
+            String prompt;
+            switch (action.toLowerCase()) {
+                case "summarize":
+                    prompt = "Please summarize this content:\n" + userText;
+                    break;
+                case "expand":
+                    prompt = "Please expand this content:\n" + userText;
+                    break;
+                default:
+                    prompt = userText;
+                    break;
+            }
+
+            // this shows loading message in preview
+            aiPreviewText.setText("[AI is thinking…]");
+
+            // Send prompt to AI
+            AiService aiService = new AiService();
+            aiService.generateFromFreePrompt(prompt, new AiService.ResponseCallback() {
+                @Override
+                public void onSuccess(AiResponse response) {
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        String aiReply = response.getRawText();
+                        aiPreviewText.setText(aiReply); //Only show inside popup for now,wait for accept btn
+
+                        if (!aiReply.isEmpty()){
+                            btnAccept.setEnabled(true);
+                            btnAccept.setAlpha(1f);//this changes color to bright red when ai response is created
+                            btnAccept.setEnabled(true);
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            aiPreviewText.setText("[AI error] " + errorMessage));
+                }
+            });
+        });
+
+        btnAccept.setOnClickListener(v -> {
+            String acceptedText = aiPreviewText.getText().toString().trim();
+            if (!acceptedText.isEmpty() && !acceptedText.equals("AI response will appear here...") && !acceptedText.equals("[AI is thinking…]")) {
+                steemitPostContent.setText(acceptedText);  //this updates the main screen
+                mdView.setText(acceptedText);              //this updates the preview if used
+                dialog.dismiss();                          //this closes the popup
+            } else {
+                Toast.makeText(this, "No valid AI response to accept.", Toast.LENGTH_SHORT).show();
+            }
+        });
+        btnClear.setOnClickListener(v -> aiInputText.setText(""));
+    }
+
+
 
 }
 
