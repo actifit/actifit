@@ -395,27 +395,52 @@
                 android:layout_marginBottom="8dp"
                 android:textAlignment="center"/>
 
-            <HorizontalScrollView
+            <!--i will replace the coming code for task 2 (Loading workout view shows exercises in a limited area. Need to expand area)-->
+            <!--            <HorizontalScrollView-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:scrollbarStyle="insideOverlay"-->
+            <!--                android:scrollbars="horizontal"-->
+            <!--                android:scrollbarAlwaysDrawHorizontalTrack="true"-->
+            <!--                android:fadeScrollbars="false"-->
+            <!--                >-->
+            <!--                <LinearLayout-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:orientation="vertical"-->
+            <!--                    >-->
+            <!--                    <include layout="@layout/exercise_header" />-->
+            <!--                    <androidx.recyclerview.widget.RecyclerView-->
+            <!--                        android:id="@+id/exercisesRecyclerView"-->
+            <!--                        android:layout_width="match_parent"-->
+            <!--                        android:layout_height="wrap_content"-->
+            <!--                        />-->
+            <!--                </LinearLayout>-->
+            <!--            </HorizontalScrollView>-->
+
+
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbarStyle="insideOverlay"
-                android:scrollbars="horizontal"
-                android:scrollbarAlwaysDrawHorizontalTrack="true"
-                android:fadeScrollbars="false"
-                >
-                <LinearLayout
-                    android:layout_width="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <include layout="@layout/exercise_header" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/exercisesRecyclerView"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
-                    <include layout="@layout/exercise_header" />
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/exercisesRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        />
-                </LinearLayout>
-            </HorizontalScrollView>
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    tools:listitem="@layout/workout_list_item"
+
+                    />
+
+            </LinearLayout>
+
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
