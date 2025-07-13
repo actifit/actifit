@@ -34,9 +34,9 @@
     <string name="min_char_count_error">You need to describe your activity in at least </string>
     <string name="characters_plural_label">characters</string>
     <string name="social_title_desc">Social Actifit Reports</string>
-    <string name="waves_description">Waves by Ecency, Snaps by Peakd &amp; Threads by InLeo are additional short and quick communication means on hive blockchain. Engage with others, share your updates as you go through your daily journeys, and earn some extra rewards as well.</string>
-    <string name="social_description">Engage with the actifit community via their daily reports. <br/>Motivate yourself and others. <br/>Increase your rewards by interacting via comments &amp; upvotes. <br/>Create your ultimate social backing. </string>
-    <string name="vids_list_description">List below contains all videos you had previously uploaded and submitted. To include any of those videos onto your actifit report content, you need to be on the "Post &amp; Earn" screen, and your video status needs to be ready to publish. You can click the refresh button to refresh the status of all videos.</string>
+    <string name="waves_description">Waves by Ecency, Snaps by Peakd & Threads by InLeo are additional short and quick communication means on hive blockchain. Engage with others, share your updates as you go through your daily journeys, and earn some extra rewards as well.</string>
+    <string name="social_description">Engage with the actifit community via their daily reports. <br/>Motivate yourself and others. <br/>Increase your rewards by interacting via comments & upvotes. <br/>Create your ultimate social backing. </string>
+    <string name="vids_list_description">List below contains all videos you had previously uploaded and submitted. To include any of those videos onto your actifit report content, you need to be on the "Post & Earn" screen, and your video status needs to be ready to publish. You can click the refresh button to refresh the status of all videos.</string>
     <string name="upload_vid_description">Use either options below (record or upload) to upload a video and submit it to be included in your current uploaded vids list. Please check the info button next to the uploaded vids list for further details.</string>
     <string name="chat_title_desc">Chit Chat</string>
     <string name="chat_description">Chat with other actifitters and other hive communities on the go. <br/>Have fun while walking or at your leisure.</string>
@@ -62,7 +62,7 @@
     <string name="activity_details_chart_title">Activity Day Details</string>
     <string name="voters_list_title">Voters List</string>
     <string name="activity_leaderboard_title">Daily Leaderboard</string>
-    <string name="post_to_steem_btn_txt">Post &amp; Earn</string>
+    <string name="post_to_steem_btn_txt">Post & Earn</string>
     <string name="post_thread">Post</string>
     <string name="snap_picture_btn_txt">Snap an Acti Pic</string>
     <string name="view_history_btn_txt">Tracking History</string>
@@ -227,7 +227,7 @@
     <string name="details_button">Details</string>
     <string name="do_not_show_again">Don\'t show again</string>
     <string name="app_version_string">Actifit App Version</string>
-    <string name="app_no_affiliation_notice">Actifit has no affiliation with or sponsorship by IFIT and/or ICON Health &amp; Fitness (ifit.com).</string>
+    <string name="app_no_affiliation_notice">Actifit has no affiliation with or sponsorship by IFIT and/or ICON Health & Fitness (ifit.com).</string>
     <string name="unable_fetch_afit_balance">Unable to fetch AFIT balance</string>
     <string name="unable_fetch_balance">Unable to fetch balance</string>
     <string name="token_count_lbl">Token Count</string>
@@ -260,7 +260,7 @@
     <string name="pending_rewards_note">Please note that those rewards are not final, and are subject to increase or decrease depending on actifit and blockchain community engagement. You can view your recent actifit posts and pending rewards by clicking button below.</string>
     <string name="title_wallet">Your Actifit Wallet</string>
     <string name="actifit_info">Actifit Info</string>
-    <string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
+    <string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&vs_currencies=usd</string>
     <string name="actifit_image">https://actifit.io/img/</string>
     <string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
     <string name="earnings_pane_title">Your Potential Token Earnings</string>
@@ -304,7 +304,7 @@
     <string name="tutorial_title">Actifit Video Tutorial</string>
     <string name="chat_title">Let\'s Chit Chat!</string>
     <string name="announce_title">Actifit Announcement</string>
-    <string name="comment_note"><i><br/>Comment Posted via Actifit Android App.<br/>&amp;nbsp;[Download Here](https://links.actifit.io/android)</i></string>
+    <string name="comment_note"><i><br/>Comment Posted via Actifit Android App.<br/>&nbsp;[Download Here](https://links.actifit.io/android)</i></string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="signup">Signup</string>
@@ -314,7 +314,7 @@
     <string name="no_pending_rewards">No Pending Rewards</string>
     <string name="error_fetching_data">There was a problem fetching your data. Please Try again later.</string>
     <string name="device_ignore_battery_optimization">For the best tracking performance in background, make sure to disable battery optimization for Actifit under phone settings.</string>
-    <string name="device_app_launch">&lt;br /&gt;Additionally, under devices that support App Launch, please make sure it is set to "manage manually" with auto-launch, run in background, and secondary launch enabled.</string>
+    <string name="device_app_launch"><br />Additionally, under devices that support App Launch, please make sure it is set to "manage manually" with auto-launch, run in background, and secondary launch enabled.</string>
     <string name="battery_optimization_setting">Battery Optimization Setting</string>
     <string name="third_party_enabled">Fitbit Tracking Enabled.</string>
     <string name="switch_settings">Switch</string>
@@ -400,17 +400,17 @@
     <string name="total_consumed">Total Consumed</string>
     <string name="remaining_boosts">Remaining Boosts</string>
     <string name="min_content_requirement">A minimum of 100 characters is required in your post content. The more quality/lengthier content you provide, the better!</string>
-    <string name="rc_note">This value represents your account\'s RC (Resource Credits). &lt;br /&gt; RC credits allow you to transact on Hive chain, on which Actifit mainly runs. &lt;br /&gt;It is recommended to maintain a value above 50%. &lt;br /&gt;If your RC gets to a critical low level, you might not be able to create an actifit report, and will need to wait for a day or two till your RC replenishes. &lt;br /&gt; You can also power up more HIVE to replenish your RC </string>
+    <string name="rc_note">This value represents your account\'s RC (Resource Credits). <br /> RC credits allow you to transact on Hive chain, on which Actifit mainly runs. <br />It is recommended to maintain a value above 50%. <br />If your RC gets to a critical low level, you might not be able to create an actifit report, and will need to wait for a day or two till your RC replenishes. <br /> You can also power up more HIVE to replenish your RC </string>
     <string name="verify_newbie_note">As a newbie who has not created more than 20 actifit reports, you are eligible to multiply your rewards for up to 60 days by tweeting about Actifit on twitter or other socials. Simply click the share button below. Once done, head to our discord and share the link to get verified by one of our team members. Let\'s go!</string>
     <string name="verify_newbie_title">Earn Multiples As Newbie</string>
     <string name="content_requirement">Minimum Characters Requirement</string>
     <string name="rc_note_title">Resource Credits</string>
     <string name="reward_cycle_title">Actifit Reward Cycle</string>
-    <string name="reward_cycle_description">Actifit distributes rewards via reward cycles. Normally cycles are run every 24 hours. &lt;br /&gt; The timer represents the time till next cycle. If the status says "processing" this means reward cycle is running, and if you have any eligible entry for rewards, it will receive rewards prior to next cycle. </string>
+    <string name="reward_cycle_description">Actifit distributes rewards via reward cycles. Normally cycles are run every 24 hours. <br /> The timer represents the time till next cycle. If the status says "processing" this means reward cycle is running, and if you have any eligible entry for rewards, it will receive rewards prior to next cycle. </string>
     <string name="user_rank_title">User Rank</string>
     <string name="user_rank_web">User Rank Details</string>
-    <string name="user_rank_description">Your user rank plays a role in your daily actifit rewards, as well as provides extra access to gadgets and cool things around Actifit ecosystem. &lt;br /&gt;</string>
-    <string name="user_rank_description_2">User Rank determines 25% of the total reward value. The ranking system is scaled from 0 (lowest) to 100+ , and is affected by a multitude of factors, while making it a dynamic system, as follows:&lt;br/&gt;&lt;li&gt;Amount of Delegated HIVE Power (HP)&lt;/li&gt;&lt;li&gt;Amount of Held AFIT Tokens&lt;/li&gt;&lt;li&gt;Total Activity Rewarded&lt;/li&gt;&lt;li&gt;Last 10 Days Activity Count&lt;/li&gt;&lt;li&gt;Amount of AFITX held on Hive-Engine and on BSC, whether liquid or locked as liquidity vs BNB or BUSD&lt;/li&gt;&lt;br/&gt;</string>
+    <string name="user_rank_description">Your user rank plays a role in your daily actifit rewards, as well as provides extra access to gadgets and cool things around Actifit ecosystem. <br /></string>
+    <string name="user_rank_description_2">User Rank determines 25% of the total reward value. The ranking system is scaled from 0 (lowest) to 100+ , and is affected by a multitude of factors, while making it a dynamic system, as follows:<br/><li>Amount of Delegated HIVE Power (HP)</li><li>Amount of Held AFIT Tokens</li><li>Total Activity Rewarded</li><li>Last 10 Days Activity Count</li><li>Amount of AFITX held on Hive-Engine and on BSC, whether liquid or locked as liquidity vs BNB or BUSD</li><br/></string>
     <string name="refer_friend">Refer Friend</string>
     <string name="referrals_note">Actifit rewards you for referring friends!</string>
     <string name="voting_note">Upvote to reward</string>
@@ -429,12 +429,12 @@
     <string name="post_title_other">Check out this cool post on actifit, the social Move2Earn Project!</string>
     <string name="newbie_share_socials">I started using this amazing project called Actifit. Check it out. It pays to move! #actifit @actifit_fitness</string>
     <string name="post_description" translatable="false"></string>
-    <string name="referral_join_link">Join today &amp; start earning NOW! _URL_</string>
+    <string name="referral_join_link">Join today & start earning NOW! _URL_</string>
     <string name="copy_success">Copied Successfully!</string>
     <string name="share_via">Share Via</string>
     <string name="head_market">Market</string>
-    <string name="daily_reward">&#127873;&lt;br /&gt;Daily Reward</string>
-    <string name="reward_claimed">Claimed&lt;br /&gt;</string>
+    <string name="daily_reward"><br />Daily Reward</string>
+    <string name="reward_claimed">Claimed<br /></string>
     <string name="vote_action">Upvote</string>
     <string name="daily_free_reward">Free Reward</string>
     <string name="daily_5k_reward">5K Extra Reward</string>
@@ -448,14 +448,14 @@
     <string name="reply_action">Reply</string>
     <string name="cancel_action">Cancel</string>
     <string name="reply_to">Replying to</string>
-    <string name="referrals_details">For every referral that signs up to actifit using your referral link, you earn: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;One time AFIT amount equal to 20% of the AFIT rewards your referral earns upon successful signup! (usually minimum 20 AFIT) &lt;/li&gt;&lt;li&gt; Up to 35% of your referral\'s actifit report rewards for one month, across all tokens rewarded (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
+    <string name="referrals_details">For every referral that signs up to actifit using your referral link, you earn: <br /><ul><li>One time AFIT amount equal to 20% of the AFIT rewards your referral earns upon successful signup! (usually minimum 20 AFIT) </li><li> Up to 35% of your referral\'s actifit report rewards for one month, across all tokens rewarded (AFIT, HIVE, ...) </li></ul></string>
     <string name="daily_rewards_description">You can earn daily extra rewards by clicking on the bonus buttons below.</string>
     <string name="free_daily_rewards_description">Free bonus can be claimed once daily. Earn extra random reward up to 3 AFIT</string>
     <string name="daily_5k_rewards_description">Unlocked when you reach 5,000 activity count. Earn extra random reward up to 5 AFIT</string>
     <string name="daily_7k_rewards_description">Unlocked when you reach 7,000 activity count. Earn extra random reward up to 7 AFIT</string>
     <string name="daily_10k_rewards_description">Unlocked when you reach 10,000 activity count. Earn extra random reward up to 10 AFIT</string>
     <string name="reward_already_claimed">You have already claimed this reward today! You can do so again tomorrow.</string>
-    <string name="bold_container" translatable="false">&lt;b&gt; _TEXT_ &lt;/b&gt;</string>
+    <string name="bold_container" translatable="false"><b> _TEXT_ </b></string>
     <string name="ad_reward_success">You have been successfully rewarded _VAL_ AFIT Tokens!</string>
     <string name="not_eligible">You are not yet eligible for this reward</string>
     <string name="rewards_processing">💰 Rewards Cycle In Progress - Distributing Rewards 💰</string>
@@ -556,6 +556,6 @@
     <string name="generate_workout_plan">Generate Workout Plan</string>
     <string name="workout_plan_overview">Workout Plan Overview</string>
     <string name="exercises">Exercises</string>
-<!--    i will add the nest line -->
     <string name="gemini_api_key">AIzaSyDDCgZ_lrZy6LLlbT4VKWoWOzY7zWj8c9Y</string>
+    <string name="regenerate_workout_free">REGENERATE WORKOUT (FREE)</string>
 </resources>
