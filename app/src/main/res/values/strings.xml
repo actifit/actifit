@@ -556,4 +556,6 @@
     <string name="generate_workout_plan">Generate Workout Plan</string>
     <string name="workout_plan_overview">Workout Plan Overview</string>
     <string name="exercises">Exercises</string>
+<!--    i will add the nest line -->
+    <string name="gemini_api_key">AIzaSyDDCgZ_lrZy6LLlbT4VKWoWOzY7zWj8c9Y</string>
 </resources>
