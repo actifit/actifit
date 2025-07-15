@@ -20,3 +20,7 @@ local.properties
 /.idea/assetWizardSettings.xml
 /.idea/render.experimental.xml
 /keystore/
+.idea/
+app/src/debug/google-services.json
+app/src/main/res/values/unofficial_strings (2).xml
+
