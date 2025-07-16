@@ -11,9 +11,9 @@ plugins{
     id 'com.google.firebase.crashlytics'
 }
 
-def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//def keystorePropertiesFile = rootProject.file("keystore.properties")
+//def keystoreProperties = new Properties()
+//keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 final def markwonVersion = '4.6.2'
 
@@ -209,5 +209,5 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     implementation 'de.hdodenhof:circleimageview:3.1.0'
-
+    implementation("com.google.ai.client.generativeai:generativeai:0.5.0")
 }
