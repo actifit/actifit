@@ -27,11 +27,13 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -97,6 +99,12 @@ import android.widget.TextView;
 
 
 public class PostSteemitActivity extends BaseActivity implements View.OnClickListener{
+
+    private boolean isEditorExpanded = false;
+    //private NestedScrollView nestedScrollView;
+    private EditText postTextEditor;
+    private Button expandEditorBtn;
+
 
     private StepsDBHelper mStepsDBHelper;
     private String notification = "";
@@ -414,6 +422,31 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_steemit);
 
+        nestedScrollView = findViewById(R.id.nestedScrollView);
+        postTextEditor = findViewById(R.id.steemit_post_text);
+        expandEditorBtn = findViewById(R.id.btn_expand_editor);
+
+        expandEditorBtn.setOnClickListener(v -> {
+            if (!isEditorExpanded) {
+                // Expand
+                nestedScrollView.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                postTextEditor.setMinLines(20);
+                postTextEditor.setMaxLines(Integer.MAX_VALUE);
+                expandEditorBtn.setText("\uf066"); // FontAwesome close icon
+                isEditorExpanded = true;
+            } else {
+                // Collapse
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, 0);
+                params.weight = 1;
+                nestedScrollView.setLayoutParams(params);
+                postTextEditor.setMinLines(6);
+                postTextEditor.setMaxLines(6);
+                expandEditorBtn.setText("\uf065"); // Expand icon again
+                isEditorExpanded = false;
+            }
+        });
 
         /*Toolbar postToolbar = findViewById(R.id.post_toolbar);
         setSupportActionBar(postToolbar);*/
