@@ -4,12 +4,17 @@ public class AiResponse {
     private WorkoutPlan workoutPlan;
     private String explanation;
 
+    private String rawText;//i added this
+
     public AiResponse(WorkoutPlan workoutPlan, String explanation) {
         this.workoutPlan = workoutPlan;
         this.explanation = explanation;
     }
     //getters and setters
 
+    public AiResponse(String rawText) {
+        this.rawText = rawText;
+    }//I added this
     public WorkoutPlan getWorkoutPlan() {
         return workoutPlan;
     }
@@ -25,4 +30,12 @@ public class AiResponse {
     public void setExplanation(String explanation) {
         this.explanation = explanation;
     }
+
+    public String getRawText() {
+        return rawText;
+    }//i added this
+
+    public void setRawText(String rawText) {
+        this.rawText = rawText;
+    }//i added this
 }
