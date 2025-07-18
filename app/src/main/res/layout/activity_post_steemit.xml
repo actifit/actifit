@@ -9,726 +9,727 @@
 
 
 
-<LinearLayout
-    android:orientation="vertical"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:id="@+id/post_steemit_container">
-
-    <!--<include
-        android:id="@+id/post_toolbar"
-        layout="@layout/toolbar_post_steemit"
-        />-->
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_weight="1">
+        android:id="@+id/post_steemit_container">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cLayout"
+        <!--<include
+            android:id="@+id/post_toolbar"
+            layout="@layout/toolbar_post_steemit"
+            />-->
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="50dp"
-            android:scrollbars="vertical">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
 
-            <LinearLayout
-                android:id="@+id/post_title_container"
-                android:layout_marginTop="45dp"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                tools:ignore="MissingConstraints"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
+                android:layout_height="match_parent"
+                android:paddingBottom="50dp"
+                android:scrollbars="vertical">
 
-                <TextView
-                    android:id="@+id/titleCount"
-                    android:layout_height="match_parent"
-                    android:layout_width="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textSize="35sp"
-                    android:textStyle="bold"
-                    android:text="&#10112; "
-                    android:textColor="@color/actifitDarkGreen"
-                    />
-
-                <TextView
-                    android:id="@+id/steemit_post_title_lbl"
-                    android:layout_height="match_parent"
-                    android:layout_width="wrap_content"
-                    android:gravity="center_vertical"
-                    android:text="@string/report_title"
-                    android:textSize="20sp"
-                    tools:ignore="MissingConstraints" />
-
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/steemit_post_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:paddingLeft="35dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/post_title_container" />
-
-
-
-            <TextView
-                android:id="@+id/full_afit_pay_lbl"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/full_report_AFIT_pay"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_post_title" />
-
-            <CheckBox
-                android:id="@+id/full_afit_pay"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/full_AFIT_checkbox"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/full_afit_pay_lbl" />
-
-
-            <LinearLayout
-                android:id="@+id/post_date_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                tools:ignore="MissingConstraints"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/full_afit_pay">
-
-                <TextView
-                    android:id="@+id/dateCount"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textSize="35sp"
-                    android:textStyle="bold"
-                    android:text="&#10113; "
-                    android:textColor="@color/actifitDarkGreen"
-                    />
-
-
-                <TextView
-                    android:id="@+id/report_date_option_group_title"
+                <LinearLayout
+                    android:id="@+id/post_title_container"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="@string/report_date_option_group_title"
-                    android:textSize="20sp"
-                    android:gravity="center_vertical"
-
-                     />
-
-
-            </LinearLayout>
-
-            <RadioGroup
-                android:id="@+id/report_date_option_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:paddingStart="35dp"
-                app:layout_constraintTop_toBottomOf="@+id/post_date_container" >
-
-                <RadioButton
-                    android:id="@+id/report_today_option"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/today_report_option"
-                    android:checked="true" />
+                    android:layout_marginTop="45dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="MissingConstraints">
 
-                <RadioButton
-                    android:id="@+id/report_yesterday_option"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/yesterday_report_option" />
+                    <TextView
+                        android:id="@+id/titleCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="&#10112; "
+                        android:textColor="@color/actifitDarkGreen"
+                        android:textSize="35sp"
+                        android:textStyle="bold" />
 
-            </RadioGroup>
+                    <TextView
+                        android:id="@+id/steemit_post_title_lbl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="@string/report_title"
+                        android:textSize="20sp"
+                        tools:ignore="MissingConstraints" />
 
-            <LinearLayout
-                android:id="@+id/step_count_container"
-                android:layout_width="match_parent"
-
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                tools:ignore="MissingConstraints"
-                app:layout_constraintEnd_toEndOf="parent"
-
-                app:layout_constraintTop_toBottomOf="@+id/report_date_option_group"
-                >
-
-                <TextView
-                    android:id="@+id/activityCount"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textSize="35sp"
-                    android:textStyle="bold"
-                    android:text="&#10114; "
-                    android:textColor="@color/actifitDarkGreen"
-                    />
-
-                <TextView
-                    android:id="@+id/steemit_step_count_lbl"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="@string/activity_count_lbl"
-                    android:gravity="center_vertical"
-                    android:textSize="20sp"
-                    />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/activity_data_section"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="35dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/step_count_container">
+                </LinearLayout>
 
                 <EditText
-                    android:id="@+id/steemit_step_count"
-                    android:layout_width="100dp"
+                    android:id="@+id/steemit_post_title"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:enabled="false"
-                    android:inputType="textMultiLine"
-                    />
-
-                <Button
-                    style="@style/AppTheme.ActifitButton"
-                    android:id="@+id/fitbit_sync"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:text="@string/fitbit_sync_btn_lbl" />
-
-                <TextView
-                    android:id="@+id/fitbit_sync_notice"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="top"
-                    android:layout_marginTop="5dp"
-                    android:ems="10"
-                    android:paddingTop="0dp"
-                    android:text="@string/fitbit_sync_again_notice"
-                    android:textColor="@color/actifitRed"
-                    android:textStyle="bold"
-                    android:visibility="invisible"
-                    app:layout_constraintTop_toTopOf="@+id/activity_data_section" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/activity_type_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                tools:ignore="MissingConstraints"
-                app:layout_constraintTop_toBottomOf="@+id/activity_data_section"
-                >
-
-                <TextView
-                    android:id="@+id/activityTypeCount"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textSize="35sp"
-                    android:textStyle="bold"
-                    android:text="&#10115; "
-                    android:textColor="@color/actifitRed"
-                    />
-
-
-                <TextView
-                    android:id="@+id/steemit_activity_type_lbl"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:text="@string/activity_type_lbl"
-                    android:textSize="20sp"
-                    />
-
-            </LinearLayout>
-
-            <io.actifit.fitnesstracker.actifitfitnesstracker.MultiSelectionSpinner
-                android:id="@+id/steemit_activity_type"
-                android:paddingStart="15dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="20dp"
-                app:layout_constraintStart_toEndOf="@+id/activity_type_container"
-                app:layout_constraintTop_toBottomOf="@+id/activity_type_container" />
-
-
-            <LinearLayout
-                android:id="@+id/measurements_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                tools:ignore="MissingConstraints"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_activity_type"
-                >
-
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textSize="35sp"
-                    android:textStyle="bold"
-                    android:text="&#10116; "
-                    android:textColor="@color/actifitDarkGreen"
-                    />
-
-
-                <TextView
-                    android:id="@+id/measurements_section_lbl"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:text="@string/track_measurements_lbl"
-                    android:textSize="20sp"
+                    android:paddingLeft="35dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/steemit_activity_type" />
+                    app:layout_constraintTop_toBottomOf="@+id/post_title_container" />
 
-            </LinearLayout>
-
-            <!-- row 1 measurements -->
-
-            <TextView
-                android:id="@+id/measurements_height_lbl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:text="@string/height_lbl"
-                android:textStyle="bold"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_container"
-                tools:ignore="MissingConstraints" />
-
-            <EditText
-                android:id="@+id/measurements_height"
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/measurements_weight"
-                android:paddingTop="20dp"
-                app:layout_constraintStart_toEndOf="@+id/measurements_height_lbl"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
-
-            <TextView
-                android:id="@+id/measurements_height_unit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:text="@string/unit_lbl"
-                app:layout_constraintStart_toEndOf="@+id/measurements_height"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
-
-
-            <TextView
-                android:id="@+id/measurements_weight_lbl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:paddingStart="5dp"
-                android:text="@string/weight_lbl"
-                android:textStyle="bold"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/measurements_height_unit"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
-
-            <EditText
-                android:id="@+id/measurements_weight"
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/measurements_bodyfat"
-                android:paddingTop="20dp"
-                app:layout_constraintStart_toEndOf="@+id/measurements_weight_lbl"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
-
-            <TextView
-                android:id="@+id/measurements_weight_unit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:text="@string/unit_lbl"
-                app:layout_constraintStart_toEndOf="@+id/measurements_weight"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
-
-            <TextView
-                android:id="@+id/measurements_bodyfat_lbl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:paddingStart="5dp"
-                android:text="@string/body_fat_lbl"
-                android:textStyle="bold"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/measurements_weight_unit"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
-
-            <EditText
-                android:id="@+id/measurements_bodyfat"
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/measurements_waistsize"
-                android:paddingTop="20dp"
-                app:layout_constraintStart_toEndOf="@+id/measurements_bodyfat_lbl"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
-
-            <TextView
-                android:id="@+id/measurements_bodyfat_unit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:text="@string/percent_lbl"
-                app:layout_constraintStart_toEndOf="@+id/measurements_bodyfat"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
-
-            <!-- row 2 measurements -->
-
-            <TextView
-                android:id="@+id/measurements_waistsize_lbl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:text="@string/waist_size_lbl"
-                android:textStyle="bold"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
-
-            <EditText
-                android:id="@+id/measurements_waistsize"
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/measurements_thighs"
-                android:paddingTop="20dp"
-                app:layout_constraintStart_toEndOf="@+id/measurements_waistsize_lbl"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
-
-            <TextView
-                android:id="@+id/measurements_waistsize_unit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/unit_lbl"
-                app:layout_constraintStart_toEndOf="@+id/measurements_waistsize"
-                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
-
-
-            <TextView
-                android:id="@+id/measurements_thighs_lbl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="5dp"
-                android:text="@string/thighs_size_lbl"
-                android:textStyle="bold"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/measurements_height_unit"
-                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
-
-            <EditText
-                android:id="@+id/measurements_thighs"
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/measurements_chest"
-                android:paddingTop="20dp"
-                app:layout_constraintStart_toEndOf="@+id/measurements_thighs_lbl"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
-
-            <TextView
-                android:id="@+id/measurements_thighs_unit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/unit_lbl"
-                app:layout_constraintStart_toEndOf="@+id/measurements_thighs"
-                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
-
-            <TextView
-                android:id="@+id/measurements_chest_lbl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="5dp"
-                android:paddingLeft="5dp"
-                android:text="@string/chest_size_lbl"
-                android:textStyle="bold"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/measurements_thighs_unit"
-                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
-
-            <EditText
-                android:id="@+id/measurements_chest"
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/steemit_post_tags"
-                android:paddingTop="20dp"
-                app:layout_constraintStart_toEndOf="@+id/measurements_chest_lbl"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
-
-            <TextView
-                android:id="@+id/measurements_chest_unit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/unit_lbl"
-                app:layout_constraintStart_toEndOf="@+id/measurements_chest"
-                app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
-
-
-            <LinearLayout
-                android:id="@+id/tags_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                tools:ignore="MissingConstraints"
-                app:layout_constraintTop_toBottomOf="@+id/measurements_chest_unit"
-                >
 
                 <TextView
-                    android:id="@+id/tagsCount"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textSize="35dp"
-                    android:textStyle="bold"
-                    android:text="&#10117; "
-                    android:textColor="@color/actifitRed"
-                    />
-
-                <TextView
-                    android:id="@+id/steemit_post_tags_lbl"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/report_tags_lbl"
-                    android:textSize="20sp"
-                    android:gravity="center_vertical"
-                     />
-
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/steemit_post_tags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:paddingStart="35dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tags_container" />
-
-
-            <LinearLayout
-                android:id="@+id/post_content_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                tools:ignore="MissingConstraints"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_post_tags"
-                >
-
-                <TextView
-                    android:id="@+id/contentCount"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textSize="35sp"
-                    android:textStyle="bold"
-                    android:text="&#10118; "
-                    android:textColor="@color/actifitRed"
-                    />
-
-                <TextView
-                    android:id="@+id/steemit_post_content_lbl"
+                    android:id="@+id/full_afit_pay_lbl"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:text="@string/report_content_lbl"
-                    android:textSize="20sp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/full_report_AFIT_pay"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/steemit_post_tags" />
+                    app:layout_constraintTop_toBottomOf="@+id/steemit_post_title" />
 
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/steemit_post_content_note"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/markdown_content_note"
-                android:textStyle="italic"
-                android:paddingStart="35dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/post_content_container" />
-
-
-            <LinearLayout
-                android:id="@+id/btn_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_post_content_note"
-                >
-
-                <Button
-                    style="@style/AppTheme.ActifitButton"
-                    android:id="@+id/btn_choose_file"
-                    android:layout_width="45dp"
+                <CheckBox
+                    android:id="@+id/full_afit_pay"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/font_awesome_6_regular"
-                    android:text="\uf03e"
-                     />
+                    android:text="@string/full_AFIT_checkbox"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/full_afit_pay_lbl" />
 
-                <Button
-                    style="@style/AppTheme.ActifitButton"
-                    android:id="@+id/btn_video_post"
-                    android:layout_width="45dp"
+
+                <LinearLayout
+                    android:id="@+id/post_date_container"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:text="\uf03d"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/full_afit_pay"
+                    tools:ignore="MissingConstraints">
+
+                    <TextView
+                        android:id="@+id/dateCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="&#10113; "
+                        android:textColor="@color/actifitDarkGreen"
+                        android:textSize="35sp"
+                        android:textStyle="bold" />
+
+
+                    <TextView
+                        android:id="@+id/report_date_option_group_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="@string/report_date_option_group_title"
+                        android:textSize="20sp"
+
+                        />
+
+
+                </LinearLayout>
+
+                <RadioGroup
+                    android:id="@+id/report_date_option_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="35dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/post_date_container">
+
+                    <RadioButton
+                        android:id="@+id/report_today_option"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="@string/today_report_option" />
+
+                    <RadioButton
+                        android:id="@+id/report_yesterday_option"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/yesterday_report_option" />
+
+                </RadioGroup>
+
+                <LinearLayout
+                    android:id="@+id/step_count_container"
+                    android:layout_width="match_parent"
+
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/report_date_option_group"
+
+                    tools:ignore="MissingConstraints">
+
+                    <TextView
+                        android:id="@+id/activityCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="&#10114; "
+                        android:textColor="@color/actifitDarkGreen"
+                        android:textSize="35sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/steemit_step_count_lbl"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="@string/activity_count_lbl"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/activity_data_section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="35dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/step_count_container">
+
+                    <EditText
+                        android:id="@+id/steemit_step_count"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:enabled="false"
+                        android:inputType="textMultiLine" />
+
+                    <Button
+                        android:id="@+id/fitbit_sync"
+                        style="@style/AppTheme.ActifitButton"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:text="@string/fitbit_sync_btn_lbl" />
+
+                    <TextView
+                        android:id="@+id/fitbit_sync_notice"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="top"
+                        android:layout_marginTop="5dp"
+                        android:ems="10"
+                        android:paddingTop="0dp"
+                        android:text="@string/fitbit_sync_again_notice"
+                        android:textColor="@color/actifitRed"
+                        android:textStyle="bold"
+                        android:visibility="invisible"
+                        app:layout_constraintTop_toTopOf="@+id/activity_data_section" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/activity_type_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/activity_data_section"
+                    tools:ignore="MissingConstraints">
+
+                    <TextView
+                        android:id="@+id/activityTypeCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="&#10115; "
+                        android:textColor="@color/actifitRed"
+                        android:textSize="35sp"
+                        android:textStyle="bold" />
+
+
+                    <TextView
+                        android:id="@+id/steemit_activity_type_lbl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="@string/activity_type_lbl"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+                <io.actifit.fitnesstracker.actifitfitnesstracker.MultiSelectionSpinner
+                    android:id="@+id/steemit_activity_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:paddingStart="15dp"
+                    app:layout_constraintStart_toEndOf="@+id/activity_type_container"
+                    app:layout_constraintTop_toBottomOf="@+id/activity_type_container" />
+
+
+                <LinearLayout
+                    android:id="@+id/measurements_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/steemit_activity_type"
+                    tools:ignore="MissingConstraints">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="&#10116; "
+                        android:textColor="@color/actifitDarkGreen"
+                        android:textSize="35sp"
+                        android:textStyle="bold" />
+
+
+                    <TextView
+                        android:id="@+id/measurements_section_lbl"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="@string/track_measurements_lbl"
+                        android:textSize="20sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/steemit_activity_type" />
+
+                </LinearLayout>
+
+                <!-- row 1 measurements -->
+
+                <TextView
+                    android:id="@+id/measurements_height_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:text="@string/height_lbl"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_container"
+                    tools:ignore="MissingConstraints" />
+
+                <EditText
+                    android:id="@+id/measurements_height"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/measurements_weight"
+                    android:paddingTop="20dp"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_height_lbl"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
+
+                <TextView
+                    android:id="@+id/measurements_height_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:text="@string/unit_lbl"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_height"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
+
+
+                <TextView
+                    android:id="@+id/measurements_weight_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:paddingStart="5dp"
+                    android:text="@string/weight_lbl"
+                    android:textStyle="bold"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_height_unit"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
+
+                <EditText
+                    android:id="@+id/measurements_weight"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/measurements_bodyfat"
+                    android:paddingTop="20dp"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_weight_lbl"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
+
+                <TextView
+                    android:id="@+id/measurements_weight_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:text="@string/unit_lbl"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_weight"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
+
+                <TextView
+                    android:id="@+id/measurements_bodyfat_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:paddingStart="5dp"
+                    android:text="@string/body_fat_lbl"
+                    android:textStyle="bold"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_weight_unit"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
+
+                <EditText
+                    android:id="@+id/measurements_bodyfat"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/measurements_waistsize"
+                    android:paddingTop="20dp"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_bodyfat_lbl"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
+
+                <TextView
+                    android:id="@+id/measurements_bodyfat_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:text="@string/percent_lbl"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_bodyfat"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_container" />
+
+                <!-- row 2 measurements -->
+
+                <TextView
+                    android:id="@+id/measurements_waistsize_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:text="@string/waist_size_lbl"
+                    android:textStyle="bold"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
+
+                <EditText
+                    android:id="@+id/measurements_waistsize"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/measurements_thighs"
+                    android:paddingTop="20dp"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_waistsize_lbl"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
+
+                <TextView
+                    android:id="@+id/measurements_waistsize_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/unit_lbl"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_waistsize"
+                    app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+
+                <TextView
+                    android:id="@+id/measurements_thighs_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="5dp"
+                    android:text="@string/thighs_size_lbl"
+                    android:textStyle="bold"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_height_unit"
+                    app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+                <EditText
+                    android:id="@+id/measurements_thighs"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/measurements_chest"
+                    android:paddingTop="20dp"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_thighs_lbl"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
+
+                <TextView
+                    android:id="@+id/measurements_thighs_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/unit_lbl"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_thighs"
+                    app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+                <TextView
+                    android:id="@+id/measurements_chest_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="5dp"
+                    android:paddingLeft="5dp"
+                    android:text="@string/chest_size_lbl"
+                    android:textStyle="bold"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_thighs_unit"
+                    app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+                <EditText
+                    android:id="@+id/measurements_chest"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/steemit_post_tags"
+                    android:paddingTop="20dp"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_chest_lbl"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_height_lbl" />
+
+                <TextView
+                    android:id="@+id/measurements_chest_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/unit_lbl"
+                    app:layout_constraintStart_toEndOf="@+id/measurements_chest"
+                    app:layout_constraintTop_toTopOf="@+id/measurements_waistsize_lbl" />
+
+
+                <LinearLayout
+                    android:id="@+id/tags_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/measurements_chest_unit"
+                    tools:ignore="MissingConstraints">
+
+                    <TextView
+                        android:id="@+id/tagsCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="&#10117; "
+                        android:textColor="@color/actifitRed"
+                        android:textSize="35dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/steemit_post_tags_lbl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="@string/report_tags_lbl"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/steemit_post_tags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:paddingStart="35dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tags_container" />
+
+
+                <LinearLayout
+                    android:id="@+id/post_content_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/steemit_post_tags"
+                    tools:ignore="MissingConstraints">
+
+                    <TextView
+                        android:id="@+id/contentCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="&#10118; "
+                        android:textColor="@color/actifitRed"
+                        android:textSize="35sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/steemit_post_content_lbl"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="@string/report_content_lbl"
+                        android:textSize="20sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/steemit_post_tags" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/steemit_post_content_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="35dp"
+                    android:text="@string/markdown_content_note"
+                    android:textStyle="italic"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/post_content_container" />
 
-            <LinearLayout
 
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_gravity="end"
-                android:gravity="end"
-                >
-
-
-                <TextView
-                    android:id="@+id/charCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:gravity="end"
-                    android:text="0"
-
-                    />
-
-                <TextView
-                    android:id="@+id/minCharCount"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/btn_container"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:text="/100"
-                    android:padding="7dp"
-                    />
+                    android:orientation="horizontal"
 
-                <TextView
-                    android:id="@+id/charInfo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:textColor="@color/actifitRed"
-                    android:text="\uf05a"
-                    android:textSize="20sp"
-                    android:padding="7dp"
-                    />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/steemit_post_content_note">
+
+                    <Button
+                        android:id="@+id/btn_choose_file"
+                        style="@style/AppTheme.ActifitButton"
+                        android:layout_width="45dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_awesome_6_regular"
+                        android:text="\uf03e" />
+
+                    <Button
+                        android:id="@+id/btn_video_post"
+                        style="@style/AppTheme.ActifitButton"
+                        android:layout_width="45dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:text="\uf03d"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/post_content_container" />
+
+                    <Button
+                        android:id="@+id/btn_ai_suggest"
+                        style="@style/AppTheme.ActifitButton"
+                        android:layout_width="45dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:text="\uf5dc"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/post_content_container" />/>
+
+                    <Button
+                        style="@style/AppTheme.ActifitButton"
+                        android:id="@+id/btn_expand_editor"
+                        android:layout_width="45dp"
+                        android:layout_height="wrap_content"
+                        android:text="\uf065"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:contentDescription="Expand Editor"
+                        />
+
+
+                    <LinearLayout
+
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="end"
+                        android:orientation="horizontal">
+
+
+                        <TextView
+                            android:id="@+id/charCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="50dp"
+                            android:gravity="end"
+                            android:text="0"
+
+                            />
+
+                        <TextView
+                            android:id="@+id/minCharCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:padding="7dp"
+                            android:text="/100" />
+
+                        <TextView
+                            android:id="@+id/charInfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:padding="7dp"
+                            android:text="\uf05a"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-            </LinearLayout>
+
+                <EditText
+                    android:id="@+id/steemit_post_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:gravity="top"
+                    android:hint="@string/report_text_hint_1"
+                    android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
+                    android:maxLines="6"
+                    android:minHeight="185dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_container" />
 
 
-            <EditText
-                android:id="@+id/steemit_post_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:gravity="top"
-                android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
-                android:maxLines="6"
-                android:minHeight="185dp"
-                android:hint="@string/report_text_hint_1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_container" />
-
-            <TextView
-                android:id="@+id/steemit_post_preview_lbl"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/report_preview_lbl"
-                android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_post_text" />
+                <TextView
+                    android:id="@+id/steemit_post_preview_lbl"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/report_preview_lbl"
+                    android:textSize="20sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/steemit_post_text" />
 
 
-            <TextView
-                android:id="@+id/md_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:minHeight="185dp"
-                android:paddingBottom="20dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_post_preview_lbl"  />
+                <TextView
+                    android:id="@+id/md_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:minHeight="185dp"
+                    android:paddingBottom="20dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/steemit_post_preview_lbl" />
 
-            <!--<com.mittsu.markedview.MarkedView
-                android:id="@+id/md_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:minHeight="185dp"
-                android:paddingBottom="20dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/steemit_post_preview_lbl" />
-            -->
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <!--<com.mittsu.markedview.MarkedView
+                    android:id="@+id/md_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:minHeight="185dp"
+                    android:paddingBottom="20dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/steemit_post_preview_lbl" />
+                -->
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
 
-    <include
-        android:id="@+id/bottom_menu_container"
-        layout="@layout/footer_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        <include
+            android:id="@+id/bottom_menu_container"
+            layout="@layout/footer_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
 
-</LinearLayout>
+    </LinearLayout>
 
     <Button
         style="@style/AppTheme.ActifitButton"
         android:id="@+id/post_to_steem_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="80dp"
         android:ems="10"
-        android:text="@string/post_to_steem_btn_txt"
+        android:text="Post"
         android:textSize="14sp"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:layout_marginBottom="70dp"
+        android:layout_marginBottom="40dp"
         android:clickable="true"
         android:focusable="true"
         />
