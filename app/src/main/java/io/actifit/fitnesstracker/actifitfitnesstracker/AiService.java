@@ -100,6 +100,62 @@ public class AiService {
     }
 
 
+
+    //im adding the ai part here
+    public void generateFromFreePrompt(String prompt, final ResponseCallback callback) {
+        RequestBody requestBody = createFreePromptRequestBody(prompt);
+
+        Request request = new Request.Builder()
+                .url(API_URL)
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure("Failed: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    try {
+                        Map<String, Object> responseMap = gson.fromJson(responseBody, Map.class);
+                        List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseMap.get("candidates");
+                        if (candidates != null && !candidates.isEmpty()) {
+                            Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
+                            List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
+                            String result = (String) parts.get(0).get("text");
+                            callback.onSuccess(new AiResponse(result));
+                        } else {
+                            callback.onFailure("No AI response");
+                        }
+                    } catch (Exception e) {
+                        callback.onFailure("Error parsing response: " + e.getMessage());
+                    }
+                } else {
+                    callback.onFailure("Request failed: " + response.message());
+                }
+            }
+        });
+    }
+
+    private RequestBody createFreePromptRequestBody(String prompt) {
+        List<Map<String, Object>> contents = new ArrayList<>();
+        Map<String, Object> userMessage = new HashMap<>();
+        userMessage.put("parts", List.of(Map.of("text", prompt)));
+        contents.add(userMessage);
+
+        Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("contents", contents);
+
+        String json = gson.toJson(requestBodyMap);
+        return RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+    }//i added this, too
+
+
+
     private AiResponse parseAiResponse(String responseBody) {
         try {
             Map<String, Object> responseMap = gson.fromJson(responseBody, Map.class);
