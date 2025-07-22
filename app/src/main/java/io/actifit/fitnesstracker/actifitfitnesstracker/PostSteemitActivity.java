@@ -1986,7 +1986,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
 
         Button expandBtn = findViewById(R.id.btn_expand_editor);
-        expandBtn.setText(expand ? "\uf066" : "\uf065");
+        expandBtn.setText(expand ? "\uf066" : "\uf065");//changed emojis accordingly
     }
 
 
