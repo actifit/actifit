@@ -607,15 +607,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/post_content_container" />/>
 
-                    <Button
-                        style="@style/AppTheme.ActifitButton"
-                        android:id="@+id/btn_expand_editor"
-                        android:layout_width="45dp"
-                        android:layout_height="wrap_content"
-                        android:text="\uf065"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        android:contentDescription="Expand Editor"
-                        />
 
 
                     <LinearLayout
@@ -723,13 +714,13 @@
     <Button
         style="@style/AppTheme.ActifitButton"
         android:id="@+id/post_to_steem_btn"
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
         android:ems="10"
-        android:text="Post"
+        android:text="@string/post_to_steem_btn_txt"
         android:textSize="14sp"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="70dp"
         android:clickable="true"
         android:focusable="true"
         />
