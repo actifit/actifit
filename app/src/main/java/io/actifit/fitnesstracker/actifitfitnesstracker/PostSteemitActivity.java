@@ -24,6 +24,7 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,6 +47,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.widget.NestedScrollView;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -101,6 +104,7 @@ import android.widget.TextView;
 public class PostSteemitActivity extends BaseActivity implements View.OnClickListener{
 
     private boolean isEditorExpanded = false;
+
     //private NestedScrollView nestedScrollView;
     private EditText postTextEditor;
     private Button expandEditorBtn;
@@ -426,27 +430,43 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         postTextEditor = findViewById(R.id.steemit_post_text);
         expandEditorBtn = findViewById(R.id.btn_expand_editor);
 
-        expandEditorBtn.setOnClickListener(v -> {
-            if (!isEditorExpanded) {
-                // Expand
-                nestedScrollView.setLayoutParams(new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                postTextEditor.setMinLines(20);
-                postTextEditor.setMaxLines(Integer.MAX_VALUE);
-                expandEditorBtn.setText("\uf066"); // FontAwesome close icon
-                isEditorExpanded = true;
-            } else {
-                // Collapse
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, 0);
-                params.weight = 1;
-                nestedScrollView.setLayoutParams(params);
-                postTextEditor.setMinLines(6);
-                postTextEditor.setMaxLines(6);
-                expandEditorBtn.setText("\uf065"); // Expand icon again
-                isEditorExpanded = false;
-            }
+        Button expandBtn = findViewById(R.id.btn_expand_editor);
+//        EditText postText = findViewById(R.id.steemit_post_text);
+//        NestedScrollView scrollView = findViewById(R.id.nestedScrollView);
+//        LinearLayout postContainer = findViewById(R.id.post_steemit_container);
+
+        expandBtn.setOnClickListener(v -> {
+            isEditorExpanded = !isEditorExpanded;
+            toggleEditorMode(isEditorExpanded);
         });
+
+
+
+
+
+
+
+//        expandEditorBtn.setOnClickListener(v -> {
+//            if (!isEditorExpanded) {
+//                // Expand
+//                nestedScrollView.setLayoutParams(new LinearLayout.LayoutParams(
+//                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//                postTextEditor.setMinLines(20);
+//                postTextEditor.setMaxLines(Integer.MAX_VALUE);
+//                expandEditorBtn.setText("\uf066"); // FontAwesome close icon
+//                isEditorExpanded = true;
+//            } else {
+//                // Collapse
+//                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+//                        ViewGroup.LayoutParams.MATCH_PARENT, 0);
+//                params.weight = 1;
+//                nestedScrollView.setLayoutParams(params);
+//                postTextEditor.setMinLines(6);
+//                postTextEditor.setMaxLines(6);
+//                expandEditorBtn.setText("\uf065"); // Expand icon again
+//                isEditorExpanded = false;
+//            }
+//        });
 
         /*Toolbar postToolbar = findViewById(R.id.post_toolbar);
         setSupportActionBar(postToolbar);*/
@@ -1894,6 +1914,79 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             }
         });
         btnClear.setOnClickListener(v -> aiInputText.setText(""));
+    }
+
+    private void toggleEditorMode(boolean expand) {
+        TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.cLayout));
+        EditText postText = findViewById(R.id.steemit_post_text);
+        NestedScrollView scrollView = findViewById(R.id.nestedScrollView);
+        TextView previewLabel = findViewById(R.id.steemit_post_preview_lbl);
+        TextView previewText = findViewById(R.id.md_view);
+        LinearLayout btnContainer = findViewById(R.id.btn_container);
+
+        if (expand) {
+            postText.setMinLines(20);
+            postText.setMaxLines(Integer.MAX_VALUE);
+
+            ConstraintLayout.LayoutParams editorParams = new ConstraintLayout.LayoutParams(
+                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                    ConstraintLayout.LayoutParams.WRAP_CONTENT
+            );
+            editorParams.topToBottom = R.id.btn_container;
+            editorParams.bottomToTop = R.id.steemit_post_preview_lbl;
+            postText.setLayoutParams(editorParams);
+            ConstraintLayout.LayoutParams previewLabelParams = new ConstraintLayout.LayoutParams(
+                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                    ConstraintLayout.LayoutParams.WRAP_CONTENT
+            );
+            previewLabelParams.topToBottom = R.id.steemit_post_text;
+            previewLabel.setLayoutParams(previewLabelParams);
+
+            ConstraintLayout.LayoutParams previewTextParams = new ConstraintLayout.LayoutParams(
+                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                    ConstraintLayout.LayoutParams.WRAP_CONTENT
+            );
+            previewTextParams.topToBottom = R.id.steemit_post_preview_lbl;
+            previewTextParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+            previewText.setLayoutParams(previewTextParams);
+
+            ConstraintLayout layout = findViewById(R.id.cLayout);
+            for (int i = 0; i < layout.getChildCount(); i++) {
+                View child = layout.getChildAt(i);
+                if (child.getId() != R.id.btn_container &&
+                        child.getId() != R.id.steemit_post_text &&
+                        child.getId() != R.id.steemit_post_preview_lbl &&
+                        child.getId() != R.id.md_view) {
+                    child.setVisibility(View.GONE);
+                }
+            }
+
+            scrollView.post(() -> scrollView.scrollTo(0, 0));
+        } else {
+            postText.setMinLines(6);
+            postText.setMaxLines(6);
+
+            ConstraintLayout.LayoutParams editorParams = new ConstraintLayout.LayoutParams(
+                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                    ConstraintLayout.LayoutParams.WRAP_CONTENT
+            );
+            editorParams.topToBottom = R.id.btn_container;
+            editorParams.bottomToTop = R.id.steemit_post_preview_lbl;
+            postText.setLayoutParams(editorParams);
+
+            ConstraintLayout layout = findViewById(R.id.cLayout);
+            for (int i = 0; i < layout.getChildCount(); i++) {
+                View child = layout.getChildAt(i);
+                child.setVisibility(View.VISIBLE);
+            }
+
+            ConstraintSet set = new ConstraintSet();
+            set.clone((ConstraintLayout) findViewById(R.id.cLayout));
+            set.applyTo((ConstraintLayout) findViewById(R.id.cLayout));
+        }
+
+        Button expandBtn = findViewById(R.id.btn_expand_editor);
+        expandBtn.setText(expand ? "\uf066" : "\uf065");
     }
 
 
