@@ -545,7 +545,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         //started here
         Button aiButton = findViewById(R.id.btn_ai_suggest);
-        aiButton.setText("AI");
+        aiButton.setText(getString(R.string.btn_ai_suggest));
+
         aiButton.setOnClickListener(v -> showAiPopup());
 
         EditText contentField = findViewById(R.id.steemit_post_text);
@@ -1847,7 +1848,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
-                new String[]{"None", "Summarize", "Expand"}
+                new String[]{getString(R.string.none_option),
+                        getString(R.string.summarize_option),
+                        getString(R.string.expand_option)}
         );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         aiActionSpinner.setAdapter(adapter);
@@ -1914,7 +1917,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             }
         });
         btnClear.setOnClickListener(v -> aiInputText.setText(""));
+
+        Button btnDismiss = dialogView.findViewById(R.id.btn_dismiss);
+        btnDismiss.setOnClickListener(v -> dialog.dismiss());
+
+
     }
+
 
     private void toggleEditorMode(boolean expand) {
         TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.cLayout));
@@ -1986,7 +1995,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
 
         Button expandBtn = findViewById(R.id.btn_expand_editor);
-        expandBtn.setText(expand ? "\uf066" : "\uf065");//changed emojis accordingly
+        expandBtn.setText(expand ? "\uf066" : "\uf065");
     }
 
 
