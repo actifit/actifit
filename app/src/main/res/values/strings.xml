@@ -557,7 +557,7 @@
     <string name="workout_plan_overview">Workout Plan Overview</string>
     <string name="exercises">Exercises</string>
     <string name="btn_ai_suggest" tools:ignore="MissingTranslation">AI</string>
-    <string name="none_option" tools:ignore="MissingTranslation">None</string>
+    <string name="query_option" tools:ignore="MissingTranslation">Query</string>
     <string name="summarize_option" tools:ignore="MissingTranslation">Summarize</string>
     <string name="expand_option" tools:ignore="MissingTranslation">Expand</string>
 

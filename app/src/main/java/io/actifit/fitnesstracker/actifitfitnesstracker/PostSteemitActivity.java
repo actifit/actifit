@@ -545,7 +545,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         //started here
         Button aiButton = findViewById(R.id.btn_ai_suggest);
-        aiButton.setText(getString(R.string.btn_ai_suggest));
+        //aiButton.setText(getString(R.string.btn_ai_suggest));
 
         aiButton.setOnClickListener(v -> showAiPopup());
 
@@ -1848,7 +1848,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
-                new String[]{getString(R.string.none_option),
+                new String[]{getString(R.string.query_option),
                         getString(R.string.summarize_option),
                         getString(R.string.expand_option)}
         );
@@ -1918,7 +1918,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         });
         btnClear.setOnClickListener(v -> aiInputText.setText(""));
 
-        Button btnDismiss = dialogView.findViewById(R.id.btn_dismiss);
+        Button btnDismiss = dialogView.findViewById(R.id.btn_close);
         btnDismiss.setOnClickListener(v -> dialog.dismiss());
 
 
@@ -1971,6 +1971,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             }
 
             scrollView.post(() -> scrollView.scrollTo(0, 0));
+
         } else {
             postText.setMinLines(6);
             postText.setMaxLines(6);
