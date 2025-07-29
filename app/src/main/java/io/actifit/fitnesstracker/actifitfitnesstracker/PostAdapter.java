@@ -26,16 +26,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat; // <-- IMPORT FOR THE FIX
 import androidx.fragment.app.FragmentManager;
-
-// IMPORTS FOR GEMINI
-import com.google.ai.client.generativeai.GenerativeModel;
-import com.google.ai.client.generativeai.java.GenerativeModelFutures;
-import com.google.ai.client.generativeai.type.Content;
-import com.google.ai.client.generativeai.type.GenerateContentResponse;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
@@ -69,9 +60,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     static Context keyMainContext;
     Markwon markwon;
 
-    /* --- DEEPL CODE REMOVED ---
-    Translator translator;
-    */
+    // --- DEEPL 'Translator' VARIABLE REMOVED ---
 
     public int Size(){
         if (postArray !=null && postArray.size()>0) {
@@ -91,11 +80,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         this.ctx = context;
         this.activity = activity;
 
-        /* --- DEEPL INITIALIZATION REMOVED ---
-        //translate
-        String authKey = ctx.getString(R.string.deepl_api_key);
-        this.translator = new Translator(authKey);
-        */
+        // --- DEEPL INITIALIZATION REMOVED FROM CONSTRUCTOR ---
     }
 
     private boolean userNewlyVotedPost(String voter, String permlink){
@@ -269,7 +254,6 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 } else {
                     activityTypeContainer.setVisibility(View.VISIBLE);
                 }
-
                 String activityCountStr = postEntry.getActivityCount(true);
                 if (Objects.equals(activityCountStr, "")) {
                     activityCountContainer.setVisibility(View.GONE);
@@ -387,7 +371,6 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 expandButton.setVisibility(View.GONE);
                 afitLogo.setVisibility(View.GONE);
             }
-
         } catch(Exception exp) {
             exp.printStackTrace();
         }
@@ -443,48 +426,30 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         mainImage.setVisibility(View.VISIBLE);
     }
 
-    void handleTranslation(SingleHivePostModel postEntry, TextView body, RelativeLayout progressBarBody, Activity activity){
-        if (!postEntry.isTranslated){
+    void handleTranslation(SingleHivePostModel postEntry, TextView body, RelativeLayout progressBarBody, Activity activity) {
+        if (!postEntry.isTranslated) {
             progressBarBody.setVisibility(View.VISIBLE);
             body.setVisibility(View.GONE);
-            try {
-                String geminiApiKey = ctx.getString(R.string.gemini_api_key);
-                GenerativeModel generativeModel = new GenerativeModel("gemini-1.5-flash-latest", geminiApiKey);
-                GenerativeModelFutures modelFutures = GenerativeModelFutures.from(generativeModel);
-                String prompt = "Translate the following text into English. Provide only the translated text without any additional comments or introductions. The text is: \"" + postEntry.body + "\"";
-                Content content = new Content.Builder().addText(prompt).build();
-
-                Futures.addCallback(modelFutures.generateContent(content),
-                        new FutureCallback<GenerateContentResponse>() {
-                            @Override
-                            public void onSuccess(GenerateContentResponse result) {
-                                String translatedText = result.getText();
-                                activity.runOnUiThread(() -> {
-                                    postEntry.translatedText = translatedText != null ? translatedText.trim() : "";
-                                    postEntry.isTranslated = true;
-                                    renderContent(postEntry, body, progressBarBody);
-                                });
-                            }
-                            @Override
-                            public void onFailure(@NonNull Throwable t) {
-                                activity.runOnUiThread(() -> {
-                                    Log.e("GeminiTranslation", "Translation failed", t);
-                                    Toast.makeText(ctx, "Translation Failed", Toast.LENGTH_SHORT).show();
-                                    postEntry.isTranslated = false;
-                                    renderContent(postEntry, body, progressBarBody);
-                                });
-                            }
-                        },
-                        ContextCompat.getMainExecutor(ctx));
-
-            } catch (Exception e) {
-                Log.e("GeminiTranslation", "Error initializing Gemini or making call", e);
-                Toast.makeText(ctx, "Translation service error", Toast.LENGTH_SHORT).show();
-                activity.runOnUiThread(() -> {
-                    postEntry.isTranslated = false;
-                    renderContent(postEntry, body, progressBarBody);
-                });
-            }
+            AiService aiService = new AiService();
+            aiService.translateText(postEntry.body, new AiService.TextResponseCallback() {
+                @Override
+                public void onSuccess(String translatedText) {
+                    activity.runOnUiThread(() -> {
+                        postEntry.translatedText = translatedText != null ? translatedText.trim() : "";
+                        postEntry.isTranslated = true;
+                        renderContent(postEntry, body, progressBarBody);
+                    });
+                }
+                @Override
+                public void onFailure(String errorMessage) {
+                    activity.runOnUiThread(() -> {
+                        Log.e("GeminiTranslation", "Translation failed via AiService: " + errorMessage);
+                        Toast.makeText(ctx, "Translation Failed", Toast.LENGTH_SHORT).show();
+                        postEntry.isTranslated = false;
+                        renderContent(postEntry, body, progressBarBody);
+                    });
+                }
+            });
         } else {
             postEntry.isTranslated = false;
             renderContent(postEntry, body, progressBarBody);
