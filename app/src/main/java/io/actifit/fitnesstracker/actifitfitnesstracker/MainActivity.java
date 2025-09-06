@@ -1140,25 +1140,20 @@ public class MainActivity extends BaseActivity{
 
         // Request the rank of the user while expecting a JSON response
         JsonObjectRequest vidUrlRequest = new JsonObjectRequest
-                (Request.Method.GET, vidFetchUrl, null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, vidFetchUrl, null, response -> uiAltHandler.post(new Runnable() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        uiAltHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (response.has("vidUrl")) {
-                                    try {
-                                        tutVidUrl[0] = response.getString("vidUrl");
-                                    } catch (JSONException e) {
-                                        //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                                        Log.e(TAG, "ERROR");
-                                        e.printStackTrace();
-                                    }
-                                }
+                    public void run() {
+                        if (response.has("vidUrl")) {
+                            try {
+                                tutVidUrl[0] = response.getString("vidUrl");
+                            } catch (JSONException e) {
+                                //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                                Log.e(TAG, "ERROR");
+                                e.printStackTrace();
                             }
-                        });
+                        }
                     }
-                },
+                }),
                         error -> {
                             // error
                             Log.e(MainActivity.TAG, "Load image error");
