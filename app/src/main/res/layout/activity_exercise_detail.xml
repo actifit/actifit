@@ -1,9 +1,21 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ExerciseDetailActivity"
+    >
+
+
+
+<ScrollView
+    android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".ExerciseDetailActivity">
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toTopOf="@id/bottom_menu_container"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -69,6 +81,19 @@
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
 
-    </LinearLayout>
 
-</ScrollView>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <include
+    android:id="@+id/bottom_menu_container"
+    layout="@layout/footer_menu"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintBottom_toBottomOf="parent"
+    />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

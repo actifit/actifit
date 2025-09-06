@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.squareup.picasso.Picasso;
 import java.util.Arrays;
 
-public class ExerciseDetailActivity extends AppCompatActivity {
+public class ExerciseDetailActivity extends BaseActivity {
 
     private TextView exerciseNameTextView;
     private TextView equipmentTextView;
