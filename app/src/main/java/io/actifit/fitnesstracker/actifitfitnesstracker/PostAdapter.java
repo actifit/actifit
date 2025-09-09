@@ -32,7 +32,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
 
-import com.deepl.api.DeepLException;
 import com.deepl.api.Translator;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
@@ -71,7 +70,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     static Context keyMainContext;
     // obtain an instance of Markwon
     Markwon markwon;
-    Translator translator;
+    //Translator translator;
+    AiService aiService;
 
 
     public int Size(){
@@ -93,11 +93,12 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         this.activity = activity;
 
         //translate
-        String authKey = ctx.getString(R.string.deepl_api_key);
+        //String authKey = ctx.getString(R.string.deepl_api_key);
         //TranslatorOptions options =
         //        new TranslatorOptions().; //.setMaxRetries(8).setTimeout(Duration.ofSeconds(
         //                5));
-        this.translator = new Translator(authKey);//, options);
+        //this.translator = new Translator(authKey);//, options);
+        this.aiService = new AiService();
 
     }
 
@@ -747,9 +748,42 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             //_translationNotice.setVisibility(VISIBLE);
             //if (translatedBody.getVisibility() == View.GONE) {
             Thread thread = new Thread(() -> {
-                String result = "";
                 if (postEntry.translatedText.isEmpty()) {
-                    try {
+                    aiService.translateText(postEntry.body, new AiService.TextResponseCallback() {
+                                @Override
+                                public void onSuccess(String translatedText) {
+                                    activity.runOnUiThread(() -> {
+                                        Log.d("GeminiTranslation", "translatedText: " + translatedText);
+                                        postEntry.translatedText = translatedText != null ? translatedText.trim() : "";
+                                        postEntry.isTranslated = true;
+                                        // FIX: When a new translation is received, force the post to be expanded.
+                                        //postEntry.isExpanded = true;
+
+                                        activity.runOnUiThread(() -> {
+                                            renderContent(postEntry, body, progressBarBody);//, _translationNotice);
+
+                                        });
+                                        //translatingPermlinks.remove(postEntry.permlink);
+                                        notifyDataSetChanged(); // Refresh the whole list to update button states and layout
+                                    });
+                                }
+
+                                @Override
+                                public void onFailure(String errorMessage) {
+                                    activity.runOnUiThread(() -> {
+                                        Log.e("GeminiTranslation", "Translation failed via AiService: " + errorMessage);
+                                        Toast.makeText(ctx, "Translation Failed", Toast.LENGTH_SHORT).show();
+                                        postEntry.isTranslated = false;
+                                        //translatingPermlinks.remove(postEntry.permlink);
+                                        notifyDataSetChanged(); // Refresh to hide progress bar
+                                    });
+                                }
+                            });
+
+                    /*try {
+
+                    String result = "";
+
                         result = translator.translateText(postEntry.body, null, "EN-US").getText();
                         postEntry.translatedText = result;
                         postEntry.isTranslated = true;
@@ -757,15 +791,14 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                         Log.e(MainActivity.TAG, "deepl exception" + e.getMessage());
                     } catch (InterruptedException e) {
                         Log.e(MainActivity.TAG, "deepl InterruptedException" + e.getMessage());
-                    }
+                    }*/
                 }else{
                     postEntry.isTranslated = true;
+                    activity.runOnUiThread(() -> {
+                        renderContent(postEntry, body, progressBarBody);//, _translationNotice);
+
+                    });
                 }
-
-                activity.runOnUiThread(() -> {
-                    renderContent(postEntry, body, progressBarBody);//, _translationNotice);
-
-                });
             });
             thread.start();
         } else {
@@ -776,9 +809,12 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             }else{
                 retractPost(expandButton, retractButton, mainImage, finalShortenedContent, body);
             }*/
-            renderContent(postEntry, body, progressBarBody);//, _translationNotice);
+            activity.runOnUiThread(() -> {
+                renderContent(postEntry, body, progressBarBody);//, _translationNotice);
+            });
                     /*translatedBody.setVisibility(View.GONE);
                     body.setVisibility(View.VISIBLE);*/
+            notifyDataSetChanged();
         }
     }
 
