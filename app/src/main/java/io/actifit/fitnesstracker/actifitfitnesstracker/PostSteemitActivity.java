@@ -24,14 +24,18 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -44,6 +48,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.widget.NestedScrollView;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -109,6 +115,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     private EditText stepCountContainer;
     private Activity currentActivity;
+
+    private boolean isEditorExpanded = false;
 
     //tracks whether user synched his Fitbit data to avoid refetching activity count from current device
     private static int fitbitSyncDone = 0;
@@ -399,6 +407,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_steemit);
 
+        Button expandBtn = findViewById(R.id.btn_expand_editor);
+
+        expandBtn.setOnClickListener(v -> {
+            isEditorExpanded = !isEditorExpanded;
+            toggleEditorMode(isEditorExpanded);
+        });
 
         /*Toolbar postToolbar = findViewById(R.id.post_toolbar);
         setSupportActionBar(postToolbar);*/
@@ -1743,6 +1757,159 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             //connect to the server via a thread to prevent application hangup
             new PostSteemitRequest(steemit_post_context, currentActivity).execute();
         }
+    }
+
+    private void toggleEditorMode(boolean expand) {
+        // Get references to views
+        NestedScrollView nestedScrollView = findViewById(R.id.nestedScrollView);
+        ConstraintLayout cLayout = findViewById(R.id.cLayout); // The content ConstraintLayout inside NestedScrollView
+        LinearLayout btnContainer = findViewById(R.id.btn_container); // Your button bar, now inside cLayout
+        EditText postText = findViewById(R.id.steemit_post_text);
+        TextView previewLabel = findViewById(R.id.steemit_post_preview_lbl);
+        TextView previewText = findViewById(R.id.md_view);
+        Button expandBtn = findViewById(R.id.btn_expand_editor);
+
+        // This ensures smooth animation for all layout changes within cLayout
+        TransitionManager.beginDelayedTransition(cLayout);
+
+        // ConstraintSet for cLayout to adjust all its children dynamically
+        ConstraintSet cLayoutSet = new ConstraintSet();
+        cLayoutSet.clone(cLayout); // Clone the current state of the content layout
+
+        if (expand) {
+            // --- Make btn_container "sticky" at the top of cLayout's viewport ---
+            cLayoutSet.clear(R.id.btn_container, ConstraintSet.TOP); // Clear old top constraint
+            cLayoutSet.connect(R.id.btn_container, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+            cLayoutSet.setElevation(R.id.btn_container, 4f); // Add elevation to show it's "floating"
+
+            // --- Adjust EditText to fill space below sticky btn_container ---
+            postText.setMaxLines(Integer.MAX_VALUE); // Allow virtually unlimited lines internally
+            postText.setMovementMethod(new ScrollingMovementMethod()); // Enable internal scrolling
+            postText.setFocusable(true);
+            postText.setFocusableInTouchMode(true);
+            postText.setMinLines(20); // Visual hint for min expanded height
+
+            // Clear old constraints and connect EditText to fill space
+            cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.TOP);
+            cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.BOTTOM);
+            cLayoutSet.constrainHeight(R.id.steemit_post_text, 0); // MATCH_CONSTRAINT height
+            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.TOP, R.id.btn_container, ConstraintSet.BOTTOM);
+            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+
+            // --- Hide all other form fields ---
+            cLayoutSet.setVisibility(R.id.post_title_container, View.GONE);
+            cLayoutSet.setVisibility(R.id.steemit_post_title, View.GONE);
+            cLayoutSet.setVisibility(R.id.full_afit_pay_lbl, View.GONE);
+            cLayoutSet.setVisibility(R.id.full_afit_pay, View.GONE);
+            cLayoutSet.setVisibility(R.id.post_date_container, View.GONE);
+            cLayoutSet.setVisibility(R.id.report_date_option_group, View.GONE);
+            cLayoutSet.setVisibility(R.id.step_count_container, View.GONE);
+            cLayoutSet.setVisibility(R.id.activity_data_section, View.GONE);
+            cLayoutSet.setVisibility(R.id.activity_type_container, View.GONE);
+            cLayoutSet.setVisibility(R.id.steemit_activity_type, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_container, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_height_lbl, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_height, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_height_unit, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_weight_lbl, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_weight, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_weight_unit, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_bodyfat_lbl, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_bodyfat, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_bodyfat_unit, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_waistsize_lbl, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_waistsize, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_waistsize_unit, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_thighs_lbl, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_thighs, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_thighs_unit, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_chest_lbl, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_chest, View.GONE);
+            cLayoutSet.setVisibility(R.id.measurements_chest_unit, View.GONE);
+            cLayoutSet.setVisibility(R.id.tags_container, View.GONE);
+            cLayoutSet.setVisibility(R.id.steemit_post_tags, View.GONE);
+            cLayoutSet.setVisibility(R.id.post_content_container, View.GONE);
+            cLayoutSet.setVisibility(R.id.steemit_post_content_note, View.GONE);
+            cLayoutSet.setVisibility(R.id.steemit_post_preview_lbl, View.GONE);
+            cLayoutSet.setVisibility(R.id.md_view, View.GONE);
+
+
+            // Apply the new constraints
+            cLayoutSet.applyTo(cLayout);
+
+            // Ensure the NestedScrollView is scrolled to the top to see the editor and sticky btn_container
+            nestedScrollView.post(() -> nestedScrollView.scrollTo(0, 0));
+
+            // Give focus to the editor and place the cursor at the beginning
+            postText.requestFocus();
+            postText.setSelection(0);
+
+        } else { // Collapse mode
+            // --- Restore btn_container's original position (not sticky) ---
+            cLayoutSet.clear(R.id.btn_container, ConstraintSet.TOP); // Clear sticky top constraint
+            cLayoutSet.connect(R.id.btn_container, ConstraintSet.TOP, R.id.steemit_post_content_note, ConstraintSet.BOTTOM);
+            cLayoutSet.setElevation(R.id.btn_container, 0f); // Remove elevation
+
+            // --- Restore EditText properties and constraints ---
+            postText.setMinLines(6);
+            postText.setMaxLines(6); // Restore original max lines
+            // postText.setMovementMethod(null); // Optional: if you want to disable internal scrolling when collapsed
+
+            // Restore EditText constraints (wrap_content height, below btn_container, above preview)
+            cLayoutSet.constrainHeight(R.id.steemit_post_text, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+            cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.TOP);
+            cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.BOTTOM);
+            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.TOP, R.id.btn_container, ConstraintSet.BOTTOM);
+            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.BOTTOM, R.id.steemit_post_preview_lbl, ConstraintSet.TOP);
+
+
+            // --- Show all other form fields ---
+            cLayoutSet.setVisibility(R.id.post_title_container, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.steemit_post_title, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.full_afit_pay_lbl, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.full_afit_pay, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.post_date_container, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.report_date_option_group, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.step_count_container, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.activity_data_section, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.activity_type_container, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.steemit_activity_type, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_container, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_height_lbl, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_height, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_height_unit, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_weight_lbl, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_weight, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_weight_unit, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_bodyfat_lbl, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_bodyfat, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_bodyfat_unit, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_waistsize_lbl, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_waistsize, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_waistsize_unit, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_thighs_lbl, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_thighs, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_thighs_unit, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_chest_lbl, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_chest, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.measurements_chest_unit, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.tags_container, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.steemit_post_tags, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.post_content_container, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.steemit_post_content_note, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.steemit_post_preview_lbl, View.VISIBLE);
+            cLayoutSet.setVisibility(R.id.md_view, View.VISIBLE);
+
+
+            // Apply the restored constraints
+            cLayoutSet.applyTo(cLayout);
+
+            // Ensure the NestedScrollView scrolls to the top of its content
+            nestedScrollView.post(() -> nestedScrollView.scrollTo(0, 0));
+        }
+
+        // Update the expand/collapse button icon
+        expandBtn.setText(expand ? "\uf066" : "\uf065");
     }
 
 }
