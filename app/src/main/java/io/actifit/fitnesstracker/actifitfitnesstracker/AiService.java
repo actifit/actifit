@@ -277,4 +277,63 @@ public class AiService {
 
         return prompt;
     }
+
+    // ======================================================================
+    // === NEW CODE FOR TRANSLATION =========================================
+    // ======================================================================
+
+    public interface TextResponseCallback {
+        void onSuccess(String translatedText);
+        void onFailure(String errorMessage);
+    }
+
+    public void translateText(String textToTranslate, final TextResponseCallback callback) {
+        //String prompt = "Translate the following text into English. Provide only the translated text without any additional comments or introductions. The text is: \"" + textToTranslate + "\"";
+        String prompt = "Identify the language of the following text. If the text is not English, translate it fully into English. If the text is already English, return it unchanged. Provide only the resulting English text, or the original English text if no translation was needed, without any additional comments or introductions. The text is: \"" + textToTranslate + "\"";
+        List<Map<String, Object>> contents = new ArrayList<>();
+        Map<String, Object> userMessage = new HashMap<>();
+        userMessage.put("parts", List.of(Map.of("text", prompt)));
+        contents.add(userMessage);
+        Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("contents", contents);
+        String requestJson = gson.toJson(requestBodyMap);
+        RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
+        Request request = new Request.Builder()
+                .url(API_URL)
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure("Network request failed: " + e.getMessage());
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    try {
+                        String translatedText = parseSimpleTextResponse(responseBody);
+                        callback.onSuccess(translatedText);
+                    } catch (Exception e) {
+                        callback.onFailure("Failed to parse translation response: " + e.getMessage());
+                    }
+                } else {
+                    callback.onFailure("API Error: " + response.code() + " - " + responseBody);
+                }
+            }
+        });
+    }
+
+    private String parseSimpleTextResponse(String responseBody) throws Exception {
+        Map<String, Object> responseMap = gson.fromJson(responseBody, Map.class);
+        List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseMap.get("candidates");
+        if (candidates != null && !candidates.isEmpty()) {
+            Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
+            List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
+            if (parts != null && !parts.isEmpty()) {
+                return (String) parts.get(0).get("text");
+            }
+        }
+        throw new Exception("Could not find translated text in response.");
+    }
 }
