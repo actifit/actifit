@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -1838,7 +1839,23 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             cLayoutSet.applyTo(cLayout);
 
             // Ensure the NestedScrollView is scrolled to the top to see the editor and sticky btn_container
-            nestedScrollView.post(() -> nestedScrollView.scrollTo(0, 0));
+            nestedScrollView.post(() -> {
+                nestedScrollView.scrollTo(0, 0); // Scroll NSSV to top first
+
+                // Now, post a second runnable to give focus and set selection,
+                // ensuring the layout has settled after the scroll.
+                postText.post(() -> {
+                    postText.requestFocus();
+                    postText.setSelection(0);
+
+                    // Optional: Force keyboard to show. Only use this if you *always*
+                    // want the keyboard to appear when expanding the editor.
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.showSoftInput(postText, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                });
+            });
 
             // Give focus to the editor and place the cursor at the beginning
             postText.requestFocus();
