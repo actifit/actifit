@@ -215,6 +215,8 @@ public class WorkoutWizardActivity extends BaseActivity
                     "&operation=[" + operation + "]" +
                     "&bchain=HIVE";
 
+            Log.d(TAG, bcastUrl);
+
             JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
                     bcastUrl, null,
                     response -> {
@@ -229,6 +231,8 @@ public class WorkoutWizardActivity extends BaseActivity
                                         bcastRes.get("id") + "/" +
                                         "HIVE" +
                                         "/?user=" + username;
+
+
 
                                 JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
                                         buyUrl, null,
@@ -292,8 +296,6 @@ public class WorkoutWizardActivity extends BaseActivity
         }
     }
 
-
-    // The AI Function: Contains YOUR AI service call.
     private void callGeminiApi(String workoutName, WorkoutRequest request) {
         aiService.generateWorkoutPlan(request, new AiService.ResponseCallback() {
             @Override
@@ -318,6 +320,7 @@ public class WorkoutWizardActivity extends BaseActivity
                             new WorkoutApiClient.SaveWorkoutCallback() {
                                 @Override
                                 public void onSuccess() {
+                                    fetchAndDisplayUserWorkouts(false);
                                     Toast.makeText(WorkoutWizardActivity.this, "Workout plan saved!", Toast.LENGTH_SHORT).show();
                                 }
 
@@ -383,13 +386,19 @@ public class WorkoutWizardActivity extends BaseActivity
     }
 
     private void fetchAndDisplayUserWorkouts() {
+        fetchAndDisplayUserWorkouts(true);
+    }
+    private void fetchAndDisplayUserWorkouts(boolean refreshDisplay) {
         String currentUserJwt = LoginActivity.accessToken;
         if (currentUserJwt == null || currentUserJwt.isEmpty()) {
             Log.w(TAG, "Cannot fetch workouts: JWT token missing.");
             showNoWorkoutsMessage("Authentication token missing.");
             return;
         }
-        showListLoading();
+
+        if (refreshDisplay) {
+            showListLoading();
+        }
 
         WorkoutApiClient.fetchUserWorkouts(this, currentUserJwt, username,
                 new WorkoutApiClient.FetchWorkoutsCallback() {
@@ -400,13 +409,15 @@ public class WorkoutWizardActivity extends BaseActivity
                             if (workouts != null && !workouts.isEmpty()) {
                                 Log.d(TAG, "Fetched " + workouts.size() + " saved workouts.");
                                 savedWorkoutsAdapter.setWorkoutList(workouts);
-                                showSavedWorkoutsAccordion();
-                                savedWorkoutsRecyclerView.setVisibility(View.VISIBLE);
-                                noSavedWorkoutsMessage.setVisibility(View.GONE);
-                                retryFetchWorkoutsButton.setVisibility(View.GONE);
-                                ScrollView scrollView = findViewById(R.id.scrollView);
-                                if (scrollView != null) {
-                                    scrollView.post(() -> scrollView.requestChildFocus(savedWorkoutsHeader, savedWorkoutsHeader));
+                                if (refreshDisplay) {
+                                    showSavedWorkoutsAccordion();
+                                    savedWorkoutsRecyclerView.setVisibility(View.VISIBLE);
+                                    noSavedWorkoutsMessage.setVisibility(View.GONE);
+                                    retryFetchWorkoutsButton.setVisibility(View.GONE);
+                                    ScrollView scrollView = findViewById(R.id.scrollView);
+                                    if (scrollView != null) {
+                                        scrollView.post(() -> scrollView.requestChildFocus(savedWorkoutsHeader, savedWorkoutsHeader));
+                                    }
                                 }
                             } else {
                                 Log.d(TAG, "No saved workouts found for the user.");
@@ -727,7 +738,11 @@ public class WorkoutWizardActivity extends BaseActivity
     }
 
     private void showFormOrList() {
+        Log.d(TAG,"showFormOrList");
+
         if (savedWorkoutsAdapter != null && savedWorkoutsAdapter.getItemCount() > 0) {
+            Log.d(TAG,"show>>");
+
             showSavedWorkoutsAccordion();
         } else {
             showGenerateWorkoutAccordion();
