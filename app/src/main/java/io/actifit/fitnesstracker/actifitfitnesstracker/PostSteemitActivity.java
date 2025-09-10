@@ -1866,8 +1866,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             // --- Show all other form fields ---
             cLayoutSet.setVisibility(R.id.post_title_container, View.VISIBLE);
             cLayoutSet.setVisibility(R.id.steemit_post_title, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.full_afit_pay_lbl, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.full_afit_pay, View.VISIBLE);
+            //cLayoutSet.setVisibility(R.id.full_afit_pay_lbl, View.VISIBLE);
+            //cLayoutSet.setVisibility(R.id.full_afit_pay, View.VISIBLE);
             cLayoutSet.setVisibility(R.id.post_date_container, View.VISIBLE);
             cLayoutSet.setVisibility(R.id.report_date_option_group, View.VISIBLE);
             cLayoutSet.setVisibility(R.id.step_count_container, View.VISIBLE);
