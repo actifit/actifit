@@ -177,14 +177,10 @@ public class LoginActivity extends BaseActivity {
                         });
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // error
-                        Log.e(MainActivity.TAG, "Load image error");
-                    }
-
-        });
+                        error -> {
+                            // error
+                            Log.e(MainActivity.TAG, "Load image error");
+                        });
 
         queue = Volley.newRequestQueue(this);
 

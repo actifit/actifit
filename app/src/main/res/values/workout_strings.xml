@@ -70,4 +70,57 @@
         <item>Limited mobility</item>
         <item>Other</item>
     </string-array>
+
+    <!-- Strings from SavedWorkoutsAdapter.java -->
+    <string name="saved_date_na">Saved: N/A</string>
+
+    <!-- Strings from WorkoutApiClient.java -->
+    <string name="error_building_json">Error building JSON request body</string>
+    <string name="error_preparing_data_saving">Error preparing data for saving.</string>
+    <string name="unknown_save_error">Unknown save error</string>
+    <string name="network_error_saving_workout">Network error saving workout plan.</string>
+    <string name="unknown_network_error">Unknown network error.</string>
+    <string name="error_invalid_response_format">Invalid response format from server.</string>
+    <string name="error_processing_workout_data">Error processing workout data.</string>
+    <string name="network_error_fetching_workout_list">Network error fetching workout list.</string>
+
+    <!-- Strings from WorkoutWizardActivity.java -->
+    <string name="error_workout_name_required">Workout name is required.</string>
+    <string name="prompt_enter_workout_name">Please enter a name for your workout.</string>
+    <string name="log_pending_paid_attempt_retry" translatable="false">User has a pending paid attempt. Retrying AI generation for free for:</string>
+    <string name="log_new_generation_proceed_payment" translatable="false">New generation attempt. Proceeding with payment for:</string>
+    <string name="log_payment_successful_saving_state" translatable="false">Payment successful. Saving &apos;paid&apos; state before calling AI.</string>
+    <string name="error_payment_confirmation_step" translatable="false">Payment failed at confirmation step:</string>
+    <string name="error_payment_network_confirmation_step" translatable="false">Payment network error at confirmation step:</string>
+    <string name="log_json_exception_payment_broadcast" translatable="false">JSON Exception after payment broadcast:</string>
+    <string name="error_payment_broadcast_step" translatable="false">Payment failed at broadcast step:</string>
+    <string name="error_payment_network_broadcast_step" translatable="false">Payment network error at broadcast step:</string>
+    <string name="log_exception_setting_up_payment" translatable="false">Exception setting up payment transaction:</string>
+    <string name="log_ai_generation_successful_clearing_state" translatable="false">AI generation successful. Clearing the &apos;paid&apos; state.</string>
+    <string name="success_workout_plan_saved">Workout plan saved!</string>
+    <string name="error_failed_to_save_workout">Failed to save workout:</string>
+    <string name="error_workout_generation_failed">Workout generation failed:</string>
+    <string name="log_cannot_fetch_workouts_jwt_missing" translatable="false">Cannot fetch workouts: JWT token missing.</string>
+    <string name="error_authentication_token_missing">Authentication token missing.</string>
+    <string name="info_no_saved_workouts_user">No saved workouts found for the user.</string>
+    <string name="info_no_saved_workouts_yet">No saved workouts yet.</string>
+    <string name="error_failed_to_fetch_user_workouts">Failed to fetch user workouts:</string>
+    <string name="error_loading_workouts">Error loading workouts:</string>
+    <string name="error_failed_to_fetch_user_balance">Failed to fetch user balance:</string>
+    <string name="error_fetching_balance">Error fetching balance:</string>
+    <string name="log_display_workout_plan_null" translatable="false">displayWorkoutPlan called with null plan.</string>
+    <string name="log_no_matching_local_exercise_model" translatable="false">No matching local ExerciseModel found for:</string>
+    <string name="log_all_exercises_map_not_loaded" translatable="false">allExercisesMap is not loaded or empty. Cannot enhance exercises with local data.</string>
+    <string name="log_workout_plan_exercises_null_or_empty" translatable="false">Workout plan exercises list is null or empty.</string>
+    <string name="default_workout_frequency_3_days">3 days a week</string>
+    <string name="dialog_title_confirm_workout_generation">Confirm Workout Generation</string>
+    <string name="dialog_message_confirm_workout_generation_part1">Generating this custom workout plan costs </string>
+    <string name="dialog_message_confirm_workout_generation_part2"> AFIT. Do you want to proceed and pay?</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_title_insufficient_afit">Insufficient AFIT</string>
+    <string name="dialog_message_insufficient_afit_part1">You need </string>
+    <string name="dialog_message_insufficient_afit_part2"> AFIT to generate a workout plan. Your current balance is </string>
+    <string name="dialog_message_insufficient_afit_part3"> AFIT. Please acquire more AFIT.</string>
+    <string name="dialog_button_ok">OK</string>
+    <string name="toast_prefix_error">Error:</string>
 </resources>
