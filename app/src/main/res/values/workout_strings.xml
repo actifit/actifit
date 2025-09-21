@@ -89,14 +89,14 @@
     <string name="prompt_enter_workout_name">Please enter a name for your workout.</string>
     <string name="log_pending_paid_attempt_retry" translatable="false">User has a pending paid attempt. Retrying AI generation for free for:</string>
     <string name="log_new_generation_proceed_payment" translatable="false">New generation attempt. Proceeding with payment for:</string>
-    <string name="log_payment_successful_saving_state" translatable="false">Payment successful. Saving &apos;paid&apos; state before calling AI.</string>
+    <string name="log_payment_successful_saving_state" translatable="false">Payment successful. Saving \'paid\' state before calling AI.</string>
     <string name="error_payment_confirmation_step" translatable="false">Payment failed at confirmation step:</string>
     <string name="error_payment_network_confirmation_step" translatable="false">Payment network error at confirmation step:</string>
     <string name="log_json_exception_payment_broadcast" translatable="false">JSON Exception after payment broadcast:</string>
     <string name="error_payment_broadcast_step" translatable="false">Payment failed at broadcast step:</string>
     <string name="error_payment_network_broadcast_step" translatable="false">Payment network error at broadcast step:</string>
     <string name="log_exception_setting_up_payment" translatable="false">Exception setting up payment transaction:</string>
-    <string name="log_ai_generation_successful_clearing_state" translatable="false">AI generation successful. Clearing the &apos;paid&apos; state.</string>
+    <string name="log_ai_generation_successful_clearing_state" translatable="false">AI generation successful. Clearing the \'paid\' state.</string>
     <string name="success_workout_plan_saved">Workout plan saved!</string>
     <string name="error_failed_to_save_workout">Failed to save workout:</string>
     <string name="error_workout_generation_failed">Workout generation failed:</string>

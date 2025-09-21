@@ -549,7 +549,6 @@
     <string name="dialog_message_confirm_workout_generation_part2">AFIT. Pretende continuar e pagar?</string>
     <string name="dialog_message_insufficient_afit_part3">AFIT. Adquira mais AFIT.</string>
     <string name="dialog_message_insufficient_afit_part2">AFIT para gerar um plano de treino. O seu saldo atual é</string>
-    <string name="log_ai_generation_successful_clearing_state">Geração de IA bem-sucedida. A limpar o estado \'paid\'.</string>
     <string name="log_all_exercises_map_not_loaded">allExercisesMap não foi carregado ou está vazio. Não é possível melhorar exercícios com dados locais.</string>
     <string name="error_authentication_token_missing">Token de autenticação em falta.</string>
     <string name="dialog_button_cancel">Cancelar</string>
@@ -581,7 +580,6 @@
     <string name="error_payment_confirmation_step">Pagamento falhou na etapa de confirmação:</string>
     <string name="error_payment_network_broadcast_step">Erro de rede de pagamento na etapa de difusão:</string>
     <string name="error_payment_network_confirmation_step">Erro de rede de pagamento na etapa de confirmação:</string>
-    <string name="log_payment_successful_saving_state">Pagamento bem-sucedido. A guardar o estado \'paid\' antes de chamar a IA.</string>
     <string name="prompt_enter_workout_name">Por favor, introduza um nome para o seu treino.</string>
     <string name="regenerate_workout_free">REGENERAR TREINO (GRÁTIS)</string>
     <string name="saved_date_na">Guardado: N/D</string>

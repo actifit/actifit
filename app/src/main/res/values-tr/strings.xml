@@ -548,7 +548,6 @@
     <string name="dialog_message_confirm_workout_generation_part2">AFIT. Devam edip ödeme yapmak istiyor musunuz?</string>
     <string name="dialog_message_insufficient_afit_part3">AFIT. Lütfen daha fazla AFIT edinin.</string>
     <string name="dialog_message_insufficient_afit_part2">AFIT antrenman planı oluşturmak için gereklidir. Mevcut bakiyeniz</string>
-    <string name="log_ai_generation_successful_clearing_state">Yapay zekâ üretimi başarılı. \'paid\' durumu temizleniyor.</string>
     <string name="log_all_exercises_map_not_loaded">allExercisesMap yüklenmedi veya boş. Egzersizler yerel verilerle geliştirilemiyor.</string>
     <string name="error_authentication_token_missing">Kimlik doğrulama belirteci eksik.</string>
     <string name="dialog_button_cancel">İptal</string>
@@ -580,7 +579,6 @@
     <string name="error_payment_confirmation_step">Ödeme onay adımında başarısız oldu:</string>
     <string name="error_payment_network_broadcast_step">Yayın adımında ödeme ağ hatası:</string>
     <string name="error_payment_network_confirmation_step">Onay adımında ödeme ağ hatası:</string>
-    <string name="log_payment_successful_saving_state">Ödeme başarılı. Yapay zekâ çağrılmadan önce \'paid\' durumu kaydediliyor.</string>
     <string name="prompt_enter_workout_name">Lütfen antrenmanınız için bir ad girin.</string>
     <string name="regenerate_workout_free">ANTRENMANI YENİDEN OLUŞTUR (ÜCRETSİZ)</string>
     <string name="saved_date_na">Kaydedildi: Yok</string>

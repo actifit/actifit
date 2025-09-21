@@ -549,8 +549,7 @@
     <string name="dialog_message_confirm_workout_generation_part2">AFIT. Vuoi procedere e pagare?</string>
     <string name="dialog_message_insufficient_afit_part3">AFIT. Acquista altro AFIT.</string>
     <string name="dialog_message_insufficient_afit_part2">AFIT per generare un piano di allenamento. Il tuo saldo attuale è</string>
-    <string name="log_ai_generation_successful_clearing_state">Generazione AI riuscita. Pulizia dello stato \'paid\'.</string>
-    <string name="log_all_exercises_map_not_loaded">allExercisesMap non è caricato o è vuoto. Impossibile migliorare gli esercizi con dati locali.</string>
+	<string name="log_all_exercises_map_not_loaded">allExercisesMap non è caricato o è vuoto. Impossibile migliorare gli esercizi con dati locali.</string>
     <string name="error_authentication_token_missing">Token di autenticazione mancante.</string>
     <string name="dialog_button_cancel">Annulla</string>
     <string name="log_cannot_fetch_workouts_jwt_missing">Impossibile recuperare gli allenamenti: token JWT mancante.</string>
@@ -581,8 +580,7 @@
     <string name="error_payment_confirmation_step">Pagamento non riuscito nella fase di conferma:</string>
     <string name="error_payment_network_broadcast_step">Errore di rete di pagamento nella fase di broadcast:</string>
     <string name="error_payment_network_confirmation_step">Errore di rete di pagamento nella fase di conferma:</string>
-    <string name="log_payment_successful_saving_state">Pagamento riuscito. Salvataggio dello stato \'paid\' prima della chiamata all’IA.</string>
-    <string name="prompt_enter_workout_name">Inserisci un nome per il tuo allenamento.</string>
+	<string name="prompt_enter_workout_name">Inserisci un nome per il tuo allenamento.</string>
     <string name="regenerate_workout_free">RIGENERA ALLENAMENTO (GRATIS)</string>
     <string name="saved_date_na">Salvato: N/D</string>
     <string name="unknown_network_error">Errore di rete sconosciuto.</string>
