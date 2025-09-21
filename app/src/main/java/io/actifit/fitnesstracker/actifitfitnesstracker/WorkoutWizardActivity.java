@@ -1,4 +1,3 @@
-
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.username;
@@ -20,7 +19,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class WorkoutWizardActivity extends BaseActivity
     implements SavedWorkoutsAdapter.OnWorkoutSelectedListener {
@@ -113,12 +110,10 @@ public class WorkoutWizardActivity extends BaseActivity
         generateWorkoutExpandIconTextView = findViewById(R.id.generateWorkoutExpandIconTextView);
         retryFetchWorkoutsButton = findViewById(R.id.retryFetchWorkoutsButton);
 
-        // Load the persistent state as soon as the activity is created.
         sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
         hasPaidForGeneration = sharedPreferences.getBoolean(KEY_HAS_PAID, false);
-        updateGenerateButtonText(); // Update the button text based on the loaded state
+        updateGenerateButtonText();
 
-        // Use the standard LinearLayoutManager. The forceful measurement will handle the rest.
         exercisesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         savedWorkoutsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -152,19 +147,16 @@ public class WorkoutWizardActivity extends BaseActivity
         generateButton.setOnClickListener(v -> {
             String workoutName = workoutNameEditText.getText().toString().trim();
             if (workoutName.isEmpty()) {
-                workoutNameEditText.setError("Workout name is required.");
-                Toast.makeText(this, "Please enter a name for your workout.", Toast.LENGTH_SHORT).show();
+                workoutNameEditText.setError(getString(R.string.error_workout_name_required));
+                Toast.makeText(this, getString(R.string.prompt_enter_workout_name), Toast.LENGTH_SHORT).show();
                 return;
             }
             workoutNameEditText.setError(null);
 
-            // The state is already loaded. Use the 'hasPaidForGeneration' variable directly.
             if (hasPaidForGeneration) {
-                // It's a free retry. Call the AI generation directly.
-                Log.d(TAG, "User has a pending paid attempt. Retrying AI generation for free for: " + workoutName);
+                Log.d(TAG, getString(R.string.log_pending_paid_attempt_retry) + workoutName);
                 processWorkoutGeneration(workoutName);
             } else {
-                // It's a new attempt. Start the flow by checking the user's balance.
                 grabBalanceAndProceed(workoutName);
             }
         });
@@ -175,21 +167,18 @@ public class WorkoutWizardActivity extends BaseActivity
         noSavedWorkoutsMessage.setOnClickListener(v -> fetchAndDisplayUserWorkouts());
     }
 
-    // Called from the payment confirmation dialog to start the payment process.
     private void processWorkoutTrx(String workoutName) {
         showLoading();
-        Log.d(TAG, "New generation attempt. Proceeding with payment for: " + workoutName);
+        Log.d(TAG, getString(R.string.log_new_generation_proceed_payment) + workoutName);
         performAfitsDeduction(workoutName);
     }
 
-    // A dedicated method for the generation part, used for both initial and retry attempts.
     private void processWorkoutGeneration(String workoutName) {
         showLoading();
         WorkoutRequest workoutRequest = getUserInputFromUI();
         callGeminiApi(workoutName, workoutRequest);
     }
 
-    // The Payment Function: Contains YOUR Volley code for the payment transaction.
     private void performAfitsDeduction(String workoutName) {
         Context ctx = getApplicationContext();
         RequestQueue queue = Volley.newRequestQueue(ctx);
@@ -215,7 +204,7 @@ public class WorkoutWizardActivity extends BaseActivity
                     "&operation=[" + operation + "]" +
                     "&bchain=HIVE";
 
-            Log.d(TAG, bcastUrl);
+            Log.d(TAG, bcastUrl); 
 
             JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
                     bcastUrl, null,
@@ -232,28 +221,21 @@ public class WorkoutWizardActivity extends BaseActivity
                                         "HIVE" +
                                         "/?user=" + username;
 
-
-
                                 JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
                                         buyUrl, null,
                                         response1 -> {
                                             if (!response1.has("error") && (response1.optBoolean("success", false) || response1.optString("status", "").equalsIgnoreCase("success"))) {
-
-                                                // Payment is complete. Set the flag and save it IMMEDIATELY.
-                                                Log.d(TAG, "Payment successful. Saving 'paid' state before calling AI.");
+                                                Log.d(TAG, getString(R.string.log_payment_successful_saving_state));
                                                 setPaidState(true);
-
-                                                // Now, call the AI service.
                                                 processWorkoutGeneration(workoutName);
-
                                             } else {
-                                                Log.e(TAG, "Payment failed at confirmation step: " + response1.toString());
+                                                Log.e(TAG, getString(R.string.error_payment_confirmation_step) + response1.toString());
                                                 Toast.makeText(WorkoutWizardActivity.this, getString(R.string.error_transaction), Toast.LENGTH_LONG).show();
                                                 hideLoading();
                                             }
                                         },
                                         error -> {
-                                            Log.e(TAG, "Payment network error at confirmation step: " + error.toString());
+                                            Log.e(TAG, getString(R.string.error_payment_network_confirmation_step) + error.toString());
                                             Toast.makeText(WorkoutWizardActivity.this, getString(R.string.error_transaction), Toast.LENGTH_LONG).show();
                                             hideLoading();
                                         }) {
@@ -267,17 +249,17 @@ public class WorkoutWizardActivity extends BaseActivity
                                 };
                                 queue.add(buyRequest);
                             } catch (JSONException e) {
-                                Log.e(TAG, "JSON Exception after payment broadcast: " + e.getMessage());
+                                Log.e(TAG, getString(R.string.log_json_exception_payment_broadcast) + e.getMessage());
                                 hideLoading();
                             }
                         } else {
-                            Log.e(TAG, "Payment failed at broadcast step: " + response.toString());
+                            Log.e(TAG, getString(R.string.error_payment_broadcast_step) + response.toString());
                             Toast.makeText(WorkoutWizardActivity.this, getString(R.string.error_transaction), Toast.LENGTH_LONG).show();
                             hideLoading();
                         }
                     },
                     error -> {
-                        Log.d(TAG, "Payment network error at broadcast step: " + error.toString());
+                        Log.d(TAG, getString(R.string.error_payment_network_broadcast_step) + error.toString());
                         Toast.makeText(WorkoutWizardActivity.this, getString(R.string.error_transaction), Toast.LENGTH_LONG).show();
                         hideLoading();
                     }) {
@@ -291,7 +273,7 @@ public class WorkoutWizardActivity extends BaseActivity
             };
             queue.add(transRequest);
         } catch (Exception excep) {
-            Log.e(TAG, "Exception setting up payment transaction: " + excep.getMessage());
+            Log.e(TAG, getString(R.string.log_exception_setting_up_payment) + excep.getMessage());
             hideLoading();
         }
     }
@@ -301,15 +283,12 @@ public class WorkoutWizardActivity extends BaseActivity
             @Override
             public void onSuccess(AiResponse response) {
                 runOnUiThread(() -> {
-                    // SUCCESS! The user got their plan. Consume the payment by resetting the state.
-                    Log.d(TAG, "AI generation successful. Clearing the 'paid' state.");
+                    Log.d(TAG, getString(R.string.log_ai_generation_successful_clearing_state));
                     setPaidState(false);
-
                     hideLoading();
                     WorkoutPlan generatedPlan = response.getWorkoutPlan();
                     displayWorkoutPlan(generatedPlan);
 
-                    // Now, save the successfully generated plan to the backend.
                     WorkoutApiClient.saveWorkoutPlan(
                             WorkoutWizardActivity.this,
                             username,
@@ -321,12 +300,12 @@ public class WorkoutWizardActivity extends BaseActivity
                                 @Override
                                 public void onSuccess() {
                                     fetchAndDisplayUserWorkouts(false);
-                                    Toast.makeText(WorkoutWizardActivity.this, "Workout plan saved!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(WorkoutWizardActivity.this, getString(R.string.success_workout_plan_saved), Toast.LENGTH_SHORT).show();
                                 }
 
                                 @Override
                                 public void onFailure(String errorMessage) {
-                                    Toast.makeText(WorkoutWizardActivity.this, "Failed to save workout: " + errorMessage, Toast.LENGTH_LONG).show();
+                                    Toast.makeText(WorkoutWizardActivity.this, getString(R.string.error_failed_to_save_workout) + " " + errorMessage, Toast.LENGTH_LONG).show();
                                 }
                             }
                     );
@@ -336,12 +315,8 @@ public class WorkoutWizardActivity extends BaseActivity
             @Override
             public void onFailure(String errorMessage) {
                 runOnUiThread(() -> {
-                    // FAILURE! The AI failed, but the user has paid.
-                    // DO NOTHING to the state. The 'hasPaidForGeneration' flag is still true and saved.
                     hideLoading();
-                    showError("Workout generation failed: " + errorMessage);
-
-                    // Update UI to make it clear a free retry is available.
+                    showError(getString(R.string.error_workout_generation_failed) + " " + errorMessage);
                     updateGenerateButtonText();
                     showGenerateWorkoutAccordion();
                 });
@@ -349,34 +324,20 @@ public class WorkoutWizardActivity extends BaseActivity
         });
     }
 
-    // --- Helper methods to manage the payment/generation state ---
-
-    /**
-     * Sets the paid state in memory and persists it to SharedPreferences.
-     *
-     * @param hasPaid true if payment was successful, false to reset/clear the state.
-     */
     private void setPaidState(boolean hasPaid) {
         this.hasPaidForGeneration = hasPaid;
         SharedPreferences.Editor editor = sharedPreferences.edit();
         if (hasPaid) {
-            // Save the flag to indicate a pending free retry is available.
             editor.putBoolean(KEY_HAS_PAID, true);
             Log.d(TAG, "Saved state to SharedPreferences: hasPaidForGeneration=true");
         } else {
-            // Clear the flag because the transaction is complete (or was reset).
             editor.remove(KEY_HAS_PAID);
             Log.d(TAG, "Cleared 'hasPaidForGeneration' state from SharedPreferences.");
         }
         editor.apply();
-
-        // Always update the button text after changing the state.
         updateGenerateButtonText();
     }
 
-    /**
-     * A single, reliable place to update the generate button's text based on the current state.
-     */
     private void updateGenerateButtonText() {
         if (hasPaidForGeneration) {
             generateButton.setText(R.string.regenerate_workout_free);
@@ -388,11 +349,12 @@ public class WorkoutWizardActivity extends BaseActivity
     private void fetchAndDisplayUserWorkouts() {
         fetchAndDisplayUserWorkouts(true);
     }
+
     private void fetchAndDisplayUserWorkouts(boolean refreshDisplay) {
         String currentUserJwt = LoginActivity.accessToken;
         if (currentUserJwt == null || currentUserJwt.isEmpty()) {
-            Log.w(TAG, "Cannot fetch workouts: JWT token missing.");
-            showNoWorkoutsMessage("Authentication token missing.");
+            Log.w(TAG, getString(R.string.log_cannot_fetch_workouts_jwt_missing));
+            showNoWorkoutsMessage(getString(R.string.error_authentication_token_missing));
             return;
         }
 
@@ -420,8 +382,8 @@ public class WorkoutWizardActivity extends BaseActivity
                                     }
                                 }
                             } else {
-                                Log.d(TAG, "No saved workouts found for the user.");
-                                showNoWorkoutsMessage("No saved workouts yet.");
+                                Log.d(TAG, getString(R.string.info_no_saved_workouts_user));
+                                showNoWorkoutsMessage(getString(R.string.info_no_saved_workouts_yet));
                                 retryFetchWorkoutsButton.setVisibility(View.GONE);
                                 showGenerateWorkoutAccordion();
                                 ScrollView scrollView = findViewById(R.id.scrollView);
@@ -435,9 +397,9 @@ public class WorkoutWizardActivity extends BaseActivity
                     @Override
                     public void onFailure(String errorMessage) {
                         runOnUiThread(() -> {
-                            mainLoadingProgressBar.setVisibility(View.GONE); // Hide main loading
-                            Log.e(TAG, "Failed to fetch user workouts: " + errorMessage);
-                            showNoWorkoutsMessage("Error loading workouts: " + errorMessage); // Show error message
+                            mainLoadingProgressBar.setVisibility(View.GONE);
+                            Log.e(TAG, getString(R.string.error_failed_to_fetch_user_workouts) + " " + errorMessage);
+                            showNoWorkoutsMessage(getString(R.string.error_loading_workouts) + " " + errorMessage);
                             retryFetchWorkoutsButton.setVisibility(View.VISIBLE);
                         });
                     }
@@ -452,29 +414,24 @@ public class WorkoutWizardActivity extends BaseActivity
             return;
         }
         Utils.fetchUserBalance(this, username, false, new Utils.BalanceFetchListener() {
-
             @Override
             public void onBalanceFetched(double balance) {
-                // Check the balance here!
                 if (balance < Constants.MIN_AFIT_PER_WORKOUT) {
-                    // Insufficient funds, show the error dialog
-                    mainLoadingProgressBar.setVisibility(View.GONE); // Hide loading
+                    mainLoadingProgressBar.setVisibility(View.GONE);
                     generateButton.setEnabled(true);
-                    showInsufficientFundsDialog((long) balance); // Cast to long if your dialog expects long
+                    showInsufficientFundsDialog((long) balance);
                     showGenerateWorkoutAccordion();
                 } else {
-                    // User has enough AFIT, show the payment confirmation dialog
                     showPaymentConfirmationDialog(workoutName);
                 }
             }
 
             @Override
             public void onBalanceFetchFailed(String errorMessage) {
-                // This code runs if fetching the balance failed (network error, JSON error etc.)
                 mainLoadingProgressBar.setVisibility(View.GONE);
                 generateButton.setEnabled(true);
-                Log.e(TAG, "Failed to fetch user balance: " + errorMessage);
-                showError("Error fetching balance: " + errorMessage); // Shows Toast
+                Log.e(TAG, getString(R.string.error_failed_to_fetch_user_balance) + " " + errorMessage);
+                showError(getString(R.string.error_fetching_balance) + " " + errorMessage);
                 showGenerateWorkoutAccordion();
             }
         });
@@ -504,7 +461,7 @@ public class WorkoutWizardActivity extends BaseActivity
 
     private void displayWorkoutPlan(WorkoutPlan plan) {
         if (plan == null) {
-            Log.w(TAG, "displayWorkoutPlan called with null plan.");
+            Log.w(TAG, getString(R.string.log_display_workout_plan_null));
             hideWorkoutDetails();
             showFormOrList();
             return;
@@ -528,21 +485,18 @@ public class WorkoutWizardActivity extends BaseActivity
                         exercise.setSecondaryMuscles(matchingModel.getSecondaryMuscles());
                         exercise.setInstructions(matchingModel.getInstructions());
                     } else {
-                        Log.w(TAG, "No matching local ExerciseModel found for: " + exercise.getName());
+                        Log.w(TAG, getString(R.string.log_no_matching_local_exercise_model) + exercise.getName());
                     }
                 }
             } else {
-                Log.w(TAG, "allExercisesMap is not loaded or empty. Cannot enhance exercises with local data.");
+                Log.w(TAG, getString(R.string.log_all_exercises_map_not_loaded));
             }
 
             ExerciseAdapter adapter = new ExerciseAdapter(exercises);
             exercisesRecyclerView.setAdapter(adapter);
 
-            // This block forces the RecyclerView to fully expand by measuring all its items.
             exercisesRecyclerView.post(() -> {
                 expandRecyclerViewHeight(exercisesRecyclerView);
-
-                // Scroll to the bottom for a good user experience
                 ScrollView scrollView = findViewById(R.id.scrollView);
                 if (scrollView != null) {
                     scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
@@ -550,43 +504,33 @@ public class WorkoutWizardActivity extends BaseActivity
             });
 
         } else {
-            Log.w(TAG, "Workout plan exercises list is null or empty.");
+            Log.w(TAG, getString(R.string.log_workout_plan_exercises_null_or_empty));
             exercisesRecyclerView.setAdapter(null);
         }
-
         showWorkoutDetailsPanel();
     }
 
-
-    /**
-     * This helper method manually measures every single item in the adapter
-     * to calculate the total required height, then forces the RecyclerView to that height.
-     */
     public void expandRecyclerViewHeight(RecyclerView recyclerView) {
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         if (adapter == null) {
             return;
         }
-
         int totalHeight = 0;
         int widthSpec = View.MeasureSpec.makeMeasureSpec(recyclerView.getWidth(), View.MeasureSpec.EXACTLY);
-
         for (int i = 0; i < adapter.getItemCount(); i++) {
             RecyclerView.ViewHolder holder = adapter.createViewHolder(recyclerView, adapter.getItemViewType(i));
             adapter.onBindViewHolder(holder, i);
             holder.itemView.measure(widthSpec, View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
             totalHeight += holder.itemView.getMeasuredHeight();
         }
-
         ViewGroup.LayoutParams params = recyclerView.getLayoutParams();
         params.height = totalHeight;
         recyclerView.setLayoutParams(params);
         Log.d(TAG, "Forcing RecyclerView height to: " + totalHeight + " for " + adapter.getItemCount() + " items.");
     }
 
-
     private void setDefaultDailyFrequency() {
-        String defaultFrequency = "3 days a week";
+        String defaultFrequency = getString(R.string.default_workout_frequency_3_days);
         String[] dailyFrequencies = getResources().getStringArray(R.array.daily_frequencies);
         int defaultPosition = -1;
         for (int i = 0; i < dailyFrequencies.length; i++) {
@@ -600,18 +544,17 @@ public class WorkoutWizardActivity extends BaseActivity
         }
     }
 
-    // --- UI Helper and Dialog Functions ---
     private void showPaymentConfirmationDialog(String workoutName) {
         new AlertDialog.Builder(this)
-                .setTitle("Confirm Workout Generation")
-                .setMessage("Generating this custom workout plan costs " + Constants.MIN_AFIT_PER_WORKOUT + " AFIT. Do you want to proceed and pay?")
+                .setTitle(getString(R.string.dialog_title_confirm_workout_generation))
+                .setMessage(getString(R.string.dialog_message_confirm_workout_generation_part1) + Constants.MIN_AFIT_PER_WORKOUT + getString(R.string.dialog_message_confirm_workout_generation_part2))
                 .setPositiveButton(getString(R.string.proceed), (dialog, which) -> {
                     processWorkoutTrx(workoutName);
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {
+                .setNegativeButton(getString(R.string.dialog_button_cancel), (dialog, which) -> {
                     dialog.dismiss();
-                    hideLoading(); // Hide loading if user cancels payment
-                    showGenerateWorkoutAccordion(); // Return to generate form
+                    hideLoading();
+                    showGenerateWorkoutAccordion();
                 })
                 .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                 .show();
@@ -619,12 +562,10 @@ public class WorkoutWizardActivity extends BaseActivity
 
     private void showInsufficientFundsDialog(long current) {
         new AlertDialog.Builder(this)
-                .setTitle("Insufficient AFIT")
-                .setMessage("You need " + Constants.MIN_AFIT_PER_WORKOUT +
-                        " AFIT to generate a workout plan. Your current balance is "
-                        + current + " AFIT. Please acquire more AFIT.")
-                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
-                .setIcon(android.R.drawable.ic_dialog_alert) // Or a relevant icon
+                .setTitle(getString(R.string.dialog_title_insufficient_afit))
+                .setMessage(getString(R.string.dialog_message_insufficient_afit_part1) + Constants.MIN_AFIT_PER_WORKOUT + getString(R.string.dialog_message_insufficient_afit_part2) + current + getString(R.string.dialog_message_insufficient_afit_part3))
+                .setPositiveButton(getString(R.string.dialog_button_ok), (dialog, which) -> dialog.dismiss())
+                .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
 
@@ -634,7 +575,7 @@ public class WorkoutWizardActivity extends BaseActivity
         }
         if (workoutDetailsLayout.getVisibility() == View.VISIBLE) {
             hideWorkoutDetails();
-            showFormOrList(); // Go back to the form/list view after hiding details
+            showFormOrList();
             return;
         }
         if (contentLayout.getVisibility() == View.GONE) {
@@ -682,7 +623,6 @@ public class WorkoutWizardActivity extends BaseActivity
         hideAllContentSections();
         expandContent(generateWorkoutContent, generateWorkoutExpandIconTextView);
         collapseContent(savedWorkoutsContent, savedWorkoutsExpandIconTextView);
-        // Ensure button text is always correct when this view is shown
         updateGenerateButtonText();
     }
 
@@ -711,20 +651,20 @@ public class WorkoutWizardActivity extends BaseActivity
 
     private void hideWorkoutDetails() {
         workoutDetailsLayout.setVisibility(View.GONE);
-        exercisesRecyclerView.setAdapter(null); // Clear the adapter to free up views
+        exercisesRecyclerView.setAdapter(null);
     }
 
     private void showLoading() {
-        hideAllContentSections(); // Hide all accordion sections and workout details
-        mainLoadingProgressBar.setVisibility(View.VISIBLE); // Show the main loading bar
+        hideAllContentSections();
+        mainLoadingProgressBar.setVisibility(View.VISIBLE);
     }
 
     private void hideLoading() {
-        mainLoadingProgressBar.setVisibility(View.GONE); // Hide the main loading bar
+        mainLoadingProgressBar.setVisibility(View.GONE);
     }
 
     private void showError(String message) {
-        Toast.makeText(this, "Error: " + message, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, getString(R.string.toast_prefix_error) + " " + message, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -739,10 +679,8 @@ public class WorkoutWizardActivity extends BaseActivity
 
     private void showFormOrList() {
         Log.d(TAG,"showFormOrList");
-
         if (savedWorkoutsAdapter != null && savedWorkoutsAdapter.getItemCount() > 0) {
             Log.d(TAG,"show>>");
-
             showSavedWorkoutsAccordion();
         } else {
             showGenerateWorkoutAccordion();
