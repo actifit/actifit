@@ -549,7 +549,6 @@
     <string name="dialog_message_confirm_workout_generation_part2">AFIT. Ṣe o fẹ̀ bá a lọ kí o san?</string>
     <string name="dialog_message_insufficient_afit_part3">AFIT. Jọ̀wọ́ kó AFIT míì.</string>
     <string name="dialog_message_insufficient_afit_part2">O nílò AFIT láti ṣẹ̀dá ètò ìdárayá. Ìṣúná rẹ lọ́wọ́lọ́wọ́ ni</string>
-    <string name="log_ai_generation_successful_clearing_state">Ṣísẹ̀dá AI ṣaṣeyọri. N ń pa ipo \'paid\' mọ́.</string>
     <string name="log_all_exercises_map_not_loaded">allExercisesMap kò tíì kó wọlé tàbí ó ṣofo. Kò le túbọ̀ ṣe ìmúdára àwọn eré pẹ̀lú data agbègbè.</string>
     <string name="error_authentication_token_missing">Aami ìfọwọsi kò sí.</string>
     <string name="dialog_button_cancel">Fagilé</string>
@@ -581,7 +580,6 @@
     <string name="error_payment_confirmation_step">Sisanwó kùnà ní ìgbésẹ̀ ìmúlẹ̀:</string>
     <string name="error_payment_network_broadcast_step">Aṣiṣe nẹ́tíwọ̀ọ̀ki sisanwó ní ìgbésẹ̀ ìtànkálẹ̀:</string>
     <string name="error_payment_network_confirmation_step">Aṣiṣe nẹ́tíwọ̀ọ̀ki sisanwó ní ìgbésẹ̀ ìmúlẹ̀:</string>
-    <string name="log_payment_successful_saving_state">Sisanwó ṣaṣeyọri. N ṣọ́nà láti fipamọ́ ipo \'paid\' kí AI tó pe.</string>
     <string name="prompt_enter_workout_name">Jọ̀wọ́ tẹ orúkọ kan fún ìdárayá rẹ.</string>
     <string name="regenerate_workout_free">ṢẸDÁ ÌDÁRAYÁ TÚN (ỌFẸ)</string>
     <string name="saved_date_na">Ti fipamọ: Kò sí</string>

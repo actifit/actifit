@@ -548,7 +548,6 @@
     <string name="dialog_message_confirm_workout_generation_part2">AFIT. Бажаєте продовжити та оплатити?</string>
     <string name="dialog_message_insufficient_afit_part3">AFIT. Будь ласка, поповніть AFIT.</string>
     <string name="dialog_message_insufficient_afit_part2">AFIT, щоб згенерувати план тренувань. Ваш поточний баланс</string>
-    <string name="log_ai_generation_successful_clearing_state">Успішне створення ШІ. Очищення стану \'paid\'.</string>
     <string name="log_all_exercises_map_not_loaded">allExercisesMap не завантажено або він порожній. Неможливо покращити вправи локальними даними.</string>
     <string name="error_authentication_token_missing">Відсутній токен автентифікації.</string>
     <string name="dialog_button_cancel">Скасувати</string>
@@ -580,7 +579,6 @@
     <string name="error_payment_confirmation_step">Платіж не вдався на етапі підтвердження:</string>
     <string name="error_payment_network_broadcast_step">Помилка мережі платежів на етапі трансляції:</string>
     <string name="error_payment_network_confirmation_step">Помилка мережі платежів на етапі підтвердження:</string>
-    <string name="log_payment_successful_saving_state">Платіж успішний. Збереження стану \'paid\' перед викликом ШІ.</string>
     <string name="prompt_enter_workout_name">Будь ласка, введіть назву свого тренування.</string>
     <string name="regenerate_workout_free">ПОВТОРНО ЗГЕНЕРУВАТИ ТРЕНУВАННЯ (БЕЗКОШТОВНО)</string>
     <string name="saved_date_na">Збережено: н/д</string>

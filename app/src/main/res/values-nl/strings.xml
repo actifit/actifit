@@ -549,8 +549,7 @@
     <string name="dialog_message_confirm_workout_generation_part2">AFIT. Wil je doorgaan en betalen?</string>
     <string name="dialog_message_insufficient_afit_part3">AFIT. Verkrijg meer AFIT.</string>
     <string name="dialog_message_insufficient_afit_part2">AFIT om een trainingsplan te genereren. Je huidige saldo is</string>
-    <string name="log_ai_generation_successful_clearing_state">AI-generatie geslaagd. De status \'paid\' wordt gewist.</string>
-    <string name="log_all_exercises_map_not_loaded">allExercisesMap is niet geladen of leeg. Kan oefeningen niet verrijken met lokale data.</string>
+	<string name="log_all_exercises_map_not_loaded">allExercisesMap is niet geladen of leeg. Kan oefeningen niet verrijken met lokale data.</string>
     <string name="error_authentication_token_missing">Authenticatietoken ontbreekt.</string>
     <string name="dialog_button_cancel">Annuleren</string>
     <string name="log_cannot_fetch_workouts_jwt_missing">Kan workouts niet ophalen: JWT-token ontbreekt.</string>
@@ -581,8 +580,7 @@
     <string name="error_payment_confirmation_step">Betaling mislukt bij de bevestigingsstap:</string>
     <string name="error_payment_network_broadcast_step">Netwerkfout bij betaling tijdens uitzendstap:</string>
     <string name="error_payment_network_confirmation_step">Netwerkfout bij betaling tijdens bevestigingsstap:</string>
-    <string name="log_payment_successful_saving_state">Pagamento bem-sucedido. Salvando o estado \'paid\' antes de chamar a IA.</string>
-    <string name="prompt_enter_workout_name">Voer een naam in voor je training.</string>
+	<string name="prompt_enter_workout_name">Voer een naam in voor je training.</string>
     <string name="regenerate_workout_free">WORKOUT OPNIEUW GENEREREN (GRATIS)</string>
     <string name="saved_date_na">Opgeslagen: n.v.t.</string>
     <string name="unknown_network_error">Onbekende netwerkfout.</string>

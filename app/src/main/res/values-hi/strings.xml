@@ -549,8 +549,7 @@
     <string name="dialog_message_confirm_workout_generation_part2">AFIT है। क्या आप आगे बढ़कर भुगतान करना चाहते हैं?</string>
     <string name="dialog_message_insufficient_afit_part3">AFIT है। कृपया अधिक AFIT प्राप्त करें।</string>
     <string name="dialog_message_insufficient_afit_part2">AFIT की आवश्यकता है वर्कआउट योजना बनाने के लिए। आपका वर्तमान बैलेंस</string>
-    <string name="log_ai_generation_successful_clearing_state">एआई जनरेशन सफल। \'paid\' स्थिति साफ की जा रही है।</string>
-    <string name="log_all_exercises_map_not_loaded">allExercisesMap लोड नहीं हुआ या खाली है। स्थानीय डेटा से व्यायाम को बेहतर नहीं किया जा सकता।</string>
+	<string name="log_all_exercises_map_not_loaded">allExercisesMap लोड नहीं हुआ या खाली है। स्थानीय डेटा से व्यायाम को बेहतर नहीं किया जा सकता।</string>
     <string name="error_authentication_token_missing">प्रमाणीकरण टोकन अनुपस्थित है।</string>
     <string name="dialog_button_cancel">रद्द करें</string>
     <string name="log_cannot_fetch_workouts_jwt_missing">वर्कआउट प्राप्त नहीं कर सकता: JWT टोकन अनुपस्थित।</string>
@@ -581,8 +580,7 @@
     <string name="error_payment_confirmation_step">भुगतान पुष्टि चरण में विफल:</string>
     <string name="error_payment_network_broadcast_step">ब्रॉडकास्ट चरण में भुगतान नेटवर्क त्रुटि:</string>
     <string name="error_payment_network_confirmation_step">पुष्टि चरण में भुगतान नेटवर्क त्रुटि:</string>
-    <string name="log_payment_successful_saving_state">भुगतान सफल। AI कॉल से पहले \'paid\' स्थिति सहेजी जा रही है।</string>
-    <string name="prompt_enter_workout_name">कृपया अपने वर्कआउट के लिए एक नाम दर्ज करें।</string>
+	<string name="prompt_enter_workout_name">कृपया अपने वर्कआउट के लिए एक नाम दर्ज करें।</string>
     <string name="regenerate_workout_free">वर्कआउट दोबारा जनरेट करें (मुफ़्त)</string>
     <string name="saved_date_na">सहेजा गया: लागू नहीं</string>
     <string name="unknown_network_error">अज्ञात नेटवर्क त्रुटि।</string>

@@ -548,7 +548,6 @@
     <string name="dialog_message_confirm_workout_generation_part2">AFIT。是否继续并支付？</string>
     <string name="dialog_message_insufficient_afit_part3">AFIT。请获取更多 AFIT。</string>
     <string name="dialog_message_insufficient_afit_part2">生成锻炼计划需要 AFIT。您当前的余额为</string>
-    <string name="log_ai_generation_successful_clearing_state">AI 生成成功。正在清除 \'paid\' 状态。</string>
     <string name="log_all_exercises_map_not_loaded">allExercisesMap 未加载或为空。无法使用本地数据增强练习。</string>
     <string name="error_authentication_token_missing">缺少身份验证令牌。</string>
     <string name="dialog_button_cancel">取消</string>
@@ -580,7 +579,6 @@
     <string name="error_payment_confirmation_step">支付在确认步骤失败：</string>
     <string name="error_payment_network_broadcast_step">支付网络在广播步骤出错：</string>
     <string name="error_payment_network_confirmation_step">支付网络在确认步骤出错：</string>
-    <string name="log_payment_successful_saving_state">支付成功。调用 AI 前正在保存 \'paid\' 状态。</string>
     <string name="prompt_enter_workout_name">请输入您的锻炼名称。</string>
     <string name="regenerate_workout_free">重新生成锻炼（免费）</string>
     <string name="saved_date_na">已保存：不适用</string>
