@@ -72,6 +72,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -79,6 +81,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
+import androidx.health.connect.client.HealthConnectClient;
+import androidx.health.connect.client.PermissionController;
+import androidx.lifecycle.LifecycleOwnerKt;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
@@ -147,6 +152,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -155,11 +161,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import kotlin.Unit;
+import kotlinx.coroutines.BuildersKt;
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.CoroutineStart;
+import kotlinx.coroutines.Dispatchers;
+
 
 
 /**
@@ -338,6 +351,31 @@ public class MainActivity extends BaseActivity{
     private List<Slider_Items_Model_Class> listItems;
     private ViewPager newsPage;
     private TabLayout newsTabLayout;
+
+    private HealthConnectManager healthConnectManager;
+    private CoroutineScope lifecycleCoroutineScope; // Used to launch coroutines within lifecycle
+
+
+    // This launcher is for requesting Health Connect permissions (takes a Set<String>)
+    private final ActivityResultLauncher<Set<String>> requestPermissionLauncher =
+            registerForActivityResult(PermissionController.createRequestPermissionResultContract(), grantedPermissions -> {
+                if (grantedPermissions.containsAll(healthConnectManager.permissions)) {
+                    Log.d(TAG, "Health Connect permissions granted.");
+                    checkPermissionsAndReadData(); // Proceed with data access logic
+                } else {
+                    Log.d(TAG, "Health Connect permissions NOT granted.");
+                    Toast.makeText(this, "Health Connect permissions denied. Falling back to default tracking.", Toast.LENGTH_LONG).show();
+                    useDefaultTrackingMethod();
+                }
+            });
+
+    // This launcher is for launching an Intent (e.g., to the Play Store for installation)
+    private final ActivityResultLauncher<Intent> installHealthConnectLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                // After returning from the Play Store, check permissions again
+                checkHealthConnectAvailabilityAndPermissions();
+            });
+
 
     //ProgressDialog progress;
 
@@ -784,6 +822,10 @@ public class MainActivity extends BaseActivity{
         //CookieHandler.setDefault(cookieManager);
         CookieManager manager = new CookieManager();
         CookieHandler.setDefault( manager  );
+
+        healthConnectManager = new HealthConnectManager(getApplicationContext());
+        lifecycleCoroutineScope = LifecycleOwnerKt.getLifecycleScope(
+                MainActivity.this); // Get the lifecycle-aware coroutine scope
 
         //support dark mode
         // In Application class or base Activity's onCreate()
@@ -3107,16 +3149,17 @@ public class MainActivity extends BaseActivity{
     private void displayActivityChart(final int stepCount, final boolean animate){
 
         runOnUiThread(() -> {
-
             btnPieChart = findViewById(R.id.step_pie_chart);
             ArrayList<PieEntry> activityArray = new ArrayList();
             activityArray.add(new PieEntry(stepCount, ""));
 
-            if (stepCount > 2000){
+            if (stepCount > 2000){ // Use your actual milestone values
                 //animate waves button
-                if (BtnWaves.getAnimation()==null || BtnWaves.getAnimation().hasStarted()) {
-                    BtnWaves.setAnimation(scaler);
+                if (BtnWaves != null && (BtnWaves.getAnimation()==null || !BtnWaves.getAnimation().hasStarted())) { // Check BtnWaves for null
+                    if (scaler != null) BtnWaves.startAnimation(scaler); // Use startAnimation instead of setAnimation for continuous
                 }
+            } else {
+                if (BtnWaves != null) BtnWaves.clearAnimation(); // Stop animation if not met
             }
 
             if (stepCount < activityMilestoneOne) {
@@ -3132,6 +3175,8 @@ public class MainActivity extends BaseActivity{
                 }
 
                 activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
+            } else {
+                if (BtnPostSteemit != null) BtnPostSteemit.clearAnimation(); // Stop animation if not met
             }
 
             PieDataSet dataSet = new PieDataSet(activityArray, "");
@@ -4729,11 +4774,157 @@ public class MainActivity extends BaseActivity{
         });
     }
 
+    // Remove the BuildersKt.launch wrapper
+    private void checkHealthConnectAvailabilityAndPermissions() {
+        Log.d(TAG,"HC Available"+healthConnectManager.isHealthConnectAvailable());
+        if (!healthConnectManager.isHealthConnectAvailable()) {
+            Log.d(TAG, "Health Connect not available. Prompting user to install/update.");
+
+            int sdkStatus = HealthConnectClient.getSdkStatus(this);
+            String healthConnectPackage = "com.google.android.apps.healthdata";
+            Intent intent;
+
+            Log.d(TAG,"HC sdk status:"+sdkStatus);
+
+            if (sdkStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+                intent = new Intent(Intent.ACTION_VIEW)
+                        .setPackage(healthConnectPackage)
+                        .setData(Uri.parse("market://details?id=" + healthConnectPackage));
+            } else {
+                intent = new Intent(Intent.ACTION_VIEW)
+                        .setData(Uri.parse("market://details?id=" + healthConnectPackage));
+            }
+            installHealthConnectLauncher.launch(intent);
+            useDefaultTrackingMethod();
+            return;
+        }
+        Log.d(TAG,"HC check permissions");
+        healthConnectManager.hasAllPermissions()
+            .exceptionally(throwable -> {
+                Log.e(TAG, "HC Error checking Health Connect permissions", throwable);
+                useDefaultTrackingMethod();
+                return false; // Return a default value to allow the chain to continue
+            })
+            .thenAccept(hasPermissions -> {
+                if (!hasPermissions) {
+                    Log.d(TAG, "HC permissions not granted. Requesting permissions.");
+                    requestPermissionLauncher.launch(healthConnectManager.permissions);
+                } else {
+                    Log.d(TAG, "HC permissions already granted.");
+                    checkPermissionsAndReadData();
+                }
+            });
+
+    }
+
+
+    private void checkPermissionsAndReadData() {
+        Log.d(TAG,"checkpermissions");
+        healthConnectManager.hasAllPermissions().whenComplete((hasPermissions, throwable) -> {
+            if (throwable != null) {
+                Log.e(TAG, "Error re-checking Health Connect permissions", throwable);
+                useDefaultTrackingMethod();
+                return;
+            }
+
+            if (hasPermissions) {
+                ZonedDateTime today = ZonedDateTime.now();
+                healthConnectManager.readStepsData(today).whenComplete((steps, readThrowable) -> {
+                    if (readThrowable != null) {
+                        Log.e(TAG, "Error reading steps from Health Connect", readThrowable);
+                        useDefaultTrackingMethod();
+                        return;
+                    }
+                    Log.d(TAG, "Steps from Health Connect: " + steps);
+                    if (steps != null && steps > 0 && isHealthConnectEnabledInSettings()) {
+                        displayActivityChart(steps.intValue(), true); // Use your existing chart function
+                    } else {
+                        Log.d(TAG, "Health Connect returned 0 steps, or not enabled in settings. Falling back to default.");
+                        useDefaultTrackingMethod();
+                    }
+                });
+            } else {
+                Log.d(TAG, "Health Connect permissions were revoked or not granted after prompt. Falling back.");
+                useDefaultTrackingMethod();
+            }
+        });
+    }
+
+    private void useDefaultTrackingMethod() {
+        Log.d(TAG, "Falling back to default tracking method.");
+
+        // Use a try-catch block to handle potential runtime exceptions.
+        try {
+            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+            // Use a default value for getString to prevent a NullPointerException
+            // if the key does not exist.
+            String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                    getString(R.string.device_tracking_ntt));
+
+            if (dataTrackingSystem == null || dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
+                // Check if the service intent is valid before attempting to start it.
+                if (mServiceIntent == null) {
+                    Log.e(TAG, "mServiceIntent is null. Cannot start default tracking service.");
+                    displayActivityChart(0, false); // Display 0 steps and no animation.
+                    return;
+                }
+
+                if (!isMyServiceRunning(mSensorService.getClass())) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(mServiceIntent);
+                    } else {
+                        startService(mServiceIntent);
+                    }
+                    Log.d(TAG, "Started default tracking service.");
+                } else {
+                    Log.d(TAG, "Default tracking service already running.");
+                }
+
+                // Check if the database helper is valid before attempting to use it.
+                if (mStepsDBHelper != null) {
+                    long defaultStepCount = mStepsDBHelper.fetchTodayStepCount();
+                    displayActivityChart((int) defaultStepCount, true);
+                    Log.d(TAG, "Displayed default steps: " + defaultStepCount);
+                } else {
+                    Log.e(TAG, "mStepsDBHelper is null. Cannot fetch today's step count.");
+                    displayActivityChart(0, false);
+                }
+            } else {
+                Log.d(TAG, "User prefers a non-device tracking system, or no system active for steps display.");
+                displayActivityChart(0, false);
+            }
+        } catch (Exception e) {
+            // Catch any other unexpected exceptions.
+            Log.e(TAG, "An error occurred in useDefaultTrackingMethod: " + e.getMessage(), e);
+            // Fallback UI or a user-facing error message.
+            displayActivityChart(0, false);
+        }
+    }
+
+
+    // --- Helper method to check Health Connect user setting (same as before) ---
+    private boolean isHealthConnectEnabledInSettings() {
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        return sharedPreferences.getBoolean("health_connect_enabled", true);
+    }
+
+
+
     @Override
     protected void onResume() {
         super.onResume();
 
         Log.d(TAG, "[Actifit] - onResume Main");
+
+        /*if (healthConnectManager.isHealthConnectAvailable()) {
+            BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
+                checkHealthConnectAvailabilityAndPermissions();
+                return Unit.INSTANCE;
+            });
+        } else {
+            useDefaultTrackingMethod();
+        }*/
+        //useDefaultTrackingMethod();
 
         new Thread(() -> {
             runOnUiThread(() -> {
@@ -5000,6 +5191,13 @@ public class MainActivity extends BaseActivity{
 
             //Log.d(TAG,"actifitUserID:"+actifitUserID);
 
+
+
+            // Initial check for Health Connect availability and permissions
+            BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
+                checkHealthConnectAvailabilityAndPermissions();
+                return Unit.INSTANCE;
+            });
 
             //only start the tracking service if the device sensors is picked as tracking medium
             dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",

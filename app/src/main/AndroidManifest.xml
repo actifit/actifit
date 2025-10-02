@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.actifit.fitnesstracker.actifitfitnesstracker">
+    package="io.actifit.fitnesstracker.actifitfitnesstracker"
+    xmlns:tools="http://schemas.android.com/tools">
     <!--xmlns:tools="http://schemas.android.com/tools"-->
+
+
+    <!-- Permissions for Health Connect -->
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+    <uses-permission android:name="android.permission.health.WRITE_STEPS" />
+    <!-- Add other relevant permissions as needed (e.g., WRITE_STEPS if you plan to write data) -->
+
+    <!-- If targeting API 34 and above -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
+
 
     <!-- required by android 13 / post notifications permission  -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -44,6 +59,19 @@
     android:requestLegacyExternalStorage="true"
     android:usesCleartextTraffic="true"
     >
+
+        <!-- Health Connect Provider for Android 13 (API 33) and below -->
+        <!-- Required to launch Health Connect app when it's not pre-installed system app -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.health.connect.client.HealthConnectClient"
+                android:value="androidx.startup" />
+        </provider>
+
     <!-- request legacy is temporary measure for supporting current image upload/save
         till moving to new android 11 -->
 
