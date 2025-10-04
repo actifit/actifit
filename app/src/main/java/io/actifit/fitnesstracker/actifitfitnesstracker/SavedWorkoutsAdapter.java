@@ -3,28 +3,30 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton; // NEW: Import ImageButton
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.SimpleDateFormat; // For formatting timestamp
-import java.util.Date; // For Date object
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-import java.util.Locale; // For Locale
+import java.util.Locale;
 
 // Your adapter class extends RecyclerView.Adapter<YourViewHolder>
 public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdapter.WorkoutViewHolder> {
 
     private List<WorkoutPlan> workoutList;
-    private OnWorkoutSelectedListener listener; // Interface for click handling
+    private OnWorkoutActionListener listener; // CHANGED: Now uses the new combined interface
 
-    // Interface for click listener - Define what happens when an item is clicked
-    public interface OnWorkoutSelectedListener {
-        void onWorkoutSelected(WorkoutPlan workout); // Pass the clicked WorkoutPlan object
+    // CHANGED: Interface for click listener - Define what happens when an item or its delete button is clicked
+    public interface OnWorkoutActionListener {
+        void onWorkoutClick(WorkoutPlan workout); // Replaces onWorkoutSelected
+        void onDeleteWorkout(WorkoutPlan workout); // NEW: For delete button clicks
     }
 
     // Constructor to provide the data list and the click listener
-    public SavedWorkoutsAdapter(List<WorkoutPlan> workoutList, OnWorkoutSelectedListener listener) {
+    public SavedWorkoutsAdapter(List<WorkoutPlan> workoutList, OnWorkoutActionListener listener) { // CHANGED listener type
         this.workoutList = workoutList;
         this.listener = listener;
     }
@@ -34,6 +36,20 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
         this.workoutList = newWorkouts;
         notifyDataSetChanged(); // Tell the RecyclerView to refresh the list display
     }
+
+    // NEW: Method to remove a specific item from the list
+    public void removeWorkout(WorkoutPlan workout) {
+        int position = workoutList.indexOf(workout);
+        if (position != -1) { // Ensure the workout exists in the list
+            workoutList.remove(position);
+            notifyItemRemoved(position); // Notify adapter that an item has been removed
+            // Optionally, if the list becomes empty, notify a range change or trigger a full refresh
+            if (workoutList.isEmpty()) {
+                notifyDataSetChanged(); // For edge case where list becomes empty
+            }
+        }
+    }
+
 
     // Create new views (invoked by the layout manager)
     @NonNull
@@ -50,15 +66,13 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
     public void onBindViewHolder(@NonNull WorkoutViewHolder holder, int position) {
         WorkoutPlan workout = workoutList.get(position);
         holder.workoutNameTextView.setText(workout.getWorkoutName());
-        // Optional: Display description
-        //holder.workoutDescriptionTextView.setText(workout.getDescription());
-
 
         // --- Update Timestamp Formatting ---
         Date timestampDate = workout.getTimestamp(); // <-- Get the Date object
 
         if (timestampDate != null) {
             // Format the Date object
+            // Ensure this format matches what you want to display, e.g., "MMM dd, yyyy HH:mm" for a more common display
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             String formattedDate = sdf.format(timestampDate); // <-- Format the Date
             holder.workoutTimestampTextView.setText("Saved: " + formattedDate); // Or just the date
@@ -69,10 +83,17 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
         holder.workoutExercisesTextView.setText(workout.getExercises().size()+" Exercises");
 
 
-        // Set click listener
+        // Set click listener for the entire item view (existing functionality, updated to new listener method)
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onWorkoutSelected(workout);
+                listener.onWorkoutClick(workout); // CHANGED: Calls onWorkoutClick
+            }
+        });
+
+        // NEW: Set click listener for the delete button
+        holder.deleteWorkoutButton.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDeleteWorkout(workout); // Calls the new onDeleteWorkout method
             }
         });
     }
@@ -89,6 +110,7 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
         TextView workoutNameTextView;
         TextView workoutTimestampTextView;
         TextView workoutExercisesTextView;
+        ImageButton deleteWorkoutButton; // NEW: Reference for the delete button
 
         WorkoutViewHolder(View itemView) {
             super(itemView);
@@ -96,6 +118,7 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
             workoutNameTextView = itemView.findViewById(R.id.workoutNameTextView);
             workoutTimestampTextView = itemView.findViewById(R.id.workoutTimestampTextView);
             workoutExercisesTextView = itemView.findViewById(R.id.workoutExerciseCountTextView);
+            deleteWorkoutButton = itemView.findViewById(R.id.deleteWorkoutButton); // NEW: Initialize the delete button
         }
     }
 }
