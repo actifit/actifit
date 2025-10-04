@@ -10,11 +10,14 @@
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
-    <!-- Add other relevant permissions as needed (e.g., WRITE_STEPS if you plan to write data) -->
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA" />
+    <uses-permission android:name="android.permission.health.WRITE_HEALTH_DATA" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
 
     <!-- If targeting API 34 and above -->
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
+        <package android:name="com.google.android.apps.healthconnect" />
     </queries>
 
 
