@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -44,6 +45,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.text.TextUtils;
@@ -83,6 +85,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.PermissionController;
+import androidx.health.connect.client.permission.HealthPermission;
 import androidx.lifecycle.LifecycleOwnerKt;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
@@ -157,6 +160,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -168,12 +172,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import kotlin.Unit;
+import kotlin.jvm.JvmClassMappingKt;
+import kotlin.jvm.internal.ClassReference;
 import kotlinx.coroutines.BuildersKt;
 import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.CoroutineStart;
 import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.Job;
 
-
+import androidx.health.connect.client.records.HeartRateRecord;
+import androidx.health.connect.client.records.StepsRecord;
 
 /**
  * Implementation of this project was made possible via re-use, adoption and improvement of
@@ -355,7 +363,51 @@ public class MainActivity extends BaseActivity{
     private HealthConnectManager healthConnectManager;
     private CoroutineScope lifecycleCoroutineScope; // Used to launch coroutines within lifecycle
 
+    private final ActivityResultLauncher<Intent> healthConnectPlayStoreLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                Log.d(TAG, "Returned from Play Store or Health Connect general settings. Result code: " + result.getResultCode());
+                checkHealthConnectStatusAndPermissions();
+            });
 
+
+    private final ActivityResultLauncher<Intent> healthConnectActivityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                // After returning from Play Store or Health Connect settings, re-check everything
+                Log.d(TAG, "Returned from Health Connect related activity. Result code: " + result.getResultCode());
+                checkHealthConnectStatusAndPermissions();
+            });
+
+
+    private void showPermissionDeniedRationale() {
+        Log.w(TAG, "Health Connect permissions were denied, or direct request failed. Guiding user to settings.");
+        runOnUiThread(() -> {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Health Connect Permissions Needed")
+                    .setMessage("To use all features, please enable Health Connect permissions in your device settings. Tap 'Go to Settings' to manually grant access.")
+                    .setPositiveButton("Go to Settings", (dialog, which) -> {
+                        //TODO: this is NOT working properly leading to else case always being called --> healthConnectManager.installHealthConnect();
+                        Intent healthSettingsIntent = new Intent("androidx.health.connect.client.action.HEALTH_SETTINGS");
+
+                        // Check if the intent can be resolved before launching
+                        PackageManager packageManager = getPackageManager();
+                        if (healthSettingsIntent.resolveActivity(packageManager) != null) {
+                            Log.d(TAG, "HC Resolved intent for Health Connect settings. Launching Health Connect settings intent.");
+                            healthConnectPlayStoreLauncher.launch(healthSettingsIntent);
+                        } else {
+                            // Fallback: If settings intent cannot be resolved, assume Health Connect might not be properly installed
+                            // or the device is in a bad state. Guide to Play Store.
+                            Log.e(TAG, "HC Health Connect settings intent could not be resolved. Guiding user to Play Store.");
+                            Toast.makeText(MainActivity.this, "Health Connect app not found or not working. Please install/update.", Toast.LENGTH_LONG).show();
+                            //showInstallHealthConnectRationale(); // Reuse existing logic to go to Play Store
+                            healthConnectManager.installHealthConnect();
+                        }
+                    })
+                    .setNegativeButton("Not Now", (dialog, which) -> {
+                        Toast.makeText(MainActivity.this, "Health Connect features limited.", Toast.LENGTH_SHORT).show();
+                    })
+                    .show();
+        });
+    }
     // This launcher is for requesting Health Connect permissions (takes a Set<String>)
     private final ActivityResultLauncher<Set<String>> requestPermissionLauncher =
             registerForActivityResult(PermissionController.createRequestPermissionResultContract(), grantedPermissions -> {
@@ -364,7 +416,11 @@ public class MainActivity extends BaseActivity{
                     checkPermissionsAndReadData(); // Proceed with data access logic
                 } else {
                     Log.d(TAG, "Health Connect permissions NOT granted.");
-                    Toast.makeText(this, "Health Connect permissions denied. Falling back to default tracking.", Toast.LENGTH_LONG).show();
+                    //showPermissionDeniedRationale();
+//                    Intent permissionRequestIntent = healthConnectManager.getHealthConnectClient().createRequestPermissionIntent(healthConnectPermissions);
+//                    healthConnectActivityResultLauncher.launch(permissionRequestIntent);
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Health Connect permissions NOT granted.", Toast.LENGTH_LONG).show());
+                    showPermissionDeniedRationale();
                     useDefaultTrackingMethod();
                 }
             });
@@ -826,6 +882,17 @@ public class MainActivity extends BaseActivity{
         healthConnectManager = new HealthConnectManager(getApplicationContext());
         lifecycleCoroutineScope = LifecycleOwnerKt.getLifecycleScope(
                 MainActivity.this); // Get the lifecycle-aware coroutine scope
+
+        Button checkStatusButton = findViewById(R.id.checkHealthConnectStatusButton); // Assuming button ID
+        Button readDataButton = findViewById(R.id.readHealthConnectDataButton);       // Assuming button ID
+
+        if (checkStatusButton != null) {
+            checkStatusButton.setOnClickListener(v -> checkHealthConnectStatusAndPermissions());
+        }
+        if (readDataButton != null) {
+            ZonedDateTime today = ZonedDateTime.now();
+            readDataButton.setOnClickListener(v -> healthConnectManager.readStepsData(today));// readHealthConnectData());
+        }
 
         //support dark mode
         // In Application class or base Activity's onCreate()
@@ -4772,6 +4839,87 @@ public class MainActivity extends BaseActivity{
             }
 
         });
+    }
+    /*
+    private void checkAndRequestPermissions() {
+        // Again, using lifecycleScope for coroutine execution
+        Job job = BuildersKt.launch(
+                LifecycleOwnerKt.getLifecycleScope(this),
+                Dispatchers.getMain(),
+                null,
+                (scope, continuation) -> {
+                    try {
+                        Set<String> grantedPermissions = healthConnectClient.getGrantedPermissions(healthConnectPermissions, continuation);
+
+                        // Check if all required permissions are granted
+                        if (grantedPermissions.containsAll(healthConnectPermissions)) {
+                            Log.d(TAG, "All Health Connect permissions are granted.");
+                            // Proceed with reading/writing data
+                            // readHealthConnectData(); // You can call your data access logic here
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "Health Connect Permissions Granted!", Toast.LENGTH_SHORT).show());
+                        } else {
+                            Log.d(TAG, "Not all Health Connect permissions are granted. Requesting them.");
+                            // Launch the Health Connect permission request screen
+                            Intent permissionRequestIntent = PermissionController.createRequestPermissionIntent(healthConnectPermissions);
+                            healthConnectActivityResultLauncher.launch(permissionRequestIntent);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error checking/requesting Health Connect permissions: " + e.getMessage(), e);
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error with permissions: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                    }
+                    return Unit.INSTANCE;
+                }
+        );
+    }*/
+
+    private void checkHealthConnectStatusAndPermissions() {
+        // Using lifecycleScope for coroutine execution, similar to Kotlin's lifecycleScope.launch
+        // This ensures the coroutine is tied to the activity's lifecycle
+        Job job = BuildersKt.launch(
+                LifecycleOwnerKt.getLifecycleScope(this),
+                Dispatchers.getMain(), // Execute on Main thread
+                CoroutineStart.DEFAULT, // CoroutineStart.DEFAULT
+                (scope, continuation) -> {
+                    try {
+                        int sdkStatus = HealthConnectClient.getSdkStatus(MainActivity.this);
+                        if (sdkStatus == HealthConnectClient.SDK_UNAVAILABLE) {
+                            Log.w(TAG, "Health Connect SDK is unavailable. Needs to be installed.");
+                            showInstallHealthConnectRationale();
+                        } else if (sdkStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+                            Log.w(TAG, "Health Connect SDK requires an update.");
+                            showUpdateHealthConnectRationale();
+                        } else if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
+                            Log.d(TAG, "Health Connect SDK is available.");
+                            checkHealthConnectAvailabilityAndPermissions();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error checking Health Connect SDK status: " + e.getMessage(), e);
+                        // Handle potential exceptions during status check
+                    }
+                    return Unit.INSTANCE; // Return Unit for Kotlin coroutines
+                }
+        );
+    }
+
+    // 3. Helper to show rationale and launch Play Store for installation
+    private void showInstallHealthConnectRationale() {
+        // Here you would typically show a UI element (dialog, banner) explaining why Health Connect is needed
+        // and offer a button to go to the Play Store. For this example, we directly launch the intent.
+        Log.d(TAG, "Directing user to install Health Connect from Play Store.");
+        Intent installIntent = new Intent(Intent.ACTION_VIEW);
+        installIntent.setData(Uri.parse("market://details?id=com.google.android.apps.healthconnect"));
+        installIntent.setPackage("com.android.vending"); // Ensures it opens in the Play Store app
+        healthConnectActivityResultLauncher.launch(installIntent);
+    }
+
+    // 4. Helper to show rationale and launch Play Store for update
+    private void showUpdateHealthConnectRationale() {
+        // Similar to installation, but informs the user about an update.
+        Log.d(TAG, "Directing user to update Health Connect from Play Store.");
+        Intent updateIntent = new Intent(Intent.ACTION_VIEW);
+        updateIntent.setData(Uri.parse("market://details?id=com.google.android.apps.healthconnect"));
+        updateIntent.setPackage("com.android.vending");
+        healthConnectActivityResultLauncher.launch(updateIntent);
     }
 
     // Remove the BuildersKt.launch wrapper

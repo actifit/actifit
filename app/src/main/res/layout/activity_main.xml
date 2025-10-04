@@ -771,7 +771,25 @@
                             android:visibility="gone"/>
 
                     </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <Button
+                            android:id="@+id/checkHealthConnectStatusButton"
 
+                            android:layout_height="wrap_content"
+                            android:text="Check Health Connect"
+                            android:layout_width="148dp"
+                            android:layout_marginBottom="16dp"/>
+
+                        <Button
+                            android:id="@+id/readHealthConnectDataButton"
+
+                            android:layout_height="wrap_content"
+                            android:layout_width="148dp"
+                            android:text="Read Health Connect" />
+
+                    </LinearLayout>
                     <LinearLayout
                         android:id="@+id/chart_switcher"
                         android:layout_width="match_parent"
