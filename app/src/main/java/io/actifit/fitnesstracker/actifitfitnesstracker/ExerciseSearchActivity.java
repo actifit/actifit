@@ -1,14 +1,17 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils; // Import TextUtils
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -37,6 +40,10 @@ public class ExerciseSearchActivity extends BaseActivity
     private ProgressBar loadingProgressBar;
     private TextView noResultsTextView;
 
+    private LinearLayout filterOptionsHeader;
+    private LinearLayout filterContentLayout;
+    private TextView filterExpandIconTextView;
+
     // Data
     private List<Exercise> allExercises;
     private List<Exercise> filteredExercises;
@@ -50,6 +57,10 @@ public class ExerciseSearchActivity extends BaseActivity
         initUI();
         loadExercises();
         setupListeners();
+
+        filterContentLayout.setVisibility(View.GONE);
+        filterExpandIconTextView.setText(R.string.fa_chevron_right); // Set initial icon
+        filterExpandIconTextView.setRotation(0); // Ensure initial rotation is 0 for right arrow
     }
 
     private void initUI() {
@@ -62,6 +73,10 @@ public class ExerciseSearchActivity extends BaseActivity
         exercisesRecyclerView = findViewById(R.id.exercisesRecyclerView);
         loadingProgressBar = findViewById(R.id.loadingProgressBar);
         noResultsTextView = findViewById(R.id.noResultsTextView);
+
+        filterOptionsHeader = findViewById(R.id.filterOptionsHeader);
+        filterContentLayout = findViewById(R.id.filterContentLayout);
+        filterExpandIconTextView = findViewById(R.id.filterExpandIconTextView);
 
         exercisesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ExerciseSearchAdapter(this, new ArrayList<>(), this);
@@ -167,6 +182,9 @@ public class ExerciseSearchActivity extends BaseActivity
         levelSpinner.setOnItemSelectedListener(spinnerListener);
         categorySpinner.setOnItemSelectedListener(spinnerListener);
         primaryMuscleSpinner.setOnItemSelectedListener(spinnerListener);
+
+        filterOptionsHeader.setOnClickListener(v -> toggleAccordion(filterContentLayout, filterExpandIconTextView));
+
     }
 
     private void filterExercises() {
@@ -230,10 +248,31 @@ public class ExerciseSearchActivity extends BaseActivity
 
     @Override
     public void onExerciseClick(Exercise exercise) {
-        Toast.makeText(this, getString(R.string.exercise_clicked_toast, exercise.getName()), Toast.LENGTH_SHORT).show();
-        // Here you would typically start a new activity to show full exercise details
-        // Intent intent = new Intent(this, ExerciseDetailActivity.class);
-        // intent.putExtra("exerciseId", exercise.getId());
-        // startActivity(intent);
+        // CHANGED: Launch ExerciseDetailActivity and pass the Exercise object
+        Intent intent = new Intent(this, ExerciseDetailActivity.class);
+        intent.putExtra("exercise", exercise); // Pass the entire Exercise object
+        startActivity(intent);
+    }
+
+    private void toggleAccordion(View contentLayout, TextView expandIcon) {
+        if (contentLayout.getVisibility() == View.VISIBLE) {
+            contentLayout.setVisibility(View.GONE);
+            rotateIcon(expandIcon, 90, 0); // Rotate up (from down to right)
+            expandIcon.setText(R.string.fa_chevron_right); // Change icon to right arrow
+        } else {
+            contentLayout.setVisibility(View.VISIBLE);
+            rotateIcon(expandIcon, 0, 90); // Rotate down (from right to down)
+            expandIcon.setText(R.string.fa_chevron_down); // Change icon to down arrow
+        }
+    }
+
+    // NEW: Icon rotation logic
+    private void rotateIcon(TextView icon, float fromDegrees, float toDegrees) {
+        RotateAnimation rotate = new RotateAnimation(fromDegrees, toDegrees,
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f,
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+        rotate.setDuration(300);
+        rotate.setFillAfter(true);
+        icon.startAnimation(rotate);
     }
 }

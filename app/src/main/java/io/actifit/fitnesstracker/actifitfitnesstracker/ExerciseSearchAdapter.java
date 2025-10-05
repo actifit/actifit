@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide; // Assuming Glide is used for image loading
 
 import java.util.List;
 import java.util.Locale;
+import android.content.Intent;
 
 public class ExerciseSearchAdapter extends RecyclerView.Adapter<ExerciseSearchAdapter.ExerciseViewHolder> {
 
@@ -80,10 +81,20 @@ public class ExerciseSearchAdapter extends RecyclerView.Adapter<ExerciseSearchAd
 
 
             // Load image using Glide
-            if (exercise.getImages() != null && !exercise.getImages().isEmpty()) {
+            /*if (exercise.getImages() != null && !exercise.getImages().isEmpty()) {
                 String imageFileName = exercise.getImages().get(0);
                 // Assuming exercise images are in 'assets/exercise_images/'
                 String imageUrl = "file:///android_asset/exercise_images/" + imageFileName;
+                Glide.with(itemView.getContext())
+                        .load(Uri.parse(imageUrl))
+                        .placeholder(R.drawable.ic_placeholder_exercise)
+                        .error(R.drawable.ic_placeholder_exercise)
+                        .into(exerciseImageView);
+            } else {
+                exerciseImageView.setImageResource(R.drawable.ic_placeholder_exercise);
+            }*/
+            String imageUrl = exercise.getStartPositionImageUrl();
+            if (imageUrl != null && !imageUrl.isEmpty()) {
                 Glide.with(itemView.getContext())
                         .load(Uri.parse(imageUrl))
                         .placeholder(R.drawable.ic_placeholder_exercise)

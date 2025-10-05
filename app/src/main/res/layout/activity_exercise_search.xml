@@ -32,30 +32,68 @@
         android:textColorHint="?android:attr/textColorHint"/>
 
     <!-- Filter Spinners -->
-    <ScrollView
+    <LinearLayout
+        android:id="@+id/filterOptionsHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:scrollbarStyle="outsideOverlay"
-        android:scrollbars="vertical"
-        android:nestedScrollingEnabled="false">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="12dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginBottom="8dp">
 
-            <TextView
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/filter_options_title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="?android:attr/textColorPrimary"/>
+
+        <TextView
+            android:id="@+id/filterExpandIconTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:text="\uf054"
+            android:textSize="18sp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:contentDescription="@string/expand_icon_alt"
+            android:rotation="0" />
+
+    </LinearLayout>
+
+    <!-- NEW: Container for Filter Spinners (Initially hidden) -->
+    <LinearLayout
+        android:id="@+id/filterContentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="12dp">
+
+
+    <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/filter_by_body_part"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:textColor="?android:attr/textColorSecondary"/>
+                android:textColor="?android:attr/textColorSecondary"
+                android:visibility="gone"
+                />
             <Spinner
                 android:id="@+id/bodyPartSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"
+                />
+
 
             <TextView
                 android:layout_width="wrap_content"
@@ -109,7 +147,7 @@
                 android:minHeight="48dp"
                 android:layout_marginBottom="8dp"/>
         </LinearLayout>
-    </ScrollView>
+
 
 
     <ProgressBar
