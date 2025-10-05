@@ -76,6 +76,7 @@ public class WorkoutWizardActivity extends BaseActivity
     private static final String TAG = "WorkoutWizardActivity";
     private SharedPreferences sharedPreferences;
     private static final String KEY_HAS_PAID = "hasPaidForGeneration";
+    private TextView browseExercisesIconTextView;
 
 
     @Override
@@ -110,6 +111,8 @@ public class WorkoutWizardActivity extends BaseActivity
         generateWorkoutContent = findViewById(R.id.generateWorkoutContent);
         generateWorkoutExpandIconTextView = findViewById(R.id.generateWorkoutExpandIconTextView);
         retryFetchWorkoutsButton = findViewById(R.id.retryFetchWorkoutsButton);
+
+        browseExercisesIconTextView = findViewById(R.id.browseExercisesIconTextView);
 
         sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
         hasPaidForGeneration = sharedPreferences.getBoolean(KEY_HAS_PAID, false);
@@ -162,9 +165,8 @@ public class WorkoutWizardActivity extends BaseActivity
             }
         });
 
-        Button navigateToExerciseSearchButton = findViewById(R.id.navigate_to_exercise_search_button);
-        if (navigateToExerciseSearchButton != null) {
-            navigateToExerciseSearchButton.setOnClickListener(v -> {
+        if (browseExercisesIconTextView != null) {
+            browseExercisesIconTextView.setOnClickListener(v -> {
                 Intent intent = new Intent(WorkoutWizardActivity.this, ExerciseSearchActivity.class);
                 startActivity(intent);
             });
