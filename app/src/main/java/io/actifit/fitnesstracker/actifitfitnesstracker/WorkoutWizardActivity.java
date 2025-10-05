@@ -4,6 +4,7 @@ import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.usern
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -160,6 +161,14 @@ public class WorkoutWizardActivity extends BaseActivity
                 grabBalanceAndProceed(workoutName);
             }
         });
+
+        Button navigateToExerciseSearchButton = findViewById(R.id.navigate_to_exercise_search_button);
+        if (navigateToExerciseSearchButton != null) {
+            navigateToExerciseSearchButton.setOnClickListener(v -> {
+                Intent intent = new Intent(WorkoutWizardActivity.this, ExerciseSearchActivity.class);
+                startActivity(intent);
+            });
+        }
 
         setDefaultDailyFrequency();
         fetchAndDisplayUserWorkouts();

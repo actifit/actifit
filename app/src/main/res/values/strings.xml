@@ -557,5 +557,18 @@
     <string name="workout_plan_overview">Workout Plan Overview</string>
     <string name="exercises">Exercises</string>
     <string name="regenerate_workout_free">REGENERATE WORKOUT (FREE)</string>
-
+    <string name="exercise_search_title">Search Exercises</string>
+    <string name="search_hint">Search by exercise name...</string>
+    <string name="filter_by_body_part">Body Part:</string>
+    <string name="filter_by_equipment">Equipment:</string>
+    <string name="filter_by_level">Level:</string>
+    <string name="filter_by_category">Category:</string>
+    <string name="filter_by_primary_muscle">Primary Muscle:</string>
+    <string name="filter_none">All</string>
+    <string name="no_exercises_found">No exercises found matching your criteria.</string>
+    <string name="loading_exercises">Loading exercises...</string>
+    <string name="exercise_clicked_toast">Clicked: %1$s</string>
+    <string name="error_loading_exercises">Error loading exercises: %1$s</string>
+    <string name="exercise_image_description">Image of the exercise</string>
+    <string name="navigate_to_exercise_search">Browse All Exercises</string>
 </resources>

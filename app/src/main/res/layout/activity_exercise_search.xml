@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?android:colorBackground"
+    tools:context=".ExerciseSearchActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/exercise_search_title"
+        android:textColor="@color/actifitRed"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Search EditText -->
+    <EditText
+        android:id="@+id/searchEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_hint"
+        android:inputType="textCapWords"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"
+        android:layout_marginBottom="12dp"
+        android:minHeight="48dp"
+        android:background="?android:attr/editTextBackground"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textColorHint="?android:attr/textColorHint"/>
+
+    <!-- Filter Spinners -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
+        android:nestedScrollingEnabled="false">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_by_body_part"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textColor="?android:attr/textColorSecondary"/>
+            <Spinner
+                android:id="@+id/bodyPartSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_by_equipment"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textColor="?android:attr/textColorSecondary"/>
+            <Spinner
+                android:id="@+id/equipmentSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_by_level"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textColor="?android:attr/textColorSecondary"/>
+            <Spinner
+                android:id="@+id/levelSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_by_category"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textColor="?android:attr/textColorSecondary"/>
+            <Spinner
+                android:id="@+id/categorySpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_by_primary_muscle"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textColor="?android:attr/textColorSecondary"/>
+            <Spinner
+                android:id="@+id/primaryMuscleSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginBottom="8dp"/>
+        </LinearLayout>
+    </ScrollView>
+
+
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/noResultsTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_exercises_found"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="?android:attr/textColorSecondary"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/exercisesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:nestedScrollingEnabled="false"
+        tools:listitem="@layout/exercise_list_item_search" />
+
+</LinearLayout>

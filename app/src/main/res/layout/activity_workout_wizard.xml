@@ -34,6 +34,17 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:layout_marginBottom="16dp"/>
 
+        <Button
+            android:id="@+id/navigate_to_exercise_search_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/navigate_to_exercise_search"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/actifitRed"
+            android:textColor="@android:color/white"
+            style="@style/Widget.AppCompat.Button.Colored"/>
+
+
         <!-- === Accordion Section: Saved Workouts === -->
         <!-- Header for Saved Workouts -->
         <LinearLayout
@@ -329,6 +340,7 @@
                 android:layout_marginTop="16dp"
                 android:visibility="gone"
                 style="?android:attr/progressBarStyle"/>
+
 
         </LinearLayout>
 
