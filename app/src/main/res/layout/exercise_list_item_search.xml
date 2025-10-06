@@ -15,6 +15,15 @@
         android:padding="12dp"
         android:gravity="center_vertical">
 
+
+        <CheckBox
+            android:id="@+id/exerciseSelectCheckbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+
+            />
+
         <ImageView
             android:id="@+id/exerciseImageView"
             android:layout_width="72dp"

@@ -579,4 +579,19 @@
     <string name="fa_chevron_down">\uf078</string>
     <string name="fa_chevron_right">\uf054</string>
     <string name="browse_exercises_icon_description">Browse all exercises</string>
+    <string name="action_save_workout">Save Workout</string>
+    <string name="fa_save_disk">\uf0c7</string>
+    <string name="dialog_new_workout_title">Save New Workout Plan</string>
+    <string name="hint_workout_title">Workout Title</string>
+    <string name="hint_workout_description">Description (Optional)</string>
+    <string name="label_selected_exercises">Selected Exercises:</string>
+    <string name="button_save">Save</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="toast_enter_workout_title">Please enter a workout title.</string>
+    <string name="toast_workout_save_success">Workout \"%1$s\" saved successfully!</string>
+    <string name="toast_workout_save_failure">Failed to save workout: %1$s</string>
+    <string name="workout_save_in_progress">Saving workout...</string>
+    <string name="result_workout_saved_refresh_key">REFRESH_WORKOUTS</string>
+    <string name="no_exercises_selected">No exercises selected.</string>
+    <string name="selected_exercises_count">%1$d selected</string>
 </resources>
