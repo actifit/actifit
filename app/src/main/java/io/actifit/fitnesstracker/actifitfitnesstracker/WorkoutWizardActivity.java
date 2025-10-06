@@ -20,6 +20,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -69,6 +71,9 @@ public class WorkoutWizardActivity extends BaseActivity
     private TextView generateWorkoutExpandIconTextView;
     private ProgressBar mainLoadingProgressBar;
 
+    private ActivityResultLauncher<Intent> exerciseSearchLauncher;
+
+
     // --- State and Data Variables ---
     private AiService aiService;
     private boolean hasPaidForGeneration = false;
@@ -83,6 +88,20 @@ public class WorkoutWizardActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout_wizard);
+
+        exerciseSearchLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        // Check if the result indicates a workout was saved and refresh is needed
+                        boolean refreshWorkouts = result.getData().getBooleanExtra(
+                                getString(R.string.result_workout_saved_refresh_key), false);
+                        if (refreshWorkouts) {
+                            Log.d(TAG, "Refreshing workouts after saving from ExerciseSearchActivity.");
+                            fetchAndDisplayUserWorkouts(true);
+                        }
+                    }
+                });
 
         // --- Find all views ---
         progressBar = findViewById(R.id.progressBar);

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_new_workout_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textColor="?android:attr/textColorPrimary"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal"/>
+
+    <EditText
+        android:id="@+id/dialogWorkoutTitleEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_workout_title"
+        android:inputType="textCapWords"
+        android:minHeight="48dp"
+        android:layout_marginBottom="12dp"
+        android:background="?android:attr/editTextBackground"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textColorHint="?android:attr/textColorHint"/>
+
+    <EditText
+        android:id="@+id/dialogWorkoutDescriptionEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_workout_description"
+        android:inputType="textMultiLine"
+        android:minLines="3"
+        android:maxLines="5"
+        android:gravity="top|start"
+        android:layout_marginBottom="12dp"
+        android:background="?android:attr/editTextBackground"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textColorHint="?android:attr/textColorHint"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_selected_exercises"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="?android:attr/textColorPrimary"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/dialogSelectedExercisesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="5"
+        android:scrollbars="vertical"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_marginBottom="24dp"
+        tools:text="• Push-Up\n• Squat\n• Plank\n• Lunges"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/dialogCancelButton"
+            style="?attr/buttonBarNegativeButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_cancel"
+            android:textColor="?attr/colorPrimary"/>
+
+        <Button
+            android:id="@+id/dialogSaveButton"
+            style="?attr/buttonBarPositiveButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_save"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/actifitRed"
+            android:background="@drawable/dialog_button_background_red"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+</LinearLayout>
