@@ -601,4 +601,26 @@
     <string name="toast_workout_deleted_success">Workout "%1$s" deleted successfully.</string>
     <string name="toast_workout_deleted_failure">Failed to delete workout: %1$s</string>
     <string name="workout_delete_in_progress">Deleting workout...</string>
+
+    <string name="edit_workout_button_description">Edit Workout</string>
+    <string name="fa_pen_to_square">\uf044</string> <!-- Font Awesome edit icon -->
+
+    <string name="edit_workout_title">Edit Workout Plan</string>
+    <string name="edit_workout_name_hint">Workout Name</string>
+    <string name="edit_workout_description_hint">Description</string>
+    <string name="edit_workout_explanation_hint">Explanation</string>
+    <string name="current_exercises">Current Exercises</string>
+    <string name="add_exercises">Add Exercises</string>
+    <string name="no_exercises_in_workout">No exercises in this workout.</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="toast_workout_updated_success">Workout \"%1$s\" updated successfully!</string>
+    <string name="toast_workout_updated_failure">Failed to update workout: %1$s</string>
+    <string name="workout_update_in_progress">Updating workout...</string>
+    <string name="confirm_remove_exercise_title">Remove Exercise?</string>
+    <string name="confirm_remove_exercise_message">Are you sure you want to remove \"%1$s\" from this workout?</string>
+    <string name="dialog_button_remove">Remove</string>
+    <string name="selected_exercises_done">Done (%1$d)</string>
+    <string name="no_exercises_selected_for_add">No exercises selected. Returning to edit workout.</string>
+    <string name="exercise_removed_toast">Exercise removed.</string>
+    <string name="exercise_added_toast">Exercise added.</string>
 </resources>
