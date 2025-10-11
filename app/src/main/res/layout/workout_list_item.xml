@@ -50,6 +50,17 @@
 
         </LinearLayout>
 
+        <ImageButton
+            android:id="@+id/editWorkoutButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_edit_black_24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/edit_workout_button_description"
+            android:padding="8dp"
+            tools:ignore="SpeakableTextPresentCheck" />
+
         <!-- Right side for delete button -->
         <ImageButton
             android:id="@+id/deleteWorkoutButton"
