@@ -572,6 +572,7 @@
     <string name="exercise_image_description">Image of the exercise</string>
     <string name="navigate_to_exercise_search">Browse All Exercises</string>
     <string name="fa_book_open">\uf518</string> <!-- Book icon, implies browsing a library -->
+    <string name="fa_search">\uf002</string>
     <string name="filter_options_title">Filter Exercises</string>
     <string name="expand_icon_alt">Expand/Collapse Filter Options</string>
     <!-- Make sure you have font_awesome_6_solid.ttf in your assets/fonts folder for these icons to display correctly -->
