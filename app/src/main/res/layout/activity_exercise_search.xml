@@ -7,7 +7,17 @@
     android:background="?android:colorBackground"
     tools:context=".ExerciseSearchActivity">
 
-    <!-- Wrap your existing content in a LinearLayout if it's not already -->
+    <ScrollView
+        android:id="@+id/exercise_search_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbarStyle="insideInset"
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_menu_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
     <LinearLayout
         android:id="@+id/main_content_layout"
         android:layout_width="match_parent"
@@ -187,6 +197,8 @@
 
     </LinearLayout>
 
+    </ScrollView>
+
     <Button
         android:id="@+id/saveWorkoutFab"
         android:layout_width="wrap_content"
@@ -208,5 +220,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />
+
+    <include
+        android:id="@+id/bottom_menu_container"
+        layout="@layout/footer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
