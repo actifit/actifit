@@ -9,6 +9,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson; // Requires Gson dependency
@@ -45,6 +46,11 @@ public class WorkoutApiClient {
 
     public interface SaveWorkoutCallback {
         void onSuccess();
+        void onFailure(String errorMessage);
+    }
+
+    public interface DeleteWorkoutCallback {
+        void onSuccess(String workoutId);
         void onFailure(String errorMessage);
     }
 
@@ -305,6 +311,95 @@ public class WorkoutApiClient {
 
         fetchRequest.setTag(TAG); // Use the class TAG
         getRequestQueue(context).add(fetchRequest);
+    }
+
+    /**
+     * Sends a DELETE request to remove a specific workout plan.
+     *
+     * @param context      Application context (or Activity context)
+     * @param jwtToken     The JWT token for authentication.
+     * @param workoutId    The ID of the workout to delete.
+     * @param userId       The ID of the authenticated user. (NEW: Added this parameter)
+     * @param callback     Listener for success or failure.
+     */
+    public static void deleteWorkoutPlan(final Context context, String jwtToken,
+                                         String workoutId, String userId, // MODIFIED: Added userId parameter
+                                         DeleteWorkoutCallback callback) {
+
+        // The Node.js API uses /workouts/:workoutId for DELETE
+        // MODIFIED: Append "?user=" + userId to the URL
+        String url = (context.getString(R.string.test_mode).equals("on")?
+                context.getString(R.string.test_server):Utils.apiUrl(context))
+                + API_WORKOUTS_ENDPOINT + workoutId
+                + "?user=" + userId; // NEW: Append user ID as a query parameter
+
+        StringRequest deleteRequest = new StringRequest(
+                Request.Method.DELETE,
+                url,
+                response -> {
+                    Log.d(TAG, "Workout delete API response for ID " + workoutId + ": " + response);
+
+                    try {
+                        JSONObject jsonResponse = new JSONObject(response);
+                        boolean isSuccessful = jsonResponse.optBoolean("success", false);
+                        String message = jsonResponse.optString("message", "Workout deleted.");
+                        String error = jsonResponse.optString("error", null); // Check for an explicit error field
+
+                        if (isSuccessful) {
+                            if (callback != null) {
+                                callback.onSuccess(workoutId);
+                            }
+                        } else {
+                            // API returned a non-error response, but indicates failure
+                            String errorMessage = (error != null) ? error : message; // Prioritize explicit error message
+                            Log.w(TAG, "Workout delete API indicated failure: " + errorMessage);
+                            if (callback != null) {
+                                callback.onFailure(errorMessage);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Error parsing delete workout JSON response for ID " + workoutId, e);
+                        if (callback != null) {
+                            callback.onFailure("Failed to parse server response after deletion.");
+                        }
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Volley error deleting workout ID " + workoutId + ":", error);
+
+                    String errorMessage = "Network error deleting workout plan.";
+                    if (error.networkResponse != null) {
+                        errorMessage += " Status code: " + error.networkResponse.statusCode;
+                        try {
+                            String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                            Log.e(TAG, "Error response body: " + responseBody);
+                            JSONObject errorJson = new JSONObject(responseBody);
+                            String apiErrorMsg = errorJson.optString("message", errorJson.optString("error", null));
+                            if (apiErrorMsg != null) {
+                                errorMessage += " Details: " + apiErrorMsg;
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Could not parse error response body", e);
+                        }
+                    } else if (error.getMessage() != null) {
+                        errorMessage = "Volley error: " + error.getMessage();
+                    } else {
+                        errorMessage = "Unknown network error.";
+                    }
+                    if (callback != null) {
+                        callback.onFailure(errorMessage);
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                final Map<String, String> params = new HashMap<>();
+                params.put(context.getString(R.string.validation_header),
+                        context.getString(R.string.validation_pre_data) + " " + jwtToken);
+                return params;
+            }
+        };
+        deleteRequest.setTag(TAG);
+        getRequestQueue(context).add(deleteRequest);
     }
 
 }

@@ -39,8 +39,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// MODIFICATION 1: Changed interface to OnWorkoutActionListener to include delete functionality
 public class WorkoutWizardActivity extends BaseActivity
-    implements SavedWorkoutsAdapter.OnWorkoutSelectedListener {
+        implements SavedWorkoutsAdapter.OnWorkoutActionListener { // Changed from OnWorkoutSelectedListener
 
     // --- View Variables ---
     private ProgressBar progressBar;
@@ -140,6 +141,7 @@ public class WorkoutWizardActivity extends BaseActivity
         exercisesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         savedWorkoutsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // MODIFICATION 2: Initialize adapter with 'this' as the OnWorkoutActionListener
         savedWorkoutsAdapter = new SavedWorkoutsAdapter(new ArrayList<>(), this);
         savedWorkoutsRecyclerView.setAdapter(savedWorkoutsAdapter);
 
@@ -234,7 +236,7 @@ public class WorkoutWizardActivity extends BaseActivity
                     "&operation=[" + operation + "]" +
                     "&bchain=HIVE";
 
-            Log.d(TAG, bcastUrl); 
+            Log.d(TAG, bcastUrl);
 
             JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
                     bcastUrl, null,
@@ -382,17 +384,26 @@ public class WorkoutWizardActivity extends BaseActivity
 
     private void fetchAndDisplayUserWorkouts(boolean refreshDisplay) {
         String currentUserJwt = LoginActivity.accessToken;
+        // The API endpoint uses `userId` which maps to `username` in your context
+        String currentUserId = username;
+
         if (currentUserJwt == null || currentUserJwt.isEmpty()) {
             Log.w(TAG, getString(R.string.log_cannot_fetch_workouts_jwt_missing));
             showNoWorkoutsMessage(getString(R.string.error_authentication_token_missing));
             return;
         }
+        if (currentUserId == null || currentUserId.isEmpty()) { // Also check for userId
+            Log.w(TAG, "Cannot fetch workouts: User ID (username) is missing.");
+            showNoWorkoutsMessage("User ID missing. Please log in.");
+            return;
+        }
+
 
         if (refreshDisplay) {
             showListLoading();
         }
 
-        WorkoutApiClient.fetchUserWorkouts(this, currentUserJwt, username,
+        WorkoutApiClient.fetchUserWorkouts(this, currentUserJwt, currentUserId, // Pass currentUserId here
                 new WorkoutApiClient.FetchWorkoutsCallback() {
                     @Override
                     public void onSuccess(List<WorkoutPlan> workouts) {
@@ -400,6 +411,8 @@ public class WorkoutWizardActivity extends BaseActivity
                             hideListLoading();
                             if (workouts != null && !workouts.isEmpty()) {
                                 Log.d(TAG, "Fetched " + workouts.size() + " saved workouts.");
+                                // Sort by timestamp if not already sorted by API
+                                // Collections.sort(workouts, (w1, w2) -> w2.getTimestamp().compareTo(w1.getTimestamp()));
                                 savedWorkoutsAdapter.setWorkoutList(workouts);
                                 if (refreshDisplay) {
                                     showSavedWorkoutsAccordion();
@@ -438,12 +451,13 @@ public class WorkoutWizardActivity extends BaseActivity
 
     private void grabBalanceAndProceed(String workoutName) {
         Context ctx = getApplicationContext();
-        if (username == null || username.isEmpty()) {
+        String currentUserId = username; // Get the user ID
+        if (currentUserId == null || currentUserId.isEmpty()) { // Ensure userId is available
             Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
             showGenerateWorkoutAccordion();
             return;
         }
-        Utils.fetchUserBalance(this, username, false, new Utils.BalanceFetchListener() {
+        Utils.fetchUserBalance(this, currentUserId, false, new Utils.BalanceFetchListener() { // Pass currentUserId
             @Override
             public void onBalanceFetched(double balance) {
                 if (balance < Constants.MIN_AFIT_PER_WORKOUT) {
@@ -467,10 +481,87 @@ public class WorkoutWizardActivity extends BaseActivity
         });
     }
 
+    // MODIFICATION 3: Renamed from onWorkoutSelected to onWorkoutClick to match new interface
     @Override
-    public void onWorkoutSelected(WorkoutPlan workout) {
+    public void onWorkoutClick(WorkoutPlan workout) {
         Log.d(TAG, "Workout item clicked: " + workout.getWorkoutName());
         displayWorkoutPlan(workout);
+    }
+
+    // MODIFICATION 4: New method to handle delete button clicks from the adapter
+    @Override
+    public void onDeleteWorkout(WorkoutPlan workout) {
+        // Show a confirmation dialog before deleting
+        showDeleteConfirmationDialog(workout);
+    }
+
+    // MODIFICATION 5: Method to show the delete confirmation dialog
+    private void showDeleteConfirmationDialog(final WorkoutPlan workoutToDelete) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_delete_workout_title)
+                .setMessage(getString(R.string.dialog_delete_workout_message, workoutToDelete.getWorkoutName()))
+                .setPositiveButton(R.string.dialog_delete_workout_positive, (dialog, which) -> {
+                    // User confirmed deletion, proceed with API call
+                    performDeleteWorkout(workoutToDelete);
+                })
+                .setNegativeButton(R.string.dialog_delete_workout_negative, (dialog, which) -> {
+                    // User cancelled deletion
+                    dialog.dismiss();
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert) // Optional: add an alert icon
+                .show();
+    }
+
+    // MODIFICATION 6: Method to perform the actual delete API call
+    private void performDeleteWorkout(final WorkoutPlan workoutToDelete) {
+        String currentUserJwt = LoginActivity.accessToken;
+        String currentUserId = username; // Assuming username is the userId
+
+        if (currentUserJwt == null || currentUserJwt.isEmpty()) {
+            Toast.makeText(this, "Authentication error. Cannot delete workout.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Toast.makeText(this, "User ID missing. Cannot delete workout.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (workoutToDelete.getId() == null) {
+            Toast.makeText(this, "Workout ID is missing. Cannot delete.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Show progress or a temporary toast
+        Toast.makeText(this, getString(R.string.workout_delete_in_progress), Toast.LENGTH_SHORT).show();
+
+        WorkoutApiClient.deleteWorkoutPlan(this, currentUserJwt, workoutToDelete.getId(), currentUserId, new WorkoutApiClient.DeleteWorkoutCallback() {
+            @Override
+            public void onSuccess(String deletedWorkoutId) {
+                runOnUiThread(() -> {
+                    // Remove the workout from the adapter's data source and update UI
+                    savedWorkoutsAdapter.removeWorkout(workoutToDelete);
+                    Toast.makeText(WorkoutWizardActivity.this,
+                            getString(R.string.toast_workout_deleted_success, workoutToDelete.getWorkoutName()),
+                            Toast.LENGTH_SHORT).show();
+
+                    // Check if the list is now empty and update UI accordingly
+                    if (savedWorkoutsAdapter.getItemCount() == 0) {
+                        noSavedWorkoutsMessage.setVisibility(View.VISIBLE);
+                        noSavedWorkoutsMessage.setText(R.string.no_saved_workouts_yet);
+                        savedWorkoutsRecyclerView.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                runOnUiThread(() -> {
+                    Toast.makeText(WorkoutWizardActivity.this,
+                            getString(R.string.toast_workout_deleted_failure, errorMessage),
+                            Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "Delete workout failed: " + errorMessage);
+                });
+            }
+        });
     }
 
     private WorkoutRequest getUserInputFromUI() {
