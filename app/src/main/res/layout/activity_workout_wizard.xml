@@ -25,14 +25,40 @@
         android:padding="16dp"
         >
 
-        <!-- Main Title -->
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/workout_planning"
-            android:textColor="@color/actifitRed"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:layout_marginBottom="16dp"/>
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginBottom="16dp">
+
+
+        <!-- Main Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/workout_planning"
+                android:textColor="@color/actifitRed"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:layout_marginBottom="16dp"/>
+
+
+            <TextView
+                android:id="@+id/browseExercisesIconTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:textColor="@color/actifitRed"
+                android:text="@string/fa_search"
+                android:textAlignment="textEnd"
+                android:textSize="20sp"
+                android:paddingEnd="4dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/browse_exercises_icon_description" />
+
+            </LinearLayout>
 
         <!-- === Accordion Section: Saved Workouts === -->
         <!-- Header for Saved Workouts -->
@@ -113,12 +139,12 @@
 
         </LinearLayout>
 
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/colorBlack"
             android:layout_marginBottom="8dp"/>
-
 
         <!-- === Accordion Section: Generate New Workout === -->
         <!-- Header for Generate New Workout -->
@@ -329,6 +355,7 @@
                 android:layout_marginTop="16dp"
                 android:visibility="gone"
                 style="?android:attr/progressBarStyle"/>
+
 
         </LinearLayout>
 

@@ -4,6 +4,7 @@ import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.usern
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +20,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -69,6 +72,9 @@ public class WorkoutWizardActivity extends BaseActivity
     private TextView generateWorkoutExpandIconTextView;
     private ProgressBar mainLoadingProgressBar;
 
+    private ActivityResultLauncher<Intent> exerciseSearchLauncher;
+
+
     // --- State and Data Variables ---
     private AiService aiService;
     private boolean hasPaidForGeneration = false;
@@ -76,12 +82,27 @@ public class WorkoutWizardActivity extends BaseActivity
     private static final String TAG = "WorkoutWizardActivity";
     private SharedPreferences sharedPreferences;
     private static final String KEY_HAS_PAID = "hasPaidForGeneration";
+    private TextView browseExercisesIconTextView;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout_wizard);
+
+        exerciseSearchLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        // Check if the result indicates a workout was saved and refresh is needed
+                        boolean refreshWorkouts = result.getData().getBooleanExtra(
+                                getString(R.string.result_workout_saved_refresh_key), false);
+                        if (refreshWorkouts) {
+                            Log.d(TAG, "Refreshing workouts after saving from ExerciseSearchActivity.");
+                            fetchAndDisplayUserWorkouts(true);
+                        }
+                    }
+                });
 
         // --- Find all views ---
         progressBar = findViewById(R.id.progressBar);
@@ -110,6 +131,8 @@ public class WorkoutWizardActivity extends BaseActivity
         generateWorkoutContent = findViewById(R.id.generateWorkoutContent);
         generateWorkoutExpandIconTextView = findViewById(R.id.generateWorkoutExpandIconTextView);
         retryFetchWorkoutsButton = findViewById(R.id.retryFetchWorkoutsButton);
+
+        browseExercisesIconTextView = findViewById(R.id.browseExercisesIconTextView);
 
         sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
         hasPaidForGeneration = sharedPreferences.getBoolean(KEY_HAS_PAID, false);
@@ -162,6 +185,13 @@ public class WorkoutWizardActivity extends BaseActivity
                 grabBalanceAndProceed(workoutName);
             }
         });
+
+        if (browseExercisesIconTextView != null) {
+            browseExercisesIconTextView.setOnClickListener(v -> {
+                Intent intent = new Intent(WorkoutWizardActivity.this, ExerciseSearchActivity.class);
+                startActivity(intent);
+            });
+        }
 
         setDefaultDailyFrequency();
         fetchAndDisplayUserWorkouts();
