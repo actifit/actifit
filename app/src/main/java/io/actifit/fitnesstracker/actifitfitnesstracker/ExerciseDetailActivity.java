@@ -3,9 +3,7 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
 import com.squareup.picasso.Picasso;
-import java.util.Arrays;
 
 public class ExerciseDetailActivity extends BaseActivity {
 
@@ -54,21 +52,21 @@ public class ExerciseDetailActivity extends BaseActivity {
             if (startImageUrl != null && !startImageUrl.isEmpty()) {
                 Picasso.get()
                         .load(startImageUrl)
-                        .placeholder(R.drawable.ic_launcher_foreground)
-                        .error(R.drawable.ic_launcher_foreground)
+                        .placeholder(R.drawable.ic_placeholder_exercise)
+                        .error(R.drawable.ic_placeholder_exercise)
                         .into(startPositionImageView);
             } else{
-                startPositionImageView.setImageResource(R.drawable.ic_launcher_foreground);
+                startPositionImageView.setImageResource(R.drawable.ic_placeholder_exercise);
             }
 
             if (endImageUrl != null && !endImageUrl.isEmpty()) {
                 Picasso.get()
                         .load(endImageUrl)
-                        .placeholder(R.drawable.ic_launcher_foreground)
-                        .error(R.drawable.ic_launcher_foreground)
+                        .placeholder(R.drawable.ic_placeholder_exercise)
+                        .error(R.drawable.ic_placeholder_exercise)
                         .into(endPositionImageView);
             } else{
-                endPositionImageView.setImageResource(R.drawable.ic_launcher_foreground);
+                endPositionImageView.setImageResource(R.drawable.ic_placeholder_exercise);
             }
         }
 

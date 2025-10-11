@@ -1549,7 +1549,14 @@ import androidx.exifinterface.media.ExifInterface;
                 days.add(model.getDay());
                 model.setFirstImage(IMAGE_BASE_URL);
                 exercises.add(new Exercise(model.getName(), String.valueOf(model.getSets()), model.getReps(),
-                        model.getDuration(), model.getImages(), days, model.getBodyPart(), model.getEquipment(), model.getId(), model.getTarget(), model.getPrimaryMuscles(),model.getSecondaryMuscles(), model.getInstructions()));
+                        model.getDuration(), model.getImages(), days, model.getBodyPart(),
+                        model.getEquipment(), model.getId(), model.getTarget(),
+                        model.getPrimaryMuscles(),model.getSecondaryMuscles(),
+                        model.getInstructions(),  model.getLevel(),    // NEW field from JSON
+                        model.getCategory(), // NEW field from JSON
+                        model.getForce(),    // NEW field from JSON
+                        model.getMechanic()  // NEW field from JSON
+                        ));
             }
         } catch (IOException e) {
             Log.e("WorkoutWizardActivity", "Error reading exercises.json", e);
@@ -1590,6 +1597,10 @@ import androidx.exifinterface.media.ExifInterface;
         model.setPrimaryMuscles(exercise.getPrimaryMuscles());
         model.setSecondaryMuscles(exercise.getSecondaryMuscles());
         model.setInstructions(exercise.getInstructions());
+        model.setLevel(exercise.getLevel());
+        model.setCategory(exercise.getCategory());
+        model.setForce(exercise.getForce());
+        model.setMechanic(exercise.getMechanic());
         return model;
     }
     private static String normalizeString(String input){
