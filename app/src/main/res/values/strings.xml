@@ -575,8 +575,6 @@
     <string name="fa_search">\uf002</string>
     <string name="filter_options_title">Filter Exercises</string>
     <string name="expand_icon_alt">Expand/Collapse Filter Options</string>
-    <!-- Make sure you have font_awesome_6_solid.ttf in your assets/fonts folder for these icons to display correctly -->
-    <!-- Default state: collapsed, so arrow points right -->
     <string name="fa_chevron_down">\uf078</string>
     <string name="fa_chevron_right">\uf054</string>
     <string name="browse_exercises_icon_description">Browse all exercises</string>
@@ -595,4 +593,12 @@
     <string name="result_workout_saved_refresh_key">REFRESH_WORKOUTS</string>
     <string name="no_exercises_selected">No exercises selected.</string>
     <string name="selected_exercises_count">%1$d selected</string>
+    <string name="delete_workout_button_description">Delete Workout</string>
+    <string name="dialog_delete_workout_title">Confirm Deletion</string>
+    <string name="dialog_delete_workout_message">Are you sure you want to delete "%1$s"? This action cannot be undone.</string>
+    <string name="dialog_delete_workout_positive">Delete</string>
+    <string name="dialog_delete_workout_negative">Cancel</string>
+    <string name="toast_workout_deleted_success">Workout "%1$s" deleted successfully.</string>
+    <string name="toast_workout_deleted_failure">Failed to delete workout: %1$s</string>
+    <string name="workout_delete_in_progress">Deleting workout...</string>
 </resources>
