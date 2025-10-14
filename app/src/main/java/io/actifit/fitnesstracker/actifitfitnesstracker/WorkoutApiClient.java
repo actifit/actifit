@@ -402,4 +402,98 @@ public class WorkoutApiClient {
         getRequestQueue(context).add(deleteRequest);
     }
 
+    public static void updateWorkoutPlan(Context context, String jwtToken, String workoutId,
+                                         String userId, WorkoutPlan workoutPlan, SaveWorkoutCallback callback) {
+
+        String url = (context.getString(R.string.test_mode).equals("on") ?
+                context.getString(R.string.test_server) : Utils.apiUrl(context))
+                + API_WORKOUTS_ENDPOINT + workoutId // Use PUT /workouts/:workoutId
+                + "?user=" + userId;
+
+        JSONObject requestBody = new JSONObject();
+        try {
+            // Note: userId is part of the req.user from checkHdrs middleware, not sent in body for PUT.
+            requestBody.put("workoutName", workoutPlan.getWorkoutName());
+            requestBody.put("description", workoutPlan.getDescription());
+            requestBody.put("explanation", workoutPlan.getExplanation());
+            // Add lastModified timestamp on server side for safety, or send here
+            // requestBody.put("lastModified", System.currentTimeMillis());
+
+            Gson gson = new Gson();
+            String exercisesJsonString = gson.toJson(workoutPlan.getExercises());
+            JSONArray exercisesJsonArray = new JSONArray(exercisesJsonString);
+
+            requestBody.put("exercises", exercisesJsonArray);
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Error building JSON request body for update", e);
+            if (callback != null) {
+                callback.onFailure("Error preparing data for update.");
+            }
+            return;
+        }
+
+        JsonObjectRequest updateRequest = new JsonObjectRequest(
+                Request.Method.PUT, // Use PUT method
+                url,
+                requestBody,
+                response -> {
+                    Log.d(TAG, "Workout update API response: " + response.toString());
+                    boolean isSuccessful = !response.has("error") &&
+                            (response.optBoolean("success", false) ||
+                                    response.optString("status", "").equals("success"));
+
+                    if (isSuccessful) {
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
+                    } else {
+                        String errorMessage = response.optString("message", "Unknown update error");
+                        if (response.has("error")) {
+                            errorMessage = response.optString("error", errorMessage);
+                        }
+                        Log.w(TAG, "Workout update API indicated failure: " + errorMessage);
+                        if (callback != null) {
+                            callback.onFailure(errorMessage);
+                        }
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Volley error updating workout:", error);
+                    String errorMessage = "Network error updating workout plan.";
+                    if (error.networkResponse != null) {
+                        errorMessage += " Status code: " + error.networkResponse.statusCode;
+                        try {
+                            String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                            Log.e(TAG, "Error response body: " + responseBody);
+                            JSONObject errorJson = new JSONObject(responseBody);
+                            String apiErrorMsg = errorJson.optString("message", errorJson.optString("error", null));
+                            if (apiErrorMsg != null) {
+                                errorMessage += " Details: " + apiErrorMsg;
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Could not parse error response body", e);
+                        }
+                    } else if (error.getMessage() != null) {
+                        errorMessage = "Volley error: " + error.getMessage();
+                    } else {
+                        errorMessage = "Unknown network error.";
+                    }
+                    if (callback != null) {
+                        callback.onFailure(errorMessage);
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                final Map<String, String> params = new HashMap<>();
+                params.put("Content-Type", "application/json");
+                params.put(context.getString(R.string.validation_header),
+                        context.getString(R.string.validation_pre_data) + " " + jwtToken);
+                return params;
+            }
+        };
+        updateRequest.setTag(TAG);
+        getRequestQueue(context).add(updateRequest);
+    }
+
 }

@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// MODIFICATION 1: Changed interface to OnWorkoutActionListener to include delete functionality
 public class WorkoutWizardActivity extends BaseActivity
         implements SavedWorkoutsAdapter.OnWorkoutActionListener { // Changed from OnWorkoutSelectedListener
 
@@ -73,6 +72,8 @@ public class WorkoutWizardActivity extends BaseActivity
     private ProgressBar mainLoadingProgressBar;
 
     private ActivityResultLauncher<Intent> exerciseSearchLauncher;
+    private ActivityResultLauncher<Intent> editWorkoutLauncher;
+
 
 
     // --- State and Data Variables ---
@@ -89,6 +90,19 @@ public class WorkoutWizardActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout_wizard);
+
+        editWorkoutLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        boolean refreshWorkouts = result.getData().getBooleanExtra(
+                                getString(R.string.result_workout_saved_refresh_key), false); // Using the same key for refresh
+                        if (refreshWorkouts) {
+                            Log.d(TAG, "Refreshing workouts after editing from EditWorkoutActivity.");
+                            fetchAndDisplayUserWorkouts(true);
+                        }
+                    }
+                });
 
         exerciseSearchLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -197,6 +211,14 @@ public class WorkoutWizardActivity extends BaseActivity
         fetchAndDisplayUserWorkouts();
         retryFetchWorkoutsButton.setOnClickListener(v -> fetchAndDisplayUserWorkouts());
         noSavedWorkoutsMessage.setOnClickListener(v -> fetchAndDisplayUserWorkouts());
+    }
+
+    @Override
+    public void onEditWorkout(WorkoutPlan workout) {
+        Log.d(TAG, "Edit workout button clicked for: " + workout.getWorkoutName() + " (ID: " + workout.getId() + ")");
+        Intent intent = new Intent(this, EditWorkoutActivity.class);
+        intent.putExtra("workoutPlan", workout); // Pass the entire WorkoutPlan object
+        editWorkoutLauncher.launch(intent); // Launch for result
     }
 
     private void processWorkoutTrx(String workoutName) {
