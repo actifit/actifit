@@ -23,6 +23,7 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
     public interface OnWorkoutActionListener {
         void onWorkoutClick(WorkoutPlan workout); // Replaces onWorkoutSelected
         void onDeleteWorkout(WorkoutPlan workout); // NEW: For delete button clicks
+        void onEditWorkout(WorkoutPlan workout);
     }
 
     // Constructor to provide the data list and the click listener
@@ -96,6 +97,12 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
                 listener.onDeleteWorkout(workout); // Calls the new onDeleteWorkout method
             }
         });
+
+        holder.editWorkoutButton.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onEditWorkout(workout); // Trigger edit action
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -111,6 +118,7 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
         TextView workoutTimestampTextView;
         TextView workoutExercisesTextView;
         ImageButton deleteWorkoutButton; // NEW: Reference for the delete button
+        ImageButton editWorkoutButton;
 
         WorkoutViewHolder(View itemView) {
             super(itemView);
@@ -118,7 +126,8 @@ public class SavedWorkoutsAdapter extends RecyclerView.Adapter<SavedWorkoutsAdap
             workoutNameTextView = itemView.findViewById(R.id.workoutNameTextView);
             workoutTimestampTextView = itemView.findViewById(R.id.workoutTimestampTextView);
             workoutExercisesTextView = itemView.findViewById(R.id.workoutExerciseCountTextView);
-            deleteWorkoutButton = itemView.findViewById(R.id.deleteWorkoutButton); // NEW: Initialize the delete button
+            deleteWorkoutButton = itemView.findViewById(R.id.deleteWorkoutButton);
+            editWorkoutButton = itemView.findViewById(R.id.editWorkoutButton);
         }
     }
 }

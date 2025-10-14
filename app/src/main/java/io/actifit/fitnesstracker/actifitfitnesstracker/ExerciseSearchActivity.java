@@ -46,6 +46,7 @@ public class ExerciseSearchActivity extends BaseActivity
 
     private static final String TAG = "ExerciseSearchActivity";
     public static final int REQUEST_CODE_SAVE_WORKOUT = 1;
+    public static final String EXTRA_SELECTION_MODE = "selectionMode";
 
     // UI elements
     private EditText searchEditText;
@@ -59,6 +60,7 @@ public class ExerciseSearchActivity extends BaseActivity
     private TextView filterExpandIconTextView;
 
     private Button saveWorkoutFab;
+    private boolean isSelectionMode = false;
 
     // Data
     private List<Exercise> allExercises;
@@ -71,6 +73,8 @@ public class ExerciseSearchActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exercise_search);
+
+        isSelectionMode = getIntent().getBooleanExtra(EXTRA_SELECTION_MODE, false);
 
         saveWorkoutResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -90,7 +94,13 @@ public class ExerciseSearchActivity extends BaseActivity
         filterExpandIconTextView.setText(R.string.fa_chevron_right); // Set initial icon
         filterExpandIconTextView.setRotation(0); // Ensure initial rotation is 0 for right arrow
 
-        saveWorkoutFab.setVisibility(View.GONE);
+        if (isSelectionMode) {
+            saveWorkoutFab.setText(getString(R.string.selected_exercises_done, 0)); // Initial text for selection mode
+            saveWorkoutFab.setVisibility(View.GONE); // Will become visible when selections are made
+        } else {
+            saveWorkoutFab.setText(getString(R.string.action_save_workout));
+            saveWorkoutFab.setVisibility(View.GONE); // Will become visible when selections are made
+        }
     }
 
     private void initUI() {
@@ -217,7 +227,13 @@ public class ExerciseSearchActivity extends BaseActivity
 
         filterOptionsHeader.setOnClickListener(v -> toggleAccordion(filterContentLayout, filterExpandIconTextView));
 
-        saveWorkoutFab.setOnClickListener(v -> showSaveWorkoutDialog());
+        saveWorkoutFab.setOnClickListener(v -> {
+            if (isSelectionMode) {
+                returnSelectedExercises(); // New action for selection mode
+            } else {
+                showSaveWorkoutDialog(); // Existing action for browsing mode
+            }
+        });
     }
 
     private void filterExercises() {
@@ -281,17 +297,24 @@ public class ExerciseSearchActivity extends BaseActivity
 
     @Override
     public void onExerciseClick(Exercise exercise) {
-        // CHANGED: Launch ExerciseDetailActivity and pass the Exercise object
-        Intent intent = new Intent(this, ExerciseDetailActivity.class);
-        intent.putExtra("exercise", exercise); // Pass the entire Exercise object
-        startActivity(intent);
+        if (!isSelectionMode) {
+            Intent intent = new Intent(this, ExerciseDetailActivity.class);
+            intent.putExtra("exercise", exercise); // Pass the entire Exercise object
+            startActivity(intent);
+        }
     }
 
     @Override
     public void onSelectionChanged(int selectedCount) {
         if (selectedCount > 0) {
-            // Keep the FA icon and append the count
-            saveWorkoutFab.setText(getString(R.string.fa_save_disk) + " " + selectedCount);
+            if (isSelectionMode) {
+                saveWorkoutFab.setText(getString(R.string.selected_exercises_done, selectedCount));
+                // We're using a Font Awesome icon for the FAB in regular mode,
+                // but for selection mode, "Done (X)" is more descriptive.
+                // If you want an icon here, you'd need to change its text and possibly drawable.
+            } else {
+                saveWorkoutFab.setText(getString(R.string.fa_save_disk) + " " + selectedCount);
+            }
             saveWorkoutFab.setVisibility(View.VISIBLE);
         } else {
             saveWorkoutFab.setVisibility(View.GONE);
@@ -434,5 +457,17 @@ public class ExerciseSearchActivity extends BaseActivity
                     }
                 }
         );
+    }
+    private void returnSelectedExercises() {
+        Set<Exercise> selected = adapter.getSelectedExercises();
+        if (selected.isEmpty()) {
+            Toast.makeText(this, R.string.no_exercises_selected_for_add, Toast.LENGTH_SHORT).show();
+            setResult(RESULT_CANCELED); // Return canceled if nothing selected
+        } else {
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("selectedExercises", new ArrayList<>(selected)); // Pass list of selected exercises
+            setResult(RESULT_OK, resultIntent);
+        }
+        finish(); // Close ExerciseSearchActivity
     }
 }
