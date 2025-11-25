@@ -780,47 +780,91 @@ public class MainActivity extends BaseActivity{
 
     }
 
-
     /************ health connect code ***********/
-
     private HealthConnectManager healthConnectManager;
     private LifecycleCoroutineScope lifecycleCoroutineScope;
-
-    // Launcher for Play Store or Health Connect app's own settings (any Intent)
+    // Launcher for Play Store or Health Connect app\'s own settings (any Intent)
     private final ActivityResultLauncher<Intent> hcExternalActivityLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                Log.d(TAG, "Returned from external HC activity (Play Store/HC Settings). Result code: " + result.getResultCode());
-                // After user interaction, re-check the overall status
+        registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                Log.d(TAG, "Returned from external HC activity (Play Store/HC Settings). Result code: \" + result.getResultCode());");
+                // After user interaction, re-check the overall status" +
                 BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(),
-                        CoroutineStart.DEFAULT, (scope, continuation) -> {
+                        CoroutineStart.DEFAULT,
+                        (scope, continuation) -> {
                     checkHealthConnectStatusAndPermissions();
                     return Unit.INSTANCE;
-                });
             });
+        });
+
+    // --- Add this new method to your MainActivity class ---
+    private void showPermissionsRationaleDialog() {
+        runOnUiThread(() -> {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Health Connect Permission")
+                    .setMessage("To track your activity, Actifit needs permission to access your step data via Health Connect. If you are not seeing the permission pop-up, you may need to grant it manually from the Health Connect app settings.")
+                    .setPositiveButton("Request Permission", (dialog, which) -> {
+                        // This will try to show the standard permission pop-up
+                        requestHealthConnectPermissionsUI();
+                    })
+                    .setNeutralButton("Open Settings", (dialog, which) -> {
+                        try {
+                            // Intent to open Health Connect's permission management screen for this app
+                            Intent intent = new Intent("androidx.health.connect.client.ACTION_MANAGE_HEALTH_PERMISSIONS");
+                            intent.putExtra(Intent.EXTRA_PACKAGE_NAME, getPackageName());
+                            hcExternalActivityLauncher.launch(intent);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(MainActivity.this, "Could not open Health Connect settings. Please open the Health Connect app and grant permissions manually.", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .setNegativeButton("Not Now", (dialog, which) -> {
+                        Toast.makeText(MainActivity.this, "Health Connect features will be limited.", Toast.LENGTH_SHORT).show();
+                        useDefaultTrackingMethod();
+                        healthConnectCheckRunning.set(false); // Reset flag
+                    })
+                    .setOnDismissListener(dialog -> {
+                        // In case the dialog is dismissed by tapping outside, etc.
+                        healthConnectCheckRunning.set(false);
+                    })
+                    .show();
+        });
+    }
 
 
+
+    private final AtomicBoolean healthConnectCheckRunning = new AtomicBoolean(false);
 
     // Launcher for requesting Health Connect app permissions (using the official contract)
     private final ActivityResultLauncher<Set<String>> hcRequestPermissionsLauncher =
-            registerForActivityResult(
-                    PermissionController.createRequestPermissionResultContract(),
-                    grantedPermissions -> {
-                        // After permission request UI, re-check overall status
-                        Log.d(TAG, "Returned from Health Connect permissions UI.");
-                        BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
-                            checkHealthConnectStatusAndPermissions();
-                            return Unit.INSTANCE;
-                        });
-
-                        // For debugging granted permissions via Kotlin helper
-                        /*HealthConnectKtx.getGrantedPermissionsFuture(healthConnectManager.getHealthConnectClient())
-                                .thenAccept(grantedSet -> Log.d(TAG, "DEBUG: Granted HC permissions (system): " + grantedSet))
-                                .exceptionally(t -> { Log.e(TAG, "DEBUG: getGrantedPermissions error", t); return null; });
-                    */}
+    registerForActivityResult(
+            PermissionController.createRequestPermissionResultContract(),
+    grantedPermissions -> {
+        // After permission request UI, check if permissions were granted
+        Log.d(TAG, "Returned from Health Connect permissions UI.");
+        BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
+            healthConnectManager.hasAllPermissions().whenComplete((hasPermissions, throwable) -> {
+                if (hasPermissions) {
+                    Log.d(TAG, "HC permissions granted after request. Proceeding to read data.");
+                    checkPermissionsAndReadData();
+                } else {
+                    Log.d(TAG, "HC permissions were NOT granted after request. Falling back.");
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Health Connect permissions not granted. Using device sensors.", Toast.LENGTH_SHORT).show());
+                    useDefaultTrackingMethod();
+                }
+                // Reset the flag to allow future checks (e.g., from the button)
+                healthConnectCheckRunning.set(false);
+            });
+            return Unit.INSTANCE;
+        });
+    }
             );
 
     // --- Consolidated Health Connect Status and Permission Checker ---
     private void checkHealthConnectStatusAndPermissions() {
+        // Prevent multiple checks from running concurrently
+        if (healthConnectCheckRunning.getAndSet(true)) {
+            Log.d(TAG, "Health Connect check is already running.");
+            return;
+        }
         int sdkStatus = HealthConnectClient.getSdkStatus(this);
         Log.d(TAG, "HC SDK Status: " + sdkStatus);
 
@@ -831,23 +875,27 @@ public class MainActivity extends BaseActivity{
                     Log.e(TAG, "Error checking Health Connect permissions: " + throwable.getMessage(), throwable);
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error accessing Health Connect. Falling back.", Toast.LENGTH_LONG).show());
                     useDefaultTrackingMethod();
+                    healthConnectCheckRunning.set(false); // Reset flag
                     return;
                 }
 
                 if (!hasPermissions) {
-                    Log.d(TAG, "HC permissions not granted to Actifit. Launching permissions UI.");
-                    requestHealthConnectPermissionsUI(); // Request permissions via UI
+                    Log.d(TAG, "HC permissions not granted to Actifit. Showing permissions rationale.");
+                    showPermissionsRationaleDialog();
                 } else {
                     Log.d(TAG, "HC permissions granted to Actifit. Proceeding to read data.");
                     checkPermissionsAndReadData(); // Permissions granted, read data
+                    healthConnectCheckRunning.set(false); // Reset flag
                 }
             });
         } else if (sdkStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
             Log.d(TAG, "HC needs update. Prompting user to update.");
             showInstallOrUpdateHealthConnectRationale(true); // HC needs an update
+            healthConnectCheckRunning.set(false); // Reset flag
         } else { // SDK_UNAVAILABLE or other status
             Log.d(TAG, "HC SDK is unavailable. Prompting user to install.");
             showInstallOrUpdateHealthConnectRationale(false); // HC is not installed
+            healthConnectCheckRunning.set(false); // Reset flag
         }
     }
 
@@ -943,6 +991,18 @@ public class MainActivity extends BaseActivity{
         healthConnectManager = new HealthConnectManager(getApplicationContext());
         lifecycleCoroutineScope = LifecycleOwnerKt.getLifecycleScope(
                 MainActivity.this); // Get the lifecycle-aware coroutine scope
+
+
+        Button checkStatusButton = findViewById(R.id.checkHealthConnectStatusButton); // Assuming button ID
+        Button readDataButton = findViewById(R.id.readHealthConnectDataButton);       // Assuming button ID
+
+        if (checkStatusButton != null) {
+            checkStatusButton.setOnClickListener(v -> checkHealthConnectStatusAndPermissions());
+        }
+        if (readDataButton != null) {
+            ZonedDateTime today = ZonedDateTime.now();
+            readDataButton.setOnClickListener(v -> healthConnectManager.readStepsData(today));// readHealthConnectData());
+        }
 /*
         Button checkStatusButton = findViewById(R.id.checkHealthConnectStatusButton); // Assuming button ID
         Button readDataButton = findViewById(R.id.readHealthConnectDataButton);       // Assuming button ID
@@ -980,6 +1040,32 @@ public class MainActivity extends BaseActivity{
             Log.e(TAG, "CRITICAL: Exception when launching coroutine for checkHealthStatusAndPermissions: " + ex.getMessage(), ex);
             useDefaultTrackingMethod();
         }*/
+
+        try {
+            // FIX: Explicitly instantiate Function2 anonymous class
+            BuildersKt.launch(
+                    lifecycleCoroutineScope,
+                    Dispatchers.getDefault(),
+                    // Pass null for CoroutineStart to use default (CoroutineStart.DEFAULT)
+                    CoroutineStart.DEFAULT,
+                    new Function2<CoroutineScope, Continuation<? super Unit>, Object>() {
+                        @Override
+                        public Object invoke(CoroutineScope scope, Continuation<? super Unit> continuation) {
+                            try {
+                                checkHealthConnectStatusAndPermissions();
+                                return Unit.INSTANCE;
+                            } catch (Exception innerEx) {
+                                Log.e(TAG, "Exception inside checkHealthConnectStatusAndPermissions coroutine lambda: " + innerEx.getMessage(), innerEx);
+                                useDefaultTrackingMethod();
+                                return Unit.INSTANCE;
+                            }
+                        }
+                    }
+            );
+        } catch (Exception ex) {
+            Log.e(TAG, "CRITICAL: Exception when launching coroutine for checkHealthStatusAndPermissions: " + ex.getMessage(), ex);
+            useDefaultTrackingMethod();
+        }
 
         //support dark mode
         // In Application class or base Activity's onCreate()
@@ -4994,7 +5080,7 @@ public class MainActivity extends BaseActivity{
 
         Log.d(TAG, "[Actifit] - onResume Main");
 
-
+/*
         try {
             // FIX: Explicitly instantiate Function2 anonymous class and pass null for CoroutineStart
             BuildersKt.launch(
@@ -5018,7 +5104,7 @@ public class MainActivity extends BaseActivity{
         } catch (Exception ex) {
             Log.e(TAG, "CRITICAL: Exception when launching coroutine in onResume for checkHealthConnectStatusAndPermissions: " + ex.getMessage(), ex);
             useDefaultTrackingMethod(); // Fallback to default if coroutine launch fails
-        }
+        }*/
 
         /*if (healthConnectManager.isHealthConnectAvailable()) {
             BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
