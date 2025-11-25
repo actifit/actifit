@@ -429,7 +429,7 @@
                                 android:textSize="20sp"
                                 android:text="@string/fa_exclamation_circle_solid"
 
-                                android:layout_alignBottom="@+id/step_pie_chart"
+                                android:layout_alignBottom="@id/step_pie_chart"
                                 android:layout_alignStart="@+id/step_pie_chart"
                                 android:gravity="center"
                                 android:fontFamily="@font/font_awesome_6_solid"
