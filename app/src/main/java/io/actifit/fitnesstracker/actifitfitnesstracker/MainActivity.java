@@ -212,6 +212,7 @@ public class MainActivity extends BaseActivity{
     //private TextView stepDisplay;
     private RelativeLayout thirdPartyTracking;
     private LinearLayout gadgetsll;
+    private RelativeLayout healthConnectTracking;
 
     //tracks a reference to an instance of this class
     public static SensorEventListener mainActivitySensorList;
@@ -291,6 +292,7 @@ public class MainActivity extends BaseActivity{
 
     PieChart btnPieChart;
     PieChart fitbitPieChart;
+    PieChart healthConnectPieChart;
 
     static boolean isActivityVisible = true;
 
@@ -362,7 +364,6 @@ public class MainActivity extends BaseActivity{
     private List<Slider_Items_Model_Class> listItems;
     private ViewPager newsPage;
     private TabLayout newsTabLayout;
-
 
 
     //required function to ask for proper read/write permissions on later Android versions
@@ -934,9 +935,18 @@ public class MainActivity extends BaseActivity{
         });
     }
 
-    // --- Refactored checkPermissionsAndReadData (called when HC is available & permissions granted) ---
     private void checkPermissionsAndReadData() {
         if (isHealthConnectEnabledInSettings()) {
+            // Set the data tracking system to Health Connect
+            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("dataTrackingSystem", getString(R.string.health_connect_tracking_ntt));
+            editor.apply();
+
+            // Switch UI to Health Connect mode
+            hideCharts();
+            healthConnectTracking.setVisibility(View.VISIBLE);
+
             ZonedDateTime today = ZonedDateTime.now();
             healthConnectManager.readStepsData(today).whenComplete((steps, readThrowable) -> {
                 if (readThrowable != null) {
@@ -947,10 +957,10 @@ public class MainActivity extends BaseActivity{
                 }
                 Log.d(TAG, "Steps from Health Connect: " + steps);
                 if (steps != null && steps > 0) {
-                    displayActivityChart(steps.intValue(), true);
+                    displayActivityChartHealthConnect(steps.intValue(), true);
                 } else {
-                    Log.d(TAG, "Health Connect returned 0 steps or no data. Falling back to default tracking.");
-                    useDefaultTrackingMethod();
+                    Log.d(TAG, "Health Connect returned 0 steps or no data. Displaying 0.");
+                    displayActivityChartHealthConnect(0, true);
                 }
             });
         } else {
@@ -1015,50 +1025,20 @@ public class MainActivity extends BaseActivity{
             readDataButton.setOnClickListener(v -> healthConnectManager.readStepsData(today));// readHealthConnectData());
         }*/
 
-        /*try {
-            // FIX: Explicitly instantiate Function2 anonymous class
-            BuildersKt.launch(
-                    lifecycleCoroutineScope,
-                    Dispatchers.getDefault(),
-                    // Pass null for CoroutineStart to use default (CoroutineStart.DEFAULT)
-                    CoroutineStart.DEFAULT,
-                    new Function2<CoroutineScope, Continuation<? super Unit>, Object>() {
-                        @Override
-                        public Object invoke(CoroutineScope scope, Continuation<? super Unit> continuation) {
-                            try {
-                                checkHealthConnectStatusAndPermissions();
-                                return Unit.INSTANCE;
-                            } catch (Exception innerEx) {
-                                Log.e(TAG, "Exception inside checkHealthConnectStatusAndPermissions coroutine lambda: " + innerEx.getMessage(), innerEx);
-                                useDefaultTrackingMethod();
-                                return Unit.INSTANCE;
-                            }
-                        }
-                    }
-            );
-        } catch (Exception ex) {
-            Log.e(TAG, "CRITICAL: Exception when launching coroutine for checkHealthStatusAndPermissions: " + ex.getMessage(), ex);
-            useDefaultTrackingMethod();
-        }*/
 
         try {
-            // FIX: Explicitly instantiate Function2 anonymous class
             BuildersKt.launch(
                     lifecycleCoroutineScope,
                     Dispatchers.getDefault(),
-                    // Pass null for CoroutineStart to use default (CoroutineStart.DEFAULT)
                     CoroutineStart.DEFAULT,
-                    new Function2<CoroutineScope, Continuation<? super Unit>, Object>() {
-                        @Override
-                        public Object invoke(CoroutineScope scope, Continuation<? super Unit> continuation) {
-                            try {
-                                checkHealthConnectStatusAndPermissions();
-                                return Unit.INSTANCE;
-                            } catch (Exception innerEx) {
-                                Log.e(TAG, "Exception inside checkHealthConnectStatusAndPermissions coroutine lambda: " + innerEx.getMessage(), innerEx);
-                                useDefaultTrackingMethod();
-                                return Unit.INSTANCE;
-                            }
+                    (scope, continuation) -> {
+                        try {
+                            checkHealthConnectStatusAndPermissions();
+                            return Unit.INSTANCE;
+                        } catch (Exception innerEx) {
+                            Log.e(TAG, "Exception inside checkHealthConnectStatusAndPermissions coroutine lambda: " + innerEx.getMessage(), innerEx);
+                            useDefaultTrackingMethod();
+                            return Unit.INSTANCE;
                         }
                     }
             );
@@ -1083,8 +1063,6 @@ public class MainActivity extends BaseActivity{
 
         AppCompatDelegate.setDefaultNightMode(initialNightMode);
 
-        //AppCompatDelegate.setDefaultNightMode(savedThemeMode);
-
         //short rotate animation
         rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotate.setDuration(2000);
@@ -1098,8 +1076,6 @@ public class MainActivity extends BaseActivity{
         topIconsContainer = findViewById(R.id.top_icons_container);
         newbieLink = findViewById(R.id.verify_newbie);
         notifCount = findViewById(R.id.notif_count);
-
-        //accountRCContainer = findViewById(R.id.rc_container);
 
         votingStatusText = findViewById(R.id.voting_status_text);
         votingStatusContainer = findViewById(R.id.voting_status_container);
@@ -1218,7 +1194,7 @@ public class MainActivity extends BaseActivity{
         //grab pointers to specific elements/buttons to be able to capture events and take action
         //stepDisplay = findViewById(R.id.step_display);
         thirdPartyTracking = findViewById(R.id.third_party_active);
-
+        healthConnectTracking = findViewById(R.id.health_connect_active);
 
         TextView BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         TextView BtnWallet = findViewById(R.id.btn_view_wallet);
@@ -1269,16 +1245,19 @@ public class MainActivity extends BaseActivity{
                 }
         );
 
+        TextView healthConnectSync = findViewById(R.id.sync_health_connect);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            healthConnectSync.setTooltipText(getString(R.string.sync_health_connect_btn));
+        }
+        healthConnectSync.setOnClickListener(view -> {
+            checkPermissionsAndReadData();
+        });
+
 
         Button launchWorkoutWizardButton = findViewById(R.id.launch_workout_wizard_button); // Assuming you have this button in MainActivity layout
-        launchWorkoutWizardButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Start the WorkoutWizardActivity when the button is clicked
-                //launchWorkoutWizard();
-                Intent intent = new Intent(ctx, WorkoutWizardActivity.class);
-                startActivity(intent);
-            }
+        launchWorkoutWizardButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ctx, WorkoutWizardActivity.class);
+            startActivity(intent);
         });
 
 
@@ -1289,8 +1268,6 @@ public class MainActivity extends BaseActivity{
                 fitbit.requestAccessTokenFromIntent(returnUrl);
                 try {
                     JSONObject responseProfile = fitbit.getUserProfile();
-
-
                     //essential for capability to fetch measurements
                     responseProfile.getJSONObject("user");
 
@@ -1524,43 +1501,39 @@ public class MainActivity extends BaseActivity{
         Log.d(TAG,">>>>[Actifit] Getting jiggy with it");
 
 
-        EarningsPanel.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        EarningsPanel.setOnClickListener(view -> {
 
-                //display alert dialog about pending rewards
-                earningsDialogBuilder = new AlertDialog.Builder(ctx);
+            //display alert dialog about pending rewards
+            earningsDialogBuilder = new AlertDialog.Builder(ctx);
 
 
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                //cancel
-                                break;
-                        }
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which) {
+                        case DialogInterface.BUTTON_POSITIVE:
+                            //cancel
+                            break;
                     }
-                };
+                }
+            };
 
-                String msg = grabEarningsPanelNote();
-
-
-                earningsDialog = earningsDialogBuilder.setMessage(Html.fromHtml(msg))
-                        .setTitle(getString(R.string.earnings_pane_title))
-                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                        .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
-
-                earningsDialogBuilder.show();
-                /*
-                earningsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-                earningsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-                earningsDialog.show();
-
-                 */
+            String msg = grabEarningsPanelNote();
 
 
-            }
+            earningsDialog = earningsDialogBuilder.setMessage(Html.fromHtml(msg))
+                    .setTitle(getString(R.string.earnings_pane_title))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
+
+            earningsDialogBuilder.show();
+            /*
+            earningsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            earningsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+            earningsDialog.show();
+
+             */
+
 
         });
 
@@ -2269,56 +2242,58 @@ public class MainActivity extends BaseActivity{
                         .setNeutralButton(getString(R.string.head_market), dialogClickListener)
                         .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
                 gadgetsDialogBuilder.show();
-                /*gadgetsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-                gadgetsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-                gadgetsDialog.show();
-                */
+
             }
         });
 
         TextView BtnSwitchSettingsFitbit = findViewById(R.id.switchSettingsFitbit);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            BtnSwitchSettingsFitbit.setTooltipText("Switch to Phone sensors mode");
+            BtnSwitchSettingsFitbit.setTooltipText("Switch to Health Connect mode");
         }
+
+
         BtnSwitchSettingsFitbit.setOnClickListener(arg0 -> {
+                    if (username == null || username.isEmpty()) {
+                        Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+                    } else {
+                        // Switch to Health Connect
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-            /*if (username == null || username.length() <1){
-                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            }else {
 
-                //sensorManager.unregisterListener(MainActivity.this);
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                MainActivity.this.startActivity(intent);
-            }*/
+                        editor.putString("dataTrackingSystem", getString(R.string.health_connect_tracking_ntt));
+                        editor.commit();
+                        checkPermissionsAndReadData();
+                    }
+                });
+
+
+
+        TextView BtnSwitchSettingsHealthConnect = findViewById(R.id.switchSettingsHealthConnect);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            BtnSwitchSettingsHealthConnect.setTooltipText("Switch to Phone sensors mode");
+        }
+        BtnSwitchSettingsHealthConnect.setOnClickListener(arg0 -> {
             if (username == null || username.isEmpty()) {
                 Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            }
-            else{
+            } else {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                if(sharedPreferences.getString("dataTrackingSystem",
-                                getString(R.string.device_tracking_ntt))
-                        .equals(getString(R.string.device_tracking_ntt))){
-                    hideCharts();
-                    editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
-                    editor.apply();
+
+                // Switch back to device sensor tracking
+                hideCharts();
+                ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                chartSwitcher.setVisibility(View.VISIBLE);
+                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+
+                editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
+                editor.commit();
+                if (mStepsDBHelper == null) {
+                    mStepsDBHelper = new StepsDBHelper(ctx);
                 }
-                else{
+                int steps = mStepsDBHelper.fetchTodayStepCount();
+                ResumeAsyncTask resumeAsyncTask = new ResumeAsyncTask();
+                resumeAsyncTask.execute();
 
-                    //dayChart.setVisibility(View.VISIBLE);
-                    btnPieChart.setVisibility(View.VISIBLE);
-                    //fullChartButton.setVisibility(View.VISIBLE);
-                    thirdPartyTracking.setVisibility(View.GONE);
-                    chartSwitcher.setVisibility(View.VISIBLE);
-                    LinearLayout barCharts = findViewById(R.id.bar_chart_container);
-                    barCharts.setVisibility(View.VISIBLE);
-                    editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
-                    //editor.apply();
-                    editor.commit();
-                    int steps = mStepsDBHelper.fetchTodayStepCount();
-                    displayActivityChart(steps, true);
-
-                }
-
+                displayActivityChart(steps, true);
             }
         });
 
@@ -2327,42 +2302,18 @@ public class MainActivity extends BaseActivity{
             BtnSwitchSettings.setTooltipText("Switch to Fitbit mode");
         }
         BtnSwitchSettings.setOnClickListener(arg0 -> {
-
-            /*if (username == null || username.length() <1){
-                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            }else {
-
-                //sensorManager.unregisterListener(MainActivity.this);
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                MainActivity.this.startActivity(intent);
-            }*/
             if (username == null || username.isEmpty()) {
                 Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            }
-            else{
+            } else {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                if(sharedPreferences.getString("dataTrackingSystem",
-                        getString(R.string.device_tracking_ntt)).equals(getString(R.string.device_tracking_ntt))){
-                    hideCharts();
-                    editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
-                    editor.commit();
-                    //editor.apply();
-                    int steps = mStepsDBHelper.fetchTodayStepCount();
-                    displayActivityChartFitbit(steps, true);
-                }
-                else{
-                    //dayChart.setVisibility(View.VISIBLE);
-                    btnPieChart.setVisibility(View.VISIBLE);
-                    //fullChartButton.setVisibility(View.VISIBLE);
-                    thirdPartyTracking.setVisibility(View.GONE);
-                    chartSwitcher.setVisibility(View.VISIBLE);
-                    LinearLayout barCharts = findViewById(R.id.bar_chart_container);
-                    barCharts.setVisibility(View.VISIBLE);
-                    editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
-                    editor.commit();
-                    int steps = mStepsDBHelper.fetchTodayStepCount();
-                    displayActivityChart(steps, true);
-                }
+
+                // Switch to Fitbit
+                hideCharts();
+                thirdPartyTracking.setVisibility(View.VISIBLE);
+                editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
+                editor.commit();
+                int steps = mStepsDBHelper.fetchTodayStepCount();
+                displayActivityChartFitbit(steps, true);
             }
         });
 
@@ -3386,6 +3337,63 @@ public class MainActivity extends BaseActivity{
         });
     }
 
+    private void displayActivityChartHealthConnect(final int stepCount, final boolean animate) {
+        runOnUiThread(() -> {
+            healthConnectPieChart = findViewById(R.id.step_pie_chart_health_connect);
+            ArrayList<PieEntry> activityArray = new ArrayList();
+            activityArray.add(new PieEntry(stepCount, ""));
+
+            if (stepCount > 2000) {
+                if (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted()) {
+                    BtnWaves.startAnimation(scaler);
+                }
+            }
+
+            if (stepCount < activityMilestoneOne) {
+                activityArray.add(new PieEntry(activityMilestoneOne - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneOne, ""));
+            } else if (stepCount < activityMilestoneThree) {
+                if (BtnPostSteemit != null && scaler != null) {
+                    if (BtnPostSteemit.getAnimation() == null || !BtnPostSteemit.getAnimation().hasStarted()) {
+                        BtnPostSteemit.startAnimation(scaler);
+                    }
+                }
+                activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
+            }
+
+            PieDataSet dataSet = new PieDataSet(activityArray, "");
+            PieData data = new PieData(dataSet);
+            healthConnectPieChart.setData(data);
+            healthConnectPieChart.getDescription().setEnabled(false);
+            healthConnectPieChart.setCenterText("" + (Math.max(stepCount, 0)));
+            healthConnectPieChart.setCenterTextColor(getResources().getColor(R.color.actifitRed));
+            healthConnectPieChart.setCenterTextSize(20f);
+            healthConnectPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
+            healthConnectPieChart.setDrawEntryLabels(false);
+            healthConnectPieChart.getLegend().setEnabled(false);
+
+            if (stepCount < activityMilestoneOne) {
+                dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+            } else if (stepCount < activityMilestoneThree) {
+                dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+            } else {
+                dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen));
+            }
+
+            adjustRewardButtonsStatus(stepCount);
+            dataSet.setSliceSpace(1f);
+            dataSet.setHighlightEnabled(true);
+            dataSet.setValueTextSize(0f);
+            dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
+
+            if (animate) {
+                healthConnectPieChart.animateXY(2000, 2000);
+            } else {
+                healthConnectPieChart.invalidate();
+            }
+        });
+    }
+
     private void displayActivityChart(final int stepCount, final boolean animate){
 
         runOnUiThread(() -> {
@@ -3895,125 +3903,122 @@ public class MainActivity extends BaseActivity{
 
 
         //update ui on UI thread
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //read activity data
-                ArrayList<DateStepsModel> mStepCountList = mStepsDBHelper.readStepsEntries();
+        runOnUiThread(() -> {
+            //read activity data
+            ArrayList<DateStepsModel> mStepCountList = mStepsDBHelper.readStepsEntries();
 
-                //initializing date conversion components
-                String dateDisplay;
-                //existing date format
-                SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
-                //output format
-                SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
-                SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
+            //initializing date conversion components
+            String dateDisplay;
+            //existing date format
+            SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
+            //output format
+            SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
+            SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
 
 
-                //connect to the chart and fill it with data
-                fullChart = findViewById(R.id.main_history_activity_chart);
+            //connect to the chart and fill it with data
+            fullChart = findViewById(R.id.main_history_activity_chart);
 
-                List<BarEntry> entries = new ArrayList<BarEntry>();
+            List<BarEntry> entries = new ArrayList<BarEntry>();
 
-                final String[] labels = new String[mStepCountList.size()];
+            final String[] labels = new String[mStepCountList.size()];
 
-                int data_id = 0;
-                //int data_id_int = 0;
-                try {
-                    for (DateStepsModel data : mStepCountList) {
+            int data_id = 0;
+            //int data_id_int = 0;
+            try {
+                for (DateStepsModel data : mStepCountList) {
 
-                        //grab date entry according to stored format
-                        Date feedingDate = dateFormIn.parse(data.mDate);
+                    //grab date entry according to stored format
+                    Date feedingDate = dateFormIn.parse(data.mDate);
 
-                        //convert it to new format for display
+                    //convert it to new format for display
 
-                        dateDisplay = dateFormOut.format(feedingDate);
+                    dateDisplay = dateFormOut.format(feedingDate);
 
-                        //if this is month 12, display year along with it
-                        if (dateDisplay.substring(0, 2).equals("01") || dateDisplay.substring(0, 2).equals("12")) {
-                            dateDisplay = dateFormOutFull.format(feedingDate);
-                        }
-
-                        labels[data_id] = dateDisplay;
-                        entries.add(new BarEntry(data_id, Float.parseFloat("" + data.mStepCount)));
-                        data_id += 1f;
-                        //data_id_int++;
-                    }
-                } catch (ParseException e) {
-                    //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                    Log.e(TAG, "ERROR");
-                }
-
-                BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
-
-                chartBarData = new BarData(dataSet);
-                // set custom bar width
-                chartBarData.setBarWidth(0.5f);
-
-
-                //customize X-axis
-
-                IAxisValueFormatter formatter = new IAxisValueFormatter() {
-
-                    @Override
-                    public String getFormattedValue(float value, AxisBase axis) {
-                        return labels[(int) value];
+                    //if this is month 12, display year along with it
+                    if (dateDisplay.substring(0, 2).equals("01") || dateDisplay.substring(0, 2).equals("12")) {
+                        dateDisplay = dateFormOutFull.format(feedingDate);
                     }
 
-                };
+                    labels[data_id] = dateDisplay;
+                    entries.add(new BarEntry(data_id, Float.parseFloat("" + data.mStepCount)));
+                    data_id += 1f;
+                    //data_id_int++;
+                }
+            } catch (ParseException e) {
+                //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, "ERROR");
+            }
 
-                XAxis xAxis = fullChart.getXAxis();
-                xAxis.setGranularity(1f); // minimum axis-step (interval)
-                xAxis.setValueFormatter(formatter);
+            BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
 
-                //add limit lines to show marker of min 5K activity
-                YAxis yAxis = fullChart.getAxisLeft();
-
-                if (yAxis.getLimitLines().size()==0) {
-
-                    LimitLine line = new LimitLine(activityMilestoneOne, getString(R.string.min_reward_level_chart));
-                    line.enableDashedLine(10f, 10f, 10f);
-                    line.setLineColor(Color.RED);
-                    line.setLineWidth(2f);
-                    line.setTextStyle(Paint.Style.FILL_AND_STROKE);
-                    line.setTextColor(Color.BLACK);
-                    line.setTextSize(12f);
-
-                    yAxis.addLimitLine(line);
-
-                    //add Limit line for max rewarded activity
-                    line = new LimitLine(activityMilestoneThree, getString(R.string.max_reward_level_chart));
-                    line.setLineColor(Color.GREEN);
-                    line.setLineWidth(2f);
-                    line.setTextStyle(Paint.Style.FILL_AND_STROKE);
-                    line.setTextColor(Color.BLACK);
-                    line.setTextSize(12f);
+            chartBarData = new BarData(dataSet);
+            // set custom bar width
+            chartBarData.setBarWidth(0.5f);
 
 
-                    yAxis.addLimitLine(line);
+            //customize X-axis
 
+            IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+                @Override
+                public String getFormattedValue(float value, AxisBase axis) {
+                    return labels[(int) value];
                 }
 
+            };
 
-                //description field of chart
-                Description chartDescription = new Description();
-                chartDescription.setText(getString(R.string.activity_history_chart_title));
+            XAxis xAxis = fullChart.getXAxis();
+            xAxis.setGranularity(1f); // minimum axis-step (interval)
+            xAxis.setValueFormatter(formatter);
 
-                fullChart.setDescription(chartDescription);
-                fullChart.getLegend().setEnabled(false);
+            //add limit lines to show marker of min 5K activity
+            YAxis yAxis = fullChart.getAxisLeft();
 
-                //fill chart with data
-                fullChart.setData(chartBarData);
+            if (yAxis.getLimitLines().size()==0) {
 
-                if (animate) {
-                    //display data with cool animation
-                    fullChart.animateXY(1500, 1500);
-                } else {
-                    //render data
-                    fullChart.invalidate();
-                }
+                LimitLine line = new LimitLine(activityMilestoneOne, getString(R.string.min_reward_level_chart));
+                line.enableDashedLine(10f, 10f, 10f);
+                line.setLineColor(Color.RED);
+                line.setLineWidth(2f);
+                line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+                line.setTextColor(Color.BLACK);
+                line.setTextSize(12f);
+
+                yAxis.addLimitLine(line);
+
+                //add Limit line for max rewarded activity
+                line = new LimitLine(activityMilestoneThree, getString(R.string.max_reward_level_chart));
+                line.setLineColor(Color.GREEN);
+                line.setLineWidth(2f);
+                line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+                line.setTextColor(Color.BLACK);
+                line.setTextSize(12f);
+
+
+                yAxis.addLimitLine(line);
 
             }
+
+
+            //description field of chart
+            Description chartDescription = new Description();
+            chartDescription.setText(getString(R.string.activity_history_chart_title));
+
+            fullChart.setDescription(chartDescription);
+            fullChart.getLegend().setEnabled(false);
+
+            //fill chart with data
+            fullChart.setData(chartBarData);
+
+            if (animate) {
+                //display data with cool animation
+                fullChart.animateXY(1500, 1500);
+            } else {
+                //render data
+                fullChart.invalidate();
+            }
+
         });
 
     }
@@ -5025,7 +5030,14 @@ public class MainActivity extends BaseActivity{
             String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
                     getString(R.string.device_tracking_ntt));
 
-            if (dataTrackingSystem == null || dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
+
+            if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
+                hideCharts();
+                thirdPartyTracking.setVisibility(View.VISIBLE);
+                int fitbitStepCount = sharedPreferences.getInt("fitbitSyncCount", 0);
+                displayActivityChartFitbit(fitbitStepCount, true);
+
+            }else if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
                 // Check if the service intent is valid before attempting to start it.
                 if (mServiceIntent == null) {
                     Log.e(TAG, "mServiceIntent is null. Cannot start default tracking service.");
@@ -5069,7 +5081,9 @@ public class MainActivity extends BaseActivity{
     // --- Helper method to check Health Connect user setting (same as before) ---
     private boolean isHealthConnectEnabledInSettings() {
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        return true; //sharedPreferences.getBoolean("health_connect_enabled", true);
+       String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                getString(R.string.health_connect_tracking_ntt));
+        return (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt)));
     }
 
 
@@ -5079,42 +5093,6 @@ public class MainActivity extends BaseActivity{
         super.onResume();
 
         Log.d(TAG, "[Actifit] - onResume Main");
-
-/*
-        try {
-            // FIX: Explicitly instantiate Function2 anonymous class and pass null for CoroutineStart
-            BuildersKt.launch(
-                    lifecycleCoroutineScope,
-                    Dispatchers.getDefault(),
-                    CoroutineStart.DEFAULT, // Pass null for CoroutineStart to use default
-                    new Function2<CoroutineScope, Continuation<? super Unit>, Object>() {
-                        @Override
-                        public Object invoke(CoroutineScope scope, Continuation<? super Unit> continuation) {
-                            try {
-                                checkHealthConnectStatusAndPermissions();
-                                return Unit.INSTANCE;
-                            } catch (Exception innerEx) {
-                                Log.e(TAG, "Exception inside onResume checkHealthConnectStatusAndPermissions coroutine lambda: " + innerEx.getMessage(), innerEx);
-                                useDefaultTrackingMethod();
-                                return Unit.INSTANCE;
-                            }
-                        }
-                    }
-            );
-        } catch (Exception ex) {
-            Log.e(TAG, "CRITICAL: Exception when launching coroutine in onResume for checkHealthConnectStatusAndPermissions: " + ex.getMessage(), ex);
-            useDefaultTrackingMethod(); // Fallback to default if coroutine launch fails
-        }*/
-
-        /*if (healthConnectManager.isHealthConnectAvailable()) {
-            BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
-                checkHealthConnectAvailabilityAndPermissions();
-                return Unit.INSTANCE;
-            });
-        } else {
-            useDefaultTrackingMethod();
-        }*/
-        //useDefaultTrackingMethod();
 
         new Thread(() -> {
             runOnUiThread(() -> {
@@ -5414,7 +5392,8 @@ public class MainActivity extends BaseActivity{
         @Override
         protected void onPostExecute(Void param) {
             super.onPostExecute(param);
-
+            final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",
+                    MODE_PRIVATE);
             //display current date
             displayDate();
 
@@ -5427,10 +5406,6 @@ public class MainActivity extends BaseActivity{
 
             displayPendingRewards();
 
-            //if (!mStepsDBHelper.isConnected()){
-//                mStepsDBHelper.reConnect();
-            //}
-
             //display today's chart data
             DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
             dispChartData.execute(true);
@@ -5439,30 +5414,26 @@ public class MainActivity extends BaseActivity{
             DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
             dispCData.execute(true);
 
-            //only display activity count from device if device mode is on
             if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
-
-                //display step count while ensuring we don't display negative value if no steps tracked yet
-                /*
-                stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
-
-                //adjust color of step account according to milestone achieved
-                if (stepCount >= 10000 ){
-                    stepDisplay.setTextColor(getResources().getColor(R.color.actifitGreen));
-                }else if (stepCount >= 5000 ){
-                    stepDisplay.setTextColor(getResources().getColor(R.color.actifitRed));
-                }else {
-                    stepDisplay.setTextColor(getResources().getColor(android.R.color.tab_indicator_text));
-                }*/
-
-                //display relevant chart
-                displayActivityChart(stepCount, true);
-
-
-            }else{
-                //inform user that fitbit mode is on
-                //stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
                 hideCharts();
+                ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                chartSwitcher.setVisibility(View.VISIBLE);
+                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                displayActivityChart(stepCount, true);
+            } else if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
+                hideCharts();
+                thirdPartyTracking.setVisibility(View.VISIBLE);
+                int fitbitStepCount = sharedPreferences.getInt("fitbitSyncCount", 0);
+                displayActivityChartFitbit(fitbitStepCount, true);
+            } else if (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt))) {
+                hideCharts();
+                healthConnectTracking.setVisibility(View.VISIBLE);
+                checkPermissionsAndReadData();
+            } else {
+                // Default fallback
+                hideCharts();
+                ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                displayActivityChart(stepCount, true);
             }
 
             Log.d(TAG, "[Actifit] onPostExecute");
@@ -5494,8 +5465,22 @@ public class MainActivity extends BaseActivity{
         queue.add(transactionRequest);
     }
 
+    private void hideCharts() {
+        if (btnPieChart == null) btnPieChart = findViewById(R.id.step_pie_chart);
+        if (thirdPartyTracking == null) thirdPartyTracking = findViewById(R.id.third_party_active);
+        if (healthConnectTracking == null) healthConnectTracking = findViewById(R.id.health_connect_active);
 
-    private void hideCharts(){
+        // Ensure parent RelativeLayouts are controlled
+        ((View)btnPieChart.getParent()).setVisibility(View.GONE);
+        thirdPartyTracking.setVisibility(View.GONE);
+        healthConnectTracking.setVisibility(View.GONE);
+
+        chartSwitcher.setVisibility(View.INVISIBLE);
+        LinearLayout barCharts = findViewById(R.id.bar_chart_container);
+        barCharts.setVisibility(View.INVISIBLE);
+    }
+
+    /*private void hideCharts(){
         //dayChart = findViewById(R.id.main_today_activity_chart);
         btnPieChart = findViewById(R.id.step_pie_chart);
         //dayChart.setVisibility(View.GONE);
@@ -5508,7 +5493,7 @@ public class MainActivity extends BaseActivity{
         thirdPartyTracking.setVisibility(View.VISIBLE);
         LinearLayout barCharts = findViewById(R.id.bar_chart_container);
         barCharts.setVisibility(View.INVISIBLE);
-    }
+    }*/
 
 
     public void showConsentForm(){

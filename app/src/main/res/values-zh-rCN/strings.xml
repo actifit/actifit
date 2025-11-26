@@ -590,4 +590,7 @@
     <string name="log_workout_plan_exercises_null_or_empty">锻炼计划的练习列表为空或不存在。</string>
     <string name="success_workout_plan_saved">锻炼计划已保存！</string>
     <string name="dialog_message_insufficient_afit_part1">您需要</string>
+    <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="sync_health_connect_btn">Health Connect synchronisieren</string>
+    <string name="fitbit_mode">Fitbit</string>
 </resources>

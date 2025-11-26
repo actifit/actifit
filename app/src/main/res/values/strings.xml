@@ -557,5 +557,8 @@
     <string name="workout_plan_overview">Workout Plan Overview</string>
     <string name="exercises">Exercises</string>
     <string name="regenerate_workout_free">REGENERATE WORKOUT (FREE)</string>
+    <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="sync_health_connect_btn">Sync Health Connect</string>
+    <string name="fitbit_mode">Fitbit</string>
 
 </resources>

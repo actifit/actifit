@@ -408,6 +408,48 @@
                                 />
                         </RelativeLayout>
 
+                        <RelativeLayout
+                            android:id="@+id/health_connect_active"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone">
+
+                            <com.github.mikephil.charting.charts.PieChart
+                                android:id="@+id/step_pie_chart_health_connect"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center" />
+
+                            <ImageView
+                                android:id="@+id/health_connect_logo"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:contentDescription="Health Connect Logo"
+                                android:src="@mipmap/health_connect_logo" />
+
+                            <TextView
+                                android:id="@+id/sync_health_connect"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignTop="@id/step_pie_chart_health_connect"
+                                android:layout_alignEnd="@id/step_pie_chart_health_connect"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:text="@string/fitbit_sync_btn"
+                                android:textColor="@color/actifitRed"
+                                android:textSize="25sp" />
+
+                            <TextView
+                                android:id="@+id/switchSettingsHealthConnect"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignEnd="@+id/step_pie_chart_health_connect"
+                                android:layout_alignBottom="@id/step_pie_chart_health_connect"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:padding="5dp"
+                                android:text="@string/switch_settings_btn"
+                                android:textColor="@color/actifitRed"
+                                android:textSize="25sp" />
+                        </RelativeLayout>
 
                         <RelativeLayout
                             android:layout_width="match_parent"

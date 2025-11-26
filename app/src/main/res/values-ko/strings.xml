@@ -591,4 +591,7 @@
     <string name="log_workout_plan_exercises_null_or_empty">운동 계획의 운동 목록이 null 또는 비어 있습니다.</string>
     <string name="success_workout_plan_saved">운동 계획이 저장되었습니다!</string>
     <string name="dialog_message_insufficient_afit_part1">다음이 필요합니다</string>
+    <string name="health_connect_option_lbl">ヘルスコネクト</string>
+	<string name="sync_health_connect_btn">ヘルスコネクトを同期</string>
+    <string name="fitbit_mode">Fitbit</string>
 </resources>

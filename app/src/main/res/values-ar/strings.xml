@@ -603,4 +603,7 @@
     <string name="log_workout_plan_exercises_null_or_empty">قائمة تمارين الخطة فارغة أو غير موجودة.</string>
     <string name="success_workout_plan_saved">تم حفظ خطة التمرين!</string>
     <string name="dialog_message_insufficient_afit_part1">أنت بحاجة إلى</string>
+    <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="sync_health_connect_btn">مزامنة Health Connect</string>
+    <string name="fitbit_mode">Fitbit</string>
 </resources>
