@@ -591,4 +591,7 @@
     <string name="log_workout_plan_exercises_null_or_empty">Lijst met oefeningen van het plan is null of leeg.</string>
     <string name="success_workout_plan_saved">Trainingsplan opgeslagen!</string>
     <string name="dialog_message_insufficient_afit_part1">Je hebt</string>
+    <string name="health_connect_option_lbl">Health Connect</string>
+	<string name="sync_health_connect_btn">Sincronizar Health Connect</string>
+    <string name="fitbit_mode">Fitbit</string>
 </resources>
