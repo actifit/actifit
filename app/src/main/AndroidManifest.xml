@@ -2,17 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.actifit.fitnesstracker.actifitfitnesstracker"
     xmlns:tools="http://schemas.android.com/tools">
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
-
 
     <!-- Permissions for Health Connect -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
-    <uses-permission android:name="android.permission.health.WRITE_STEPS" />
-    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA" />
-    <uses-permission android:name="android.permission.health.WRITE_HEALTH_DATA" />
     <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+
+    <!--
+     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
+     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA" />
+     <uses-permission android:name="android.permission.health.WRITE_HEALTH_DATA" />
+
+    -->
 
     <!-- If targeting API 34 and above -->
     <queries>

@@ -4,41 +4,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-// import android.widget.Toast; // Toast should ideally not be in a manager class
 
 import androidx.health.connect.client.HealthConnectClient;
-import androidx.health.connect.client.records.HeartRateRecord;
-import androidx.health.connect.client.request.AggregateRequest;
 import androidx.health.connect.client.aggregate.AggregationResult;
-import androidx.health.connect.client.PermissionController; // Keep this import
 import androidx.health.connect.client.permission.HealthPermission;
-import androidx.health.connect.client.records.StepsRecord;
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord;
 import androidx.health.connect.client.records.DistanceRecord;
+import androidx.health.connect.client.records.HeartRateRecord;
+import androidx.health.connect.client.records.StepsRecord;
+import androidx.health.connect.client.request.AggregateRequest;
 import androidx.health.connect.client.time.TimeRangeFilter;
-// import androidx.lifecycle.LifecycleOwnerKt; // This import is likely not needed here
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Set;
-// import java.util.ArrayList; // Not needed if createRequestPermissionIntent is used directly
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import kotlin.Unit;
 import kotlin.coroutines.Continuation;
+import kotlin.coroutines.EmptyCoroutineContext;
 import kotlin.jvm.JvmClassMappingKt;
 import kotlin.jvm.functions.Function2;
-import kotlinx.coroutines.BuildersKt;
 import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.CoroutineScopeKt;
 import kotlinx.coroutines.CoroutineStart;
 import kotlinx.coroutines.Dispatchers;
-import kotlin.coroutines.EmptyCoroutineContext;
-// import kotlinx.coroutines.Job;
 import kotlinx.coroutines.future.FutureKt;
 
 public class HealthConnectManager {
@@ -123,69 +116,48 @@ public class HealthConnectManager {
         });
     }
 
+
+
     public CompletableFuture<Long> readStepsData(ZonedDateTime day) {
-        // We use FutureKt.future to create a CompletableFuture from a coroutine block.
-        return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
-                new Function2<CoroutineScope, Continuation<? super Long>, Object>() {
-                    @Override
-                    public Object invoke(CoroutineScope scope, Continuation<? super Long> continuation) {
+        // First, check for permissions. hasAllPermissions() already returns a CompletableFuture<Boolean>.
+        return hasAllPermissions().thenCompose(hasPermissions -> {
+            if (!hasPermissions) {
+                Log.d(TAG, "Permissions not granted for reading steps, returning 0.");
+                // If permissions are not granted, return a completed future with 0.
+                return CompletableFuture.completedFuture(0L);
+            }
+
+            // If permissions are granted, proceed to aggregate the data.
+            Instant startOfDay = day.truncatedTo(ChronoUnit.DAYS).toInstant();
+            Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
+
+            AggregateRequest request = new AggregateRequest(
+                    Set.of(StepsRecord.COUNT_TOTAL),
+                    TimeRangeFilter.between(startOfDay, endOfDay),
+                    Collections.emptySet()
+            );
+
+            // Create a new CompletableFuture for the aggregation call.
+            return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                    (scope, continuation) -> {
                         try {
-                            // --- 1. Fix for getGrantedPermissions() call ---
-                            // Cast the final Continuation<? super Long> to Continuation<? super Set<String>>
-                            @SuppressWarnings("unchecked")
-                            Continuation<? super Set<String>> setContinuation = (Continuation<? super Set<String>>) continuation;
-
-                            Object hasPermResult = healthConnectClient.getPermissionController().getGrantedPermissions(setContinuation);
-
-                            // If the call suspends, we MUST return the suspension marker immediately.
-                            if (hasPermResult == kotlin.coroutines.intrinsics.CoroutineSingletons.COROUTINE_SUSPENDED) {
-                                return hasPermResult;
-                            }
-
-                            // Safe cast after potential suspension/resumption
-                            Set<String> grantedPermissions = (Set<String>) hasPermResult;
-
-                            if (!grantedPermissions.containsAll(permissions)) {
-                                Log.d(TAG, "Permissions not granted for reading steps, returning 0.");
-                                return 0L;
-                            }
-
-                            // --- 2. Fix for aggregate() call ---
-                            Instant startOfDay = day.truncatedTo(ChronoUnit.DAYS).toInstant();
-                            Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
-
-                            AggregateRequest request = new AggregateRequest(
-                                    Set.of(StepsRecord.COUNT_TOTAL),
-                                    TimeRangeFilter.between(startOfDay, endOfDay),
-                                    Collections.emptySet()
-                            );
-
-                            // Cast the final Continuation<? super Long> to Continuation<? super AggregationResult>
-                            @SuppressWarnings("unchecked")
-                            Continuation<? super AggregationResult> aggContinuation = (Continuation<? super AggregationResult>) continuation;
-
-                            Object aggResult = healthConnectClient.aggregate(
-                                    request, aggContinuation
-                            );
-
-                            // If the call suspends, we MUST return the suspension marker immediately.
-                            if (aggResult == kotlin.coroutines.intrinsics.CoroutineSingletons.COROUTINE_SUSPENDED) {
-                                return aggResult;
-                            }
-
-                            // Safe cast after potential suspension/resumption
-                            AggregationResult response = (AggregationResult) aggResult;
-
-                            Long steps = response.get(StepsRecord.COUNT_TOTAL);
-                            return steps != null ? steps : 0L;
-
+                            // This is the suspend call to aggregate data.
+                            return healthConnectClient.aggregate(request, continuation);
                         } catch (Throwable e) {
-                            Log.e(TAG, "Error in readStepsData suspend call", e);
+                            Log.e(TAG, "Error in aggregate suspend call", e);
+                            // Rethrow to fail the future.
                             throw new RuntimeException(e);
                         }
                     }
-                }
-        ).exceptionally(e -> {
+            ).thenApply(aggregationResult -> {
+                // Once the aggregation is complete, extract the step count.
+                Long steps = ((AggregationResult) aggregationResult).get(StepsRecord.COUNT_TOTAL);
+                Log.d(TAG, "Successfully read steps from Health Connect: " + steps);
+                return steps != null ? steps : 0L;
+            });
+
+        }).exceptionally(e -> {
+            // This will catch exceptions from hasAllPermissions or the aggregation future.
             Log.e(TAG, "Error in readStepsData pipeline", e);
             return 0L;
         });
