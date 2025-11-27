@@ -561,5 +561,8 @@
     <string name="health_connect_option_lbl">Health Connect</string>
     <string name="sync_health_connect_btn">Sync Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
-
+    <string name="sync_data_btn_lbl">Sync Data</string>
+    <string name="health_connect_sync_option">Health Connect</string>
+    <string name="fitbit_sync_option">Fitbit</string>
+    <string name="sync_data_options_title">Sync Data From</string>
 </resources>
