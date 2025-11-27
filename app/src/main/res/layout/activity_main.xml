@@ -463,19 +463,26 @@
                                 android:gravity="center"
                                 />
 
-                            <TextView
-                                android:id="@+id/battery_notice"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:textColor="@color/actifitRed"
-                                android:textSize="20sp"
-                                android:text="@string/fa_exclamation_circle_solid"
-
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
                                 android:layout_alignBottom="@id/step_pie_chart"
                                 android:layout_alignStart="@+id/step_pie_chart"
                                 android:gravity="center"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                />
+                                >
+
+                                <TextView
+                                    android:id="@+id/battery_notice"
+                                    android:layout_width="25dp"
+                                    android:layout_height="25dp"
+                                    android:textColor="@color/actifitRed"
+                                    android:textSize="20sp"
+                                    android:text="@string/fa_exclamation_circle_solid"
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    />
+
+                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/switchSettings"
@@ -813,65 +820,82 @@
                             android:visibility="gone"/>
 
                     </LinearLayout>
+
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-                        <Button
-                            android:id="@+id/checkHealthConnectStatusButton"
 
-                            android:layout_height="wrap_content"
-                            android:text="Check Health Connect"
-                            android:layout_width="148dp"
-                            android:layout_marginBottom="16dp"/>
-
-                        <Button
-                            android:id="@+id/readHealthConnectDataButton"
-
-                            android:layout_height="wrap_content"
-                            android:layout_width="148dp"
-                            android:text="Read Health Connect" />
-
-                    </LinearLayout>
-                    <LinearLayout
-                        android:id="@+id/chart_switcher"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         >
 
-                        <Button
-                            style="@style/AppTheme.ActifitButton"
-                            android:id="@+id/launch_workout_wizard_button"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:layout_gravity="start"
-                            android:text="\uf44b"
-                            android:textSize="16sp"
-                            android:fontFamily="@font/font_awesome_6_solid"
-                            tools:ignore="HardcodedText" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-
-
-                        <Button
-                            android:id="@+id/daily_chart_btn"
-                            android:theme="@style/AppTheme.ActifitButton"
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:text="@string/daily"/>
-                        <Button
-                            android:id="@+id/hourly_chart_btn"
-                            android:theme="@style/AppTheme.ActifitButton"
-                            android:layout_width="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_gravity="top">
+
+                            <Button
+                                style="@style/AppTheme.ActifitButton"
+                                android:id="@+id/launch_workout_wizard_button"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:text="\uf44b"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                tools:ignore="HardcodedText" />
+
+                            <!-- Changed to ImageButton for proper icon handling -->
+                            <ImageButton
+                                android:id="@+id/health_connect_status"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginStart="8dp"
+                                android:alpha="0.8"
+                                android:contentDescription="Health Connect Status"
+                                android:src="@mipmap/health_connect_logo"
+                                app:tint="@color/actifitRed"
+                                android:tintMode="multiply"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:scaleType="fitCenter"
+                                android:padding="4dp"/>
+
+                        </LinearLayout>
+
+
+                        <LinearLayout
+                            android:id="@+id/chart_switcher"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:visibility="gone"
-                            android:text="@string/hourly"/>
+                            android:orientation="horizontal"
+                            >
+
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1" />
+
+
+
+                            <Button
+                                android:id="@+id/daily_chart_btn"
+                                android:theme="@style/AppTheme.ActifitButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:text="@string/daily"/>
+                            <Button
+                                android:id="@+id/hourly_chart_btn"
+                                android:theme="@style/AppTheme.ActifitButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:visibility="gone"
+                                android:text="@string/hourly"/>
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
