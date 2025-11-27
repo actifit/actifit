@@ -936,7 +936,9 @@ public class MainActivity extends BaseActivity{
     }
 
     private void checkPermissionsAndReadData() {
+
         if (isHealthConnectEnabledInSettings()) {
+            Log.d(TAG,"HC enabled");
             // Set the data tracking system to Health Connect
             SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -949,6 +951,7 @@ public class MainActivity extends BaseActivity{
 
             ZonedDateTime today = ZonedDateTime.now();
             healthConnectManager.readStepsData(today).whenComplete((steps, readThrowable) -> {
+                Log.d(TAG, "HC Steps"+steps);
                 if (readThrowable != null) {
                     Log.e(TAG, "Error reading steps from Health Connect: " + readThrowable.getMessage(), readThrowable);
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to read data from Health Connect. Falling back.", Toast.LENGTH_LONG).show());
