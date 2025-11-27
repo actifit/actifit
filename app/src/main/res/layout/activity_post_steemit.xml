@@ -197,11 +197,11 @@
 
                     <Button
                         style="@style/AppTheme.ActifitButton"
-                        android:id="@+id/fitbit_sync"
+                        android:id="@+id/sync_data"
                         android:layout_width="120dp"
                         android:layout_height="wrap_content"
                         android:ems="10"
-                        android:text="@string/fitbit_sync_btn_lbl" />
+                        android:text="@string/sync_data_btn_lbl" />
 
                     <TextView
                         android:id="@+id/fitbit_sync_notice"
@@ -486,7 +486,7 @@
                         android:layout_width="wrap_content"
                         android:gravity="center_vertical"
                         android:textSize="35dp"
-                        android:textStyle="bold"
+                        android.textStyle="bold"
                         android:text="&#10117; "
                         android:textColor="@color/actifitRed"
                         />

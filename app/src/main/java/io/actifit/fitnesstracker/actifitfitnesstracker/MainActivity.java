@@ -859,7 +859,41 @@ public class MainActivity extends BaseActivity{
             return Unit.INSTANCE;
         });
     }
-            );
+    );
+
+    /**
+     * WARNING: This is a synchronous, blocking call and should NOT be used on the main UI thread
+     * as it can cause the application to hang or trigger an "Application Not Responding" (ANR) error.
+     * It synchronously checks if the Health Connect SDK is available and if all required permissions
+     * have been granted.
+     *
+     * @return {@code true} if Health Connect is available and all permissions are granted, {@code false} otherwise.
+     */
+    private boolean isHealthConnectPermActivated() {
+        int sdkStatus = HealthConnectClient.getSdkStatus(this);
+        Log.d(TAG, "HC SDK Status: " + sdkStatus);
+
+        if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
+            try {
+                // .get() makes this a blocking call, waiting for the future to complete.
+                // This is what makes the synchronous boolean return possible.
+                boolean hasPermissions = healthConnectManager.hasAllPermissions().get();
+                if (hasPermissions) {
+                    Log.d(TAG, "HC permissions are granted.");
+                } else {
+                    Log.d(TAG, "HC permissions are NOT granted.");
+                }
+                return hasPermissions;
+            } catch (Exception e) {
+                // This can be InterruptedException or ExecutionException
+                Log.e(TAG, "Failed to synchronously get Health Connect permissions: " + e.getMessage(), e);
+                // Return false if there was any error during the synchronous wait.
+                return false;
+            }
+        }
+        // If the SDK is not available, permissions can't be granted.
+        return false;
+    }
 
     // --- Consolidated Health Connect Status and Permission Checker ---
     private void checkHealthConnectStatusAndPermissions() {
@@ -5087,7 +5121,17 @@ public class MainActivity extends BaseActivity{
         Log.d(TAG, "[Actifit] - onResume Main");
 
         new Thread(() -> {
+
+            final boolean hcActivated = isHealthConnectEnabledInSettings() && isHealthConnectPermActivated();
             runOnUiThread(() -> {
+
+                ImageButton hcs = findViewById(R.id.health_connect_status);
+                if (hcActivated) {
+                    hcs.setVisibility(GONE);
+                } else {
+                    hcs.setVisibility(View.VISIBLE);
+                }
+
                 displayDate();
 
                 displayUserAndRank();
