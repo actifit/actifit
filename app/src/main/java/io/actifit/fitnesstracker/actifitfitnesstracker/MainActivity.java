@@ -15,6 +15,7 @@
  */
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static android.view.View.GONE;
 import static java.lang.Integer.parseInt;
 
 import android.animation.ValueAnimator;
@@ -68,6 +69,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -561,7 +563,7 @@ public class MainActivity extends BaseActivity{
 
     // slide the view from its current position to below itself
     public void slideLeft(View view){
-        view.setVisibility(View.GONE);
+        view.setVisibility(GONE);
         TranslateAnimation animate = new TranslateAnimation(
                 0,                 // fromXDelta
                 view.getWidth(),                 // toXDelta
@@ -861,6 +863,10 @@ public class MainActivity extends BaseActivity{
 
     // --- Consolidated Health Connect Status and Permission Checker ---
     private void checkHealthConnectStatusAndPermissions() {
+
+        ImageButton hcs = findViewById(R.id.health_connect_status);
+
+
         // Prevent multiple checks from running concurrently
         if (healthConnectCheckRunning.getAndSet(true)) {
             Log.d(TAG, "Health Connect check is already running.");
@@ -868,6 +874,7 @@ public class MainActivity extends BaseActivity{
         }
         int sdkStatus = HealthConnectClient.getSdkStatus(this);
         Log.d(TAG, "HC SDK Status: " + sdkStatus);
+        hcs.setVisibility(View.VISIBLE);
 
         if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
             // HC is available, now check our app's permissions
@@ -885,6 +892,7 @@ public class MainActivity extends BaseActivity{
                     showPermissionsRationaleDialog();
                 } else {
                     Log.d(TAG, "HC permissions granted to Actifit. Proceeding to read data.");
+                    hcs.setVisibility(GONE);
                     checkPermissionsAndReadData(); // Permissions granted, read data
                     healthConnectCheckRunning.set(false); // Reset flag
                 }
@@ -1006,28 +1014,9 @@ public class MainActivity extends BaseActivity{
                 MainActivity.this); // Get the lifecycle-aware coroutine scope
 
 
-        Button checkStatusButton = findViewById(R.id.checkHealthConnectStatusButton); // Assuming button ID
-        Button readDataButton = findViewById(R.id.readHealthConnectDataButton);       // Assuming button ID
-
-        if (checkStatusButton != null) {
-            checkStatusButton.setOnClickListener(v -> checkHealthConnectStatusAndPermissions());
-        }
-        if (readDataButton != null) {
-            ZonedDateTime today = ZonedDateTime.now();
-            readDataButton.setOnClickListener(v -> healthConnectManager.readStepsData(today));// readHealthConnectData());
-        }
-/*
-        Button checkStatusButton = findViewById(R.id.checkHealthConnectStatusButton); // Assuming button ID
-        Button readDataButton = findViewById(R.id.readHealthConnectDataButton);       // Assuming button ID
-
-        if (checkStatusButton != null) {
-            checkStatusButton.setOnClickListener(v -> checkHealthConnectStatusAndPermissions());
-        }
-        if (readDataButton != null) {
-            ZonedDateTime today = ZonedDateTime.now();
-            readDataButton.setOnClickListener(v -> healthConnectManager.readStepsData(today));// readHealthConnectData());
-        }*/
-
+        ImageButton hcs = findViewById(R.id.health_connect_status);
+        hcs.setVisibility(GONE);
+        hcs.setOnClickListener(v -> checkHealthConnectStatusAndPermissions());
 
         try {
             BuildersKt.launch(
@@ -1358,7 +1347,7 @@ public class MainActivity extends BaseActivity{
 
             slideRight(dayChart);
             slideLeft(fullChart);
-            dayChartButton.setVisibility(View.GONE);
+            dayChartButton.setVisibility(GONE);
             fullChartButton.setVisibility(View.VISIBLE);
             /*fullChart.animate()
                     .translationXBy(fullChart.getWidth())
@@ -1379,7 +1368,7 @@ public class MainActivity extends BaseActivity{
             slideLeft(dayChart);
             slideRight(fullChart);
             dayChartButton.setVisibility(View.VISIBLE);
-            fullChartButton.setVisibility(View.GONE);
+            fullChartButton.setVisibility(GONE);
             /*dayChart.animate()
                     .translationX(dayChart.getWidth() * -1)
                     .alpha(0.0f);
@@ -2362,7 +2351,7 @@ public class MainActivity extends BaseActivity{
         if (userCanClaimSignupLinks){
             claimSignups.setVisibility(View.VISIBLE);
         }else{
-            claimSignups.setVisibility(View.GONE);
+            claimSignups.setVisibility(GONE);
         }
 
         claimSignups.setOnClickListener(v->{
@@ -2427,7 +2416,7 @@ public class MainActivity extends BaseActivity{
                 }
             }
         }else{
-            linksHeader.setVisibility(View.GONE);
+            linksHeader.setVisibility(GONE);
         }
     }
 
@@ -2854,7 +2843,7 @@ public class MainActivity extends BaseActivity{
         if (showNotice){
             ftv.setVisibility(View.VISIBLE);
         }else{
-            ftv.setVisibility(View.GONE);
+            ftv.setVisibility(GONE);
         }
 
         return msg;
@@ -2900,7 +2889,7 @@ public class MainActivity extends BaseActivity{
 
             showBatteryNotice();
         }else{
-            batteryNotif.setVisibility(View.GONE);
+            batteryNotif.setVisibility(GONE);
         }
     }
 
@@ -4565,7 +4554,7 @@ public class MainActivity extends BaseActivity{
             //hide no gadgets display as we do have active gadgets
             //LinearLayout noActiveGadgets = findViewById(R.id.missing_active_gadgets_container);
             TextView noActiveGadgets = findViewById(R.id.missing_active_gadgets);
-            noActiveGadgets.setVisibility(View.GONE);
+            noActiveGadgets.setVisibility(GONE);
             for (int i = 0; i < activeProducts.length(); i++) {
                 try {
                     //find matching image
@@ -4700,7 +4689,7 @@ public class MainActivity extends BaseActivity{
             topIconsContainer.setVisibility(View.VISIBLE);
 
             //loginLink.setVisibility(View.GONE);
-            loginContainer.setVisibility(View.GONE);
+            loginContainer.setVisibility(GONE);
 
 
 
@@ -4848,7 +4837,7 @@ public class MainActivity extends BaseActivity{
         }else{
             //hide logout, show login
             //logoutLink.setVisibility(View.GONE);
-            topIconsContainer.setVisibility(View.GONE);
+            topIconsContainer.setVisibility(GONE);
             loginContainer.setVisibility(View.VISIBLE);
         }
         loginLink.setOnClickListener(new OnClickListener() {
@@ -5448,7 +5437,7 @@ public class MainActivity extends BaseActivity{
     private void loadNotifCount(RequestQueue queue){
         String notificationsUrl = Utils.apiUrl(this)+getString(R.string.user_active_notifications_url)+MainActivity.username;
         notifCount.setText("");
-        notifCount.setVisibility(View.GONE);
+        notifCount.setVisibility(GONE);
         // Request the transactions of the user first via JsonArrayRequest
         // according to our data format
         JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET,
@@ -5474,9 +5463,9 @@ public class MainActivity extends BaseActivity{
         if (healthConnectTracking == null) healthConnectTracking = findViewById(R.id.health_connect_active);
 
         // Ensure parent RelativeLayouts are controlled
-        ((View)btnPieChart.getParent()).setVisibility(View.GONE);
-        thirdPartyTracking.setVisibility(View.GONE);
-        healthConnectTracking.setVisibility(View.GONE);
+        ((View)btnPieChart.getParent()).setVisibility(GONE);
+        thirdPartyTracking.setVisibility(GONE);
+        healthConnectTracking.setVisibility(GONE);
 
         chartSwitcher.setVisibility(View.INVISIBLE);
         LinearLayout barCharts = findViewById(R.id.bar_chart_container);
