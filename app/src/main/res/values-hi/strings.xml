@@ -591,4 +591,7 @@
     <string name="log_workout_plan_exercises_null_or_empty">वर्कआउट प्लान की एक्सरसाइज़ सूची null या खाली है।</string>
     <string name="success_workout_plan_saved">वर्कआउट योजना सहेजी गई!</string>
     <string name="dialog_message_insufficient_afit_part1">आपको</string>
+    <string name="health_connect_option_lbl">हेल्थ कनेक्ट</string>
+	<string name="sync_health_connect_btn">हेल्थ कनेक्ट सिंक करें</string>
+    <string name="fitbit_mode">Fitbit</string>
 </resources>

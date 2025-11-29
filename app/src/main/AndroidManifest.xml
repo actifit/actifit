@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.actifit.fitnesstracker.actifitfitnesstracker">
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    package="io.actifit.fitnesstracker.actifitfitnesstracker"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permissions for Health Connect -->
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+
+    <!--
+     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
+     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA" />
+     <uses-permission android:name="android.permission.health.WRITE_HEALTH_DATA" />
+
+    -->
+
+    <!-- If targeting API 34 and above -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+        <package android:name="com.google.android.apps.healthconnect" />
+    </queries>
+
 
     <!-- required by android 13 / post notifications permission  -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -44,6 +64,30 @@
     android:requestLegacyExternalStorage="true"
     android:usesCleartextTraffic="true"
     >
+
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".MainActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Health Connect Provider for Android 13 (API 33) and below -->
+        <!-- Required to launch Health Connect app when it's not pre-installed system app -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.health.connect.client.HealthConnectClient"
+                android:value="androidx.startup" />
+        </provider>
+
     <!-- request legacy is temporary measure for supporting current image upload/save
         till moving to new android 11 -->
 

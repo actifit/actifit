@@ -1,1 +1,20 @@
+pluginManagement { // This block might be present if you use newer Gradle versions.
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal() // Often needed for plugin resolution
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google() // For your app's dependencies (e.g., Health Connect, AppCompat)
+        mavenCentral()
+        // If MPAndroidChart is a direct dependency of your app module and uses JitPack,
+        // you would typically declare JitPack here:
+        maven { url 'https://jitpack.io' }
+    }
+}
+rootProject.name = "Actifit"
 include ':app', ':com.exerpic.si.aar'

@@ -153,6 +153,8 @@ public class SettingsActivity extends BaseActivity {
 
         final RadioButton deviceSensorsBtn = findViewById(R.id.device_sensors);
         final RadioButton fitbitBtn = findViewById(R.id.fitbit);
+        final RadioButton healthConnectBtn = findViewById(R.id.health_connect);
+
         final LinearLayout aggModeSection = findViewById(R.id.background_tracking_section);
 
         final LinearLayout fitbitSettingsSection = findViewById(R.id.fitbit_settings_section);
@@ -712,17 +714,18 @@ public class SettingsActivity extends BaseActivity {
 
         String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
                 getString(R.string.device_tracking_ntt));
-        if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))){
+        if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
             fitbitBtn.setChecked(true);
-
-            //also hide aggressive mode if fitbit is on, and show fitbit configuration
-            aggModeSection.setVisibility(View.INVISIBLE);
+            aggModeSection.setVisibility(View.GONE);
             fitbitSettingsSection.setVisibility(View.VISIBLE);
-        }else{
+        } else if (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt))) {
+            healthConnectBtn.setChecked(true);
+            aggModeSection.setVisibility(View.GONE);
+            fitbitSettingsSection.setVisibility(View.GONE);
+        } else {
             deviceSensorsBtn.setChecked(true);
-            //alternatively hide fitbit settings and show aggressive mode settings
             aggModeSection.setVisibility(View.VISIBLE);
-            fitbitSettingsSection.setVisibility(View.INVISIBLE);
+            fitbitSettingsSection.setVisibility(View.GONE);
         }
 
         RadioGroup trackingModeRadiogroup = findViewById(R.id.tracking_mode_radiogroup);
@@ -733,7 +736,10 @@ public class SettingsActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
 
-                if (deviceSensorsBtn.isChecked()){
+                if (healthConnectBtn.isChecked()){
+                    aggModeSection.setVisibility(View.GONE);
+                    fitbitSettingsSection.setVisibility(View.GONE);
+                }else if (deviceSensorsBtn.isChecked()){
                     aggModeSection.setVisibility(View.VISIBLE);
                     fitbitSettingsSection.setVisibility(View.INVISIBLE);
                 }else{
@@ -843,17 +849,25 @@ public class SettingsActivity extends BaseActivity {
             //store selected tracking system
             if (fitbitBtn.isChecked()) {
                 editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
-
-                //also deactivate running sensors if any instance is running
                 try {
                     ActivityMonitorService mSensorService = MainActivity.getmSensorService();
                     if (mSensorService != null) {
                         stopService(MainActivity.getmServiceIntent());
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }else{
+            } else if (healthConnectBtn.isChecked()) {
+                editor.putString("dataTrackingSystem", getString(R.string.health_connect_tracking_ntt));
+                try {
+                    ActivityMonitorService mSensorService = MainActivity.getmSensorService();
+                    if (mSensorService != null) {
+                        stopService(MainActivity.getmServiceIntent());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
                 editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
             }
 

@@ -521,6 +521,7 @@
     <string name="translation_header">Auto-translated content. Click to view original.</string>
     <string name="fa_wallet_solid" translatable="false">\uf555</string>
     <string name="fa_exclamation_circle_solid" translatable="false">\uf06a</string>
+    <string name="fa_health_connect_slash_solid" translatable="false">\uf127</string>
     <string name="fa_history_solid" translatable="false">\uf1da</string>
     <string name="fa_coins_solid" translatable="false">\uf51e</string>
     <string name="fa_file" translatable="false">\uf15b</string>
@@ -557,6 +558,13 @@
     <string name="workout_plan_overview">Workout Plan Overview</string>
     <string name="exercises">Exercises</string>
     <string name="regenerate_workout_free">REGENERATE WORKOUT (FREE)</string>
+    <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="sync_health_connect_btn">Sync Health Connect</string>
+    <string name="fitbit_mode">Fitbit</string>
+    <string name="sync_data_btn_lbl">Sync Data</string>
+    <string name="health_connect_sync_option">Health Connect</string>
+    <string name="fitbit_sync_option">Fitbit</string>
+    <string name="sync_data_options_title">Sync Data From</string>
     <string name="exercise_search_title">Search Exercises</string>
     <string name="search_hint">Search by exercise name...</string>
     <string name="filter_by_body_part">Body Part:</string>

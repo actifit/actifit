@@ -52,6 +52,10 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.widget.NestedScrollView;
+import androidx.health.connect.client.HealthConnectClient;
+import androidx.health.connect.client.PermissionController;
+import androidx.lifecycle.LifecycleCoroutineScope;
+import androidx.lifecycle.LifecycleOwnerKt;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -72,14 +76,18 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.Markwon;
@@ -87,7 +95,10 @@ import io.noties.markwon.MarkwonConfiguration;
 import io.noties.markwon.html.HtmlPlugin;
 import io.noties.markwon.image.AsyncDrawable;
 import io.noties.markwon.image.picasso.PicassoImagesPlugin;
-
+import kotlin.Unit;
+import kotlinx.coroutines.BuildersKt;
+import kotlinx.coroutines.CoroutineStart;
+import kotlinx.coroutines.Dispatchers;
 
 
 public class PostSteemitActivity extends BaseActivity implements View.OnClickListener{
@@ -121,6 +132,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     //tracks whether user synched his Fitbit data to avoid refetching activity count from current device
     private static int fitbitSyncDone = 0;
+
+    //tracks whether user synched his HealthConnect data
+    private static int healthConnectSyncDone = 0;
 
     //tracks whether user wants to post yesterday's data instead
     private static boolean yesterdayReport = false;
@@ -167,6 +181,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     String selectedActivitiesVal;
 
     //Boolean fullAFITPayVal;
+
 
 
     /* CHANGES FOR FIXING IMAGE UPLOAD */
@@ -399,6 +414,26 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     }
 
 
+
+    private HealthConnectManager healthConnectManager;
+
+
+    private final AtomicBoolean healthConnectCheckRunning = new AtomicBoolean(false);
+    private LifecycleCoroutineScope lifecycleCoroutineScope;
+    private final ActivityResultLauncher<Set<String>> hcRequestPermissionsLauncher =
+            registerForActivityResult(
+                    PermissionController.createRequestPermissionResultContract(),
+                    grantedPermissions -> {
+                        if (grantedPermissions.containsAll(healthConnectManager.permissions)) {
+                            Log.d(TAG, "All required HC permissions granted.");
+                            checkHealthConnectAndFetchSteps();
+                        } else {
+                            Log.w(TAG, "Not all required HC permissions were granted.");
+                            Toast.makeText(PostSteemitActivity.this, "Steps data can't be synced without permission.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -414,6 +449,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             isEditorExpanded = !isEditorExpanded;
             toggleEditorMode(isEditorExpanded);
         });
+
+        healthConnectManager = new HealthConnectManager(this);
+        lifecycleCoroutineScope = LifecycleOwnerKt.getLifecycleScope(this);
 
         /*Toolbar postToolbar = findViewById(R.id.post_toolbar);
         setSupportActionBar(postToolbar);*/
@@ -714,11 +752,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         reportDateOptionGroup.setOnCheckedChangeListener((group, checkedId) -> {
             //common code for both cases
 
-            //if user had synced Fitbit before, we need to notify that they need to sync again after change of date
-            if (fitbitSyncDone > 0) {
+            //if user had synced before, we need to notify that they need to sync again after change of date
+            if (fitbitSyncDone > 0 || healthConnectSyncDone > 0) {
                 fitbitSyncNotice.setVisibility(View.VISIBLE);
                 //reset that we fetched fitbit data
                 fitbitSyncDone = 0;
+                healthConnectSyncDone = 0;
             }
 
             if (checkedId == R.id.report_today_option) {//we have today's option
@@ -914,13 +953,27 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
 
 
-        /***************** Fitbit Sync Implementation ****************/
+        /***************** Sync Implementation (Fitbit + Health Connect) ****************/
 
-        //capturing fitbit sync action
-        Button BtnFitbitSync = findViewById(R.id.fitbit_sync);
-        BtnFitbitSync.setOnClickListener(arg0 -> {
-            // Connect to fitbit and grab data
-            NxFitbitHelper.sendUserToAuthorisation(steemit_post_context, true);
+        Button BtnSyncData = findViewById(R.id.sync_data);
+        BtnSyncData.setOnClickListener(arg0 -> {
+
+            final CharSequence[] items = {
+                    getString(R.string.fitbit_sync_option), getString(R.string.health_connect_sync_option)
+            };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(PostSteemitActivity.this);
+            builder.setTitle(getString(R.string.sync_data_options_title));
+            builder.setItems(items, (dialog, item) -> {
+                if (items[item].equals(getString(R.string.fitbit_sync_option))) {
+                    // Connect to fitbit and grab data
+                    NxFitbitHelper.sendUserToAuthorisation(steemit_post_context, true);
+                } else if (items[item].equals(getString(R.string.health_connect_sync_option))) {
+                    //initiate health connect sync
+                    checkHealthConnectAndFetchSteps();
+                }
+            });
+            builder.show();
         });
 
         //retrieve resulting data from fitbit sync (parameter from the Intent)
@@ -1011,6 +1064,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
 
         focusTitle();
+
+        healthConnectManager = new HealthConnectManager(this);
+
 
     }
 
@@ -1477,7 +1533,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     //append data tracking source to see if this is a device reading or a fitbit one
                     //if there was a Fitbit sync, also need to send out that this is Fitbit data
                     //if (1 == 1){
-                    if (fitbitSyncDone == 1){
+                    if (healthConnectSyncDone == 1){
+                        data.put("dataTrackingSource", getString(R.string.health_connect_tracking_ntt));
+                    } else if (fitbitSyncDone == 1){
                         data.put("dataTrackingSource", getString(R.string.fitbit_tracking_ntt));
                         if (fitbitUserId == null || fitbitUserId.equals("")){
                             //missing permission to fitbit
@@ -1596,7 +1654,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     private void ProcessPost(){
 
         //only if we haven't grabbed fitbit data, we need to grab new sensor data
-        if (fitbitSyncDone == 0){
+        if (fitbitSyncDone == 0 && healthConnectSyncDone == 0){
             int stepCount = 0;
             if (yesterdayReport){
                 stepCount = mStepsDBHelper.fetchYesterdayStepCount();
@@ -1608,7 +1666,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }else{
             //need to check if a day has passed, to prevent posting again using same fitbit data
             SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-            String lastSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
+
 
             //generating today's date
             Calendar mCalendar = Calendar.getInstance();
@@ -1620,9 +1678,21 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             String targetDate = new SimpleDateFormat("yyyyMMdd").format(
                     mCalendar.getTime());
 
+            String lastSyncDateKey = "";
+            String syncProviderName = "";
+            if (fitbitSyncDone == 1) {
+                lastSyncDateKey = "fitbitLastSyncDate";
+                syncProviderName = "Fitbit";
+            } else if (healthConnectSyncDone == 1) {
+                lastSyncDateKey = "healthConnectLastSyncDate";
+                syncProviderName = "Health Connect";
+            }
+
+            String lastSyncDate = sharedPreferences.getString(lastSyncDateKey,"");
+
             Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastSyncDate);
             Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+targetDate);
-            if (!lastSyncDate.equals("")){
+            if (!lastSyncDate.isEmpty()){
                 if (parseInt(lastSyncDate) < parseInt(targetDate)) {
                     notification = getString(R.string.need_sync_fitbit_again);
                     ProgressDialog progress = new ProgressDialog(steemit_post_context);
@@ -1692,19 +1762,16 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     private void processPostFinal(String currentCharity){
         if (!currentCharity.isEmpty()){
-            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE:
-                            //go ahead posting
-                            processPostMinRewards();
-                            break;
+            DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        //go ahead posting
+                        processPostMinRewards();
+                        break;
 
-                        case DialogInterface.BUTTON_NEGATIVE:
-                            //cancel
-                            break;
-                    }
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //cancel
+                        break;
                 }
             };
 
@@ -1927,6 +1994,65 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         // Update the expand/collapse button icon
         expandBtn.setText(expand ? "\uf066" : "\uf065");
+    }
+
+    private void checkHealthConnectAndFetchSteps() {
+        if (healthConnectCheckRunning.getAndSet(true)) {
+            Log.d(TAG, "Health Connect check is already running.");
+            return;
+        }
+
+        if (!healthConnectManager.isHealthConnectAvailable()) {
+            Toast.makeText(this, "Health Connect not available.", Toast.LENGTH_SHORT).show();
+            healthConnectManager.installHealthConnect();
+            healthConnectCheckRunning.set(false);
+            return;
+        }
+
+        BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
+            try {
+                boolean hasPermissions = healthConnectManager.hasAllPermissions().get();
+                if (hasPermissions) {
+                    ZonedDateTime day = yesterdayReport ? ZonedDateTime.now().minus(1, ChronoUnit.DAYS) : ZonedDateTime.now();
+                    healthConnectManager.readStepsData(day).whenComplete((steps, throwable) -> {
+                        if (throwable != null) {
+                            Log.e(TAG, "Error reading steps from Health Connect", throwable);
+                            runOnUiThread(() -> Toast.makeText(PostSteemitActivity.this, "Failed to fetch steps from Health Connect.", Toast.LENGTH_SHORT).show());
+                        } else {
+                            runOnUiThread(() -> {
+                                stepCountContainer.setText(String.valueOf(steps));
+                                healthConnectSyncDone = 1;
+                                fitbitSyncDone = 0; // Reset other sync flags
+
+                                // Store date of last sync to avoid improper use of older data
+                                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                Calendar mCalendar = Calendar.getInstance();
+
+                                // Make sure to use the correct date (today or yesterday)
+                                if (yesterdayReport) {
+                                    mCalendar.add(Calendar.DATE, -1);
+                                }
+
+                                editor.putString("healthConnectLastSyncDate",
+                                        new SimpleDateFormat("yyyyMMdd", Locale.US).format(mCalendar.getTime()));
+                                editor.apply();
+                                findViewById(R.id.fitbit_sync_notice).setVisibility(View.INVISIBLE);
+                                Toast.makeText(PostSteemitActivity.this, "Steps Synced!", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                        healthConnectCheckRunning.set(false);
+                    });
+                } else {
+                    hcRequestPermissionsLauncher.launch(healthConnectManager.permissions);
+                    healthConnectCheckRunning.set(false);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error during Health Connect permission check or data read.", e);
+                healthConnectCheckRunning.set(false);
+            }
+            return Unit.INSTANCE;
+        });
     }
 
 }
