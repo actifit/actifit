@@ -140,6 +140,27 @@
     </activity>
 
     <activity android:name=".WorkoutWizardActivity" android:exported="false"/>
+
+    <activity
+        android:name=".EditWorkoutActivity"
+        android:exported="false"
+        android:label="@string/edit_workout_title"
+        android:parentActivityName=".WorkoutWizardActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="io.actifit.fitnesstracker.actifitfitnesstracker.WorkoutWizardActivity" />
+    </activity>
+
+    <activity
+        android:name=".ExerciseSearchActivity"
+        android:exported="false"
+        android:label="@string/exercise_search_title"
+        android:parentActivityName=".WorkoutWizardActivity"> <!-- Assuming WorkoutWizardActivity is its logical parent -->
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="io.actifit.fitnesstracker.actifitfitnesstracker.WorkoutWizardActivity" />
+    </activity>
+
     <activity android:name=".StepHistoryActivity" android:exported="false"/>
     <activity
         android:name=".ExerciseDetailActivity"
