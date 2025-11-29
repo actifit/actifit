@@ -5107,7 +5107,7 @@ public class MainActivity extends BaseActivity{
     // --- Helper method to check Health Connect user setting (same as before) ---
     private boolean isHealthConnectEnabledInSettings() {
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-       String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
                 getString(R.string.health_connect_tracking_ntt));
         return (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt)));
     }
@@ -5122,7 +5122,7 @@ public class MainActivity extends BaseActivity{
 
         new Thread(() -> {
 
-            final boolean hcActivated = isHealthConnectEnabledInSettings() && isHealthConnectPermActivated();
+            final boolean hcActivated = isHealthConnectPermActivated(); //isHealthConnectEnabledInSettings() &&
             runOnUiThread(() -> {
 
                 ImageButton hcs = findViewById(R.id.health_connect_status);
