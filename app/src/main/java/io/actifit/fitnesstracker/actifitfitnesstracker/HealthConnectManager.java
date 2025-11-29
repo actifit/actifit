@@ -6,13 +6,13 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.health.connect.client.HealthConnectClient;
-import androidx.health.connect.client.aggregate.AggregationResult;
 import androidx.health.connect.client.permission.HealthPermission;
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord;
 import androidx.health.connect.client.records.DistanceRecord;
 import androidx.health.connect.client.records.HeartRateRecord;
 import androidx.health.connect.client.records.StepsRecord;
-import androidx.health.connect.client.request.AggregateRequest;
+import androidx.health.connect.client.request.ReadRecordsRequest;
+import androidx.health.connect.client.response.ReadRecordsResponse;
 import androidx.health.connect.client.time.TimeRangeFilter;
 
 import java.time.Instant;
@@ -33,6 +33,7 @@ import kotlinx.coroutines.CoroutineScopeKt;
 import kotlinx.coroutines.CoroutineStart;
 import kotlinx.coroutines.Dispatchers;
 import kotlinx.coroutines.future.FutureKt;
+import androidx.health.connect.client.records.metadata.Metadata;
 
 public class HealthConnectManager {
 
@@ -91,26 +92,19 @@ public class HealthConnectManager {
             @Override
             public Object invoke(CoroutineScope scope, Continuation<? super Boolean> continuation) {
                 try {
-                    // *** CRITICAL FIX: Cast the Continuation to the type expected by getGrantedPermissions() ***
-                    @SuppressWarnings("unchecked")
                     Continuation<? super Set<String>> setContinuation = (Continuation<? super Set<String>>) continuation;
 
                     Object result = healthConnectClient.getPermissionController().getGrantedPermissions(setContinuation);
 
-                    // Handle Kotlin suspension marker
                     if (result == kotlin.coroutines.intrinsics.CoroutineSingletons.COROUTINE_SUSPENDED) {
-                        return result; // Must return the suspension marker
+                        return result;
                     }
 
-                    // After resumption, the result is the granted Set<String>
-                    // We can safely cast here because the continuation was correctly typed for the call.
                     Set<String> grantedPermissions = (Set<String>) result;
 
-                    Log.d(TAG, "HC invoke inside HCM hasAllPermissions. Granted: " + grantedPermissions.size() + ", Expected: " + permissions.size());
-                    return grantedPermissions.containsAll(permissions); // Returns a Boolean
+                    return grantedPermissions.containsAll(permissions);
                 } catch (Throwable e) {
-                    Log.e(TAG, "Error in hasAllPermissions suspend call", e);
-                    throw new RuntimeException(e); // Rethrow to complete exceptionally
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -119,49 +113,58 @@ public class HealthConnectManager {
 
 
     public CompletableFuture<Long> readStepsData(ZonedDateTime day) {
-        // First, check for permissions. hasAllPermissions() already returns a CompletableFuture<Boolean>.
         return hasAllPermissions().thenCompose(hasPermissions -> {
             if (!hasPermissions) {
                 Log.d(TAG, "Permissions not granted for reading steps, returning 0.");
-                // If permissions are not granted, return a completed future with 0.
                 return CompletableFuture.completedFuture(0L);
             }
 
-            // If permissions are granted, proceed to aggregate the data.
             Instant startOfDay = day.truncatedTo(ChronoUnit.DAYS).toInstant();
             Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
+            TimeRangeFilter timeRangeFilter = TimeRangeFilter.between(startOfDay, endOfDay);
 
-            AggregateRequest request = new AggregateRequest(
-                    Set.of(StepsRecord.COUNT_TOTAL),
-                    TimeRangeFilter.between(startOfDay, endOfDay),
-                    Collections.emptySet()
+            ReadRecordsRequest<StepsRecord> request = new ReadRecordsRequest<>(
+                    JvmClassMappingKt.getKotlinClass(StepsRecord.class),
+                    timeRangeFilter,
+                    Collections.emptySet(), 
+                    true, 
+                    1000, 
+                    null
             );
 
-            // Create a new CompletableFuture for the aggregation call.
+
             return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
                     (scope, continuation) -> {
                         try {
-                            // This is the suspend call to aggregate data.
-                            return healthConnectClient.aggregate(request, continuation);
+                            return healthConnectClient.readRecords(request, continuation);
                         } catch (Throwable e) {
-                            Log.e(TAG, "Error in aggregate suspend call", e);
-                            // Rethrow to fail the future.
                             throw new RuntimeException(e);
                         }
                     }
-            ).thenApply(aggregationResult -> {
-                // Once the aggregation is complete, extract the step count.
-                Long steps = ((AggregationResult) aggregationResult).get(StepsRecord.COUNT_TOTAL);
-                Log.d(TAG, "Successfully read steps from Health Connect: " + steps);
-                return steps != null ? steps : 0L;
-            });
+            ).thenApply(response -> {
+                long totalSteps = 0;
+                ReadRecordsResponse<StepsRecord> recordsResponse = (ReadRecordsResponse<StepsRecord>) response;
 
+                for (StepsRecord record : recordsResponse.getRecords()) {
+                    String sourceApp = record.getMetadata().getDataOrigin().getPackageName();
+                    int recordingMethod = record.getMetadata().getRecordingMethod();
+
+                    if (recordingMethod != Metadata.RECORDING_METHOD_MANUAL_ENTRY) { // 1 == Metadata.RECORDING_METHOD_MANUALLY_ENTERED
+                        totalSteps += record.getCount();
+                        Log.d(TAG, "Found " + record.getCount() + " steps from app: " + sourceApp + " (Method: " + recordingMethod + ")");
+                    } else {
+                        Log.w(TAG, "Skipping " + record.getCount() + " manually entered steps from app: " + sourceApp);
+                    }
+                }
+
+                return totalSteps;
+            });
         }).exceptionally(e -> {
-            // This will catch exceptions from hasAllPermissions or the aggregation future.
-            Log.e(TAG, "Error in readStepsData pipeline", e);
-            return 0L;
+            Log.e(TAG, "Error in the readStepsData pipeline", e);
+            return 0L; 
         });
     }
+
 
     public Intent createPermissionRequestIntent() {
         Intent intent = new Intent("androidx.health.connect.client.action.HEALTH_CONNECT_SETTINGS");
