@@ -5046,61 +5046,61 @@ public class MainActivity extends BaseActivity{
     }
 
     private void useDefaultTrackingMethod() {
-        Log.d(TAG, "Falling back to default tracking method.");
+        runOnUiThread(() -> {
+            Log.d(TAG, "Falling back to default tracking method.");
 
-        // Use a try-catch block to handle potential runtime exceptions.
-        try {
-            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
-            // Use a default value for getString to prevent a NullPointerException
-            // if the key does not exist.
-            String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
-                    getString(R.string.device_tracking_ntt));
+            try {
+                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                        getString(R.string.device_tracking_ntt));
+                Log.d(TAG, "Current tracking mode for fallback: " + dataTrackingSystem);
 
-
-            if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
+                // Hide all tracking UI elements first to ensure a clean slate.
                 hideCharts();
-                thirdPartyTracking.setVisibility(View.VISIBLE);
-                int fitbitStepCount = sharedPreferences.getInt("fitbitSyncCount", 0);
-                displayActivityChartFitbit(fitbitStepCount, true);
 
-            }else if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
-                // Check if the service intent is valid before attempting to start it.
-                if (mServiceIntent == null) {
-                    Log.e(TAG, "mServiceIntent is null. Cannot start default tracking service.");
-                    displayActivityChart(0, false); // Display 0 steps and no animation.
-                    return;
-                }
+                if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
+                    // If Fitbit is the active system, make its UI visible again.
+                    Log.d(TAG, "Restoring Fitbit UI.");
+                    thirdPartyTracking.setVisibility(View.VISIBLE);
+                    int fitbitStepCount = sharedPreferences.getInt("fitbitSyncCount", 0);
+                    displayActivityChartFitbit(fitbitStepCount, true);
+                } else {
+                    // Default to device sensor tracking UI for all other cases.
+                    Log.d(TAG, "Restoring device sensor UI.");
+                    ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                    chartSwitcher.setVisibility(View.VISIBLE);
+                    findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
 
-                if (!isMyServiceRunning(mSensorService.getClass())) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(mServiceIntent);
-                    } else {
-                        startService(mServiceIntent);
+                    if (mServiceIntent == null) {
+                        Log.e(TAG, "mServiceIntent is null. Cannot start default tracking service.");
+                        displayActivityChart(0, false);
+                        return;
                     }
-                    Log.d(TAG, "Started default tracking service.");
-                } else {
-                    Log.d(TAG, "Default tracking service already running.");
-                }
 
-                // Check if the database helper is valid before attempting to use it.
-                if (mStepsDBHelper != null) {
-                    long defaultStepCount = mStepsDBHelper.fetchTodayStepCount();
-                    displayActivityChart((int) defaultStepCount, true);
-                    Log.d(TAG, "Displayed default steps: " + defaultStepCount);
-                } else {
-                    Log.e(TAG, "mStepsDBHelper is null. Cannot fetch today's step count.");
-                    displayActivityChart(0, false);
+                    if (!isMyServiceRunning(mSensorService.getClass())) {
+                        startForegroundService(mServiceIntent);
+                        Log.d(TAG, "Started default tracking service in foreground.");
+                    }
+
+                    if (mStepsDBHelper != null) {
+                        long defaultStepCount = mStepsDBHelper.fetchTodayStepCount();
+                        displayActivityChart((int) defaultStepCount, true);
+                    } else {
+                        displayActivityChart(0, false);
+                    }
                 }
-            } else {
-                Log.d(TAG, "User prefers a non-device tracking system, or no system active for steps display.");
-                displayActivityChart(0, false);
+            } catch (Exception e) {
+                // This is a critical fallback. Ensure the UI is at least in a stable, default state.
+                Log.e(TAG, "Error in useDefaultTrackingMethod: " + e.getMessage());
+                try {
+                    hideCharts();
+                    ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                    displayActivityChart(0, false);
+                } catch (Exception fallbackException) {
+                    Log.e(TAG, "Error in critical fallback UI reset: " + fallbackException.getMessage());
+                }
             }
-        } catch (Exception e) {
-            // Catch any other unexpected exceptions.
-            Log.e(TAG, "An error occurred in useDefaultTrackingMethod: " + e.getMessage(), e);
-            // Fallback UI or a user-facing error message.
-            displayActivityChart(0, false);
-        }
+        });
     }
 
 
