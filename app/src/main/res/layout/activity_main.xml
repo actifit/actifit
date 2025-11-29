@@ -408,6 +408,48 @@
                                 />
                         </RelativeLayout>
 
+                        <RelativeLayout
+                            android:id="@+id/health_connect_active"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone">
+
+                            <com.github.mikephil.charting.charts.PieChart
+                                android:id="@+id/step_pie_chart_health_connect"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center" />
+
+                            <ImageView
+                                android:id="@+id/health_connect_logo"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:contentDescription="Health Connect Logo"
+                                android:src="@mipmap/health_connect_logo" />
+
+                            <TextView
+                                android:id="@+id/sync_health_connect"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignTop="@id/step_pie_chart_health_connect"
+                                android:layout_alignEnd="@id/step_pie_chart_health_connect"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:text="@string/fitbit_sync_btn"
+                                android:textColor="@color/actifitRed"
+                                android:textSize="25sp" />
+
+                            <TextView
+                                android:id="@+id/switchSettingsHealthConnect"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignEnd="@+id/step_pie_chart_health_connect"
+                                android:layout_alignBottom="@id/step_pie_chart_health_connect"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:padding="5dp"
+                                android:text="@string/switch_settings_btn"
+                                android:textColor="@color/actifitRed"
+                                android:textSize="25sp" />
+                        </RelativeLayout>
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -421,19 +463,26 @@
                                 android:gravity="center"
                                 />
 
-                            <TextView
-                                android:id="@+id/battery_notice"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:textColor="@color/actifitRed"
-                                android:textSize="20sp"
-                                android:text="@string/fa_exclamation_circle_solid"
-
-                                android:layout_alignBottom="@+id/step_pie_chart"
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_alignBottom="@id/step_pie_chart"
                                 android:layout_alignStart="@+id/step_pie_chart"
                                 android:gravity="center"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                />
+                                >
+
+                                <TextView
+                                    android:id="@+id/battery_notice"
+                                    android:layout_width="25dp"
+                                    android:layout_height="25dp"
+                                    android:textColor="@color/actifitRed"
+                                    android:textSize="20sp"
+                                    android:text="@string/fa_exclamation_circle_solid"
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    />
+
+                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/switchSettings"
@@ -773,45 +822,80 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/chart_switcher"
+
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         >
 
-                        <Button
-                            style="@style/AppTheme.ActifitButton"
-                            android:id="@+id/launch_workout_wizard_button"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:layout_gravity="start"
-                            android:text="\uf44b"
-                            android:textSize="16sp"
-                            android:fontFamily="@font/font_awesome_6_solid"
-                            tools:ignore="HardcodedText" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-
-
-                        <Button
-                            android:id="@+id/daily_chart_btn"
-                            android:theme="@style/AppTheme.ActifitButton"
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:text="@string/daily"/>
-                        <Button
-                            android:id="@+id/hourly_chart_btn"
-                            android:theme="@style/AppTheme.ActifitButton"
-                            android:layout_width="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_gravity="top">
+
+                            <Button
+                                style="@style/AppTheme.ActifitButton"
+                                android:id="@+id/launch_workout_wizard_button"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:text="\uf44b"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                tools:ignore="HardcodedText" />
+
+                            <!-- Changed to ImageButton for proper icon handling -->
+                            <ImageButton
+                                android:id="@+id/health_connect_status"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginStart="8dp"
+                                android:alpha="0.8"
+                                android:contentDescription="Health Connect Status"
+                                android:src="@mipmap/health_connect_logo"
+                                app:tint="@color/actifitRed"
+                                android:tintMode="multiply"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:scaleType="fitCenter"
+                                android:padding="4dp"/>
+
+                        </LinearLayout>
+
+
+                        <LinearLayout
+                            android:id="@+id/chart_switcher"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:visibility="gone"
-                            android:text="@string/hourly"/>
+                            android:orientation="horizontal"
+                            >
+
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1" />
+
+
+
+                            <Button
+                                android:id="@+id/daily_chart_btn"
+                                android:theme="@style/AppTheme.ActifitButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:text="@string/daily"/>
+                            <Button
+                                android:id="@+id/hourly_chart_btn"
+                                android:theme="@style/AppTheme.ActifitButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:visibility="gone"
+                                android:text="@string/hourly"/>
+
+                        </LinearLayout>
 
                     </LinearLayout>
 

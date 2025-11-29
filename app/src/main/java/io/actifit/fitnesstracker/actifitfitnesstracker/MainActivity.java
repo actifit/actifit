@@ -15,6 +15,7 @@
  */
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static android.view.View.GONE;
 import static java.lang.Integer.parseInt;
 
 import android.animation.ValueAnimator;
@@ -23,6 +24,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -44,6 +46,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.text.TextUtils;
@@ -66,12 +69,15 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -79,6 +85,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
+import androidx.health.connect.client.HealthConnectClient;
+import androidx.health.connect.client.PermissionController;
+import androidx.health.connect.client.permission.HealthPermission;
+import androidx.lifecycle.LifecycleCoroutineScope;
+import androidx.lifecycle.LifecycleOwnerKt;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
@@ -147,20 +158,35 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
+import kotlin.jvm.JvmClassMappingKt;
+import kotlin.jvm.functions.Function2;
+import kotlin.jvm.internal.ClassReference;
+import kotlinx.coroutines.BuildersKt;
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.CoroutineStart;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.Job;
 
+import androidx.health.connect.client.records.HeartRateRecord;
+import androidx.health.connect.client.records.StepsRecord;
 
 /**
  * Implementation of this project was made possible via re-use, adoption and improvement of
@@ -188,6 +214,7 @@ public class MainActivity extends BaseActivity{
     //private TextView stepDisplay;
     private RelativeLayout thirdPartyTracking;
     private LinearLayout gadgetsll;
+    private RelativeLayout healthConnectTracking;
 
     //tracks a reference to an instance of this class
     public static SensorEventListener mainActivitySensorList;
@@ -267,6 +294,7 @@ public class MainActivity extends BaseActivity{
 
     PieChart btnPieChart;
     PieChart fitbitPieChart;
+    PieChart healthConnectPieChart;
 
     static boolean isActivityVisible = true;
 
@@ -339,7 +367,6 @@ public class MainActivity extends BaseActivity{
     private ViewPager newsPage;
     private TabLayout newsTabLayout;
 
-    //ProgressDialog progress;
 
     //required function to ask for proper read/write permissions on later Android versions
     protected boolean shouldAskPermissions() {
@@ -536,7 +563,7 @@ public class MainActivity extends BaseActivity{
 
     // slide the view from its current position to below itself
     public void slideLeft(View view){
-        view.setVisibility(View.GONE);
+        view.setVisibility(GONE);
         TranslateAnimation animate = new TranslateAnimation(
                 0,                 // fromXDelta
                 view.getWidth(),                 // toXDelta
@@ -756,6 +783,239 @@ public class MainActivity extends BaseActivity{
 
     }
 
+    /************ health connect code ***********/
+    private HealthConnectManager healthConnectManager;
+    private LifecycleCoroutineScope lifecycleCoroutineScope;
+    // Launcher for Play Store or Health Connect app\'s own settings (any Intent)
+    private final ActivityResultLauncher<Intent> hcExternalActivityLauncher =
+        registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                Log.d(TAG, "Returned from external HC activity (Play Store/HC Settings). Result code: \" + result.getResultCode());");
+                // After user interaction, re-check the overall status" +
+                BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(),
+                        CoroutineStart.DEFAULT,
+                        (scope, continuation) -> {
+                    checkHealthConnectStatusAndPermissions();
+                    return Unit.INSTANCE;
+            });
+        });
+
+    // --- Add this new method to your MainActivity class ---
+    private void showPermissionsRationaleDialog() {
+        runOnUiThread(() -> {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Health Connect Permission")
+                    .setMessage("To track your activity, Actifit needs permission to access your step data via Health Connect. If you are not seeing the permission pop-up, you may need to grant it manually from the Health Connect app settings.")
+                    .setPositiveButton("Request Permission", (dialog, which) -> {
+                        // This will try to show the standard permission pop-up
+                        requestHealthConnectPermissionsUI();
+                    })
+                    .setNeutralButton("Open Settings", (dialog, which) -> {
+                        try {
+                            // Intent to open Health Connect's permission management screen for this app
+                            Intent intent = new Intent("androidx.health.connect.client.ACTION_MANAGE_HEALTH_PERMISSIONS");
+                            intent.putExtra(Intent.EXTRA_PACKAGE_NAME, getPackageName());
+                            hcExternalActivityLauncher.launch(intent);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(MainActivity.this, "Could not open Health Connect settings. Please open the Health Connect app and grant permissions manually.", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .setNegativeButton("Not Now", (dialog, which) -> {
+                        Toast.makeText(MainActivity.this, "Health Connect features will be limited.", Toast.LENGTH_SHORT).show();
+                        useDefaultTrackingMethod();
+                        healthConnectCheckRunning.set(false); // Reset flag
+                    })
+                    .setOnDismissListener(dialog -> {
+                        // In case the dialog is dismissed by tapping outside, etc.
+                        healthConnectCheckRunning.set(false);
+                    })
+                    .show();
+        });
+    }
+
+
+
+    private final AtomicBoolean healthConnectCheckRunning = new AtomicBoolean(false);
+
+    // Launcher for requesting Health Connect app permissions (using the official contract)
+    private final ActivityResultLauncher<Set<String>> hcRequestPermissionsLauncher =
+    registerForActivityResult(
+            PermissionController.createRequestPermissionResultContract(),
+    grantedPermissions -> {
+        // After permission request UI, check if permissions were granted
+        Log.d(TAG, "Returned from Health Connect permissions UI.");
+        BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
+            healthConnectManager.hasAllPermissions().whenComplete((hasPermissions, throwable) -> {
+                if (hasPermissions) {
+                    Log.d(TAG, "HC permissions granted after request. Proceeding to read data.");
+                    checkPermissionsAndReadData();
+                } else {
+                    Log.d(TAG, "HC permissions were NOT granted after request. Falling back.");
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Health Connect permissions not granted. Using device sensors.", Toast.LENGTH_SHORT).show());
+                    useDefaultTrackingMethod();
+                }
+                // Reset the flag to allow future checks (e.g., from the button)
+                healthConnectCheckRunning.set(false);
+            });
+            return Unit.INSTANCE;
+        });
+    }
+    );
+
+    /**
+     * WARNING: This is a synchronous, blocking call and should NOT be used on the main UI thread
+     * as it can cause the application to hang or trigger an "Application Not Responding" (ANR) error.
+     * It synchronously checks if the Health Connect SDK is available and if all required permissions
+     * have been granted.
+     *
+     * @return {@code true} if Health Connect is available and all permissions are granted, {@code false} otherwise.
+     */
+    private boolean isHealthConnectPermActivated() {
+        int sdkStatus = HealthConnectClient.getSdkStatus(this);
+        Log.d(TAG, "HC SDK Status: " + sdkStatus);
+
+        if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
+            try {
+                // .get() makes this a blocking call, waiting for the future to complete.
+                // This is what makes the synchronous boolean return possible.
+                boolean hasPermissions = healthConnectManager.hasAllPermissions().get();
+                if (hasPermissions) {
+                    Log.d(TAG, "HC permissions are granted.");
+                } else {
+                    Log.d(TAG, "HC permissions are NOT granted.");
+                }
+                return hasPermissions;
+            } catch (Exception e) {
+                // This can be InterruptedException or ExecutionException
+                Log.e(TAG, "Failed to synchronously get Health Connect permissions: " + e.getMessage(), e);
+                // Return false if there was any error during the synchronous wait.
+                return false;
+            }
+        }
+        // If the SDK is not available, permissions can't be granted.
+        return false;
+    }
+
+    // --- Consolidated Health Connect Status and Permission Checker ---
+    private void checkHealthConnectStatusAndPermissions() {
+
+        ImageButton hcs = findViewById(R.id.health_connect_status);
+
+
+        // Prevent multiple checks from running concurrently
+        if (healthConnectCheckRunning.getAndSet(true)) {
+            Log.d(TAG, "Health Connect check is already running.");
+            return;
+        }
+        int sdkStatus = HealthConnectClient.getSdkStatus(this);
+        Log.d(TAG, "HC SDK Status: " + sdkStatus);
+        hcs.setVisibility(View.VISIBLE);
+
+        if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
+            // HC is available, now check our app's permissions
+            healthConnectManager.hasAllPermissions().whenComplete((hasPermissions, throwable) -> {
+                if (throwable != null) {
+                    Log.e(TAG, "Error checking Health Connect permissions: " + throwable.getMessage(), throwable);
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error accessing Health Connect. Falling back.", Toast.LENGTH_LONG).show());
+                    useDefaultTrackingMethod();
+                    healthConnectCheckRunning.set(false); // Reset flag
+                    return;
+                }
+
+                if (!hasPermissions) {
+                    Log.d(TAG, "HC permissions not granted to Actifit. Showing permissions rationale.");
+                    showPermissionsRationaleDialog();
+                } else {
+                    Log.d(TAG, "HC permissions granted to Actifit. Proceeding to read data.");
+                    hcs.setVisibility(GONE);
+                    checkPermissionsAndReadData(); // Permissions granted, read data
+                    healthConnectCheckRunning.set(false); // Reset flag
+                }
+            });
+        } else if (sdkStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+            Log.d(TAG, "HC needs update. Prompting user to update.");
+            showInstallOrUpdateHealthConnectRationale(true); // HC needs an update
+            healthConnectCheckRunning.set(false); // Reset flag
+        } else { // SDK_UNAVAILABLE or other status
+            Log.d(TAG, "HC SDK is unavailable. Prompting user to install.");
+            showInstallOrUpdateHealthConnectRationale(false); // HC is not installed
+            healthConnectCheckRunning.set(false); // Reset flag
+        }
+    }
+
+    // --- Launches the official Health Connect permission request UI ---
+    private void requestHealthConnectPermissionsUI() {
+        try {
+            Log.d(TAG, "Launching Health Connect permissions UI with requested permissions: " + healthConnectManager.permissions);
+
+            int sdkStatus = HealthConnectClient.getSdkStatus(MainActivity.this);
+            if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
+                hcRequestPermissionsLauncher.launch(healthConnectManager.permissions);
+            } else {
+                Log.d(TAG, "Health Connect not available. Cannot launch permission UI.");
+                showInstallOrUpdateHealthConnectRationale(sdkStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to launch Health Connect permissions UI. Fallback to install/settings.", e);
+            showInstallOrUpdateHealthConnectRationale(false); // Fallback if UI launch itself fails
+        }
+    }
+
+    // --- Dialog for guiding user to install/update Health Connect ---
+    private void showInstallOrUpdateHealthConnectRationale(boolean needsUpdate) {
+        runOnUiThread(() -> {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle(needsUpdate ? "Health Connect Update Needed" : "Health Connect App Required")
+                    .setMessage(needsUpdate ? "The Health Connect app requires an update to function correctly. Please update it from the Play Store." : "The Health Connect app is necessary to fetch health data. Please install it from the Play Store.")
+                    .setPositiveButton("Go to Play Store", (dialog, which) -> {
+                        healthConnectManager.installHealthConnect(); // Opens Play Store
+                    })
+                    .setNegativeButton("Not Now", (dialog, which) -> {
+                        Toast.makeText(MainActivity.this, "Health Connect features will be limited.", Toast.LENGTH_SHORT).show();
+                        useDefaultTrackingMethod(); // Fallback if user declines
+                    })
+                    .show();
+        });
+    }
+
+    private void checkPermissionsAndReadData() {
+
+        if (isHealthConnectEnabledInSettings()) {
+            Log.d(TAG,"HC enabled");
+            // Set the data tracking system to Health Connect
+            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("dataTrackingSystem", getString(R.string.health_connect_tracking_ntt));
+            editor.apply();
+
+            // Switch UI to Health Connect mode
+            hideCharts();
+            healthConnectTracking.setVisibility(View.VISIBLE);
+
+            ZonedDateTime today = ZonedDateTime.now();
+            healthConnectManager.readStepsData(today).whenComplete((steps, readThrowable) -> {
+                Log.d(TAG, "HC Steps"+steps);
+                if (readThrowable != null) {
+                    Log.e(TAG, "Error reading steps from Health Connect: " + readThrowable.getMessage(), readThrowable);
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to read data from Health Connect. Falling back.", Toast.LENGTH_LONG).show());
+                    useDefaultTrackingMethod();
+                    return;
+                }
+                Log.d(TAG, "Steps from Health Connect: " + steps);
+                if (steps != null && steps > 0) {
+                    displayActivityChartHealthConnect(steps.intValue(), true);
+                } else {
+                    Log.d(TAG, "Health Connect returned 0 steps or no data. Displaying 0.");
+                    displayActivityChartHealthConnect(0, true);
+                }
+            });
+        } else {
+            Log.d(TAG, "Health Connect is available but disabled in user settings. Falling back.");
+            useDefaultTrackingMethod(); // Fallback if HC disabled in settings
+        }
+    }
+
+    /*******************************************/
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -779,11 +1039,39 @@ public class MainActivity extends BaseActivity{
         setContentView(R.layout.activity_main);
         Log.d(MainActivity.TAG, "[Actifit] oncreate MainActivity");
 
-        //trying out cookie handler
-        //CookieManager cookieManager = new CookieManager(new PersistentCookieStore(getApplicationContext()), CookiePolicy.ACCEPT_ORIGINAL_SERVER);
-        //CookieHandler.setDefault(cookieManager);
+
         CookieManager manager = new CookieManager();
         CookieHandler.setDefault( manager  );
+
+        healthConnectManager = new HealthConnectManager(getApplicationContext());
+        lifecycleCoroutineScope = LifecycleOwnerKt.getLifecycleScope(
+                MainActivity.this); // Get the lifecycle-aware coroutine scope
+
+
+        ImageButton hcs = findViewById(R.id.health_connect_status);
+        hcs.setVisibility(GONE);
+        hcs.setOnClickListener(v -> checkHealthConnectStatusAndPermissions());
+
+        try {
+            BuildersKt.launch(
+                    lifecycleCoroutineScope,
+                    Dispatchers.getDefault(),
+                    CoroutineStart.DEFAULT,
+                    (scope, continuation) -> {
+                        try {
+                            checkHealthConnectStatusAndPermissions();
+                            return Unit.INSTANCE;
+                        } catch (Exception innerEx) {
+                            Log.e(TAG, "Exception inside checkHealthConnectStatusAndPermissions coroutine lambda: " + innerEx.getMessage(), innerEx);
+                            useDefaultTrackingMethod();
+                            return Unit.INSTANCE;
+                        }
+                    }
+            );
+        } catch (Exception ex) {
+            Log.e(TAG, "CRITICAL: Exception when launching coroutine for checkHealthStatusAndPermissions: " + ex.getMessage(), ex);
+            useDefaultTrackingMethod();
+        }
 
         //support dark mode
         // In Application class or base Activity's onCreate()
@@ -801,8 +1089,6 @@ public class MainActivity extends BaseActivity{
 
         AppCompatDelegate.setDefaultNightMode(initialNightMode);
 
-        //AppCompatDelegate.setDefaultNightMode(savedThemeMode);
-
         //short rotate animation
         rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotate.setDuration(2000);
@@ -816,8 +1102,6 @@ public class MainActivity extends BaseActivity{
         topIconsContainer = findViewById(R.id.top_icons_container);
         newbieLink = findViewById(R.id.verify_newbie);
         notifCount = findViewById(R.id.notif_count);
-
-        //accountRCContainer = findViewById(R.id.rc_container);
 
         votingStatusText = findViewById(R.id.voting_status_text);
         votingStatusContainer = findViewById(R.id.voting_status_container);
@@ -936,7 +1220,7 @@ public class MainActivity extends BaseActivity{
         //grab pointers to specific elements/buttons to be able to capture events and take action
         //stepDisplay = findViewById(R.id.step_display);
         thirdPartyTracking = findViewById(R.id.third_party_active);
-
+        healthConnectTracking = findViewById(R.id.health_connect_active);
 
         TextView BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         TextView BtnWallet = findViewById(R.id.btn_view_wallet);
@@ -987,16 +1271,19 @@ public class MainActivity extends BaseActivity{
                 }
         );
 
+        TextView healthConnectSync = findViewById(R.id.sync_health_connect);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            healthConnectSync.setTooltipText(getString(R.string.sync_health_connect_btn));
+        }
+        healthConnectSync.setOnClickListener(view -> {
+            checkPermissionsAndReadData();
+        });
+
 
         Button launchWorkoutWizardButton = findViewById(R.id.launch_workout_wizard_button); // Assuming you have this button in MainActivity layout
-        launchWorkoutWizardButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Start the WorkoutWizardActivity when the button is clicked
-                //launchWorkoutWizard();
-                Intent intent = new Intent(ctx, WorkoutWizardActivity.class);
-                startActivity(intent);
-            }
+        launchWorkoutWizardButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ctx, WorkoutWizardActivity.class);
+            startActivity(intent);
         });
 
 
@@ -1007,8 +1294,6 @@ public class MainActivity extends BaseActivity{
                 fitbit.requestAccessTokenFromIntent(returnUrl);
                 try {
                     JSONObject responseProfile = fitbit.getUserProfile();
-
-
                     //essential for capability to fetch measurements
                     responseProfile.getJSONObject("user");
 
@@ -1096,7 +1381,7 @@ public class MainActivity extends BaseActivity{
 
             slideRight(dayChart);
             slideLeft(fullChart);
-            dayChartButton.setVisibility(View.GONE);
+            dayChartButton.setVisibility(GONE);
             fullChartButton.setVisibility(View.VISIBLE);
             /*fullChart.animate()
                     .translationXBy(fullChart.getWidth())
@@ -1117,7 +1402,7 @@ public class MainActivity extends BaseActivity{
             slideLeft(dayChart);
             slideRight(fullChart);
             dayChartButton.setVisibility(View.VISIBLE);
-            fullChartButton.setVisibility(View.GONE);
+            fullChartButton.setVisibility(GONE);
             /*dayChart.animate()
                     .translationX(dayChart.getWidth() * -1)
                     .alpha(0.0f);
@@ -1242,43 +1527,39 @@ public class MainActivity extends BaseActivity{
         Log.d(TAG,">>>>[Actifit] Getting jiggy with it");
 
 
-        EarningsPanel.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        EarningsPanel.setOnClickListener(view -> {
 
-                //display alert dialog about pending rewards
-                earningsDialogBuilder = new AlertDialog.Builder(ctx);
+            //display alert dialog about pending rewards
+            earningsDialogBuilder = new AlertDialog.Builder(ctx);
 
 
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                //cancel
-                                break;
-                        }
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which) {
+                        case DialogInterface.BUTTON_POSITIVE:
+                            //cancel
+                            break;
                     }
-                };
+                }
+            };
 
-                String msg = grabEarningsPanelNote();
-
-
-                earningsDialog = earningsDialogBuilder.setMessage(Html.fromHtml(msg))
-                        .setTitle(getString(R.string.earnings_pane_title))
-                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                        .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
-
-                earningsDialogBuilder.show();
-                /*
-                earningsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-                earningsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-                earningsDialog.show();
-
-                 */
+            String msg = grabEarningsPanelNote();
 
 
-            }
+            earningsDialog = earningsDialogBuilder.setMessage(Html.fromHtml(msg))
+                    .setTitle(getString(R.string.earnings_pane_title))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
+
+            earningsDialogBuilder.show();
+            /*
+            earningsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            earningsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
+            earningsDialog.show();
+
+             */
+
 
         });
 
@@ -1987,56 +2268,58 @@ public class MainActivity extends BaseActivity{
                         .setNeutralButton(getString(R.string.head_market), dialogClickListener)
                         .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
                 gadgetsDialogBuilder.show();
-                /*gadgetsDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-                gadgetsDialog.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-                gadgetsDialog.show();
-                */
+
             }
         });
 
         TextView BtnSwitchSettingsFitbit = findViewById(R.id.switchSettingsFitbit);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            BtnSwitchSettingsFitbit.setTooltipText("Switch to Phone sensors mode");
+            BtnSwitchSettingsFitbit.setTooltipText("Switch to Health Connect mode");
         }
+
+
         BtnSwitchSettingsFitbit.setOnClickListener(arg0 -> {
+                    if (username == null || username.isEmpty()) {
+                        Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
+                    } else {
+                        // Switch to Health Connect
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-            /*if (username == null || username.length() <1){
-                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            }else {
 
-                //sensorManager.unregisterListener(MainActivity.this);
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                MainActivity.this.startActivity(intent);
-            }*/
+                        editor.putString("dataTrackingSystem", getString(R.string.health_connect_tracking_ntt));
+                        editor.commit();
+                        checkPermissionsAndReadData();
+                    }
+                });
+
+
+
+        TextView BtnSwitchSettingsHealthConnect = findViewById(R.id.switchSettingsHealthConnect);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            BtnSwitchSettingsHealthConnect.setTooltipText("Switch to Phone sensors mode");
+        }
+        BtnSwitchSettingsHealthConnect.setOnClickListener(arg0 -> {
             if (username == null || username.isEmpty()) {
                 Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            }
-            else{
+            } else {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                if(sharedPreferences.getString("dataTrackingSystem",
-                                getString(R.string.device_tracking_ntt))
-                        .equals(getString(R.string.device_tracking_ntt))){
-                    hideCharts();
-                    editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
-                    editor.apply();
+
+                // Switch back to device sensor tracking
+                hideCharts();
+                ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                chartSwitcher.setVisibility(View.VISIBLE);
+                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+
+                editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
+                editor.commit();
+                if (mStepsDBHelper == null) {
+                    mStepsDBHelper = new StepsDBHelper(ctx);
                 }
-                else{
+                int steps = mStepsDBHelper.fetchTodayStepCount();
+                ResumeAsyncTask resumeAsyncTask = new ResumeAsyncTask();
+                resumeAsyncTask.execute();
 
-                    //dayChart.setVisibility(View.VISIBLE);
-                    btnPieChart.setVisibility(View.VISIBLE);
-                    //fullChartButton.setVisibility(View.VISIBLE);
-                    thirdPartyTracking.setVisibility(View.GONE);
-                    chartSwitcher.setVisibility(View.VISIBLE);
-                    LinearLayout barCharts = findViewById(R.id.bar_chart_container);
-                    barCharts.setVisibility(View.VISIBLE);
-                    editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
-                    //editor.apply();
-                    editor.commit();
-                    int steps = mStepsDBHelper.fetchTodayStepCount();
-                    displayActivityChart(steps, true);
-
-                }
-
+                displayActivityChart(steps, true);
             }
         });
 
@@ -2045,42 +2328,18 @@ public class MainActivity extends BaseActivity{
             BtnSwitchSettings.setTooltipText("Switch to Fitbit mode");
         }
         BtnSwitchSettings.setOnClickListener(arg0 -> {
-
-            /*if (username == null || username.length() <1){
-                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            }else {
-
-                //sensorManager.unregisterListener(MainActivity.this);
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                MainActivity.this.startActivity(intent);
-            }*/
             if (username == null || username.isEmpty()) {
                 Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            }
-            else{
+            } else {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                if(sharedPreferences.getString("dataTrackingSystem",
-                        getString(R.string.device_tracking_ntt)).equals(getString(R.string.device_tracking_ntt))){
-                    hideCharts();
-                    editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
-                    editor.commit();
-                    //editor.apply();
-                    int steps = mStepsDBHelper.fetchTodayStepCount();
-                    displayActivityChartFitbit(steps, true);
-                }
-                else{
-                    //dayChart.setVisibility(View.VISIBLE);
-                    btnPieChart.setVisibility(View.VISIBLE);
-                    //fullChartButton.setVisibility(View.VISIBLE);
-                    thirdPartyTracking.setVisibility(View.GONE);
-                    chartSwitcher.setVisibility(View.VISIBLE);
-                    LinearLayout barCharts = findViewById(R.id.bar_chart_container);
-                    barCharts.setVisibility(View.VISIBLE);
-                    editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
-                    editor.commit();
-                    int steps = mStepsDBHelper.fetchTodayStepCount();
-                    displayActivityChart(steps, true);
-                }
+
+                // Switch to Fitbit
+                hideCharts();
+                thirdPartyTracking.setVisibility(View.VISIBLE);
+                editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
+                editor.commit();
+                int steps = mStepsDBHelper.fetchTodayStepCount();
+                displayActivityChartFitbit(steps, true);
             }
         });
 
@@ -2126,7 +2385,7 @@ public class MainActivity extends BaseActivity{
         if (userCanClaimSignupLinks){
             claimSignups.setVisibility(View.VISIBLE);
         }else{
-            claimSignups.setVisibility(View.GONE);
+            claimSignups.setVisibility(GONE);
         }
 
         claimSignups.setOnClickListener(v->{
@@ -2191,7 +2450,7 @@ public class MainActivity extends BaseActivity{
                 }
             }
         }else{
-            linksHeader.setVisibility(View.GONE);
+            linksHeader.setVisibility(GONE);
         }
     }
 
@@ -2618,7 +2877,7 @@ public class MainActivity extends BaseActivity{
         if (showNotice){
             ftv.setVisibility(View.VISIBLE);
         }else{
-            ftv.setVisibility(View.GONE);
+            ftv.setVisibility(GONE);
         }
 
         return msg;
@@ -2664,7 +2923,7 @@ public class MainActivity extends BaseActivity{
 
             showBatteryNotice();
         }else{
-            batteryNotif.setVisibility(View.GONE);
+            batteryNotif.setVisibility(GONE);
         }
     }
 
@@ -3104,19 +3363,77 @@ public class MainActivity extends BaseActivity{
         });
     }
 
+    private void displayActivityChartHealthConnect(final int stepCount, final boolean animate) {
+        runOnUiThread(() -> {
+            healthConnectPieChart = findViewById(R.id.step_pie_chart_health_connect);
+            ArrayList<PieEntry> activityArray = new ArrayList();
+            activityArray.add(new PieEntry(stepCount, ""));
+
+            if (stepCount > 2000) {
+                if (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted()) {
+                    BtnWaves.startAnimation(scaler);
+                }
+            }
+
+            if (stepCount < activityMilestoneOne) {
+                activityArray.add(new PieEntry(activityMilestoneOne - stepCount, ""));
+                activityArray.add(new PieEntry(activityMilestoneOne, ""));
+            } else if (stepCount < activityMilestoneThree) {
+                if (BtnPostSteemit != null && scaler != null) {
+                    if (BtnPostSteemit.getAnimation() == null || !BtnPostSteemit.getAnimation().hasStarted()) {
+                        BtnPostSteemit.startAnimation(scaler);
+                    }
+                }
+                activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
+            }
+
+            PieDataSet dataSet = new PieDataSet(activityArray, "");
+            PieData data = new PieData(dataSet);
+            healthConnectPieChart.setData(data);
+            healthConnectPieChart.getDescription().setEnabled(false);
+            healthConnectPieChart.setCenterText("" + (Math.max(stepCount, 0)));
+            healthConnectPieChart.setCenterTextColor(getResources().getColor(R.color.actifitRed));
+            healthConnectPieChart.setCenterTextSize(20f);
+            healthConnectPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
+            healthConnectPieChart.setDrawEntryLabels(false);
+            healthConnectPieChart.getLegend().setEnabled(false);
+
+            if (stepCount < activityMilestoneOne) {
+                dataSet.setColors(getResources().getColor(R.color.actifitRed), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+            } else if (stepCount < activityMilestoneThree) {
+                dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen), getResources().getColor(android.R.color.tab_indicator_text), getResources().getColor(android.R.color.tab_indicator_text));
+            } else {
+                dataSet.setColors(getResources().getColor(R.color.actifitDarkGreen));
+            }
+
+            adjustRewardButtonsStatus(stepCount);
+            dataSet.setSliceSpace(1f);
+            dataSet.setHighlightEnabled(true);
+            dataSet.setValueTextSize(0f);
+            dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
+
+            if (animate) {
+                healthConnectPieChart.animateXY(2000, 2000);
+            } else {
+                healthConnectPieChart.invalidate();
+            }
+        });
+    }
+
     private void displayActivityChart(final int stepCount, final boolean animate){
 
         runOnUiThread(() -> {
-
             btnPieChart = findViewById(R.id.step_pie_chart);
             ArrayList<PieEntry> activityArray = new ArrayList();
             activityArray.add(new PieEntry(stepCount, ""));
 
-            if (stepCount > 2000){
+            if (stepCount > 2000){ // Use your actual milestone values
                 //animate waves button
-                if (BtnWaves.getAnimation()==null || BtnWaves.getAnimation().hasStarted()) {
-                    BtnWaves.setAnimation(scaler);
+                if (BtnWaves != null && (BtnWaves.getAnimation()==null || !BtnWaves.getAnimation().hasStarted())) { // Check BtnWaves for null
+                    if (scaler != null) BtnWaves.startAnimation(scaler); // Use startAnimation instead of setAnimation for continuous
                 }
+            } else {
+                if (BtnWaves != null) BtnWaves.clearAnimation(); // Stop animation if not met
             }
 
             if (stepCount < activityMilestoneOne) {
@@ -3132,6 +3449,8 @@ public class MainActivity extends BaseActivity{
                 }
 
                 activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
+            } else {
+                if (BtnPostSteemit != null) BtnPostSteemit.clearAnimation(); // Stop animation if not met
             }
 
             PieDataSet dataSet = new PieDataSet(activityArray, "");
@@ -3610,125 +3929,122 @@ public class MainActivity extends BaseActivity{
 
 
         //update ui on UI thread
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //read activity data
-                ArrayList<DateStepsModel> mStepCountList = mStepsDBHelper.readStepsEntries();
+        runOnUiThread(() -> {
+            //read activity data
+            ArrayList<DateStepsModel> mStepCountList = mStepsDBHelper.readStepsEntries();
 
-                //initializing date conversion components
-                String dateDisplay;
-                //existing date format
-                SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
-                //output format
-                SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
-                SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
+            //initializing date conversion components
+            String dateDisplay;
+            //existing date format
+            SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
+            //output format
+            SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
+            SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
 
 
-                //connect to the chart and fill it with data
-                fullChart = findViewById(R.id.main_history_activity_chart);
+            //connect to the chart and fill it with data
+            fullChart = findViewById(R.id.main_history_activity_chart);
 
-                List<BarEntry> entries = new ArrayList<BarEntry>();
+            List<BarEntry> entries = new ArrayList<BarEntry>();
 
-                final String[] labels = new String[mStepCountList.size()];
+            final String[] labels = new String[mStepCountList.size()];
 
-                int data_id = 0;
-                //int data_id_int = 0;
-                try {
-                    for (DateStepsModel data : mStepCountList) {
+            int data_id = 0;
+            //int data_id_int = 0;
+            try {
+                for (DateStepsModel data : mStepCountList) {
 
-                        //grab date entry according to stored format
-                        Date feedingDate = dateFormIn.parse(data.mDate);
+                    //grab date entry according to stored format
+                    Date feedingDate = dateFormIn.parse(data.mDate);
 
-                        //convert it to new format for display
+                    //convert it to new format for display
 
-                        dateDisplay = dateFormOut.format(feedingDate);
+                    dateDisplay = dateFormOut.format(feedingDate);
 
-                        //if this is month 12, display year along with it
-                        if (dateDisplay.substring(0, 2).equals("01") || dateDisplay.substring(0, 2).equals("12")) {
-                            dateDisplay = dateFormOutFull.format(feedingDate);
-                        }
-
-                        labels[data_id] = dateDisplay;
-                        entries.add(new BarEntry(data_id, Float.parseFloat("" + data.mStepCount)));
-                        data_id += 1f;
-                        //data_id_int++;
-                    }
-                } catch (ParseException e) {
-                    //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                    Log.e(TAG, "ERROR");
-                }
-
-                BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
-
-                chartBarData = new BarData(dataSet);
-                // set custom bar width
-                chartBarData.setBarWidth(0.5f);
-
-
-                //customize X-axis
-
-                IAxisValueFormatter formatter = new IAxisValueFormatter() {
-
-                    @Override
-                    public String getFormattedValue(float value, AxisBase axis) {
-                        return labels[(int) value];
+                    //if this is month 12, display year along with it
+                    if (dateDisplay.substring(0, 2).equals("01") || dateDisplay.substring(0, 2).equals("12")) {
+                        dateDisplay = dateFormOutFull.format(feedingDate);
                     }
 
-                };
+                    labels[data_id] = dateDisplay;
+                    entries.add(new BarEntry(data_id, Float.parseFloat("" + data.mStepCount)));
+                    data_id += 1f;
+                    //data_id_int++;
+                }
+            } catch (ParseException e) {
+                //Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, "ERROR");
+            }
 
-                XAxis xAxis = fullChart.getXAxis();
-                xAxis.setGranularity(1f); // minimum axis-step (interval)
-                xAxis.setValueFormatter(formatter);
+            BarDataSet dataSet = new BarDataSet(entries, getString(R.string.activity_count_lbl));
 
-                //add limit lines to show marker of min 5K activity
-                YAxis yAxis = fullChart.getAxisLeft();
-
-                if (yAxis.getLimitLines().size()==0) {
-
-                    LimitLine line = new LimitLine(activityMilestoneOne, getString(R.string.min_reward_level_chart));
-                    line.enableDashedLine(10f, 10f, 10f);
-                    line.setLineColor(Color.RED);
-                    line.setLineWidth(2f);
-                    line.setTextStyle(Paint.Style.FILL_AND_STROKE);
-                    line.setTextColor(Color.BLACK);
-                    line.setTextSize(12f);
-
-                    yAxis.addLimitLine(line);
-
-                    //add Limit line for max rewarded activity
-                    line = new LimitLine(activityMilestoneThree, getString(R.string.max_reward_level_chart));
-                    line.setLineColor(Color.GREEN);
-                    line.setLineWidth(2f);
-                    line.setTextStyle(Paint.Style.FILL_AND_STROKE);
-                    line.setTextColor(Color.BLACK);
-                    line.setTextSize(12f);
+            chartBarData = new BarData(dataSet);
+            // set custom bar width
+            chartBarData.setBarWidth(0.5f);
 
 
-                    yAxis.addLimitLine(line);
+            //customize X-axis
 
+            IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+                @Override
+                public String getFormattedValue(float value, AxisBase axis) {
+                    return labels[(int) value];
                 }
 
+            };
 
-                //description field of chart
-                Description chartDescription = new Description();
-                chartDescription.setText(getString(R.string.activity_history_chart_title));
+            XAxis xAxis = fullChart.getXAxis();
+            xAxis.setGranularity(1f); // minimum axis-step (interval)
+            xAxis.setValueFormatter(formatter);
 
-                fullChart.setDescription(chartDescription);
-                fullChart.getLegend().setEnabled(false);
+            //add limit lines to show marker of min 5K activity
+            YAxis yAxis = fullChart.getAxisLeft();
 
-                //fill chart with data
-                fullChart.setData(chartBarData);
+            if (yAxis.getLimitLines().size()==0) {
 
-                if (animate) {
-                    //display data with cool animation
-                    fullChart.animateXY(1500, 1500);
-                } else {
-                    //render data
-                    fullChart.invalidate();
-                }
+                LimitLine line = new LimitLine(activityMilestoneOne, getString(R.string.min_reward_level_chart));
+                line.enableDashedLine(10f, 10f, 10f);
+                line.setLineColor(Color.RED);
+                line.setLineWidth(2f);
+                line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+                line.setTextColor(Color.BLACK);
+                line.setTextSize(12f);
+
+                yAxis.addLimitLine(line);
+
+                //add Limit line for max rewarded activity
+                line = new LimitLine(activityMilestoneThree, getString(R.string.max_reward_level_chart));
+                line.setLineColor(Color.GREEN);
+                line.setLineWidth(2f);
+                line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+                line.setTextColor(Color.BLACK);
+                line.setTextSize(12f);
+
+
+                yAxis.addLimitLine(line);
 
             }
+
+
+            //description field of chart
+            Description chartDescription = new Description();
+            chartDescription.setText(getString(R.string.activity_history_chart_title));
+
+            fullChart.setDescription(chartDescription);
+            fullChart.getLegend().setEnabled(false);
+
+            //fill chart with data
+            fullChart.setData(chartBarData);
+
+            if (animate) {
+                //display data with cool animation
+                fullChart.animateXY(1500, 1500);
+            } else {
+                //render data
+                fullChart.invalidate();
+            }
+
         });
 
     }
@@ -4272,7 +4588,7 @@ public class MainActivity extends BaseActivity{
             //hide no gadgets display as we do have active gadgets
             //LinearLayout noActiveGadgets = findViewById(R.id.missing_active_gadgets_container);
             TextView noActiveGadgets = findViewById(R.id.missing_active_gadgets);
-            noActiveGadgets.setVisibility(View.GONE);
+            noActiveGadgets.setVisibility(GONE);
             for (int i = 0; i < activeProducts.length(); i++) {
                 try {
                     //find matching image
@@ -4407,7 +4723,7 @@ public class MainActivity extends BaseActivity{
             topIconsContainer.setVisibility(View.VISIBLE);
 
             //loginLink.setVisibility(View.GONE);
-            loginContainer.setVisibility(View.GONE);
+            loginContainer.setVisibility(GONE);
 
 
 
@@ -4555,7 +4871,7 @@ public class MainActivity extends BaseActivity{
         }else{
             //hide logout, show login
             //logoutLink.setVisibility(View.GONE);
-            topIconsContainer.setVisibility(View.GONE);
+            topIconsContainer.setVisibility(GONE);
             loginContainer.setVisibility(View.VISIBLE);
         }
         loginLink.setOnClickListener(new OnClickListener() {
@@ -4729,6 +5045,75 @@ public class MainActivity extends BaseActivity{
         });
     }
 
+    private void useDefaultTrackingMethod() {
+        runOnUiThread(() -> {
+            Log.d(TAG, "Falling back to default tracking method.");
+
+            try {
+                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                        getString(R.string.device_tracking_ntt));
+                Log.d(TAG, "Current tracking mode for fallback: " + dataTrackingSystem);
+
+                // Hide all tracking UI elements first to ensure a clean slate.
+                hideCharts();
+
+                if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
+                    // If Fitbit is the active system, make its UI visible again.
+                    Log.d(TAG, "Restoring Fitbit UI.");
+                    thirdPartyTracking.setVisibility(View.VISIBLE);
+                    int fitbitStepCount = sharedPreferences.getInt("fitbitSyncCount", 0);
+                    displayActivityChartFitbit(fitbitStepCount, true);
+                } else {
+                    // Default to device sensor tracking UI for all other cases.
+                    Log.d(TAG, "Restoring device sensor UI.");
+                    ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                    chartSwitcher.setVisibility(View.VISIBLE);
+                    findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+
+                    if (mServiceIntent == null) {
+                        Log.e(TAG, "mServiceIntent is null. Cannot start default tracking service.");
+                        displayActivityChart(0, false);
+                        return;
+                    }
+
+                    if (!isMyServiceRunning(mSensorService.getClass())) {
+                        startForegroundService(mServiceIntent);
+                        Log.d(TAG, "Started default tracking service in foreground.");
+                    }
+
+                    if (mStepsDBHelper != null) {
+                        long defaultStepCount = mStepsDBHelper.fetchTodayStepCount();
+                        displayActivityChart((int) defaultStepCount, true);
+                    } else {
+                        displayActivityChart(0, false);
+                    }
+                }
+            } catch (Exception e) {
+                // This is a critical fallback. Ensure the UI is at least in a stable, default state.
+                Log.e(TAG, "Error in useDefaultTrackingMethod: " + e.getMessage());
+                try {
+                    hideCharts();
+                    ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                    displayActivityChart(0, false);
+                } catch (Exception fallbackException) {
+                    Log.e(TAG, "Error in critical fallback UI reset: " + fallbackException.getMessage());
+                }
+            }
+        });
+    }
+
+
+    // --- Helper method to check Health Connect user setting (same as before) ---
+    private boolean isHealthConnectEnabledInSettings() {
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                getString(R.string.health_connect_tracking_ntt));
+        return (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt)));
+    }
+
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -4736,7 +5121,17 @@ public class MainActivity extends BaseActivity{
         Log.d(TAG, "[Actifit] - onResume Main");
 
         new Thread(() -> {
+
+            final boolean hcActivated = isHealthConnectPermActivated(); //isHealthConnectEnabledInSettings() &&
             runOnUiThread(() -> {
+
+                ImageButton hcs = findViewById(R.id.health_connect_status);
+                if (hcActivated) {
+                    hcs.setVisibility(GONE);
+                } else {
+                    hcs.setVisibility(View.VISIBLE);
+                }
+
                 displayDate();
 
                 displayUserAndRank();
@@ -5001,6 +5396,13 @@ public class MainActivity extends BaseActivity{
             //Log.d(TAG,"actifitUserID:"+actifitUserID);
 
 
+
+            // Initial check for Health Connect availability and permissions
+            /*BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
+                checkHealthConnectAvailabilityAndPermissions();
+                return Unit.INSTANCE;
+            });*/
+
             //only start the tracking service if the device sensors is picked as tracking medium
             dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
                     getString(R.string.device_tracking_ntt));
@@ -5026,7 +5428,8 @@ public class MainActivity extends BaseActivity{
         @Override
         protected void onPostExecute(Void param) {
             super.onPostExecute(param);
-
+            final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",
+                    MODE_PRIVATE);
             //display current date
             displayDate();
 
@@ -5039,10 +5442,6 @@ public class MainActivity extends BaseActivity{
 
             displayPendingRewards();
 
-            //if (!mStepsDBHelper.isConnected()){
-//                mStepsDBHelper.reConnect();
-            //}
-
             //display today's chart data
             DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
             dispChartData.execute(true);
@@ -5051,30 +5450,26 @@ public class MainActivity extends BaseActivity{
             DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
             dispCData.execute(true);
 
-            //only display activity count from device if device mode is on
             if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
-
-                //display step count while ensuring we don't display negative value if no steps tracked yet
-                /*
-                stepDisplay.setText(getString(R.string.activity_today_string) + (stepCount < 0 ? 0 : stepCount));
-
-                //adjust color of step account according to milestone achieved
-                if (stepCount >= 10000 ){
-                    stepDisplay.setTextColor(getResources().getColor(R.color.actifitGreen));
-                }else if (stepCount >= 5000 ){
-                    stepDisplay.setTextColor(getResources().getColor(R.color.actifitRed));
-                }else {
-                    stepDisplay.setTextColor(getResources().getColor(android.R.color.tab_indicator_text));
-                }*/
-
-                //display relevant chart
-                displayActivityChart(stepCount, true);
-
-
-            }else{
-                //inform user that fitbit mode is on
-                //stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
                 hideCharts();
+                ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                chartSwitcher.setVisibility(View.VISIBLE);
+                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                displayActivityChart(stepCount, true);
+            } else if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
+                hideCharts();
+                thirdPartyTracking.setVisibility(View.VISIBLE);
+                int fitbitStepCount = sharedPreferences.getInt("fitbitSyncCount", 0);
+                displayActivityChartFitbit(fitbitStepCount, true);
+            } else if (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt))) {
+                hideCharts();
+                healthConnectTracking.setVisibility(View.VISIBLE);
+                checkPermissionsAndReadData();
+            } else {
+                // Default fallback
+                hideCharts();
+                ((View)btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                displayActivityChart(stepCount, true);
             }
 
             Log.d(TAG, "[Actifit] onPostExecute");
@@ -5086,7 +5481,7 @@ public class MainActivity extends BaseActivity{
     private void loadNotifCount(RequestQueue queue){
         String notificationsUrl = Utils.apiUrl(this)+getString(R.string.user_active_notifications_url)+MainActivity.username;
         notifCount.setText("");
-        notifCount.setVisibility(View.GONE);
+        notifCount.setVisibility(GONE);
         // Request the transactions of the user first via JsonArrayRequest
         // according to our data format
         JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET,
@@ -5106,8 +5501,22 @@ public class MainActivity extends BaseActivity{
         queue.add(transactionRequest);
     }
 
+    private void hideCharts() {
+        if (btnPieChart == null) btnPieChart = findViewById(R.id.step_pie_chart);
+        if (thirdPartyTracking == null) thirdPartyTracking = findViewById(R.id.third_party_active);
+        if (healthConnectTracking == null) healthConnectTracking = findViewById(R.id.health_connect_active);
 
-    private void hideCharts(){
+        // Ensure parent RelativeLayouts are controlled
+        ((View)btnPieChart.getParent()).setVisibility(GONE);
+        thirdPartyTracking.setVisibility(GONE);
+        healthConnectTracking.setVisibility(GONE);
+
+        chartSwitcher.setVisibility(View.INVISIBLE);
+        LinearLayout barCharts = findViewById(R.id.bar_chart_container);
+        barCharts.setVisibility(View.INVISIBLE);
+    }
+
+    /*private void hideCharts(){
         //dayChart = findViewById(R.id.main_today_activity_chart);
         btnPieChart = findViewById(R.id.step_pie_chart);
         //dayChart.setVisibility(View.GONE);
@@ -5120,7 +5529,7 @@ public class MainActivity extends BaseActivity{
         thirdPartyTracking.setVisibility(View.VISIBLE);
         LinearLayout barCharts = findViewById(R.id.bar_chart_container);
         barCharts.setVisibility(View.INVISIBLE);
-    }
+    }*/
 
 
     public void showConsentForm(){

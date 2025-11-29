@@ -591,4 +591,7 @@
     <string name="log_workout_plan_exercises_null_or_empty">L’elenco degli esercizi del piano è nullo o vuoto.</string>
     <string name="success_workout_plan_saved">Piano di allenamento salvato!</string>
     <string name="dialog_message_insufficient_afit_part1">Hai bisogno di</string>
+    <string name="health_connect_option_lbl">Health Connect</string>
+	<string name="sync_health_connect_btn">Sincronizza Health Connect</string>
+    <string name="fitbit_mode">Fitbit</string>
 </resources>

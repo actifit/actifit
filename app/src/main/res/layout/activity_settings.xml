@@ -49,10 +49,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:id="@+id/tracking_mode_radiogroup">
+
+        <RadioButton
+            android:id="@+id/health_connect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/health_connect_option_lbl" />
+        <!-- android:drawableStart="@mipmap/health_connect_logo"
+                    android:drawablePadding="2dp" -->
+
         <RadioButton
             android:id="@+id/device_sensors"
             android:layout_width="wrap_content"
@@ -63,7 +72,7 @@
             android:id="@+id/fitbit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/fitbit_option_lbl"
+            android:text="@string/fitbit_mode"
             />
 
     </RadioGroup>

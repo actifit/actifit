@@ -590,4 +590,7 @@
     <string name="log_workout_plan_exercises_null_or_empty">Список вправ плану є нульовим або порожнім.</string>
     <string name="success_workout_plan_saved">План тренувань збережено!</string>
     <string name="dialog_message_insufficient_afit_part1">Вам потрібно</string>
+    <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="sync_health_connect_btn">Синхронізувати Health Connect</string>
+    <string name="fitbit_mode">Fitbit</string>
 </resources>
