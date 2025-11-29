@@ -3,37 +3,76 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:orientation="vertical"
+    android:padding="12dp">
 
-    <!-- TextView for the Workout Name -->
-    <TextView
-        android:id="@+id/workoutNameTextView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textColor="?android:attr/textColorPrimary"
-        tools:text="My Awesome Workout Plan" /> <!-- tools:text is for design view preview -->
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <!-- TextView for the Workout Timestamp (Date/Time) -->
-    <TextView
-        android:id="@+id/workoutTimestampTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-        android:textColor="?android:attr/textColorSecondary"
-        tools:text="Saved on 2023-10-27 10:30" /> <!-- tools:text for design view preview -->
+        <!-- Left side for workout details -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/workoutExerciseCountTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-        android:textColor="?android:attr/textColorSecondary"
-        tools:text="5 Exercises" /> <!-- tools:text for design view preview -->
+            <!-- TextView for the Workout Name -->
+            <TextView
+                android:id="@+id/workoutNameTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:text="My Awesome Workout Plan" /> <!-- tools:text is for design view preview -->
 
+            <!-- TextView for the Workout Timestamp (Date/Time) -->
+            <TextView
+                android:id="@+id/workoutTimestampTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textColor="?android:attr/textColorSecondary"
+                tools:text="Saved on 2023-10-27 10:30" /> <!-- tools:text for design view preview -->
+
+            <TextView
+                android:id="@+id/workoutExerciseCountTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textColor="?android:attr/textColorSecondary"
+                tools:text="5 Exercises" /> <!-- tools:text for design view preview -->
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/editWorkoutButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_edit_black_24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/edit_workout_button_description"
+            android:padding="8dp"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <!-- Right side for delete button -->
+        <ImageButton
+            android:id="@+id/deleteWorkoutButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/delete_workout_button_description"
+            android:padding="8dp"
+            android:src="@drawable/ic_delete_black_24dp"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+    </LinearLayout>
 
 </LinearLayout>

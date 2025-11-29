@@ -1,7 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import com.google.gson.annotations.SerializedName;
-import java.util.ArrayList;
+import java.util.List;
 
 public class ExerciseModel {
     @SerializedName("bodyPart")
@@ -15,11 +15,11 @@ public class ExerciseModel {
     @SerializedName("target")
     private String target;
     @SerializedName("primaryMuscles")
-    private ArrayList<String> primaryMuscles;
+    private List<String> primaryMuscles;
     @SerializedName("secondaryMuscles")
-    private ArrayList<String> secondaryMuscles;
+    private List<String> secondaryMuscles;
     @SerializedName("instructions")
-    private String[] instructions;
+    private List<String> instructions;
     @SerializedName("sets")
     private String sets;
     @SerializedName("reps")
@@ -27,10 +27,15 @@ public class ExerciseModel {
     @SerializedName("duration")
     private String duration;
     @SerializedName("images")
-    private String[] images;
+    private List<String> images;
     @SerializedName("day")
     private String day;
     private String image;
+
+    private String force;
+    private String level;
+    private String mechanic;
+    private String category;
 
 
     public String getBodyPart() {
@@ -65,6 +70,15 @@ public class ExerciseModel {
         this.name = name;
     }
 
+    public String getForce() { return force; }
+    public void setForce(String force) { this.force = force; }
+
+    public String getLevel() { return level; }
+    public void setLevel(String level) { this.level = level; }
+
+    public String getMechanic() { return mechanic; }
+    public void setMechanic(String mechanic) { this.mechanic = mechanic; }
+
     public String getTarget() {
         return target;
     }
@@ -72,30 +86,33 @@ public class ExerciseModel {
     public void setTarget(String target) {
         this.target = target;
     }
-    public ArrayList<String> getPrimaryMuscles() {
+    public List<String> getPrimaryMuscles() {
         return primaryMuscles;
     }
 
-    public void setPrimaryMuscles(ArrayList<String> primaryMuscles) {
+    public void setPrimaryMuscles(List<String> primaryMuscles) {
         this.primaryMuscles = primaryMuscles;
     }
 
-    public ArrayList<String> getSecondaryMuscles() {
+    public List<String> getSecondaryMuscles() {
         return secondaryMuscles;
     }
 
-    public void setSecondaryMuscles(ArrayList<String> secondaryMuscles) {
+    public void setSecondaryMuscles(List<String> secondaryMuscles) {
         this.secondaryMuscles = secondaryMuscles;
     }
 
 
-    public String[] getInstructions() {
+    public List<String> getInstructions() {
         return instructions;
     }
 
-    public void setInstructions(String[] instructions) {
+    public void setInstructions(List<String> instructions) {
         this.instructions = instructions;
     }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
     public String getSets() {
         return sets;
@@ -121,11 +138,11 @@ public class ExerciseModel {
         this.duration = duration;
     }
 
-    public String[] getImages() {
+    public List<String> getImages() {
         return images;
     }
 
-    public void setImages(String[] images) {
+    public void setImages(List<String> images) {
         this.images = images;
     }
     public String getDay() {
@@ -137,8 +154,8 @@ public class ExerciseModel {
     }
 
     public  void setFirstImage(String baseUrl){
-        if(this.images != null && this.images.length > 0){
-            this.image =  baseUrl + this.images[0];
+        if(this.images != null && this.images.size() > 0){
+            this.image =  baseUrl + this.images.get(0);
         }
     }
 }
