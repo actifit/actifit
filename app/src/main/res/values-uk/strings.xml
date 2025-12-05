@@ -57,7 +57,7 @@
 <string name="device_rooted">Cihazınız rootlu. Actifit yalnızca rootlu olmayan cihazlarda çalışabilir.</string>
 <string name="emulator_device">Actifit\'i bir emülatör üzerinde çalıştırıyor gibi görünüyorsunuz. Actifit yalnızca orijinal telefon cihazlarında çalışabilir.</string>
 <string name="no_valid_sim">Geçerli bir SIM kartı tespit edemedik. Çift SIM\'iniz varsa, SIM\'in ilk yuvada olduğundan ve varsayılan olarak ayarlandığından emin olun.</string>
-<string name="need_sync_fitbit_again">Fitbit verilerinizi son senkronize etmenizden bu yana bir gün geçti. Yeniden senkronize etmeniz gerekiyor.</string>
+<string name="need_sync_fitbit_again">verilerinizi son senkronize etmenizden bu yana bir gün geçti. Yeniden senkronize etmeniz gerekiyor.</string>
 <string name="fitbit_tracking_mode_active">Fitbit Takip Modu Açık</string>
 <string name="activity_history_chart_title">Aktivite Geçmişi Grafiği</string>
 <string name="activity_details_chart_title">Aktivite Günü Detayları</string>

@@ -56,7 +56,7 @@
     <string name="device_rooted">Your device is rooted. Actifit can only run on non-rooted devices.</string>
     <string name="emulator_device">You appear to be running Actifit on an emulator. Actifit can only run on authentic phone devices.</string>
     <string name="no_valid_sim">We could not detect a valid SIM card. If you have a DUAL SIM ensure SIM is in first slot and set as default.</string>
-    <string name="need_sync_fitbit_again">A day has passed since you last synced your fitbit data. Need to sync again.</string>
+    <string name="need_sync_fitbit_again">A day has passed since you last synced your data. Need to sync again.</string>
     <string name="fitbit_tracking_mode_active">Fitbit Tracking Mode On</string>
     <string name="activity_history_chart_title">Activity History Chart</string>
     <string name="activity_details_chart_title">Activity Day Details</string>

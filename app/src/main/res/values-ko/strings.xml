@@ -58,7 +58,7 @@
     <string name="device_rooted">장치가 루팅되었습니다. Actifit은 루팅되지 않은 장치에서만 실행할 수 있습니다.</string>
     <string name="emulator_device">Actifit을 에뮬레이터에서 실행하고 있는 것 같습니다. Actifit은 정품 휴대폰 장치에서만 실행할 수 있습니다.</string>
     <string name="no_valid_sim">유효한 SIM 카드를 감지할 수 없습니다. DUAL SIM이 있는 경우 첫 번째 슬롯에 SIM을 넣고 기본값으로 설정하세요.</string>
-    <string name="need_sync_fitbit_again">Fitbit 데이터를 마지막으로 동기화한 지 하루가 지났습니다. 다시 동기화해야 합니다.</string>
+    <string name="need_sync_fitbit_again">데이터를 마지막으로 동기화한 지 하루가 지났습니다. 다시 동기화해야 합니다.</string>
     <string name="fitbit_tracking_mode_active">Fitbit 추적 모드 켜짐</string>
     <string name="activity_history_chart_title">활동 기록 차트</string>
     <string name="activity_details_chart_title">활동 일별 세부 정보</string>

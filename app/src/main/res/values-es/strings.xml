@@ -61,7 +61,7 @@
     <string name="emulator_device">Parece que estás ejecutando Actifit en un emulador. Actifit solo puede ejecutarse en dispositivos telefónicos auténticos.</string>
     <string name="no_valid_sim">No pudimos detectar una tarjeta SIM válida. Si tienes una SIM DUAL, asegúrate de que la SIM esté  
  en la primera ranura y establecida como predeterminada.</string>
-    <string name="need_sync_fitbit_again">Ha pasado un día desde la última vez que sincronizaste tus datos de Fitbit. Es necesario sincronizar de nuevo.</string>
+    <string name="need_sync_fitbit_again">Ha pasado un día desde la última vez que sincronizaste tus datos. Es necesario sincronizar de nuevo.</string>
     <string name="fitbit_tracking_mode_active">Modo de seguimiento de Fitbit activado</string>
     <string name="activity_history_chart_title">Gráfico de historial de actividad</string>
     <string name="activity_details_chart_title">Detalles diarios de la actividad</string>

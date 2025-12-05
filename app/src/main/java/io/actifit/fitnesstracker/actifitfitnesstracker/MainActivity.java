@@ -1001,9 +1001,17 @@ public class MainActivity extends BaseActivity{
                     return;
                 }
                 Log.d(TAG, "Steps from Health Connect: " + steps);
+                Calendar mCalendar = Calendar.getInstance();
+                editor.putString("healthConnectLastSyncDate",
+                        new SimpleDateFormat("yyyyMMdd").format(
+                                mCalendar.getTime()));
                 if (steps != null && steps > 0) {
+                    editor.putInt("healthConnectSyncCount", steps.intValue());//6543);//
+                    editor.apply();
                     displayActivityChartHealthConnect(steps.intValue(), true);
                 } else {
+                    editor.putInt("healthConnectSyncCount", 0);//
+                    editor.apply();
                     Log.d(TAG, "Health Connect returned 0 steps or no data. Displaying 0.");
                     displayActivityChartHealthConnect(0, true);
                 }
@@ -1327,9 +1335,6 @@ public class MainActivity extends BaseActivity{
                             editor.putString("fitbitLastSyncDate",
                                     new SimpleDateFormat("yyyyMMdd").format(
                                             mCalendar.getTime()));
-                            editor.putString("fitbitLastSyncDateTime",
-                                    new SimpleDateFormat("dd/MM/yyyy HH:mm").format(
-                                            mCalendar.getTime()));
                             //TODO: demo data, replace when go live
                             editor.putInt("fitbitSyncCount", trackedActivityCount);//6543);//
                             editor.apply();
@@ -1361,8 +1366,22 @@ public class MainActivity extends BaseActivity{
 
         ImageView fitbitLogo = findViewById(R.id.fitbit_logo);
         fitbitLogo.setOnClickListener(view -> {
-            String lastMainSyncDate = sharedPreferences.getString("fitbitLastSyncDateTime","");
-            Toast.makeText(ctx, "Fitbit last synced on : "+lastMainSyncDate, Toast.LENGTH_LONG).show();
+            String lastMainSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
+            if (!lastMainSyncDate.isEmpty())
+                Toast.makeText(ctx, "Fitbit last synced on : "+lastMainSyncDate, Toast.LENGTH_LONG).show();
+            else{
+                Toast.makeText(ctx, "Fitbit not synced yet. Click the cloud button to sync Now.", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        ImageView healthConnectLogo = findViewById(R.id.health_connect_logo);
+        healthConnectLogo.setOnClickListener(view -> {
+            String lastMainSyncDate = sharedPreferences.getString("healthConnectLastSyncDate","");
+            if (!lastMainSyncDate.isEmpty())
+                Toast.makeText(ctx, "Health Connect last synced on : "+lastMainSyncDate, Toast.LENGTH_LONG).show();
+            else{
+                Toast.makeText(ctx, "Health Connect not synced yet. Click the cloud button to sync Now.", Toast.LENGTH_LONG).show();
+            }
         });
 
 

@@ -60,7 +60,7 @@
     <string name="device_rooted">جهازك متجذر. لا يمكن تشغيل Actifit إلا على الأجهزة غير المتجذرة.</string>
     <string name="emulator_device">يبدو أنك تشغيل Actifit على محاكي. لا يمكن تشغيل Actifit إلا على أجهزة هواتف حقيقية.</string>
     <string name="no_valid_sim">لم نتمكن من اكتشاف بطاقة SIM صالحة. إذا كان لديك بطاقة SIM ثنائية التفعيل، فتأكد من وجود SIM في الفتحة الأولى وتعيينها كافتراضية.</string>
-    <string name="need_sync_fitbit_again">لقد مر يوم منذ آخر مرة قمت فيها مزامنة بيانات Fitbit الخاصة بك. تحتاج إلى مزامنة مرة أخرى.</string>
+    <string name="need_sync_fitbit_again">لقد مر يوم منذ آخر مرة قمت فيها مزامنة بيانات  الخاصة بك. تحتاج إلى مزامنة مرة أخرى.</string>
     <string name="fitbit_tracking_mode_active">وضع تتبع Fitbit قيد التشغيل</string>
     <string name="activity_history_chart_title">مخطط سجل النشاط</string>
     <string name="activity_details_chart_title">تفاصيل يوم النشاط</string>

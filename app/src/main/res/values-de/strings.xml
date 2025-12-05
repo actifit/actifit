@@ -59,7 +59,7 @@
     <string name="device_rooted">Ihr Gerät ist gerootet. Actifit kann nur auf nicht gerooteten Geräten ausgeführt werden.</string>
     <string name="emulator_device">Sie scheinen Actifit auf einem Emulator auszuführen. Actifit kann nur auf echten Telefongeräten ausgeführt werden.</string>
     <string name="no_valid_sim">Wir konnten keine gültige SIM-Karte erkennen. Wenn Sie eine DUAL SIM haben, stellen Sie sicher, dass die SIM im ersten Steckplatz steckt und als Standard festgelegt ist.</string>
-    <string name="need_sync_fitbit_again">Ein Tag ist vergangen, seit Sie Ihre Fitbit-Daten zuletzt synchronisiert haben. Muss erneut synchronisiert werden.</string>
+    <string name="need_sync_fitbit_again">Ein Tag ist vergangen, seit Sie Ihre Daten zuletzt synchronisiert haben. Muss erneut synchronisiert werden.</string>
     <string name="fitbit_tracking_mode_active">Fitbit-Tracking-Modus aktiviert</string>
     <string name="activity_history_chart_title">Aktivitätsverlauf Diagramm</string>
     <string name="activity_details_chart_title">Aktivitäts Tagesdetails</string>
