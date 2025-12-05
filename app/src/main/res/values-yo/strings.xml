@@ -58,7 +58,7 @@
 <string name="device_rooted">Ẹrọ rẹ ti wa ni root. Actifit le ṣiṣẹ nikan lori awọn ẹrọ ti kii ṣe gbongbo.</string>
 <string name="emulator_device">O dabi pe o nṣiṣẹ Actifit lori emulator kan. Actifit le ṣiṣẹ nikan lori awọn ẹrọ foonu gidi.</string>
 <string name="no_valid_sim">A ko le ṣawari kaadi SIM ti o wulo. Ti o ba ni DUAL SIM rii daju SIM wa ni iho akọkọ ati ṣeto bi aiyipada.</string>
-<string name="need_sync_fitbit_again">Ọjọ kan ti kọja lati igba ti o ti ṣe amuṣiṣẹpọ data fitbit rẹ. Nilo lati ṣe amuṣiṣẹpọ lẹẹkansi.</string>
+<string name="need_sync_fitbit_again">Ọjọ kan ti kọja lati igba ti o ti ṣe amuṣiṣẹpọ data rẹ. Nilo lati ṣe amuṣiṣẹpọ lẹẹkansi.</string>
 <string name="fitbit_tracking_mode_active">Awọn ilana Titele Fitbit Lẹnu</string>
 <string name="activity_history_chart_title">Atọka Iṣẹ Iṣẹ</string>
 <string name="activity_details_chart_title">Awọn alaye Iṣẹ Iṣẹ Ọjọ</string>

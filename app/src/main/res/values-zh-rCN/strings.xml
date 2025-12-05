@@ -57,7 +57,7 @@
 <string name="device_rooted">您的设备已 root。 Actifit 只能在未 root 的设备上运行。</string>
 <string name="emulator_device">您似乎正在模拟器上运行 Actifit。 Actifit 只能在真实的手机设备上运行。</string>
 <string name="no_valid_sim">我们无法检测到有效的 SIM 卡。如果您有双卡，请确保 SIM 卡在第一个插槽中并设置为默认。</string>
-<string name="need_sync_fitbit_again">自上次同步 fitbit 数据以来已经过了一天。需要再次同步。</string>
+<string name="need_sync_fitbit_again">自上次同步 数据以来已经过了一天。需要再次同步。</string>
 <string name="fitbit_tracking_mode_active">Fitbit 跟踪模式开启</string>
 <string name="activity_history_chart_title">活动历史图表</string>
 <string name="activity_details_chart_title">活动日详情</string>

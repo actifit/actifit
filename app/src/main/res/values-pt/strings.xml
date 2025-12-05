@@ -58,7 +58,7 @@
     <string name="device_rooted">Seu dispositivo está rooteado. O Actifit só pode ser executado em dispositivos não rooteados.</string>
     <string name="emulator_device">Parece que você está executando o Actifit em um emulador. O Actifit só pode ser executado em dispositivos móveis autênticos.</string>
     <string name="no_valid_sim">Não foi possível detectar um cartão SIM válido. Se você tiver um SIM DUPLO, certifique-se de que o SIM esteja no primeiro slot e configurado como padrão.</string>
-    <string name="need_sync_fitbit_again">Já passou um dia desde a última sincronização dos dados do seu fitbit. Precisa sincronizar novamente.</string>
+    <string name="need_sync_fitbit_again">Já passou um dia desde a última sincronização dos dados do seu. Precisa sincronizar novamente.</string>
     <string name="fitbit_tracking_mode_active">Modo de Rastreamento Fitbit Ativo</string>
     <string name="activity_history_chart_title">Gráfico de Histórico de Atividade</string>
     <string name="activity_details_chart_title">Detalhes do Dia de Atividade</string>

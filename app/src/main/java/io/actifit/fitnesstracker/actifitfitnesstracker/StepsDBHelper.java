@@ -379,14 +379,22 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         Date todaysDate = new Date();
         SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
         String todaysDateString = formatToDB.format(todaysDate);
-        //if this is not the normal tracking mode, return fitbit synced data
-        if(!sharedPreferences.getString("dataTrackingSystem",
-                ctx.getString(R.string.device_tracking_ntt))
-                .equals(ctx.getString(R.string.device_tracking_ntt))) {
+        String dtSystem = sharedPreferences.getString("dataTrackingSystem",
+                ctx.getString(R.string.device_tracking_ntt));
+        //if this is not the normal tracking mode and fitbit activated return fitbit synced data
+        if(dtSystem.equals(ctx.getString(R.string.fitbit_tracking_ntt))) {
             String lastMainSyncDate = sharedPreferences.getString("fitbitLastSyncDate","");
-            //TODO make sure date comparison is accurate
             if (todaysDateString.equals(lastMainSyncDate)) {
                 return sharedPreferences.getInt("fitbitSyncCount", 0);
+            }else{
+                //default value
+                return 0;
+            }
+        //else if this is healthconnect
+        }else if(dtSystem.equals(ctx.getString(R.string.health_connect_tracking_ntt))) {
+            String lastMainSyncDate = sharedPreferences.getString("healthConnectLastSyncDate","");
+            if (todaysDateString.equals(lastMainSyncDate)) {
+                return sharedPreferences.getInt("healthConnectSyncCount", 0);
             }else{
                 //default value
                 return 0;

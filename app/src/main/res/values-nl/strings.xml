@@ -58,7 +58,7 @@
 	<string name="device_rooted">Je apparaat is geroot. Actifit kan alleen worden uitgevoerd op niet-geroote apparaten.</string>
 	<string name="emulator_device">Je lijkt Actifit op een emulator uit te voeren. Actifit kan alleen worden uitgevoerd op authentieke telefoontoestellen.</string>
 	<string name="no_valid_sim">We konden geen geldige simkaart detecteren. Als je een DUAL SIM hebt, zorg ervoor dat de SIM zich in de eerste sleuf bevindt en als standaard is ingesteld.</string>
-	<string name="need_sync_fitbit_again">Er is een dag verstreken sinds je je Fitbit-gegevens voor het laatst hebt gesynchroniseerd. Moet opnieuw synchroniseren.</string>
+	<string name="need_sync_fitbit_again">Er is een dag verstreken sinds je je gegevens voor het laatst hebt gesynchroniseerd. Moet opnieuw synchroniseren.</string>
 	<string name="fitbit_tracking_mode_active">Fitbit-trackingmodus actief</string>
 	<string name="activity_history_chart_title">Activiteitengeschiedenis Grafiek</string>
 	<string name="activity_details_chart_title">Details van de Activiteitsdag</string>
