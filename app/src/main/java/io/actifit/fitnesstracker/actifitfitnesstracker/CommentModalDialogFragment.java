@@ -29,9 +29,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
-
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.json.JSONArray;
@@ -46,8 +43,7 @@ import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.MarkwonConfiguration;
 import io.noties.markwon.html.HtmlPlugin;
-import io.noties.markwon.image.AsyncDrawable;
-import io.noties.markwon.image.picasso.PicassoImagesPlugin;
+import io.noties.markwon.image.glide.GlideImagesPlugin;
 
 public class CommentModalDialogFragment extends DialogFragment {
     public Context ctx;
@@ -140,28 +136,8 @@ public class CommentModalDialogFragment extends DialogFragment {
                     }
                 })
 
-                //handle images via available picasso
-                //.usePlugin(PicassoImagesPlugin.create(Picasso.get()))
-
-                //handle images via picasso
-                .usePlugin(PicassoImagesPlugin.create(new PicassoImagesPlugin.PicassoStore() {
-                    @org.checkerframework.checker.nullness.qual.NonNull
-                    @Override
-                    public RequestCreator load(@org.checkerframework.checker.nullness.qual.NonNull AsyncDrawable drawable) {
-
-                        return Picasso.get()
-                                .load(drawable.getDestination())
-                                //.resize(desiredWidth, desiredHeight)
-                                //.centerCrop()
-                                .tag(drawable);
-                    }
-
-                    @Override
-                    public void cancel(@NonNull AsyncDrawable drawable) {
-                        Picasso.get()
-                                .cancelTag(drawable);
-                    }
-                }))
+                //handle images via available Glide
+                .usePlugin(GlideImagesPlugin.create(ctx))
 
                 .build();
 

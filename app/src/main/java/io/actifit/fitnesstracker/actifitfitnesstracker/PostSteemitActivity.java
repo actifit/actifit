@@ -63,8 +63,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
+import com.bumptech.glide.Glide;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -94,14 +93,13 @@ import io.noties.markwon.Markwon;
 import io.noties.markwon.MarkwonConfiguration;
 import io.noties.markwon.html.HtmlPlugin;
 import io.noties.markwon.image.AsyncDrawable;
-import io.noties.markwon.image.picasso.PicassoImagesPlugin;
+import io.noties.markwon.image.glide.GlideImagesPlugin;
 import kotlin.Unit;
 import kotlinx.coroutines.BuildersKt;
 import kotlinx.coroutines.CoroutineStart;
 import kotlinx.coroutines.Dispatchers;
 
-
-public class PostSteemitActivity extends BaseActivity implements View.OnClickListener{
+public class PostSteemitActivity extends BaseActivity implements View.OnClickListener {
 
     private StepsDBHelper mStepsDBHelper;
     private String notification = "";
@@ -110,10 +108,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     private int min_char_count = 100;
     private Context steemit_post_context;
 
-    //track Choosing Image Intent
+    // track Choosing Image Intent
     private static final int CHOOSING_IMAGE_REQUEST = 1234;
 
-    //track choosing video intent
+    // track choosing video intent
     private static final int CHOOSING_VID_REQUEST = 1235;
 
     private EditText steemitPostContent;
@@ -130,23 +128,23 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     private boolean isEditorExpanded = false;
 
-    //tracks whether user synched his Fitbit data to avoid refetching activity count from current device
+    // tracks whether user synched his Fitbit data to avoid refetching activity
+    // count from current device
     private static int fitbitSyncDone = 0;
 
-    //tracks whether user synched his HealthConnect data
+    // tracks whether user synched his HealthConnect data
     private static int healthConnectSyncDone = 0;
 
-    //tracks whether user wants to post yesterday's data instead
+    // tracks whether user wants to post yesterday's data instead
     private static boolean yesterdayReport = false;
 
     private String fitbitUserId;
-
 
     EditText steemitPostTitle;
 
     TextView measureSectionLabel;
 
-    //references to the new points system in post
+    // references to the new points system in post
     TextView titleCountRef, dateCountRef, activityCountRef, activityTypeCountRef, tagsCountRef,
             contentCountRef, charCount, minCharCount, charInfo;
 
@@ -158,7 +156,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     EditText steemitPostTags;
 
-    //CheckBox fullAFITPay;
+    // CheckBox fullAFITPay;
 
     EditText heightSize;
     EditText weightSize;
@@ -167,22 +165,20 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     EditText thighsSize;
     EditText waistSize;
 
-    //MarkedView mdView;
+    // MarkedView mdView;
     TextView mdView;
 
     MultiSelectionSpinner activityTypeSelector;
 
     String accountUsername, accountPostingKey, accountActivityCount, finalPostTitle, finalPostTags,
-        finalPostContent;
+            finalPostContent;
     int selectedActivityCount;
     String heightVal, weightVal, waistVal, chestVal, thighsVal, bodyFatVal,
-        heightUnit, weightUnit, waistUnit, chestUnit, thighsUnit;
+            heightUnit, weightUnit, waistUnit, chestUnit, thighsUnit;
 
     String selectedActivitiesVal;
 
-    //Boolean fullAFITPayVal;
-
-
+    // Boolean fullAFITPayVal;
 
     /* CHANGES FOR FIXING IMAGE UPLOAD */
     private ActivityResultLauncher<Intent> imagePickerLauncher;
@@ -192,7 +188,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     final String TAG = "PostSteemitActivity";
     /* CHANGES FOR FIXING IMAGE UPLOAD */
 
-    //required function to ask for proper read/write permissions on later Android versions
+    // required function to ask for proper read/write permissions on later Android
+    // versions
     protected boolean shouldAskPermissions() {
         return true;
     }
@@ -206,7 +203,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         requestPermissions(permissions, requestCode);
     }
 
-
     @Override
     public void onClick(View view) {
         int i = view.getId();
@@ -214,9 +210,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         if (i == R.id.btn_choose_file) {
             showChoosingFile(0);
         } else if (i == R.id.btn_video_post) {
-            //show video modal
-            VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken, this, true);
-            //dialog.getView().setMinimumWidth(400);
+            // show video modal
+            VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken,
+                    this, true);
+            // dialog.getView().setMinimumWidth(400);
             dialog.show(getSupportFragmentManager(), "video_upload_fragment");
         }
     }
@@ -232,10 +229,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         // if you are only creating it within the background task
     }
 
-    //handles the display of image selection
+    // handles the display of image selection
     private void showChoosingFile(int type) {
 
-        //ensure we have proper permissions for image upload
+        // ensure we have proper permissions for image upload
         if (shouldAskPermissions()) {
             askPermissions();
         }
@@ -243,10 +240,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-        if (type==0) {
+        if (type == 0) {
             intent.setType("image/*");
             imagePickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_img_title)));
-       }else{
+        } else {
             intent.setType("video/*");
             videoPickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_img_title)));
         }
@@ -254,7 +251,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     }
 
     /**
-     * Processes the selected image URI by loading a scaled bitmap off the main thread
+     * Processes the selected image URI by loading a scaled bitmap off the main
+     * thread
      * and then initiating the upload.
      *
      * @param imageUri The content URI of the selected image.
@@ -287,12 +285,15 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 BitmapFactory.decodeStream(inputStream, null, options);
 
                 // Close the stream after decoding bounds and open a new one for full decode
-                try { inputStream.close(); } catch (IOException e) { Log.e(TAG, "Error closing stream after bounds decode", e); }
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error closing stream after bounds decode", e);
+                }
                 inputStream = getContentResolver().openInputStream(imageUri);
                 if (inputStream == null) {
                     throw new FileNotFoundException("Could not re-open input stream for URI: " + imageUri);
                 }
-
 
                 // Calculate inSampleSize to scale down the image
                 // Example: Target max dimensions 1024x1024. Adjust as needed.
@@ -318,22 +319,26 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 }
 
                 // --- Step 2: Initiate Upload ---
-                // Pass the original Uri and potentially the scaled bitmap to your upload utility
-                // Make sure Utils.uploadFile is thread-safe or correctly uses background threads itself.
+                // Pass the original Uri and potentially the scaled bitmap to your upload
+                // utility
+                // Make sure Utils.uploadFile is thread-safe or correctly uses background
+                // threads itself.
                 // Assuming Utils.uploadFile takes the original Uri for data streaming
                 // and the scaled bitmap for related operations (like preview/thumbnail).
-                Log.d(TAG, "Bitmap decoded (scaled). Dimensions: " + scaledBitmap.getWidth() + "x" + scaledBitmap.getHeight());
+                Log.d(TAG, "Bitmap decoded (scaled). Dimensions: " + scaledBitmap.getWidth() + "x"
+                        + scaledBitmap.getHeight());
 
                 // This call *must not* block the current background thread excessively.
                 // If Utils.uploadFile does heavy work (like actual network upload),
                 // it should handle its own threading internally.
-                Utils.uploadFile( scaledBitmap, imageUri, steemitPostContent, getApplicationContext(),
-                        PostSteemitActivity.this );
+                Utils.uploadFile(scaledBitmap, imageUri, steemitPostContent, getApplicationContext(),
+                        PostSteemitActivity.this);
 
                 // --- Step 3: Update UI or indicate completion ---
                 runOnUiThread(() -> {
                     // Example: Hide progress bar, show success message
-                    Toast.makeText(PostSteemitActivity.this, "Image processed and upload initiated.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PostSteemitActivity.this, "Image processed and upload initiated.",
+                            Toast.LENGTH_SHORT).show();
                     // hideProgressBar();
                 });
 
@@ -344,7 +349,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 Log.e(TAG, "IO Error processing URI: " + imageUri, e);
                 handleProcessingError("Error reading image data.", e);
             } catch (OutOfMemoryError e) {
-                // Catch OOM here specifically, although scaled loading significantly reduces risk
+                // Catch OOM here specifically, although scaled loading significantly reduces
+                // risk
                 Log.e(TAG, "OutOfMemoryError processing URI: " + imageUri, e);
                 handleProcessingError("Error: Image too large or memory issue.", e);
             } catch (Exception e) {
@@ -366,9 +372,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 // For this example, we pass it to Utils.uploadFile and assume
                 // Utils or subsequent logic handles its lifecycle.
                 // if (scaledBitmap != null && !scaledBitmap.isRecycled()) {
-                //     // If you don't need the scaledBitmap after passing it to Utils.uploadFile
-                //     // you might recycle it here, *but* ensure Utils.uploadFile is done with it.
-                //     // scaledBitmap.recycle();
+                // // If you don't need the scaledBitmap after passing it to Utils.uploadFile
+                // // you might recycle it here, *but* ensure Utils.uploadFile is done with it.
+                // // scaledBitmap.recycle();
                 // }
             }
         });
@@ -393,46 +399,44 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             bitmap.recycle();
         }
 
-        if (requestCode == CHOOSING_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+        if (requestCode == CHOOSING_IMAGE_REQUEST && resultCode == RESULT_OK && data != null
+                && data.getData() != null) {
             fileUri = data.getData();
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
 
-                Utils.uploadFile( bitmap, fileUri, steemitPostContent, getApplicationContext(),
-                        PostSteemitActivity.this );
+                Utils.uploadFile(bitmap, fileUri, steemitPostContent, getApplicationContext(),
+                        PostSteemitActivity.this);
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else if (requestCode == CHOOSING_VID_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            //here capture video
+        } else if (requestCode == CHOOSING_VID_REQUEST && resultCode == RESULT_OK && data != null
+                && data.getData() != null) {
+            // here capture video
             fileUri = data.getData();
 
-            //uploadThumbnail(Utils.generateThumbnail(getApplicationContext(), fileUri));
-            //uploadVideo();
+            // uploadThumbnail(Utils.generateThumbnail(getApplicationContext(), fileUri));
+            // uploadVideo();
         }
     }
 
-
-
     private HealthConnectManager healthConnectManager;
-
 
     private final AtomicBoolean healthConnectCheckRunning = new AtomicBoolean(false);
     private LifecycleCoroutineScope lifecycleCoroutineScope;
-    private final ActivityResultLauncher<Set<String>> hcRequestPermissionsLauncher =
-            registerForActivityResult(
-                    PermissionController.createRequestPermissionResultContract(),
-                    grantedPermissions -> {
-                        if (grantedPermissions.containsAll(healthConnectManager.permissions)) {
-                            Log.d(TAG, "All required HC permissions granted.");
-                            checkHealthConnectAndFetchSteps();
-                        } else {
-                            Log.w(TAG, "Not all required HC permissions were granted.");
-                            Toast.makeText(PostSteemitActivity.this, "Steps data can't be synced without permission.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-            );
+    private final ActivityResultLauncher<Set<String>> hcRequestPermissionsLauncher = registerForActivityResult(
+            PermissionController.createRequestPermissionResultContract(),
+            grantedPermissions -> {
+                if (grantedPermissions.containsAll(healthConnectManager.permissions)) {
+                    Log.d(TAG, "All required HC permissions granted.");
+                    checkHealthConnectAndFetchSteps();
+                } else {
+                    Log.w(TAG, "Not all required HC permissions were granted.");
+                    Toast.makeText(PostSteemitActivity.this, "Steps data can't be synced without permission.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -453,30 +457,33 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         healthConnectManager = new HealthConnectManager(this);
         lifecycleCoroutineScope = LifecycleOwnerKt.getLifecycleScope(this);
 
-        /*Toolbar postToolbar = findViewById(R.id.post_toolbar);
-        setSupportActionBar(postToolbar);*/
+        /*
+         * Toolbar postToolbar = findViewById(R.id.post_toolbar);
+         * setSupportActionBar(postToolbar);
+         */
 
-        //setting context
+        // setting context
         this.steemit_post_context = this;
 
-        //getting an instance of DB handler
+        // getting an instance of DB handler
         mStepsDBHelper = new StepsDBHelper(this);
 
-        //grabbing instances of input data sources
+        // grabbing instances of input data sources
         stepCountContainer = findViewById(R.id.steemit_step_count);
 
-        //set initial steps display value
+        // set initial steps display value
         int stepCount = mStepsDBHelper.fetchTodayStepCount();
-        //display step count while ensuring we don't display negative value if no steps tracked yet
+        // display step count while ensuring we don't display negative value if no steps
+        // tracked yet
         stepCountContainer.setText(String.valueOf((Math.max(stepCount, 0))), TextView.BufferType.EDITABLE);
 
+        // retrieving account data for simple reuse. Data is not stored anywhere outside
+        // actifit App.
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
 
-        //retrieving account data for simple reuse. Data is not stored anywhere outside actifit App.
-        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        accountUsername = sharedPreferences.getString("actifitUser", "");
 
-        accountUsername = sharedPreferences.getString("actifitUser","");
-
-        accountPostingKey = sharedPreferences.getString("actifitPst","");
+        accountPostingKey = sharedPreferences.getString("actifitPst", "");
 
         steemitPostTitle = findViewById(R.id.steemit_post_title);
 
@@ -492,7 +499,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         chestSizeUnit = findViewById(R.id.measurements_chest_unit);
         thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
 
-        //fill in point references
+        // fill in point references
         titleCountRef = findViewById(R.id.titleCount);
         dateCountRef = findViewById(R.id.dateCount);
         activityCountRef = findViewById(R.id.activityCount);
@@ -503,12 +510,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         minCharCount = findViewById(R.id.minCharCount);
         charInfo = findViewById(R.id.charInfo);
 
-
-        //final EditText steemitPostContentInner = findViewById(R.id.steemit_post_text);
+        // final EditText steemitPostContentInner =
+        // findViewById(R.id.steemit_post_text);
         steemitPostTags = findViewById(R.id.steemit_post_tags);
         activityTypeSelector = findViewById(R.id.steemit_activity_type);
 
-        //fullAFITPay = findViewById(R.id.full_afit_pay);
+        // fullAFITPay = findViewById(R.id.full_afit_pay);
 
         heightSize = findViewById(R.id.measurements_height);
         weightSize = findViewById(R.id.measurements_weight);
@@ -528,11 +535,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         // call from code
         // MarkedView mdView = new MarkedView(this);
 
-
-
-
-
-        //hook to event of adjusting color of the title point
+        // hook to event of adjusting color of the title point
         steemitPostTitle.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -548,15 +551,15 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void afterTextChanged(Editable editable) {
                 String title = steemitPostTitle.getText().toString();
-                if (title.trim().isEmpty()){
+                if (title.trim().isEmpty()) {
                     titleCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
-                }else{
+                } else {
                     titleCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
                 }
             }
         });
 
-        //hook to event of adjusting tag content for the post
+        // hook to event of adjusting tag content for the post
         steemitPostTags.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -572,23 +575,21 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void afterTextChanged(Editable editable) {
                 String text = steemitPostTags.getText().toString();
-                if (text.trim().isEmpty()){
+                if (text.trim().isEmpty()) {
                     tagsCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
-                }else{
+                } else {
                     tagsCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
                 }
             }
         });
 
-
         final Markwon markwon = Markwon.builder(steemit_post_context)
-                //.usePlugin(ImagesPlugin.create())
-                //support HTML
-                //.usePlugin(HtmlPlugin.create())
+                // .usePlugin(ImagesPlugin.create())
+                // support HTML
+                // .usePlugin(HtmlPlugin.create())
                 .usePlugin(HtmlPlugin.create())
 
-
-                //for handling link clicks
+                // for handling link clicks
                 .usePlugin(new AbstractMarkwonPlugin() {
                     @Override
                     public void configureConfiguration(MarkwonConfiguration.Builder builder) {
@@ -607,78 +608,60 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     }
                 })
 
-                //handle images via available picasso
-                //.usePlugin(PicassoImagesPlugin.create(Picasso.get()))
+                // handle images via available picasso
+                // .usePlugin(PicassoImagesPlugin.create(Picasso.get()))
 
-                //handle images via picasso
-                .usePlugin(PicassoImagesPlugin.create(new PicassoImagesPlugin.PicassoStore() {
-                    @org.checkerframework.checker.nullness.qual.NonNull
-                    @Override
-                    public RequestCreator load(@org.checkerframework.checker.nullness.qual.NonNull AsyncDrawable drawable) {
-                        try {
-                            return Picasso.get()
-                                    .load(drawable.getDestination())
-                                    //.resize(desiredWidth, desiredHeight)
-                                    //.centerCrop()
-                                    .tag(drawable);
-                        }catch(Exception e){
-                            return null;
-                        }
-                    }
-
-                    @Override
-                    public void cancel(@NonNull AsyncDrawable drawable) {
-                        Picasso.get()
-                                .cancelTag(drawable);
-                    }
-                }))
+                // handle images via picasso
+                // handle images via available glide
+                .usePlugin(GlideImagesPlugin.create(steemit_post_context))
 
                 .build();
 
-        //hook change event for report content preview and saving the text to prevent data loss
+        // hook change event for report content preview and saving the text to prevent
+        // data loss
         steemitPostContent.addTextChangedListener(new TextWatcher() {
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
 
             @Override
             public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
+                    int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if(s.length() != 0) {
-                    //mdView.setMDText(steemitPostContent.getText().toString());
+                    int before, int count) {
+                if (s.length() != 0) {
+                    // mdView.setMDText(steemitPostContent.getText().toString());
                     try {
                         markwon.setMarkdown(mdView, steemitPostContent.getText().toString());
-                    }catch(Exception e){
+                    } catch (Exception e) {
                         Log.e(MainActivity.TAG, "error ontextchanged markwon");
                     }
 
-                    //store current text
+                    // store current text
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("steemPostContent",
                             steemitPostContent.getText().toString());
                     editor.apply();
 
                 }
-                if(s.length() < min_char_count) {
+                if (s.length() < min_char_count) {
                     contentCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
                     charCount.setTextColor(getResources().getColor(R.color.actifitRed));
-                }else{
+                } else {
                     contentCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
                     charCount.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
                 }
-                //set text count
-                charCount.setText(s.length()+"");
-
+                // set text count
+                charCount.setText(s.length() + "");
 
             }
         });
 
-        //try to load any previously selected vid
+        // try to load any previously selected vid
 
         // Retrieve the JSON string from SharedPreferences
         try {
@@ -686,17 +669,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             // Convert back to UploadedVideoModel
             Gson gson = new Gson();
             selVidEntry = gson.fromJson(json, UploadedVideoModel.class);
-        }catch(Exception ex1){
+        } catch (Exception ex1) {
             ex1.printStackTrace();
         }
 
-        //try to load editor content if it was stored previously
-        String priorContent = sharedPreferences.getString("steemPostContent","");
+        // try to load editor content if it was stored previously
+        String priorContent = sharedPreferences.getString("steemPostContent", "");
         if (!priorContent.trim().isEmpty()) {
             steemitPostContent.setText(priorContent);
 
-        }else{
-            //pick random hint
+        } else {
+            // pick random hint
             // Generate a random integer between 1 and 6
             int minValue = 1;
             int maxValue = parseInt(getString(R.string.report_text_hint_count));
@@ -710,68 +693,70 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         markwon.setMarkdown(mdView, steemitPostContent.getText().toString());
         // set markdown text pattern. ('contents' object is markdown text)
-        //mdView.setMDText(steemitPostContent.getText().toString());
+        // mdView.setMDText(steemitPostContent.getText().toString());
 
-        //hooking to date change event for activity
+        // hooking to date change event for activity
 
-        //need to check if user switched to fetch yesterday's data
+        // need to check if user switched to fetch yesterday's data
 
         RadioGroup reportDateOptionGroup = findViewById(R.id.report_date_option_group);
 
-        //check if the user is allowed to post yesterday's report
+        // check if the user is allowed to post yesterday's report
         Calendar myCalendar = Calendar.getInstance();
 
         myCalendar.add(Calendar.DATE, -1);
 
-        //get yesterday's date
+        // get yesterday's date
         String currentDate = new SimpleDateFormat("yyyyMMdd").format(
                 myCalendar.getTime());
-        //check last recorded post date
-        String lastPostDate = sharedPreferences.getString("actifitLastPostDate","");
+        // check last recorded post date
+        String lastPostDate = sharedPreferences.getString("actifitLastPostDate", "");
 
-        if (!lastPostDate.isEmpty()){
+        if (!lastPostDate.isEmpty()) {
             if (parseInt(lastPostDate) >= parseInt(currentDate)) {
-                //need to disable yesterday's option
+                // need to disable yesterday's option
                 RadioButton yesterdayOption = findViewById(R.id.report_yesterday_option);
                 yesterdayOption.setEnabled(false);
                 yesterdayReport = false;
-                //ensure today is selected
+                // ensure today is selected
                 reportDateOptionGroup.check(R.id.report_today_option);
             }
         }
 
-
-        //make sure to select proper radio button in case it was previously set
-        if (yesterdayReport){
+        // make sure to select proper radio button in case it was previously set
+        if (yesterdayReport) {
             reportDateOptionGroup.check(R.id.report_yesterday_option);
         }
 
         final TextView fitbitSyncNotice = findViewById(R.id.fitbit_sync_notice);
 
-        //event listener for change in selection
+        // event listener for change in selection
         reportDateOptionGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            //common code for both cases
+            // common code for both cases
 
-            //if user had synced before, we need to notify that they need to sync again after change of date
+            // if user had synced before, we need to notify that they need to sync again
+            // after change of date
             if (fitbitSyncDone > 0 || healthConnectSyncDone > 0) {
                 fitbitSyncNotice.setVisibility(View.VISIBLE);
-                //reset that we fetched fitbit data
+                // reset that we fetched fitbit data
                 fitbitSyncDone = 0;
                 healthConnectSyncDone = 0;
             }
 
-            if (checkedId == R.id.report_today_option) {//we have today's option
-                //set initial steps display value
+            if (checkedId == R.id.report_today_option) {// we have today's option
+                // set initial steps display value
                 int stepCount1 = mStepsDBHelper.fetchTodayStepCount();
-                //display step count while ensuring we don't display negative value if no steps tracked yet
+                // display step count while ensuring we don't display negative value if no steps
+                // tracked yet
                 stepCountContainer.setText(String.valueOf((Math.max(stepCount1, 0))), TextView.BufferType.EDITABLE);
 
                 yesterdayReport = false;
             } else if (checkedId == R.id.report_yesterday_option) {
-                int stepCount1;//yesterday's option
-                //set initial steps display value
+                int stepCount1;// yesterday's option
+                // set initial steps display value
                 stepCount1 = mStepsDBHelper.fetchYesterdayStepCount();
-                //display step count while ensuring we don't display negative value if no steps tracked yet
+                // display step count while ensuring we don't display negative value if no steps
+                // tracked yet
                 stepCountContainer.setText(String.valueOf((Math.max(stepCount1, 0))), TextView.BufferType.EDITABLE);
 
                 yesterdayReport = true;
@@ -797,7 +782,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         } else {
                             Log.e(TAG, "Image picker returned null Uri");
                             // Optional: Show a message to the user
-                            Toast.makeText(PostSteemitActivity.this, "Failed to get image URI", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PostSteemitActivity.this, "Failed to get image URI", Toast.LENGTH_SHORT)
+                                    .show();
                         }
                     } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
                         // User cancelled the operation
@@ -809,8 +795,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         // Optional: Show an error message
                         Toast.makeText(PostSteemitActivity.this, "Image selection failed", Toast.LENGTH_SHORT).show();
                     }
-                }
-        );
+                });
 
         // Launcher for picking videos (assuming similar handling structure needed)
         videoPickerLauncher = registerForActivityResult(
@@ -822,14 +807,18 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                             // Handle the video Uri - this is where your original video logic goes
                             fileUri = uri; // Store video Uri if needed
                             // Assuming your video handling is separate from image bitmap loading
-                            // Call your video processing/upload logic here, potentially also off the main thread
-                            // uploadThumbnail(Utils.generateThumbnail(getApplicationContext(), fileUri)); // This might need background thread
+                            // Call your video processing/upload logic here, potentially also off the main
+                            // thread
+                            // uploadThumbnail(Utils.generateThumbnail(getApplicationContext(), fileUri));
+                            // // This might need background thread
                             // uploadVideo(); // This definitely needs background thread
                             Log.d(TAG, "Video selected: " + uri);
-                            Toast.makeText(PostSteemitActivity.this, "Video Selected (Processing not implemented)", Toast.LENGTH_SHORT).show(); // Placeholder
+                            Toast.makeText(PostSteemitActivity.this, "Video Selected (Processing not implemented)",
+                                    Toast.LENGTH_SHORT).show(); // Placeholder
                         } else {
                             Log.e(TAG, "Video picker returned null Uri");
-                            Toast.makeText(PostSteemitActivity.this, "Failed to get video URI", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PostSteemitActivity.this, "Failed to get video URI", Toast.LENGTH_SHORT)
+                                    .show();
                         }
                     } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
                         Log.d(TAG, "Video selection cancelled");
@@ -837,32 +826,34 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         Log.e(TAG, "Video picker returned result code: " + result.getResultCode());
                         Toast.makeText(PostSteemitActivity.this, "Video selection failed", Toast.LENGTH_SHORT).show();
                     }
-                }
-        );
+                });
 
-        //Adding default title content for the daily post
+        // Adding default title content for the daily post
 
-        //generating today's date
+        // generating today's date
         Calendar mCalendar = Calendar.getInstance();
         String postTitle = getString(R.string.default_post_title);
-        //set date in title accordingly
-        if (yesterdayReport){
+        // set date in title accordingly
+        if (yesterdayReport) {
             mCalendar.add(Calendar.DATE, -1);
         }
-        postTitle += " "+new SimpleDateFormat("MMMM d yyyy").format(mCalendar.getTime());
+        postTitle += " " + new SimpleDateFormat("MMMM d yyyy").format(mCalendar.getTime());
 
-        //postTitle += String.valueOf(mCalendar.get(Calendar.MONTH)+1)+" " +
-                //String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH))+"/"+String.valueOf(mCalendar.get(Calendar.YEAR));
+        // postTitle += String.valueOf(mCalendar.get(Calendar.MONTH)+1)+" " +
+        // String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH))+"/"+String.valueOf(mCalendar.get(Calendar.YEAR));
         steemitPostTitle.setText(postTitle);
 
-        //initializing activity options
+        // initializing activity options
         String[] activity_type = {
-                getString(R.string.Walking), getString(R.string.Jogging), getString(R.string.Running), getString(R.string.Cycling),
-                getString(R.string.RopeSkipping), getString(R.string.Dancing),getString(R.string.Basketball), getString(R.string.Football),
+                getString(R.string.Walking), getString(R.string.Jogging), getString(R.string.Running),
+                getString(R.string.Cycling),
+                getString(R.string.RopeSkipping), getString(R.string.Dancing), getString(R.string.Basketball),
+                getString(R.string.Football),
                 getString(R.string.Boxing), getString(R.string.Tennis), getString(R.string.TableTennis),
-                getString(R.string.MartialArts), getString(R.string.HouseChores), getString(R.string.MovingAroundOffice),
-                getString(R.string.Shopping),getString(R.string.DailyActivity), getString(R.string.Aerobics),
-                getString(R.string.WeightLifting), getString(R.string.Treadmill),getString(R.string.StairMill),
+                getString(R.string.MartialArts), getString(R.string.HouseChores),
+                getString(R.string.MovingAroundOffice),
+                getString(R.string.Shopping), getString(R.string.DailyActivity), getString(R.string.Aerobics),
+                getString(R.string.WeightLifting), getString(R.string.Treadmill), getString(R.string.StairMill),
                 getString(R.string.Elliptical), getString(R.string.Hiking), getString(R.string.Gardening),
                 getString(R.string.Rollerblading), getString(R.string.Cricket), getString(R.string.Golf),
                 getString(R.string.Volleyball), getString(R.string.Geocaching), getString(R.string.Shoveling),
@@ -870,29 +861,31 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 getString(R.string.KettlebellTraining), getString(R.string.Bootcamp), getString(R.string.Gym),
                 getString(R.string.Skating), getString(R.string.Hockey), getString(R.string.Swimming),
                 getString(R.string.ChasingPokemons), getString(R.string.Badminton), getString(R.string.PickleBall),
-                getString(R.string.Snowshoeing),getString(R.string.Sailing),getString(R.string.Kayaking), getString(R.string.Kidplay),
+                getString(R.string.Snowshoeing), getString(R.string.Sailing), getString(R.string.Kayaking),
+                getString(R.string.Kidplay),
                 getString(R.string.HomeImprovement), getString(R.string.YardWork), getString(R.string.StairClimbing),
-                getString(R.string.Yoga), getString(R.string.Stretching),getString(R.string.Calisthenics),
-                getString(R.string.StreetWorkout), getString(R.string.Plogging), getString(R.string.Crossfit),getString(R.string.FitnessGaming)
+                getString(R.string.Yoga), getString(R.string.Stretching), getString(R.string.Calisthenics),
+                getString(R.string.StreetWorkout), getString(R.string.Plogging), getString(R.string.Crossfit),
+                getString(R.string.FitnessGaming)
         };
 
-        //sort options in alpha order
+        // sort options in alpha order
         Arrays.sort(activity_type);
 
         activityTypeSelector = findViewById(R.id.steemit_activity_type);
         activityTypeSelector.setHighlighterView(activityTypeCountRef);
         activityTypeSelector.setItems(activity_type);
 
-        //grab current selection for measure system
-        String activeSystem = sharedPreferences.getString("activeSystem",getString(R.string.metric_system_ntt));
-        //adjust units accordingly
-        if (activeSystem.equals(getString(R.string.metric_system_ntt))){
+        // grab current selection for measure system
+        String activeSystem = sharedPreferences.getString("activeSystem", getString(R.string.metric_system_ntt));
+        // adjust units accordingly
+        if (activeSystem.equals(getString(R.string.metric_system_ntt))) {
             weightSizeUnit.setText(getString(R.string.kg_unit));
             heightSizeUnit.setText(getString(R.string.cm_unit));
             waistSizeUnit.setText(getString(R.string.cm_unit));
             chestSizeUnit.setText(getString(R.string.cm_unit));
             thighsSizeUnit.setText(getString(R.string.cm_unit));
-        }else{
+        } else {
             weightSizeUnit.setText(getString(R.string.lb_unit));
             heightSizeUnit.setText(getString(R.string.ft_unit));
             waistSizeUnit.setText(getString(R.string.in_unit));
@@ -900,7 +893,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             thighsSizeUnit.setText(getString(R.string.in_unit));
         }
 
-        //popup display about min chat count requirement
+        // popup display about min chat count requirement
         charInfo.setOnClickListener(view -> {
 
             AlertDialog.Builder dBuilder = new AlertDialog.Builder(steemit_post_context);
@@ -912,18 +905,23 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     .setNegativeButton(getString(R.string.close_button), (dialog, id) -> dialog.dismiss()).create();
 
             dBuilder.show();
-                /*pointer.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-                pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.dialog_shape));
-                pointer.show();*/
+            /*
+             * pointer.getWindow().getAttributes().windowAnimations =
+             * R.style.DialogAnimation;
+             * pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.
+             * dialog_shape));
+             * pointer.show();
+             */
         });
 
         currentActivity = this;
 
-        //capturing steemit post submission
+        // capturing steemit post submission
         Button BtnSubmitSteemit = findViewById(R.id.post_to_steem_btn);
         BtnSubmitSteemit.setOnClickListener(arg0 -> ProcessPost());
 
-        ScaleAnimation scaler = new ScaleAnimation(1f, 0.98f, 1f,0.98f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        ScaleAnimation scaler = new ScaleAnimation(1f, 0.98f, 1f, 0.98f, Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
         scaler.setDuration(300);
         scaler.setRepeatMode(Animation.REVERSE);
         scaler.setRepeatCount(Animation.INFINITE);
@@ -949,11 +947,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             }
         });
 
-
-
-
-
-        /***************** Sync Implementation (Fitbit + Health Connect) ****************/
+        /*****************
+         * Sync Implementation (Fitbit + Health Connect)
+         ****************/
 
         Button BtnSyncData = findViewById(R.id.sync_data);
         BtnSyncData.setOnClickListener(arg0 -> {
@@ -969,14 +965,14 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     // Connect to fitbit and grab data
                     NxFitbitHelper.sendUserToAuthorisation(steemit_post_context, true);
                 } else if (items[item].equals(getString(R.string.health_connect_sync_option))) {
-                    //initiate health connect sync
+                    // initiate health connect sync
                     checkHealthConnectAndFetchSteps();
                 }
             });
             builder.show();
         });
 
-        //retrieve resulting data from fitbit sync (parameter from the Intent)
+        // retrieve resulting data from fitbit sync (parameter from the Intent)
         Uri returnUrl = getIntent().getData();
         if (returnUrl != null) {
             try {
@@ -986,24 +982,27 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 // Get user profile using helper function
                 try {
                     JSONObject responseProfile = fitbit.getUserProfile();
-                    //Log.d(MainActivity.TAG, "From JSON encodedId: " + responseProfile.getJSONObject("user"));
-                    //Log.d(MainActivity.TAG, "From JSON fullName: " + responseProfile.getJSONObject("user").getString("fullName"));
+                    // Log.d(MainActivity.TAG, "From JSON encodedId: " +
+                    // responseProfile.getJSONObject("user"));
+                    // Log.d(MainActivity.TAG, "From JSON fullName: " +
+                    // responseProfile.getJSONObject("user").getString("fullName"));
 
-                    //essential for capability to fetch measurements
+                    // essential for capability to fetch measurements
                     responseProfile.getJSONObject("user");
 
-                    //grab userId
+                    // grab userId
                     fitbitUserId = fitbit.getUserId();
 
-                    //check to see if settings allows fetching measurements - default true
-                    String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements", getString(R.string.fitbit_measurements_on_ntt));
+                    // check to see if settings allows fetching measurements - default true
+                    String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements",
+                            getString(R.string.fitbit_measurements_on_ntt));
                     if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt))) {
 
-                        //grab and update user weight
+                        // grab and update user weight
                         TextView weight = findViewById(R.id.measurements_weight);
                         weight.setText(fitbit.getFieldFromProfile("weight"));
 
-                        //grab and update user height
+                        // grab and update user height
                         TextView height = findViewById(R.id.measurements_height);
                         height.setText(fitbit.getFieldFromProfile("height"));
                     }
@@ -1017,7 +1016,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 try {
                     String soughtInfo = "steps";
                     String targetDate = "today";
-                    //fetch yesterday data in case this is yesterday's option
+                    // fetch yesterday data in case this is yesterday's option
                     if (yesterdayReport) {
                         targetDate = new SimpleDateFormat("yyyy-MM-dd").format(mCalendar.getTime());
                     }
@@ -1027,19 +1026,19 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     int trackedActivityCount = 0;
                     if (stepActivityArray.length() > 0) {
                         Log.d(MainActivity.TAG, "we found matching records");
-                        //loop through records adding up recorded steps
+                        // loop through records adding up recorded steps
                         for (int i = 0; i < stepActivityArray.length(); i++) {
                             trackedActivityCount += parseInt(stepActivityArray.getJSONObject(i).getString("value"));
                         }
 
-                        //update value according to activity we were able to grab
+                        // update value according to activity we were able to grab
                         EditText activityCount = findViewById(R.id.steemit_step_count);
                         activityCount.setText("" + trackedActivityCount);
 
-                        //flag that we synced properly
+                        // flag that we synced properly
                         fitbitSyncDone = 1;
 
-                        //store date of last sync to avoid improper use of older fitbit data
+                        // store date of last sync to avoid improper use of older fitbit data
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("fitbitLastSyncDate",
                                 new SimpleDateFormat("yyyyMMdd").format(
@@ -1054,19 +1053,20 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }catch(Exception myExc){
+            } catch (Exception myExc) {
                 myExc.printStackTrace();
-                Toast.makeText(getApplicationContext(), getString(R.string.error_fitbit_fecth), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.error_fitbit_fecth), Toast.LENGTH_SHORT)
+                        .show();
             }
 
         } else {
-            Log.d(MainActivity.TAG, "Something is wrong with the return value from Fitbit. getIntent().getData() is NULL?");
+            Log.d(MainActivity.TAG,
+                    "Something is wrong with the return value from Fitbit. getIntent().getData() is NULL?");
         }
 
         focusTitle();
 
         healthConnectManager = new HealthConnectManager(this);
-
 
     }
 
@@ -1077,31 +1077,32 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     }
 
-    void focusTitle(){
-        if (steemitPostTitle != null){
+    void focusTitle() {
+        if (steemitPostTitle != null) {
             steemitPostTitle.requestFocus();
         }
     }
 
-    public void setMainVid(UploadedVideoModel vidEntry){
+    public void setMainVid(UploadedVideoModel vidEntry) {
         this.selVidEntry = vidEntry;
-        //store in shared preferences a copy of the video to ensure we have access to data if
-        //user revisits this post later
+        // store in shared preferences a copy of the video to ensure we have access to
+        // data if
+        // user revisits this post later
         Gson gson = new Gson();
         String json = gson.toJson(vidEntry);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("selVidEntry", json);
         editor.apply();
     }
 
-    public void appendContent(String text){
+    public void appendContent(String text) {
         steemitPostContent.setText(steemitPostContent.getText().append(text));
     }
 
-    void focusContent(){
-        if (steemitPostContent != null && currentActivity != null){
+    void focusContent() {
+        if (steemitPostContent != null && currentActivity != null) {
             currentActivity.runOnUiThread(() -> {
                 steemitPostContent.requestFocus();
                 if (nestedScrollView != null) {
@@ -1113,29 +1114,32 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     /**
      * function handling the display of popup notification
+     * 
      * @param notification
      * @param permLink
      */
     void displayNotification(final String notification, final ProgressDialog progress,
-                             final Context context, final Activity currentActivity,
-                             final String success, final String permLink){
-        //render result
+            final Context context, final Activity currentActivity,
+            final String success, final String permLink) {
+        // render result
         currentActivity.runOnUiThread(() -> {
-            //hide the progressDialog
-            try{
+            // hide the progressDialog
+            try {
                 if (progress != null && progress.isShowing()) {
                     progress.dismiss();
                 }
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            /*spinner=findViewById(R.id.progressBar);
-            spinner.setVisibility(View.GONE);*/
+            /*
+             * spinner=findViewById(R.id.progressBar);
+             * spinner.setVisibility(View.GONE);
+             */
 
             final AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
             builder1.setMessage(notification);
 
-            if (success.equals("success")){
+            if (success.equals("success")) {
                 builder1.setIcon(getResources().getDrawable(R.drawable.success_icon));
                 builder1.setTitle("Actifit Success");
                 builder1.setNeutralButton(getString(R.string.view_post_button),
@@ -1145,10 +1149,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                             builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
 
-                            //animation for showing and closing screen
-                            builder.setStartAnimations(steemit_post_context, R.anim.slide_in_right, R.anim.slide_out_left);
+                            // animation for showing and closing screen
+                            builder.setStartAnimations(steemit_post_context, R.anim.slide_in_right,
+                                    R.anim.slide_out_left);
 
-                            //animation for back button clicks
+                            // animation for back button clicks
                             builder.setExitAnimations(steemit_post_context, android.R.anim.slide_in_left,
                                     android.R.anim.slide_out_right);
 
@@ -1156,39 +1161,42 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                             customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                             try {
-                                customTabsIntent.launchUrl(steemit_post_context, Uri.parse(getString(R.string.actifit_url)+accountUsername+"/"+permLink));
+                                customTabsIntent.launchUrl(steemit_post_context,
+                                        Uri.parse(getString(R.string.actifit_url) + accountUsername + "/" + permLink));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                             if (success.equals("success")) {
-                                //close current screen
-                                Log.d(MainActivity.TAG,">>>Finish");
+                                // close current screen
+                                Log.d(MainActivity.TAG, ">>>Finish");
                                 currentActivity.finish();
                             }
-                            //dialog.cancel();
+                            // dialog.cancel();
                         });
 
                 builder1.setNegativeButton(getString(R.string.share_post_button),
                         (dialog, id) -> {
-                            //dialog.cancel();
+                            // dialog.cancel();
 
                             Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                             sharingIntent.setType("text/plain");
                             String shareSubject = getString(R.string.post_title);
                             String shareBody = getString(R.string.post_description);
-                            shareBody += getString(R.string.post_title) + " "+getString(R.string.actifit_url)+accountUsername+"/"+permLink;
+                            shareBody += getString(R.string.post_title) + " " + getString(R.string.actifit_url)
+                                    + accountUsername + "/" + permLink;
 
                             sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
                             sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
 
-                            PostSteemitActivity.this.startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
+                            PostSteemitActivity.this
+                                    .startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
                             if (success.equals("success")) {
-                                //close current screen
-                                Log.d(MainActivity.TAG,">>>Finish");
+                                // close current screen
+                                Log.d(MainActivity.TAG, ">>>Finish");
                                 currentActivity.finish();
                             }
                         });
-            }else{
+            } else {
                 builder1.setIcon(getResources().getDrawable(R.drawable.error_icon));
                 builder1.setTitle("Actifit Error");
             }
@@ -1201,95 +1209,97 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         public void onClick(DialogInterface dialog, int id) {
                             dialog.cancel();
                             if (success.equals("success")) {
-                                //close current screen
-                                Log.d(MainActivity.TAG,">>>Finish");
+                                // close current screen
+                                Log.d(MainActivity.TAG, ">>>Finish");
                                 currentActivity.finish();
                             }
                         }
                     });
 
-
-            //create and display alert window
+            // create and display alert window
             try {
                 AlertDialog alert11 = builder1.create();
-                //alert11.show();
+                // alert11.show();
                 builder1.show();
-            }catch(Exception e){
-                //Log.e(MainActivity.TAG, e.getMessage());
+            } catch (Exception e) {
+                // Log.e(MainActivity.TAG, e.getMessage());
             }
         });
 
-        //finish();
+        // finish();
     }
 
     private class PostSteemitRequest extends AsyncTask<String, Void, Void> {
         ProgressDialog progress;
         private final Context context;
         private Activity currentActivity;
-        public PostSteemitRequest(Context c, Activity currentActivity){
-                this.context = c;
-                this.currentActivity = currentActivity;
+
+        public PostSteemitRequest(Context c, Activity currentActivity) {
+            this.context = c;
+            this.currentActivity = currentActivity;
         }
-        protected void onPreExecute(){
-            //create a new progress dialog to show action is underway
+
+        protected void onPreExecute() {
+            // create a new progress dialog to show action is underway
             progress = new ProgressDialog(this.context);
             progress.setMessage(getString(R.string.sending_post));
             progress.show();
         }
 
-        /*protected void onPostExecute(Void result){
-            if (progress != null){
-                if (progress.isShowing()){
-                    progress.hide();
-                }
-            }
-        }*/
+        /*
+         * protected void onPostExecute(Void result){
+         * if (progress != null){
+         * if (progress.isShowing()){
+         * progress.hide();
+         * }
+         * }
+         * }
+         */
         protected Void doInBackground(String... params) {
             try {
-                Log.d(MainActivity.TAG,"click");
+                Log.d(MainActivity.TAG, "click");
 
-                //disable button to prevent multiple clicks
-                //arg0.setEnabled(false);
+                // disable button to prevent multiple clicks
+                // arg0.setEnabled(false);
 
-
-
-                //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
-                final SharedPreferences[] sharedPreferences = {getSharedPreferences("actifitSets", MODE_PRIVATE)};
-                final SharedPreferences.Editor[] editor = {sharedPreferences[0].edit()};
-                //skip on spaces, upper case, and @ symbols to properly match steem username patterns
+                // storing account data for simple reuse. Data is not stored anywhere outside
+                // actifit App.
+                final SharedPreferences[] sharedPreferences = { getSharedPreferences("actifitSets", MODE_PRIVATE) };
+                final SharedPreferences.Editor[] editor = { sharedPreferences[0].edit() };
+                // skip on spaces, upper case, and @ symbols to properly match steem username
+                // patterns
                 editor[0].putString("actifitUser", accountUsername
-                        .trim().toLowerCase().replace("@",""));
+                        .trim().toLowerCase().replace("@", ""));
                 editor[0].putString("actifitPst", accountPostingKey);
                 editor[0].apply();
 
+                // if (1==1) return null;
 
-                //if (1==1) return null;
-
-                //set proper target date
+                // set proper target date
                 Calendar mCalendar = Calendar.getInstance();
 
-                if (yesterdayReport){
-                    //go back one day
+                if (yesterdayReport) {
+                    // go back one day
                     mCalendar.add(Calendar.DATE, -1);
                 }
 
                 String targetDate = new SimpleDateFormat("yyyyMMdd").format(
                         mCalendar.getTime());
 
-                //this runs only on live mode
+                // this runs only on live mode
                 if (getString(R.string.test_mode).equals("off")) {
-                    //make sure we have reached the min movement amount
+                    // make sure we have reached the min movement amount
                     if (parseInt(accountActivityCount) < min_step_limit) {
                         notification = getString(R.string.min_activity_not_reached) + " " +
-                                NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " " + getString(R.string.not_yet);
+                                NumberFormat.getNumberInstance(Locale.US).format(min_step_limit) + " "
+                                + getString(R.string.not_yet);
                         displayNotification(notification, progress, context, currentActivity, "", "");
 
                         return null;
                     }
 
-                    //make sure the post content has at least the min_char_count
-                    if (finalPostContent.length()
-                            <= min_char_count) {
+                    // make sure the post content has at least the min_char_count
+                    if (finalPostContent.length() <= min_char_count) {
                         notification = getString(R.string.min_char_count_error)
                                 + " " + min_char_count
                                 + " " + getString(R.string.characters_plural_label);
@@ -1300,14 +1310,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         return null;
                     }
 
-                    //make sure the user has not posted today already,
-                    //and also avoid potential abuse of changing phone clock via comparing to older dates
+                    // make sure the user has not posted today already,
+                    // and also avoid potential abuse of changing phone clock via comparing to older
+                    // dates
                     String lastPostDate = sharedPreferences[0].getString("actifitLastPostDate", "");
 
                     Log.d(MainActivity.TAG, ">>>>[Actifit]lastPostDate:" + lastPostDate);
                     Log.d(MainActivity.TAG, ">>>>[Actifit]currentDate:" + targetDate);
-
-
 
                     if (!lastPostDate.equals("")) {
                         if (parseInt(lastPostDate) >= parseInt(targetDate)) {
@@ -1317,38 +1326,35 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         }
                     }
 
-
-                    //let us check if user has selected activities yet
+                    // let us check if user has selected activities yet
                     if (selectedActivityCount < 1) {
                         notification = getString(R.string.error_need_select_one_activity);
                         displayNotification(notification, progress, context, currentActivity, "", "");
 
-                        //reset to enabled
-                        //arg0.setEnabled(true);
+                        // reset to enabled
+                        // arg0.setEnabled(true);
                         return null;
                     }
                 }
 
-                //no need to send detailed step data if this is a fitbit sync
+                // no need to send detailed step data if this is a fitbit sync
                 String stepDataString = "";
                 if (fitbitSyncDone == 0) {
-                    //prepare relevant day detailed data
+                    // prepare relevant day detailed data
                     ArrayList<ActivitySlot> timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDate);
 
-
-
-                    //loop through the data to prepare it for proper display
+                    // loop through the data to prepare it for proper display
                     for (int position = 0; position < timeSlotActivity.size(); position++) {
                         try {
-                            //grab date entry according to stored format
+                            // grab date entry according to stored format
                             String slotTime = (timeSlotActivity.get(position)).slot;
                             String slotEntryFormat = slotTime;
                             if (slotTime.length() < 4) {
-                                //no leading zero, add leading zero
+                                // no leading zero, add leading zero
                                 slotEntryFormat = "0" + slotTime;
                             }
 
-                            //append to display
+                            // append to display
                             stepDataString += slotEntryFormat + (timeSlotActivity.get(position)).activityCount + "|";
 
                         } catch (Exception ex) {
@@ -1358,12 +1364,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     }
                 }
 
-                //prepare data to be sent along post
+                // prepare data to be sent along post
                 final JSONObject data = new JSONObject();
                 try {
-                    //skip on spaces, upper case, and @ symbols to properly match steem username patterns
+                    // skip on spaces, upper case, and @ symbols to properly match steem username
+                    // patterns
                     data.put("author", accountUsername
-                            .trim().toLowerCase().replace("@",""));
+                            .trim().toLowerCase().replace("@", ""));
                     data.put("posting_key", accountPostingKey);
                     data.put("title", finalPostTitle);
                     data.put("content", finalPostContent);
@@ -1371,9 +1378,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     data.put("step_count", accountActivityCount);
                     data.put("activity_type", selectedActivitiesVal);
 
-                    /*if (fullAFITPayVal) {
-                        data.put("full_afit_pay", "on");
-                    }*/
+                    /*
+                     * if (fullAFITPayVal) {
+                     * data.put("full_afit_pay", "on");
+                     * }
+                     */
 
                     data.put("height", heightVal);
                     data.put("weight", weightVal);
@@ -1390,52 +1399,55 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     data.put("appType", "Android");
 
-                    //append detailed activity data
+                    // append detailed activity data
                     data.put("detailedActivity", stepDataString);
 
-                    //appending security param values
-                    data.put( getString(R.string.sec_param), getString(R.string.sec_param_val));
+                    // appending security param values
+                    data.put(getString(R.string.sec_param), getString(R.string.sec_param_val));
 
-                    //append user timezone
-                    /*Date dt = new Date();
-                    Calendar cal = Calendar.getInstance();
-
-                    TimeZone tz = cal.getTimeZone();
-                    tz.getRawOffset();*/
+                    // append user timezone
+                    /*
+                     * Date dt = new Date();
+                     * Calendar cal = Calendar.getInstance();
+                     * 
+                     * TimeZone tz = cal.getTimeZone();
+                     * tz.getRawOffset();
+                     */
                     try {
                         TimeZone tz = TimeZone.getDefault();
                         Calendar cal = Calendar.getInstance(tz);
                         int offsetInMillis = tz.getOffset(cal.getTimeInMillis());
 
-                        String offset = String.format("%02d:%02d", Math.abs(offsetInMillis / 3600000), Math.abs((offsetInMillis / 60000) % 60));
+                        String offset = String.format("%02d:%02d", Math.abs(offsetInMillis / 3600000),
+                                Math.abs((offsetInMillis / 60000) % 60));
                         offset = "GMT" + (offsetInMillis >= 0 ? "+" : "-") + offset;
 
                         data.put("timeZone", offset);
-                    }catch  (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
-                    //grab app version number
+                    // grab app version number
                     try {
                         PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
                         String version = pInfo.versionName;
-                        data.put("appVersion",version);
+                        data.put("appVersion", version);
                     } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
                     }
 
-
-                    //if this is a yesterday post, make sure to include this data
-                    if (yesterdayReport){
+                    // if this is a yesterday post, make sure to include this data
+                    if (yesterdayReport) {
                         data.put("yesterdayReport", "1");
                     }
 
-                    //also append the date used
+                    // also append the date used
                     data.put("activityDate", targetDate);
 
                     /**************************************/
-                    //3speak vid section
-                    // Assuming vid is an instance of some class or object that has the specified properties
+                    // 3speak vid section
+                    // Assuming vid is an instance of some class or object that has the specified
+                    // properties
                     if (selVidEntry != null) {
                         try {
                             // Create sourceMap JSONArray
@@ -1481,24 +1493,24 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                             // Create vidJsonMeta JSONObject
                             JSONObject vidJsonMeta = new JSONObject();
-                            vidJsonMeta.put("video",video);
+                            vidJsonMeta.put("video", video);
 
-                            //include as part of the json_metadata
+                            // include as part of the json_metadata
                             data.put("video", vidJsonMeta.toString());
 
-                            //add 3speak beneficiary data
+                            // add 3speak beneficiary data
                             JSONArray spkBenefic = Utils.grab3SpeakDefaultBenefic();
                             try {
                                 JSONArray vidBenefic = new JSONArray(selVidEntry.beneficiaries);
-                                for (int k = 0; k <vidBenefic.length();k++)
+                                for (int k = 0; k < vidBenefic.length(); k++)
                                     spkBenefic.put(vidBenefic.getJSONObject(k));
-                            }catch(Exception exc){
+                            } catch (Exception exc) {
                                 exc.printStackTrace();
                             }
                             data.put("spkBenefic", spkBenefic);
 
-                            //also append vid permalink to ensure it gets recognized on 3speak side
-                            data.put("spkPermlink",selVidEntry.permlink);
+                            // also append vid permalink to ensure it gets recognized on 3speak side
+                            data.put("spkPermlink", selVidEntry.permlink);
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -1506,7 +1518,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     }
 
-                    //also send out any additional beneficiaries
+                    // also send out any additional beneficiaries
                     String extraBeneficList = sharedPreferences[0].getString("AdditionalBeneficiaries", "");
                     if (!extraBeneficList.isEmpty()) {
                         data.put("addBenefic", extraBeneficList);
@@ -1514,37 +1526,38 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     Log.d("PostHive", extraBeneficList);
 
-                    //if (true) return null;
+                    // if (true) return null;
                     /************************************/
 
-                    //choose a charity if one is already selected before
+                    // choose a charity if one is already selected before
 
-                    sharedPreferences[0] = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                    sharedPreferences[0] = getSharedPreferences("actifitSets", MODE_PRIVATE);
 
-                    final String currentCharity = (sharedPreferences[0].getString("selectedCharity",""));
+                    final String currentCharity = (sharedPreferences[0].getString("selectedCharity", ""));
 
-                    if (!currentCharity.equals("")){
+                    if (!currentCharity.equals("")) {
                         data.put("charity", currentCharity);
                     }
 
-                    //append user ID
-                    data.put("actifitUserID", sharedPreferences[0].getString("actifitUserID",""));
+                    // append user ID
+                    data.put("actifitUserID", sharedPreferences[0].getString("actifitUserID", ""));
 
-                    //append data tracking source to see if this is a device reading or a fitbit one
-                    //if there was a Fitbit sync, also need to send out that this is Fitbit data
-                    //if (1 == 1){
-                    if (healthConnectSyncDone == 1){
+                    // append data tracking source to see if this is a device reading or a fitbit
+                    // one
+                    // if there was a Fitbit sync, also need to send out that this is Fitbit data
+                    // if (1 == 1){
+                    if (healthConnectSyncDone == 1) {
                         data.put("dataTrackingSource", getString(R.string.health_connect_tracking_ntt));
-                    } else if (fitbitSyncDone == 1){
+                    } else if (fitbitSyncDone == 1) {
                         data.put("dataTrackingSource", getString(R.string.fitbit_tracking_ntt));
-                        if (fitbitUserId == null || fitbitUserId.equals("")){
-                            //missing permission to fitbit
+                        if (fitbitUserId == null || fitbitUserId.equals("")) {
+                            // missing permission to fitbit
                             notification = getString(R.string.fitbit_permissions_missing);
                             displayNotification(notification, progress, context, currentActivity, "", "");
                             return null;
                         }
 
-                        //also append encrypted user identifier
+                        // also append encrypted user identifier
                         MessageDigest md = MessageDigest.getInstance(getString(R.string.fitbit_user_enc));
                         byte[] digest = md.digest(fitbitUserId.getBytes());
                         StringBuilder sb = new StringBuilder();
@@ -1554,77 +1567,81 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         System.out.println(sb);
 
                         data.put("fitbitUserId", sb.toString());
-                    }else {
+                    } else {
                         data.put("dataTrackingSource", sharedPreferences[0].getString("dataTrackingSystem",
                                 getString(R.string.device_tracking_ntt)));
                     }
-                    //append report STEEM payout type
-                    data.put("reportSTEEMPayMode", sharedPreferences[0].getString("reportSTEEMPayMode",""));
+                    // append report STEEM payout type
+                    data.put("reportSTEEMPayMode", sharedPreferences[0].getString("reportSTEEMPayMode", ""));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                //String inputLine;
-                final String[] result = {""};
-                //use test url only if testing mode is on
+                // String inputLine;
+                final String[] result = { "" };
+                // use test url only if testing mode is on
                 String urlStr = getString(R.string.test_api_url);
-                //if (getString(R.string.test_mode).equals("off")) {
-                    urlStr = getString(R.string.api_url_new);
-                //}
+                // if (getString(R.string.test_mode).equals("off")) {
+                urlStr = getString(R.string.api_url_new);
+                // }
 
                 RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
-                JsonObjectRequest sendPostRequest = new JsonObjectRequest
-                        (Request.Method.POST, urlStr, data, response -> {
-                            //hide dialog
-                            //progress.hide();
+                JsonObjectRequest sendPostRequest = new JsonObjectRequest(Request.Method.POST, urlStr, data,
+                        response -> {
+                            // hide dialog
+                            // progress.hide();
                             // Display the result
-                            /*if (1==1) {
-                                throw new RuntimeException("This is an error message");
-                            }*/
+                            /*
+                             * if (1==1) {
+                             * throw new RuntimeException("This is an error message");
+                             * }
+                             */
                             try {
-                                //check result of action
+                                // check result of action
                                 if (response.has("status") && response.getString("status").equals("success")) {
                                     notification = getString(R.string.success_post);
 
-                                    //storing account data for simple reuse. Data is not stored anywhere outside actifit App.
+                                    // storing account data for simple reuse. Data is not stored anywhere outside
+                                    // actifit App.
                                     sharedPreferences[0] = getSharedPreferences("actifitSets", MODE_PRIVATE);
                                     editor[0] = sharedPreferences[0].edit();
                                     editor[0].putString("actifitLastPostDate", targetDate);
-                                    //also clear editor text content
+                                    // also clear editor text content
                                     editor[0].putString("steemPostContent", "");
                                     editor[0].apply();
                                     result[0] = response.getString("status");
                                 } else {
                                     // notification = getString(R.string.failed_post);
-                                    notification = response.getString("msg");//result;
+                                    notification = response.getString("msg");// result;
                                 }
 
-                                //display proper notification
-                                String permlink = (response.has("permlink"))?response.getString("permlink"):"";
-                                displayNotification(notification, progress, context, currentActivity, result[0], permlink);
+                                // display proper notification
+                                String permlink = (response.has("permlink")) ? response.getString("permlink") : "";
+                                displayNotification(notification, progress, context, currentActivity, result[0],
+                                        permlink);
 
-                            }catch (Exception e){
+                            } catch (Exception e) {
 
-                                //display proper notification
+                                // display proper notification
                                 notification = getString(R.string.failed_post);
                                 displayNotification(notification, progress, context, currentActivity, "", "");
 
-                                Log.d(MainActivity.TAG,"Error connecting");
+                                Log.d(MainActivity.TAG, "Error connecting");
                                 e.printStackTrace();
                             }
                         }, error -> {
-                            //hide dialog
-                            //progress.hide();
-                            //actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
-                            //notification = getString(R.string.failed_post);
+                            // hide dialog
+                            // progress.hide();
+                            // actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
+                            // notification = getString(R.string.failed_post);
                             notification = error.getMessage();
                             displayNotification(notification, progress, context, currentActivity, "", "");
                             error.printStackTrace();
                         });
 
-                //make sure sent only once
+                // make sure sent only once
                 sendPostRequest.setRetryPolicy(new DefaultRetryPolicy(
                         0,
                         DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -1632,46 +1649,47 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 // Add balance request to be processed
                 queue.add(sendPostRequest);
 
-            }catch (Exception e){
+            } catch (Exception e) {
 
-                //display proper notification
-    //            notification = getString(R.string.failed_post);
-    //            displayNotification(notification, progress, context, currentActivity, "");
+                // display proper notification
+                // notification = getString(R.string.failed_post);
+                // displayNotification(notification, progress, context, currentActivity, "");
                 try {
                     displayNotification(e.getMessage(), progress, context, currentActivity, "", "");
-                }catch(Exception inner){
+                } catch (Exception inner) {
                     displayNotification("unknown error", progress, context, currentActivity, "", "");
                 }
-                Log.d(MainActivity.TAG,"Error connecting");
+                Log.d(MainActivity.TAG, "Error connecting");
                 e.printStackTrace();
             }
             return null;
         }
     }
 
-    String currentCharityDisplayName="";
+    String currentCharityDisplayName = "";
 
-    private void ProcessPost(){
+    private void ProcessPost() {
 
-        //only if we haven't grabbed fitbit data, we need to grab new sensor data
-        if (fitbitSyncDone == 0 && healthConnectSyncDone == 0){
+        // only if we haven't grabbed fitbit data, we need to grab new sensor data
+        if (fitbitSyncDone == 0 && healthConnectSyncDone == 0) {
             int stepCount = 0;
-            if (yesterdayReport){
+            if (yesterdayReport) {
                 stepCount = mStepsDBHelper.fetchYesterdayStepCount();
-            }else{
+            } else {
                 stepCount = mStepsDBHelper.fetchTodayStepCount();
             }
-            //display step count while ensuring we don't display negative value if no steps tracked yet
-            stepCountContainer.setText(String.valueOf((stepCount<0?0:stepCount)), TextView.BufferType.EDITABLE);
-        }else{
-            //need to check if a day has passed, to prevent posting again using same fitbit data
-            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+            // display step count while ensuring we don't display negative value if no steps
+            // tracked yet
+            stepCountContainer.setText(String.valueOf((stepCount < 0 ? 0 : stepCount)), TextView.BufferType.EDITABLE);
+        } else {
+            // need to check if a day has passed, to prevent posting again using same fitbit
+            // data
+            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
 
-
-            //generating today's date
+            // generating today's date
             Calendar mCalendar = Calendar.getInstance();
-            //set date in title accordingly
-            if (yesterdayReport){
+            // set date in title accordingly
+            if (yesterdayReport) {
                 mCalendar.add(Calendar.DATE, -1);
             }
 
@@ -1688,11 +1706,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 syncProviderName = "Health Connect";
             }
 
-            String lastSyncDate = sharedPreferences.getString(lastSyncDateKey,"");
+            String lastSyncDate = sharedPreferences.getString(lastSyncDateKey, "");
 
-            Log.d(MainActivity.TAG,">>>>[Actifit]lastPostDate:"+lastSyncDate);
-            Log.d(MainActivity.TAG,">>>>[Actifit]currentDate:"+targetDate);
-            if (!lastSyncDate.isEmpty()){
+            Log.d(MainActivity.TAG, ">>>>[Actifit]lastPostDate:" + lastSyncDate);
+            Log.d(MainActivity.TAG, ">>>>[Actifit]currentDate:" + targetDate);
+            if (!lastSyncDate.isEmpty()) {
                 if (parseInt(lastSyncDate) < parseInt(targetDate)) {
                     notification = getString(R.string.need_sync_fitbit_again);
                     ProgressDialog progress = new ProgressDialog(steemit_post_context);
@@ -1706,31 +1724,30 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             EditText activityCount = findViewById(R.id.steemit_step_count);
             int trackedActivityCount = parseInt(activityCount.getText().toString());
 
-            //store the returned activity count to the DB
+            // store the returned activity count to the DB
             mStepsDBHelper.manualInsertStepsEntry(trackedActivityCount);
 
         }
 
+        // we need to check first if we have a charity setup
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
 
-        //we need to check first if we have a charity setup
-        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        final String currentCharity = sharedPreferences.getString("selectedCharity", "");
+        currentCharityDisplayName = sharedPreferences.getString("selectedCharityDisplayName", "");
 
-        final String currentCharity = sharedPreferences.getString("selectedCharity","");
-        currentCharityDisplayName = sharedPreferences.getString("selectedCharityDisplayName","");
-
-        //accountUsername = steemitUsername.getText().toString();
-        //accountPostingKey = steemitPostingKey.getText().toString();
+        // accountUsername = steemitUsername.getText().toString();
+        // accountPostingKey = steemitPostingKey.getText().toString();
         accountActivityCount = stepCountContainer.getText().toString();
         finalPostTitle = steemitPostTitle.getText().toString();
         selectedActivityCount = activityTypeSelector.getSelectedIndicies().size();
 
         finalPostContent = steemitPostContent.getText().toString();
 
-        //check if we have a video and the video still is part of the content
-        if (selVidEntry != null){
-            String soughtString = "https://3speak.tv/watch?v="+MainActivity.username+"/"+selVidEntry.permlink;
-            if (!finalPostContent.contains(soughtString)){
-                //video has been removed, set as null
+        // check if we have a video and the video still is part of the content
+        if (selVidEntry != null) {
+            String soughtString = "https://3speak.tv/watch?v=" + MainActivity.username + "/" + selVidEntry.permlink;
+            if (!finalPostContent.contains(soughtString)) {
+                // video has been removed, set as null
                 selVidEntry = null;
             }
         }
@@ -1739,7 +1756,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         selectedActivitiesVal = activityTypeSelector.getSelectedItemsAsString();
 
-        //fullAFITPayVal = fullAFITPay.isChecked();
+        // fullAFITPayVal = fullAFITPay.isChecked();
 
         heightVal = heightSize.getText().toString();
         weightVal = weightSize.getText().toString();
@@ -1754,23 +1771,23 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         waistUnit = waistSizeUnit.getText().toString();
         thighsUnit = thighsSizeUnit.getText().toString();
 
-        //make sure user has proper balance to earn AFIT rewards, and notify them accordingly
-
+        // make sure user has proper balance to earn AFIT rewards, and notify them
+        // accordingly
 
         processPostFinal(currentCharity);
     }
 
-    private void processPostFinal(String currentCharity){
-        if (!currentCharity.isEmpty()){
+    private void processPostFinal(String currentCharity) {
+        if (!currentCharity.isEmpty()) {
             DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
                 switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
-                        //go ahead posting
+                        // go ahead posting
                         processPostMinRewards();
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
-                        //cancel
+                        // cancel
                         break;
                 }
             };
@@ -1781,17 +1798,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     + getString(R.string.current_workout_settings_based))
                     .setPositiveButton(getString(R.string.yes_button), dialogClickListener)
                     .setNegativeButton(getString(R.string.no_button), dialogClickListener).show();
-        }else {
-            //connect to the server via a thread to prevent application hangup
+        } else {
+            // connect to the server via a thread to prevent application hangup
             processPostMinRewards();
         }
     }
 
-    //function handles confirming less than min rewards requirement
-    private void processPostMinRewards(){
-        //this runs only on live mode
+    // function handles confirming less than min rewards requirement
+    private void processPostMinRewards() {
+        // this runs only on live mode
         if (getString(R.string.test_mode).equals("off")) {
-            //make sure we have reached the min movement amount
+            // make sure we have reached the min movement amount
             if (parseInt(accountActivityCount) < min_reward_limit) {
 
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -1799,30 +1816,31 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
-                                //go ahead posting
+                                // go ahead posting
                                 new PostSteemitRequest(steemit_post_context, currentActivity).execute();
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
-                                //cancel
+                                // cancel
                                 break;
                         }
                     }
                 };
                 String notfMsg = getString(R.string.min_activity_not_reached) + " " +
-                        NumberFormat.getNumberInstance(Locale.US).format(min_reward_limit) + " " + getString(R.string.not_yet)
+                        NumberFormat.getNumberInstance(Locale.US).format(min_reward_limit) + " "
+                        + getString(R.string.not_yet)
                         + " " + getString(R.string.for_rewards)
                         + " " + getString(R.string.confirm_proceed);
                 AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
                 builder.setMessage(notfMsg)
                         .setPositiveButton(getString(R.string.yes_button), dialogClickListener)
                         .setNegativeButton(getString(R.string.no_button), dialogClickListener).show();
-            }else {
-                //connect to the server via a thread to prevent application hangup
+            } else {
+                // connect to the server via a thread to prevent application hangup
                 new PostSteemitRequest(steemit_post_context, currentActivity).execute();
             }
-        }else {
-            //connect to the server via a thread to prevent application hangup
+        } else {
+            // connect to the server via a thread to prevent application hangup
             new PostSteemitRequest(steemit_post_context, currentActivity).execute();
         }
     }
@@ -1862,7 +1880,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.BOTTOM);
             cLayoutSet.constrainHeight(R.id.steemit_post_text, 0); // MATCH_CONSTRAINT height
             cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.TOP, R.id.btn_container, ConstraintSet.BOTTOM);
-            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM);
 
             // --- Hide all other form fields ---
             cLayoutSet.setVisibility(R.id.post_title_container, View.GONE);
@@ -1901,11 +1920,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             cLayoutSet.setVisibility(R.id.steemit_post_preview_lbl, View.GONE);
             cLayoutSet.setVisibility(R.id.md_view, View.GONE);
 
-
             // Apply the new constraints
             cLayoutSet.applyTo(cLayout);
 
-            // Ensure the NestedScrollView is scrolled to the top to see the editor and sticky btn_container
+            // Ensure the NestedScrollView is scrolled to the top to see the editor and
+            // sticky btn_container
             nestedScrollView.post(() -> {
                 nestedScrollView.scrollTo(0, 0); // Scroll NSSV to top first
 
@@ -1931,27 +1950,30 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         } else { // Collapse mode
             // --- Restore btn_container's original position (not sticky) ---
             cLayoutSet.clear(R.id.btn_container, ConstraintSet.TOP); // Clear sticky top constraint
-            cLayoutSet.connect(R.id.btn_container, ConstraintSet.TOP, R.id.steemit_post_content_note, ConstraintSet.BOTTOM);
+            cLayoutSet.connect(R.id.btn_container, ConstraintSet.TOP, R.id.steemit_post_content_note,
+                    ConstraintSet.BOTTOM);
             cLayoutSet.setElevation(R.id.btn_container, 0f); // Remove elevation
 
             // --- Restore EditText properties and constraints ---
             postText.setMinLines(6);
             postText.setMaxLines(6); // Restore original max lines
-            // postText.setMovementMethod(null); // Optional: if you want to disable internal scrolling when collapsed
+            // postText.setMovementMethod(null); // Optional: if you want to disable
+            // internal scrolling when collapsed
 
-            // Restore EditText constraints (wrap_content height, below btn_container, above preview)
+            // Restore EditText constraints (wrap_content height, below btn_container, above
+            // preview)
             cLayoutSet.constrainHeight(R.id.steemit_post_text, ConstraintLayout.LayoutParams.WRAP_CONTENT);
             cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.TOP);
             cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.BOTTOM);
             cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.TOP, R.id.btn_container, ConstraintSet.BOTTOM);
-            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.BOTTOM, R.id.steemit_post_preview_lbl, ConstraintSet.TOP);
-
+            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.BOTTOM, R.id.steemit_post_preview_lbl,
+                    ConstraintSet.TOP);
 
             // --- Show all other form fields ---
             cLayoutSet.setVisibility(R.id.post_title_container, View.VISIBLE);
             cLayoutSet.setVisibility(R.id.steemit_post_title, View.VISIBLE);
-            //cLayoutSet.setVisibility(R.id.full_afit_pay_lbl, View.VISIBLE);
-            //cLayoutSet.setVisibility(R.id.full_afit_pay, View.VISIBLE);
+            // cLayoutSet.setVisibility(R.id.full_afit_pay_lbl, View.VISIBLE);
+            // cLayoutSet.setVisibility(R.id.full_afit_pay, View.VISIBLE);
             cLayoutSet.setVisibility(R.id.post_date_container, View.VISIBLE);
             cLayoutSet.setVisibility(R.id.report_date_option_group, View.VISIBLE);
             cLayoutSet.setVisibility(R.id.step_count_container, View.VISIBLE);
@@ -1984,7 +2006,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             cLayoutSet.setVisibility(R.id.steemit_post_preview_lbl, View.VISIBLE);
             cLayoutSet.setVisibility(R.id.md_view, View.VISIBLE);
 
-
             // Apply the restored constraints
             cLayoutSet.applyTo(cLayout);
 
@@ -2009,51 +2030,58 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             return;
         }
 
-        BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, (scope, continuation) -> {
-            try {
-                boolean hasPermissions = healthConnectManager.hasAllPermissions().get();
-                if (hasPermissions) {
-                    ZonedDateTime day = yesterdayReport ? ZonedDateTime.now().minus(1, ChronoUnit.DAYS) : ZonedDateTime.now();
-                    healthConnectManager.readStepsData(day).whenComplete((steps, throwable) -> {
-                        if (throwable != null) {
-                            Log.e(TAG, "Error reading steps from Health Connect", throwable);
-                            runOnUiThread(() -> Toast.makeText(PostSteemitActivity.this, "Failed to fetch steps from Health Connect.", Toast.LENGTH_SHORT).show());
-                        } else {
-                            runOnUiThread(() -> {
-                                stepCountContainer.setText(String.valueOf(steps));
-                                healthConnectSyncDone = 1;
-                                fitbitSyncDone = 0; // Reset other sync flags
+        BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                (scope, continuation) -> {
+                    try {
+                        boolean hasPermissions = healthConnectManager.hasAllPermissions().get();
+                        if (hasPermissions) {
+                            ZonedDateTime day = yesterdayReport ? ZonedDateTime.now().minus(1, ChronoUnit.DAYS)
+                                    : ZonedDateTime.now();
+                            healthConnectManager.readStepsData(day).whenComplete((steps, throwable) -> {
+                                if (throwable != null) {
+                                    Log.e(TAG, "Error reading steps from Health Connect", throwable);
+                                    runOnUiThread(() -> Toast
+                                            .makeText(PostSteemitActivity.this,
+                                                    "Failed to fetch steps from Health Connect.", Toast.LENGTH_SHORT)
+                                            .show());
+                                } else {
+                                    runOnUiThread(() -> {
+                                        stepCountContainer.setText(String.valueOf(steps));
+                                        healthConnectSyncDone = 1;
+                                        fitbitSyncDone = 0; // Reset other sync flags
 
-                                // Store date of last sync to avoid improper use of older data
-                                SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                Calendar mCalendar = Calendar.getInstance();
+                                        // Store date of last sync to avoid improper use of older data
+                                        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",
+                                                MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        Calendar mCalendar = Calendar.getInstance();
 
-                                // Make sure to use the correct date (today or yesterday)
-                                if (yesterdayReport) {
-                                    mCalendar.add(Calendar.DATE, -1);
+                                        // Make sure to use the correct date (today or yesterday)
+                                        if (yesterdayReport) {
+                                            mCalendar.add(Calendar.DATE, -1);
+                                        }
+
+                                        editor.putString("healthConnectLastSyncDate",
+                                                new SimpleDateFormat("yyyyMMdd", Locale.US)
+                                                        .format(mCalendar.getTime()));
+                                        editor.apply();
+                                        findViewById(R.id.fitbit_sync_notice).setVisibility(View.INVISIBLE);
+                                        Toast.makeText(PostSteemitActivity.this, "Steps Synced!", Toast.LENGTH_SHORT)
+                                                .show();
+                                    });
                                 }
-
-                                editor.putString("healthConnectLastSyncDate",
-                                        new SimpleDateFormat("yyyyMMdd", Locale.US).format(mCalendar.getTime()));
-                                editor.apply();
-                                findViewById(R.id.fitbit_sync_notice).setVisibility(View.INVISIBLE);
-                                Toast.makeText(PostSteemitActivity.this, "Steps Synced!", Toast.LENGTH_SHORT).show();
+                                healthConnectCheckRunning.set(false);
                             });
+                        } else {
+                            hcRequestPermissionsLauncher.launch(healthConnectManager.permissions);
+                            healthConnectCheckRunning.set(false);
                         }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error during Health Connect permission check or data read.", e);
                         healthConnectCheckRunning.set(false);
-                    });
-                } else {
-                    hcRequestPermissionsLauncher.launch(healthConnectManager.permissions);
-                    healthConnectCheckRunning.set(false);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error during Health Connect permission check or data read.", e);
-                healthConnectCheckRunning.set(false);
-            }
-            return Unit.INSTANCE;
-        });
+                    }
+                    return Unit.INSTANCE;
+                });
     }
 
 }
-

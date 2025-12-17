@@ -43,20 +43,20 @@ import com.google.android.ump.ConsentInformation;
 import com.google.android.ump.ConsentRequestParameters;
 import com.google.android.ump.FormError;
 import com.google.android.ump.UserMessagingPlatform;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-
 public class LoginActivity extends BaseActivity {
 
-    public String username="";
-    private String pkey="";
-    public static String accessToken="";
+    public String username = "";
+    private String pkey = "";
+    public static String accessToken = "";
     private RequestQueue queue;
     boolean directionDecided = false;
 
@@ -71,60 +71,60 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-
-        //launch splashscreen and append custom exit animation
+        // launch splashscreen and append custom exit animation
         SplashScreen.installSplashScreen(this);
 
-                /*.setOnExitAnimationListener(splashScreenView -> {
-            final ObjectAnimator slideUp = ObjectAnimator.ofFloat(
-                    splashScreenView,
-                    String.valueOf(View.TRANSLATION_Y),
-                    0f,
-                    -splashScreenView.getView().getHeight()
-            );
-            slideUp.setInterpolator(new AnticipateInterpolator());
-            slideUp.setDuration(200L);
-
-            // Call SplashScreenView.remove at the end of your custom animation.
-            slideUp.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    splashScreenView.remove();
-                }
-            });
-
-            // Run your animation.
-            slideUp.start();
-        });*/
+        /*
+         * .setOnExitAnimationListener(splashScreenView -> {
+         * final ObjectAnimator slideUp = ObjectAnimator.ofFloat(
+         * splashScreenView,
+         * String.valueOf(View.TRANSLATION_Y),
+         * 0f,
+         * -splashScreenView.getView().getHeight()
+         * );
+         * slideUp.setInterpolator(new AnticipateInterpolator());
+         * slideUp.setDuration(200L);
+         * 
+         * // Call SplashScreenView.remove at the end of your custom animation.
+         * slideUp.addListener(new AnimatorListenerAdapter() {
+         * 
+         * @Override
+         * public void onAnimationEnd(Animator animation) {
+         * splashScreenView.remove();
+         * }
+         * });
+         * 
+         * // Run your animation.
+         * slideUp.start();
+         * });
+         */
 
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.login_page);
 
-
-
-        //installSplashScreen(this);
-        //androidx.core.splashscreen.R.
+        // installSplashScreen(this);
+        // androidx.core.splashscreen.R.
 
         ctx = this;
 
-        //load login hero image
+        // load login hero image
         final LinearLayout heroImage = findViewById(R.id.login_hero);
         Handler uiAltHandler = new Handler(Looper.getMainLooper());
-        String loginImgUrl = Utils.apiUrl(this)+getString(R.string.login_img_url);
+        String loginImgUrl = Utils.apiUrl(this) + getString(R.string.login_img_url);
 
         // Request the rank of the user while expecting a JSON response
-        JsonObjectRequest imgRequest = new JsonObjectRequest
-                (Request.Method.GET, loginImgUrl, null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest imgRequest = new JsonObjectRequest(Request.Method.GET, loginImgUrl, null,
+                new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         uiAltHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                //Picasso.with(ctx)
-                                //fallback image
+                                // Picasso.with(ctx)
+                                // fallback image
                                 String url = getString(R.string.default_login_img);
-                                if (response.has("imgUrl")){
+                                if (response.has("imgUrl")) {
                                     try {
                                         url = response.getString("imgUrl");
                                     } catch (JSONException e) {
@@ -132,61 +132,63 @@ public class LoginActivity extends BaseActivity {
                                     }
                                 }
 
-                                //temp imageview to load background onto, to avoid other approach possibly not always loading
-                                //image due to garbage collection
+                                // temp imageview to load background onto, to avoid other approach possibly not
+                                // always loading
+                                // image due to garbage collection
                                 ImageView img = new ImageView(ctx);
 
-                                Picasso.get()
+                                Glide.with(ctx)
                                         .load(url)
-                                        //.placeholder()
-                                        .into(img, new Callback() {
+                                        .into(new CustomTarget<Drawable>() {
                                             @Override
-                                            public void onSuccess() {
-
-                                                heroImage.setBackgroundDrawable(img.getDrawable());
+                                            public void onResourceReady(@NonNull Drawable resource,
+                                                    @Nullable Transition<? super Drawable> transition) {
+                                                heroImage.setBackground(resource);
                                             }
 
                                             @Override
-                                            public void onError(Exception e) {
-
+                                            public void onLoadCleared(@Nullable Drawable placeholder) {
                                             }
-
-                                });
-                                /*Picasso.get()
-                                        .load(url)
-                                        //.placeholder()
-                                        .into(new Target() {
-                                            @Override
-                                            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                                                heroImage.setBackground(new BitmapDrawable(bitmap));
-                                                heroImage.refreshDrawableState();
-                                            }
-
-                                            @Override
-                                            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                                                //Toast.makeText(MainActivity.this, "Error : loading wallpaper", Toast.LENGTH_SHORT).show();
-                                            }
-
-                                            @Override
-                                            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                                            }
-                                        });*/
+                                        });
+                                /*
+                                 * Picasso.get()
+                                 * .load(url)
+                                 * //.placeholder()
+                                 * .into(new Target() {
+                                 * 
+                                 * @Override
+                                 * public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                 * heroImage.setBackground(new BitmapDrawable(bitmap));
+                                 * heroImage.refreshDrawableState();
+                                 * }
+                                 * 
+                                 * @Override
+                                 * public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                                 * //Toast.makeText(MainActivity.this, "Error : loading wallpaper",
+                                 * Toast.LENGTH_SHORT).show();
+                                 * }
+                                 * 
+                                 * @Override
+                                 * public void onPrepareLoad(Drawable placeHolderDrawable) {
+                                 * 
+                                 * }
+                                 * });
+                                 */
 
                             }
                         });
                     }
                 },
-                        error -> {
-                            // error
-                            Log.e(MainActivity.TAG, "Load image error");
-                        });
+                error -> {
+                    // error
+                    Log.e(MainActivity.TAG, "Load image error");
+                });
 
         queue = Volley.newRequestQueue(this);
 
         queue.add(imgRequest);
 
-        //delay rendering to keep splashscreen showing while we check course of action
+        // delay rendering to keep splashscreen showing while we check course of action
         // Set up an OnPreDrawListener to the root view.
         final View content = findViewById(android.R.id.content);
         content.getViewTreeObserver().addOnPreDrawListener(
@@ -205,13 +207,12 @@ public class LoginActivity extends BaseActivity {
                     }
                 });
 
-        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
 
-        username = sharedPreferences.getString("actifitUser","");
-        pkey = sharedPreferences.getString("actifitPst","");
+        username = sharedPreferences.getString("actifitUser", "");
+        pkey = sharedPreferences.getString("actifitPst", "");
 
-
-        if (userEntry != null){
+        if (userEntry != null) {
             userEntry.requestFocus();
         }
 
@@ -219,52 +220,51 @@ public class LoginActivity extends BaseActivity {
 
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
-        if (userEntry != null){
+        if (userEntry != null) {
             userEntry.requestFocus();
         }
 
     }
 
-
-    private void queryAPI(final String userParam, final String pstKeyParam, boolean firstLoad){
-        if (userParam.equals("") || pstKeyParam.equals("")){
-            //if none has been set, show normal login screen
+    private void queryAPI(final String userParam, final String pstKeyParam, boolean firstLoad) {
+        if (userParam.equals("") || pstKeyParam.equals("")) {
+            // if none has been set, show normal login screen
             assessLogin(false, firstLoad);
-        }else{
-            //otherwise check if user can skip login
-            String loginAuthUrl = Utils.apiUrl(this)+ getString(R.string.login_auth);
-
+        } else {
+            // otherwise check if user can skip login
+            String loginAuthUrl = Utils.apiUrl(this) + getString(R.string.login_auth);
 
             JSONObject loginSettings = new JSONObject();
             try {
                 loginSettings.put(getString(R.string.username_param), userParam);
                 loginSettings.put(getString(R.string.pkey_param), pstKeyParam);
-                loginSettings.put(getString(R.string.bchain_param), "HIVE");//default always HIVE
-                loginSettings.put(getString(R.string.keeploggedin_param), true);//TODO make dynamic
-                loginSettings.put(getString(R.string.login_source), getString(R.string.android) + BuildConfig.VERSION_NAME);
+                loginSettings.put(getString(R.string.bchain_param), "HIVE");// default always HIVE
+                loginSettings.put(getString(R.string.keeploggedin_param), true);// TODO make dynamic
+                loginSettings.put(getString(R.string.login_source),
+                        getString(R.string.android) + BuildConfig.VERSION_NAME);
             } catch (JSONException e) {
-                //Log.e(MainActivity.TAG, e.getMessage());
+                // Log.e(MainActivity.TAG, e.getMessage());
             }
 
-            //grab auth token for logged in user
+            // grab auth token for logged in user
             JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST,
                     loginAuthUrl, loginSettings,
                     response -> {
-                        //store token for reuse when saving settings
+                        // store token for reuse when saving settings
                         try {
                             if (response.has("success")) {
                                 Log.d(MainActivity.TAG, response.toString());
                                 accessToken = response.getString(getString(R.string.login_token));
 
-                                //also store username and posting key
-                                final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
+                                // also store username and posting key
+                                final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",
+                                        MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("actifitUser", userParam
-                                        .trim().toLowerCase().replace("@",""));
+                                        .trim().toLowerCase().replace("@", ""));
                                 editor.putString("actifitPst", pstKeyParam);
                                 editor.apply();
                             }
@@ -279,7 +279,7 @@ public class LoginActivity extends BaseActivity {
                         assessLogin(true, firstLoad);
                     });
 
-            //to enable waiting for longer time with extra retry
+            // to enable waiting for longer time with extra retry
             loginRequest.setRetryPolicy(new DefaultRetryPolicy(
                     MainActivity.connectTimeout,
                     MainActivity.connectMaxRetries,
@@ -290,45 +290,45 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
-    private void proceedMain(){
-        //has login
+    private void proceedMain() {
+        // has login
         Intent mainIntent = new Intent(this, MainActivity.class);
-        if (getIntent().getExtras()!=null && getIntent().getExtras().containsKey("url")) {
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("url")) {
             mainIntent.putExtra("url", getIntent().getExtras().getString("url"));
         }
         startActivity(mainIntent);
 
-        //let's close splashscreen
+        // let's close splashscreen
         directionDecided = true;
 
-        //must finish this activity (the login activity will not be shown when click back in main activity)
+        // must finish this activity (the login activity will not be shown when click
+        // back in main activity)
         finish();
     }
 
-    private void assessLogin(boolean notify, boolean firstLoad){
+    private void assessLogin(boolean notify, boolean firstLoad) {
 
-        //access token works, user logged in, let's proceed
+        // access token works, user logged in, let's proceed
         if (!accessToken.equals("")) {
             proceedMain();
-        }
-        else {
+        } else {
             if (firstLoad) {
                 initializeItems();
             }
-            //problem logging in
-            if (progress!=null && progress.isShowing()) {
+            // problem logging in
+            if (progress != null && progress.isShowing()) {
                 progress.dismiss();
             }
-            if (notify){
-                Toast.makeText(ctx,getString(R.string.incorrect_credentials),Toast.LENGTH_LONG).show();
+            if (notify) {
+                Toast.makeText(ctx, getString(R.string.incorrect_credentials), Toast.LENGTH_LONG).show();
             }
 
         }
     }
 
-    private void initializeItems(){
+    private void initializeItems() {
 
-        //let's close splashscreen
+        // let's close splashscreen
         directionDecided = true;
 
         userEntry = findViewById(R.id.username_login);
@@ -336,11 +336,11 @@ public class LoginActivity extends BaseActivity {
         loginBtn = findViewById(R.id.loginButton);
         skipBtn = findViewById(R.id.skipButton);
 
-
-        //handle enter keys in username/key fields
+        // handle enter keys in username/key fields
         userEntry.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL){
-                    //event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
+                // event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() ==
+                // KeyEvent.KEYCODE_ENTER) {
                 handleLoginCase();
                 // Return true to indicate that the event has been handled
                 return true;
@@ -350,8 +350,9 @@ public class LoginActivity extends BaseActivity {
         });
 
         keyEntry.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL){
-                    //event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
+                // event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() ==
+                // KeyEvent.KEYCODE_ENTER) {
                 handleLoginCase();
                 // Return true to indicate that the event has been handled
                 return true;
@@ -360,51 +361,49 @@ public class LoginActivity extends BaseActivity {
             return false;
         });
 
-        //handle login button click
+        // handle login button click
         loginBtn.setOnClickListener(view -> {
             handleLoginCase();
         });
 
         skipBtn.setOnClickListener(view -> proceedMain());
 
-
-
-        //make sure PPKey link click works
+        // make sure PPKey link click works
         TextView ppHelpLink = findViewById(R.id.posting_key_link);
         ppHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         TextView createAccountLink = findViewById(R.id.username_create_account_link);
         createAccountLink.setMovementMethod(LinkMovementMethod.getInstance());
 
-        //display content
+        // display content
         LinearLayout loginContainer = findViewById(R.id.loginContainer);
         loginContainer.setVisibility(View.VISIBLE);
 
     }
 
-    private void handleLoginCase(){
-        //validate input values
-        if (userEntry.length()==0){
+    private void handleLoginCase() {
+        // validate input values
+        if (userEntry.length() == 0) {
             userEntry.setError(getString(R.string.field_required));
             return;
         }
-        if (keyEntry.length()==0){
+        if (keyEntry.length() == 0) {
             keyEntry.setError(getString(R.string.field_required));
             return;
         }
         try {
-            //show progress
+            // show progress
             progress = new ProgressDialog(ctx);
             progress.setMessage(getString(R.string.validating_credentials));
-            //if (progress.getWindow().isActive()) {
+            // if (progress.getWindow().isActive()) {
             progress.show();
-            //}
-        }catch(Exception excp){
+            // }
+        } catch (Exception excp) {
             Log.e(MainActivity.TAG, "Dialog error login");
             return;
         }
 
-        //reset access token
+        // reset access token
         accessToken = "";
         queryAPI(userEntry.getText().toString().toLowerCase().trim(), keyEntry.getText().toString(), false);
     }

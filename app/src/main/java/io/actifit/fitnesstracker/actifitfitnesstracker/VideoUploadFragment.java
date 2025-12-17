@@ -43,7 +43,7 @@ import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -82,33 +82,32 @@ import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 
-
 public class VideoUploadFragment extends DialogFragment {
 
     static String[][] statusList = {
-            {"uploaded", "0", "Uploaded..▲"},
-            {"encoding_queued", "1", "Queued for Encoding..→"},
-            {"encoding_ipfs", "2", "Processing Encoding..⏳"},
-            {"encoding_failed", "3", "Encoding Failed..x"},
-            {"deleted", "4", "Deleted..\uD83D\uDDD1"},
-            {"publish_manual", "5", "Ready to publish..✅"},
-            {"published", "6", "Published✓"}
+            { "uploaded", "0", "Uploaded..▲" },
+            { "encoding_queued", "1", "Queued for Encoding..→" },
+            { "encoding_ipfs", "2", "Processing Encoding..⏳" },
+            { "encoding_failed", "3", "Encoding Failed..x" },
+            { "deleted", "4", "Deleted..\uD83D\uDDD1" },
+            { "publish_manual", "5", "Ready to publish..✅" },
+            { "published", "6", "Published✓" }
     };
 
     Context ctx;
     String accessToken;
-    //private ListView vidView;
+    // private ListView vidView;
     private LinearLayout vidsView;
 
     public ArrayList<UploadedVideoModel> vidsList;
 
-    public ProgressBar submitLoader;//loader, , thumbUploadProgress, vidUploadProgress;
+    public ProgressBar submitLoader;// loader, , thumbUploadProgress, vidUploadProgress;
     TextView thumbProgressPercent, vidProgressPercent;
     Button chooseButton, recordButton, vidSelector;
     HorizontalScrollView hScrollView;
     VideoView newVideoView;
     ImageView newVidThumbView;
-    //Button playVid, stopVid;
+    // Button playVid, stopVid;
     TextView noVids;
     LinearLayout newVidLayoutContainer, progressContainer;
     View newVidInnerView;
@@ -116,19 +115,19 @@ public class VideoUploadFragment extends DialogFragment {
     double vidDuration;
     long vidSize;
     RequestQueue requestQueue;
-    //PostSteemitActivity parent;
+    // PostSteemitActivity parent;
     Activity parent;
-    //Volley requestQueue;
+    // Volley requestQueue;
 
     public RotateAnimation rotate;
     public TextView refreshList;
 
     boolean addToPostEnabled = true;
 
-    //track choosing video intent
+    // track choosing video intent
     private static final int CHOOSING_VID_REQUEST = 1235;
 
-    //PostSteemitActivity parent
+    // PostSteemitActivity parent
     public VideoUploadFragment(Context ctx, String accessToken, Activity parent, boolean addToPostEnabled) {
         this.ctx = ctx;
         this.accessToken = accessToken;
@@ -146,12 +145,12 @@ public class VideoUploadFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
-        //dialog.getWindow().requestFeature(STYLE_NO_TITLE);
+        // dialog.getWindow().requestFeature(STYLE_NO_TITLE);
         return dialog;
     }
 
-
-    //required function to ask for proper read/write permissions on later Android versions
+    // required function to ask for proper read/write permissions on later Android
+    // versions
     protected boolean shouldAskPermissions() {
         return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
     }
@@ -166,52 +165,54 @@ public class VideoUploadFragment extends DialogFragment {
         requestPermissions(permissions, requestCode);
     }
 
-    //handles the display of video selection
+    // handles the display of video selection
     private void showChoosingFile(ViewGroup container) {
 
-        //ensure we have proper permissions for image upload
+        // ensure we have proper permissions for image upload
         if (shouldAskPermissions()) {
             askPermissions();
         }
 
-        //if (newVidInnerView == null){
-        if (newVidInnerView != null){
-            //remove old view for old uploads
+        // if (newVidInnerView == null){
+        if (newVidInnerView != null) {
+            // remove old view for old uploads
             newVidLayoutContainer.removeView(newVidInnerView);
         }
-        //create new section for video display/upload
+        // create new section for video display/upload
         newVidInnerView = LayoutInflater.from(getContext()).inflate(R.layout.vid_single_entry, container, false);
         newVidLayoutContainer.addView(newVidInnerView);
-         //}
+        // }
 
-
-        /*ActivityResultLauncher<Intent> chooseVideoLauncher =
-                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                        result -> {
-                            if (result.getResultCode() == Activity.RESULT_OK) {
-                                // Handle the result here
-                                Intent data = result.getData();
-                                // Process the selected video
-                            }
-                        });*/
+        /*
+         * ActivityResultLauncher<Intent> chooseVideoLauncher =
+         * registerForActivityResult(new
+         * ActivityResultContracts.StartActivityForResult(),
+         * result -> {
+         * if (result.getResultCode() == Activity.RESULT_OK) {
+         * // Handle the result here
+         * Intent data = result.getData();
+         * // Process the selected video
+         * }
+         * });
+         */
 
         Intent intent = new Intent();
 
         intent.setType("video/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_vid_title)), CHOOSING_VID_REQUEST);
-        //chooseVideoLauncher.launch(Intent.createChooser(intent, getString(R.string.select_vid_title)));
-
-
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_vid_title)),
+                CHOOSING_VID_REQUEST);
+        // chooseVideoLauncher.launch(Intent.createChooser(intent,
+        // getString(R.string.select_vid_title)));
 
     }
 
-    public void setVidsList(JSONArray vidsListParam){
+    public void setVidsList(JSONArray vidsListParam) {
         this.vidsList = new ArrayList<>();
-        //clear prior to adding new list
+        // clear prior to adding new list
         this.vidsList.clear();
-        //this.vidsList = new ArrayList<>();
-        if (vidsListParam != null && vidsListParam.length() >0) {
+        // this.vidsList = new ArrayList<>();
+        if (vidsListParam != null && vidsListParam.length() > 0) {
             for (int i = 0; i < vidsListParam.length(); i++) {
                 try {
                     this.vidsList.add(new UploadedVideoModel(vidsListParam.getJSONObject(i)));
@@ -220,19 +221,21 @@ public class VideoUploadFragment extends DialogFragment {
                 }
             }
             chooseButton.performClick();
-        }else{
+        } else {
 
             System.out.println(">>> no user vids");
-            //show no user vids msg
-            /*TextView tv = new TextView (vidsView.getContext());//(ctx);
-            tv.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-            tv.setText(ctx.getString(R.string.no_vids_found));
-            tv.setGravity(Gravity.CENTER);
-            tv.setPadding(10, 10, 10, 10);
-
-            vidsView.addView(tv);*/
+            // show no user vids msg
+            /*
+             * TextView tv = new TextView (vidsView.getContext());//(ctx);
+             * tv.setLayoutParams(new ViewGroup.LayoutParams(
+             * ViewGroup.LayoutParams.MATCH_PARENT,
+             * ViewGroup.LayoutParams.WRAP_CONTENT));
+             * tv.setText(ctx.getString(R.string.no_vids_found));
+             * tv.setGravity(Gravity.CENTER);
+             * tv.setPadding(10, 10, 10, 10);
+             * 
+             * vidsView.addView(tv);
+             */
 
             refreshList.clearAnimation();
             if (submitLoader != null) {
@@ -242,35 +245,35 @@ public class VideoUploadFragment extends DialogFragment {
         }
     }
 
-    public void showVids(ViewGroup container){
+    public void showVids(ViewGroup container) {
 
-        //videoAdapter = new UploadedVideoAdapter(ctx, vidsList, MainActivity.username);
+        // videoAdapter = new UploadedVideoAdapter(ctx, vidsList,
+        // MainActivity.username);
 
-        //vidView.setAdapter(videoAdapter);
-//        if (loader != null) {
-//            loader.setVisibility(View.GONE);
-//        }
-        //clean up all prior vids
-        if (vidsView!=null) {
+        // vidView.setAdapter(videoAdapter);
+        // if (loader != null) {
+        // loader.setVisibility(View.GONE);
+        // }
+        // clean up all prior vids
+        if (vidsView != null) {
             vidsView.removeAllViewsInLayout();
         }
 
         final VideoUploadFragment contnr = this;
 
-        vidsView.setPadding(0,0,0,0);
+        vidsView.setPadding(0, 0, 0, 0);
 
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
-        //loop through vids and display them
-        for (int i=0;i<vidsList.size();i++) {
+        // loop through vids and display them
+        for (int i = 0; i < vidsList.size(); i++) {
             // Define the URL of the video
             UploadedVideoModel vidEntry = vidsList.get(i);
-            String videoUrl = vidEntry.filename;//vidEntry.video_v2;//"https://example.com/video.mp4";
+            String videoUrl = vidEntry.filename;// vidEntry.video_v2;//"https://example.com/video.mp4";
             if (videoUrl != null && !videoUrl.equals("")) {
                 View convertView = LayoutInflater.from(ctx).inflate(R.layout.vid_single_entry, container, false);
 
-
-                //load video
+                // load video
                 if (!videoUrl.startsWith("http")) {
                     videoUrl = ctx.getString(R.string.three_speak_cdn) + "/" + videoUrl.replace("ipfs://", "");
                 }
@@ -278,28 +281,31 @@ public class VideoUploadFragment extends DialogFragment {
                 ImageView img = convertView.findViewById(R.id.thumbnail);
                 Handler uiHandler = new Handler(Looper.getMainLooper());
                 uiHandler.post(() -> {
-                            Picasso.get().load(vidEntry.thumbUrl).into(img);
-                        });
+                    Glide.with(ctx).load(vidEntry.thumbUrl).into(img);
+                });
 
                 // Parse the video URL
                 Uri uri = Uri.parse(videoUrl);
 
                 /*
-                ExoPlayer player = new ExoPlayer.Builder(ctx).build();
-                PlayerView playerView = convertView.findViewById(R.id.player_view);
-                playerView.setPlayer(player);
-
-                // Create a DataSource.Factory
-                DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(ctx, Util.getUserAgent(ctx, "Actifit"));
-
-                // Create a MediaSource for the .mp4 file
-                MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
-
-                player.setMediaSource(videoSource);
-
-                // Prepare the player.
-                player.prepare();
-                */
+                 * ExoPlayer player = new ExoPlayer.Builder(ctx).build();
+                 * PlayerView playerView = convertView.findViewById(R.id.player_view);
+                 * playerView.setPlayer(player);
+                 * 
+                 * // Create a DataSource.Factory
+                 * DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(ctx,
+                 * Util.getUserAgent(ctx, "Actifit"));
+                 * 
+                 * // Create a MediaSource for the .mp4 file
+                 * MediaSource videoSource = new
+                 * ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem
+                 * .fromUri(uri));
+                 * 
+                 * player.setMediaSource(videoSource);
+                 * 
+                 * // Prepare the player.
+                 * player.prepare();
+                 */
 
                 // Define the maximum height (in pixels) you want for the VideoView
                 VideoView videoView = convertView.findViewById(R.id.videoView);
@@ -333,24 +339,22 @@ public class VideoUploadFragment extends DialogFragment {
                     stopVid.setVisibility(View.GONE);
                 });
 
-                //show delete video option if not deleted
+                // show delete video option if not deleted
                 deleteVid.setVisibility(View.VISIBLE);
-
-
 
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
-                                //go ahead posting
+                                // go ahead posting
                                 submitLoader = convertView.findViewById(R.id.submitLoader);
                                 submitLoader.setVisibility(View.VISIBLE);
                                 Utils.delete3spkVid(requestQueue, ctx, contnr, vidEntry.permlink);
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
-                                //cancel
+                                // cancel
                                 break;
                         }
                     }
@@ -367,56 +371,60 @@ public class VideoUploadFragment extends DialogFragment {
                 Button addToPost = convertView.findViewById(R.id.addVidToPost);
                 if (addToPostEnabled) {
                     addToPost.setOnClickListener(v -> {
-                        //grab video thumb url
-                        String thumbUrl = //ctx.getString(R.string.three_speak_cdn) + "/" +
+                        // grab video thumb url
+                        String thumbUrl = // ctx.getString(R.string.three_speak_cdn) + "/" +
                                 vidEntry.thumbUrl.replace("ipfs://", "");
-                        String vidLink = "[![](" + thumbUrl + ")](https://3speak.tv/watch?v=" + MainActivity.username + "/" + vidEntry.permlink + ")";
+                        String vidLink = "[![](" + thumbUrl + ")](https://3speak.tv/watch?v=" + MainActivity.username
+                                + "/" + vidEntry.permlink + ")";
                         ((PostSteemitActivity) parent).setMainVid(vidEntry);
                         ((PostSteemitActivity) parent).appendContent(vidLink);
                         dismiss();
                         //
-                    /*
-                    let thumbUrl = 'https://ipfs-3speak.b-cdn.net/ipfs/'+vid.thumbnail.replace('ipfs://','');
-
-                    this.vidPostContent =
-                            '[![]('+thumbUrl+')](https://3speak.tv/watch?v='+vid.owner+'/'+vid.permlink+')'*/
+                        /*
+                         * let thumbUrl =
+                         * 'https://ipfs-3speak.b-cdn.net/ipfs/'+vid.thumbnail.replace('ipfs://','');
+                         * 
+                         * this.vidPostContent =
+                         * '[![]('+thumbUrl+')](https://3speak.tv/watch?v='+vid.owner+'/'+vid.permlink+'
+                         * )'
+                         */
 
                     });
 
-
                     Button markVidPublished = convertView.findViewById(R.id.markVidPublished);
-                    //if video not published and not failed, we can add to post
-                    //if (!vidEntry.status.equals("published") && !vidEntry.status.equals("encoding_failed")){
-                    if (vidEntry.status.equals("publish_manual")){ //|| vidEntry.status.equals("published")){
+                    // if video not published and not failed, we can add to post
+                    // if (!vidEntry.status.equals("published") &&
+                    // !vidEntry.status.equals("encoding_failed")){
+                    if (vidEntry.status.equals("publish_manual")) { // || vidEntry.status.equals("published")){
                         addToPost.setVisibility(View.VISIBLE);
-                        //markVidPublished.setVisibility(View.VISIBLE);
-                    }else{
+                        // markVidPublished.setVisibility(View.VISIBLE);
+                    } else {
                         addToPost.setVisibility(View.GONE);
                         markVidPublished.setVisibility(View.GONE);
                     }
 
-                    markVidPublished.setOnClickListener( v->{
+                    markVidPublished.setOnClickListener(v -> {
                         Utils.markVideoPublished(ctx, requestQueue, vidEntry);
-                        //Utils.connectSession3S(requestQueue, ctx, this);
+                        // Utils.connectSession3S(requestQueue, ctx, this);
                         refreshList.performClick();
                     });
-                }else{
+                } else {
                     addToPost.setVisibility(View.GONE);
                 }
 
-                //add extra data for vid
+                // add extra data for vid
                 TextView fileName = convertView.findViewById(R.id.title_val);
                 fileName.setText(vidEntry.title);
 
                 TextView status = convertView.findViewById(R.id.status_val);
                 status.setText(Utils.findMatchingStatus(vidEntry.status, VideoUploadFragment.statusList));
 
-                //append display of encoding progress
+                // append display of encoding progress
                 try {
                     if (vidEntry.status.equals("encoding_ipfs")) {
                         status.setText(status.getText() + "(" + decimalFormat.format(vidEntry.encodingProgress) + "%)");
                     }
-                }catch(Exception excpt){
+                } catch (Exception excpt) {
                     excpt.printStackTrace();
                 }
 
@@ -426,7 +434,7 @@ public class VideoUploadFragment extends DialogFragment {
 
                 duration.setText(formattedNumber + " sec");
                 Double sizeInMB = vidEntry.size;
-                if (sizeInMB >0){
+                if (sizeInMB > 0) {
                     sizeInMB = vidEntry.size / 1024 / 1024;
                 }
                 TextView size = convertView.findViewById(R.id.size_val);
@@ -464,11 +472,10 @@ public class VideoUploadFragment extends DialogFragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.video_upload_view, container, false);
-
 
         rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotate.setDuration(2000);
@@ -480,29 +487,29 @@ public class VideoUploadFragment extends DialogFragment {
         newVidLayoutContainer = view.findViewById(R.id.newVidLayoutContainer);
         progressContainer = view.findViewById(R.id.progressContainer);
 
-        /*videoView = view.findViewById(R.id.videoView);
-        thumbView = view.findViewById(R.id.thumbView);
-        playVid = view.findViewById(R.id.playVid);
-        stopVid = view.findViewById(R.id.stopVid);
-
+        /*
+         * videoView = view.findViewById(R.id.videoView);
+         * thumbView = view.findViewById(R.id.thumbView);
+         * playVid = view.findViewById(R.id.playVid);
+         * stopVid = view.findViewById(R.id.stopVid);
+         * 
          */
 
-//        loader = view.findViewById(R.id.loader);
+        // loader = view.findViewById(R.id.loader);
 
-        //thumbUploadProgress = view.findViewById(R.id.thumbUploadProgress);
-        //vidUploadProgress = view.findViewById(R.id.vidUploadProgress);
+        // thumbUploadProgress = view.findViewById(R.id.thumbUploadProgress);
+        // vidUploadProgress = view.findViewById(R.id.vidUploadProgress);
 
         thumbProgressPercent = view.findViewById(R.id.thumbUploadProgressPercent);
         vidProgressPercent = view.findViewById(R.id.vidUploadProgressPercent);
 
+        // initiate volley with cookie support
 
-        //initiate volley with cookie support
+        // CustomCookieStore cookieManager;
+        // cookieManager = new CustomCookieStore();
 
-        //CustomCookieStore cookieManager;
-        //cookieManager = new CustomCookieStore();
-
-        //requestQueue = Volley.newRequestQueue(ctx);
-        //requestQueue = new Volley(cookieManager.getCookieJar());
+        // requestQueue = Volley.newRequestQueue(ctx);
+        // requestQueue = new Volley(cookieManager.getCookieJar());
 
         requestQueue = Volley.newRequestQueue(ctx);
         refreshList = view.findViewById(R.id.refresh_list);
@@ -510,13 +517,12 @@ public class VideoUploadFragment extends DialogFragment {
         hScrollView = view.findViewById(R.id.horizontalScrollView);
         noVids = view.findViewById(R.id.no_vids);
 
-
-        //info boxes
-        //set modal for social info
+        // info boxes
+        // set modal for social info
         TextView vidsListBtn = view.findViewById(R.id.vids_list_info);
         TextView uploadInfoBtn = view.findViewById(R.id.upload_vid_info);
         vidsListBtn.setOnClickListener(v -> {
-            getActivity().runOnUiThread( () -> {
+            getActivity().runOnUiThread(() -> {
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
 
                 AlertDialog pointer = dialogBuilder
@@ -531,10 +537,11 @@ public class VideoUploadFragment extends DialogFragment {
             });
         });
         uploadInfoBtn.setOnClickListener(v -> {
-            getActivity().runOnUiThread( () -> {
+            getActivity().runOnUiThread(() -> {
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
 
-                AlertDialog pointer = dialogBuilder.setMessage(Html.fromHtml(getString(R.string.upload_vid_description)))
+                AlertDialog pointer = dialogBuilder
+                        .setMessage(Html.fromHtml(getString(R.string.upload_vid_description)))
                         .setTitle(getString(R.string.actifit_info))
                         .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
                         .setPositiveButton(getString(R.string.close_button), null)
@@ -544,18 +551,15 @@ public class VideoUploadFragment extends DialogFragment {
             });
         });
 
-        //load up user video data
-        //connect to 3speak first
+        // load up user video data
+        // connect to 3speak first
         refreshList.startAnimation(rotate);
         Utils.connectSession3S(requestQueue, ctx, this);
-
 
         refreshList.setOnClickListener(v -> {
             refreshList.startAnimation(rotate);
             Utils.connectSession3S(requestQueue, ctx, this);
         });
-
-
 
         //
 
@@ -567,21 +571,21 @@ public class VideoUploadFragment extends DialogFragment {
         chooseButton = view.findViewById(R.id.chooseFile);
 
         chooseButton.setOnClickListener(v -> {
-            //showChoosingFile();
+            // showChoosingFile();
             showVids(container);
         });
 
-        //videoView = view.findViewById(R.id.videoView);
+        // videoView = view.findViewById(R.id.videoView);
 
-        //show submit video button if video is ready/uploaded and not submitted yet
+        // show submit video button if video is ready/uploaded and not submitted yet
 
         recordButton = view.findViewById(R.id.recordVideo);
         recordButton.setOnClickListener(v -> {
-            if (newVidInnerView != null){
-                //remove old view for old uploads
+            if (newVidInnerView != null) {
+                // remove old view for old uploads
                 newVidLayoutContainer.removeView(newVidInnerView);
             }
-            //create new section for video display/upload
+            // create new section for video display/upload
             newVidInnerView = LayoutInflater.from(ctx).inflate(R.layout.vid_single_entry, container, false);
             newVidLayoutContainer.addView(newVidInnerView);
             // on below line opening an intent to capture a video.
@@ -603,12 +607,12 @@ public class VideoUploadFragment extends DialogFragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if ((requestCode == CHOOSING_VID_REQUEST || requestCode == 1)
-                && resultCode == RESULT_OK ) {
+                && resultCode == RESULT_OK) {
             Uri fileUri = data.getData();
             progressContainer.setVisibility(View.VISIBLE);
-            //show progress
-            //.setVisibility(View.VISIBLE);
-            //vidUploadProgress.setVisibility(View.VISIBLE);
+            // show progress
+            // .setVisibility(View.VISIBLE);
+            // vidUploadProgress.setVisibility(View.VISIBLE);
             Thread thread = new Thread(() -> {
                 try {
                     Bitmap thumb = Utils.generateThumbnail(ctx, fileUri);
@@ -618,7 +622,7 @@ public class VideoUploadFragment extends DialogFragment {
                     origFileName = Utils.getOriginalFileName(ctx, fileUri);
                     uploadVideo(fileUri);
                 } catch (Exception ex) {
-                    Toast.makeText( ctx,"error during upload:"+ex.getMessage(), Toast.LENGTH_LONG ).show();
+                    Toast.makeText(ctx, "error during upload:" + ex.getMessage(), Toast.LENGTH_LONG).show();
                     ex.printStackTrace();
                 }
             });
@@ -628,11 +632,11 @@ public class VideoUploadFragment extends DialogFragment {
     }
 
     /*************************************/
-    //type param contains whether this is an image upload (0) or vid (1)
-    private void tusUploadHandler(int type, Uri fileUri, Bitmap origThumb){
+    // type param contains whether this is an image upload (0) or vid (1)
+    private void tusUploadHandler(int type, Uri fileUri, Bitmap origThumb) {
         // Create a new TusClient instance
         TusClient client = new TusClient();
-        //TusUploader tusUploader = null;
+        // TusUploader tusUploader = null;
         try {
             // Configure tus HTTP endpoint. This URL will be used for creating new uploads
             // using the Creation extension
@@ -644,23 +648,23 @@ public class VideoUploadFragment extends DialogFragment {
             e.printStackTrace();
         }
 
+        /*
+         * Thread thread = new Thread(new Runnable(){
+         * 
+         * @Override
+         * public void run() {
+         */
 
-
-        /*Thread thread = new Thread(new Runnable(){
-            @Override
-            public void run() {*/
-
-
-                try {
-            //grab reference to video
+        try {
+            // grab reference to video
             File file = Utils.getFileFromUri(fileUri, ctx);
             final TusUpload upload = new TusUpload(file);
 
-            // We wrap our uploading code in the TusExecutor class which will automatically catch
+            // We wrap our uploading code in the TusExecutor class which will automatically
+            // catch
             // exceptions and issue retries with small delays between them and take fully
             // advantage of tus' resumability to offer more reliability.
             // This step is optional but highly recommended.
-
 
             TusExecutor executor = new TusExecutor() {
                 @Override
@@ -671,7 +675,7 @@ public class VideoUploadFragment extends DialogFragment {
                     TusUploader uploader = client.resumeOrCreateUpload(upload);
 
                     // Upload the file in chunks of 100*1KB sizes.
-                    uploader.setChunkSize(100*1024);
+                    uploader.setChunkSize(100 * 1024);
 
                     // Upload the file as long as data is available. Once the
                     // file has been fully uploaded the method will return -1
@@ -683,7 +687,7 @@ public class VideoUploadFragment extends DialogFragment {
                         double progress = (double) bytesUploaded / totalBytes * 100;
                         DecimalFormat decimalFormat = new DecimalFormat("##0.00");
 
-                        //String output = String.format("Upload at %6.2f%%.\n", progress);
+                        // String output = String.format("Upload at %6.2f%%.\n", progress);
                         decimalFormat.setMinimumIntegerDigits(1);
                         decimalFormat.setMinimumFractionDigits(2);
                         String formattedString = String.format("Upload at %s%%.\n", decimalFormat.format(progress));
@@ -696,7 +700,7 @@ public class VideoUploadFragment extends DialogFragment {
                                 vidProgressPercent.setText(Html.fromHtml("&#128249") + " " + formattedString);
                             }
                         });
-                    } while(uploader.uploadChunk() > -1);
+                    } while (uploader.uploadChunk() > -1);
 
                     // Allow the HTTP connection to be closed and cleaned up
                     uploader.finish();
@@ -706,17 +710,15 @@ public class VideoUploadFragment extends DialogFragment {
 
                     String url = uploader.getUploadURL().toString();
                     String name = url.replace(getString(R.string.three_speak_file_url), "");
-                    //getActivity().runOnUiThread(() -> {
-                        uploadComplete(type, url, name, origThumb, fileUri);
-                    //});
+                    // getActivity().runOnUiThread(() -> {
+                    uploadComplete(type, url, name, origThumb, fileUri);
+                    // });
 
                 }
             };
             executor.makeAttempts();
 
-
-
-            //tusUploader = client.createUpload(tusUpload);
+            // tusUploader = client.createUpload(tusUpload);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -726,122 +728,121 @@ public class VideoUploadFragment extends DialogFragment {
             e.printStackTrace();
         }
 
-         /*   }
-        });
-        thread.start();*/
+        /*
+         * }
+         * });
+         * thread.start();
+         */
     }
 
-    //implementing 3speak thumbnail upload functionality
-    private void uploadThumbnail(Bitmap thumbBitmap){
+    // implementing 3speak thumbnail upload functionality
+    private void uploadThumbnail(Bitmap thumbBitmap) {
         try {
             Uri thumbUri = Utils.getBitmapFileUri(thumbBitmap);
             tusUploadHandler(0, thumbUri, thumbBitmap);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    //implementing 3speak upload functionality
-    private void uploadVideo(Uri fileUri){
+    // implementing 3speak upload functionality
+    private void uploadVideo(Uri fileUri) {
         tusUploadHandler(1, fileUri, null);
 
     }
 
-    private void uploadComplete(int type, String url, String name, Bitmap thumb, Uri fileUri){
+    private void uploadComplete(int type, String url, String name, Bitmap thumb, Uri fileUri) {
         try {
-            System.out.println("name: "+name);
-            System.out.println("url: "+url);
+            System.out.println("name: " + name);
+            System.out.println("url: " + url);
             newVidThumbView = newVidInnerView.findViewById(R.id.thumbnail);
             newVideoView = newVidInnerView.findViewById(R.id.videoView);
             submitLoader = newVidInnerView.findViewById(R.id.submitLoader);
             Handler uiHandler = new Handler(Looper.getMainLooper());
             uiHandler.post(() -> {
-            if (type == 0) {
+                if (type == 0) {
                     thumbnailUrl = url;
                     thumbnailName = name;
-                    //thumb handler
+                    // thumb handler
                     newVidThumbView.setImageBitmap(thumb);
                     newVidThumbView.setVisibility(View.VISIBLE);
 
-            }else{
-                //video handler
-                //vidUploadProgress.setVisibility(View.GONE);
-                //videoView.setVisibility(View.VISIBLE);
-                // on below line setting video uri for our video view.
-                //newVideoView.setVideoURI(Uri.parse(url));
-                newVideoView.setVideoURI(fileUri);
+                } else {
+                    // video handler
+                    // vidUploadProgress.setVisibility(View.GONE);
+                    // videoView.setVisibility(View.VISIBLE);
+                    // on below line setting video uri for our video view.
+                    // newVideoView.setVideoURI(Uri.parse(url));
+                    newVideoView.setVideoURI(fileUri);
 
-                MediaController mediaController = new MediaController(getActivity());
-                newVideoView.setMediaController(mediaController);
-                newVideoView.setEnabled(true);
-                //
-                mediaController.setAnchorView(newVideoView);
+                    MediaController mediaController = new MediaController(getActivity());
+                    newVideoView.setMediaController(mediaController);
+                    newVideoView.setEnabled(true);
+                    //
+                    mediaController.setAnchorView(newVideoView);
 
-                TextView duration = newVidInnerView.findViewById(R.id.duration_val);
-                DecimalFormat decimalFormat = new DecimalFormat("#.##");
-                String formattedNumber = decimalFormat.format(vidDuration);
+                    TextView duration = newVidInnerView.findViewById(R.id.duration_val);
+                    DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                    String formattedNumber = decimalFormat.format(vidDuration);
 
-                duration.setText(formattedNumber + " sec");
-                double sizeInMB = (long) vidSize;
-                if (sizeInMB >0){
-                    sizeInMB = sizeInMB / 1024.0 / 1024.0;
-                }
-                TextView size = newVidInnerView.findViewById(R.id.size_val);
-                formattedNumber = decimalFormat.format(sizeInMB);
+                    duration.setText(formattedNumber + " sec");
+                    double sizeInMB = (long) vidSize;
+                    if (sizeInMB > 0) {
+                        sizeInMB = sizeInMB / 1024.0 / 1024.0;
+                    }
+                    TextView size = newVidInnerView.findViewById(R.id.size_val);
+                    formattedNumber = decimalFormat.format(sizeInMB);
 
-                size.setText(formattedNumber + " MB");
+                    size.setText(formattedNumber + " MB");
 
-                TextView date = newVidInnerView.findViewById(R.id.date_val);
-                date.setText(R.string.Now);
+                    TextView date = newVidInnerView.findViewById(R.id.date_val);
+                    date.setText(R.string.Now);
 
-                LinearLayout statusContainer = newVidInnerView.findViewById(R.id.status_container);
-                statusContainer.setVisibility(View.GONE);
+                    LinearLayout statusContainer = newVidInnerView.findViewById(R.id.status_container);
+                    statusContainer.setVisibility(View.GONE);
 
-                // on below line starting a video view
-                //videoView.start();
-                Button playVid = newVidInnerView.findViewById(R.id.playVid);
-                playVid.setVisibility(View.VISIBLE);
-                Button stopVid = newVidInnerView.findViewById(R.id.stopVid);
-//                playVid.setVisibility(View.VISIBLE);
-
-                playVid.setOnClickListener(v -> {
-                    //showChoosingFile();
-                    //showVids(container);
-                    newVidThumbView.setVisibility(View.GONE);
-                    newVideoView.setVisibility(View.VISIBLE);
-                    newVideoView.start();
-                    //videoView.resume();
-                    playVid.setVisibility(View.GONE);
-                    stopVid.setVisibility(View.VISIBLE);
-                });
-
-                stopVid.setOnClickListener(v -> {
-                    //showChoosingFile();
-                    //showVids(container);
-                    //videoView.stopPlayback();
-                    newVideoView.pause();
+                    // on below line starting a video view
+                    // videoView.start();
+                    Button playVid = newVidInnerView.findViewById(R.id.playVid);
                     playVid.setVisibility(View.VISIBLE);
-                    stopVid.setVisibility(View.GONE);
-                });
+                    Button stopVid = newVidInnerView.findViewById(R.id.stopVid);
+                    // playVid.setVisibility(View.VISIBLE);
 
-                Button submitVid = newVidInnerView.findViewById(R.id.submitVid);
-                submitVid.setVisibility(View.VISIBLE);
-                submitVid.setOnClickListener(v ->{
-                    submitVid3Speak(name, origFileName, vidSize, vidDuration, thumbnailName);
-                });
-                progressContainer.setVisibility(View.GONE);
-            }
+                    playVid.setOnClickListener(v -> {
+                        // showChoosingFile();
+                        // showVids(container);
+                        newVidThumbView.setVisibility(View.GONE);
+                        newVideoView.setVisibility(View.VISIBLE);
+                        newVideoView.start();
+                        // videoView.resume();
+                        playVid.setVisibility(View.GONE);
+                        stopVid.setVisibility(View.VISIBLE);
+                    });
+
+                    stopVid.setOnClickListener(v -> {
+                        // showChoosingFile();
+                        // showVids(container);
+                        // videoView.stopPlayback();
+                        newVideoView.pause();
+                        playVid.setVisibility(View.VISIBLE);
+                        stopVid.setVisibility(View.GONE);
+                    });
+
+                    Button submitVid = newVidInnerView.findViewById(R.id.submitVid);
+                    submitVid.setVisibility(View.VISIBLE);
+                    submitVid.setOnClickListener(v -> {
+                        submitVid3Speak(name, origFileName, vidSize, vidDuration, thumbnailName);
+                    });
+                    progressContainer.setVisibility(View.GONE);
+                }
             });
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-
-
     }
 
-
-    private void submitVid3Speak(String vidName, String origFileName, long vidSize, double vidLen, String thumbName){
+    private void submitVid3Speak(String vidName, String origFileName, long vidSize, double vidLen, String thumbName) {
         if (submitLoader != null) {
             submitLoader.setVisibility(View.VISIBLE);
         }
@@ -857,28 +858,29 @@ public class VideoUploadFragment extends DialogFragment {
             System.out.println("submitVid3speak");
             System.out.println(videoInfo.toString());
 
-            String url = getString(R.string.three_speak_upload_vid)+"?app=actifit";
+            String url = getString(R.string.three_speak_upload_vid) + "?app=actifit";
 
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url,  videoInfo,
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, videoInfo,
                     response -> {
                         // Handle the response here
                         try {
                             getActivity().runOnUiThread(() -> {
-                                //show confirmation
-                                Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success), Toast.LENGTH_LONG).show();
+                                // show confirmation
+                                Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success), Toast.LENGTH_LONG)
+                                        .show();
                             });
                             if (response.has("status")) {
 
-
-                                //refresh vids list
-                                SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
-                                String xcstkn = sharedPreferences.getString(ctx.getString(R.string.three_speak_saved_token),"");
+                                // refresh vids list
+                                SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",
+                                        MODE_PRIVATE);
+                                String xcstkn = sharedPreferences
+                                        .getString(ctx.getString(R.string.three_speak_saved_token), "");
                                 final VideoUploadFragment vidFragRef = this;
-                                //update vids
+                                // update vids
 
                                 appendVidMonitorStatus(requestQueue, response.getString("permlink"));
-                                //also add the video to the API for auto status monitoring
-
+                                // also add the video to the API for auto status monitoring
 
                             } else {
                                 // Handle other status codes if needed
@@ -889,7 +891,7 @@ public class VideoUploadFragment extends DialogFragment {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-                        } finally  {
+                        } finally {
                             cleanupVid();
                         }
                     },
@@ -897,11 +899,11 @@ public class VideoUploadFragment extends DialogFragment {
                         // Handle error response
                         error.printStackTrace();
                         getActivity().runOnUiThread(() -> {
-                            //show confirmation
+                            // show confirmation
                             Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success), Toast.LENGTH_LONG).show();
 
-
-                            //Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success), Toast.LENGTH_LONG).show();;
+                            // Toast.makeText(ctx, ctx.getString(R.string.submit_vid_success),
+                            // Toast.LENGTH_LONG).show();;
                         });
                         if (submitLoader != null) {
                             submitLoader.setVisibility(View.GONE);
@@ -918,7 +920,7 @@ public class VideoUploadFragment extends DialogFragment {
             };
 
             // Add the request to the RequestQueue
-            //RequestQueue queue = Volley.newRequestQueue(ctx);
+            // RequestQueue queue = Volley.newRequestQueue(ctx);
             requestQueue.add(request);
 
         } catch (JSONException e) {
@@ -927,13 +929,12 @@ public class VideoUploadFragment extends DialogFragment {
 
     }
 
-    private void appendVidMonitorStatus(RequestQueue queue, String vidPermLink){
-        String buyUrl = Utils.apiUrl(getContext())+getContext().getString(R.string.register_user_added_vid)+"/"+
-                MainActivity.username+"/"+vidPermLink+"/new";
-                //URLEncoder.encode(String.valueOf(vidName));
+    private void appendVidMonitorStatus(RequestQueue queue, String vidPermLink) {
+        String buyUrl = Utils.apiUrl(getContext()) + getContext().getString(R.string.register_user_added_vid) + "/" +
+                MainActivity.username + "/" + vidPermLink + "/new";
+        // URLEncoder.encode(String.valueOf(vidName));
 
-
-        //send out transaction
+        // send out transaction
         JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
                 buyUrl, null,
                 response1 -> {
@@ -942,21 +943,21 @@ public class VideoUploadFragment extends DialogFragment {
                 error -> {
                     // error
                     Log.d(MainActivity.TAG, "Error querying blockchain");
-                    //progress.dismiss();
+                    // progress.dismiss();
 
                 });
 
         queue.add(buyRequest);
     }
 
-    private void cleanupVid(){
-        //wait 2 seconds and then refresh user vids
+    private void cleanupVid() {
+        // wait 2 seconds and then refresh user vids
         Handler handler = new Handler();
         handler.postDelayed(() -> {
             refreshList.performClick();
         }, 2000);
 
-        //also remove view
+        // also remove view
         newVidLayoutContainer.removeView(newVidInnerView);
         newVidInnerView = null;
     }
