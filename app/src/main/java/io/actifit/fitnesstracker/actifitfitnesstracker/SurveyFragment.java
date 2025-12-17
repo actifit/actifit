@@ -44,7 +44,6 @@ public class SurveyFragment extends DialogFragment {
         this.accessToken = accessToken;
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -55,40 +54,35 @@ public class SurveyFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
-        //dialog.getWindow().requestFeature(STYLE_NO_TITLE);
+        // dialog.getWindow().requestFeature(STYLE_NO_TITLE);
         return dialog;
     }
 
-    /*@Override
-    public void onViewStateRestored(Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-
-    }*/
+    /*
+     * @Override
+     * public void onViewStateRestored(Bundle savedInstanceState) {
+     * super.onViewStateRestored(savedInstanceState);
+     * 
+     * }
+     */
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.survey_view, container, false);
 
-        //ImageView featured_image = view.findViewById(R.id.news_featured_image);
+        // ImageView featured_image = view.findViewById(R.id.news_featured_image);
         TextView caption_title = view.findViewById(R.id.my_caption_title);
         TextView survey_note = view.findViewById(R.id.survey_notice);
-        survey_note.setText(getString(R.string.survey_reward_temp).replace("_REWARD_", this.survey.getSurvey_reward()+" AFIT Reward"));
+        survey_note.setText(getString(R.string.survey_reward_temp).replace("_REWARD_",
+                this.survey.getSurvey_reward() + " AFIT Reward"));
 
-
-        /*Handler uiHandler = new Handler(Looper.getMainLooper());
-        uiHandler.post(() -> {
-            //Picasso.with(ctx)
-            Picasso.get()
-                    .load(this.mainAnnounce.getFeatured_image_url())
-                    .into(featured_image);
-        });*/
-
-        //featured_image.setImageResource();
+        // featured_image.setImageResource();
         caption_title.setText(this.survey.getTitle());
 
         RadioGroup radioGroup = view.findViewById(R.id.survey_options);
-        if (this.survey.getSurvey_options() !=null) {
+        if (this.survey.getSurvey_options() != null) {
 
             for (int i = 0; i < this.survey.getSurvey_options().length(); i++) {
                 RadioButton radioButton = new RadioButton(getContext());
@@ -106,11 +100,12 @@ public class SurveyFragment extends DialogFragment {
 
         Button voteButton = view.findViewById(R.id.voteButton);
         ProgressBar loader = view.findViewById(R.id.loader);
-        //final Activity activRef = this;
+        // final Activity activRef = this;
         voteButton.setOnClickListener(v -> {
-            //Toast.makeText(this.ctx,"test"+radioGroup.getCheckedRadioButtonId(), Toast.LENGTH_LONG);
+            // Toast.makeText(this.ctx,"test"+radioGroup.getCheckedRadioButtonId(),
+            // Toast.LENGTH_LONG);
 
-            if (radioGroup.getCheckedRadioButtonId() == -1){
+            if (radioGroup.getCheckedRadioButtonId() == -1) {
                 Utils.displayNotification(ctx.getString(R.string.select_option), null, ctx, getActivity(), false);
                 return;
             }
@@ -119,47 +114,54 @@ public class SurveyFragment extends DialogFragment {
 
             loader.setVisibility(View.VISIBLE);
 
-
-            String voteSurveyUrl = Utils.apiUrl(ctx)+getString(R.string.vote_survey_url).replace("_USER_", MainActivity.username)
-                    .replace("_ID_", this.survey.getId())
-                    .replace("_OPTION_",radioGroup.getCheckedRadioButtonId()+"");
+            String voteSurveyUrl = Utils.apiUrl(ctx)
+                    + getString(R.string.vote_survey_url).replace("_USER_", MainActivity.username)
+                            .replace("_ID_", this.survey.getId())
+                            .replace("_OPTION_", radioGroup.getCheckedRadioButtonId() + "");
             final String success_notification = getString(R.string.trx_success);
             final String error_notification = getString(R.string.trx_error);
 
             // Process claim rewards request
-            JsonObjectRequest req = new JsonObjectRequest
-                    (Request.Method.GET, voteSurveyUrl, null, new Response.Listener<JSONObject>() {
+            JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, voteSurveyUrl, null,
+                    new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
 
                             // Display the result
                             activity.runOnUiThread(() -> {
-                            try {
+                                try {
 
-                                            loader.setVisibility(View.GONE);
-                                            if (response.has("status") && (response.getString("status").equals("success"))) {
-                                                //Toast.makeText(ctx, getString(R.string.trx_success), Toast.LENGTH_LONG);
-                                                Utils.displayNotification(getString(R.string.vote_success), null, ctx, getActivity(), false);
-                                                dismiss();
-                                            } else {
-                                                //Toast.makeText(ctx, getString(R.string.trx_error), Toast.LENGTH_LONG);
-                                                Utils.displayNotification(getString(R.string.vote_error), null, ctx, getActivity(), false);
-                                            }
+                                    loader.setVisibility(View.GONE);
+                                    if (response.has("status") && (response.getString("status").equals("success"))) {
+                                        // Toast.makeText(ctx, getString(R.string.trx_success), Toast.LENGTH_LONG);
+                                        Utils.displayNotification(getString(R.string.vote_success), null, ctx,
+                                                getActivity(), false);
+                                        dismiss();
+                                    } else {
+                                        // Toast.makeText(ctx, getString(R.string.trx_error), Toast.LENGTH_LONG);
+                                        Utils.displayNotification(getString(R.string.vote_error), null, ctx,
+                                                getActivity(), false);
+                                    }
 
-
-                                //Utils.displayNotification(success_notification, null, ctx, this, false);
-                                /*if (hiveClaim.has("success")) {
-                                    displayNotification(success_notification, null, callerContext, callerActivity, false);
-
-                                } else if (!hiveClaim.getString("error").equals("")) {
-                                    displayNotification(hiveClaim.getString("error"), null, callerContext, callerActivity, false);
-                                } else {
-                                    displayNotification(error_notification, null, callerContext, callerActivity, false);
-                                }*/
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                //displayNotification(error_notification, null, callerContext, callerActivity, false);
-                            }
+                                    // Utils.displayNotification(success_notification, null, ctx, this, false);
+                                    /*
+                                     * if (hiveClaim.has("success")) {
+                                     * displayNotification(success_notification, null, callerContext,
+                                     * callerActivity, false);
+                                     * 
+                                     * } else if (!hiveClaim.getString("error").equals("")) {
+                                     * displayNotification(hiveClaim.getString("error"), null, callerContext,
+                                     * callerActivity, false);
+                                     * } else {
+                                     * displayNotification(error_notification, null, callerContext, callerActivity,
+                                     * false);
+                                     * }
+                                     */
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    // displayNotification(error_notification, null, callerContext, callerActivity,
+                                    // false);
+                                }
                             });
 
                         }
@@ -167,11 +169,12 @@ public class SurveyFragment extends DialogFragment {
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            //hide dialog
-                            //error.printStackTrace();
+                            // hide dialog
+                            // error.printStackTrace();
                             loader.setVisibility(View.GONE);
                             Log.e(MainActivity.TAG, "error voting");
-                            //displayNotification(error_notification, null, callerContext, callerActivity, false);
+                            // displayNotification(error_notification, null, callerContext, callerActivity,
+                            // false);
                         }
                     }) {
 
@@ -179,7 +182,8 @@ public class SurveyFragment extends DialogFragment {
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     final Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/json");
-                    params.put(getString(R.string.validation_header), getString(R.string.validation_pre_data) + " " + accessToken);
+                    params.put(getString(R.string.validation_header),
+                            getString(R.string.validation_pre_data) + " " + accessToken);
                     return params;
                 }
             };
@@ -189,24 +193,27 @@ public class SurveyFragment extends DialogFragment {
         });
 
         // Find and set click listener for the close button
-        /*Button detailsButton = view.findViewById(R.id.detailsButton);
-        detailsButton.setOnClickListener(v -> {
-            //Toast.makeText   (Mcontext, "test", Toast.LENGTH_LONG).show();
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-
-            builder.setToolbarColor(ctx.getResources().getColor(R.color.actifitRed));
-
-            //animation for showing and closing fitbit authorization screen
-            builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
-
-            //animation for back button clicks
-            builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
-                    android.R.anim.slide_out_right);
-
-            CustomTabsIntent customTabsIntent = builder.build();
-
-            customTabsIntent.launchUrl(ctx, Uri.parse(this.survey.getUrl()));
-        });*/
+        /*
+         * Button detailsButton = view.findViewById(R.id.detailsButton);
+         * detailsButton.setOnClickListener(v -> {
+         * //Toast.makeText (Mcontext, "test", Toast.LENGTH_LONG).show();
+         * CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+         * 
+         * builder.setToolbarColor(ctx.getResources().getColor(R.color.actifitRed));
+         * 
+         * //animation for showing and closing fitbit authorization screen
+         * builder.setStartAnimations(ctx, R.anim.slide_in_right,
+         * R.anim.slide_out_left);
+         * 
+         * //animation for back button clicks
+         * builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
+         * android.R.anim.slide_out_right);
+         * 
+         * CustomTabsIntent customTabsIntent = builder.build();
+         * 
+         * customTabsIntent.launchUrl(ctx, Uri.parse(this.survey.getUrl()));
+         * });
+         */
 
         // Find and set click listener for the close button
         Button closeButton = view.findViewById(R.id.closeButton);
