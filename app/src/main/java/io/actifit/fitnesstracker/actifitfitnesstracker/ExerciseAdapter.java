@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -31,30 +31,30 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
 
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
-        Log.d("wokroutwizardactivity EA", "item at "+position);
+        Log.d("wokroutwizardactivity EA", "item at " + position);
         Exercise exercise = exerciseList.get(position);
         holder.exerciseNameTextView.setText(exercise.getName());
         holder.exerciseSetsTextView.setText(exercise.getSets());
         holder.exerciseRepsTextView.setText(exercise.getReps());
 
-        String durationString = exercise.getDuration() == null ? "N/A" :  exercise.getDuration();
+        String durationString = exercise.getDuration() == null ? "N/A" : exercise.getDuration();
         holder.exerciseDurationTextView.setText(durationString);
         // Load image
-        Picasso.get()
+        Glide.with(holder.itemView.getContext())
                 .load(exercise.getStartPositionImageUrl())
                 .placeholder(R.drawable.ic_launcher_foreground) // Optional placeholder
                 .error(R.drawable.ic_launcher_foreground) // Optional error image
                 .into(holder.exerciseImageView);
 
         // Display Days
-        if (exercise.getDays() != null && !exercise.getDays().isEmpty()){
+        if (exercise.getDays() != null && !exercise.getDays().isEmpty()) {
             String daysString = String.join(", ", exercise.getDays());
             holder.exerciseDaysTextView.setText(daysString);
-        }  else{
+        } else {
             holder.exerciseDaysTextView.setText("Every day"); // default case
         }
 
-        //Setting onClickListener for itemview
+        // Setting onClickListener for itemview
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), ExerciseDetailActivity.class);
             intent.putExtra("exercise", exercise); // Pass exercise
@@ -76,7 +76,6 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         TextView exerciseDurationTextView;
         TextView exerciseDaysTextView;
         ImageView exerciseImageView;
-
 
         public ExerciseViewHolder(@NonNull View itemView) {
             super(itemView);

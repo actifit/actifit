@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,14 +48,14 @@ public class VoteEntryAdapter extends ArrayAdapter<VoteEntryAdapter.VoteEntry> {
         voter.setText(voteEntry.voter);
         votePercent.setText(voteEntry.voteValue());
 
-        final String userImgUrl = getContext().getString(R.string.hive_image_host_url).replace("USERNAME", voteEntry.voter);
+        final String userImgUrl = getContext().getString(R.string.hive_image_host_url).replace("USERNAME",
+                voteEntry.voter);
 
         Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(() -> {
-            //load user image
-            Picasso.get()
-                    .load(userImgUrl)
-                    .into(voterProfilePic);
+            // load user image
+            // load user image
+            Glide.with(getContext()).load(userImgUrl).into(voterProfilePic);
         });
 
         // Return the completed view to render on screen
@@ -72,11 +72,11 @@ public class VoteEntryAdapter extends ArrayAdapter<VoteEntryAdapter.VoteEntry> {
         private double percent;
         private double value;
 
-        public String voteValue(){
-            return String.format("%.4f",this.postRatio * this.rshares);
+        public String voteValue() {
+            return String.format("%.4f", this.postRatio * this.rshares);
         }
 
-        public VoteEntry(JSONObject jsonObject, float postRatio){
+        public VoteEntry(JSONObject jsonObject, float postRatio) {
             this.fillObjectFromJson(this, jsonObject);
             this.postRatio = postRatio;
         }
@@ -144,12 +144,12 @@ public class VoteEntryAdapter extends ArrayAdapter<VoteEntryAdapter.VoteEntry> {
                     if (jsonObject.has(fieldName)) {
                         // Get the value from the JSON object
                         Object value = jsonObject.get(fieldName);
-                        try{
+                        try {
                             // Set the value to the field
                             field.set(object, value);
                         } catch (IllegalArgumentException e) {
                             try {
-                                //attempt to parse JSONObject
+                                // attempt to parse JSONObject
                                 JSONObject tmpObj = new JSONObject((String) jsonObject.get(fieldName));
                                 field.set(object, tmpObj);
                             } catch (Exception ex) {
