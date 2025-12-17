@@ -1043,6 +1043,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         editor.putString("fitbitLastSyncDate",
                                 new SimpleDateFormat("yyyyMMdd").format(
                                         mCalendar.getTime()));
+                        editor.putLong("fitbitLastSyncTime", System.currentTimeMillis());
                         editor.apply();
                     } else {
                         Log.d(MainActivity.TAG, "No auto-tracked activity found for today");
