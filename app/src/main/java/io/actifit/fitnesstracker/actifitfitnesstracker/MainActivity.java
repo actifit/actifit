@@ -1045,6 +1045,7 @@ public class MainActivity extends BaseActivity {
                 editor.putString("healthConnectLastSyncDate",
                         new SimpleDateFormat("yyyyMMdd").format(
                                 mCalendar.getTime()));
+                editor.putLong("healthConnectLastSyncTime", System.currentTimeMillis());
                 if (steps != null && steps > 0) {
                     editor.putInt("healthConnectSyncCount", steps.intValue());// 6543);//
                     editor.apply();
@@ -1372,6 +1373,7 @@ public class MainActivity extends BaseActivity {
                             editor.putString("fitbitLastSyncDate",
                                     new SimpleDateFormat("yyyyMMdd").format(
                                             mCalendar.getTime()));
+                            editor.putLong("fitbitLastSyncTime", System.currentTimeMillis());
                             // TODO: demo data, replace when go live
                             editor.putInt("fitbitSyncCount", trackedActivityCount);// 6543);//
                             editor.apply();

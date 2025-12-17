@@ -27,14 +27,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
-
 /**
- * This class is a service that runs in the background and handles tracking and storing of
+ * This class is a service that runs in the background and handles tracking and
+ * storing of
  * movement to avoid losing track if Actifit is running instead
  */
 
 public class ActivityMonitorService extends Service implements SensorEventListener, StepListener {
-
 
     private StepsDBHelper mStepsDBHelper;
     private Sensor accSensor;
@@ -57,18 +56,18 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     private Context ctx;
 
-    public static PowerManager getPowerManagerInstance(){
+    public static PowerManager getPowerManagerInstance() {
         return pm;
     }
 
-    public static PowerManager.WakeLock getWakeLockInstance(){
+    public static PowerManager.WakeLock getWakeLockInstance() {
         return wl;
     }
 
     public ActivityMonitorService(Context applicationContext) {
         super();
-        Log.d(MainActivity.TAG,">>>>[Actifit]here I am!");
-        sharedPreferences = applicationContext.getSharedPreferences("actifitSets",MODE_PRIVATE);
+        Log.d(MainActivity.TAG, ">>>>[Actifit]here I am!");
+        sharedPreferences = applicationContext.getSharedPreferences("actifitSets", MODE_PRIVATE);
         ctx = applicationContext;
     }
 
@@ -76,10 +75,10 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     }
 
-    private void initializeSharedPrefs(){
+    private void initializeSharedPrefs() {
         if (ctx == null) {
             sharedPreferences = getApplicationContext().getSharedPreferences("actifitSets", MODE_PRIVATE);
-        }else{
+        } else {
             sharedPreferences = ctx.getSharedPreferences("actifitSets", MODE_PRIVATE);
         }
     }
@@ -95,7 +94,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.actifit_notif_channel);
             String description = getString(R.string.actifit_notif_description);
-            //making a fix for no sound in Android 8
+            // making a fix for no sound in Android 8
             int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel channel = new NotificationChannel(
                     channel_id, name, importance);
@@ -107,115 +106,171 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         }
     }
 
-
     @Override
-    public void onCreate(){
+    public void onCreate() {
         CreateAsyncTask createAsyncTask = new CreateAsyncTask();
         createAsyncTask.execute();
 
     }
 
-
     /**
-     * this is overriding the step function which only works in case of using accelerometer sensor
+     * this is overriding the step function which only works in case of using
+     * accelerometer sensor
      *
      * @param timeNs
      */
+    private android.widget.RemoteViews getCustomNotificationViews(int stepCount) {
+        android.widget.RemoteViews remoteViews = new android.widget.RemoteViews(getPackageName(),
+                R.layout.notification_layout);
+
+        String currentTrackingMode = sharedPreferences.getString("dataTrackingSystem",
+                ctx.getString(R.string.device_tracking_ntt));
+
+        remoteViews.setTextViewText(R.id.notification_text, String.valueOf(stepCount));
+
+        if (currentTrackingMode.equals(ctx.getString(R.string.fitbit_tracking_ntt))) {
+            remoteViews.setImageViewResource(R.id.notification_icon, R.drawable.fitbit_app_icon);
+            long lastSync = sharedPreferences.getLong("fitbitLastSyncTime", 0);
+            if (lastSync > 0) {
+                String timeString = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+                        .format(new java.util.Date(lastSync));
+                remoteViews.setTextViewText(R.id.notification_time, "Last Synced: " + timeString);
+            } else {
+                remoteViews.setTextViewText(R.id.notification_time, "Last Synced: N/A");
+            }
+        } else if (currentTrackingMode.equals(ctx.getString(R.string.health_connect_tracking_ntt))) {
+            remoteViews.setImageViewResource(R.id.notification_icon, R.mipmap.health_connect_logo); // Using generic
+                                                                                                    // logo as
+                                                                                                    // fallback/HC icon
+            long lastSync = sharedPreferences.getLong("healthConnectLastSyncTime", 0);
+            if (lastSync > 0) {
+                String timeString = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+                        .format(new java.util.Date(lastSync));
+                remoteViews.setTextViewText(R.id.notification_time, "Last Synced: " + timeString);
+            } else {
+                remoteViews.setTextViewText(R.id.notification_time, "Last Synced: N/A");
+            }
+        } else {
+            // Device sensors
+            remoteViews.setImageViewResource(R.id.notification_icon, R.drawable.ic_smartphone);
+            remoteViews.setTextViewText(R.id.notification_time, "Live Tracking");
+        }
+
+        return remoteViews;
+    }
+
     @Override
     public void step(long timeNs) {
 
         /* testing code for notifications and user error */
         /*
-        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(ctx);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        int notID = tenknotificationID;
-        Context context = ctx;
-        Intent notifyIntent = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
-                context.getString(R.string.actifit_channel_remind_ID))
-                .setContentTitle("Test Notification")
-                .setContentText(sharedPreferences.getString("dataTrackingSystem",
-                                ctx.getString(R.string.device_tracking_ntt)))
-                .setSmallIcon(R.drawable.actifit_logo)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .setContentIntent(pendingIntent);
-
-        Notification notificationCompat = builder.build();
-        managerCompat.notify(notID, notificationCompat);*/
+         * NotificationManagerCompat managerCompat =
+         * NotificationManagerCompat.from(ctx);
+         * if (ActivityCompat.checkSelfPermission(this,
+         * android.Manifest.permission.POST_NOTIFICATIONS) !=
+         * PackageManager.PERMISSION_GRANTED) {
+         * // TODO: Consider calling
+         * // ActivityCompat#requestPermissions
+         * // here to request the missing permissions, and then overriding
+         * // public void onRequestPermissionsResult(int requestCode, String[]
+         * permissions,
+         * // int[] grantResults)
+         * // to handle the case where the user grants the permission. See the
+         * documentation
+         * // for ActivityCompat#requestPermissions for more details.
+         * return;
+         * }
+         * int notID = tenknotificationID;
+         * Context context = ctx;
+         * Intent notifyIntent = new Intent(context, MainActivity.class);
+         * PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
+         * notifyIntent, PendingIntent.FLAG_IMMUTABLE);
+         * NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
+         * context.getString(R.string.actifit_channel_remind_ID))
+         * .setContentTitle("Test Notification")
+         * .setContentText(sharedPreferences.getString("dataTrackingSystem",
+         * ctx.getString(R.string.device_tracking_ntt)))
+         * .setSmallIcon(R.drawable.actifit_logo)
+         * .setPriority(NotificationCompat.PRIORITY_HIGH)
+         * .setAutoCancel(true)
+         * .setContentIntent(pendingIntent);
+         * 
+         * Notification notificationCompat = builder.build();
+         * managerCompat.notify(notID, notificationCompat);
+         */
         /* ********************************************* */
 
-
-        //no need to track steps if we do not have the proper mode active
-        if (sharedPreferences == null){
+        // no need to track steps if we do not have the proper mode active
+        if (sharedPreferences == null) {
             initializeSharedPrefs();
         }
-        if(!sharedPreferences.getString("dataTrackingSystem",
-                ctx.getString(R.string.device_tracking_ntt))
-                .equals(ctx.getString(R.string.device_tracking_ntt))){
-                /*getApplicationContext().getString(R.string.device_tracking_ntt))
-                .equals(getApplicationContext().getString(R.string.device_tracking_ntt))) {*/
-            return;
-        }
-        int curStepCount = mStepsDBHelper.createStepsEntry();
+        String currentTrackingMode = sharedPreferences.getString("dataTrackingSystem",
+                ctx.getString(R.string.device_tracking_ntt));
 
-        //adjust step count display and print to notification activity
-        //making sure we have an instance of mBuilder
-        if (mBuilder!=null) {
+        int curStepCount = 0;
+
+        if (currentTrackingMode.equals(ctx.getString(R.string.device_tracking_ntt))) {
+            curStepCount = mStepsDBHelper.createStepsEntry();
+        } else {
+            curStepCount = mStepsDBHelper.fetchTodayStepCount();
+        }
+
+        // adjust step count display and print to notification activity
+        // making sure we have an instance of mBuilder
+        if (mBuilder != null) {
+
+            // Use Custom View
+            android.widget.RemoteViews customView = getCustomNotificationViews(curStepCount);
+            mBuilder.setCustomContentView(customView);
+            mBuilder.setCustomBigContentView(customView);
+            // Fallback for older Android versions or standard view if needed
             mBuilder.setContentText(getString(R.string.activity_today_string) + " " + curStepCount);
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.checkSelfPermission(this,
+                    android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
+                // ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
+                // public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                // int[] grantResults)
+                // to handle the case where the user grants the permission. See the
+                // documentation
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             notificationManager.notify(notificationID, mBuilder.build());
         }
 
-        //also update main activity
+        // also update main activity
         Intent in = new Intent();
-        in.putExtra("move_count",curStepCount);
+        in.putExtra("move_count", curStepCount);
         in.setAction("ACTIFIT_SERVICE");
-        //sendBroadcast(in);
+        // sendBroadcast(in);
         LocalBroadcastManager.getInstance(ctx).sendBroadcast(in);
 
         boolean doNotify = false;
-        //if user crossed 5k, or 10k, also send out another notification
-        if (curStepCount >= tenkValMilestone && !tenkmilestone){
+        // if user crossed 5k, or 10k, also send out another notification
+        if (curStepCount >= tenkValMilestone && !tenkmilestone) {
             doNotify = true;
             tenkmilestone = true;
-        }else if (curStepCount >= fivekValMilestone && !fivekmilestone){
+        } else if (curStepCount >= fivekValMilestone && !fivekmilestone) {
             doNotify = true;
             fivekmilestone = true;
-        }else if (curStepCount < fivekValMilestone){
-            //reset notification status
+        } else if (curStepCount < fivekValMilestone) {
+            // reset notification status
             tenkmilestone = false;
             fivekmilestone = false;
         }
 
         if (doNotify) {
-            Context context = ctx;//getApplicationContext();
+            Context context = ctx;// getApplicationContext();
 
             int notID = tenknotificationID;
             String notText = context.getString(R.string.activity_today_tenk_milestone);
-            //support for Android 8+
-            if (tenkmilestone){
+            // support for Android 8+
+            if (tenkmilestone) {
                 createNotificationChannel(getString(R.string.actifit_channel_10k_notice));
-            }else{
+            } else {
                 notID = fiveknotificationID;
                 notText = context.getString(R.string.activity_today_fivek_milestone);
                 createNotificationChannel(getString(R.string.actifit_channel_5k_notice));
@@ -223,12 +278,13 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             Intent notifyIntent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent;
-            //if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-            //    pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
-            //}else{
-                pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
-            //}
-            //prepare notification details
+            // if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+            // pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent,
+            // PendingIntent.FLAG_IMMUTABLE);
+            // }else{
+            pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
+            // }
+            // prepare notification details
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
                     context.getString(R.string.actifit_channel_remind_ID))
                     .setContentTitle(context.getString(R.string.daily_post_reminder_title))
@@ -240,21 +296,23 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             Notification notificationCompat = builder.build();
 
-            //proceed notifying user
+            // proceed notifying user
             NotificationManagerCompat managerCompat = NotificationManagerCompat.from(context);
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this,
+                    android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
+                // ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
+                // public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                // int[] grantResults)
+                // to handle the case where the user grants the permission. See the
+                // documentation
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             managerCompat.notify(notID, notificationCompat);
         }
-        //stepDisplay.setText(TEXT_NUM_STEPS + (curStepCount < 0 ? 0 : curStepCount));
+        // stepDisplay.setText(TEXT_NUM_STEPS + (curStepCount < 0 ? 0 : curStepCount));
     }
 
     @Override
@@ -281,52 +339,55 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         InitializeAsyncTask initNotif = new InitializeAsyncTask();
         initNotif.execute();
 
-        /*Intent notificationIntent = new Intent(ctx, MainActivity.class);
-
-        PendingIntent pendingIntent;
-        //if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-        pendingIntent =
-                PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
-
-
-
-        int curActivityCount = mStepsDBHelper.fetchTodayStepCount();
-        mBuilder = new
-                NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
-                .setContentTitle(getString(R.string.actifit_notif_title))
-                .setContentText(getString(R.string.activity_today_string)+" "+(Math.max(curActivityCount, 0)))
-                .setSmallIcon(R.drawable.actifit_logo)
-                .setContentIntent(pendingIntent)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOnlyAlertOnce(true);
-
-        notificationManager = NotificationManagerCompat.from(ctx);
-
-        startForeground(notificationID,mBuilder.build());
-*/
+        /*
+         * Intent notificationIntent = new Intent(ctx, MainActivity.class);
+         * 
+         * PendingIntent pendingIntent;
+         * //if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+         * pendingIntent =
+         * PendingIntent.getActivity(ctx, 0, notificationIntent,
+         * PendingIntent.FLAG_IMMUTABLE);
+         * 
+         * 
+         * 
+         * int curActivityCount = mStepsDBHelper.fetchTodayStepCount();
+         * mBuilder = new
+         * NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
+         * .setContentTitle(getString(R.string.actifit_notif_title))
+         * .setContentText(getString(R.string.activity_today_string)+" "+(Math.max(
+         * curActivityCount, 0)))
+         * .setSmallIcon(R.drawable.actifit_logo)
+         * .setContentIntent(pendingIntent)
+         * .setPriority(NotificationCompat.PRIORITY_LOW)
+         * .setOnlyAlertOnce(true);
+         * 
+         * notificationManager = NotificationManagerCompat.from(ctx);
+         * 
+         * startForeground(notificationID,mBuilder.build());
+         */
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(MainActivity.TAG,">>>>[Actifit]ondestroy service!");
+        Log.d(MainActivity.TAG, ">>>>[Actifit]ondestroy service!");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(Service.STOP_FOREGROUND_REMOVE);
         }
 
         try {
             sensorManager.unregisterListener(ActivityMonitorService.this);
-        }catch(Exception e ){
-            Log.d(MainActivity.TAG,"error unregisterig listener");
+        } catch (Exception e) {
+            Log.d(MainActivity.TAG, "error unregisterig listener");
         }
-        sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-        String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking"
-                ,getString(R.string.aggr_back_tracking_off_ntt));
+        sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",
+                getString(R.string.aggr_back_tracking_off_ntt));
 
-        //release wake lock now
+        // release wake lock now
         if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
-            Log.d(MainActivity.TAG,">>>>[Actifit]AGG MODE ON - RELEASING LOCK");
+            Log.d(MainActivity.TAG, ">>>>[Actifit]AGG MODE ON - RELEASING LOCK");
             pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.actifit_wake_lock_tag));
             if (wl.isHeld()) {
@@ -336,57 +397,56 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         if (mStepsDBHelper != null) {
             mStepsDBHelper.closeConnection();
         }
-        //mStepsDBHelper.closeConnection();
-        //service destroyed, let's start it again
-        //Intent broadcastIntent = new Intent(".MonitorRestart");
-       // sendBroadcast(broadcastIntent);
+        // mStepsDBHelper.closeConnection();
+        // service destroyed, let's start it again
+        // Intent broadcastIntent = new Intent(".MonitorRestart");
+        // sendBroadcast(broadcastIntent);
 
     }
 
-    private class CreateAsyncTask extends AsyncTask<Void, Void, Void>{
+    private class CreateAsyncTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
 
-            //initialize power manager and wake locks either way
+            // initialize power manager and wake locks either way
             pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.actifit_wake_lock_tag));
 
-            //check if aggressive background tracking mode is enabled
+            // check if aggressive background tracking mode is enabled
 
-            sharedPreferences = getSharedPreferences("actifitSets",MODE_PRIVATE);
-            String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking"
-                    ,getString(R.string.aggr_back_tracking_off_ntt));
+            sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+            String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",
+                    getString(R.string.aggr_back_tracking_off_ntt));
 
-            //enable wake lock to ensure tracking functions in the background
+            // enable wake lock to ensure tracking functions in the background
             if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
-                Log.d(MainActivity.TAG,">>>>[Actifit]AGG MODE ON");
+                Log.d(MainActivity.TAG, ">>>>[Actifit]AGG MODE ON");
                 if (!wl.isHeld()) {
                     wl.acquire();
                 }
             }
 
-            if (ctx == null){
+            if (ctx == null) {
                 ctx = getApplicationContext();
             }
 
-            mStepsDBHelper = new StepsDBHelper(ctx);//getApplicationContext());
+            mStepsDBHelper = new StepsDBHelper(ctx);// getApplicationContext());
             // Get an instance of the SensorManager
             sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-            accSensor =
-                    sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-            //for Android 8, need to initialize notifications first
+            // for Android 8, need to initialize notifications first
             createNotificationChannel(getString(R.string.actifit_channel_ID));
 
-            //initiate step detector and start tracking
+            // initiate step detector and start tracking
             simpleStepDetector = new SimpleStepDetector();
             simpleStepDetector.registerListener(ActivityMonitorService.this);
 
             sensorManager.registerListener(ActivityMonitorService.this, accSensor,
                     SensorManager.SENSOR_DELAY_FASTEST);
-                    //SensorManager.SENSOR_DELAY_GAME);
+            // SensorManager.SENSOR_DELAY_GAME);
 
             return null;
         }
@@ -394,10 +454,9 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     private class InitializeAsyncTask extends AsyncTask<Void, Void, Integer> {
 
-
         @Override
         protected Integer doInBackground(Void... voids) {
-            //grab activity count so far today
+            // grab activity count so far today
             int curActivityCount = mStepsDBHelper.fetchTodayStepCount();
             return curActivityCount;
         }
@@ -406,37 +465,41 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         protected void onPostExecute(Integer curActivityCount) {
             super.onPostExecute(curActivityCount);
 
-
-            //create the service that will display as a notification on screen lock
+            // create the service that will display as a notification on screen lock
             Intent notificationIntent = new Intent(ctx, MainActivity.class);
 
             PendingIntent pendingIntent;
-            //if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-                pendingIntent =
-                        PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+            // if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
-            /*}else {
-                pendingIntent =
-                        PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
-            }*/
-            mBuilder = new
-                    NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
+            /*
+             * }else {
+             * pendingIntent =
+             * PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
+             * }
+             */
+
+            android.widget.RemoteViews customView = getCustomNotificationViews(
+                    curActivityCount < 0 ? 0 : curActivityCount);
+
+            mBuilder = new NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
                     .setContentTitle(getString(R.string.actifit_notif_title))
-                    .setContentText(getString(R.string.activity_today_string)+" "+(curActivityCount<0?0:curActivityCount))
+                    .setContentText(getString(R.string.activity_today_string) + " "
+                            + (curActivityCount < 0 ? 0 : curActivityCount))
                     .setSmallIcon(R.drawable.actifit_logo)
+                    .setCustomContentView(customView)
+                    .setCustomBigContentView(customView)
                     .setContentIntent(pendingIntent)
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setOnlyAlertOnce(true);
 
             notificationManager = NotificationManagerCompat.from(ctx);
 
-            startForeground(notificationID,mBuilder.build());
+            startForeground(notificationID, mBuilder.build());
         }
     }
 
-
     private class MonitorAsyncTask extends AsyncTask<SensorEvent, Void, Void> {
-
 
         @Override
         protected Void doInBackground(SensorEvent... event) {
@@ -450,7 +513,5 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             super.onPostExecute(aVoid);
         }
     }
-
-
 
 }
