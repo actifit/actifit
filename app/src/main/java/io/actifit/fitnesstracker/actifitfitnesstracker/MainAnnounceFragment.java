@@ -24,7 +24,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -41,7 +41,6 @@ public class MainAnnounceFragment extends DialogFragment {
         this.ctx = ctx;
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -52,19 +51,22 @@ public class MainAnnounceFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
-        //dialog.getWindow().requestFeature(STYLE_NO_TITLE);
+        // dialog.getWindow().requestFeature(STYLE_NO_TITLE);
         return dialog;
     }
 
-    /*@Override
-    public void onViewStateRestored(Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-
-    }*/
+    /*
+     * @Override
+     * public void onViewStateRestored(Bundle savedInstanceState) {
+     * super.onViewStateRestored(savedInstanceState);
+     * 
+     * }
+     */
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.announce_view, container, false);
 
         ImageView featured_image = view.findViewById(R.id.news_featured_image);
@@ -72,13 +74,15 @@ public class MainAnnounceFragment extends DialogFragment {
 
         Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(() -> {
-            //Picasso.with(ctx)
-            Picasso.get()
+            // Picasso.with(ctx)
+            Glide.with(ctx)
                     .load(this.mainAnnounce.getFeatured_image_url())
+                    .override(800, 500) // Constrain size to prevent dialog overflow
+                    .centerCrop() // Match XML scaleType
                     .into(featured_image);
         });
 
-        //featured_image.setImageResource();
+        // featured_image.setImageResource();
         int textColor = ContextCompat.getColor(ctx, R.color.colorBlack);
         caption_title.setTextColor(textColor);
         caption_title.setText(this.mainAnnounce.getNews_title());
@@ -86,15 +90,15 @@ public class MainAnnounceFragment extends DialogFragment {
         // Find and set click listener for the close button
         Button detailsButton = view.findViewById(R.id.detailsButton);
         detailsButton.setOnClickListener(v -> {
-            //Toast.makeText   (Mcontext, "test", Toast.LENGTH_LONG).show();
+            // Toast.makeText (Mcontext, "test", Toast.LENGTH_LONG).show();
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
             builder.setToolbarColor(ctx.getResources().getColor(R.color.actifitRed));
 
-            //animation for showing and closing fitbit authorization screen
+            // animation for showing and closing fitbit authorization screen
             builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
 
-            //animation for back button clicks
+            // animation for back button clicks
             builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
                     android.R.anim.slide_out_right);
 
