@@ -98,6 +98,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.material.card.MaterialCardView;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -297,6 +298,7 @@ public class MainActivity extends BaseActivity {
     PieChart btnPieChart;
     PieChart fitbitPieChart;
     PieChart healthConnectPieChart;
+    private String accountDataUrl;
 
     static boolean isActivityVisible = true;
 
@@ -312,8 +314,11 @@ public class MainActivity extends BaseActivity {
 
     public static Double minTokenCount;
     TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText, newbieLink,
-            notifCount;
-    LinearLayout loginContainer, userGadgets, accountRCContainer, votingStatusContainer;
+            notifCount, votingPower;
+    LinearLayout loginContainer, userGadgets, accountRCContainer, votingStatusContainer, newbieContainer,
+            transactionsContainer;
+    MaterialCardView userStatusCard, recentTransactionsCard;
+    TextView btnViewAllTransactions;
     GridLayout topIconsContainer;
     TextView BtnSettings;
 
@@ -926,6 +931,11 @@ public class MainActivity extends BaseActivity {
         return false;
     }
 
+    private void triggerNotificationRefresh() {
+        Intent refreshNotif = new Intent(ActivityMonitorService.ACTION_REFRESH_NOTIFICATION);
+        LocalBroadcastManager.getInstance(ctx).sendBroadcast(refreshNotif);
+    }
+
     // --- Consolidated Health Connect Status and Permission Checker ---
     private void checkHealthConnectStatusAndPermissions() {
 
@@ -1021,7 +1031,10 @@ public class MainActivity extends BaseActivity {
             SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("dataTrackingSystem", getString(R.string.health_connect_tracking_ntt));
-            editor.apply();
+            editor.commit();
+
+            // Trigger notification refresh immediately after changing preference
+            triggerNotificationRefresh();
 
             // Switch UI to Health Connect mode
             hideCharts();
@@ -1155,6 +1168,14 @@ public class MainActivity extends BaseActivity {
 
         votingStatusText = findViewById(R.id.voting_status_text);
         votingStatusContainer = findViewById(R.id.voting_status_container);
+
+        userStatusCard = findViewById(R.id.user_status_card);
+        votingPower = findViewById(R.id.voting_power);
+        newbieContainer = findViewById(R.id.newbie_container);
+
+        recentTransactionsCard = findViewById(R.id.recent_transactions_card);
+        btnViewAllTransactions = findViewById(R.id.btn_view_all_transactions);
+        transactionsContainer = findViewById(R.id.transactions_container);
 
         fullChartButton = findViewById(R.id.daily_chart_btn);
         dayChartButton = findViewById(R.id.hourly_chart_btn);
@@ -2363,6 +2384,7 @@ public class MainActivity extends BaseActivity {
 
                 editor.putString("dataTrackingSystem", getString(R.string.health_connect_tracking_ntt));
                 editor.commit();
+                triggerNotificationRefresh();
                 checkPermissionsAndReadData();
             }
         });
@@ -2382,9 +2404,14 @@ public class MainActivity extends BaseActivity {
                 ((View) btnPieChart.getParent()).setVisibility(View.VISIBLE);
                 chartSwitcher.setVisibility(View.VISIBLE);
                 findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                View historyCard = findViewById(R.id.history_card_view);
+                if (historyCard != null) {
+                    historyCard.setVisibility(View.VISIBLE);
+                }
 
                 editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
                 editor.commit();
+                triggerNotificationRefresh();
                 if (mStepsDBHelper == null) {
                     mStepsDBHelper = new StepsDBHelper(ctx);
                 }
@@ -2410,6 +2437,7 @@ public class MainActivity extends BaseActivity {
                 thirdPartyTracking.setVisibility(View.VISIBLE);
                 editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
                 editor.commit();
+                triggerNotificationRefresh();
                 int steps = mStepsDBHelper.fetchTodayStepCount();
                 displayActivityChartFitbit(steps, true);
             }
@@ -3207,6 +3235,40 @@ public class MainActivity extends BaseActivity {
         // Add balance request to be processed
         queue.add(balanceRequest);
 
+        // This holds the url to connect to the API and grab the balance.
+        // We append to it the username
+        accountDataUrl = Utils.apiUrl(this) + getString(R.string.get_account_api_url) + username;
+
+        Log.d(TAG, "Fetching Hive account data from: " + accountDataUrl);
+        JsonObjectRequest accountRequest = new JsonObjectRequest(Request.Method.GET, accountDataUrl, null, response -> {
+            Log.d(TAG, "Account data response received");
+            try {
+                if (response.has("HIVE")) {
+                    JSONObject hiveData = response.getJSONObject("HIVE");
+                    Log.d(TAG, "HIVE data found");
+
+                    // Get voting power - it's stored as basis points (10000 = 100%)
+                    if (hiveData.has("voting_power")) {
+                        int vpBasisPoints = hiveData.getInt("voting_power");
+                        double vpPct = vpBasisPoints / 100.0;
+
+                        Log.d(TAG, "VP: " + vpBasisPoints + " basis points -> " + String.format("%.2f", vpPct) + "%");
+                        votingPower.setText("Voting Power: " + String.format("%.2f", vpPct) + "%");
+                        userStatusCard.setVisibility(View.VISIBLE);
+                    } else {
+                        Log.d(TAG, "voting_power field missing in HIVE object");
+                    }
+                } else {
+                    Log.d(TAG, "HIVE object missing in response");
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error parsing account data", e);
+            }
+        }, error -> {
+            Log.e(TAG, "Error fetching account data: " + error.getMessage());
+        });
+        queue.add(accountRequest);
+
         // grab account RC value
         String accountRCUrl = Utils.apiUrl(this) + getString(R.string.get_account_rc) + username;
         // Request the balance of the user while expecting a JSON response
@@ -3214,32 +3276,25 @@ public class MainActivity extends BaseActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // hide dialog
-                        // progress.hide();
                         try {
                             // validate if account exists on the chains
                             if (response.has("currentRC")) {
                                 String rcVal = response.get("currentRC").toString();
-                                accountRCValue.setText(rcVal + "%");
-                                // accountRCValue.setVisibility(View.VISIBLE);
-                                // accountRCContainer.setVisibility(View.VISIBLE);
-                            } else {
-                                // accountRCContainer.setVisibility(View.GONE);
+                                accountRCValue.setText("Resource Credits: " + rcVal + "%");
+                                userStatusCard.setVisibility(View.VISIBLE);
                             }
-
                         } catch (Exception ex) {
                             ex.printStackTrace();
-                            Log.e(TAG, "ERROR");
-
                         }
                     }
                 }, error -> {
-                    // hide dialog
-                    Log.e(TAG, "ERROR");
-                    error.printStackTrace();
+                    Log.e(TAG, "Error fetching RC");
                 });
 
         queue.add(accountRCRequest);
+
+        // Load recent transactions
+        loadRecentTransactions();
 
         // handle RC click
         // accountRCContainer.setOnClickListener(new View.OnClickListener() {
@@ -3330,7 +3385,7 @@ public class MainActivity extends BaseActivity {
 
         // This holds the url to connect to the API and grab the balance.
         // We append to it the username
-        String accountDataUrl = Utils.apiUrl(this) + getString(R.string.get_account_api_url) + username;
+        accountDataUrl = Utils.apiUrl(this) + getString(R.string.get_account_api_url) + username;
 
         // display header
         // Request the balance of the user while expecting a JSON response
@@ -3367,6 +3422,14 @@ public class MainActivity extends BaseActivity {
 
                             }
 
+                            if (response.has("is_newbie")) {
+                                if (response.getBoolean("is_newbie")) {
+                                    newbieContainer.setVisibility(View.VISIBLE);
+                                } else {
+                                    newbieContainer.setVisibility(View.GONE);
+                                }
+                            }
+
                         } catch (Exception ex) {
 
                         }
@@ -3384,9 +3447,132 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    private void loadRecentTransactions() {
+        if (username.isEmpty())
+            return;
+
+        String transactionsUrl = Utils.apiUrl(this) + getString(R.string.user_transactions_api_url) + username;
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET, transactionsUrl, null,
+                response -> {
+                    try {
+                        if (response.length() > 0) {
+                            recentTransactionsCard.setVisibility(View.VISIBLE);
+                            transactionsContainer.removeAllViews();
+
+                            int count = Math.min(response.length(), 5);
+                            for (int i = 0; i < count; i++) {
+                                JSONObject transaction = response.getJSONObject(i);
+                                addTransactionView(transaction);
+                            }
+
+                            btnViewAllTransactions.setOnClickListener(v -> {
+                                Intent intent = new Intent(MainActivity.this, WalletActivity.class);
+                                startActivity(intent);
+                            });
+                        } else {
+                            recentTransactionsCard.setVisibility(View.GONE);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }, error -> {
+                    Log.e(TAG, "Error fetching transactions");
+                });
+        queue.add(transactionRequest);
+    }
+
+    private void addTransactionView(JSONObject transaction) throws JSONException {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.transaction_item_small, transactionsContainer, false);
+
+        TextView typeTv = view.findViewById(R.id.textViewActivityType);
+        TextView amountTv = view.findViewById(R.id.textViewTokenAmount);
+        TextView userRecipientTv = view.findViewById(R.id.textViewUserRecipient);
+        TextView dateTv = view.findViewById(R.id.textViewDate);
+        TextView noteTv = view.findViewById(R.id.textViewNote);
+
+        // Activity Type / Reward Activity
+        String type = transaction.optString("reward_activity", "");
+        if (type.isEmpty()) {
+            type = transaction.optString("token_type", "Transaction");
+        }
+        typeTv.setText(type);
+
+        // Token Count / Amount
+        double tokenCount = transaction.optDouble("token_count", transaction.optDouble("amount", 0.0));
+        String amountText = String.format(Locale.getDefault(), "%.3f AFIT", tokenCount);
+        if (tokenCount > 0) {
+            amountTv.setText("+" + amountText);
+            amountTv.setTextColor(ContextCompat.getColor(this, R.color.actifitDarkGreen));
+        } else if (tokenCount < 0) {
+            amountTv.setText(amountText);
+            amountTv.setTextColor(ContextCompat.getColor(this, R.color.actifitRed));
+        } else {
+            amountTv.setText(amountText);
+            amountTv.setTextColor(Color.GRAY);
+        }
+
+        // User / Recipient
+        String user = transaction.optString("user", "");
+        String recipient = transaction.optString("recipient", "");
+        String contextText = "";
+        if (tokenCount > 0 && !user.isEmpty()) {
+            contextText = "From: " + user;
+        } else if (tokenCount < 0 && !recipient.isEmpty()) {
+            contextText = "To: " + recipient;
+        }
+        if (!contextText.isEmpty()) {
+            userRecipientTv.setText(contextText);
+            userRecipientTv.setVisibility(View.VISIBLE);
+        } else {
+            userRecipientTv.setVisibility(View.GONE);
+        }
+
+        // Date
+        String dateStr = transaction.optString("date", transaction.optString("transaction_date", ""));
+        dateTv.setText(dateStr);
+
+        // Note
+        String note = transaction.optString("note", "");
+        if (!note.isEmpty()) {
+            noteTv.setText("(" + note + ")");
+            noteTv.setVisibility(View.VISIBLE);
+        } else {
+            noteTv.setVisibility(View.GONE);
+        }
+
+        transactionsContainer.addView(view);
+    }
+
     public static String formatValue(double value) {
         DecimalFormat df = new DecimalFormat("###,###,###.###");
         return df.format(value);
+    }
+
+    private Double vestsToPower(JSONObject chain, String vestsValue) {
+        Double powerVal = 0.0;
+        Double totalVests = 1.0;
+        Double vests = 0.0;
+
+        try {
+            String vestingFund = chain.getString("total_vesting_fund_" + chain.getString("chainName"));
+            String[] entries = vestingFund.split(" ");
+            powerVal = Double.parseDouble(entries[0]);
+
+            String totalVestsStr = chain.getString("total_vesting_shares");
+            String[] vals = totalVestsStr.split(" ");
+            totalVests = Double.parseDouble(vals[0]);
+
+            vestsValue = vestsValue.split(" ")[0];
+            vests = Double.parseDouble(vestsValue);
+
+            return powerVal * vests / totalVests;
+        } catch (Exception e) {
+            Log.e(TAG, "Error in vestsToPower conversion", e);
+        }
+        return 0.0;
     }
 
     private void displayActivityChartFitbit(final int stepCount, final boolean animate) {
@@ -4395,6 +4581,7 @@ public class MainActivity extends BaseActivity {
                         getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
                 return params;
             }
+
         };
 
         queue.add(req);
@@ -4684,142 +4871,148 @@ public class MainActivity extends BaseActivity {
 
         } else {
             // display text no gadgets loaded
-            // LinearLayout noActiveGadgets =
-            // findViewById(R.id.missing_active_gadgets_container);
-            TextView noActiveGadgets = findViewById(R.id.missing_active_gadgets);
-            noActiveGadgets.setVisibility(View.VISIBLE);
+            View noActiveGadgets = findViewById(R.id.missing_active_gadgets);
+            if (noActiveGadgets != null) {
+                noActiveGadgets.setVisibility(View.VISIBLE);
+            }
 
         }
 
     }
 
     // here in this method i want to add the circle 9task number1 , nur el huda)
-
     private void populateActiveProducts() {
-        if (activeProducts != null && productsList != null &&
-                activeProducts.length() > 0 && productsList.length() > 0) {
 
-            if (gadgetsll != null) {
-                userGadgets.removeView(gadgetsll);
-            }
-
-            HorizontalScrollView horizontalScrollView = new HorizontalScrollView(getApplicationContext());
-            horizontalScrollView.setLayoutParams(new HorizontalScrollView.LayoutParams(
-                    HorizontalScrollView.LayoutParams.MATCH_PARENT,
-                    HorizontalScrollView.LayoutParams.MATCH_PARENT));
-            horizontalScrollView.setScrollContainer(true);
-
-            gadgetsll = new LinearLayout(getApplicationContext());
-            // android:isScrollContainer="true"
-            // gadgetsll.setScrollContainer(true);
-
-            horizontalScrollView.addView(gadgetsll);
-
-            userGadgets.addView(horizontalScrollView);
-
-            // hide no gadgets display as we do have active gadgets
-            // LinearLayout noActiveGadgets =
-            // findViewById(R.id.missing_active_gadgets_container);
-            TextView noActiveGadgets = findViewById(R.id.missing_active_gadgets);
-            noActiveGadgets.setVisibility(GONE);
-            for (int i = 0; i < activeProducts.length(); i++) {
-                try {
-                    // find matching image
-                    JSONObject curProd = activeProducts.getJSONObject(i);
-                    if (curProd.has("gadget")) {
-
-                        String imgUrl = findMatchingProductImage(curProd.getString("gadget"), "_id", productsList,
-                                "image");
-
-                        if (!imgUrl.equals("")) {
-
-                            // LinearLayout pll = new LinearLayout(getApplicationContext());
-
-                            FrameLayout fl = new FrameLayout(getApplicationContext());
-                            // fl.setScrollContainer(true);
-
-                            // add image
-                            ImageView iv = new ImageView(getApplicationContext());
-                            iv.setScaleType(ImageView.ScaleType.CENTER);
-                            // fl.setOrientation(LinearLayout.VERTICAL);
-                            fl.addView(iv);
-
-                            // the part that i added for the task ( nur)
-                            TextView tv = new TextView(getApplicationContext());
-                            tv.setText(curProd.getString("gadget_level"));
-                            tv.setTextSize(10);
-                            tv.setTextColor(Color.WHITE); // white text inside red circle
-
-                            tv.setGravity(Gravity.CENTER);
-                            tv.setBackground(ContextCompat.getDrawable(ctx, R.drawable.circle_badge));
-
-                            // Set fixed size to keep it circular
-                            int sizeInDp = (int) TypedValue.applyDimension(
-                                    TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
-                            tv.setWidth(sizeInDp);
-                            tv.setHeight(sizeInDp);
-
-                            // Position it at the bottom right of the gadget image
-                            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                                    Gravity.BOTTOM | Gravity.END);
-                            params.setMargins(0, 0, 2, 2); // adjust margins as needed
-                            tv.setLayoutParams(params);
-
-                            fl.addView(tv);
-
-                            // add level
-                            // TextView tv = new TextView(getApplicationContext());
-                            // tv.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
-                            //
-                            // tv.setText(curProd.getString("gadget_level"));
-                            // tv.setHeight(10);
-                            // tv.setWidth(10);
-                            // tv.setTextSize(10);
-                            //
-                            // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            // //tv.setBackgroundColor(getColor(R.color.actifitRed));
-                            // tv.setTextColor(getColor(R.color.actifitRed));
-                            // }
-                            // fl.addView(tv);
-
-                            // pll.addView(fl);
-
-                            // add layout to container
-                            // userGadgets.addView(fl);
-                            gadgetsll.addView(fl);
-                            /*
-                             * ImageView iv = new ImageView(ctx);
-                             * //iv.setImage
-                             * 
-                             * //append extra image url on actifit
-                             * //imgUrl = getString(R.string.actifit_gadget_image)+imgUrl;
-                             * 
-                             * userGadgets.addView(iv);
-                             */
-
-                            Handler uiHandler = new Handler(Looper.getMainLooper());
-                            uiHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // Picasso.with(ctx)
-                                    Glide.with(ctx)
-                                            .load(getString(R.string.actifit_gadget_image) + imgUrl)
-                                            .override(Target.SIZE_ORIGINAL)
-                                            .into(iv);
-                                }
-                            });
-                        }
-
-                        // listItems.add(afitMarkets.getJSONObject(i).getString("exchange"));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+        if (userGadgets == null) {
+            userGadgets = findViewById(R.id.user_gadgets);
         }
 
+        // clear previous views to avoid duplication
+        if (userGadgets != null) {
+            userGadgets.removeAllViews();
+        }
+
+        HorizontalScrollView horizontalScrollView = new HorizontalScrollView(MainActivity.this);
+        horizontalScrollView.setScrollContainer(true);
+
+        gadgetsll = new LinearLayout(MainActivity.this);
+        // android:isScrollContainer="true"
+        // gadgetsll.setScrollContainer(true);
+
+        horizontalScrollView.addView(gadgetsll);
+
+        if (userGadgets != null) {
+            userGadgets.addView(horizontalScrollView);
+        }
+
+        // hide no gadgets display as we do have active gadgets
+        View noActiveGadgets = findViewById(R.id.missing_active_gadgets);
+        if (noActiveGadgets != null) {
+            noActiveGadgets.setVisibility(GONE);
+        }
+        for (int i = 0; i < activeProducts.length(); i++) {
+            try {
+                // find matching image
+                JSONObject curProd = activeProducts.getJSONObject(i);
+                if (curProd.has("gadget")) {
+
+                    String imgUrl = findMatchingProductImage(curProd.getString("gadget"), "_id", productsList,
+                            "image");
+
+                    if (!imgUrl.equals("")) {
+
+                        // LinearLayout pll = new LinearLayout(getApplicationContext());
+
+                        // FrameLayout fl = new FrameLayout(getApplicationContext());
+                        FrameLayout fl = new FrameLayout(MainActivity.this);
+                        // fl.setScrollContainer(true);
+
+                        // add image
+                        // ImageView iv = new ImageView(getApplicationContext());
+                        ImageView iv = new ImageView(MainActivity.this);
+                        iv.setScaleType(ImageView.ScaleType.CENTER);
+                        // fl.setOrientation(LinearLayout.VERTICAL);
+                        fl.addView(iv);
+
+                        // the part that i added for the task ( nur)
+                        // TextView tv = new TextView(getApplicationContext());
+                        TextView tv = new TextView(MainActivity.this);
+                        tv.setText(curProd.getString("gadget_level"));
+                        tv.setTextSize(10);
+                        tv.setTextColor(Color.WHITE); // white text inside red circle
+
+                        tv.setGravity(Gravity.CENTER);
+                        tv.setBackground(ContextCompat.getDrawable(ctx, R.drawable.circle_badge));
+
+                        // Set fixed size to keep it circular
+                        int sizeInDp = (int) TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
+                        tv.setWidth(sizeInDp);
+                        tv.setHeight(sizeInDp);
+
+                        // Position it at the bottom right of the gadget image
+                        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                FrameLayout.LayoutParams.WRAP_CONTENT,
+                                FrameLayout.LayoutParams.WRAP_CONTENT,
+                                Gravity.BOTTOM | Gravity.END);
+                        params.setMargins(0, 0, 2, 2); // adjust margins as needed
+                        tv.setLayoutParams(params);
+
+                        fl.addView(tv);
+
+                        // add level
+                        // TextView tv = new TextView(getApplicationContext());
+                        // tv.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
+                        //
+                        // tv.setText(curProd.getString("gadget_level"));
+                        // tv.setHeight(10);
+                        // tv.setWidth(10);
+                        // tv.setTextSize(10);
+                        //
+                        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        // //tv.setBackgroundColor(getColor(R.color.actifitRed));
+                        // tv.setTextColor(getColor(R.color.actifitRed));
+                        // }
+                        // fl.addView(tv);
+
+                        // pll.addView(fl);
+
+                        // add layout to container
+                        // userGadgets.addView(fl);
+                        gadgetsll.addView(fl);
+                        /*
+                         * ImageView iv = new ImageView(ctx);
+                         * //iv.setImage
+                         * 
+                         * //append extra image url on actifit
+                         * //imgUrl = getString(R.string.actifit_gadget_image)+imgUrl;
+                         * 
+                         * userGadgets.addView(iv);
+                         */
+
+                        Handler uiHandler = new Handler(Looper.getMainLooper());
+                        uiHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                // check if activity is still active
+                                if (MainActivity.this.isFinishing() || MainActivity.this.isDestroyed()) {
+                                    return;
+                                }
+                                // Picasso.with(ctx)
+                                Glide.with(MainActivity.this)
+                                        .load(getString(R.string.actifit_gadget_image) + imgUrl)
+                                        .override(Target.SIZE_ORIGINAL)
+                                        .into(iv);
+                            }
+                        });
+                    }
+
+                    // listItems.add(afitMarkets.getJSONObject(i).getString("exchange"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public String findMatchingProductImage(String needle, String matchfield, JSONArray haystack, String returnfield) {
@@ -4871,9 +5064,13 @@ public class MainActivity extends BaseActivity {
 
             Handler uiHandler = new Handler(Looper.getMainLooper());
             uiHandler.post(() -> {
+                // check if activity is still active
+                if (MainActivity.this.isFinishing() || MainActivity.this.isDestroyed()) {
+                    return;
+                }
                 // Picasso.with(ctx)
                 // load user image
-                Glide.with(ctx)
+                Glide.with(MainActivity.this)
                         .load(userImgUrl)
                         .into(userProfilePic);
             });
@@ -5007,6 +5204,7 @@ public class MainActivity extends BaseActivity {
             loginContainer.setVisibility(View.VISIBLE);
         }
         loginLink.setOnClickListener(new OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 // validate input values
@@ -5078,11 +5276,6 @@ public class MainActivity extends BaseActivity {
                 JSONObject rewards = innerRewards.getJSONObject(chain);
                 if (rewards.has("amount")) {
                     Double value = Double.parseDouble(rewards.getString("amount")) * price;
-                    // String imgUrl = getString(R.string.actifit_image) + chain.toUpperCase()
-                    // +".png";
-                    // return "<li> $"+value.toString()+" ("+rewards.getString("amount") + "
-                    // "+currency+" <img src="+imgUrl + " width='20px' height='20px' style='width:
-                    // 20px; height: 20px;' />)</li>";
                     if (value > 0) {
                         return "<li> $" + formatValue(value) + " (" + rewards.getString("amount") + " in " + currency
                                 + " )</li>";
@@ -5208,17 +5401,33 @@ public class MainActivity extends BaseActivity {
                     chartSwitcher.setVisibility(View.VISIBLE);
                     findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
 
+                    // Ensure history card is visible for sensor mode
+                    View historyCard = findViewById(R.id.history_card_view);
+                    if (historyCard != null) {
+                        historyCard.setVisibility(View.VISIBLE);
+                    }
+
                     if (mServiceIntent == null) {
-                        Log.e(TAG, "mServiceIntent is null. Cannot start default tracking service.");
-                        displayActivityChart(0, false);
-                        return;
+                        mServiceIntent = new Intent(getCtx(), ActivityMonitorService.class);
                     }
 
-                    if (!isMyServiceRunning(mSensorService.getClass())) {
-                        startForegroundService(mServiceIntent);
-                        Log.d(TAG, "Started default tracking service in foreground.");
+                    if (!isMyServiceRunning(ActivityMonitorService.class)) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(mServiceIntent);
+                        } else {
+                            startService(mServiceIntent);
+                        }
+                        Log.d(TAG, "Started tracking service in foreground.");
                     }
 
+                }
+
+                // send refresh broadcast to update notification immediately in all modes
+                triggerNotificationRefresh();
+
+                if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
+                    // Already handled above
+                } else {
                     if (mStepsDBHelper != null) {
                         long defaultStepCount = mStepsDBHelper.fetchTodayStepCount();
                         displayActivityChart((int) defaultStepCount, true);
@@ -5398,51 +5607,74 @@ public class MainActivity extends BaseActivity {
         protected void onPostExecute(String[] result) {
             super.onPostExecute(result);
 
+            if (!isMyServiceRunning(ActivityMonitorService.class)) {
+                // initiate the monitoring service
+                if (mSensorService == null) {
+                    mSensorService = new ActivityMonitorService(getCtx());
+                }
+                if (mServiceIntent == null) {
+                    mServiceIntent = new Intent(getCtx(), mSensorService.getClass());
+                }
+                // startService(mServiceIntent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(mServiceIntent);
+                } else {
+                    startService(mServiceIntent);
+                }
+            }
+
+            // send refresh broadcast to update notification immediately
+            triggerNotificationRefresh();
+
             if (result[0].equals(getString(R.string.device_tracking_ntt))) {
 
-                if (!isMyServiceRunning(mSensorService.getClass())) {
-                    // initiate the monitoring service
-                    if (mSensorService == null) {
-                        mSensorService = new ActivityMonitorService(getCtx());
+                // enable aggressive mode if set
+                String aggModeEnabled = result[1];
+                if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
+                    // enable wake lock to ensure tracking functions in the background
+                    PowerManager.WakeLock wl = ActivityMonitorService.getWakeLockInstance();
+                    if (wl == null) {
+                        // initialize power manager and wake locks either way
+                        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                                getString(R.string.actifit_wake_lock_tag));
                     }
-                    if (mServiceIntent == null) {
-                        mServiceIntent = new Intent(getCtx(), mSensorService.getClass());
-                    }
-                    // startService(mServiceIntent);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(mServiceIntent);
-                    } else {
-                        startService(mServiceIntent);
-                    }
-
-                    // enable aggressive mode if set
-                    String aggModeEnabled = result[1];
-                    if (aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt))) {
-                        // enable wake lock to ensure tracking functions in the background
-                        PowerManager.WakeLock wl = ActivityMonitorService.getWakeLockInstance();
-                        if (wl == null) {
-                            // initialize power manager and wake locks either way
-                            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                                    getString(R.string.actifit_wake_lock_tag));
-                        }
-                        if (!wl.isHeld()) {
-                            Log.d(MainActivity.TAG, ">>>>[Actifit]Settings AGG MODE ON");
-                            wl.acquire();
-                        }
+                    if (!wl.isHeld()) {
+                        Log.d(MainActivity.TAG, ">>>>[Actifit]Settings AGG MODE ON");
+                        wl.acquire();
                     }
                 }
-                /*
-                 * thirdPartyTracking.setVisibility(View.GONE);
-                 * dayChartButton.setVisibility(View.GONE);
-                 * fullChartButton.setVisibility(View.VISIBLE);
-                 */
+
+                // Ensure proper UI is visible on resume
+                // hideCharts(); // Hide generic/old state
+                // Re-show sensor UI
+                if (btnPieChart == null)
+                    btnPieChart = findViewById(R.id.step_pie_chart);
+                if (btnPieChart != null && btnPieChart.getParent() != null) {
+                    ((View) btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                }
+                if (chartSwitcher != null)
+                    chartSwitcher.setVisibility(View.VISIBLE);
+
+                View barCharts = findViewById(R.id.bar_chart_container);
+                if (barCharts != null)
+                    barCharts.setVisibility(View.VISIBLE);
+
+                View historyCard = findViewById(R.id.history_card_view);
+                if (historyCard != null) {
+                    historyCard.setVisibility(View.VISIBLE);
+                }
+
             } else {
-                // stepDisplay = findViewById(R.id.step_display);
-                // inform user that fitbit mode is on
-                // stepDisplay.setText(getString(R.string.fitbit_tracking_mode_active));
-                // thirdPartyTracking.setVisibility(View.VISIBLE);
-                // hideCharts();
+                // Fitbit or Health Connect mode - ensure charts are hidden
+                hideCharts();
+                if (result[0].equals(getString(R.string.fitbit_tracking_ntt))) {
+                    if (thirdPartyTracking != null)
+                        thirdPartyTracking.setVisibility(View.VISIBLE);
+                } else if (result[0].equals(getString(R.string.health_connect_tracking_ntt))) {
+                    if (healthConnectTracking != null)
+                        healthConnectTracking.setVisibility(View.VISIBLE);
+                }
             }
 
             // update language in case it was adjusted
@@ -5551,17 +5783,22 @@ public class MainActivity extends BaseActivity {
             // medium
             dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem",
                     getString(R.string.device_tracking_ntt));
-            if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
-
-                if (!isMyServiceRunning(mSensorService.getClass())) {
-                    // startService(mServiceIntent);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(mServiceIntent);
-                    } else {
-                        startService(mServiceIntent);
-                    }
+            if (!isMyServiceRunning(ActivityMonitorService.class)) {
+                if (mServiceIntent == null) {
+                    mServiceIntent = new Intent(getCtx(), ActivityMonitorService.class);
                 }
+                // startService(mServiceIntent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(mServiceIntent);
+                } else {
+                    startService(mServiceIntent);
+                }
+            }
 
+            // send refresh broadcast
+            triggerNotificationRefresh();
+
+            if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
                 stepCount = mStepsDBHelper.fetchTodayStepCount();
             }
             Log.d(TAG, "[Actifit] PrepareGround end");
@@ -5599,6 +5836,11 @@ public class MainActivity extends BaseActivity {
                 ((View) btnPieChart.getParent()).setVisibility(View.VISIBLE);
                 chartSwitcher.setVisibility(View.VISIBLE);
                 findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                // Ensure history card is visible for sensor mode
+                View historyCard = findViewById(R.id.history_card_view);
+                if (historyCard != null) {
+                    historyCard.setVisibility(View.VISIBLE);
+                }
                 displayActivityChart(stepCount, true);
             } else if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
                 hideCharts();
@@ -5613,12 +5855,20 @@ public class MainActivity extends BaseActivity {
                 // Default fallback
                 hideCharts();
                 ((View) btnPieChart.getParent()).setVisibility(View.VISIBLE);
+
+                // Ensure history card is visible for sensor mode
+                View historyCard = findViewById(R.id.history_card_view);
+                if (historyCard != null) {
+                    historyCard.setVisibility(View.VISIBLE);
+                }
+
                 displayActivityChart(stepCount, true);
             }
 
             Log.d(TAG, "[Actifit] onPostExecute");
 
         }
+
     }
 
     private void loadNotifCount(RequestQueue queue) {
@@ -5661,6 +5911,12 @@ public class MainActivity extends BaseActivity {
         chartSwitcher.setVisibility(View.INVISIBLE);
         LinearLayout barCharts = findViewById(R.id.bar_chart_container);
         barCharts.setVisibility(View.INVISIBLE);
+
+        // Hide the card container
+        View historyCard = findViewById(R.id.history_card_view);
+        if (historyCard != null) {
+            historyCard.setVisibility(GONE);
+        }
     }
 
     /*

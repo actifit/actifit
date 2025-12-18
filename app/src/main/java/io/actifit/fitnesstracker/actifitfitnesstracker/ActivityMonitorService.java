@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -55,6 +57,17 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     private final int tenkValMilestone = 10000;
 
     private Context ctx;
+
+    public static final String ACTION_REFRESH_NOTIFICATION = "io.actifit.fitnesstracker.actifitfitnesstracker.REFRESH_NOTIFICATION";
+
+    private final BroadcastReceiver refreshReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ACTION_REFRESH_NOTIFICATION.equals(intent.getAction())) {
+                refreshNotification();
+            }
+        }
+    };
 
     public static PowerManager getPowerManagerInstance() {
         return pm;
@@ -108,6 +121,14 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     @Override
     public void onCreate() {
+        if (ctx == null)
+            ctx = getApplicationContext();
+        initializeSharedPrefs();
+
+        // register refresh receiver
+        LocalBroadcastManager.getInstance(this).registerReceiver(refreshReceiver,
+                new IntentFilter(ACTION_REFRESH_NOTIFICATION));
+
         CreateAsyncTask createAsyncTask = new CreateAsyncTask();
         createAsyncTask.execute();
 
@@ -217,29 +238,21 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
         // adjust step count display and print to notification activity
         // making sure we have an instance of mBuilder
-        if (mBuilder != null) {
+        buildNotification(curStepCount);
 
-            // Use Custom View
-            android.widget.RemoteViews customView = getCustomNotificationViews(curStepCount);
-            mBuilder.setCustomContentView(customView);
-            mBuilder.setCustomBigContentView(customView);
-            // Fallback for older Android versions or standard view if needed
-            mBuilder.setContentText(getString(R.string.activity_today_string) + " " + curStepCount);
-
-            if (ActivityCompat.checkSelfPermission(this,
-                    android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                // ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                // public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                // int[] grantResults)
-                // to handle the case where the user grants the permission. See the
-                // documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            notificationManager.notify(notificationID, mBuilder.build());
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            // ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            // public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            // int[] grantResults)
+            // to handle the case where the user grants the permission. See the
+            // documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
+        notificationManager.notify(notificationID, mBuilder.build());
 
         // also update main activity
         Intent in = new Intent();
@@ -332,39 +345,54 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     }
 
+    private void buildNotification(int stepCount) {
+        if (ctx == null)
+            ctx = getApplicationContext();
+        if (sharedPreferences == null)
+            initializeSharedPrefs();
+
+        Intent notificationIntent = new Intent(ctx, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent,
+                PendingIntent.FLAG_IMMUTABLE);
+
+        android.widget.RemoteViews customView = getCustomNotificationViews(stepCount < 0 ? 0 : stepCount);
+
+        mBuilder = new NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
+                .setContentTitle(getString(R.string.actifit_notif_title))
+                .setContentText(getString(R.string.activity_today_string) + " "
+                        + (stepCount < 0 ? 0 : stepCount))
+                .setSmallIcon(R.drawable.actifit_logo)
+                .setCustomContentView(customView)
+                .setCustomBigContentView(customView)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOnlyAlertOnce(true);
+
+        notificationManager = NotificationManagerCompat.from(ctx);
+    }
+
+    public void refreshNotification() {
+        InitializeAsyncTask initNotif = new InitializeAsyncTask();
+        initNotif.execute();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
+        if (ctx == null)
+            ctx = getApplicationContext();
+        initializeSharedPrefs();
+        createNotificationChannel(getString(R.string.actifit_channel_ID));
+
+        // Start foreground immediately with 0 or last known steps to avoid lag
+        buildNotification(0);
+        startForeground(notificationID, mBuilder.build());
+
+        // Then update it with actual today's count asynchronously
         InitializeAsyncTask initNotif = new InitializeAsyncTask();
         initNotif.execute();
 
-        /*
-         * Intent notificationIntent = new Intent(ctx, MainActivity.class);
-         * 
-         * PendingIntent pendingIntent;
-         * //if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-         * pendingIntent =
-         * PendingIntent.getActivity(ctx, 0, notificationIntent,
-         * PendingIntent.FLAG_IMMUTABLE);
-         * 
-         * 
-         * 
-         * int curActivityCount = mStepsDBHelper.fetchTodayStepCount();
-         * mBuilder = new
-         * NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
-         * .setContentTitle(getString(R.string.actifit_notif_title))
-         * .setContentText(getString(R.string.activity_today_string)+" "+(Math.max(
-         * curActivityCount, 0)))
-         * .setSmallIcon(R.drawable.actifit_logo)
-         * .setContentIntent(pendingIntent)
-         * .setPriority(NotificationCompat.PRIORITY_LOW)
-         * .setOnlyAlertOnce(true);
-         * 
-         * notificationManager = NotificationManagerCompat.from(ctx);
-         * 
-         * startForeground(notificationID,mBuilder.build());
-         */
         return START_STICKY;
     }
 
@@ -372,6 +400,10 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     public void onDestroy() {
         super.onDestroy();
         Log.d(MainActivity.TAG, ">>>>[Actifit]ondestroy service!");
+
+        // unregister refresh receiver
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(refreshReceiver);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(Service.STOP_FOREGROUND_REMOVE);
         }
@@ -465,36 +497,15 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         protected void onPostExecute(Integer curActivityCount) {
             super.onPostExecute(curActivityCount);
 
-            // create the service that will display as a notification on screen lock
-            Intent notificationIntent = new Intent(ctx, MainActivity.class);
+            buildNotification(curActivityCount);
 
-            PendingIntent pendingIntent;
-            // if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-            pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+            if (ActivityCompat.checkSelfPermission(ctx,
+                    android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                notificationManager.notify(notificationID, mBuilder.build());
+            }
 
-            /*
-             * }else {
-             * pendingIntent =
-             * PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
-             * }
-             */
-
-            android.widget.RemoteViews customView = getCustomNotificationViews(
-                    curActivityCount < 0 ? 0 : curActivityCount);
-
-            mBuilder = new NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
-                    .setContentTitle(getString(R.string.actifit_notif_title))
-                    .setContentText(getString(R.string.activity_today_string) + " "
-                            + (curActivityCount < 0 ? 0 : curActivityCount))
-                    .setSmallIcon(R.drawable.actifit_logo)
-                    .setCustomContentView(customView)
-                    .setCustomBigContentView(customView)
-                    .setContentIntent(pendingIntent)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .setOnlyAlertOnce(true);
-
-            notificationManager = NotificationManagerCompat.from(ctx);
-
+            // Also call startForeground to ensure the service stays in foreground
+            // (though it was already called in onStartCommand)
             startForeground(notificationID, mBuilder.build());
         }
     }
