@@ -972,7 +972,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_gravity="center"
-                            android:src="@mipmap/health_connect_logo"
+                            android:src="@drawable/health_connect_button"
                             android:scaleType="fitCenter"
                             android:contentDescription="Health Connect Status" />
                     </FrameLayout>

@@ -940,7 +940,7 @@ public class MainActivity extends BaseActivity {
     // --- Consolidated Health Connect Status and Permission Checker ---
     private void checkHealthConnectStatusAndPermissions() {
 
-        MaterialButton hcs = findViewById(R.id.health_connect_status);
+        FrameLayout hcs = findViewById(R.id.health_connect_status);
 
         // Prevent multiple checks from running concurrently
         if (healthConnectCheckRunning.getAndSet(true)) {
@@ -1110,7 +1110,7 @@ public class MainActivity extends BaseActivity {
         lifecycleCoroutineScope = LifecycleOwnerKt.getLifecycleScope(
                 MainActivity.this); // Get the lifecycle-aware coroutine scope
 
-        MaterialButton hcs = findViewById(R.id.health_connect_status);
+        FrameLayout hcs = findViewById(R.id.health_connect_status);
         hcs.setVisibility(GONE);
         hcs.setOnClickListener(v -> checkHealthConnectStatusAndPermissions());
 
