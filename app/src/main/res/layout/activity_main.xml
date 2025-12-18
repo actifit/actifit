@@ -955,19 +955,27 @@
                         android:fontFamily="@font/font_awesome_6_solid"
                          tools:ignore="HardcodedText" />
                     
-                    <ImageButton
+                    <FrameLayout
                         android:id="@+id/health_connect_status"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:alpha="0.8"
-                        android:contentDescription="Health Connect Status"
-                        android:src="@mipmap/health_connect_logo"
-                        app:tint="@color/actifitRed"
-                        android:tintMode="multiply"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:scaleType="fitCenter"
-                        android:padding="8dp"/>
+                        android:background="@drawable/button_background"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:padding="8dp"
+                        android:elevation="2dp">
+                        
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@mipmap/health_connect_logo"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="Health Connect Status" />
+                    </FrameLayout>
 
                 </LinearLayout>
              </com.google.android.material.card.MaterialCardView>
