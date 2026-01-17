@@ -13,12 +13,10 @@ import android.util.Log;
 
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -193,7 +191,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     @SuppressLint("Range")
     public ArrayList<DateStepsModel> readStepsEntries()
     {
-        ArrayList<DateStepsModel> mStepCountList = new ArrayList<DateStepsModel>();
+        ArrayList<DateStepsModel> mStepCountList = new ArrayList<>();
         //build up the query to grab all data
         String selectQuery = "SELECT * FROM " + TABLE_STEPS_SUMMARY;
         try {
@@ -233,7 +231,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     public ArrayList<ActivitySlot> fetchDateTimeSlotActivity(String targetDateString)
     {
         //array containing all matching activity slots
-        ArrayList<ActivitySlot> activitySlots = new ArrayList<ActivitySlot>();
+        ArrayList<ActivitySlot> activitySlots = new ArrayList<>();
 
         //generate format for target date
         /*SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
@@ -248,7 +246,6 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
             //SQLiteDatabase db = this.getReadableDatabase();
             Cursor c = dbInstance.rawQuery(selectQuery, null);
-            int i = 0;
             if (c.moveToFirst()) {
                 do {
                     //grab the value returned matching target date
@@ -332,7 +329,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         int currentDateStepCounts = -1;
 
         String selectQuery = "SELECT " + STEPS_COUNT + " FROM "
-                + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE +" = "+ dateString + "";
+                + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE +" = "+ dateString;
         try {
 
             //SQLiteDatabase db = this.getReadableDatabase();
