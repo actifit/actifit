@@ -53,8 +53,7 @@
 
     <application
     android:allowBackup="true"
-    android:extractNativeLibs="true"
-    android:icon="@mipmap/actifit_launcher"
+        android:icon="@mipmap/actifit_launcher"
     android:label="@string/app_name"
     android:logo="@mipmap/actifit_launcher"
     android:roundIcon="@mipmap/actifit_launcher_round"
