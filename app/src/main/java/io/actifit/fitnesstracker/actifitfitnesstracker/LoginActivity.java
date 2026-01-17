@@ -407,4 +407,12 @@ public class LoginActivity extends BaseActivity {
         accessToken = "";
         queryAPI(userEntry.getText().toString().toLowerCase().trim(), keyEntry.getText().toString(), false);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (progress != null && progress.isShowing()) {
+            progress.dismiss();
+        }
+    }
 }

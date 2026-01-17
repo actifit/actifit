@@ -390,7 +390,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * function checks if the sensor service is running or not
-     * 
+     *
      * @param serviceClass
      * @return
      */
@@ -420,7 +420,7 @@ public class MainActivity extends BaseActivity {
                 imageFileName, /* prefix */
                 ".jpg", /* suffix */
                 getApplicationContext().getFilesDir()
-        // storageDir /* directory */
+                // storageDir /* directory */
         );
 
         // Save a file: path for use with ACTION_VIEW intents
@@ -437,7 +437,7 @@ public class MainActivity extends BaseActivity {
                 || Build.MODEL.contains("Android SDK built for x86")
                 || Build.MANUFACTURER.contains("Genymotion")
                 || (Build.BRAND.startsWith("generic")
-                        && Build.DEVICE.startsWith("generic"))
+                && Build.DEVICE.startsWith("generic"))
                 || "google_sdk".equals(Build.PRODUCT)
                 || Build.HARDWARE.contains("goldfish")
                 || Build.HARDWARE.contains("ranchu")
@@ -492,9 +492,9 @@ public class MainActivity extends BaseActivity {
 
                 /*
                  * View view = toast.getView();
-                 * 
+                 *
                  * TextView text = view.findViewById(android.R.id.message);
-                 * 
+                 *
                  * try {
                  * //Gets the actual oval background of the Toast then sets the colour filter
                  * view.getBackground().setColorFilter(getResources().getColor(R.color.
@@ -502,7 +502,7 @@ public class MainActivity extends BaseActivity {
                  * }catch(Exception e){
                  * e.printStackTrace();
                  * }
-                 * 
+                 *
                  * text.setTextColor(Color.WHITE);
                  */
 
@@ -512,12 +512,12 @@ public class MainActivity extends BaseActivity {
                  * System.exit(0);
                  * //kill gracefully after waiting for toast
                  * new Handler().postDelayed(new Runnable() {
-                 * 
+                 *
                  * @Override
                  * public void run() {
-                 * 
-                 * 
-                 * 
+                 *
+                 *
+                 *
                  * }
                  * }, 3000);
                  */
@@ -550,7 +550,7 @@ public class MainActivity extends BaseActivity {
      * //throw new NullPointerException();
      * //killActifit(getString(R.string.no_valid_sim));
      * Crashlytics.getInstance().crash();
-     * 
+     *
      * //new syntax:
      * FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
      * crashlytics.someAction();
@@ -609,62 +609,62 @@ public class MainActivity extends BaseActivity {
 
         JsonArrayRequest req = new JsonArrayRequest(Request.Method.GET,
                 newsArticlesUrl, null, listArray -> {
-                    Survey_Entry_Class activSurvey = null;
-                    try {
-                        if (listArray != null && listArray.length() > 0) {
-                            // grab first
-                            Survey_Entry_Class surv = new Survey_Entry_Class(listArray.getJSONObject(0));
-                            if (surv.isIs_survey_active()) {
-                                activSurvey = surv;
-                            }
-                        }
-                    } catch (Exception ex) {
-                        // Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
-                        Log.e(TAG, "ERROR");
-                        ex.printStackTrace();
+            Survey_Entry_Class activSurvey = null;
+            try {
+                if (listArray != null && listArray.length() > 0) {
+                    // grab first
+                    Survey_Entry_Class surv = new Survey_Entry_Class(listArray.getJSONObject(0));
+                    if (surv.isIs_survey_active()) {
+                        activSurvey = surv;
                     }
+                }
+            } catch (Exception ex) {
+                // Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
+                Log.e(TAG, "ERROR");
+                ex.printStackTrace();
+            }
 
-                    if (activSurvey != null) {
+            if (activSurvey != null) {
 
-                        // check if user voted on survey already, if not show it
-                        Survey_Entry_Class finalActivSurvey = activSurvey;
-                        String voteStatusUrl = Utils.apiUrl(this)
-                                + getString(R.string.user_voted_survey).replace("_USER_", MainActivity.username)
-                                        .replace("_ID_", activSurvey.getId());
-                        JsonObjectRequest voteReq = new JsonObjectRequest(Request.Method.GET, voteStatusUrl, null,
-                                new Response.Listener<JSONObject>() {
-                                    @Override
-                                    public void onResponse(JSONObject response) {
-                                        try {
-                                            if (response.has("voted") && !response.getBoolean("voted")) {
+                // check if user voted on survey already, if not show it
+                Survey_Entry_Class finalActivSurvey = activSurvey;
+                String voteStatusUrl = Utils.apiUrl(this)
+                        + getString(R.string.user_voted_survey).replace("_USER_", MainActivity.username)
+                        .replace("_ID_", activSurvey.getId());
+                JsonObjectRequest voteReq = new JsonObjectRequest(Request.Method.GET, voteStatusUrl, null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    if (response.has("voted") && !response.getBoolean("voted")) {
 
-                                                // show mainAnnounce if there exists one
-                                                SurveyFragment survDialog = new SurveyFragment(ctx, finalActivSurvey,
-                                                        LoginActivity.accessToken);
-                                                survDialog.show(getSupportFragmentManager(), "survey_announce");
-                                            }
-                                        } catch (Exception e) {
-                                            // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                                            Log.e(TAG, "ERROR");
-                                            e.printStackTrace();
-                                        }
+                                        // show mainAnnounce if there exists one
+                                        SurveyFragment survDialog = new SurveyFragment(ctx, finalActivSurvey,
+                                                LoginActivity.accessToken);
+                                        survDialog.show(getSupportFragmentManager(), "survey_announce");
                                     }
-                                }, error -> {
-                                    // hide dialog
-                                    // error.printStackTrace();
-                                    Log.e(MainActivity.TAG, "error fetching vote status");
-                                    error.printStackTrace();
-                                });
-
-                        // Add balance request to be processed
-                        queue.add(voteReq);
-
-                    }
-
-                }, error -> {
-                    Log.e(MainActivity.TAG, "ERROR");
+                                } catch (Exception e) {
+                                    // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                                    Log.e(TAG, "ERROR");
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, error -> {
+                    // hide dialog
+                    // error.printStackTrace();
+                    Log.e(MainActivity.TAG, "error fetching vote status");
                     error.printStackTrace();
                 });
+
+                // Add balance request to be processed
+                queue.add(voteReq);
+
+            }
+
+        }, error -> {
+            Log.e(MainActivity.TAG, "ERROR");
+            error.printStackTrace();
+        });
 
         queue.add(req);
     }
@@ -686,64 +686,64 @@ public class MainActivity extends BaseActivity {
 
         JsonArrayRequest newsArticlesReq = new JsonArrayRequest(Request.Method.GET,
                 newsArticlesUrl, null, listArray -> {
-                    // hide dialog
-                    // progress.hide();
-                    Slider_Items_Model_Class mainAnnounce = null;
-                    // Handle the result
-                    try {
-                        if (listArray != null && listArray.length() > 0) {
-                            for (int i = 0; i < listArray.length(); i++) {
-                                Slider_Items_Model_Class entry = new Slider_Items_Model_Class(
-                                        listArray.getJSONObject(i));
-                                listItems.add(entry);
-                                if (entry.isMain_announce()) {
-                                    mainAnnounce = entry;
-                                }
-                            }
-
-                            Slider_items_Pager_Adapter itemsPager_adapter = new Slider_items_Pager_Adapter(
-                                    this, listItems, MainActivity.this);
-                            newsPage.setAdapter(itemsPager_adapter);
-
-                            newsTabLayout.setupWithViewPager(newsPage, true);
-
-                            // The_slide_timer
-                            java.util.Timer timer = new java.util.Timer();
-                            timer.scheduleAtFixedRate(new Slide_timer(), 2000, 3000);
-                            newsTabLayout.setupWithViewPager(newsPage, true);
-
-                            // show popup with mainAnnounce, with pseudo-ranom display every 5 times
-                            SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
-                            int announceViews = (sharedPreferences.getInt(getString(R.string.main_announce_view), 0));
-                            announceViews += 1;
-                            if (announceViews > 4)
-                                announceViews = 1;
-
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putInt(getString(R.string.main_announce_view), announceViews);
-                            editor.apply();
-
-                            if (mainAnnounce != null && announceViews <= 1) {
-                                // show mainAnnounce if there exists one
-                                MainAnnounceFragment mainAnnounceDialog = new MainAnnounceFragment(ctx, mainAnnounce);
-                                mainAnnounceDialog.show(getSupportFragmentManager(), "main_announce");
-                            }
+            // hide dialog
+            // progress.hide();
+            Slider_Items_Model_Class mainAnnounce = null;
+            // Handle the result
+            try {
+                if (listArray != null && listArray.length() > 0) {
+                    for (int i = 0; i < listArray.length(); i++) {
+                        Slider_Items_Model_Class entry = new Slider_Items_Model_Class(
+                                listArray.getJSONObject(i));
+                        listItems.add(entry);
+                        if (entry.isMain_announce()) {
+                            mainAnnounce = entry;
                         }
-                    } catch (Exception e) {
-                        // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                        Log.e(TAG, "ERROR");
-                        e.printStackTrace();
                     }
 
-                }, error -> {
-                    error.printStackTrace();
-                });
+                    Slider_items_Pager_Adapter itemsPager_adapter = new Slider_items_Pager_Adapter(
+                            this, listItems, MainActivity.this);
+                    newsPage.setAdapter(itemsPager_adapter);
+
+                    newsTabLayout.setupWithViewPager(newsPage, true);
+
+                    // The_slide_timer
+                    java.util.Timer timer = new java.util.Timer();
+                    timer.scheduleAtFixedRate(new Slide_timer(), 2000, 3000);
+                    newsTabLayout.setupWithViewPager(newsPage, true);
+
+                    // show popup with mainAnnounce, with pseudo-ranom display every 5 times
+                    SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                    int announceViews = (sharedPreferences.getInt(getString(R.string.main_announce_view), 0));
+                    announceViews += 1;
+                    if (announceViews > 4)
+                        announceViews = 1;
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt(getString(R.string.main_announce_view), announceViews);
+                    editor.apply();
+
+                    if (mainAnnounce != null && announceViews <= 1) {
+                        // show mainAnnounce if there exists one
+                        MainAnnounceFragment mainAnnounceDialog = new MainAnnounceFragment(ctx, mainAnnounce);
+                        mainAnnounceDialog.show(getSupportFragmentManager(), "main_announce");
+                    }
+                }
+            } catch (Exception e) {
+                // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, "ERROR");
+                e.printStackTrace();
+            }
+
+        }, error -> {
+            error.printStackTrace();
+        });
 
         queue.add(newsArticlesReq);
 
         // test data for slider
         /*
-         * 
+         *
          * //listItems.add(new
          * Slider_Items_Model_Class(R.drawable.default_pic,"Slider 1 Title"));
          * //listItems.add(new
@@ -1130,7 +1130,7 @@ public class MainActivity extends BaseActivity {
         if (sharedPrefs.contains(PREF_KEY_DARK_MODE)) {
             // If the preference exists, use the saved boolean state
             boolean isDarkModeEnabled = sharedPrefs.getBoolean(PREF_KEY_DARK_MODE, false); // Default false doesn't
-                                                                                           // matter here
+            // matter here
             initialNightMode = isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
         } else {
             // If the preference does NOT exist, default to following the system
@@ -1298,7 +1298,7 @@ public class MainActivity extends BaseActivity {
 
         int fitbitStepCount = 0;
         if (!sharedPreferences.getString("dataTrackingSystem",
-                ctx.getString(R.string.device_tracking_ntt))
+                        ctx.getString(R.string.device_tracking_ntt))
                 .equals(ctx.getString(R.string.device_tracking_ntt))) {
             if (mStepsDBHelper == null) {
                 mStepsDBHelper = new StepsDBHelper(ctx);
@@ -1327,8 +1327,8 @@ public class MainActivity extends BaseActivity {
         });
 
         Button launchWorkoutWizardButton = findViewById(R.id.launch_workout_wizard_button); // Assuming you have this
-                                                                                            // button in MainActivity
-                                                                                            // layout
+        // button in MainActivity
+        // layout
         launchWorkoutWizardButton.setOnClickListener(v -> {
             Intent intent = new Intent(ctx, WorkoutWizardActivity.class);
             startActivity(intent);
@@ -1445,7 +1445,7 @@ public class MainActivity extends BaseActivity {
              * fullChart.animate()
              * .translationXBy(fullChart.getWidth())
              * .alpha(0.0f);
-             * 
+             *
              * dayChart.animate()
              * .translationXBy(dayChart.getWidth())
              * .alpha(1.0f)
@@ -1469,7 +1469,7 @@ public class MainActivity extends BaseActivity {
              * dayChart.animate()
              * .translationX(dayChart.getWidth() * -1)
              * .alpha(0.0f);
-             * 
+             *
              * fullChart.animate()
              * .translationXBy(fullChart.getWidth() * -1)
              * .alpha(1.0f)
@@ -1579,7 +1579,7 @@ public class MainActivity extends BaseActivity {
              * pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.
              * dialog_shape));
              * pointer.show();
-             * 
+             *
              */
 
         });
@@ -1620,7 +1620,7 @@ public class MainActivity extends BaseActivity {
              * earningsDialog.getWindow().getDecorView().setBackground(getDrawable(R.
              * drawable.dialog_shape));
              * earningsDialog.show();
-             * 
+             *
              */
 
         });
@@ -1700,47 +1700,47 @@ public class MainActivity extends BaseActivity {
             textViewCurrentSteps = rewardsLayout.findViewById(R.id.textViewCurrentSteps);
             /*
              * moveTotweets = rewardsLayout.findViewById(R.id.displayTweets);
-             * 
+             *
              * moveTotweets.setOnClickListener(v -> {
              * AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
              * LayoutInflater inflater = getLayoutInflater();
              * View dialogLayout = inflater.inflate(R.layout.activity_tweet_actions, null);
              * builder.setView(dialogLayout);
-             * 
+             *
              * // Optionally, set up the ImageView if you want to manipulate it
              * programmatically
              * // You can set an image programmatically if needed
              * // imageView.setImageResource(R.drawable.your_image);
-             * 
+             *
              * ImageView like = dialogLayout.findViewById(R.id.like);
              * like.setOnClickListener(v1 -> {
              * String url = "https://x.com/intent/like?tweet_id=1797370316022272474";
              * Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
              * startActivity(intent);
              * });
-             * 
+             *
              * ImageView retweet = dialogLayout.findViewById(R.id.retweet);
              * retweet.setOnClickListener(v12 -> {
              * String url = "https://x.com/intent/retweet?tweet_id=1797370316022272474";
              * Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
              * startActivity(intent);
              * });
-             * 
+             *
              * ImageView follow = dialogLayout.findViewById(R.id.follow);
              * follow.setOnClickListener(v13 -> {
              * String url = "https://x.com/intent/follow?screen_name=Actifit_fitness";
              * Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
              * startActivity(intent);
              * });
-             * 
+             *
              * ImageView reply = dialogLayout.findViewById(R.id.reply);
              * reply.setOnClickListener(v14 -> {
              * String url = "https://x.com/intent/tweet?in_reply_to=1797370316022272474";
              * Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
              * startActivity(intent);
              * });
-             * 
-             * 
+             *
+             *
              * builder.setPositiveButton("Close", null);
              * AlertDialog dialog = builder.create();
              * dialog.show();
@@ -1811,7 +1811,7 @@ public class MainActivity extends BaseActivity {
              * fivekRewardClaimed = false;
              * sevenkRewardClaimed = false;
              * tenkRewardClaimed = false;
-             * 
+             *
              */
 
             /*
@@ -1845,7 +1845,7 @@ public class MainActivity extends BaseActivity {
                     dailyRewardClaimed,
                     0, // Steps needed for Free reward
                     sharedPreferences.getString("freerewardedValue", ""), // Replace with how you get the claimed value
-                                                                          // for Free
+                    // for Free
                     scaler, // Animation object
                     checkMark,
                     curStepCount);
@@ -1890,7 +1890,7 @@ public class MainActivity extends BaseActivity {
              * "5krewardedValue","")+" AFIT "+checkMark);
              * fivekRewardButton.setText(text);
              * }
-             * 
+             *
              * if (!sevenkRewardClaimed && curStepCount >= 7000){
              * sevenkRewardButton.setAnimation(scaler);
              * }else if (sevenkRewardClaimed){
@@ -1899,7 +1899,7 @@ public class MainActivity extends BaseActivity {
              * "7krewardedValue","")+" AFIT "+checkMark);
              * sevenkRewardButton.setText(text);
              * }
-             * 
+             *
              * if (!tenkRewardClaimed && curStepCount >= 10000){
              * tenkRewardButton.setAnimation(scaler);
              * }else if (tenkRewardClaimed){
@@ -1924,7 +1924,7 @@ public class MainActivity extends BaseActivity {
              * dialog_shape));
              * //pointer.getWindow().getDecorView().setBackgroundResource(android.R.color.
              * transparent);
-             * 
+             *
              * pointer.show();
              */
         });
@@ -2041,17 +2041,17 @@ public class MainActivity extends BaseActivity {
         // handle taking photos
         /*
          * BtnSnapActiPic.setOnClickListener(view -> {
-         * 
+         *
          * //make sure we have a cam on device
          * PackageManager pm = ctx.getPackageManager();
-         * 
+         *
          * //if no cam, notify and leave
          * if (!pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
          * Toast.makeText(getApplicationContext(),getString(R.string.device_has_no_cam),
          * Toast.LENGTH_SHORT).show();
          * return;
          * }
-         * 
+         *
          * //ensure we have proper permissions for image upload
          * if (shouldAskPermissions()) {
          * String[] permissions = {
@@ -2060,7 +2060,7 @@ public class MainActivity extends BaseActivity {
          * };
          * askPermissions(permissions);
          * }
-         * 
+         *
          * Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
          * // Ensure that there's a camera activity to handle the intent
          * if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -2118,28 +2118,28 @@ public class MainActivity extends BaseActivity {
 
         JsonArrayRequest afitMarketsReq = new JsonArrayRequest(Request.Method.GET,
                 afitMarketsUrl, null, listArray -> {
-                    // hide dialog
-                    // progress.hide();
+            // hide dialog
+            // progress.hide();
 
-                    // Handle the result
-                    try {
-                        afitMarkets = listArray;
-                        // actifitTransactions.setText("Response is: "+ response);
-                    } catch (Exception e) {
-                        // hide dialog
-                        // progress.hide();
-                        // actifitTransactionsError.setVisibility(View.VISIBLE);
-                        // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                        Log.e(TAG, "ERROR");
-                        e.printStackTrace();
-                    }
+            // Handle the result
+            try {
+                afitMarkets = listArray;
+                // actifitTransactions.setText("Response is: "+ response);
+            } catch (Exception e) {
+                // hide dialog
+                // progress.hide();
+                // actifitTransactionsError.setVisibility(View.VISIBLE);
+                // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, "ERROR");
+                e.printStackTrace();
+            }
 
-                }, error -> {
-                    // hide dialog
-                    // progress.hide();
-                    // actifitTransactionsView.setText("Unable to fetch balance");
-                    // actifitTransactionsError.setVisibility(View.VISIBLE);
-                });
+        }, error -> {
+            // hide dialog
+            // progress.hide();
+            // actifitTransactionsView.setText("Unable to fetch balance");
+            // actifitTransactionsError.setVisibility(View.VISIBLE);
+        });
 
         queue.add(afitMarketsReq);
 
@@ -2551,11 +2551,11 @@ public class MainActivity extends BaseActivity {
         }
         /*
          * MobileAds.initialize(this, new OnInitializationCompleteListener() {
-         * 
+         *
          * @Override
          * public void onInitializationComplete(InitializationStatus
          * initializationStatus) {
-         * 
+         *
          * }
          * });
          */
@@ -2582,13 +2582,13 @@ public class MainActivity extends BaseActivity {
                             if (getString(R.string.sec_check_signature).equals("off")) {
                                 // specific error notice for debugging
                                 Toast.makeText(
-                                        MainActivity.this, loadAdError.getMessage(), Toast.LENGTH_SHORT)
+                                                MainActivity.this, loadAdError.getMessage(), Toast.LENGTH_SHORT)
                                         .show();
 
                             } else {
                                 // generic error notice
                                 Toast.makeText(
-                                        MainActivity.this, getString(R.string.err_load_ad), Toast.LENGTH_SHORT)
+                                                MainActivity.this, getString(R.string.err_load_ad), Toast.LENGTH_SHORT)
                                         .show();
                             }
                         }
@@ -2609,9 +2609,9 @@ public class MainActivity extends BaseActivity {
     // Helper method to update a single reward's UI state
     // Added 'currentStepCount' parameter at the end
     private void updateRewardButtonAndStatus(Button button, TextView statusTextView,
-            boolean isClaimed, int requiredSteps,
-            String claimedValue, Animation animation,
-            String checkMarkIcon, int currentStepCount) {
+                                             boolean isClaimed, int requiredSteps,
+                                             String claimedValue, Animation animation,
+                                             String checkMarkIcon, int currentStepCount) {
 
         // Always set the default button text at the beginning
         button.setText(getString(R.string.claim_now)); // Define a string like "Claim Reward"
@@ -2642,10 +2642,10 @@ public class MainActivity extends BaseActivity {
             }
 
             statusTextView.setText(HtmlCompat.fromHtml(claimedStatusText, HtmlCompat.FROM_HTML_MODE_COMPACT)); // Set
-                                                                                                               // the
-                                                                                                               // claimed
-                                                                                                               // status
-                                                                                                               // text
+            // the
+            // claimed
+            // status
+            // text
             statusTextView.setVisibility(View.VISIBLE); // Make status visible
 
             // Stop any animation on the button
@@ -2675,7 +2675,7 @@ public class MainActivity extends BaseActivity {
 
                 // Set status to "Steps Not Met"
                 statusTextView.setText("Not Met");// getString(R.string., requiredSteps)); // Define string like "Needs
-                                                  // %d steps"
+                // %d steps"
                 statusTextView.setVisibility(View.VISIBLE);
                 // Optional: Change status text color to indicate not ready
 
@@ -2860,8 +2860,8 @@ public class MainActivity extends BaseActivity {
                     // Handle the reward.
                     Log.d("TAG", "The user earned the reward.");
                     Toast.makeText(MainActivity.this,
-                            getString(R.string.ad_reward_success).replace("_VAL_", finalRewardValue + ""),
-                            Toast.LENGTH_SHORT)
+                                    getString(R.string.ad_reward_success).replace("_VAL_", finalRewardValue + ""),
+                                    Toast.LENGTH_SHORT)
                             .show();
                     // give out the reward
 
@@ -3234,10 +3234,10 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                 }, error -> {
-                    // hide dialog
-                    Log.e(TAG, "ERROR");
-                    error.printStackTrace();
-                });
+            // hide dialog
+            Log.e(TAG, "ERROR");
+            error.printStackTrace();
+        });
 
         queue.add(accountRCRequest);
 
@@ -3373,12 +3373,12 @@ public class MainActivity extends BaseActivity {
                     }
                 }, new Response.ErrorListener() {
 
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // hide dialog
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // hide dialog
 
-                    }
-                });
+            }
+        });
 
         queue.add(userDataRequest);
 
@@ -3545,9 +3545,9 @@ public class MainActivity extends BaseActivity {
             if (stepCount > 2000) { // Use your actual milestone values
                 // animate waves button
                 if (BtnWaves != null && (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted())) { // Check
-                                                                                                                      // BtnWaves
-                                                                                                                      // for
-                                                                                                                      // null
+                    // BtnWaves
+                    // for
+                    // null
                     if (scaler != null)
                         BtnWaves.startAnimation(scaler); // Use startAnimation instead of setAnimation for continuous
                 }
@@ -3880,7 +3880,7 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public String getFormattedValue(float value, Entry entry, int dataSetIndex,
-                            ViewPortHandler viewPortHandler) {
+                                                    ViewPortHandler viewPortHandler) {
                         if (value < 1) {
                             return "";
                         }
@@ -4228,13 +4228,13 @@ public class MainActivity extends BaseActivity {
                         }
                     }, new Response.ErrorListener() {
 
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            // hide dialog
-                            // error.printStackTrace();
-                            Log.e(MainActivity.TAG, "error fetching blurt price");
-                        }
-                    });
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // hide dialog
+                    // error.printStackTrace();
+                    Log.e(MainActivity.TAG, "error fetching blurt price");
+                }
+            });
 
             queue.add(blurtPriceReq);
 
@@ -4247,111 +4247,111 @@ public class MainActivity extends BaseActivity {
             // Request the rank of the user while expecting a JSON response
             JsonObjectRequest pendRewardsRequest = new JsonObjectRequest(Request.Method.GET, userPendingRewardsUrl,
                     null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
+                @Override
+                public void onResponse(JSONObject response) {
 
-                            // Display the result
-                            try {
-                                innerRewards = response.getJSONObject("pendingRewards");
+                    // Display the result
+                    try {
+                        innerRewards = response.getJSONObject("pendingRewards");
 
-                                // display alert dialog about pending rewards
-                                pendingRewardsDialogBuilder = new AlertDialog.Builder(ctx);
-                                String msg = "";
+                        // display alert dialog about pending rewards
+                        pendingRewardsDialogBuilder = new AlertDialog.Builder(ctx);
+                        String msg = "";
 
-                                String hiveRewards = parseRewards(innerRewards, "HIVE", "HBD", 1.0);
-                                String steemRewards = parseRewards(innerRewards, "STEEM", "SBD", 1.0);
-                                String blurtRewards = parseRewards(innerRewards, "BLURT", "BLURT", blurtPrice);
-                                // update the text message as dialog is already showing
+                        String hiveRewards = parseRewards(innerRewards, "HIVE", "HBD", 1.0);
+                        String steemRewards = parseRewards(innerRewards, "STEEM", "SBD", 1.0);
+                        String blurtRewards = parseRewards(innerRewards, "BLURT", "BLURT", blurtPrice);
+                        // update the text message as dialog is already showing
 
-                                msg += !hiveRewards.equals("") ? hiveRewards : "";
-                                msg += !steemRewards.equals("") ? steemRewards : "";
-                                msg += !blurtRewards.equals("") ? blurtRewards : "";
+                        msg += !hiveRewards.equals("") ? hiveRewards : "";
+                        msg += !steemRewards.equals("") ? steemRewards : "";
+                        msg += !blurtRewards.equals("") ? blurtRewards : "";
 
-                                if (!msg.equals("")) {
-                                    // we have some pending rewards, show popup
-                                    msg = getString(R.string.pending_rewards_header) + "\r\n" + msg;
+                        if (!msg.equals("")) {
+                            // we have some pending rewards, show popup
+                            msg = getString(R.string.pending_rewards_header) + "\r\n" + msg;
 
-                                    msg += "\r\n";
-                                    msg += getString(R.string.pending_rewards_note);
+                            msg += "\r\n";
+                            msg += getString(R.string.pending_rewards_note);
 
-                                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            switch (which) {
-                                                case DialogInterface.BUTTON_POSITIVE:
-                                                    // take user to activity list on web
+                            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case DialogInterface.BUTTON_POSITIVE:
+                                            // take user to activity list on web
 
-                                                    // private void openUserRank(SharedPreferences sharedPreferences){
-                                                    username = sharedPreferences.getString("actifitUser", "");
-                                                    if (username != "") {
-                                                        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                                            // private void openUserRank(SharedPreferences sharedPreferences){
+                                            username = sharedPreferences.getString("actifitUser", "");
+                                            if (username != "") {
+                                                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
-                                                        builder.setToolbarColor(
-                                                                getResources().getColor(R.color.actifitRed));
+                                                builder.setToolbarColor(
+                                                        getResources().getColor(R.color.actifitRed));
 
-                                                        // animation for showing and closing fitbit authorization screen
-                                                        builder.setStartAnimations(ctx, R.anim.slide_in_right,
-                                                                R.anim.slide_out_left);
+                                                // animation for showing and closing fitbit authorization screen
+                                                builder.setStartAnimations(ctx, R.anim.slide_in_right,
+                                                        R.anim.slide_out_left);
 
-                                                        // animation for back button clicks
-                                                        builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
-                                                                android.R.anim.slide_out_right);
+                                                // animation for back button clicks
+                                                builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
+                                                        android.R.anim.slide_out_right);
 
-                                                        CustomTabsIntent customTabsIntent = builder.build();
+                                                CustomTabsIntent customTabsIntent = builder.build();
 
-                                                        customTabsIntent.launchUrl(ctx,
-                                                                Uri.parse(MainActivity.ACTIFIT_CORE_URL + "/"
-                                                                        + getString(R.string.activity_url_link) + "/"
-                                                                        + username));
-                                                    }
-                                                    // }
-
-                                                    break;
-
-                                                case DialogInterface.BUTTON_NEUTRAL:
-                                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                                    editor.putBoolean(getString(R.string.donotshowrewards), true);
-                                                    editor.commit();
-
-                                                case DialogInterface.BUTTON_NEGATIVE:
-                                                    // cancel
-                                                    break;
+                                                customTabsIntent.launchUrl(ctx,
+                                                        Uri.parse(MainActivity.ACTIFIT_CORE_URL + "/"
+                                                                + getString(R.string.activity_url_link) + "/"
+                                                                + username));
                                             }
-                                        }
-                                    };
+                                            // }
 
-                                    AlertDialog pointer = pendingRewardsDialogBuilder.setMessage(Html.fromHtml(msg))
-                                            .setTitle(getString(R.string.pending_rewards_title))
-                                            .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                                            .setPositiveButton(getString(R.string.my_activity_button),
-                                                    dialogClickListener)
-                                            .setNegativeButton(getString(R.string.close_button), dialogClickListener)
-                                            .setNeutralButton(getString(R.string.do_not_show_again),
-                                                    dialogClickListener)
-                                            .create();
+                                            break;
 
-                                    pendingRewardsDialogBuilder.show();
-                                    /*
-                                     * pointer.getWindow().getAttributes().windowAnimations =
-                                     * R.style.DialogAnimation;
-                                     * pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.
-                                     * dialog_shape));
-                                     * //if (pointer.getWindow().isActive()) {
-                                     * pointer.show();
-                                     */
+                                        case DialogInterface.BUTTON_NEUTRAL:
+                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                                            editor.putBoolean(getString(R.string.donotshowrewards), true);
+                                            editor.commit();
 
+                                        case DialogInterface.BUTTON_NEGATIVE:
+                                            // cancel
+                                            break;
+                                    }
                                 }
+                            };
 
-                            } catch (Exception ex) {
-                                // Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
-                                Log.e(TAG, "ERROR");
-                            }
+                            AlertDialog pointer = pendingRewardsDialogBuilder.setMessage(Html.fromHtml(msg))
+                                    .setTitle(getString(R.string.pending_rewards_title))
+                                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                                    .setPositiveButton(getString(R.string.my_activity_button),
+                                            dialogClickListener)
+                                    .setNegativeButton(getString(R.string.close_button), dialogClickListener)
+                                    .setNeutralButton(getString(R.string.do_not_show_again),
+                                            dialogClickListener)
+                                    .create();
+
+                            pendingRewardsDialogBuilder.show();
+                            /*
+                             * pointer.getWindow().getAttributes().windowAnimations =
+                             * R.style.DialogAnimation;
+                             * pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.
+                             * dialog_shape));
+                             * //if (pointer.getWindow().isActive()) {
+                             * pointer.show();
+                             */
+
                         }
-                    }, error -> {
-                        // hide dialog
-                        // error.printStackTrace();
-                        Log.e(MainActivity.TAG, "error fetching pending rewards");
-                    });
+
+                    } catch (Exception ex) {
+                        // Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
+                        Log.e(TAG, "ERROR");
+                    }
+                }
+            }, error -> {
+                // hide dialog
+                // error.printStackTrace();
+                Log.e(MainActivity.TAG, "error fetching pending rewards");
+            });
 
             queue.add(pendRewardsRequest);
 
@@ -4380,12 +4380,12 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                 }, error -> {
-                    // hide dialog
-                    // Log.e(TAG, Objects.requireNonNull(error.getMessage()));
-                    Log.e(TAG, "ERROR");
-                    // displayNotification(error_notification, null, callerContext, callerActivity,
-                    // false);
-                }) {
+            // hide dialog
+            // Log.e(TAG, Objects.requireNonNull(error.getMessage()));
+            Log.e(TAG, "ERROR");
+            // displayNotification(error_notification, null, callerContext, callerActivity,
+            // false);
+        }) {
 
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -4422,9 +4422,9 @@ public class MainActivity extends BaseActivity {
                         }
                     }
                 }, e -> {
-                    // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                    Log.e(TAG, "ERROR");
-                });
+            // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(TAG, "ERROR");
+        });
 
         queue.add(claimableSignupsRequest);
 
@@ -4447,9 +4447,9 @@ public class MainActivity extends BaseActivity {
 
                     }
                 }, e -> {
-                    // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                    Log.e(TAG, "ERROR");
-                });
+            // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(TAG, "ERROR");
+        });
 
         queue.add(claimableSignupsRequest);
 
@@ -4462,28 +4462,28 @@ public class MainActivity extends BaseActivity {
         JsonArrayRequest referralDataRequest = new JsonArrayRequest(Request.Method.GET,
                 usersReferralsUrl, null, listArray -> {
 
-                    // Handle the result
-                    try {
-                        userReferrals = listArray;
-                        /*
-                         * if (userReferrals!=null && userReferrals.length() > 0) {
-                         * TextView successfulReferral = findViewById(R.id.success_referrals);
-                         * 
-                         * successfulReferral.setTextColor(ctx.getResources().getColor(R.color.
-                         * actifitDarkGreen));
-                         * successfulReferral.setText(Html.fromHtml(checkMark +userReferrals.length()));
-                         * }
-                         */
-                    } catch (Exception e) {
-                        // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                        Log.e(TAG, "ERROR");
-                    }
+            // Handle the result
+            try {
+                userReferrals = listArray;
+                /*
+                 * if (userReferrals!=null && userReferrals.length() > 0) {
+                 * TextView successfulReferral = findViewById(R.id.success_referrals);
+                 *
+                 * successfulReferral.setTextColor(ctx.getResources().getColor(R.color.
+                 * actifitDarkGreen));
+                 * successfulReferral.setText(Html.fromHtml(checkMark +userReferrals.length()));
+                 * }
+                 */
+            } catch (Exception e) {
+                // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, "ERROR");
+            }
 
-                }, e -> {
+        }, e -> {
 
-                    // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                    Log.e(TAG, "ERROR");
-                });
+            // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+            Log.e(TAG, "ERROR");
+        });
 
         queue.add(referralDataRequest);
     }
@@ -4502,92 +4502,92 @@ public class MainActivity extends BaseActivity {
 
         JsonArrayRequest productsListReq = new JsonArrayRequest(Request.Method.GET,
                 dailyTipUrl, null, listArray -> {
-                    // hide dialog
-                    // progress.hide();
+            // hide dialog
+            // progress.hide();
 
-                    // Handle the result
-                    try {
-                        dailyTip = listArray;
-                        // show tip dialog
+            // Handle the result
+            try {
+                dailyTip = listArray;
+                // show tip dialog
 
-                        // grab random tip
-                        if (dailyTip != null && dailyTip.length() > 0) {
-                            Random rand = new Random();
+                // grab random tip
+                if (dailyTip != null && dailyTip.length() > 0) {
+                    Random rand = new Random();
 
-                            JSONObject tipData = dailyTip.getJSONObject(rand.nextInt(dailyTip.length()));
-                            if (tipData.has("tip")) {
+                    JSONObject tipData = dailyTip.getJSONObject(rand.nextInt(dailyTip.length()));
+                    if (tipData.has("tip")) {
 
-                                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        switch (which) {
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
 
-                                            case DialogInterface.BUTTON_NEUTRAL:
-                                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                                editor.putBoolean(getString(R.string.donotshowtips), true);
-                                                editor.commit();
+                                    case DialogInterface.BUTTON_NEUTRAL:
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putBoolean(getString(R.string.donotshowtips), true);
+                                        editor.commit();
 
-                                        }
-                                    }
-                                };
-
-                                AlertDialog.Builder tipDialogBuilder = new AlertDialog.Builder(ctx);
-                                View tipLayout = getLayoutInflater().inflate(R.layout.daily_tip, null);
-                                TextView tipContent = tipLayout.findViewById(R.id.tip_content);
-                                tipContent.setText(tipData.getString("tip"));
-                                AlertDialog pointer = tipDialogBuilder
-                                        .setView(tipLayout)
-                                        // .setMessage(tipData.getString("tip"))
-                                        .setTitle(getString(R.string.random_tip))
-                                        .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                                        .setNeutralButton(getString(R.string.do_not_show_again), dialogClickListener)
-                                        .setPositiveButton(getString(R.string.close_button), null).create();
-                                Button nextBtn = tipLayout.findViewById(R.id.nextButton);
-                                nextBtn.setOnClickListener(view -> {
-                                    try {
-                                        Random randInner = new Random();
-                                        JSONObject tipInnerData = dailyTip
-                                                .getJSONObject(randInner.nextInt(dailyTip.length()));
-                                        tipContent.setText(tipInnerData.getString("tip"));
-                                    } catch (Exception ex) {
-
-                                    }
-                                });
-
-                                tipLayout.findViewById(R.id.previousButton).setOnClickListener(view -> {
-                                    nextBtn.performClick();
-                                });
-
-                                tipDialogBuilder.show();
-                                /*
-                                 * pointer.getWindow().getAttributes().windowAnimations =
-                                 * R.style.DialogAnimation;
-                                 * pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.
-                                 * dialog_shape));
-                                 * //if (pointer.getWindow().isActive()) {
-                                 * pointer.show();
-                                 * //}
-                                 * 
-                                 */
+                                }
                             }
-                        }
+                        };
 
-                        // actifitTransactions.setText("Response is: "+ response);
-                    } catch (Exception e) {
-                        // hide dialog
-                        // progress.hide();
-                        // actifitTransactionsError.setVisibility(View.VISIBLE);
-                        // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                        Log.e(TAG, "ERROR");
+                        AlertDialog.Builder tipDialogBuilder = new AlertDialog.Builder(ctx);
+                        View tipLayout = getLayoutInflater().inflate(R.layout.daily_tip, null);
+                        TextView tipContent = tipLayout.findViewById(R.id.tip_content);
+                        tipContent.setText(tipData.getString("tip"));
+                        AlertDialog pointer = tipDialogBuilder
+                                .setView(tipLayout)
+                                // .setMessage(tipData.getString("tip"))
+                                .setTitle(getString(R.string.random_tip))
+                                .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                                .setNeutralButton(getString(R.string.do_not_show_again), dialogClickListener)
+                                .setPositiveButton(getString(R.string.close_button), null).create();
+                        Button nextBtn = tipLayout.findViewById(R.id.nextButton);
+                        nextBtn.setOnClickListener(view -> {
+                            try {
+                                Random randInner = new Random();
+                                JSONObject tipInnerData = dailyTip
+                                        .getJSONObject(randInner.nextInt(dailyTip.length()));
+                                tipContent.setText(tipInnerData.getString("tip"));
+                            } catch (Exception ex) {
+
+                            }
+                        });
+
+                        tipLayout.findViewById(R.id.previousButton).setOnClickListener(view -> {
+                            nextBtn.performClick();
+                        });
+
+                        tipDialogBuilder.show();
+                        /*
+                         * pointer.getWindow().getAttributes().windowAnimations =
+                         * R.style.DialogAnimation;
+                         * pointer.getWindow().getDecorView().setBackground(getDrawable(R.drawable.
+                         * dialog_shape));
+                         * //if (pointer.getWindow().isActive()) {
+                         * pointer.show();
+                         * //}
+                         *
+                         */
                     }
+                }
 
-                }, error -> {
-                    Log.e(TAG, "ERROR");
-                    // hide dialog
-                    // progress.hide();
-                    // actifitTransactionsView.setText("Unable to fetch balance");
-                    // actifitTransactionsError.setVisibility(View.VISIBLE);
-                });
+                // actifitTransactions.setText("Response is: "+ response);
+            } catch (Exception e) {
+                // hide dialog
+                // progress.hide();
+                // actifitTransactionsError.setVisibility(View.VISIBLE);
+                // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, "ERROR");
+            }
+
+        }, error -> {
+            Log.e(TAG, "ERROR");
+            // hide dialog
+            // progress.hide();
+            // actifitTransactionsView.setText("Unable to fetch balance");
+            // actifitTransactionsError.setVisibility(View.VISIBLE);
+        });
 
         queue.add(productsListReq);
 
@@ -4608,36 +4608,36 @@ public class MainActivity extends BaseActivity {
             JsonArrayRequest productsListReq = new JsonArrayRequest(Request.Method.GET,
                     productsUrl, null, new Response.Listener<JSONArray>() {
 
-                        @Override
-                        public void onResponse(JSONArray listArray) {
-                            // hide dialog
-                            // progress.hide();
+                @Override
+                public void onResponse(JSONArray listArray) {
+                    // hide dialog
+                    // progress.hide();
 
-                            // Handle the result
-                            try {
-                                productsList = listArray;
+                    // Handle the result
+                    try {
+                        productsList = listArray;
 
-                                // attempt to populate in case this gets executed later
-                                populateActiveProducts();
-                                // actifitTransactions.setText("Response is: "+ response);
-                            } catch (Exception e) {
-                                // hide dialog
-                                // progress.hide();
-                                // actifitTransactionsError.setVisibility(View.VISIBLE);
-                                e.printStackTrace();
-                                Log.e(TAG, "ERROR");
-                            }
+                        // attempt to populate in case this gets executed later
+                        populateActiveProducts();
+                        // actifitTransactions.setText("Response is: "+ response);
+                    } catch (Exception e) {
+                        // hide dialog
+                        // progress.hide();
+                        // actifitTransactionsError.setVisibility(View.VISIBLE);
+                        e.printStackTrace();
+                        Log.e(TAG, "ERROR");
+                    }
 
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            // hide dialog
-                            // progress.hide();
-                            // actifitTransactionsView.setText("Unable to fetch balance");
-                            // actifitTransactionsError.setVisibility(View.VISIBLE);
-                        }
-                    });
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // hide dialog
+                    // progress.hide();
+                    // actifitTransactionsView.setText("Unable to fetch balance");
+                    // actifitTransactionsError.setVisibility(View.VISIBLE);
+                }
+            });
 
             queue.add(productsListReq);
 
@@ -4648,36 +4648,36 @@ public class MainActivity extends BaseActivity {
             // Request the user's active gadgets list
             JsonObjectRequest activeGadgetsRequest = new JsonObjectRequest(Request.Method.GET, activeGadgetsListUrl,
                     null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
+                @Override
+                public void onResponse(JSONObject response) {
 
-                            // Display the result
-                            try {
-                                // grab current user rank
-                                if (response.has("own")) {
-                                    activeProducts = response.getJSONArray("own");
+                    // Display the result
+                    try {
+                        // grab current user rank
+                        if (response.has("own")) {
+                            activeProducts = response.getJSONArray("own");
 
-                                    // display images of active products alongside count
+                            // display images of active products alongside count
 
-                                    // List<String> listItems = new ArrayList<String>();
-                                    populateActiveProducts();
+                            // List<String> listItems = new ArrayList<String>();
+                            populateActiveProducts();
 
-                                }
-
-                            } catch (JSONException e) {
-                                // hide dialog
-                                e.printStackTrace();
-                            }
                         }
-                    }, new Response.ErrorListener() {
 
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            // hide dialog
-                            // error.printStackTrace();
-                            Log.e(MainActivity.TAG, "error fetching gadgets");
-                        }
-                    });
+                    } catch (JSONException e) {
+                        // hide dialog
+                        e.printStackTrace();
+                    }
+                }
+            }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // hide dialog
+                    // error.printStackTrace();
+                    Log.e(MainActivity.TAG, "error fetching gadgets");
+                }
+            });
 
             // Add balance request to be processed
             queue.add(activeGadgetsRequest);
@@ -4792,23 +4792,23 @@ public class MainActivity extends BaseActivity {
                             /*
                              * ImageView iv = new ImageView(ctx);
                              * //iv.setImage
-                             * 
+                             *
                              * //append extra image url on actifit
                              * //imgUrl = getString(R.string.actifit_gadget_image)+imgUrl;
-                             * 
+                             *
                              * userGadgets.addView(iv);
                              */
 
                             Handler uiHandler = new Handler(Looper.getMainLooper());
-                            uiHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // Picasso.with(ctx)
-                                    Glide.with(ctx)
-                                            .load(getString(R.string.actifit_gadget_image) + imgUrl)
-                                            .override(Target.SIZE_ORIGINAL)
-                                            .into(iv);
+                            uiHandler.post(() -> {
+                                // Picasso.with(ctx)
+                                if (isFinishing() || isDestroyed()) {
+                                    return;
                                 }
+                                Glide.with(MainActivity.this)
+                                        .load(getString(R.string.actifit_gadget_image) + imgUrl)
+                                        .override(Target.SIZE_ORIGINAL)
+                                        .into(iv);
                             });
                         }
 
@@ -4883,7 +4883,7 @@ public class MainActivity extends BaseActivity {
             /*
              * Handler uiAltHandler = new Handler(Looper.getMainLooper());
              * uiAltHandler.post(new Runnable(){
-             * 
+             *
              * @Override
              * public void run() {
              * //Picasso.with(ctx)
@@ -4895,25 +4895,25 @@ public class MainActivity extends BaseActivity {
              * .load(url)
              * //.placeholder()
              * .into(new Target() {
-             * 
+             *
              * @Override
              * public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
              * mainLayout.setBackground(new BitmapDrawable(bitmap));
              * mainLayout.refreshDrawableState();
              * }
-             * 
+             *
              * @Override
              * public void onBitmapFailed(Exception e, Drawable errorDrawable) {
              * Toast.makeText(MainActivity.this, "Error : loading wallpaper",
              * Toast.LENGTH_SHORT).show();
              * }
-             * 
+             *
              * @Override
              * public void onPrepareLoad(Drawable placeHolderDrawable) {
-             * 
+             *
              * }
              * });
-             * 
+             *
              * }
              * });
              */
@@ -4988,13 +4988,13 @@ public class MainActivity extends BaseActivity {
                             }
                         }, new Response.ErrorListener() {
 
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // hide dialog
-                                // error.printStackTrace();
-                                Log.e(MainActivity.TAG, "error fetching rank");
-                            }
-                        });
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // hide dialog
+                        // error.printStackTrace();
+                        Log.e(MainActivity.TAG, "error fetching rank");
+                    }
+                });
 
                 // Add balance request to be processed
                 queue.add(rankRequest);
@@ -5018,7 +5018,7 @@ public class MainActivity extends BaseActivity {
         });
         /*
          * logoutLink.setOnClickListener(new View.OnClickListener() {
-         * 
+         *
          * @Override
          * public void onClick(View view) {
          * //remove logged in credentials
@@ -5027,11 +5027,11 @@ public class MainActivity extends BaseActivity {
          * SharedPreferences.Editor editor = sharedPreferences.edit();
          * editor.remove("actifitUser");
          * editor.remove("actifitPst");
-         * 
+         *
          * editor.remove("userRank");
          * editor.remove("userRankUpdateDate");
          * editor.remove("actvKey");
-         * 
+         *
          * editor.apply();
          * LoginActivity.accessToken = "";
          * MainActivity.username = "";
@@ -5044,9 +5044,9 @@ public class MainActivity extends BaseActivity {
          * Intent intent = new Intent(MainActivity.this, LoginActivity.class);
          * MainActivity.this.startActivity(intent);
          * overridePendingTransition( 0, 0);
-         * 
+         *
          * }
-         * 
+         *
          * });
          */
 
@@ -5148,12 +5148,12 @@ public class MainActivity extends BaseActivity {
                     }
                 }, new Response.ErrorListener() {
 
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // hide dialog
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // hide dialog
 
-                    }
-                });
+            }
+        });
 
         queue.add(votingStatusRequest);
 
@@ -5358,11 +5358,11 @@ public class MainActivity extends BaseActivity {
          * }catch(Exception e){
          * e.printStackTrace();
          * }
-         * 
+         *
          * this.isActivityVisible = false;
-         * 
+         *
          * mStepsDBHelper.closeConnection();
-         * 
+         *
          * PowerManager.WakeLock wl = ActivityMonitorService.getWakeLockInstance();
          * if (wl!=null && wl.isHeld()) {
          * Log.d(MainActivity.TAG,">>>>[Actifit]Settings AGG MODE OFF");
@@ -5630,16 +5630,16 @@ public class MainActivity extends BaseActivity {
         // according to our data format
         JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET,
                 notificationsUrl, null, notificationsListArray -> {
-                    // set proper notif count
-                    if (notificationsListArray != null && notificationsListArray.length() > 0) {
-                        String count = notificationsListArray.length() < 1000 ? notificationsListArray.length() + ""
-                                : "999+";
-                        notifCount.setText(Html.fromHtml("<sup><small>" + count + "</small></sup>"));
-                        notifCount.setVisibility(View.VISIBLE);
-                    }
-                }, error -> {
+            // set proper notif count
+            if (notificationsListArray != null && notificationsListArray.length() > 0) {
+                String count = notificationsListArray.length() < 1000 ? notificationsListArray.length() + ""
+                        : "999+";
+                notifCount.setText(Html.fromHtml("<sup><small>" + count + "</small></sup>"));
+                notifCount.setVisibility(View.VISIBLE);
+            }
+        }, error -> {
 
-                });
+        });
 
         // Add transaction request to be processed
         queue.add(transactionRequest);
