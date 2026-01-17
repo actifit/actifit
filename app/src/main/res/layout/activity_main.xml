@@ -839,27 +839,40 @@
                                 android:id="@+id/launch_workout_wizard_button"
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
-                                android:layout_gravity="center_vertical"
+                                android:padding="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:insetLeft="0dp"
+                                android:insetRight="0dp"
+                                android:minWidth="0dp"
+                                android:minHeight="0dp"
                                 android:text="\uf44b"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/font_awesome_6_solid"
                                 tools:ignore="HardcodedText" />
 
-                            <!-- Changed to ImageButton for proper icon handling -->
-                            <ImageButton
+                            <FrameLayout
                                 android:id="@+id/health_connect_status"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:layout_gravity="center_vertical"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
                                 android:layout_marginStart="8dp"
-                                android:alpha="0.8"
-                                android:contentDescription="Health Connect Status"
-                                android:src="@mipmap/health_connect_logo"
-                                app:tint="@color/actifitRed"
-                                android:tintMode="multiply"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:scaleType="fitCenter"
-                                android:padding="4dp"/>
+                                android:background="@drawable/button_background"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                android:padding="10dp"
+                                android:layout_margin="6dp"
+                                android:elevation="2dp">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/health_connect_button"
+                                    android:scaleType="fitCenter"
+                                    android:contentDescription="Health Connect Status" />
+                            </FrameLayout>
 
                         </LinearLayout>
 
