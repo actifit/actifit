@@ -873,7 +873,13 @@ public class MainActivity extends BaseActivity {
                             healthConnectManager.hasAllPermissions().whenComplete((hasPermissions, throwable) -> {
                                 if (hasPermissions) {
                                     Log.d(TAG, "HC permissions granted after request. Proceeding to read data.");
-                                    checkPermissionsAndReadData();
+                                    runOnUiThread(() -> {
+                                        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putString("dataTrackingSystem", getString(R.string.health_connect_tracking_ntt));
+                                        editor.apply();
+                                        checkPermissionsAndReadData();
+                                    });
                                 } else {
                                     Log.d(TAG, "HC permissions were NOT granted after request. Falling back.");
                                     runOnUiThread(() -> Toast.makeText(MainActivity.this,
@@ -1029,33 +1035,34 @@ public class MainActivity extends BaseActivity {
 
             ZonedDateTime today = ZonedDateTime.now();
             healthConnectManager.readStepsData(today).whenComplete((steps, readThrowable) -> {
-                Log.d(TAG, "HC Steps" + steps);
-                if (readThrowable != null) {
-                    Log.e(TAG, "Error reading steps from Health Connect: " + readThrowable.getMessage(), readThrowable);
-                    runOnUiThread(
-                            () -> Toast
-                                    .makeText(MainActivity.this,
-                                            "Failed to read data from Health Connect. Falling back.", Toast.LENGTH_LONG)
-                                    .show());
-                    useDefaultTrackingMethod();
-                    return;
-                }
-                Log.d(TAG, "Steps from Health Connect: " + steps);
-                Calendar mCalendar = Calendar.getInstance();
-                editor.putString("healthConnectLastSyncDate",
-                        new SimpleDateFormat("yyyyMMdd").format(
-                                mCalendar.getTime()));
-                editor.putLong("healthConnectLastSyncTime", System.currentTimeMillis());
-                if (steps != null && steps > 0) {
-                    editor.putInt("healthConnectSyncCount", steps.intValue());// 6543);//
-                    editor.apply();
-                    displayActivityChartHealthConnect(steps.intValue(), true);
-                } else {
-                    editor.putInt("healthConnectSyncCount", 0);//
-                    editor.apply();
-                    Log.d(TAG, "Health Connect returned 0 steps or no data. Displaying 0.");
-                    displayActivityChartHealthConnect(0, true);
-                }
+                runOnUiThread(() -> {
+                    Log.d(TAG, "HC Steps" + steps);
+                    if (readThrowable != null) {
+                        Log.e(TAG, "Error reading steps from Health Connect: " + readThrowable.getMessage(),
+                                readThrowable);
+                        Toast.makeText(MainActivity.this,
+                                "Failed to read data from Health Connect. Falling back.", Toast.LENGTH_LONG)
+                                .show();
+                        useDefaultTrackingMethod();
+                        return;
+                    }
+                    Log.d(TAG, "Steps from Health Connect: " + steps);
+                    Calendar mCalendar = Calendar.getInstance();
+                    editor.putString("healthConnectLastSyncDate",
+                            new SimpleDateFormat("yyyyMMdd").format(
+                                    mCalendar.getTime()));
+                    editor.putLong("healthConnectLastSyncTime", System.currentTimeMillis());
+                    if (steps != null && steps > 0) {
+                        editor.putInt("healthConnectSyncCount", steps.intValue());// 6543);//
+                        editor.apply();
+                        displayActivityChartHealthConnect(steps.intValue(), true);
+                    } else {
+                        editor.putInt("healthConnectSyncCount", 0);//
+                        editor.apply();
+                        Log.d(TAG, "Health Connect returned 0 steps or no data. Displaying 0.");
+                        displayActivityChartHealthConnect(0, true);
+                    }
+                });
             });
         } else {
             Log.d(TAG, "Health Connect is available but disabled in user settings. Falling back.");
