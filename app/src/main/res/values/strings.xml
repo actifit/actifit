@@ -631,4 +631,5 @@
     <string name="no_exercises_selected_for_add">No exercises selected. Returning to edit workout.</string>
     <string name="exercise_removed_toast">Exercise removed.</string>
     <string name="exercise_added_toast">Exercise added.</string>
+    <string name="start_workout">START WORKOUT</string>
 </resources>
