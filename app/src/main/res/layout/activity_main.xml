@@ -808,8 +808,8 @@
                             android:id="@+id/main_today_activity_chart"
                             android:layout_width="match_parent"
                             android:layout_height="130dp"
-                            android:paddingTop="10dp"
-                            android:layout_weight="1"/>
+                            android:layout_weight="1"
+                            android:paddingTop="10dp" />
 
                         <com.github.mikephil.charting.charts.BarChart
                             android:id="@+id/main_history_activity_chart"
@@ -834,22 +834,9 @@
                             android:orientation="horizontal"
                             android:layout_gravity="top">
 
-                            <Button
-                                style="@style/AppTheme.ActifitButton"
-                                android:id="@+id/launch_workout_wizard_button"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:padding="0dp"
-                                android:insetTop="0dp"
-                                android:insetBottom="0dp"
-                                android:insetLeft="0dp"
-                                android:insetRight="0dp"
-                                android:minWidth="0dp"
-                                android:minHeight="0dp"
-                                android:text="\uf44b"
-                                android:textSize="16sp"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                tools:ignore="HardcodedText" />
+
+
+
 
                             <FrameLayout
                                 android:id="@+id/health_connect_status"
@@ -914,7 +901,45 @@
 
                 </LinearLayout>
 
+
+                <!-- Workout Highlight Section -->
+                <LinearLayout
+                    android:id="@+id/btn_start_workout_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/workout_highlight_bg"
+                    android:elevation="6dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:text="\uf44b"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="24sp"
+                        android:layout_marginEnd="12dp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/start_workout"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+
             </LinearLayout>
+
 
     </ScrollView>
 

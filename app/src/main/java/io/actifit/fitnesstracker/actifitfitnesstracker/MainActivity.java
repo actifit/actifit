@@ -1333,7 +1333,7 @@ public class MainActivity extends BaseActivity {
             checkPermissionsAndReadData();
         });
 
-        Button launchWorkoutWizardButton = findViewById(R.id.launch_workout_wizard_button); // Assuming you have this
+        View launchWorkoutWizardButton = findViewById(R.id.btn_start_workout_section); // Assuming you have this
         // button in MainActivity
         // layout
         launchWorkoutWizardButton.setOnClickListener(v -> {
