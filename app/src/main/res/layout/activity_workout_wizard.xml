@@ -78,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/saved_workouts"
+                android:textStyle="bold"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="?android:attr/textColorPrimary"/>
 
@@ -164,6 +165,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/generate_new_workout"
+                android:textStyle="bold"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="?android:attr/textColorPrimary"/>
 
