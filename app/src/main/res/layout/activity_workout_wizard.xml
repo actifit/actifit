@@ -460,25 +460,31 @@
 
 
 
-            <LinearLayout
+                        <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <include layout="@layout/exercise_header" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/exercisesRecyclerView"
-                    android:layout_width="match_parent"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbars="horizontal">
+                
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    android:overScrollMode="never"
-                    tools:listitem="@layout/workout_list_item"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    />
+                    <include layout="@layout/exercise_header" />
 
-            </LinearLayout>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/exercisesRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never"
+                        tools:listitem="@layout/exercise_item"
+                        />
+
+                </LinearLayout>
+            </HorizontalScrollView>
 
 
         </LinearLayout>
