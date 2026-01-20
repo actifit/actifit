@@ -690,7 +690,9 @@ public class WorkoutWizardActivity extends BaseActivity
     private void showPaymentConfirmationDialog(String workoutName) {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.dialog_title_confirm_workout_generation))
-                .setMessage(getString(R.string.dialog_message_confirm_workout_generation_part1) + Constants.MIN_AFIT_PER_WORKOUT + getString(R.string.dialog_message_confirm_workout_generation_part2))
+                .setMessage(getString(R.string.dialog_message_confirm_workout_generation_part1)  + " "
+                        + Constants.MIN_AFIT_PER_WORKOUT  + " "
+                        + getString(R.string.dialog_message_confirm_workout_generation_part2))
                 .setPositiveButton(getString(R.string.proceed), (dialog, which) -> {
                     processWorkoutTrx(workoutName);
                 })

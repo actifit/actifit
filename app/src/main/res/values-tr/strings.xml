@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+﻿<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Actifit</string>
     <string name="sending_post">Gönderiniz gönderiliyor...</string>
     <string name="success_post">Gönderiniz başarıyla gönderildi</string>
@@ -662,4 +662,5 @@
     <string name="exercise_removed_toast">Egzersiz kaldırıldı.</string>
     <string name="exercise_added_toast">Egzersiz eklendi.</string>
     <string name="start_workout">ANTRENMANI BAŞLAT</string>
+    <string name="manage_workouts">Antrenmanları Yönet</string>
 </resources>

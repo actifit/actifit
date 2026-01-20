@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Actifit (أكيتفيت)</string>
     <string name="sending_post">جارٍ إرسال منشورك...</string>
@@ -675,4 +675,6 @@
     <string name="exercise_removed_toast">تمت إزالة التمرين.</string>
     <string name="exercise_added_toast">تمت إضافة التمرين.</string>
     <string name="start_workout">بدء التمرين</string>
+    <string name="manage_workouts">إدارة التمارين</string>
 </resources>
+
