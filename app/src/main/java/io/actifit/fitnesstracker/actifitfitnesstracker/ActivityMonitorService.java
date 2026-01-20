@@ -277,13 +277,16 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             }
 
             Intent notifyIntent = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent;
-            // if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-            // pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent,
-            // PendingIntent.FLAG_IMMUTABLE);
-            // }else{
-            pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
-            // }
+            notifyIntent.setAction("OPEN_MAIN_ACTIVITY"); // Ensure intent has an action for Android 15
+            
+            android.app.ActivityOptions options = android.app.ActivityOptions.makeBasic();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                options.setPendingIntentBackgroundActivityStartMode(android.app.ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
+            }
+
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 
+                PendingIntent.FLAG_IMMUTABLE, options.toBundle());
+            
             // prepare notification details
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
                     context.getString(R.string.actifit_channel_remind_ID))
@@ -467,17 +470,15 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             // create the service that will display as a notification on screen lock
             Intent notificationIntent = new Intent(ctx, MainActivity.class);
+            notificationIntent.setAction("OPEN_MAIN_ACTIVITY");
 
-            PendingIntent pendingIntent;
-            // if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-            pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+            android.app.ActivityOptions options = android.app.ActivityOptions.makeBasic();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                options.setPendingIntentBackgroundActivityStartMode(android.app.ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
+            }
 
-            /*
-             * }else {
-             * pendingIntent =
-             * PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
-             * }
-             */
+            PendingIntent pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, 
+                PendingIntent.FLAG_IMMUTABLE, options.toBundle());
 
             android.widget.RemoteViews customView = getCustomNotificationViews(
                     curActivityCount < 0 ? 0 : curActivityCount);

@@ -44,12 +44,16 @@ public class ReminderNotificationService extends BroadcastReceiver {
         createNotificationChannel(context);
 
         Intent notifyIntent = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent;
-        if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-            pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
-        }else{
-            pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
+        notifyIntent.setAction("OPEN_MAIN_ACTIVITY");
+
+        android.app.ActivityOptions options = android.app.ActivityOptions.makeBasic();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            options.setPendingIntentBackgroundActivityStartMode(android.app.ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
         }
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 
+            PendingIntent.FLAG_IMMUTABLE, options.toBundle());
+
         //prepare notification details
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
                 context.getString(R.string.actifit_channel_remind_ID))
@@ -65,11 +69,6 @@ public class ReminderNotificationService extends BroadcastReceiver {
         //proceed notifying user
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(context);
         managerCompat.notify(NOTIFICATION_ID, notificationCompat);
-
-        //also launch Actifit & its tracking service
-        Intent i = new Intent(context, MainActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(i);
     }
 
 
