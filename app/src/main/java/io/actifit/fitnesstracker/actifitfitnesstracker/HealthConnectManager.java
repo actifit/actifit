@@ -7,9 +7,9 @@ import android.util.Log;
 
 import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.permission.HealthPermission;
-import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord;
-import androidx.health.connect.client.records.DistanceRecord;
-import androidx.health.connect.client.records.HeartRateRecord;
+//import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord;
+//import androidx.health.connect.client.records.DistanceRecord;
+//import androidx.health.connect.client.records.HeartRateRecord;
 import androidx.health.connect.client.records.StepsRecord;
 import androidx.health.connect.client.request.ReadRecordsRequest;
 import androidx.health.connect.client.response.ReadRecordsResponse;
@@ -44,10 +44,10 @@ public class HealthConnectManager {
 
     public final Set<String> permissions = Collections.unmodifiableSet(
             Stream.of(
-                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(StepsRecord.class)),
+                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(StepsRecord.class))/*,
                     HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(ActiveCaloriesBurnedRecord.class)),
                     HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(HeartRateRecord.class)),
-                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(DistanceRecord.class))
+                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(DistanceRecord.class))*/
             ).collect(Collectors.toSet())
     );
 
