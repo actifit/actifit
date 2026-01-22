@@ -57,7 +57,13 @@ public class HealthConnectManager {
 
     public HealthConnectManager(Context context) {
         this.context = context;
-        this.healthConnectClient = HealthConnectClient.getOrCreate(context);
+        HealthConnectClient client = null;
+        try {
+            client = HealthConnectClient.getOrCreate(context);
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing HealthConnectClient: " + e.getMessage());
+        }
+        this.healthConnectClient = client;
         this.coroutineScope = CoroutineScopeKt.CoroutineScope(Dispatchers.getDefault().plus(EmptyCoroutineContext.INSTANCE));
     }
 
@@ -88,6 +94,9 @@ public class HealthConnectManager {
     }
 
     public CompletableFuture<Boolean> hasAllPermissions() {
+        if (healthConnectClient == null) {
+            return CompletableFuture.completedFuture(false);
+        }
         return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, new Function2<CoroutineScope, Continuation<? super Boolean>, Object>() {
             @Override
             public Object invoke(CoroutineScope scope, Continuation<? super Boolean> continuation) {
@@ -113,6 +122,9 @@ public class HealthConnectManager {
 
 
     public CompletableFuture<Long> readStepsData(ZonedDateTime day) {
+        if (healthConnectClient == null) {
+            return CompletableFuture.completedFuture(0L);
+        }
         return hasAllPermissions().thenCompose(hasPermissions -> {
             if (!hasPermissions) {
                 Log.d(TAG, "Permissions not granted for reading steps, returning 0.");

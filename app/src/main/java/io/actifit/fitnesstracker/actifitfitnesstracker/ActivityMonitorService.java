@@ -109,6 +109,37 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     @Override
     public void onCreate() {
+        if (ctx == null) {
+            ctx = getApplicationContext();
+        }
+        initializeSharedPrefs();
+
+        // Ensure channel exists
+        createNotificationChannel(getString(R.string.actifit_channel_ID));
+
+        // Create initial notification to satisfy foreground service requirements IMMEDIATELY
+        Intent notificationIntent = new Intent(ctx, MainActivity.class);
+        notificationIntent.setAction("OPEN_MAIN_ACTIVITY");
+        PendingIntent pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE, null);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
+                .setContentTitle(getString(R.string.actifit_notif_title))
+                .setContentText(getString(R.string.activity_today_string))
+                .setSmallIcon(R.drawable.actifit_logo)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOnlyAlertOnce(true);
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(notificationID, builder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH);
+            } else {
+                startForeground(notificationID, builder.build());
+            }
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "Error starting foreground service in onCreate: " + e.getMessage());
+        }
+
         CreateAsyncTask createAsyncTask = new CreateAsyncTask();
         createAsyncTask.execute();
 
@@ -337,32 +368,6 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
         if (ctx == null) {
             ctx = getApplicationContext();
-        }
-
-        // Ensure channel exists
-        createNotificationChannel(getString(R.string.actifit_channel_ID));
-
-        // Create initial notification to satisfy foreground service requirements
-        Intent notificationIntent = new Intent(ctx, MainActivity.class);
-        notificationIntent.setAction("OPEN_MAIN_ACTIVITY");
-        PendingIntent pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE, null);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
-                .setContentTitle(getString(R.string.actifit_notif_title))
-                .setContentText(getString(R.string.activity_today_string))
-                .setSmallIcon(R.drawable.actifit_logo)
-                .setContentIntent(pendingIntent)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOnlyAlertOnce(true);
-
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                startForeground(notificationID, builder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH);
-            } else {
-                startForeground(notificationID, builder.build());
-            }
-        } catch (Exception e) {
-            Log.e(MainActivity.TAG, "Error starting foreground service: " + e.getMessage());
         }
 
         InitializeAsyncTask initNotif = new InitializeAsyncTask();
