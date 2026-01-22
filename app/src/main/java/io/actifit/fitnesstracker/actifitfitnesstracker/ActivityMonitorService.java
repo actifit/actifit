@@ -472,13 +472,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             Intent notificationIntent = new Intent(ctx, MainActivity.class);
             notificationIntent.setAction("OPEN_MAIN_ACTIVITY");
 
-            android.app.ActivityOptions options = android.app.ActivityOptions.makeBasic();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                options.setPendingIntentBackgroundActivityStartMode(android.app.ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
-            }
-
             PendingIntent pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, 
-                PendingIntent.FLAG_IMMUTABLE, options.toBundle());
+                PendingIntent.FLAG_IMMUTABLE, null);
 
             android.widget.RemoteViews customView = getCustomNotificationViews(
                     curActivityCount < 0 ? 0 : curActivityCount);
