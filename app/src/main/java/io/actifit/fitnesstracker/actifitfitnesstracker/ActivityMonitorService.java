@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -355,7 +356,11 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                 .setOnlyAlertOnce(true);
 
         try {
-            startForeground(notificationID, builder.build());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(notificationID, builder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH);
+            } else {
+                startForeground(notificationID, builder.build());
+            }
         } catch (Exception e) {
             Log.e(MainActivity.TAG, "Error starting foreground service: " + e.getMessage());
         }
@@ -512,7 +517,11 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             notificationManager = NotificationManagerCompat.from(ctx);
 
-            startForeground(notificationID, mBuilder.build());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(notificationID, mBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH);
+            } else {
+                startForeground(notificationID, mBuilder.build());
+            }
         }
     }
 
