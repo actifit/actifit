@@ -45,6 +45,7 @@
 
     <!-- new permission type for starting service in background -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH"/>
     <!--tools:node="remove"/>-->
 
     <uses-feature
@@ -197,7 +198,7 @@
         android:name=".ActivityMonitorService"
         android:enabled="true"
         android:exported="false"
-        android:foregroundServiceType="specialUse"
+        android:foregroundServiceType="health"
         android:description="@string/actifit_service_desc">
 
         <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
