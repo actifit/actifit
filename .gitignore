@@ -21,8 +21,5 @@ local.properties
 /.idea/render.experimental.xml
 /keystore/
 /app/release/*.apk
-/app/release/baselineProfiles/0/Actifit v0.12.4.dm
-/app/release/baselineProfiles/1/Actifit v0.12.4.dm
+/app/release/baselineProfiles/*/*.dm
 /app/release/output-metadata.json
-/app/release/baselineProfiles/0/Actifit v0.13.0.dm
-/app/release/baselineProfiles/1/Actifit v0.13.0.dm

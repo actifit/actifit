@@ -43,8 +43,6 @@
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
-    <!-- new permission type for starting service in background -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH"/>
     <!--tools:node="remove"/>-->
 
@@ -200,10 +198,6 @@
         android:exported="false"
         android:foregroundServiceType="health"
         android:description="@string/actifit_service_desc">
-
-        <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-            android:value="we use this service to monitor and notify users about their activity
-            count increase throughout their tracking period"/>
 
     </service>
 
