@@ -279,13 +279,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             Intent notifyIntent = new Intent(context, MainActivity.class);
             notifyIntent.setAction("OPEN_MAIN_ACTIVITY"); // Ensure intent has an action for Android 15
             
-            android.app.ActivityOptions options = android.app.ActivityOptions.makeBasic();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                options.setPendingIntentBackgroundActivityStartMode(android.app.ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
-            }
-
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, 
-                PendingIntent.FLAG_IMMUTABLE, options.toBundle());
+                PendingIntent.FLAG_IMMUTABLE, null);
             
             // prepare notification details
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
