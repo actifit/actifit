@@ -140,6 +140,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             Log.e(MainActivity.TAG, "Error starting foreground service in onCreate: " + e.getMessage());
         }
 
+
         CreateAsyncTask createAsyncTask = new CreateAsyncTask();
         createAsyncTask.execute();
 
@@ -522,10 +523,13 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
             notificationManager = NotificationManagerCompat.from(ctx);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                startForeground(notificationID, mBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH);
-            } else {
-                startForeground(notificationID, mBuilder.build());
+            try {
+                if (ActivityCompat.checkSelfPermission(ctx, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                notificationManager.notify(notificationID, mBuilder.build());
+            } catch (Exception e) {
+                Log.e(MainActivity.TAG, "Error updating notification in InitializeAsyncTask: " + e.getMessage());
             }
         }
     }
