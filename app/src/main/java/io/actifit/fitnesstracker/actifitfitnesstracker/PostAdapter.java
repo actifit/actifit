@@ -254,8 +254,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     PostAdapter.keyMainContext = ctx;
                 }
 
-                CommentModalDialogFragment dialogFragment = new CommentModalDialogFragment(PostAdapter.keyMainContext,
-                        postEntry);
+                CommentModalDialogFragment dialogFragment = CommentModalDialogFragment.newInstance(postEntry);
                 FragmentManager fmgr = ((AppCompatActivity) PostAdapter.keyMainContext).getSupportFragmentManager();
                 dialogFragment.show(fmgr, "comment_modal");
 

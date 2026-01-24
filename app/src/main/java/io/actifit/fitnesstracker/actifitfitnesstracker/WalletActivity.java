@@ -317,9 +317,9 @@ public class WalletActivity extends BaseActivity {
 
             sendAFIT.setOnClickListener(arg0 -> {
 
-                SendAFITModalDialogFragment dialogFragment = new SendAFITModalDialogFragment(this, afitBal, queue);
-                FragmentManager fmgr = ((AppCompatActivity) this).getSupportFragmentManager();
-                dialogFragment.show(fmgr, "send_afit");
+                SendAFITModalDialogFragment dialogFragment = SendAFITModalDialogFragment.newInstance(afitBal);
+                FragmentManager fmgr = getSupportFragmentManager();
+                dialogFragment.show(fmgr, "send_afit_modal");
 
             });
 
