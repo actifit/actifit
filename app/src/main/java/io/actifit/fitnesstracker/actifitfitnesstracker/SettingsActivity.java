@@ -1032,12 +1032,14 @@ public class SettingsActivity extends BaseActivity {
                     //Log.e(MainActivity.TAG, e.getMessage());
                 }
                 try {
-                    for (int i = 0; i < notificationAdapter.getCount(); i++) {
-                        SingleNotificationModel entry = notificationAdapter.getItem(i);
-                        //Toast.makeText(cntxt, entry.type + " " + entry.isChecked,Toast.LENGTH_LONG);
+                    if (notificationAdapter != null) {
+                        for (int i = 0; i < notificationAdapter.getCount(); i++) {
+                            SingleNotificationModel entry = notificationAdapter.getItem(i);
+                            //Toast.makeText(cntxt, entry.type + " " + entry.isChecked,Toast.LENGTH_LONG);
 
                             innerSettingsData.put(entry.type, entry.isChecked);
 
+                        }
                     }
                 } catch (JSONException e) {
                     //Log.e(MainActivity.TAG, e.getMessage());
