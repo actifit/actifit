@@ -639,7 +639,7 @@ public class MainActivity extends BaseActivity {
                                     if (response.has("voted") && !response.getBoolean("voted")) {
 
                                         // show mainAnnounce if there exists one
-                                        SurveyFragment survDialog = new SurveyFragment(ctx, finalActivSurvey,
+                                        SurveyFragment survDialog = SurveyFragment.newInstance(finalActivSurvey,
                                                 LoginActivity.accessToken);
                                         survDialog.show(getSupportFragmentManager(), "survey_announce");
                                     }
@@ -725,7 +725,7 @@ public class MainActivity extends BaseActivity {
 
                     if (mainAnnounce != null && announceViews <= 1) {
                         // show mainAnnounce if there exists one
-                        MainAnnounceFragment mainAnnounceDialog = new MainAnnounceFragment(ctx, mainAnnounce);
+                        MainAnnounceFragment mainAnnounceDialog = MainAnnounceFragment.newInstance(mainAnnounce);
                         mainAnnounceDialog.show(getSupportFragmentManager(), "main_announce");
                     }
                 }

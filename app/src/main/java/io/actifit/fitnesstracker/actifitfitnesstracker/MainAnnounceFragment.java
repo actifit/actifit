@@ -33,12 +33,32 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class MainAnnounceFragment extends DialogFragment {
 
-    Context ctx;
-    Slider_Items_Model_Class mainAnnounce;
+    private String featuredImageUrl;
+    private String newsTitle;
+    private String linkUrl;
 
-    public MainAnnounceFragment(Context ctx, Slider_Items_Model_Class mainAnnouce) {
-        this.mainAnnounce = mainAnnouce;
-        this.ctx = ctx;
+    public MainAnnounceFragment() {
+        // Required empty public constructor
+    }
+
+    public static MainAnnounceFragment newInstance(Slider_Items_Model_Class mainAnnounce) {
+        MainAnnounceFragment fragment = new MainAnnounceFragment();
+        Bundle args = new Bundle();
+        args.putString("featured_image_url", mainAnnounce.getFeatured_image_url());
+        args.putString("news_title", mainAnnounce.getNews_title());
+        args.putString("link_url", mainAnnounce.getLink_url());
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            featuredImageUrl = getArguments().getString("featured_image_url");
+            newsTitle = getArguments().getString("news_title");
+            linkUrl = getArguments().getString("link_url");
+        }
     }
 
     @Override
@@ -74,37 +94,41 @@ public class MainAnnounceFragment extends DialogFragment {
 
         Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(() -> {
-            // Picasso.with(ctx)
-            Glide.with(ctx)
-                    .load(this.mainAnnounce.getFeatured_image_url())
-                    .override(800, 500) // Constrain size to prevent dialog overflow
-                    .centerCrop() // Match XML scaleType
-                    .into(featured_image);
+            if (getContext() != null) {
+                Glide.with(getContext())
+                        .load(this.featuredImageUrl)
+                        .override(800, 500) // Constrain size to prevent dialog overflow
+                        .centerCrop() // Match XML scaleType
+                        .into(featured_image);
+            }
         });
 
         // featured_image.setImageResource();
-        int textColor = ContextCompat.getColor(ctx, R.color.colorBlack);
-        caption_title.setTextColor(textColor);
-        caption_title.setText(this.mainAnnounce.getNews_title());
+        if (getContext() != null) {
+            int textColor = ContextCompat.getColor(getContext(), R.color.colorBlack);
+            caption_title.setTextColor(textColor);
+        }
+        caption_title.setText(this.newsTitle);
 
         // Find and set click listener for the close button
         Button detailsButton = view.findViewById(R.id.detailsButton);
         detailsButton.setOnClickListener(v -> {
-            // Toast.makeText (Mcontext, "test", Toast.LENGTH_LONG).show();
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            if (getContext() != null) {
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
-            builder.setToolbarColor(ctx.getResources().getColor(R.color.actifitRed));
+                builder.setToolbarColor(getContext().getResources().getColor(R.color.actifitRed));
 
-            // animation for showing and closing fitbit authorization screen
-            builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
+                // animation for showing and closing fitbit authorization screen
+                builder.setStartAnimations(getContext(), R.anim.slide_in_right, R.anim.slide_out_left);
 
-            // animation for back button clicks
-            builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
-                    android.R.anim.slide_out_right);
+                // animation for back button clicks
+                builder.setExitAnimations(getContext(), android.R.anim.slide_in_left,
+                        android.R.anim.slide_out_right);
 
-            CustomTabsIntent customTabsIntent = builder.build();
+                CustomTabsIntent customTabsIntent = builder.build();
 
-            customTabsIntent.launchUrl(ctx, Uri.parse(this.mainAnnounce.getLink_url()));
+                customTabsIntent.launchUrl(getContext(), Uri.parse(this.linkUrl));
+            }
         });
 
         // Find and set click listener for the close button

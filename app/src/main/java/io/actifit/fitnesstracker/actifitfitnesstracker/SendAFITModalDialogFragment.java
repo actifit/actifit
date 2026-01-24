@@ -25,6 +25,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -32,8 +33,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class SendAFITModalDialogFragment extends DialogFragment {
-    public Context ctx;
-    ListView socialView;
     float userBalance;
     RequestQueue queue;
 
@@ -41,17 +40,28 @@ public class SendAFITModalDialogFragment extends DialogFragment {
 
     }
 
-    public SendAFITModalDialogFragment(Context ctx, String userBalance, RequestQueue queue) {
-        this.ctx = ctx;
-        this.queue = queue;
-        //this.extraVotesList = extraVotesList;
-        try {
-            if (userBalance !="") {
-                this.userBalance = Float.parseFloat(userBalance.replace(",", ""));
+    public static SendAFITModalDialogFragment newInstance(String userBalance) {
+        SendAFITModalDialogFragment fragment = new SendAFITModalDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("user_balance", userBalance);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            String userBal = getArguments().getString("user_balance");
+            try {
+                if (userBal != null && !userBal.equals("")) {
+                    this.userBalance = Float.parseFloat(userBal.replace(",", ""));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-        }catch(Exception ex){
-            ex.printStackTrace();
         }
+        queue = Volley.newRequestQueue(getContext());
     }
 
     @NonNull
@@ -104,37 +114,37 @@ public class SendAFITModalDialogFragment extends DialogFragment {
                 return;
             }*/
             if (String.valueOf(amount.getText()).trim().equals("")){
-                Toast.makeText(ctx, ctx.getString(R.string.send_afit_range_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.send_afit_range_error), Toast.LENGTH_SHORT).show();
                 return;
             }
             float amountVal = Float.parseFloat(String.valueOf(amount.getText()));
             if (amountVal < 0 || amountVal > 10000) {
-                Toast.makeText(ctx, ctx.getString(R.string.send_afit_range_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.send_afit_range_error), Toast.LENGTH_SHORT).show();
                 return;
             }
 
 
             String recipientVal = recipient.getText().toString();
 
-            if (recipientVal.trim() == ""){
-                Toast.makeText(ctx, ctx.getString(R.string.recipient_empty), Toast.LENGTH_SHORT).show();
+            if (recipientVal.trim().equals("")){
+                Toast.makeText(getContext(), getString(R.string.recipient_empty), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (recipientVal.trim().equals(MainActivity.username)){
-                Toast.makeText(ctx, ctx.getString(R.string.recipient_same_user), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.recipient_same_user), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (amountVal > userBalance){
-                Toast.makeText(ctx, ctx.getString(R.string.within_balance_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.within_balance_error), Toast.LENGTH_SHORT).show();
                 return;
             }
-            final SharedPreferences sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
+            final SharedPreferences sharedPreferences = getContext().getSharedPreferences("actifitSets",MODE_PRIVATE);
             String fundsPassVal = sharedPreferences.getString("fundsPass", "");
 
             if (fundsPassVal.equals("")){
-                Toast.makeText(ctx, ctx.getString(R.string.funds_pass_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.funds_pass_error), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -148,8 +158,8 @@ public class SendAFITModalDialogFragment extends DialogFragment {
             Thread th = new Thread(() -> {
                 //runOnUiThread(() -> {
                 try {
-
-                    String sendFundsUrl = Utils.apiUrl(ctx)+getString(R.string.send_afit_url).replace("USERNAME", MainActivity.username)
+                    if (getContext() == null) return;
+                    String sendFundsUrl = Utils.apiUrl(getContext())+getString(R.string.send_afit_url).replace("USERNAME", MainActivity.username)
                             .replace("TARGET",recipientVal)
                             .replace("VAL",amountVal+"")
                             .replace("FUNDSP",fundsPassVal)
@@ -193,35 +203,25 @@ public class SendAFITModalDialogFragment extends DialogFragment {
                                                                 @Override
                                                                 public void onResponse(boolean success) {
                                                                     Log.e(MainActivity.TAG, "custom json complete:"+success);
-                                                                    activity.runOnUiThread(() -> {
-                                                                        Toast.makeText(ctx, ctx.getString(R.string.trx_success), Toast.LENGTH_LONG).show();
-                                                                        taskProgress.setVisibility(View.GONE);
-                                                                        dismiss();
-                                                                    });
-                                                                    // Step 5: Perform another API call
-                                                                    /*runOnUiThread(() -> {
-                                                                        taskProgress.setVisibility(View.GONE);
-                                                                        if (success) {
-
-                                                                        } else {
-                                                                            Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
-                                                                        }
-                                                                    });*/
+                                                                    if (activity != null) {
+                                                                        activity.runOnUiThread(() -> {
+                                                                            Toast.makeText(getContext(), getString(R.string.trx_success), Toast.LENGTH_LONG).show();
+                                                                            taskProgress.setVisibility(View.GONE);
+                                                                            dismiss();
+                                                                        });
+                                                                    }
                                                                 }
 
                                                                 @Override
                                                                 public void onError(String errorMessage) {
                                                                     Log.e(MainActivity.TAG, "error writing custom json:"+errorMessage);
-                                                                    activity.runOnUiThread(() -> {
-                                                                        Toast.makeText(ctx, ctx.getString(R.string.trx_success), Toast.LENGTH_LONG).show();
-                                                                        taskProgress.setVisibility(View.GONE);
-                                                                        dismiss();
-                                                                    });
-                                                                    // Handle the error
-                                                                    /*runOnUiThread(() -> {
-                                                                        //taskProgress.setVisibility(View.GONE);
-                                                                        //Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
-                                                                    });*/
+                                                                    if (activity != null) {
+                                                                        activity.runOnUiThread(() -> {
+                                                                            Toast.makeText(getContext(), getString(R.string.trx_success), Toast.LENGTH_LONG).show();
+                                                                            taskProgress.setVisibility(View.GONE);
+                                                                            dismiss();
+                                                                        });
+                                                                    }
                                                                 }
                                                             }, activity);
 
@@ -232,7 +232,11 @@ public class SendAFITModalDialogFragment extends DialogFragment {
                                         }
                                     } catch (Exception exc) {
                                         exc.printStackTrace();
-                                        Toast.makeText(ctx, ctx.getString(R.string.trx_error), Toast.LENGTH_LONG).show();
+                                        if (activity != null) {
+                                            activity.runOnUiThread(() -> {
+                                                Toast.makeText(getContext(), getString(R.string.trx_error), Toast.LENGTH_LONG).show();
+                                            });
+                                        }
                                     }
                                     //taskProgress.setVisibility(View.GONE);
                                 }}, new Response.ErrorListener(){
@@ -241,10 +245,12 @@ public class SendAFITModalDialogFragment extends DialogFragment {
                                     public void onErrorResponse (VolleyError error){
                                     Log.e(MainActivity.TAG, "error sending funds"+error.getMessage());
                                         // Handle the error
-                                        activity.runOnUiThread(() -> {
-                                            taskProgress.setVisibility(View.GONE);
-                                            Toast.makeText(ctx, ctx.getString(R.string.trx_error), Toast.LENGTH_LONG).show();
-                                        });
+                                        if (activity != null) {
+                                            activity.runOnUiThread(() -> {
+                                                taskProgress.setVisibility(View.GONE);
+                                                Toast.makeText(getContext(), getString(R.string.trx_error), Toast.LENGTH_LONG).show();
+                                            });
+                                        }
 
                                     }
                             });

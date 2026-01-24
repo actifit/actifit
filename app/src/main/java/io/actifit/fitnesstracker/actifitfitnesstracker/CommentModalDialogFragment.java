@@ -46,20 +46,36 @@ import io.noties.markwon.html.HtmlPlugin;
 import io.noties.markwon.image.glide.GlideImagesPlugin;
 
 public class CommentModalDialogFragment extends DialogFragment {
-    public Context ctx;
-    SingleHivePostModel postEntry;
-    //View mainView;
     EditText replyText;
 
     private static final int COMMENT_IMAGE_REQUEST = 1129;
+
+    private String author;
+    private String permlink;
+    private String body;
 
     public CommentModalDialogFragment() {
 
     }
 
-    public CommentModalDialogFragment(Context ctx, SingleHivePostModel postEntry) {
-        this.ctx = ctx;
-        this.postEntry = postEntry;
+    public static CommentModalDialogFragment newInstance(SingleHivePostModel postEntry) {
+        CommentModalDialogFragment fragment = new CommentModalDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("author", postEntry.author);
+        args.putString("permlink", postEntry.permlink);
+        args.putString("body", postEntry.body);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            author = getArguments().getString("author");
+            permlink = getArguments().getString("permlink");
+            body = getArguments().getString("body");
+        }
     }
 
     @NonNull
@@ -96,7 +112,7 @@ public class CommentModalDialogFragment extends DialogFragment {
         //final View replyModalLayout = LayoutInflater.from(ctx).inflate(R.layout.comment_modal, null);
         TextView author_txt = view.findViewById(R.id.reply_author);
         //MarkedView mdView = view.findViewById(R.id.md_view);
-        author_txt.setText("@"+postEntry.author+" 's content");
+        author_txt.setText("@"+this.author+" 's content");
 
         //EditText
         replyText = view.findViewById(R.id.reply_text);
@@ -112,7 +128,7 @@ public class CommentModalDialogFragment extends DialogFragment {
         //mdReplyView.setMDText(replyText.getText().toString());
         //default content for preview
         //mdReplyView.setMDText(ctx.getString(R.string.comment_preview_lbl));
-        final Markwon markwon = Markwon.builder(ctx)
+        final Markwon markwon = Markwon.builder(getContext())
                 //.usePlugin(ImagesPlugin.create())
                 //support HTML
                 .usePlugin(HtmlPlugin.create())
@@ -137,11 +153,11 @@ public class CommentModalDialogFragment extends DialogFragment {
                 })
 
                 //handle images via available Glide
-                .usePlugin(GlideImagesPlugin.create(ctx))
+                .usePlugin(GlideImagesPlugin.create(getContext()))
 
                 .build();
 
-        markwon.setMarkdown(mdReplyView, ctx.getString(R.string.comment_preview_lbl));
+        markwon.setMarkdown(mdReplyView, getString(R.string.comment_preview_lbl));
 
         //proceed with positive action
         Button proceedCommentBtn = view.findViewById(R.id.proceed_comment_btn);
@@ -150,7 +166,7 @@ public class CommentModalDialogFragment extends DialogFragment {
 
             String commentStr = replyText.getText().toString();
             if (commentStr.length() < 1){
-                Toast.makeText(ctx, ctx.getString(R.string.no_empty_comment),Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.no_empty_comment),Toast.LENGTH_SHORT).show();
                 return;
             }
             ProgressBar taskProgress = view.findViewById(R.id.loader);
@@ -163,7 +179,7 @@ public class CommentModalDialogFragment extends DialogFragment {
 
                     String op_name = "comment";
 
-                    String comment_perm = MainActivity.username.replace(".", "-") + "-re-" + postEntry.author.replace(".", "-") + "-" + postEntry.permlink + new SimpleDateFormat("yyyyMMddHHmmssSSS'Z'", Locale.US).format(new Date());
+                    String comment_perm = MainActivity.username.replace(".", "-") + "-re-" + this.author.replace(".", "-") + "-" + this.permlink + new SimpleDateFormat("yyyyMMddHHmmssSSS'Z'", Locale.US).format(new Date());
                     comment_perm = comment_perm.replaceAll("[^a-zA-Z0-9-]+", "").toLowerCase();
 
                     JSONObject cstm_params = new JSONObject();
@@ -172,8 +188,8 @@ public class CommentModalDialogFragment extends DialogFragment {
                     cstm_params.put("title", "");
                     //include comment alongside comment source (android app)
                     cstm_params.put("body", replyText.getText());// + " <br />" + getString(R.string.comment_note));
-                    cstm_params.put("parent_author", postEntry.author);
-                    cstm_params.put("parent_permlink", postEntry.permlink);
+                    cstm_params.put("parent_author", this.author);
+                    cstm_params.put("parent_permlink", this.permlink);
 
                     JSONObject metaData = new JSONObject();
 
@@ -186,9 +202,11 @@ public class CommentModalDialogFragment extends DialogFragment {
 
                     //grab app version number
                     try {
-                        PackageInfo pInfo = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
-                        String version = pInfo.versionName;
-                        metaData.put("appVersion",version);
+                        if (getContext() != null) {
+                            PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+                            String version = pInfo.versionName;
+                            metaData.put("appVersion", version);
+                        }
                     } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -199,26 +217,30 @@ public class CommentModalDialogFragment extends DialogFragment {
                             new Utils.APIResponseListener() {
                                 @Override
                                 public void onResponse(boolean success) {
-                                    getActivity().runOnUiThread(() -> {
-                                        taskProgress.setVisibility(View.GONE);
-                                        Log.e(MainActivity.TAG, "response");
-                                        if (success) {
-                                            Toast.makeText(ctx, ctx.getString(R.string.comment_success), Toast.LENGTH_LONG).show();
-                                            dismiss();
-                                        } else {
-                                            Toast.makeText(ctx, ctx.getString(R.string.comment_error), Toast.LENGTH_LONG).show();
-                                        }
-                                    });
+                                    if (getActivity() != null) {
+                                        getActivity().runOnUiThread(() -> {
+                                            taskProgress.setVisibility(View.GONE);
+                                            Log.e(MainActivity.TAG, "response");
+                                            if (success) {
+                                                Toast.makeText(getContext(), getString(R.string.comment_success), Toast.LENGTH_LONG).show();
+                                                dismiss();
+                                            } else {
+                                                Toast.makeText(getContext(), getString(R.string.comment_error), Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                    }
 
                                 }
 
                                 @Override
                                 public void onError(String errorMessage) {
                                     // Handle the error
-                                    getActivity().runOnUiThread(() -> {
-                                        taskProgress.setVisibility(View.GONE);
-                                        Toast.makeText(ctx, ctx.getString(R.string.comment_error), Toast.LENGTH_LONG).show();
-                                    });
+                                    if (getActivity() != null) {
+                                        getActivity().runOnUiThread(() -> {
+                                            taskProgress.setVisibility(View.GONE);
+                                            Toast.makeText(getContext(), getString(R.string.comment_error), Toast.LENGTH_LONG).show();
+                                        });
+                                    }
                                     Log.e(MainActivity.TAG, errorMessage);
                                 }
                             }, getActivity());
@@ -270,14 +292,14 @@ public class CommentModalDialogFragment extends DialogFragment {
                             */
                 }else{
                     //mdReplyView.setMDText(ctx.getString(R.string.comment_preview_lbl));
-                    markwon.setMarkdown(mdReplyView, ctx.getString(R.string.comment_preview_lbl));
+                    markwon.setMarkdown(mdReplyView, getString(R.string.comment_preview_lbl));
                 }
             }
         });
 
         ProgressBar taskProgress = view.findViewById(R.id.loader);
 
-        String shortenedContent = Utils.parseMarkdown(postEntry.body);
+        String shortenedContent = Utils.parseMarkdown(this.body);
         //removed extra tags
         shortenedContent = Utils.sanitizeContent(shortenedContent, false);
 
@@ -340,9 +362,11 @@ public class CommentModalDialogFragment extends DialogFragment {
         if (requestCode == COMMENT_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             fileUri = data.getData();
             try {
-                bitmap = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), fileUri);
+                if (getContext() != null) {
+                    bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), fileUri);
 
-                Utils.uploadFile( bitmap, fileUri, replyText, ctx, getActivity());
+                    Utils.uploadFile(bitmap, fileUri, replyText, getContext(), getActivity());
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
