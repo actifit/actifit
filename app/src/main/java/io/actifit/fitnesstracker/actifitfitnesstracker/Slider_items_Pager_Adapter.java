@@ -46,8 +46,9 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
 
         Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(() -> {
-            // Picasso.with(ctx)
-            // Picasso.with(ctx)
+            if (activity.isFinishing() || activity.isDestroyed()) {
+                return;
+            }
             Glide.with(ctx)
                     .load(sliderItemsModelClasses.get(position).getFeatured_image_url())
                     .into(featured_image);
@@ -80,13 +81,9 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        try {
-            activity.runOnUiThread(() -> {
-                container.removeView((View) object);
-            });
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        activity.runOnUiThread(() -> {
+            container.removeView((View) object);
+        });
     }
 
     @Override
