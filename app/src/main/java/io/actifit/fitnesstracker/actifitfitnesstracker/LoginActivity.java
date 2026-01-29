@@ -74,30 +74,7 @@ public class LoginActivity extends BaseActivity {
         // launch splashscreen and append custom exit animation
         SplashScreen.installSplashScreen(this);
 
-        /*
-         * .setOnExitAnimationListener(splashScreenView -> {
-         * final ObjectAnimator slideUp = ObjectAnimator.ofFloat(
-         * splashScreenView,
-         * String.valueOf(View.TRANSLATION_Y),
-         * 0f,
-         * -splashScreenView.getView().getHeight()
-         * );
-         * slideUp.setInterpolator(new AnticipateInterpolator());
-         * slideUp.setDuration(200L);
-         * 
-         * // Call SplashScreenView.remove at the end of your custom animation.
-         * slideUp.addListener(new AnimatorListenerAdapter() {
-         * 
-         * @Override
-         * public void onAnimationEnd(Animator animation) {
-         * splashScreenView.remove();
-         * }
-         * });
-         * 
-         * // Run your animation.
-         * slideUp.start();
-         * });
-         */
+
 
         super.onCreate(savedInstanceState);
 
@@ -121,7 +98,7 @@ public class LoginActivity extends BaseActivity {
                         uiAltHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                // Picasso.with(ctx)
+
                                 // fallback image
                                 String url = getString(R.string.default_login_img);
                                 if (response.has("imgUrl")) {
@@ -137,6 +114,9 @@ public class LoginActivity extends BaseActivity {
                                 // image due to garbage collection
                                 ImageView img = new ImageView(ctx);
 
+                                if (isFinishing() || isDestroyed()) {
+                                    return;
+                                }
                                 Glide.with(ctx)
                                         .load(url)
                                         .into(new CustomTarget<Drawable>() {
@@ -150,30 +130,7 @@ public class LoginActivity extends BaseActivity {
                                             public void onLoadCleared(@Nullable Drawable placeholder) {
                                             }
                                         });
-                                /*
-                                 * Picasso.get()
-                                 * .load(url)
-                                 * //.placeholder()
-                                 * .into(new Target() {
-                                 * 
-                                 * @Override
-                                 * public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                                 * heroImage.setBackground(new BitmapDrawable(bitmap));
-                                 * heroImage.refreshDrawableState();
-                                 * }
-                                 * 
-                                 * @Override
-                                 * public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                                 * //Toast.makeText(MainActivity.this, "Error : loading wallpaper",
-                                 * Toast.LENGTH_SHORT).show();
-                                 * }
-                                 * 
-                                 * @Override
-                                 * public void onPrepareLoad(Drawable placeHolderDrawable) {
-                                 * 
-                                 * }
-                                 * });
-                                 */
+
 
                             }
                         });
