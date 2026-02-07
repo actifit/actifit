@@ -211,6 +211,7 @@ import androidx.health.connect.client.records.StepsRecord;
  * error icon</a>
  */
 public class MainActivity extends BaseActivity {
+    private CircleImageView userProfilePic;
     public static SensorManager sensorManager;
     public static String username = "";
     public static String commToken;
@@ -1094,6 +1095,7 @@ public class MainActivity extends BaseActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        userProfilePic = findViewById(R.id.user_profile_pic);
         Log.d(MainActivity.TAG, "[Actifit] oncreate MainActivity");
 
         CookieManager manager = new CookieManager();
@@ -4873,17 +4875,17 @@ public class MainActivity extends BaseActivity {
             Utils.loadUserSettings(queue, ctx);
 
             // display profile pic too
-            final String userImgUrl = getString(R.string.hive_image_host_url).replace("USERNAME", username);
-            final ImageView userProfilePic = findViewById(R.id.user_profile_pic);
-
-            Handler uiHandler = new Handler(Looper.getMainLooper());
-            uiHandler.post(() -> {
-                // Picasso.with(ctx)
-                // load user image
-                Glide.with(ctx)
-                        .load(userImgUrl)
-                        .into(userProfilePic);
-            });
+            if (username != null && !username.isEmpty()) {
+                final String userImgUrl = getString(R.string.hive_image_host_url).replace("USERNAME", username);
+                Handler uiHandler = new Handler(Looper.getMainLooper());
+                uiHandler.post(() -> {
+                    Glide.with(ctx)
+                            .load(userImgUrl)
+                            .into(userProfilePic);
+                });
+            } else {
+                userProfilePic.setImageResource(R.drawable.default_avatar);
+            }
 
             // TODO: check on implementation of background for actifit. This is ready to go,
             // just need proper images
@@ -4938,8 +4940,13 @@ public class MainActivity extends BaseActivity {
                 Date date = new Date();
                 DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
                 String strDate = dateFormat.format(date);
-                if (Integer.parseInt(userRankUpdateDate) < Integer.parseInt(strDate)) {
-                    fetchNewRankVal = true;
+                try {
+                    if (Integer.parseInt(userRankUpdateDate) < Integer.parseInt(strDate)) {
+                        fetchNewRankVal = true;
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Error parsing userRankUpdateDate or strDate: " + e.getMessage());
+                    fetchNewRankVal = true; // Force refetch if parsing fails
                 }
 
             }
