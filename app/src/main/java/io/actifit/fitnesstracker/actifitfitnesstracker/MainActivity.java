@@ -776,7 +776,7 @@ public class MainActivity extends BaseActivity {
      *
      */
     private void sendRegistrationToServer() {
-        if (!username.isEmpty()) {
+        if (username != null && !username.isEmpty()) {
             String urlStr = Utils.apiUrl(this) + getString(R.string.register_user_token_notifications);
             Log.d(MainActivity.TAG, "sendRegistrationToServer - urlStr:" + urlStr);
             ArrayList<String[]> headers = new ArrayList<>();
