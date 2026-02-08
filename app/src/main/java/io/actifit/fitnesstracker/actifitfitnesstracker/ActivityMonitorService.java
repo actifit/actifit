@@ -150,7 +150,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
      * this is overriding the step function which only works in case of using
      * accelerometer sensor
      *
-     * @param timeNs
+     * @param stepCount
      */
     private android.widget.RemoteViews getCustomNotificationViews(int stepCount) {
         android.widget.RemoteViews remoteViews = new android.widget.RemoteViews(getPackageName(),
@@ -358,9 +358,10 @@ public class ActivityMonitorService extends Service implements SensorEventListen
      */
     @Override
     public void onSensorChanged(SensorEvent event) {
-        MonitorAsyncTask updateTask = new MonitorAsyncTask();
-        updateTask.execute(event);
-
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            simpleStepDetector.updateAccel(
+                    event.timestamp, event.values[0], event.values[1], event.values[2]);
+        }
     }
 
     @Override
@@ -534,19 +535,6 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         }
     }
 
-    private class MonitorAsyncTask extends AsyncTask<SensorEvent, Void, Void> {
 
-        @Override
-        protected Void doInBackground(SensorEvent... event) {
-            simpleStepDetector.updateAccel(
-                    event[0].timestamp, event[0].values[0], event[0].values[1], event[0].values[2]);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
-    }
 
 }
