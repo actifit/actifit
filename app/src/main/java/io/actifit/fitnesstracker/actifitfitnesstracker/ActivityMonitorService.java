@@ -14,10 +14,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -141,8 +142,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         }
 
 
-        CreateAsyncTask createAsyncTask = new CreateAsyncTask();
-        createAsyncTask.execute();
+        new Thread(new ServiceSetupRunnable()).start();
 
     }
 
@@ -372,9 +372,6 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             ctx = getApplicationContext();
         }
 
-        InitializeAsyncTask initNotif = new InitializeAsyncTask();
-        initNotif.execute();
-
         /*
          * Intent notificationIntent = new Intent(ctx, MainActivity.class);
          * 
@@ -408,9 +405,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     public void onDestroy() {
         super.onDestroy();
         Log.d(MainActivity.TAG, ">>>>[Actifit]ondestroy service!");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(Service.STOP_FOREGROUND_REMOVE);
-        }
+        stopForeground(Service.STOP_FOREGROUND_REMOVE);
 
         try {
             sensorManager.unregisterListener(ActivityMonitorService.this);
@@ -440,17 +435,14 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     }
 
-    private class CreateAsyncTask extends AsyncTask<Void, Void, Void> {
-
+    private final class ServiceSetupRunnable implements Runnable {
         @Override
-        protected Void doInBackground(Void... voids) {
-
+        public void run() {
             // initialize power manager and wake locks either way
             pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.actifit_wake_lock_tag));
 
             // check if aggressive background tracking mode is enabled
-
             sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
             String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",
                     getString(R.string.aggr_back_tracking_off_ntt));
@@ -484,57 +476,43 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                     SensorManager.SENSOR_DELAY_FASTEST);
             // SensorManager.SENSOR_DELAY_GAME);
 
-            return null;
-        }
-    }
-
-    private class InitializeAsyncTask extends AsyncTask<Void, Void, Integer> {
-
-        @Override
-        protected Integer doInBackground(Void... voids) {
+            // grab activity count so far today
             // grab activity count so far today
             int curActivityCount = mStepsDBHelper.fetchTodayStepCount();
-            return curActivityCount;
-        }
 
-        @Override
-        protected void onPostExecute(Integer curActivityCount) {
-            super.onPostExecute(curActivityCount);
+            new Handler(Looper.getMainLooper()).post(() -> {
+                // create the service that will display as a notification on screen lock
+                Intent notificationIntent = new Intent(ctx, MainActivity.class);
+                notificationIntent.setAction("OPEN_MAIN_ACTIVITY");
 
-            // create the service that will display as a notification on screen lock
-            Intent notificationIntent = new Intent(ctx, MainActivity.class);
-            notificationIntent.setAction("OPEN_MAIN_ACTIVITY");
+                PendingIntent pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent,
+                    PendingIntent.FLAG_IMMUTABLE, null);
 
-            PendingIntent pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, 
-                PendingIntent.FLAG_IMMUTABLE, null);
+                android.widget.RemoteViews customView = getCustomNotificationViews(
+                        Math.max(curActivityCount, 0));
 
-            android.widget.RemoteViews customView = getCustomNotificationViews(
-                    curActivityCount < 0 ? 0 : curActivityCount);
+                mBuilder = new NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
+                        .setContentTitle(getString(R.string.actifit_notif_title))
+                        .setContentText(getString(R.string.activity_today_string) + " "
+                                + (Math.max(curActivityCount, 0)))
+                        .setSmallIcon(R.drawable.actifit_logo)
+                        .setCustomContentView(customView)
+                        .setCustomBigContentView(customView)
+                        .setContentIntent(pendingIntent)
+                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setOnlyAlertOnce(true);
 
-            mBuilder = new NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
-                    .setContentTitle(getString(R.string.actifit_notif_title))
-                    .setContentText(getString(R.string.activity_today_string) + " "
-                            + (curActivityCount < 0 ? 0 : curActivityCount))
-                    .setSmallIcon(R.drawable.actifit_logo)
-                    .setCustomContentView(customView)
-                    .setCustomBigContentView(customView)
-                    .setContentIntent(pendingIntent)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .setOnlyAlertOnce(true);
+                notificationManager = NotificationManagerCompat.from(ctx);
 
-            notificationManager = NotificationManagerCompat.from(ctx);
-
-            try {
-                if (ActivityCompat.checkSelfPermission(ctx, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                    return;
+                try {
+                    if (ActivityCompat.checkSelfPermission(ctx, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    notificationManager.notify(notificationID, mBuilder.build());
+                } catch (Exception e) {
+                    Log.e(MainActivity.TAG, "Error updating notification in initializeNotification: " + e.getMessage());
                 }
-                notificationManager.notify(notificationID, mBuilder.build());
-            } catch (Exception e) {
-                Log.e(MainActivity.TAG, "Error updating notification in InitializeAsyncTask: " + e.getMessage());
-            }
+            });
         }
     }
-
-
-
 }
