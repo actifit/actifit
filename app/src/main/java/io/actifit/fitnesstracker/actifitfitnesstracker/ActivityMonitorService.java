@@ -473,7 +473,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             simpleStepDetector.registerListener(ActivityMonitorService.this);
 
             sensorManager.registerListener(ActivityMonitorService.this, accSensor,
-                    SensorManager.SENSOR_DELAY_FASTEST);
+                    SensorManager.SENSOR_DELAY_GAME);
             // SensorManager.SENSOR_DELAY_GAME);
 
             // grab activity count so far today
