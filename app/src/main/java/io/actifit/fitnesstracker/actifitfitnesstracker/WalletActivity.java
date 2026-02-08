@@ -937,7 +937,7 @@ public class WalletActivity extends BaseActivity {
 
     void loadAccountBalance(String username, Activity callerActivity, Context callerContext) {
 
-        if (!username.isEmpty()) {
+        if (username != null && !username.isEmpty()) {
 
             chainInfoFetched = false;
 
