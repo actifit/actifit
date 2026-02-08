@@ -153,6 +153,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.CookieHandler;
+import java.net.URLEncoder;
 import java.net.CookieManager;
 import java.security.MessageDigest;
 import java.text.DateFormat;
@@ -4876,13 +4877,19 @@ public class MainActivity extends BaseActivity {
 
             // display profile pic too
             if (username != null && !username.isEmpty()) {
-                final String userImgUrl = getString(R.string.hive_image_host_url).replace("USERNAME", username);
-                Handler uiHandler = new Handler(Looper.getMainLooper());
-                uiHandler.post(() -> {
-                    Glide.with(ctx)
-                            .load(userImgUrl)
-                            .into(userProfilePic);
-                });
+                try {
+                    final String encodedUsername = URLEncoder.encode(username, "UTF-8");
+                    final String userImgUrl = getString(R.string.hive_image_host_url).replace("USERNAME", encodedUsername);
+                    Handler uiHandler = new Handler(Looper.getMainLooper());
+                    uiHandler.post(() -> {
+                        Glide.with(ctx)
+                                .load(userImgUrl)
+                                .into(userProfilePic);
+                    });
+                } catch (java.io.UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    userProfilePic.setImageResource(R.drawable.default_avatar);
+                }
             } else {
                 userProfilePic.setImageResource(R.drawable.default_avatar);
             }
