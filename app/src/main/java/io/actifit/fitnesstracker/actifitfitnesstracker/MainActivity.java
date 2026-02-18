@@ -92,12 +92,19 @@ import androidx.lifecycle.LifecycleCoroutineScope;
 import androidx.lifecycle.LifecycleOwnerKt;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
+import androidx.annotation.Nullable;
+
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.load.DataSource;
+import android.graphics.drawable.Drawable;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -4815,9 +4822,27 @@ public class MainActivity extends BaseActivity {
                                 if (isFinishing() || isDestroyed()) {
                                     return;
                                 }
+                                // Calculate 40dp to pixels for gadget images
+                                int gadgetSizeDp = 30;
+                                int gadgetSizePx = (int) (gadgetSizeDp * getResources().getDisplayMetrics().density);
+
                                 Glide.with(MainActivity.this)
                                         .load(getString(R.string.actifit_gadget_image) + imgUrl)
-                                        .override(Target.SIZE_ORIGINAL)
+                                        .override(gadgetSizePx, gadgetSizePx) // Explicitly override with calculated DP size
+                                        .addListener(new RequestListener<Drawable>() {
+                                            @Override
+                                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                Log.e(MainActivity.TAG, "Glide gadget image load failed for URL: " + model + ", Exception: " + e);
+                                                // Optional: Set a placeholder image or hide the ImageView if loading fails
+                                                // iv.setImageResource(R.drawable.placeholder_error);
+                                                return false; // Let Glide handle the target (e.g., set error drawable if configured)
+                                            }
+
+                                            @Override
+                                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                                return false; // Let Glide handle the target
+                                            }
+                                        })
                                         .into(iv);
                             });
                         }

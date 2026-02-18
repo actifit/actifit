@@ -48,6 +48,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import androidx.multidex.BuildConfig;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.mlkit.vision.barcode.common.Barcode;
@@ -99,8 +100,8 @@ public class SettingsActivity extends BaseActivity {
 
     TextView logoutLink;
 
-    //private ImageView iconSun; // Optional
-    //private ImageView iconMoon;
+    //private ImageView iconSun = findViewById(R.id.icon_sun); // Optional
+    //private ImageView iconMoon = findViewById(R.id.icon_moon); // Optional
     private static final String PREF_KEY_DARK_MODE = "theme_mode";
 
     /*@Bind(R.id.main_toolbar)
@@ -198,7 +199,7 @@ public class SettingsActivity extends BaseActivity {
         //iconMoon = findViewById(R.id.icon_moon);
 
         darkModeSwitch.setChecked(isDarkModeEnabled);
-        //updateSunMoonIcons(isDarkModeEnabled);
+        //updateSunMoonIcons(isChecked);
 
         darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // isChecked is the new state of the switch
@@ -408,178 +409,158 @@ public class SettingsActivity extends BaseActivity {
             String notTypeUrl = Utils.apiUrl(this)+ getString(R.string.notification_types);
 
             JsonArrayRequest notificationTypeRequest = new JsonArrayRequest(Request.Method.GET,
-                    notTypeUrl, null, new Response.Listener<JSONArray>() {
+                    notTypeUrl, null,
+                    // Start of Response.Listener for JsonArrayRequest (onResponse)
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray _notificationTypes) {
+                            if (_notificationTypes != null && _notificationTypes.length() > 0) {
+                                notificationTypes = _notificationTypes;
+                                Log.d(MainActivity.TAG, "Fetched notification types");
+                                Log.d(MainActivity.TAG, notificationTypes.toString());
 
-                @Override
-                public void onResponse(JSONArray _notificationTypes) {
-                    notificationTypes = _notificationTypes;
-                    Log.d(MainActivity.TAG, "Fetched notification types");
-                    Log.d(MainActivity.TAG, notificationTypes.toString());
-
-                    //populate adapter for proper display
-                    // Handle the result
-                    try {
-
-
-
-                        for (int i = 0; i < _notificationTypes.length(); i++) {
-                            JSONObject jsonObject = _notificationTypes.getJSONObject(i);
-                            SingleNotificationModel notfEntry = new SingleNotificationModel(jsonObject, false);
-                            finalList.add(notfEntry);
-                        }
-
-                        // Create the adapter to convert the array to views
-                        notificationAdapter = new NotificationTypeEntryAdapter(cntxt, finalList);
-
-                        // This holds the url to connect to the API and grab the settings.
-                        String settingsUrl = Utils.apiUrl(cntxt)+ getString(R.string.fetch_settings)
-                                +"/" + username;
-
-                        JsonObjectRequest settingsRequest = new JsonObjectRequest(Request.Method.GET,
-                                settingsUrl, null, new Response.Listener<JSONObject>() {
-
-                            @Override
-                            public void onResponse(JSONObject settingsList) {
-                                userServerSettings = settingsList;
-                                Log.d(MainActivity.TAG, "Fetched settings");
-                                Log.d(MainActivity.TAG, userServerSettings.toString());
-
-                                JSONObject setgs = null;
-                                try {
-                                    setgs = userServerSettings.getJSONObject("settings");
-                                    MainActivity.userSettings = setgs;
-
-                                    if (setgs != null){
-
-
-                                        //load default vote weight percentage
-                                        voteWeight.setText(Utils.grabUserDefaultVoteWeight());
-
-
-                                        try {
-                                            if (setgs.has("notifications_active") && !setgs.getBoolean("notifications_active")){
-                                                notificationsInactive.setChecked(true);
-                                                notifListView.setVisibility(View.GONE);
-                                            }else{
-                                                notificationsActive.setChecked(true);
-                                                notifListView.setVisibility(View.VISIBLE);
-                                            }
-                                        } catch (JSONException ex) {
-                                            ex.printStackTrace();
-                                        }
-
-
-                                        try {
-                                            //hive posting always enabled
-                                            hiveOptionCheckbox.setChecked(true);
-
-                                            if (setgs.has("post_target_bchain") ){
-
-                                                if (setgs.getString("post_target_bchain").equals("BOTH")) {
-                                                    //Array chainArray = setgs.getJSONArray("post_target_bchain");
-                                                    //&& (Array)(setgs.getString("post_target_bchain")){
-                                                    steemOptionCheckbox.setChecked(true);
-                                                    blurtOptionCheckbox.setChecked(true);
-                                                }else{
-                                                    if (setgs.getString("post_target_bchain").contains("Steem")
-                                                        || setgs.getString("post_target_bchain").contains("STEEM") ) {
-                                                        steemOptionCheckbox.setChecked(true);
-                                                    }else{
-                                                        steemOptionCheckbox.setChecked(false);
-                                                    }
-                                                    if (setgs.getString("post_target_bchain").contains("Blurt")
-                                                            || setgs.getString("post_target_bchain").contains("BLURT") ) {
-                                                        blurtOptionCheckbox.setChecked(true);
-                                                    }else{
-                                                        blurtOptionCheckbox.setChecked(false);
-                                                    }
-                                                }
-                                                /*if (setgs.getString("post_target_bchain").equals("HIVE")) {
-                                                    hiveOnlyOptionRadioBtn.setChecked(true);
-                                                } else {
-                                                    hiveSteemOptionRadioBtn.setChecked(true);
-                                                }*/
-                                            }else{
-                                                //default all enabled
-                                                steemOptionCheckbox.setChecked(true);
-                                                blurtOptionCheckbox.setChecked(true);
-                                            }
-                                        } catch (JSONException ex) {
-                                            ex.printStackTrace();
-                                        }
+                                try { // START try block for processing _notificationTypes
+                                    for (int i = 0; i < _notificationTypes.length(); i++) {
+                                        JSONObject jsonObject = _notificationTypes.getJSONObject(i);
+                                        SingleNotificationModel notfEntry = new SingleNotificationModel(jsonObject, false);
+                                        finalList.add(notfEntry);
                                     }
 
-                                    //adjust height to fit content
+                                    notificationAdapter = new NotificationTypeEntryAdapter(cntxt, finalList);
 
-                                    int desiredWidth = View.MeasureSpec.makeMeasureSpec(notifListView.getWidth(), View.MeasureSpec.AT_MOST);
-                                    for (int i = 0; i < notificationAdapter.getCount(); i++) {
-                                        SingleNotificationModel entry = notificationAdapter.getItem(i);
+                                    String settingsUrl = Utils.apiUrl(cntxt)+ getString(R.string.fetch_settings)
+                                            +"/" + username;
 
-                                        View listItem = notificationAdapter.getView(i, null, notifListView);
-                                        //TextView optionVal = listItem.findViewById(R.id.notification_type);
-                                        String notifCat = entry.type;
-                                        Boolean isSel = true;
-                                        //set as off only if set by user, otherwise turn on
-                                        if (setgs != null){
-                                            Log.d(MainActivity.TAG, notifCat);
-                                            try {
-                                                if (setgs.has(notifCat) && !setgs.getBoolean(notifCat)) {
-                                                    isSel = false;
+                                    JsonObjectRequest settingsRequest = new JsonObjectRequest(Request.Method.GET,
+                                            settingsUrl, null,
+                                            // Start of inner JsonObjectRequest Response.Listener (onResponse)
+                                            new Response.Listener<JSONObject>() {
+                                                @Override
+                                                public void onResponse(JSONObject settingsList) {
+                                                    if (settingsList != null) {
+                                                        userServerSettings = settingsList;
+                                                        Log.d(MainActivity.TAG, "Fetched settings");
+                                                        Log.d(MainActivity.TAG, userServerSettings.toString());
+
+                                                        JSONObject setgs = null;
+                                                        try {
+                                                            setgs = userServerSettings.getJSONObject("settings");
+                                                            MainActivity.userSettings = setgs;
+
+                                                            if (setgs != null){
+                                                                voteWeight.setText(Utils.grabUserDefaultVoteWeight());
+
+                                                                try {
+                                                                    if (setgs.has("notifications_active") && !setgs.getBoolean("notifications_active")){
+                                                                        notificationsInactive.setChecked(true);
+                                                                        notifListView.setVisibility(View.GONE);
+                                                                    }else{
+                                                                        notificationsActive.setChecked(true);
+                                                                        notifListView.setVisibility(View.VISIBLE);
+                                                                    }
+                                                                } catch (JSONException ex) {
+                                                                    ex.printStackTrace();
+                                                                }
+
+                                                                try {
+                                                                    hiveOptionCheckbox.setChecked(true);
+
+                                                                    if (setgs.has("post_target_bchain") ){
+
+                                                                        if (setgs.getString("post_target_bchain").equals("BOTH")) {
+                                                                            steemOptionCheckbox.setChecked(true);
+                                                                            blurtOptionCheckbox.setChecked(true);
+                                                                        }else{
+                                                                            if (setgs.getString("post_target_bchain").contains("Steem")
+                                                                                || setgs.getString("post_target_bchain").contains("STEEM") ) {
+                                                                                steemOptionCheckbox.setChecked(true);
+                                                                            }else{
+                                                                                steemOptionCheckbox.setChecked(false);
+                                                                            }
+                                                                            if (setgs.getString("post_target_bchain").contains("Blurt")
+                                                                                    || setgs.getString("post_target_bchain").contains("BLURT") ) {
+                                                                                blurtOptionCheckbox.setChecked(true);
+                                                                            }else{
+                                                                                blurtOptionCheckbox.setChecked(false);
+                                                                            }
+                                                                        }
+                                                                    }else{
+                                                                        steemOptionCheckbox.setChecked(true);
+                                                                        blurtOptionCheckbox.setChecked(true);
+                                                                    }
+                                                                } catch (JSONException ex) {
+                                                                    ex.printStackTrace();
+                                                                }
+                                                            }
+
+                                                            int desiredWidth = notifListView.getWidth();
+                                                            if (desiredWidth == 0) {
+                                                                desiredWidth = LinearLayout.LayoutParams.MATCH_PARENT;
+                                                            }
+                                                            desiredWidth = View.MeasureSpec.makeMeasureSpec(desiredWidth, View.MeasureSpec.AT_MOST);
+
+                                                            if (notificationAdapter != null && notificationAdapter.getCount() > 0) {
+                                                                for (int i = 0; i < notificationAdapter.getCount(); i++) {
+                                                                    SingleNotificationModel entry = notificationAdapter.getItem(i);
+                                                                    View listItem = notificationAdapter.getView(i, null, notifListView);
+                                                                    String notifCat = entry.type;
+                                                                    Boolean isSel = true;
+                                                                    if (setgs != null){
+                                                                        Log.d(MainActivity.TAG, notifCat);
+                                                                        try {
+                                                                            if (setgs.has(notifCat) && !setgs.getBoolean(notifCat)) {
+                                                                                isSel = false;
+                                                                            }
+                                                                        }catch(JSONException e) {
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                    }
+                                                                    entry.isChecked = isSel;
+                                                                    listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+                                                                    notifSettingsHeight += listItem.getMeasuredHeight();
+                                                                }
+
+                                                                ViewGroup.LayoutParams params = notifListView.getLayoutParams();
+                                                                params.height = notifSettingsHeight + (notifListView.getDividerHeight() * (notificationAdapter.getCount() - 1));
+                                                                notifListView.setLayoutParams(params);
+                                                            }
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+
+                                                        notifListView.setAdapter(notificationAdapter);
+                                                    } else {
+                                                        Log.e(MainActivity.TAG, "settingsRequest returned null data.");
+                                                        notifListView.setVisibility(View.GONE);
+                                                    }
                                                 }
-                                            }catch(JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                        entry.isChecked = isSel;
+                                            }, new Response.ErrorListener() { // START of inner JsonObjectRequest Response.ErrorListener
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
+                                                    Log.e(MainActivity.TAG, "error connecting");
+                                                }
+                                            }); // END of inner JsonObjectRequest
 
-                                        listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-                                        notifSettingsHeight += listItem.getMeasuredHeight();
-                                    }
+                                    queue.add(settingsRequest);
 
-                                    ViewGroup.LayoutParams params = notifListView.getLayoutParams();
-                                    params.height = notifSettingsHeight + (notifListView.getDividerHeight() * (notificationAdapter.getCount() - 1));
-                                    notifListView.setLayoutParams(params);
-                                    //notifListView.requestLayout();
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                                } catch (Exception error) { // END try block and START catch block for processing _notificationTypes
+                                    Log.e(MainActivity.TAG, "Error processing notification types or settings: " + error.getMessage());
+                                    error.printStackTrace();
+                                    notifListView.setVisibility(View.GONE); // Hide list on error
                                 }
-
-
-                                //set as ready view adapter for rendering
-                                notifListView.setAdapter(notificationAdapter);
+                            } else { // START else block for _notificationTypes null or empty
+                                Log.e(MainActivity.TAG, "notificationTypeRequest returned empty or null data.");
+                                notifListView.setVisibility(View.GONE);
                             }
-                        }, new Response.ErrorListener() {
+                        } // END of Response.Listener (onResponse)
+                    }, // This comma separates the Response.Listener from the Response.ErrorListener for the JsonArrayRequest
+                    new Response.ErrorListener() { // START of Response.ErrorListener for JsonArrayRequest (onErrorResponse)
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e(MainActivity.TAG, "network error");
+                        }
+                    }); // END of JsonArrayRequest
 
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // TODO: Handle error
-                                Log.e(MainActivity.TAG, "error connecting");
-                            }
-                        });
-
-                        // Add request to be processed
-                        queue.add(settingsRequest);
-
-
-
-                        //notifListView.requestLayout();
-
-                    } catch (Exception error) {
-                        //Log.e(MainActivity.TAG, error.getMessage());
-
-
-                    }
-                }
-            }, new Response.ErrorListener() {
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    // TODO: Handle error
-                    Log.e(MainActivity.TAG, "network error");
-                }
-            });
-
-            // Add request to be processed
             queue.add(notificationTypeRequest);
         }
 
@@ -702,7 +683,7 @@ public class SettingsActivity extends BaseActivity {
             fullSPayRadioBtn.setChecked(true);
         }else if (reportPayMode.equals(liquidPay)){
             liquidPayRadioBtn.setChecked(true);
-        }else if (reportPayMode.equals(declinePay)){
+        }else if (declinePayRadioBtn.isChecked()){
             declinePayRadioBtn.setChecked(true);
         }else{
             //default
@@ -1299,71 +1280,88 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void updateBeneficiaryTable(String data) {
-        LinearLayout tableLayout = findViewById(R.id.beneficiaryTable); // Ensure this layout exists in XML
+        LinearLayout tableLayout = findViewById(R.id.beneficiaryTable);
+        if (tableLayout == null) {
+            Log.e(MainActivity.TAG, "beneficiaryTable LinearLayout not found in layout.");
+            return; // Cannot update if layout is missing
+        }
         tableLayout.removeAllViews(); // Clear existing rows
 
         try {
-            if (data.isEmpty()) return;
+            if (data == null || data.isEmpty()) {
+                return; // No data to display
+            }
             JSONArray beneficiariesArray = new JSONArray(data);
+
+            if (beneficiariesArray.length() == 0) {
+                return; // No beneficiaries to display
+            }
+
             for (int i = 0; i < beneficiariesArray.length(); i++) {
-                JSONObject beneficiaryObj = beneficiariesArray.getJSONObject(i);
+                try {
+                    JSONObject beneficiaryObj = beneficiariesArray.getJSONObject(i);
 
-                String account = beneficiaryObj.getString("account");
-                int weight = beneficiaryObj.getInt("weight");
-                int percentage = weight / 100; // Convert weight back to percentage for display
+                    String account = beneficiaryObj.getString("account");
+                    int weight = beneficiaryObj.getInt("weight");
+                    int percentage = weight / 100; // Convert weight back to percentage for display
 
-                // Create a horizontal row layout
-                LinearLayout row = new LinearLayout(this);
-                row.setOrientation(LinearLayout.HORIZONTAL);
-                row.setPadding(20, 0, 0, 0); // Add padding to the row
+                    // Create a horizontal row layout
+                    LinearLayout row = new LinearLayout(this);
+                    row.setOrientation(LinearLayout.HORIZONTAL);
+                    row.setPadding(20, 0, 0, 0); // Add padding to the row
 
-                // Define LayoutParams for fixed widths
-                LinearLayout.LayoutParams usernameParams = new LinearLayout.LayoutParams(
-                        250, // Width for username
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                LinearLayout.LayoutParams percentageParams = new LinearLayout.LayoutParams(
-                        100, // Width for percentage
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-                        150, // Width for button
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
+                    // Define LayoutParams for fixed widths
+                    LinearLayout.LayoutParams usernameParams = new LinearLayout.LayoutParams(
+                            250, // Width for username
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    LinearLayout.LayoutParams percentageParams = new LinearLayout.LayoutParams(
+                            100, // Width for percentage
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                            150, // Width for button
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
 
-                // Create TextView for username
-                TextView beneficiaryText = new TextView(this);
-                beneficiaryText.setText("@" + account);
-                beneficiaryText.setLayoutParams(usernameParams);
+                    // Create TextView for username
+                    TextView beneficiaryText = new TextView(this);
+                    beneficiaryText.setText("@" + account);
+                    beneficiaryText.setLayoutParams(usernameParams);
 
-                // Create TextView for percentage
-                TextView percentageText = new TextView(this);
-                percentageText.setText(percentage + "%");
-                percentageText.setLayoutParams(percentageParams);
+                    // Create TextView for percentage
+                    TextView percentageText = new TextView(this);
+                    percentageText.setText(percentage + "%");
+                    percentageText.setLayoutParams(percentageParams);
 
-                // Create "Remove" button
-                Button removeButton = new Button(this);
-                removeButton.setText("-");
-                removeButton.setTextSize(16); // Matches your XML size
-                removeButton.setTextColor(getResources().getColor(android.R.color.white));
-                removeButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.darker_gray));
-                removeButton.setLayoutParams(buttonParams);
-                int finalI = i;
-                removeButton.setOnClickListener(v -> {
-                    // Remove entry logic
-                    removeBeneficiary(finalI, data);
-                });
+                    // Create "Remove" button
+                    Button removeButton = new Button(this);
+                    removeButton.setText("-");
+                    removeButton.setTextSize(16); // Matches your XML size
+                    removeButton.setTextColor(getResources().getColor(android.R.color.white));
+                    removeButton.setBackgroundTintList(getResources().getColorStateList(android.R.color.darker_gray));
+                    removeButton.setLayoutParams(buttonParams);
+                    int finalI = i;
+                    removeButton.setOnClickListener(v -> {
+                        // Remove entry logic
+                        removeBeneficiary(finalI, data);
+                    });
 
-                // Add components to the row layout
-                row.addView(beneficiaryText);
-                row.addView(percentageText);
-                row.addView(removeButton);
+                    // Add components to the row layout
+                    row.addView(beneficiaryText);
+                    row.addView(percentageText);
+                    row.addView(removeButton);
 
-                // Add the row to the table layout
-                tableLayout.addView(row);
+                    // Add the row to the table layout
+                    tableLayout.addView(row);
+                } catch (JSONException e) {
+                    Log.e(MainActivity.TAG, "Malformed beneficiary entry at index " + i + ": " + e.getMessage());
+                    // Continue to next entry or show a specific toast about the malformed entry
+                    Toast.makeText(this, "Error in one beneficiary entry.", Toast.LENGTH_SHORT).show();
+                }
             }
         } catch (JSONException e) {
-            Toast.makeText(this, "Error loading data" + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error loading beneficiary data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
