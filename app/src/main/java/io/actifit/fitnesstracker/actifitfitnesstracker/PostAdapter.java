@@ -421,6 +421,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 // load user image
                 Glide.with(ctx)
                         .load(userImgUrl)
+                        .placeholder(R.drawable.default_pic)
+                        .error(R.drawable.default_pic)
                         .into(userProfilePic);
             });
 
@@ -543,17 +545,22 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
                     try {
                         // also load main post image
-                        if (mainImageUrl != "") {
+                        if (mainImageUrl != null && !mainImageUrl.equals("")) {
                             Glide.with(ctx)
                                     .load(mainImageUrl)
+                                    .placeholder(R.drawable.ic_launcher_background)
                                     .error(R.drawable.ic_launcher_background)
                                     .centerCrop()
                                     .into(mainImage);
                             mainImage.setVisibility(VISIBLE);
+                        }else{
+                            mainImage.setVisibility(GONE);
+                            Glide.with(ctx).clear(mainImage);
                         }
                     } catch (Exception err) {
                         System.out.println(err);
                         mainImage.setVisibility(GONE);
+                        Glide.with(ctx).clear(mainImage);
                     }
                 });
 
