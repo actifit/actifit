@@ -520,7 +520,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 String fetchedImageUrl = "";
                 try {
                     JSONObject jsonMetadata = postEntry.json_metadata;
-                    if (jsonMetadata.has("image")) {
+                    if (jsonMetadata != null && jsonMetadata.has("image")) {
                         JSONArray imageArray = jsonMetadata.getJSONArray("image");
                         if (imageArray.length() > 0) {
 
@@ -532,6 +532,15 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                                 }
                             }
 
+                        }
+                    }
+
+                    // if no image found in metadata, try to extract from body
+                    if (fetchedImageUrl.equals("")) {
+                        Pattern imagePattern = Pattern.compile("(https?://\\S+?\\.(jpg|jpeg|png|gif))");
+                        Matcher matcher = imagePattern.matcher(postEntry.body);
+                        if (matcher.find()) {
+                            fetchedImageUrl = matcher.group();
                         }
                     }
                 } catch (JSONException e) {

@@ -527,31 +527,23 @@ import androidx.exifinterface.media.ExifInterface;
 
     //removes any tags that do not match predefined list
     public static String sanitizeContent(String htmlContent, Boolean minimal) {
-        // Parse the HTML content
-        /*Document dirtyDocument = Jsoup.parseBodyFragment(htmlContent);
-
-        // Clean the HTML using a safelist to allow only certain tags and attributes
-        Safelist safelist = Safelist.none().addTags("br", "p", "div"); // Add additional tags if needed
-        Cleaner cleaner = new Cleaner(safelist);
-        Document cleanDocument = cleaner.clean(dirtyDocument);
-
-        // Extract the sanitized text from the clean document
-        String sanitizedText = cleanDocument.body().text();
-
-        return sanitizedText;*/
-
         Document dirtyDocument = Jsoup.parseBodyFragment(htmlContent);
 
-        // Define the list of tags and attributes to be removed
-        String[] tagsToRemove = {"script", "style", "iframe", "object", "embed", "applet", "img", "a"};
+        // Define the list of tags to be completely removed along with their content
+        String[] tagsToCompletelyRemove = {"script", "style", "iframe", "object", "embed", "applet", "img"};
         if (minimal) {
-            tagsToRemove = new String[]{"script", "style", "iframe", "object", "embed", "applet"};
+            tagsToCompletelyRemove = new String[]{"script", "style", "iframe", "object", "embed", "applet"};
+        }
+
+        // Manually remove these tags completely to avoid remnants like alt text from <img>
+        for (String tag : tagsToCompletelyRemove) {
+            dirtyDocument.select(tag).remove();
         }
 
         String[] attributesToRemove = {"onclick", "onload"}; // Add more attributes if needed
 
-        // Remove the specified tags and attributes from the HTML
-        Safelist safelist = Safelist.relaxed().removeTags(tagsToRemove).removeAttributes(":all", attributesToRemove);
+        // Remove the remaining specified tags and attributes from the HTML using Safelist
+        Safelist safelist = Safelist.relaxed().removeTags(tagsToCompletelyRemove).removeAttributes(":all", attributesToRemove);
         Cleaner cleaner = new Cleaner(safelist);
         Document cleanDocument = cleaner.clean(dirtyDocument);
 

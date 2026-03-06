@@ -66,3 +66,8 @@ Currently configured nodes include:
 - `https://rpc.ausbit.dev`
 
 The system tracks the currently working node to minimize latency for subsequent requests.
+
+## Content Sanitization & Image Extraction
+- **Image Extraction**: The app now extracts preview images from the post body if they are missing from the `json_metadata`. This ensures a consistent UI for all types of content.
+- **Sanitization**: `Utils.sanitizeContent` has been improved to completely remove `<img>` tags and their attributes (like `alt="image"`) before rendering, preventing unwanted text fragments from appearing in the post body.
+- **View Recycling**: Fixed a critical bug in `PostAdapter` where profile pictures and post images were not properly reset or cleared when views were recycled in the `ListView`.
