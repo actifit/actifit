@@ -3,7 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingTranslation">
     <string name="hive_default_node" translatable="false">https://hiveapi.actifit.io</string>
-    <string name="hive_alt_node_1" translatable="false">https://api.deathwing.me</string>
+    <string-array name="hive_rpc_nodes">
+        <item>https://hiveapi.actifit.io</item>
+        <item>https://api.deathwing.me</item>
+        <item>https://api.hive.blog</item>
+        <item>https://techcoderx.com</item>
+        <item>https://api.openhive.network</item>
+        <item>https://rpc.mahdiyari.info</item>
+        <item>https://api.syncad.com</item>
+        <item>https://api.c0ff33a.uk</item>
+    </string-array>
     <string name="get_ranked_posts" translatable="false">bridge.get_ranked_posts</string>
     <string name="get_account_posts" translatable="false">bridge.get_account_posts</string>
     <string name="get_post_comments" translatable="false">condenser_api.get_content_replies</string>
