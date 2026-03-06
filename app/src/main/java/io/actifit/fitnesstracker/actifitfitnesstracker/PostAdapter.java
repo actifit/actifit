@@ -537,7 +537,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
                     // if no image found in metadata, try to extract from body
                     if (fetchedImageUrl.equals("")) {
-                        Pattern imagePattern = Pattern.compile("(https?://\\S+?\\.(jpg|jpeg|png|gif))");
+                        // regex to find raw image URLs that are not already part of a markdown or html tag
+                        Pattern imagePattern = Pattern.compile("(?<![\"'(])(https?://\\S+?\\.(jpg|jpeg|png|gif))(?![^<]*>)");
                         Matcher matcher = imagePattern.matcher(postEntry.body);
                         if (matcher.find()) {
                             fetchedImageUrl = matcher.group();
@@ -557,8 +558,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                         if (mainImageUrl != null && !mainImageUrl.equals("")) {
                             Glide.with(ctx)
                                     .load(mainImageUrl)
-                                    .placeholder(R.drawable.ic_launcher_background)
-                                    .error(R.drawable.ic_launcher_background)
+                                    .placeholder(R.drawable.actifit_logo)
+                                    .error(R.drawable.actifit_logo)
                                     .centerCrop()
                                     .into(mainImage);
                             mainImage.setVisibility(VISIBLE);
@@ -859,7 +860,8 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     }
 
     private String convertImageLinksToMarkdown(String text) {
-        Pattern pattern = Pattern.compile("(https?://\\S+?\\.(jpg|jpeg|png|gif))");
+        // regex to find raw image URLs that are not already part of a markdown or html tag
+        Pattern pattern = Pattern.compile("(?<![\"'(])(https?://\\S+?\\.(jpg|jpeg|png|gif))(?![^<]*>)");
         Matcher matcher = pattern.matcher(text);
         StringBuffer modifiedText = new StringBuffer();
 

@@ -547,10 +547,11 @@ import androidx.exifinterface.media.ExifInterface;
         Cleaner cleaner = new Cleaner(safelist);
         Document cleanDocument = cleaner.clean(dirtyDocument);
 
-        // Extract the sanitized text from the clean document
-        String sanitizedText = cleanDocument.body().text();
+        // Extract the sanitized HTML from the clean document's body
+        // We use .html() instead of .text() to preserve allowed tags for Markwon/HtmlPlugin
+        String sanitizedHtml = cleanDocument.body().html();
 
-        return sanitizedText;
+        return sanitizedHtml;
     }
 
     public static String trimText(String text, int limit){
