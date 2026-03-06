@@ -33,8 +33,13 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.deepl.api.Translator;
-import com.bumptech.glide.Glide;
+import android.graphics.drawable.Drawable;
+import androidx.annotation.Nullable;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
@@ -556,10 +561,28 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     try {
                         // also load main post image
                         if (mainImageUrl != null && !mainImageUrl.equals("")) {
+                            // Set scale type to FIT_CENTER for the logo placeholder to avoid distortion
+                            mainImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
                             Glide.with(ctx)
                                     .load(mainImageUrl)
                                     .placeholder(R.drawable.actifit_logo)
                                     .error(R.drawable.actifit_logo)
+                                    .listener(new RequestListener<Drawable>() {
+                                        @Override
+                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                            // Keep fitCenter for error logo
+                                            mainImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                                            return false;
+                                        }
+
+                                        @Override
+                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                            // Switch to centerCrop for the actual post image
+                                            mainImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                            return false;
+                                        }
+                                    })
                                     .centerCrop()
                                     .into(mainImage);
                             mainImage.setVisibility(VISIBLE);
