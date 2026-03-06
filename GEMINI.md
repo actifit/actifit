@@ -68,6 +68,7 @@ Currently configured nodes include:
 The system tracks the currently working node to minimize latency for subsequent requests.
 
 ## Content Sanitization & Image Extraction
-- **Image Extraction**: The app now extracts preview images from the post body if they are missing from the `json_metadata`. This ensures a consistent UI for all types of content.
-- **Sanitization**: `Utils.sanitizeContent` has been improved to completely remove `<img>` tags and their attributes (like `alt="image"`) before rendering, preventing unwanted text fragments from appearing in the post body.
-- **View Recycling**: Fixed a critical bug in `PostAdapter` where profile pictures and post images were not properly reset or cleared when views were recycled in the `ListView`.
+- **Image Extraction**: The app extracts preview images from the post body if missing from `json_metadata`.
+- **Sanitization**: `Utils.sanitizeContent` returns sanitized HTML to preserve structural integrity for `Markwon`.
+- **Preview Optimization**: `SingleHivePostModel` now strips Markdown and HTML images *before* trimming text for the short preview, eliminating "image" text artifacts and broken Markdown tags.
+- **Placeholder UX**: `PostAdapter` dynamically manages `ScaleType`—using `FIT_CENTER` for the Actifit logo placeholder to avoid distortion, and switching to `CENTER_CROP` once the full post image loads.

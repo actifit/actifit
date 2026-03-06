@@ -84,18 +84,39 @@ public class SingleHivePostModel implements Comparable<SingleHivePostModel>{
     }
 
     public String getTrimmedTranslatedContent(){
-        String transStr = Utils.trimText(this.translatedText, Constants.TRIMMED_TEXT_SIZE);
-        transStr += (this.translatedText.length() > Constants.TRIMMED_TEXT_SIZE)? "": "...";
+        // Remove markdown images first
+        String cleanTrans = this.translatedText.replaceAll("!\\[.*?\\]\\(.*?\\)", "");
+        // Also remove HTML images
+        cleanTrans = cleanTrans.replaceAll("<img.*?>", "");
+        // Remove raw links that look like images
+        cleanTrans = cleanTrans.replaceAll("https?://\\S+?\\.(jpg|jpeg|png|gif)", "");
+
+        String transStr = Utils.trimText(cleanTrans, Constants.TRIMMED_TEXT_SIZE);
+        if (cleanTrans.length() > Constants.TRIMMED_TEXT_SIZE) {
+            transStr += "...";
+        }
         return transStr;
     }
 
     void setShortenedContent(){
-        this.shortBody = Utils.trimText(this.body, Constants.TRIMMED_TEXT_SIZE);
+        // Remove markdown images first to avoid broken tags when trimming
+        String cleanBody = this.body.replaceAll("!\\[.*?\\]\\(.*?\\)", "");
+        // Also remove HTML images
+        cleanBody = cleanBody.replaceAll("<img.*?>", "");
+        // Remove raw links that look like images (simplified)
+        cleanBody = cleanBody.replaceAll("https?://\\S+?\\.(jpg|jpeg|png|gif)", "");
+
+        this.shortBody = Utils.trimText(cleanBody, Constants.TRIMMED_TEXT_SIZE);
+
         //sanitize content as well for shortbody
         this.shortBody = Utils.sanitizeContent(this.shortBody,false);
+
         //append 3 dots if original text is long
-        this.shortBody += (this.shortBody.length() > Constants.TRIMMED_TEXT_SIZE)? "": "...";
-        //also sanitize content
+        if (cleanBody.length() > Constants.TRIMMED_TEXT_SIZE) {
+            this.shortBody += "...";
+        }
+
+        //also sanitize content for full body
         this.body = Utils.sanitizeContent(this.body, true);
     }
 
