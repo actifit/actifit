@@ -58,6 +58,8 @@ import static io.actifit.fitnesstracker.actifitfitnesstracker.MainActivity.TAG;
 
 public class HiveRequests {
 
+    public List<String> hiveRPCNodes;
+    private int currentNodeIndex = 0;
     public String hiveRPCUrl;
     private Context ctx;
     private RequestQueue queue;
@@ -67,8 +69,11 @@ public class HiveRequests {
 
     public HiveRequests(Context ctx) {
         this.ctx = ctx;
+        //initialize nodes
+        hiveRPCNodes = new ArrayList<>(Arrays.asList(ctx.getResources().getStringArray(R.array.hive_rpc_nodes)));
+
         //default RPC node
-        hiveRPCUrl = ctx.getString(R.string.hive_default_node);
+        hiveRPCUrl = hiveRPCNodes.get(currentNodeIndex);
         // Instantiate the RequestQueue.
         queue = Volley.newRequestQueue(ctx);
     }
@@ -78,6 +83,8 @@ public class HiveRequests {
         if (options.has("setRPC")){
             try {
                 this.hiveRPCUrl = options.getString("setRPC");
+                //if we manually set a node, we should probably reset the index or handle it differently
+                //for now just override the current URL
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -102,28 +109,34 @@ public class HiveRequests {
     }*/
 
     public void getGlobalProps(final APIResponseListener listener) {
-        try {
-            performAPIRequest("https://api.hive.blog",
-                    "{\"jsonrpc\":\"2.0\", \"method\":\"database_api.get_dynamic_global_properties\", \"id\":1}",listener);
+        getGlobalProps(listener, 0);
+    }
 
-            /*
-            *
+    public void getGlobalProps(final APIResponseListener listener, final int retryCount) {
+        try {
+            String url = hiveRPCNodes.get(retryCount % hiveRPCNodes.size());
+            performAPIRequest(url,
+                    "{\"jsonrpc\":\"2.0\", \"method\":\"database_api.get_dynamic_global_properties\", \"id\":1}",
                     new APIResponseListener() {
                         @Override
-                        public void onResponse(JSONObject dynamicProps) {
-                            // Step 5: Perform another API call
-                            performAnotherAPIRequest(dynamicProps);
+                        public void onError(String errorMessage) {
+                            if (retryCount < hiveRPCNodes.size() - 1) {
+                                Log.d(TAG, "getGlobalProps failed on " + url + ", retrying with next node");
+                                getGlobalProps(listener, retryCount + 1);
+                            } else {
+                                if (listener != null) listener.onError(errorMessage);
+                            }
                         }
 
                         @Override
-                        public void onError(String errorMessage) {
-                            // Handle the error
+                        public void onResponse(JSONObject dynamicProps) {
+                            if (listener != null) listener.onResponse(dynamicProps);
                         }
-                    }
-            * */
+                    });
 
         } catch (JSONException e) {
             e.printStackTrace();
+            if (listener != null) listener.onError(e.getMessage());
         }
     }
 
@@ -229,25 +242,41 @@ public class HiveRequests {
 
     @TargetApi(Build.VERSION_CODES.N)
     public CompletableFuture<JSONArray> processRequest(String method, JSONObject params) {
+        return processRequestWithRetry(method, params, 0);
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    private CompletableFuture<JSONArray> processRequestWithRetry(String method, JSONObject params, final int retryCount) {
         CompletableFuture<JSONArray> future = new CompletableFuture<>();
+        String currentUrl = hiveRPCNodes.get(retryCount % hiveRPCNodes.size());
         JsonObjectRequest request;
         try {
-            // Request the transactions of the user first via JsonArrayRequest
-            // according to our data format
             request = new JsonObjectRequest(Request.Method.POST,
-                    hiveRPCUrl, null, response -> {
+                    currentUrl, null, response -> {
                 try {
+                    //If successful, update the global hiveRPCUrl for future requests
+                    hiveRPCUrl = currentUrl;
+                    currentNodeIndex = retryCount % hiveRPCNodes.size();
+
                     JSONArray postArray = response.getJSONArray("result");
                     future.complete(postArray);
-                    //future.complete(response);
-                    //return future;
                 } catch (JSONException e) {
-                //} catch (Exception e) {
                     e.printStackTrace();
+                    future.completeExceptionally(e);
                 }
             },error -> {
+                if (retryCount < hiveRPCNodes.size() - 1) {
+                    Log.d(TAG, "Request failed on " + currentUrl + " for method " + method + ", retrying with next node. Error: " + error.getMessage());
+                    processRequestWithRetry(method, params, retryCount + 1)
+                            .thenAccept(future::complete)
+                            .exceptionally(ex -> {
+                                future.completeExceptionally(ex);
+                                return null;
+                            });
+                } else {
                     error.printStackTrace();
                     future.completeExceptionally(error);
+                }
             }){
                 @Override
                 public byte[] getBody() {
@@ -260,22 +289,27 @@ public class HiveRequests {
 
             };
 
-            //transactionRequest.setRetryPolicy(new DefaultRetryPolicy(15000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            // Set the timeout
             int timeoutMs = 15000; // 15 seconds
             request.setRetryPolicy(new DefaultRetryPolicy(
                     timeoutMs,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
-            // Add transaction request to be processed
             queue.add(request);
 
         }catch(Exception exception){
-            exception.printStackTrace();
-            future.completeExceptionally(exception);
+            if (retryCount < hiveRPCNodes.size() - 1) {
+                processRequestWithRetry(method, params, retryCount + 1)
+                        .thenAccept(future::complete)
+                        .exceptionally(ex -> {
+                            future.completeExceptionally(ex);
+                            return null;
+                        });
+            } else {
+                exception.printStackTrace();
+                future.completeExceptionally(exception);
+            }
         }
-        //return future;
         return future;
     }
 
