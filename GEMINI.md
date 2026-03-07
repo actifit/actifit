@@ -72,3 +72,8 @@ The system tracks the currently working node to minimize latency for subsequent 
 - **Sanitization**: `Utils.sanitizeContent` returns sanitized HTML to preserve structural integrity for `Markwon`.
 - **Preview Optimization**: `SingleHivePostModel` now strips Markdown and HTML images *before* trimming text for the short preview, eliminating "image" text artifacts and broken Markdown tags.
 - **Placeholder UX**: `PostAdapter` dynamically manages `ScaleType`—using `FIT_CENTER` for the Actifit logo placeholder to avoid distortion, and switching to `CENTER_CROP` once the full post image loads.
+- **Image Carousel**: Every post now features a horizontal image carousel (`RecyclerView`) that loads all images found in the post's metadata and body.
+    - **Visual Indicators**: Includes a "1 / X" counter, a dots indicator, and left/right navigation arrows for easy browsing.
+    - **Paging UX**: Uses `PagerSnapHelper` for smooth, centered paging behavior.
+    - **Loading States**: Each image displays a progress spinner while loading and falls back to the Actifit logo if it fails.
+    - **Visibility Management**: Automatically hides when the post is expanded or if no images are present.
