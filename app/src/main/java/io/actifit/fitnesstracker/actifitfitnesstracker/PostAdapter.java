@@ -31,6 +31,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -152,7 +155,13 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             TextView author = convertView.findViewById(R.id.author);
             final ImageView userProfilePic = convertView.findViewById(R.id.author_pic);
             TextView date = convertView.findViewById(R.id.date);
-            ImageView mainImage = convertView.findViewById(R.id.post_image);
+            final RelativeLayout carouselContainer = convertView.findViewById(R.id.image_carousel_container);
+            final RecyclerView imageCarousel = convertView.findViewById(R.id.image_carousel);
+            final TextView imageCounter = convertView.findViewById(R.id.image_counter);
+            final ImageView carouselPrev = convertView.findViewById(R.id.carousel_prev);
+            final ImageView carouselNext = convertView.findViewById(R.id.carousel_next);
+            final LinearLayout dotsContainer = convertView.findViewById(R.id.dots_container);
+
             // MarkedView mdView = convertView.findViewById(R.id.md_view);
             TextView upvoteCount = convertView.findViewById(R.id.upvote_count);
             TextView commentCount = convertView.findViewById(R.id.comment_count);
@@ -331,16 +340,16 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             expandButton.setOnClickListener(view -> {
                 if (expandButton.getVisibility() == VISIBLE) {
-                    expandPost(expandButton, retractButton, mainImage, postEntry,
+                    expandPost(expandButton, retractButton, carouselContainer, postEntry,
                             body, progressBarBody);
                 } else {
-                    retractPost(expandButton, retractButton, mainImage, postEntry,
+                    retractPost(expandButton, retractButton, carouselContainer, postEntry,
                             body, progressBarBody);
                 }
             });
 
             retractButton.setOnClickListener(view -> retractPost(expandButton, retractButton,
-                    mainImage, postEntry, body, progressBarBody));
+                    carouselContainer, postEntry, body, progressBarBody));
 
             translateBtn.setOnClickListener((View v) -> {
                 handleTranslation(postEntry, body, progressBarBody, activity);// , translationNotice);
@@ -521,86 +530,118 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 title.setVisibility(VISIBLE);
                 afitRewards.setVisibility(VISIBLE);
 
-                // fetch main post image
-                String fetchedImageUrl = "";
+                // fetch all post images
+                ArrayList<String> imagesList = new ArrayList<>();
                 try {
                     JSONObject jsonMetadata = postEntry.json_metadata;
                     if (jsonMetadata != null && jsonMetadata.has("image")) {
                         JSONArray imageArray = jsonMetadata.getJSONArray("image");
-                        if (imageArray.length() > 0) {
-
-                            // fetch first non-empty image
-                            for (int j = 0; j < imageArray.length(); j++) {
-                                fetchedImageUrl = imageArray.getString(j);
-                                if (fetchedImageUrl.startsWith("http")) {
-                                    break;
-                                }
+                        for (int j = 0; j < imageArray.length(); j++) {
+                            String imgUrl = imageArray.getString(j);
+                            if (imgUrl.startsWith("http")) {
+                                imagesList.add(imgUrl);
                             }
-
                         }
                     }
 
-                    // if no image found in metadata, try to extract from body
-                    if (fetchedImageUrl.equals("")) {
-                        // regex to find raw image URLs that are not already part of a markdown or html tag
-                        Pattern imagePattern = Pattern.compile("(?<![\"'(])(https?://\\S+?\\.(jpg|jpeg|png|gif))(?![^<]*>)");
-                        Matcher matcher = imagePattern.matcher(postEntry.body);
-                        if (matcher.find()) {
-                            fetchedImageUrl = matcher.group();
+                    // also extract from body if needed or to supplement
+                    Pattern imagePattern = Pattern.compile("(?<![\"'(])(https?://\\S+?\\.(jpg|jpeg|png|gif))(?![^<]*>)");
+                    Matcher matcher = imagePattern.matcher(postEntry.body);
+                    while (matcher.find()) {
+                        String imgUrl = matcher.group();
+                        if (!imagesList.contains(imgUrl)) {
+                            imagesList.add(imgUrl);
                         }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                final String mainImageUrl = fetchedImageUrl;
+                if (imagesList.size() > 0) {
+                    carouselContainer.setVisibility(VISIBLE);
+                    PostImageCarouselAdapter carouselAdapter = new PostImageCarouselAdapter(ctx, imagesList);
+                    imageCarousel.setLayoutManager(new LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false));
+                    imageCarousel.setAdapter(carouselAdapter);
 
-                // Handler uiHandler = new Handler(Looper.getMainLooper());
-                uiHandler.post(() -> {
+                    // clear previous snap helpers if any (since views are recycled)
+                    imageCarousel.setOnFlingListener(null);
+                    new PagerSnapHelper().attachToRecyclerView(imageCarousel);
 
-                    try {
-                        // also load main post image
-                        if (mainImageUrl != null && !mainImageUrl.equals("")) {
-                            // Set scale type to FIT_CENTER for the logo placeholder to avoid distortion
-                            mainImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    if (imagesList.size() > 1) {
+                        imageCounter.setVisibility(VISIBLE);
+                        imageCounter.setText("1 / " + imagesList.size());
 
-                            Glide.with(ctx)
-                                    .load(mainImageUrl)
-                                    .placeholder(R.drawable.actifit_logo)
-                                    .error(R.drawable.actifit_logo)
-                                    .listener(new RequestListener<Drawable>() {
-                                        @Override
-                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                            // Keep fitCenter for error logo
-                                            mainImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                                            return false;
-                                        }
-
-                                        @Override
-                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                            // Switch to centerCrop for the actual post image
-                                            mainImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                                            return false;
-                                        }
-                                    })
-                                    .centerCrop()
-                                    .into(mainImage);
-                            mainImage.setVisibility(VISIBLE);
-                        }else{
-                            mainImage.setVisibility(GONE);
-                            Glide.with(ctx).clear(mainImage);
+                        // Initialize dots
+                        dotsContainer.removeAllViews();
+                        dotsContainer.setVisibility(VISIBLE);
+                        final ImageView[] dots = new ImageView[imagesList.size()];
+                        for (int i = 0; i < imagesList.size(); i++) {
+                            dots[i] = new ImageView(ctx);
+                            dots[i].setImageDrawable(ctx.getResources().getDrawable(R.drawable.indicator_selector));
+                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                            );
+                            params.setMargins(8, 0, 8, 0);
+                            dotsContainer.addView(dots[i], params);
                         }
-                    } catch (Exception err) {
-                        System.out.println(err);
-                        mainImage.setVisibility(GONE);
-                        Glide.with(ctx).clear(mainImage);
+                        dots[0].setSelected(true);
+
+                        // Arrow visibility
+                        carouselPrev.setVisibility(GONE);
+                        carouselNext.setVisibility(VISIBLE);
+
+                        imageCarousel.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                            @Override
+                            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                                super.onScrolled(recyclerView, dx, dy);
+                                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                                if (layoutManager != null) {
+                                    int position = layoutManager.findFirstVisibleItemPosition();
+                                    if (position != RecyclerView.NO_POSITION) {
+                                        imageCounter.setText((position + 1) + " / " + imagesList.size());
+
+                                        // Update dots
+                                        for (int i = 0; i < imagesList.size(); i++) {
+                                            dots[i].setSelected(i == position);
+                                        }
+
+                                        // Update arrows
+                                        carouselPrev.setVisibility(position == 0 ? GONE : VISIBLE);
+                                        carouselNext.setVisibility(position == imagesList.size() - 1 ? GONE : VISIBLE);
+                                    }
+                                }
+                            }
+                        });
+
+                        carouselPrev.setOnClickListener(v -> {
+                            int currentPos = ((LinearLayoutManager) imageCarousel.getLayoutManager()).findFirstVisibleItemPosition();
+                            if (currentPos > 0) {
+                                imageCarousel.smoothScrollToPosition(currentPos - 1);
+                            }
+                        });
+
+                        carouselNext.setOnClickListener(v -> {
+                            int currentPos = ((LinearLayoutManager) imageCarousel.getLayoutManager()).findFirstVisibleItemPosition();
+                            if (currentPos < imagesList.size() - 1) {
+                                imageCarousel.smoothScrollToPosition(currentPos + 1);
+                            }
+                        });
+
+                    } else {
+                        imageCounter.setVisibility(GONE);
+                        dotsContainer.setVisibility(GONE);
+                        carouselPrev.setVisibility(GONE);
+                        carouselNext.setVisibility(GONE);
                     }
-                });
+                } else {
+                    carouselContainer.setVisibility(GONE);
+                }
 
                 afitLogo.setVisibility(VISIBLE);
             } else {
                 // hide post only sections
-                mainImage.setVisibility(GONE);
+                carouselContainer.setVisibility(GONE);
                 title.setVisibility(GONE);
                 afitRewards.setVisibility(GONE);
                 expandButton.setVisibility(GONE);
@@ -681,7 +722,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
     }
 
     void expandPost(Button expandButton, Button retractButton, // MarkedView mdView,
-            ImageView mainImage, SingleHivePostModel postEntry,
+            RelativeLayout carouselContainer, SingleHivePostModel postEntry,
             TextView body, RelativeLayout progressBarBody) {
         // expand text visibility
         expandButton.setVisibility(GONE);
@@ -708,11 +749,11 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
          */
         // mdView.setMinimumHeight(700);
 
-        mainImage.setVisibility(GONE);
+        carouselContainer.setVisibility(GONE);
     }
 
     void retractPost(Button expandButton, Button retractButton, // MarkedView mdView,
-            ImageView mainImage, SingleHivePostModel postEntry,
+            RelativeLayout carouselContainer, SingleHivePostModel postEntry,
             TextView body, RelativeLayout progressBarBody) {
         // retract text visibility
         expandButton.setVisibility(VISIBLE);
@@ -730,7 +771,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         // mdView.setMDText(finalShortenedContent);
         renderContent(postEntry, body, progressBarBody);// , translationNotice);
 
-        mainImage.setVisibility(VISIBLE);
+        carouselContainer.setVisibility(VISIBLE);
     }
 
     void handleTranslation(SingleHivePostModel postEntry, TextView body,
