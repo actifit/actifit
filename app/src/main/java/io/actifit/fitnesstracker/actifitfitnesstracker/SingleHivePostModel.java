@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SingleHivePostModel implements Comparable<SingleHivePostModel>{
 
@@ -53,6 +55,9 @@ public class SingleHivePostModel implements Comparable<SingleHivePostModel>{
     public Boolean isExpanded = false; // default view not expanded, so display shortBody content i/o body
     public Context ctx;
 
+    public ArrayList<String> imagesList = new ArrayList<>();
+    public int currentImageIndex = 0;
+
     public boolean isThread = false;
     public String threadType = "";
 
@@ -76,11 +81,41 @@ public class SingleHivePostModel implements Comparable<SingleHivePostModel>{
             //calculate ratio
             this.calculateRatio();
 
+            // Extract all images
+            extractImages();
+
             this.ctx = ctx;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+    private void extractImages() {
+        imagesList = new ArrayList<>();
+        try {
+            if (json_metadata != null && json_metadata.has("image")) {
+                JSONArray imageArray = json_metadata.getJSONArray("image");
+                for (int j = 0; j < imageArray.length(); j++) {
+                    String imgUrl = imageArray.getString(j);
+                    if (imgUrl.startsWith("http") && !imagesList.contains(imgUrl)) {
+                        imagesList.add(imgUrl);
+                    }
+                }
+            }
+
+            // also extract from body
+            Pattern imagePattern = Pattern.compile("(?<![\"'(])(https?://\\S+?\\.(jpg|jpeg|png|gif))(?![^<]*>)");
+            Matcher matcher = imagePattern.matcher(this.body);
+            while (matcher.find()) {
+                String imgUrl = matcher.group();
+                if (!imagesList.contains(imgUrl)) {
+                    imagesList.add(imgUrl);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getTrimmedTranslatedContent(){

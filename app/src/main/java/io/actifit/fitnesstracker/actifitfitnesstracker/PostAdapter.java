@@ -530,32 +530,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 title.setVisibility(VISIBLE);
                 afitRewards.setVisibility(VISIBLE);
 
-                // fetch all post images
-                ArrayList<String> imagesList = new ArrayList<>();
-                try {
-                    JSONObject jsonMetadata = postEntry.json_metadata;
-                    if (jsonMetadata != null && jsonMetadata.has("image")) {
-                        JSONArray imageArray = jsonMetadata.getJSONArray("image");
-                        for (int j = 0; j < imageArray.length(); j++) {
-                            String imgUrl = imageArray.getString(j);
-                            if (imgUrl.startsWith("http")) {
-                                imagesList.add(imgUrl);
-                            }
-                        }
-                    }
-
-                    // also extract from body if needed or to supplement
-                    Pattern imagePattern = Pattern.compile("(?<![\"'(])(https?://\\S+?\\.(jpg|jpeg|png|gif))(?![^<]*>)");
-                    Matcher matcher = imagePattern.matcher(postEntry.body);
-                    while (matcher.find()) {
-                        String imgUrl = matcher.group();
-                        if (!imagesList.contains(imgUrl)) {
-                            imagesList.add(imgUrl);
-                        }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                ArrayList<String> imagesList = postEntry.imagesList;
 
                 if (imagesList.size() > 0) {
                     carouselContainer.setVisibility(VISIBLE);
@@ -567,9 +542,12 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     imageCarousel.setOnFlingListener(null);
                     new PagerSnapHelper().attachToRecyclerView(imageCarousel);
 
+                    // Restore position
+                    imageCarousel.scrollToPosition(postEntry.currentImageIndex);
+
                     if (imagesList.size() > 1) {
                         imageCounter.setVisibility(VISIBLE);
-                        imageCounter.setText("1 / " + imagesList.size());
+                        imageCounter.setText((postEntry.currentImageIndex + 1) + " / " + imagesList.size());
 
                         // Initialize dots
                         dotsContainer.removeAllViews();
@@ -585,11 +563,17 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                             params.setMargins(8, 0, 8, 0);
                             dotsContainer.addView(dots[i], params);
                         }
-                        dots[0].setSelected(true);
+                        // Set selected dot
+                        if (postEntry.currentImageIndex < dots.length) {
+                            dots[postEntry.currentImageIndex].setSelected(true);
+                        }
 
                         // Arrow visibility
-                        carouselPrev.setVisibility(GONE);
-                        carouselNext.setVisibility(VISIBLE);
+                        carouselPrev.setVisibility(postEntry.currentImageIndex == 0 ? GONE : VISIBLE);
+                        carouselNext.setVisibility(postEntry.currentImageIndex == imagesList.size() - 1 ? GONE : VISIBLE);
+
+                        // Clear previous listeners to avoid multiple updates on recycled views
+                        imageCarousel.clearOnScrollListeners();
 
                         imageCarousel.addOnScrollListener(new RecyclerView.OnScrollListener() {
                             @Override
@@ -599,6 +583,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                                 if (layoutManager != null) {
                                     int position = layoutManager.findFirstVisibleItemPosition();
                                     if (position != RecyclerView.NO_POSITION) {
+                                        postEntry.currentImageIndex = position;
                                         imageCounter.setText((position + 1) + " / " + imagesList.size());
 
                                         // Update dots
