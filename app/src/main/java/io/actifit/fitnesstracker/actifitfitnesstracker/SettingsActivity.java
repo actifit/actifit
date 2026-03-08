@@ -14,10 +14,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 
+import android.net.Uri;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -103,6 +106,9 @@ public class SettingsActivity extends BaseActivity {
     //private ImageView iconSun = findViewById(R.id.icon_sun); // Optional
     //private ImageView iconMoon = findViewById(R.id.icon_moon); // Optional
     private static final String PREF_KEY_DARK_MODE = "theme_mode";
+
+    private ActivityResultLauncher<Intent> backupLauncher;
+    private ActivityResultLauncher<Intent> restoreLauncher;
 
     /*@Bind(R.id.main_toolbar)
     Toolbar toolbar;*/
@@ -1238,6 +1244,8 @@ public class SettingsActivity extends BaseActivity {
         hourOptions.setFormatter(formatter);
         minOptions.setFormatter(formatter);
 
+        setupBackupRestore();
+
         //get pre-saved values for reminder setting
         String reminderHour = (sharedPreferences.getString("selectedReminderHour",""));
         String reminderMin = (sharedPreferences.getString("selectedReminderMin",""));
@@ -1378,5 +1386,70 @@ public class SettingsActivity extends BaseActivity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
+    private void setupBackupRestore() {
+        Button backupBtn = findViewById(R.id.backup_data_btn);
+        Button restoreBtn = findViewById(R.id.restore_data_btn);
+
+        backupLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (BackupUtils.createBackup(this, uri)) {
+                            Toast.makeText(this, R.string.backup_success, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(this, R.string.backup_failed, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+        );
+
+        restoreLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        confirmRestore(uri);
+                    }
+                }
+        );
+
+        backupBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json");
+            intent.putExtra(Intent.EXTRA_TITLE, "actifit_backup_" + System.currentTimeMillis() + ".json");
+            backupLauncher.launch(intent);
+        });
+
+        restoreBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json");
+            restoreLauncher.launch(intent);
+        });
+    }
+
+    private void confirmRestore(Uri uri) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.restore_data_btn)
+                .setMessage(R.string.restore_confirmation)
+                .setPositiveButton(R.string.yes_button, (dialog, which) -> {
+                    if (BackupUtils.restoreBackup(this, uri)) {
+                        Toast.makeText(this, R.string.restore_success, Toast.LENGTH_LONG).show();
+                        // Restart app to apply changes
+                        new android.os.Handler().postDelayed(() -> {
+                            Intent intent = new Intent(this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            Runtime.getRuntime().exit(0);
+                        }, 2000);
+                    } else {
+                        Toast.makeText(this, R.string.restore_failed, Toast.LENGTH_LONG).show();
+                    }
+                })
+                .setNegativeButton(R.string.no_button, null)
+                .show();
+    }
 
 }
