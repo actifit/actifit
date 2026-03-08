@@ -841,6 +841,54 @@
             android:paddingRight="20dp"
             android:paddingTop="10dp"
             android:textSize="18sp"
+            android:text="@string/backup_restore_title" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            >
+            <Button android:id="@+id/backup_data_btn"
+                android:theme="@style/AppTheme.ActifitButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:textSize="14sp"
+                android:text="@string/backup_data_btn"
+                />
+
+            <Button android:id="@+id/restore_data_btn"
+                android:theme="@style/AppTheme.ActifitButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="@string/restore_data_btn"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp"
+            android:textSize="18sp"
             android:text="@string/logout" />
 
 
