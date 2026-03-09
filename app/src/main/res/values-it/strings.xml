@@ -664,5 +664,14 @@
     <string name="exercise_added_toast">Esercizio aggiunto.</string>
     <string name="start_workout">INIZIA ALLENAMENTO</string>
     <string name="manage_workouts">Gestisci allenamenti</string>
+    <string name="backup_restore_title">Backup e Ripristino</string>
+    <string name="backup_data_btn">Backup Dati</string>
+    <string name="restore_data_btn">Ripristina Dati</string>
+    <string name="backup_success">Backup creato con successo!</string>
+    <string name="backup_failed">Backup fallito!</string>
+    <string name="restore_success">Dati ripristinati con successo! L\'app verrà riavviata ora.</string>
+    <string name="restore_failed">Ripristino fallito!</string>
+    <string name="restore_confirmation">Questo sovrascriverà i tuoi dati attuali. Sei sicuro di voler procedere?</string>
+    <string name="select_backup_file">Seleziona il file di backup</string>
 </resources>
 

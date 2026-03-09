@@ -662,5 +662,14 @@
     <string name="exercise_removed_toast">运动已移除。</string>
     <string name="exercise_added_toast">运动已添加。</string>
     <string name="start_workout">开始训练</string>
-    <string name="manage_workouts">管理锻炼</string>
-</resources>
+    <string name="manage_workouts">管理训练</string>
+    <string name="backup_restore_title">备份与恢复</string>
+    <string name="backup_data_btn">备份数据</string>
+    <string name="restore_data_btn">恢复数据</string>
+    <string name="backup_success">备份创建成功！</string>
+    <string name="backup_failed">备份失败！</string>
+    <string name="restore_success">数据恢复成功！应用现在将重新启动。</string>
+    <string name="restore_failed">恢复失败！</string>
+    <string name="restore_confirmation">这将覆盖您当前的数据。您确定要继续吗？</string>
+    <string name="select_backup_file">选择备份文件</string>
+    </resources>
