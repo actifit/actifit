@@ -676,5 +676,14 @@
     <string name="exercise_added_toast">تمت إضافة التمرين.</string>
     <string name="start_workout">بدء التمرين</string>
     <string name="manage_workouts">إدارة التمارين</string>
+    <string name="backup_restore_title">النسخ الاحتياطي والاستعادة</string>
+    <string name="backup_data_btn">نسخ البيانات احتياطيًا</string>
+    <string name="restore_data_btn">استعادة البيانات</string>
+    <string name="backup_success">تم إنشاء النسخة الاحتياطية بنجاح!</string>
+    <string name="backup_failed">فشل النسخ الاحتياطي!</string>
+    <string name="restore_success">تم استعادة البيانات بنجاح! سيتم إعادة تشغيل التطبيق الآن.</string>
+    <string name="restore_failed">فشلت الاستعادة!</string>
+    <string name="restore_confirmation">سيؤدي هذا إلى الكتابة فوق بياناتك الحالية. هل أنت متأكد أنك تريد المتابعة؟</string>
+    <string name="select_backup_file">حدد ملف النسخ الاحتياطي</string>
 </resources>
 

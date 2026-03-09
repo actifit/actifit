@@ -664,5 +664,14 @@
     <string name="exercise_added_toast">운동이 추가되었습니다.</string>
     <string name="start_workout">운동 시작</string>
     <string name="manage_workouts">운동 관리</string>
+    <string name="backup_restore_title">백업 및 복구</string>
+    <string name="backup_data_btn">데이터 백업</string>
+    <string name="restore_data_btn">데이터 복구</string>
+    <string name="backup_success">백업이 성공적으로 생성되었습니다!</string>
+    <string name="backup_failed">백업에 실패했습니다!</string>
+    <string name="restore_success">데이터가 성공적으로 복구되었습니다! 앱이 이제 다시 시작됩니다.</string>
+    <string name="restore_failed">복구에 실패했습니다!</string>
+    <string name="restore_confirmation">현재 데이터를 덮어씁니다. 계속하시겠습니까?</string>
+    <string name="select_backup_file">백업 파일 선택</string>
 </resources>
 
