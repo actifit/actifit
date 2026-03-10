@@ -23,12 +23,12 @@ import static java.lang.String.format;
 public class StepsDBHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "ActifitFitness";
-    private static final String TABLE_STEPS_SUMMARY = "ActifitFitness";
+    public static final String TABLE_STEPS_SUMMARY = "ActifitFitness";
     private static final String CREATION_DATE = "creationdate";//Date format is yyyyMMdd
     private static final String STEPS_COUNT = "stepscount";
     private static final String TRACKING_DEVICE = "trackingdevice";
 
-    private static final String TABLE_STEPS_DETAILS = "DailyActivityRecs";
+    public static final String TABLE_STEPS_DETAILS = "DailyActivityRecs";
     private static final String DATE_ENTRY = "dateEntry";//Date format is yyyyMMdd
     private static final String TIME_SLOT = "timeSlot";
     private static final String ACTIVITY_COUNT = "activityCount";

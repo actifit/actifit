@@ -661,7 +661,16 @@
     <string name="no_exercises_selected_for_add">Жодної вправи не вибрано. Повернення до редагування.</string>
     <string name="exercise_removed_toast">Вправу видалено.</string>
     <string name="exercise_added_toast">Вправу додано.</string>
-    <string name="start_workout">ПОЧАТИ ТРЕНУВАННЯ</string>
+    <string name="start_workout">РОЗПОЧАТИ ТРЕНУВАННЯ</string>
     <string name="manage_workouts">Керувати тренуваннями</string>
-</resources>
+    <string name="backup_restore_title">Резервне копіювання та відновлення</string>
+    <string name="backup_data_btn">Резервне копіювання</string>
+    <string name="restore_data_btn">Відновити дані</string>
+    <string name="backup_success">Резервну копію успішно створено!</string>
+    <string name="backup_failed">Помилка резервного копіювання!</string>
+    <string name="restore_success">Дані успішно відновлено! Програма зараз перезапуститься.</string>
+    <string name="restore_failed">Помилка відновлення!</string>
+    <string name="restore_confirmation">Це призведе до перезапису поточних даних. Ви впевнені, що хочете продовжити?</string>
+    <string name="select_backup_file">Виберіть файл резервної копії</string>
+    </resources>
 

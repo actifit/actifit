@@ -633,4 +633,14 @@
     <string name="exercise_added_toast">Exercise added.</string>
     <string name="start_workout">START WORKOUT</string>
     <string name="manage_workouts">Manage Workouts</string>
+
+    <string name="backup_restore_title">Backup &amp; Restore</string>
+    <string name="backup_data_btn">Backup Data</string>
+    <string name="restore_data_btn">Restore Data</string>
+    <string name="backup_success">Backup created successfully!</string>
+    <string name="backup_failed">Backup failed!</string>
+    <string name="restore_success">Data restored successfully! The app will now restart.</string>
+    <string name="restore_failed">Restore failed!</string>
+    <string name="restore_confirmation">This will overwrite your current data. Are you sure you want to proceed?</string>
+    <string name="select_backup_file">Select backup file</string>
 </resources>

@@ -662,5 +662,14 @@
     <string name="exercise_removed_toast">Egzersiz kaldırıldı.</string>
     <string name="exercise_added_toast">Egzersiz eklendi.</string>
     <string name="start_workout">ANTRENMANI BAŞLAT</string>
-    <string name="manage_workouts">Antrenmanları Yönet</string>
-</resources>
+    <string name="manage_workouts">Antrenmanları yönet</string>
+    <string name="backup_restore_title">Yedekle ve Geri Yükle</string>
+    <string name="backup_data_btn">Verileri Yedekle</string>
+    <string name="restore_data_btn">Verileri Geri Yükle</string>
+    <string name="backup_success">Yedek başarıyla oluşturuldu!</string>
+    <string name="backup_failed">Yedekleme başarısız!</string>
+    <string name="restore_success">Veriler başarıyla geri yüklendi! Uygulama şimdi yeniden başlatılacak.</string>
+    <string name="restore_failed">Geri yükleme başarısız!</string>
+    <string name="restore_confirmation">Bu, mevcut verilerinizin üzerine yazacaktır. Devam etmek istediğinizden emin misiniz?</string>
+    <string name="select_backup_file">Yedekleme dosyasını seçin</string>
+    </resources>
