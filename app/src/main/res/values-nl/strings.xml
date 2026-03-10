@@ -663,6 +663,15 @@
     <string name="exercise_removed_toast">Oefening verwijderd.</string>
     <string name="exercise_added_toast">Oefening toegevoegd.</string>
     <string name="start_workout">START WORKOUT</string>
-    <string name="manage_workouts">Trainingen beheren</string>
-</resources>
+    <string name="manage_workouts">Workouts beheren</string>
+    <string name="backup_restore_title">Back-up &amp; Herstel</string>
+    <string name="backup_data_btn">Back-up Gegevens</string>
+    <string name="restore_data_btn">Gegevens Herstellen</string>
+    <string name="backup_success">Back-up succesvol gemaakt!</string>
+    <string name="backup_failed">Back-up mislukt!</string>
+    <string name="restore_success">Gegevens succesvol hersteld! De app wordt nu opnieuw opgestart.</string>
+    <string name="restore_failed">Herstel mislukt!</string>
+    <string name="restore_confirmation">Dit zal uw huidige gegevens overschrijven. Weet u zeker dat u wilt doorgaan?</string>
+    <string name="select_backup_file">Back-upbestand selecteren</string>
+    </resources>
 

@@ -667,5 +667,14 @@
     <string name="exercise_added_toast">Ejercicio añadido.</string>
     <string name="start_workout">INICIAR ENTRENAMIENTO</string>
     <string name="manage_workouts">Gestionar entrenamientos</string>
+    <string name="backup_restore_title">Copia de seguridad y restauración</string>
+    <string name="backup_data_btn">Copia de seguridad</string>
+    <string name="restore_data_btn">Restaurar datos</string>
+    <string name="backup_success">¡Copia de seguridad creada con éxito!</string>
+    <string name="backup_failed">¡Fallo en la copia de seguridad!</string>
+    <string name="restore_success">¡Datos restaurados con éxito! La aplicación se reiniciará ahora.</string>
+    <string name="restore_failed">¡Fallo en la restauración!</string>
+    <string name="restore_confirmation">Esto sobrescribirá sus datos actuales. ¿Está seguro de que desea continuar?</string>
+    <string name="select_backup_file">Seleccionar archivo de copia de seguridad</string>
 </resources>
 

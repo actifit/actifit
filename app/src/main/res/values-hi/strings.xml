@@ -662,7 +662,16 @@
     <string name="no_exercises_selected_for_add">कोई व्यायाम चयनित नहीं। संपादन पर वापस लौट रहे हैं।</string>
     <string name="exercise_removed_toast">व्यायाम हटाया गया।</string>
     <string name="exercise_added_toast">व्यायाम जोड़ा गया।</string>
-    <string name="start_workout">वर्कआउट शुरू करें</string>
-    <string name="manage_workouts">वर्कआउट प्रबंधित करें</string>
-</resources>
+    <string name="start_workout">कसरत शुरू करें</string>
+    <string name="manage_workouts">कसरत प्रबंधित करें</string>
+    <string name="backup_restore_title">बैकअप और रिस्टोर</string>
+    <string name="backup_data_btn">डेटा बैकअप करें</string>
+    <string name="restore_data_btn">डेटा रिस्टोर करें</string>
+    <string name="backup_success">बैकअप सफलतापूर्वक बनाया गया!</string>
+    <string name="backup_failed">बैकअप विफल रहा!</string>
+    <string name="restore_success">डेटा सफलतापूर्वक रिस्टोर किया गया! ऐप अब रीस्टार्ट होगा।</string>
+    <string name="restore_failed">रिस्टोर विफल रहा!</string>
+    <string name="restore_confirmation">यह आपके वर्तमान डेटा को अधिलेखित कर देगा। क्या आप वाकई आगे बढ़ना चाहते हैं?</string>
+    <string name="select_backup_file">बैकअप फ़ाइल चुनें</string>
+    </resources>
 

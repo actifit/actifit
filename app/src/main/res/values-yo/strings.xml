@@ -664,5 +664,14 @@
     <string name="exercise_added_toast">Adaṣe ti ṣafikun.</string>
     <string name="start_workout">BẸRẸ IDARAYA</string>
     <string name="manage_workouts">Ṣakoso Awọn Idaraya</string>
+    <string name="backup_restore_title">Atunṣe &amp; Idanilẹkọọ</string>
+    <string name="backup_data_btn">Ṣe afẹyinti data</string>
+    <string name="restore_data_btn">Da data pada</string>
+    <string name="backup_success">Idanilẹkọọ ti ṣaṣeyọri!</string>
+    <string name="backup_failed">Idanilẹkọọ kuna!</string>
+    <string name="restore_success">A ti da data pada ni aṣeyọri! Ohun elo yoo bẹrẹ lẹẹkan si bayi.</string>
+    <string name="restore_failed">Atunṣe kuna!</string>
+    <string name="restore_confirmation">Eyi yoo kọ sori data lọwọlọwọ rẹ. Ṣe o da ọ loju pe o fẹ tẹsiwaju?</string>
+    <string name="select_backup_file">Yan faili afẹyinti</string>
 </resources>
 
