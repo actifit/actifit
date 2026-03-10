@@ -3,4 +3,5 @@
     <!--<external-path name="actifit_images" path="." />-->
     <files-path name="actifit_images"
         path="." />
+    <cache-path name="cache_images" path="images/" />
 </paths>

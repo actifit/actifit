@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/achievement_card_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Background Image with Aspect Ratio Preservation -->
+    <ImageView
+        android:id="@+id/card_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/content_layer"
+        android:layout_alignBottom="@id/content_layer"
+        android:scaleType="centerCrop"
+        android:src="@drawable/actifit_achieve" />
+
+    <!-- Dark Overlay for Contrast -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/content_layer"
+        android:layout_alignBottom="@id/content_layer"
+        android:background="#B3000000" />
+
+    <RelativeLayout
+        android:id="@+id/content_layer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="350dp"
+        android:padding="20dp">
+
+        <!-- Top Row: User Info (Left) and Logo (Right) -->
+        <LinearLayout
+            android:id="@+id/user_info_section"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/user_profile_pic_card"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/actifit_logo"
+                app:civ_border_width="1dp"
+                app:civ_border_color="@color/colorWhite"
+                />
+
+            <TextView
+                android:id="@+id/user_handle_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@USERNAME"
+                android:textColor="@color/colorWhite"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/actifit_logo_header"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/actifit_logo"
+            android:scaleType="fitCenter"
+            android:tint="@color/colorWhite"/>
+
+        <TextView
+            android:id="@+id/achievement_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/user_info_section"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:text="DAILY ACHIEVEMENT"
+            android:textColor="@color/actifitRed"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2"/>
+
+        <!-- Main Stats Section - Anchored below title to prevent overlap -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/achievement_title"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/step_count_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12,450"
+                android:textColor="@color/colorWhite"
+                android:textSize="64sp"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="4"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STEPS TRACKED"
+                android:textColor="#CCCCCC"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
+
+            <!-- Rewards Highlight -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/counter_background"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/afit_logo"
+                    android:layout_marginEnd="4dp"/>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/hive"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="REWARDS PENDING"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="80dp"
+                android:layout_height="2dp"
+                android:layout_marginVertical="12dp"
+                android:background="@color/actifitRed" />
+
+            <!-- Slogan -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="It pays to be fit!"
+                android:textColor="@color/colorWhite"
+                android:textSize="18sp"
+                android:textStyle="italic|bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="actifit.io"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/actifitRed"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- Footer Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/user_rank_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Rank: 75/100"
+                android:textColor="@color/colorWhite"
+                android:textSize="14sp"
+                android:textStyle="italic|bold" />
+
+            <TextView
+                android:id="@+id/achievement_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="March 07, 2026"
+                android:textColor="#DDDDDD"
+                android:textSize="12sp"
+                android:layout_marginStart="10dp"/>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>
