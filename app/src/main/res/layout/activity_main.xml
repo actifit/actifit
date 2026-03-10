@@ -132,17 +132,23 @@
                 android:layout_gravity="end"
                 android:id="@+id/top_icons_container">
 
-                <TextView
-                    android:id="@+id/btn_settings"
-                    android:layout_width="35dp"
-                    android:layout_height="30dp"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="25sp"
-                    android:text="\uf013"
-                    android:layout_gravity="start"
-                    android:gravity="start"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    tools:ignore="HardcodedText" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/btn_settings"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:textColor="@color/actifitRed"
+                        android:textSize="22sp"
+                        android:text="\uf013"
+                        android:gravity="center"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        tools:ignore="HardcodedText" />
+
+                </LinearLayout>
 
 
 
@@ -406,6 +412,28 @@
                                 android:layout_alignBottom="@+id/step_pie_chart_fitbit"
                                 android:layout_alignEnd="@+id/step_pie_chart_fitbit"
                                 />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_alignBottom="@id/step_pie_chart_fitbit"
+                                android:layout_alignStart="@id/step_pie_chart_fitbit"
+                                android:gravity="center"
+                                >
+
+                                <TextView
+                                    android:id="@+id/btn_share_achievement_fitbit"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:textColor="@color/actifitRed"
+                                    android:textSize="22sp"
+                                    android:text="\uf1e0"
+                                    android:gravity="center"
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    tools:ignore="HardcodedText" />
+
+                            </LinearLayout>
                         </RelativeLayout>
 
                         <RelativeLayout
@@ -449,6 +477,28 @@
                                 android:text="@string/switch_settings_btn"
                                 android:textColor="@color/actifitRed"
                                 android:textSize="25sp" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_alignBottom="@id/step_pie_chart_health_connect"
+                                android:layout_alignStart="@id/step_pie_chart_health_connect"
+                                android:gravity="center"
+                                >
+
+                                <TextView
+                                    android:id="@+id/btn_share_achievement_hc"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:textColor="@color/actifitRed"
+                                    android:textSize="22sp"
+                                    android:text="\uf1e0"
+                                    android:gravity="center"
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    tools:ignore="HardcodedText" />
+
+                            </LinearLayout>
                         </RelativeLayout>
 
                         <RelativeLayout
@@ -473,6 +523,17 @@
                                 >
 
                                 <TextView
+                                    android:id="@+id/btn_share_achievement"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:textColor="@color/actifitRed"
+                                    android:textSize="22sp"
+                                    android:text="\uf1e0"
+                                    android:gravity="center"
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    tools:ignore="HardcodedText" />
+
+                                <TextView
                                     android:id="@+id/battery_notice"
                                     android:layout_width="25dp"
                                     android:layout_height="25dp"
@@ -480,6 +541,7 @@
                                     android:textSize="20sp"
                                     android:text="@string/fa_exclamation_circle_solid"
                                     android:fontFamily="@font/font_awesome_6_solid"
+                                    android:layout_marginStart="10dp"
                                     />
 
                             </LinearLayout>

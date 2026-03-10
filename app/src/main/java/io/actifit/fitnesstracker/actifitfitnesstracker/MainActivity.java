@@ -1298,6 +1298,9 @@ public class MainActivity extends BaseActivity {
         TextView BtnVideo = findViewById(R.id.btn_video);
 
         BtnSettings = findViewById(R.id.btn_settings);
+        TextView BtnShareAchievement = findViewById(R.id.btn_share_achievement);
+        TextView BtnShareAchievementFitbit = findViewById(R.id.btn_share_achievement_fitbit);
+        TextView BtnShareAchievementHC = findViewById(R.id.btn_share_achievement_hc);
         TextView BtnMarket = findViewById(R.id.btn_view_market);
         TextView BtnPosts = findViewById(R.id.btn_view_social);
         BtnWaves = findViewById(R.id.btn_waves);
@@ -2285,6 +2288,21 @@ public class MainActivity extends BaseActivity {
         });
 
         // handle activity to move over to the Settings screen
+        View.OnClickListener shareAchievementListener = v -> {
+            Intent shareIntent = new Intent(MainActivity.this, ShareAchievementActivity.class);
+            // Pass current stats
+            int steps = mStepsDBHelper.fetchTodayStepCount();
+            shareIntent.putExtra("steps", String.valueOf(steps));
+            shareIntent.putExtra("username", MainActivity.username);
+            shareIntent.putExtra("afit", String.format(Locale.getDefault(), "%.2f", userFullBalance));
+            shareIntent.putExtra("rank", userRank);
+            startActivity(shareIntent);
+        };
+
+        BtnShareAchievement.setOnClickListener(shareAchievementListener);
+        BtnShareAchievementFitbit.setOnClickListener(shareAchievementListener);
+        BtnShareAchievementHC.setOnClickListener(shareAchievementListener);
+
         BtnSettings.setOnClickListener(arg0 -> {
 
             if (username == null || username.isEmpty()) {

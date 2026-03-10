@@ -139,7 +139,14 @@
         </intent-filter>
     </activity>
 
-    <activity android:name=".WorkoutWizardActivity" android:exported="false"/>
+    <activity
+        android:name=".ShareAchievementActivity"
+        android:screenOrientation="portrait"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+    <activity
+        android:name=".WorkoutWizardActivity"
+ android:exported="false"/>
 
     <activity
         android:name=".EditWorkoutActivity"
