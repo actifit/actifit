@@ -869,6 +869,7 @@ public class MainActivity extends BaseActivity {
         fullChartButton = findViewById(R.id.daily_chart_btn);
         dayChartButton = findViewById(R.id.hourly_chart_btn);
         chartSwitcher = findViewById(R.id.chart_switcher);
+        btnPieChart = findViewById(R.id.step_pie_chart);
 
         // allow opening signup link
         signupLink.setMovementMethod(LinkMovementMethod.getInstance());
