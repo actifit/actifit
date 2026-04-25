@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug Actifit (app)",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "projectName": "app",
+      "mainClass": "io.actifit.fitnesstracker.actifitfitnesstracker.LoginActivity",
+      "vmArgs": "-ea",
+      "console": "integratedTerminal"
+    }
+  ]
+}
