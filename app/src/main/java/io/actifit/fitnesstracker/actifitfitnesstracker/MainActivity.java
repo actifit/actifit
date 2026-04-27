@@ -816,6 +816,10 @@ public class MainActivity extends BaseActivity {
         chartManager.setBtnWaves(BtnWaves);
         chartManager.setBtnPostSteemit(BtnPostSteemit);
 
+        // Initialize bar chart references for chart switching
+        dayChart = findViewById(R.id.main_today_activity_chart);
+        fullChart = findViewById(R.id.main_history_activity_chart);
+
         securityManager = new SecurityManager(this);
         uiHelper = new UiHelper(this, this);
         uiHelper.initializeAnimations();
