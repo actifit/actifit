@@ -714,32 +714,50 @@
                             android:gravity="center_vertical"
                             android:layout_marginBottom="@dimen/spacing_sm">
 
-                            <Button
-                                style="@style/AppTheme.ActifitButton"
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_choose_file"
-                                android:layout_width="45dp"
-                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Button.IconButton.Filled"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
                                 android:fontFamily="@font/font_awesome_6_regular"
-                                android:text="\uf03e" />
+                                android:text="\uf03e"
+                                android:textSize="18sp"
+                                android:textColor="@color/md_theme_onPrimary"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:padding="0dp"
+                                app:iconPadding="0dp" />
 
-                            <Button
-                                style="@style/AppTheme.ActifitButton"
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_video_post"
-                                android:layout_width="45dp"
-                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Button.IconButton.Filled"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
                                 android:fontFamily="@font/font_awesome_6_solid"
                                 android:text="\uf03d"
-                                android:layout_marginStart="@dimen/spacing_xs" />
+                                android:textSize="18sp"
+                                android:textColor="@color/md_theme_onPrimary"
+                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:padding="0dp"
+                                app:iconPadding="0dp" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_expand_editor"
-                                style="@style/AppTheme.ActifitButton"
-                                android:layout_width="45dp"
-                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Button.IconButton.Filled"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
                                 android:contentDescription="Expand Editor"
                                 android:fontFamily="@font/font_awesome_6_solid"
                                 android:text="\uf065"
-                                android:layout_marginStart="@dimen/spacing_xs" />
+                                android:textSize="18sp"
+                                android:textColor="@color/md_theme_onPrimary"
+                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:padding="0dp"
+                                app:iconPadding="0dp" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
