@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Brand colors -->
     <color name="colorPrimary">#FF112D</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryDark">#CC0E24</color>
     <color name="colorAccent">#FF112D</color>
     <color name="actifitRed">#FF112D</color>
     <color name="actifitGreen">#00FF00</color>
@@ -9,20 +10,44 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
 
+    <!-- Semantic Material 3 colors -->
+    <color name="md_theme_primary">#FF112D</color>
+    <color name="md_theme_primaryVariant">#CC0E24</color>
+    <color name="md_theme_secondary">#00C853</color>
+    <color name="md_theme_surface">#FFFFFF</color>
+    <color name="md_theme_background">#F5F5F5</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_onSurface">#212121</color>
+    <color name="md_theme_onBackground">#212121</color>
+    <color name="md_theme_textSecondary">#757575</color>
+    <color name="md_theme_textHint">#A0A0A0</color>
+    <color name="md_theme_success">#00C853</color>
+    <color name="md_theme_warning">#FF9800</color>
+    <color name="md_theme_error">#FF112D</color>
+    <color name="md_theme_separator">#E0E0E0</color>
+    <color name="md_theme_cardBackground">#FFFFFF</color>
+    <color name="md_theme_inputBackground">#F5F5F5</color>
+    <color name="md_theme_chipBackground">#EEEEEE</color>
+    <color name="md_theme_progressTrack">#E0E0E0</color>
+    <color name="md_theme_progressFill">#FF112D</color>
+    <color name="md_theme_rewardLocked">#9E9E9E</color>
+    <color name="md_theme_rewardAvailable">#FF112D</color>
+    <color name="md_theme_rewardClaimed">#4CAF50</color>
+
     <!-- Neutral colors - Use semantic names -->
-    <color name="color_text_primary">#212121</color> <!-- Dark text for light backgrounds -->
-    <color name="color_text_secondary">#757575</color> <!-- Medium gray text -->
-    <color name="color_background">#FFFFFF</color> <!-- Main screen background -->
-    <color name="color_surface">#FAFAFA</color> <!-- Card/surface background -->
-    <color name="color_separator">#E0E0E0</color> <!-- Divider color -->
-    <color name="color_header_background">#EEEEEE</color> <!-- Table/section header background -->
-    <color name="color_header_text">#333333</color> <!-- Table/section header text -->
-    <color name="color_text_hint">#A0A0A0</color> <!-- Hint text color -->
+    <color name="color_text_primary">#212121</color>
+    <color name="color_text_secondary">#757575</color>
+    <color name="color_background">#FFFFFF</color>
+    <color name="color_surface">#FAFAFA</color>
+    <color name="color_separator">#E0E0E0</color>
+    <color name="color_header_background">#EEEEEE</color>
+    <color name="color_header_text">#333333</color>
+    <color name="color_text_hint">#A0A0A0</color>
 
-    <!-- Specific colors (if needed) -->
-    <color name="text_on_actifit_red">#FFFFFF</color> <!-- White text for red background -->
+    <!-- Specific colors -->
+    <color name="text_on_actifit_red">#FFFFFF</color>
 
-    <!-- Define positive/negative colors for transaction list -->
-    <color name="positive_amount_color">#00AA00</color> <!-- Green for light mode -->
-    <color name="negative_amount_color">#CC0000</color> <!-- Red for light mode -->
+    <!-- Positive/negative colors for transaction list -->
+    <color name="positive_amount_color">#00AA00</color>
+    <color name="negative_amount_color">#CC0000</color>
 </resources>

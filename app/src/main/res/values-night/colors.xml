@@ -1,28 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Brand colors - dark mode -->
     <color name="colorPrimary">#FF5252</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#FF5252</color>
     <color name="actifitRed">#FF5252</color>
     <color name="actifitGreen">#32CD32</color>
     <color name="actifitDarkGreen">#008000</color>
-    <color name="colorWhite">#121212</color><!-- White in light becomes dark gray in dark (common Material dark background) -->
-    <color name="colorBlack">#FFFFFF</color><!-- Black in light becomes white/light gray in dark -->
+    <color name="colorWhite">#121212</color>
+    <color name="colorBlack">#FFFFFF</color>
 
-    <!-- Neutral colors - Use the SAME semantic names -->
-    <color name="color_text_primary">#FFFFFF</color> <!-- White text for dark backgrounds -->
-    <color name="color_text_secondary">#B0B0B0</color> <!-- Lighter gray text -->
-    <color name="color_background">#121212</color> <!-- Dark main background -->
-    <color name="color_surface">#1E1E1E</color> <!-- Darker gray surface -->
-    <color name="color_separator">#424242</color> <!-- Darker divider -->
-    <color name="color_header_background">#2A2A2A</color> <!-- Even darker header background -->
-    <color name="color_header_text">#F0F0F0</color> <!-- Light header text -->
-    <color name="color_text_hint">#606060</color> <!-- Dark hint text -->
+    <!-- Semantic Material 3 colors - dark mode -->
+    <color name="md_theme_primary">#FF5252</color>
+    <color name="md_theme_primaryVariant">#FF1744</color>
+    <color name="md_theme_secondary">#69F0AE</color>
+    <color name="md_theme_surface">#1E1E1E</color>
+    <color name="md_theme_background">#121212</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_onSurface">#FFFFFF</color>
+    <color name="md_theme_onBackground">#FFFFFF</color>
+    <color name="md_theme_textSecondary">#B0B0B0</color>
+    <color name="md_theme_textHint">#606060</color>
+    <color name="md_theme_success">#69F0AE</color>
+    <color name="md_theme_warning">#FFB74D</color>
+    <color name="md_theme_error">#FF5252</color>
+    <color name="md_theme_separator">#424242</color>
+    <color name="md_theme_cardBackground">#1E1E1E</color>
+    <color name="md_theme_inputBackground">#2A2A2A</color>
+    <color name="md_theme_chipBackground">#2A2A2A</color>
+    <color name="md_theme_progressTrack">#424242</color>
+    <color name="md_theme_progressFill">#FF5252</color>
+    <color name="md_theme_rewardLocked">#616161</color>
+    <color name="md_theme_rewardAvailable">#FF5252</color>
+    <color name="md_theme_rewardClaimed">#69F0AE</color>
 
-    <!-- Specific colors (if needed) -->
-    <color name="text_on_actifit_red">#FFFFFF</color> <!-- White text (often same in dark mode) -->
+    <!-- Neutral colors - dark mode -->
+    <color name="color_text_primary">#FFFFFF</color>
+    <color name="color_text_secondary">#B0B0B0</color>
+    <color name="color_background">#121212</color>
+    <color name="color_surface">#1E1E1E</color>
+    <color name="color_separator">#424242</color>
+    <color name="color_header_background">#2A2A2A</color>
+    <color name="color_header_text">#F0F0F0</color>
+    <color name="color_text_hint">#606060</color>
 
-    <!-- Define positive/negative colors for transaction list -->
-    <color name="positive_amount_color">#66FF66</color> <!-- Lighter green for dark mode -->
-    <color name="negative_amount_color">#FF6666</color> <!-- Lighter red for dark mode -->
+    <!-- Specific colors -->
+    <color name="text_on_actifit_red">#FFFFFF</color>
+
+    <!-- Positive/negative colors for transaction list -->
+    <color name="positive_amount_color">#66FF66</color>
+    <color name="negative_amount_color">#FF6666</color>
 </resources>
