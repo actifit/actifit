@@ -66,7 +66,12 @@
                     android:layout_height="wrap_content"
                     android:text="Move. Earn. Thrive."
                     android:textSize="@dimen/text_subtitle"
-                    android:textColor="@color/md_theme_textSecondary"
+                    android:textColor="@color/colorWhite"
+                    android:textStyle="bold"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="3"
                     android:layout_marginTop="@dimen/spacing_xs" />
 
             </LinearLayout>
@@ -226,8 +231,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/create_account_link"
                 android:textSize="@dimen/text_body"
-                android:textColor="@color/md_theme_primary"
-                android:textStyle="italic"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
                 android:padding="@dimen/spacing_sm"
                 android:gravity="end" />
 
@@ -237,8 +242,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/actifit_find_posting_key_vid"
                 android:textSize="@dimen/text_body"
-                android:textColor="@color/md_theme_primary"
-                android:textStyle="italic"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
                 android:padding="@dimen/spacing_sm"
                 android:gravity="end" />
 
