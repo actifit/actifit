@@ -20,7 +20,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#80000000" />
+        android:background="#CC000000" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -225,27 +225,31 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Helper Links -->
-            <TextView
-                android:id="@+id/username_create_account_link"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/create_account_link"
-                android:textSize="@dimen/text_body"
-                android:textColor="@color/colorWhite"
-                android:textStyle="bold"
-                android:padding="@dimen/spacing_sm"
-                android:gravity="end" />
+                android:orientation="vertical"
+                android:gravity="end"
+                android:layout_marginTop="@dimen/spacing_sm">
 
-            <TextView
-                android:id="@+id/posting_key_link"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/actifit_find_posting_key_vid"
-                android:textSize="@dimen/text_body"
-                android:textColor="@color/colorWhite"
-                android:textStyle="bold"
-                android:padding="@dimen/spacing_sm"
-                android:gravity="end" />
+                <TextView
+                    android:id="@+id/username_create_account_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/create_account_link"
+                    android:textSize="@dimen/text_body"
+                    android:textColor="#80FFFFFF"
+                    android:padding="@dimen/spacing_sm" />
+
+                <TextView
+                    android:id="@+id/posting_key_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/actifit_find_posting_key_vid"
+                    android:textSize="@dimen/text_body"
+                    android:textColor="#80FFFFFF"
+                    android:padding="@dimen/spacing_sm" />
+            </LinearLayout>
 
         </LinearLayout>
 
