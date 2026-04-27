@@ -333,7 +333,7 @@ public class LoginActivity extends BaseActivity {
         createAccountLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         // display content
-        LinearLayout loginContainer = findViewById(R.id.loginContainer);
+        View loginContainer = findViewById(R.id.loginContainer);
         loginContainer.setVisibility(View.VISIBLE);
 
     }
