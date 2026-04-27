@@ -706,95 +706,100 @@
                             android:layout_marginBottom="@dimen/spacing_sm" />
 
                         <!-- Toolbar -->
-                        <LinearLayout
-                            android:id="@+id/btn_container"
+                        <com.google.android.material.card.MaterialCardView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="@dimen/spacing_sm">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btn_choose_file"
-                                style="@style/Widget.Material3.Button.IconButton.Filled"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:fontFamily="@font/font_awesome_6_regular"
-                                android:text="\uf03e"
-                                android:textSize="18sp"
-                                android:textColor="@color/md_theme_onPrimary"
-                                android:insetTop="0dp"
-                                android:insetBottom="0dp"
-                                android:padding="0dp"
-                                app:iconPadding="0dp" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btn_video_post"
-                                style="@style/Widget.Material3.Button.IconButton.Filled"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                android:text="\uf03d"
-                                android:textSize="18sp"
-                                android:textColor="@color/md_theme_onPrimary"
-                                android:layout_marginStart="@dimen/spacing_xs"
-                                android:insetTop="0dp"
-                                android:insetBottom="0dp"
-                                android:padding="0dp"
-                                app:iconPadding="0dp" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btn_expand_editor"
-                                style="@style/Widget.Material3.Button.IconButton.Filled"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:contentDescription="Expand Editor"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                android:text="\uf065"
-                                android:textSize="18sp"
-                                android:textColor="@color/md_theme_onPrimary"
-                                android:layout_marginStart="@dimen/spacing_xs"
-                                android:insetTop="0dp"
-                                android:insetBottom="0dp"
-                                android:padding="0dp"
-                                app:iconPadding="0dp" />
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            app:cardCornerRadius="@dimen/card_corner_radius"
+                            app:cardElevation="0dp"
+                            app:strokeColor="@color/md_theme_separator"
+                            app:strokeWidth="1dp"
+                            app:cardBackgroundColor="@color/md_theme_cardBackground">
 
                             <LinearLayout
+                                android:id="@+id/btn_container"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
-                                android:gravity="end">
+                                android:gravity="center_vertical"
+                                android:padding="@dimen/spacing_sm">
 
-                                <TextView
-                                    android:id="@+id/charCount"
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btn_choose_file"
+                                    style="@style/Widget.Material3.Button.TextButton.Icon"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:gravity="end"
-                                    android:text="0"
-                                    android:textColor="@color/md_theme_textSecondary"
-                                    android:textSize="@dimen/text_body" />
+                                    android:fontFamily="@font/font_awesome_6_regular"
+                                    android:text="  Image"
+                                    android:textSize="@dimen/text_body"
+                                    android:textColor="@color/md_theme_onSurface"
+                                    android:textAllCaps="false" />
 
-                                <TextView
-                                    android:id="@+id/minCharCount"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="end"
-                                    android:text="/100"
-                                    android:padding="@dimen/spacing_xs"
-                                    android:textColor="@color/md_theme_textSecondary"
-                                    android:textSize="@dimen/text_body" />
-
-                                <TextView
-                                    android:id="@+id/charInfo"
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btn_video_post"
+                                    style="@style/Widget.Material3.Button.TextButton.Icon"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/font_awesome_6_solid"
-                                    android:textColor="@color/md_theme_error"
-                                    android:text="\uf05a"
-                                    android:textSize="20sp"
-                                    android:padding="@dimen/spacing_xs" />
+                                    android:text="  Video"
+                                    android:textSize="@dimen/text_body"
+                                    android:textColor="@color/md_theme_onSurface"
+                                    android:textAllCaps="false" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btn_expand_editor"
+                                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:contentDescription="Expand Editor"
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    android:text="  Expand"
+                                    android:textSize="@dimen/text_body"
+                                    android:textColor="@color/md_theme_onSurface"
+                                    android:textAllCaps="false" />
+
+                                <View
+                                    android:layout_width="0dp"
+                                    android:layout_height="1dp"
+                                    android:layout_weight="1" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:id="@+id/charCount"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:gravity="end"
+                                        android:text="0"
+                                        android:textColor="@color/md_theme_textSecondary"
+                                        android:textSize="@dimen/text_body" />
+
+                                    <TextView
+                                        android:id="@+id/minCharCount"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:gravity="end"
+                                        android:text="/100"
+                                        android:padding="@dimen/spacing_xs"
+                                        android:textColor="@color/md_theme_textSecondary"
+                                        android:textSize="@dimen/text_body" />
+
+                                    <TextView
+                                        android:id="@+id/charInfo"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/font_awesome_6_solid"
+                                        android:textColor="@color/md_theme_error"
+                                        android:text="\uf05a"
+                                        android:textSize="20sp"
+                                        android:padding="@dimen/spacing_xs" />
+                                </LinearLayout>
                             </LinearLayout>
-                        </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
 
                         <!-- Editor -->
                         <EditText
