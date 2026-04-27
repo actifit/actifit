@@ -7,6 +7,21 @@
     android:layout_height="match_parent"
     android:background="@drawable/login_gradient_background">
 
+    <!-- Background image (loaded dynamically from API) -->
+    <ImageView
+        android:id="@+id/login_hero"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:alpha="0.3"
+        android:contentDescription="Login background" />
+
+    <!-- Overlay to darken background -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -22,7 +37,7 @@
 
             <!-- Logo & Branding -->
             <LinearLayout
-                android:id="@+id/login_hero"
+                android:id="@+id/login_logo_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
