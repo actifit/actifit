@@ -86,7 +86,7 @@ public class LoginActivity extends BaseActivity {
         ctx = this;
 
         // load login hero image as background
-        final View rootContainer = findViewById(R.id.loginContainer);
+        final ImageView heroImage = findViewById(R.id.login_hero);
         Handler uiAltHandler = new Handler(Looper.getMainLooper());
         String loginImgUrl = Utils.apiUrl(this) + getString(R.string.login_img_url);
 
@@ -109,11 +109,6 @@ public class LoginActivity extends BaseActivity {
                                     }
                                 }
 
-                                // temp imageview to load background onto, to avoid other approach possibly not
-                                // always loading
-                                // image due to garbage collection
-                                ImageView img = new ImageView(ctx);
-
                                 if (isFinishing() || isDestroyed()) {
                                     return;
                                 }
@@ -123,7 +118,7 @@ public class LoginActivity extends BaseActivity {
                                             @Override
                                             public void onResourceReady(@NonNull Drawable resource,
                                                     @Nullable Transition<? super Drawable> transition) {
-                                                rootContainer.setBackground(resource);
+                                                heroImage.setImageDrawable(resource);
                                             }
 
                                             @Override
