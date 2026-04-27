@@ -85,8 +85,8 @@ public class LoginActivity extends BaseActivity {
 
         ctx = this;
 
-        // load login hero image
-        final LinearLayout heroImage = findViewById(R.id.login_hero);
+        // load login hero image as background
+        final View rootContainer = findViewById(R.id.loginContainer);
         Handler uiAltHandler = new Handler(Looper.getMainLooper());
         String loginImgUrl = Utils.apiUrl(this) + getString(R.string.login_img_url);
 
@@ -123,7 +123,7 @@ public class LoginActivity extends BaseActivity {
                                             @Override
                                             public void onResourceReady(@NonNull Drawable resource,
                                                     @Nullable Transition<? super Drawable> transition) {
-                                                heroImage.setBackground(resource);
+                                                rootContainer.setBackground(resource);
                                             }
 
                                             @Override
