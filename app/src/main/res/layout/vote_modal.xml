@@ -71,6 +71,7 @@
             android:paddingLeft="10dp"
             android:textSize="12sp"
             android:text="@string/sub_10"
+            android:layout_marginEnd="@dimen/spacing_xs"
             />
 
         <EditText
@@ -80,7 +81,8 @@
             android:inputType="number"
             android:gravity="center"
             android:text="10"
-            android:background="@drawable/edittextbackground" />
+            android:background="@drawable/edittextbackground"
+            android:layout_marginEnd="@dimen/spacing_xs" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -90,6 +92,7 @@
             android:paddingTop="10dp"
             android:paddingLeft="5dp"
             android:textStyle="bold"
+            android:layout_marginEnd="@dimen/spacing_xs"
             />
 
         <Button
@@ -107,7 +110,8 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/spacing_sm">
 
         <Button
             android:id="@+id/close_btn"
@@ -117,6 +121,7 @@
             android:layout_gravity="center"
             android:textSize="12sp"
             android:text="@string/close_button"
+            android:layout_marginEnd="@dimen/spacing_xs"
             />
 
 
@@ -129,6 +134,7 @@
             android:layout_gravity="center"
             android:textSize="12sp"
             android:text="@string/voters_list"
+            android:layout_marginEnd="@dimen/spacing_xs"
             />
 
         <Button

@@ -493,6 +493,7 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf3e5"
                 android:gravity="center"
+                android:layout_marginEnd="@dimen/spacing_xs"
                 />
 
             <Button
@@ -505,6 +506,7 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf164"
                 android:gravity="center"
+                android:layout_marginEnd="@dimen/spacing_xs"
                 />
 
             <TextView
@@ -525,6 +527,7 @@
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf086"
+                android:layout_marginEnd="@dimen/spacing_xs"
                 />
 
             <TextView
@@ -545,6 +548,7 @@
                 android:textSize="14dp"
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf103"
+                android:layout_marginEnd="@dimen/spacing_xs"
                 />
 
             <Button
@@ -556,6 +560,7 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf102"
                 android:visibility="gone"
+                android:layout_marginEnd="@dimen/spacing_xs"
                 />
 
             <!--<Button

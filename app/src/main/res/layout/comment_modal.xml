@@ -113,6 +113,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/cancel_action"
+            android:layout_marginEnd="@dimen/spacing_xs"
             />
 
         <Button
