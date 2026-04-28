@@ -72,7 +72,7 @@
             android:text="@string/sub_10"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:textColor="@color/colorWhite"
-            android:background="@color/actifitRed"
+            android:background="@drawable/rounded_button_bg"
             />
 
         <EditText
@@ -105,7 +105,7 @@
             android:textSize="12sp"
             android:text="@string/add_10"
             android:textColor="@color/colorWhite"
-            android:background="@color/actifitRed"
+            android:background="@drawable/rounded_button_bg"
             />
     </LinearLayout>
 
@@ -124,7 +124,7 @@
             android:text="@string/close_button"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:textColor="@color/colorWhite"
-            android:background="@color/actifitRed"
+            android:background="@drawable/rounded_button_bg"
             />
 
 
@@ -138,7 +138,7 @@
             android:text="@string/voters_list"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:textColor="@color/colorWhite"
-            android:background="@color/actifitRed"
+            android:background="@drawable/rounded_button_bg"
             />
 
         <Button
@@ -149,7 +149,7 @@
             android:layout_gravity="center"
             android:text="@string/vote_action"
             android:textColor="@color/colorWhite"
-            android:background="@color/actifitRed"
+            android:background="@drawable/rounded_button_bg"
 
             />
 
