@@ -72,6 +72,7 @@
             android:textSize="12sp"
             android:text="@string/sub_10"
             android:layout_marginEnd="@dimen/spacing_xs"
+            android:textColor="@color/colorWhite"
             />
 
         <EditText
@@ -104,6 +105,7 @@
             android:paddingLeft="10dp"
             android:textSize="12sp"
             android:text="@string/add_10"
+            android:textColor="@color/colorWhite"
             />
     </LinearLayout>
 
@@ -122,6 +124,7 @@
             android:textSize="12sp"
             android:text="@string/close_button"
             android:layout_marginEnd="@dimen/spacing_xs"
+            android:textColor="@color/colorWhite"
             />
 
 
@@ -135,6 +138,7 @@
             android:textSize="12sp"
             android:text="@string/voters_list"
             android:layout_marginEnd="@dimen/spacing_xs"
+            android:textColor="@color/colorWhite"
             />
 
         <Button
@@ -145,7 +149,7 @@
             android:textSize="12sp"
             android:layout_gravity="center"
             android:text="@string/vote_action"
-
+            android:textColor="@color/colorWhite"
 
             />
 

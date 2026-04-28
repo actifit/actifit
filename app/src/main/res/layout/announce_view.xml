@@ -69,6 +69,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
+        android:layout_marginTop="12dp"
         >
 
 
@@ -78,8 +79,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
-            android:padding="16dp"
-            android:text="@string/close_button" />
+            android:padding="12dp"
+            android:text="@string/close_button"
+            android:layout_marginEnd="8dp" />
 
         <Button
             style="@style/AppTheme.ActifitButton"
@@ -87,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
-            android:padding="16dp"
+            android:padding="12dp"
             android:text="@string/details_button" />
 
     </LinearLayout>
