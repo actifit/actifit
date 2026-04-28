@@ -496,6 +496,8 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf3e5"
                 android:gravity="center"
+                android:textColor="@color/colorWhite"
+                android:textAppearance="@null"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -504,7 +506,6 @@
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:layout_marginEnd="6dp"
-                android:textColor="@color/colorWhite"
                 />
 
             <Button
@@ -516,6 +517,8 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf164"
                 android:gravity="center"
+                android:textColor="@color/colorWhite"
+                android:textAppearance="@null"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -524,7 +527,6 @@
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:layout_marginEnd="6dp"
-                android:textColor="@color/colorWhite"
                 />
 
             <TextView
@@ -545,6 +547,8 @@
                 android:textSize="18sp"
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf086"
+                android:textColor="@color/colorWhite"
+                android:textAppearance="@null"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -553,7 +557,6 @@
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:layout_marginEnd="6dp"
-                android:textColor="@color/colorWhite"
                 />
 
             <TextView
@@ -574,6 +577,8 @@
                 android:textSize="18sp"
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf103"
+                android:textColor="@color/colorWhite"
+                android:textAppearance="@null"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -582,7 +587,6 @@
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:layout_marginEnd="6dp"
-                android:textColor="@color/colorWhite"
                 />
 
             <Button
@@ -594,6 +598,8 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf102"
                 android:visibility="gone"
+                android:textColor="@color/colorWhite"
+                android:textAppearance="@null"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -602,7 +608,6 @@
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:layout_marginEnd="6dp"
-                android:textColor="@color/colorWhite"
                 />
 
             <Button
@@ -613,6 +618,8 @@
                 android:textSize="18sp"
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf1e0"
+                android:textColor="@color/colorWhite"
+                android:textAppearance="@null"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -620,7 +627,6 @@
                 android:insetTop="0dp"
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
-                android:textColor="@color/colorWhite"
                 />
 
 

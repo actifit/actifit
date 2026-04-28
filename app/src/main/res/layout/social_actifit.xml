@@ -34,6 +34,8 @@
         android:textSize="20sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="\uf09a"
+        android:textColor="@color/colorWhite"
+        android:textAppearance="@null"
         android:padding="0dp"
         android:minWidth="0dp"
         android:minHeight="0dp"
@@ -41,7 +43,6 @@
         android:insetTop="0dp"
         android:insetRight="0dp"
         android:insetBottom="0dp"
-        android:textColor="@color/colorWhite"
         />
 
     <Button
@@ -52,6 +53,8 @@
         android:textSize="20sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="\uf099"
+        android:textColor="@color/colorWhite"
+        android:textAppearance="@null"
         android:padding="0dp"
         android:minWidth="0dp"
         android:minHeight="0dp"
@@ -59,7 +62,6 @@
         android:insetTop="0dp"
         android:insetRight="0dp"
         android:insetBottom="0dp"
-        android:textColor="@color/colorWhite"
         />
 
     <Button
@@ -70,6 +72,8 @@
         android:textSize="20sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="\uf392"
+        android:textColor="@color/colorWhite"
+        android:textAppearance="@null"
         android:padding="0dp"
         android:minWidth="0dp"
         android:minHeight="0dp"
@@ -77,7 +81,6 @@
         android:insetTop="0dp"
         android:insetRight="0dp"
         android:insetBottom="0dp"
-        android:textColor="@color/colorWhite"
         />
 
     <Button
@@ -88,6 +91,8 @@
         android:textSize="20sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="\uf2c6"
+        android:textColor="@color/colorWhite"
+        android:textAppearance="@null"
         android:padding="0dp"
         android:minWidth="0dp"
         android:minHeight="0dp"
@@ -95,7 +100,6 @@
         android:insetTop="0dp"
         android:insetRight="0dp"
         android:insetBottom="0dp"
-        android:textColor="@color/colorWhite"
         />
 
     <Button
@@ -106,6 +110,8 @@
         android:textSize="20sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="\uf167"
+        android:textColor="@color/colorWhite"
+        android:textAppearance="@null"
         android:padding="0dp"
         android:minWidth="0dp"
         android:minHeight="0dp"
@@ -113,7 +119,6 @@
         android:insetTop="0dp"
         android:insetRight="0dp"
         android:insetBottom="0dp"
-        android:textColor="@color/colorWhite"
         />
 
     <Button
@@ -124,6 +129,8 @@
         android:textSize="20sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="\uf16d"
+        android:textColor="@color/colorWhite"
+        android:textAppearance="@null"
         android:padding="0dp"
         android:minWidth="0dp"
         android:minHeight="0dp"
@@ -131,7 +138,6 @@
         android:insetTop="0dp"
         android:insetRight="0dp"
         android:insetBottom="0dp"
-        android:textColor="@color/colorWhite"
         />
 
 
@@ -154,6 +160,8 @@
         android:textSize="20sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="\uf08c"
+        android:textColor="@color/colorWhite"
+        android:textAppearance="@null"
         android:padding="0dp"
         android:minWidth="0dp"
         android:minHeight="0dp"
@@ -161,7 +169,6 @@
         android:insetTop="0dp"
         android:insetRight="0dp"
         android:insetBottom="0dp"
-        android:textColor="@color/colorWhite"
         />
 
     </GridLayout>

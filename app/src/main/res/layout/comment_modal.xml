@@ -84,6 +84,8 @@
             android:textSize="18sp"
             android:fontFamily="@font/font_awesome_6_regular"
             android:text="\uf03e"
+            android:textColor="@color/colorWhite"
+            android:textAppearance="@null"
             android:padding="0dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
@@ -91,7 +93,6 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:textColor="@color/colorWhite"
             />
 
 
