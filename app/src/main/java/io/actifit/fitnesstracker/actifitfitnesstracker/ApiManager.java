@@ -102,6 +102,13 @@ public class ApiManager {
     }
 
     public void loadNewsSlider(RequestQueue queue, ViewPager newsPage, com.google.android.material.tabs.TabLayout newsTabLayout, List<Slider_Items_Model_Class> listItems) {
+        loadNewsSliderWithRetry(queue, newsPage, newsTabLayout, listItems, 0);
+    }
+
+    private void loadNewsSliderWithRetry(RequestQueue queue, ViewPager newsPage, com.google.android.material.tabs.TabLayout newsTabLayout, List<Slider_Items_Model_Class> listItems, int attempt) {
+        final int MAX_RETRIES = 3;
+        final int BASE_DELAY_MS = 2000;
+
         String newsArticlesUrl = Utils.apiUrl(context) + context.getString(R.string.news_articles);
         JsonArrayRequest newsArticlesReq = new JsonArrayRequest(Request.Method.GET, newsArticlesUrl, null, listArray -> {
             Slider_Items_Model_Class mainAnnounce = null;
@@ -142,10 +149,21 @@ public class ApiManager {
                     }
                 }
             } catch (Exception e) {
-                Log.e(TAG, "ERROR");
+                Log.e(TAG, "News slider parse error");
                 e.printStackTrace();
             }
-        }, error -> error.printStackTrace());
+        }, error -> {
+            Log.e(TAG, "News slider load failed (attempt " + (attempt + 1) + "): " + error.getMessage());
+            if (attempt < MAX_RETRIES) {
+                int delayMs = BASE_DELAY_MS * (1 << attempt);
+                Log.d(TAG, "Retrying news slider in " + (delayMs / 1000) + "s...");
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    loadNewsSliderWithRetry(queue, newsPage, newsTabLayout, listItems, attempt + 1);
+                }, delayMs);
+            } else {
+                Log.e(TAG, "News slider failed after " + MAX_RETRIES + " retries");
+            }
+        });
         queue.add(newsArticlesReq);
     }
 
