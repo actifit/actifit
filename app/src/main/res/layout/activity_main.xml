@@ -708,6 +708,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_xs"
                     android:text="&#127873;"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -718,6 +719,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:layout_marginEnd="@dimen/spacing_xs"
                     android:textSize="20sp"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf234" />
@@ -728,6 +731,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_xs"
                     android:textSize="20sp"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf201"
