@@ -475,20 +475,19 @@
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fillViewport="false"
+            android:fillViewport="true"
             android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:paddingLeft="10dp"
             android:paddingTop="4dp"
             android:paddingBottom="4dp">
 
             <Button
-                style="@style/AppTheme.ActifitButton"
                 android:id="@+id/reply_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -497,6 +496,7 @@
                 android:text="\uf3e5"
                 android:gravity="center"
                 android:textColor="@color/colorWhite"
+                android:background="@color/actifitRed"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -508,7 +508,6 @@
                 />
 
             <Button
-                style="@style/AppTheme.ActifitButton"
                 android:id="@+id/upvote_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -517,6 +516,7 @@
                 android:text="\uf164"
                 android:gravity="center"
                 android:textColor="@color/colorWhite"
+                android:background="@color/actifitRed"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -538,7 +538,6 @@
                 />
 
             <Button
-                style="@style/AppTheme.ActifitButton"
                 android:id="@+id/comment_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -546,6 +545,7 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf086"
                 android:textColor="@color/colorWhite"
+                android:background="@color/actifitRed"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -567,7 +567,6 @@
                 />
 
             <Button
-                style="@style/AppTheme.ActifitButton"
                 android:id="@+id/expand_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -575,6 +574,7 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf103"
                 android:textColor="@color/colorWhite"
+                android:background="@color/actifitRed"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -586,7 +586,6 @@
                 />
 
             <Button
-                style="@style/AppTheme.ActifitButton"
                 android:id="@+id/retract_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -595,6 +594,7 @@
                 android:text="\uf102"
                 android:visibility="gone"
                 android:textColor="@color/colorWhite"
+                android:background="@color/actifitRed"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -606,7 +606,6 @@
                 />
 
             <Button
-                style="@style/AppTheme.ActifitButton"
                 android:id="@+id/share_social"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -614,6 +613,7 @@
                 android:fontFamily="@font/font_awesome_6_solid"
                 android:text="\uf1e0"
                 android:textColor="@color/colorWhite"
+                android:background="@color/actifitRed"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"

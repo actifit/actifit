@@ -64,7 +64,6 @@
 
         <Button
             android:id="@+id/sub_10"
-            style="@style/AppTheme.ActifitButton"
             android:layout_width="70sp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -73,6 +72,7 @@
             android:text="@string/sub_10"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:textColor="@color/colorWhite"
+            android:background="@color/actifitRed"
             />
 
         <EditText
@@ -98,7 +98,6 @@
 
         <Button
             android:id="@+id/add_10"
-            style="@style/AppTheme.ActifitButton"
             android:layout_width="70sp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -106,6 +105,7 @@
             android:textSize="12sp"
             android:text="@string/add_10"
             android:textColor="@color/colorWhite"
+            android:background="@color/actifitRed"
             />
     </LinearLayout>
 
@@ -117,7 +117,6 @@
 
         <Button
             android:id="@+id/close_btn"
-            style="@style/AppTheme.ActifitButton"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -125,13 +124,13 @@
             android:text="@string/close_button"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:textColor="@color/colorWhite"
+            android:background="@color/actifitRed"
             />
 
 
 
         <Button
             android:id="@+id/voters_list_btn"
-            style="@style/AppTheme.ActifitButton"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -139,10 +138,10 @@
             android:text="@string/voters_list"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:textColor="@color/colorWhite"
+            android:background="@color/actifitRed"
             />
 
         <Button
-            style="@style/AppTheme.ActifitButton"
             android:id="@+id/proceed_vote_btn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -150,6 +149,7 @@
             android:layout_gravity="center"
             android:text="@string/vote_action"
             android:textColor="@color/colorWhite"
+            android:background="@color/actifitRed"
 
             />
 
