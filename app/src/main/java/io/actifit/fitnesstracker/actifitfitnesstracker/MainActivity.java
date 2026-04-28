@@ -617,25 +617,24 @@ public class MainActivity extends BaseActivity {
     // SLIDER SETUP INFO:
     // //https://www.section.io/engineering-education/how-to-create-an-automatic-slider-in-android-studio/
     private void loadNewsSlider(RequestQueue queue) {
+        loadNewsSliderWithRetry(queue, 0);
+    }
+
+    private void loadNewsSliderWithRetry(RequestQueue queue, int attempt) {
+        final int MAX_RETRIES = 3;
+        final int BASE_DELAY_MS = 2000;
 
         newsPage = findViewById(R.id.news_pager);
-
         newsTabLayout = findViewById(R.id.news_tablayout);
-
         listItems = new ArrayList<>();
 
         String newsArticlesUrl = Utils.apiUrl(this) + getString(R.string.news_articles);
 
-        // also set and popup any mainAnnounce news
-
         JsonArrayRequest newsArticlesReq = new JsonArrayRequest(Request.Method.GET,
                 newsArticlesUrl, null, listArray -> {
-            // hide dialog
-            // progress.hide();
-            Slider_Items_Model_Class mainAnnounce = null;
-            // Handle the result
             try {
                 if (listArray != null && listArray.length() > 0) {
+                    Slider_Items_Model_Class mainAnnounce = null;
                     for (int i = 0; i < listArray.length(); i++) {
                         Slider_Items_Model_Class entry = new Slider_Items_Model_Class(
                                 listArray.getJSONObject(i));
@@ -648,15 +647,12 @@ public class MainActivity extends BaseActivity {
                     Slider_items_Pager_Adapter itemsPager_adapter = new Slider_items_Pager_Adapter(
                             this, listItems, MainActivity.this);
                     newsPage.setAdapter(itemsPager_adapter);
-
                     newsTabLayout.setupWithViewPager(newsPage, true);
 
-                    // The_slide_timer
                     java.util.Timer timer = new java.util.Timer();
                     timer.scheduleAtFixedRate(new Slide_timer(), 2000, 3000);
                     newsTabLayout.setupWithViewPager(newsPage, true);
 
-                    // show popup with mainAnnounce, with pseudo-ranom display every 5 times
                     SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
                     int announceViews = (sharedPreferences.getInt(getString(R.string.main_announce_view), 0));
                     announceViews += 1;
@@ -668,45 +664,29 @@ public class MainActivity extends BaseActivity {
                     editor.apply();
 
                     if (mainAnnounce != null && announceViews <= 1) {
-                        // show mainAnnounce if there exists one
                         MainAnnounceFragment mainAnnounceDialog = MainAnnounceFragment.newInstance(mainAnnounce);
                         mainAnnounceDialog.show(getSupportFragmentManager(), "main_announce");
                     }
                 }
             } catch (Exception e) {
-                // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                Log.e(TAG, "ERROR");
+                Log.e(TAG, "News slider parse error");
                 e.printStackTrace();
             }
 
         }, error -> {
-            error.printStackTrace();
+            Log.e(TAG, "News slider load failed (attempt " + (attempt + 1) + "): " + error.getMessage());
+            if (attempt < MAX_RETRIES) {
+                int delayMs = BASE_DELAY_MS * (1 << attempt);
+                Log.d(TAG, "Retrying news slider in " + (delayMs / 1000) + "s...");
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    loadNewsSliderWithRetry(queue, attempt + 1);
+                }, delayMs);
+            } else {
+                Log.e(TAG, "News slider failed after " + MAX_RETRIES + " retries");
+            }
         });
 
         queue.add(newsArticlesReq);
-
-        // test data for slider
-        /*
-         *
-         * //listItems.add(new
-         * Slider_Items_Model_Class(R.drawable.default_pic,"Slider 1 Title"));
-         * //listItems.add(new
-         * Slider_Items_Model_Class(R.drawable.default_pic,"Slider 2 Title"));
-         * //listItems.add(new
-         * Slider_Items_Model_Class(R.drawable.default_pic,"Slider 3 Title"));
-         * listItems.add(new Slider_Items_Model_Class(
-         * "https://actifit.io/img/actifit_hive_fest_4th_anniversary.png", "New Event",
-         * "https://actifit.io"));
-         * listItems.add(new Slider_Items_Model_Class(
-         * "https://actifit.io/img/actifit_hive_fest_4th_anniversary.png", "Eventto",
-         * "https://actifit.io"));
-         * listItems.add(new Slider_Items_Model_Class(
-         * "https://actifit.io/img/actifit_hive_fest_4th_anniversary.png", "Uno Event",
-         * "https://actifit.io"));
-         */
-
-        /***********************/
-
     }
 
     /**
