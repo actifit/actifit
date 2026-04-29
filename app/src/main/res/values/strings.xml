@@ -302,6 +302,7 @@
     <string name="hive_payout_details">Post HIVE payout</string>
     <string name="afit_payout_details">Post AFIT payout</string>
     <string name="tutorial_title">Actifit Video Tutorial</string>
+    <string name="help_video_unavailable">Tutorial video is unavailable. Please try again later.</string>
     <string name="chat_title">Let\'s Chit Chat!</string>
     <string name="announce_title">Actifit Announcement</string>
     <string name="comment_note"><i><br/>Comment Posted via Actifit Android App.<br/>&amp;nbsp;[Download Here](https://links.actifit.io/android)</i></string>

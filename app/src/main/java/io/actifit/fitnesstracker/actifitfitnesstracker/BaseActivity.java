@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -172,13 +173,22 @@ public class BaseActivity extends AppCompatActivity {
         // --- Help Button Listener ---
         if (btnHelp != null) {
             btnHelp.setOnClickListener(view -> {
-                // Use tutVidUrl variable defined in BaseActivity
                 if (tutVidUrl[0] != null && !tutVidUrl[0].isEmpty()) {
-                    VideoDialogFragment dialogFragment = VideoDialogFragment.newInstance(tutVidUrl[0]);
-                    dialogFragment.show(getSupportFragmentManager(), "video_dialog");
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(tutVidUrl[0]));
+                        intent.setPackage("com.google.android.youtube");
+                        startActivity(intent);
+                    } catch (android.content.ActivityNotFoundException e) {
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(tutVidUrl[0]));
+                            startActivity(intent);
+                        } catch (Exception e2) {
+                            Toast.makeText(this, R.string.help_video_unavailable, Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 } else {
                     Log.e(TAG, "Help video URL is invalid or not configured.");
-                    //Toast.makeText(this, R.string.help_video_unavailable, Toast.LENGTH_SHORT).show(); // Use string resource
+                    Toast.makeText(this, R.string.help_video_unavailable, Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
