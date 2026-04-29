@@ -49,7 +49,7 @@
                 android:layout_gravity="end"
                 android:text="✕"
                 android:textSize="16sp"
-                android:textColor="@color/colorWhite"
+                android:textColor="@color/text_on_actifit_red"
                 android:background="@drawable/rounded_button_bg"
                 android:padding="0dp"
                 android:minWidth="0dp"
@@ -98,7 +98,7 @@
                 android:textSize="16sp"
                 android:fontFamily="@font/font_awesome_6_regular"
                 android:text="\uf03e"
-                android:textColor="@color/colorWhite"
+                android:textColor="@color/text_on_actifit_red"
                 android:background="@drawable/rounded_button_bg"
                 android:padding="0dp"
                 android:minWidth="0dp"
@@ -197,18 +197,22 @@
 
                 </RadioGroup>
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/post_wave"
-                    style="@style/AppTheme.ActifitButton"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_gravity="end"
                     android:text="@string/post_thread"
                     android:textSize="14sp"
+                    android:textColor="@color/text_on_actifit_red"
+                    app:backgroundTint="@color/actifitRed"
                     app:cornerRadius="@dimen/button_corner_radius"
+                    android:textAllCaps="false"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:minWidth="80dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     />
 
             </LinearLayout>
@@ -254,8 +258,7 @@
         android:divider="#0000CC"
         />
 
-    <Button
-        style="@style/AppTheme.ActifitButton"
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/load_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -264,9 +267,12 @@
         android:layout_gravity="center"
         android:elevation="20dp"
         android:text="Load More"
+        android:textColor="@color/text_on_actifit_red"
+        app:backgroundTint="@color/actifitRed"
+        app:cornerRadius="@dimen/button_corner_radius"
+        android:textAllCaps="false"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-
         />
 
         <ProgressBar
