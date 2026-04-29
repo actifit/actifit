@@ -1,6 +1,7 @@
 <?xml version = "1.0" encoding = "utf-8"?>
 
 <LinearLayout xmlns:android = "http://schemas.android.com/apk/res/android"
+    xmlns:app = "http://schemas.android.com/apk/res-auto"
     android:layout_width = "match_parent"
     android:gravity = "top"
     android:layout_gravity="top"
@@ -24,7 +25,7 @@
     <ProgressBar
         android:id="@+id/loader"
         android:layout_width="25dp"
-        android:layout_height="match_parent"
+        android:layout_height="25dp"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:progress="@integer/material_motion_duration_long_1"
@@ -34,20 +35,22 @@
 
         android:id="@+id/youtubePlayerView"
         android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         />
-    <!--android:layout_height="300dp"
-        android:minHeight="200dp"-->
 
-    <Button
-        style="@style/AppTheme.ActifitButton"
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/closeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
         android:padding="16dp"
-        android:text="@string/close_button" />
+        android:text="@string/close_button"
+        android:textColor="@color/text_on_actifit_red"
+        app:backgroundTint="@color/actifitRed"
+        app:cornerRadius="@dimen/button_corner_radius"
+        android:textAllCaps="false" />
 
 
 </LinearLayout>
