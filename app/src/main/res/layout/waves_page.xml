@@ -199,13 +199,13 @@
 
                 <Button
                     android:id="@+id/post_wave"
+                    style="@style/AppTheme.ActifitButton"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_gravity="end"
                     android:text="@string/post_thread"
                     android:textSize="14sp"
-                    android:textColor="@color/colorWhite"
-                    android:background="@drawable/rounded_button_bg"
+                    app:cornerRadius="@dimen/button_corner_radius"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:minWidth="80dp"
