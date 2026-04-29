@@ -1,6 +1,7 @@
 <?xml version = "1.0" encoding = "utf-8"?>
 
 <LinearLayout xmlns:android = "http://schemas.android.com/apk/res/android"
+    xmlns:app = "http://schemas.android.com/apk/res-auto"
     android:layout_width = "match_parent"
     android:gravity = "top"
     android:layout_gravity="top"
@@ -73,24 +74,30 @@
         >
 
 
-        <Button
-            style="@style/AppTheme.ActifitButton"
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/closeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
             android:padding="12dp"
             android:text="@string/close_button"
+            android:textColor="@color/text_on_actifit_red"
+            app:backgroundTint="@color/actifitRed"
+            app:cornerRadius="@dimen/button_corner_radius"
+            android:textAllCaps="false"
             android:layout_marginEnd="8dp" />
 
-        <Button
-            style="@style/AppTheme.ActifitButton"
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/detailsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
             android:padding="12dp"
-            android:text="@string/details_button" />
+            android:text="@string/details_button"
+            android:textColor="@color/text_on_actifit_red"
+            app:backgroundTint="@color/actifitRed"
+            app:cornerRadius="@dimen/button_corner_radius"
+            android:textAllCaps="false" />
 
     </LinearLayout>
 
