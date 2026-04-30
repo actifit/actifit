@@ -44,7 +44,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center|end">
+        android:gravity="center|end"
+        android:paddingEnd="8dp"
+        android:paddingStart="4dp">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/entryDetailsBtn"

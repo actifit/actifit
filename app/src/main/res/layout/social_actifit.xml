@@ -30,6 +30,7 @@
         android:id="@+id/facebook_actifit"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_margin="4dp"
         android:textSize="16sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="&#xf09a;"
@@ -45,6 +46,7 @@
         android:id="@+id/twitter_actifit"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_margin="4dp"
         android:textSize="16sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="&#xf099;"
@@ -60,6 +62,7 @@
         android:id="@+id/discord_actifit"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_margin="4dp"
         android:textSize="16sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="&#xf392;"
@@ -75,6 +78,7 @@
         android:id="@+id/telegram_actifit"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_margin="4dp"
         android:textSize="16sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="&#xf2c6;"
@@ -90,6 +94,7 @@
         android:id="@+id/youtube_actifit"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_margin="4dp"
         android:textSize="16sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="&#xf167;"
@@ -105,6 +110,7 @@
         android:id="@+id/instagram_actifit"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_margin="4dp"
         android:textSize="16sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="&#xf16d;"
@@ -116,22 +122,11 @@
         android:minHeight="0dp"
         />
 
-
-    <!--<androidx.appcompat.widget.AppCompatButton
-        style="@style/AppTheme.ActifitButton"
-        android:id="@+id/medium_actifit"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:fontFamily="@font/font_awesome_6_brands"
-        android:text="\u"
-        />-->
-
-
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/linkedin_actifit"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_margin="4dp"
         android:textSize="16sp"
         android:fontFamily="@font/font_awesome_6_brands"
         android:text="&#xf08c;"

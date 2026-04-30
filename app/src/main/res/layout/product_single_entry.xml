@@ -271,6 +271,7 @@ android:paddingLeft="10dp"
                 android:textColor="@color/colorWhite"
                 android:background="@drawable/actifit_button_ripple_bg"
                 android:padding="10dp"
+                android:layout_marginEnd="6dp"
                 android:visibility="gone"/>
 
             <androidx.appcompat.widget.AppCompatButton
@@ -281,6 +282,7 @@ android:paddingLeft="10dp"
                 android:textColor="@color/colorWhite"
                 android:background="@drawable/actifit_button_ripple_bg"
                 android:padding="10dp"
+                android:layout_marginEnd="6dp"
                 android:visibility="gone"/>
 
             <androidx.appcompat.widget.AppCompatButton
@@ -290,6 +292,7 @@ android:paddingLeft="10dp"
                 android:textColor="@color/colorWhite"
                 android:background="@drawable/actifit_button_ripple_bg"
                 android:padding="10dp"
+                android:layout_marginEnd="6dp"
                 android:text="@string/buy_now"/>
 
             <androidx.appcompat.widget.AppCompatButton
