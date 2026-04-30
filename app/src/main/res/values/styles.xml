@@ -30,7 +30,7 @@
 
     <style name="AppTheme.ActifitButton" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/actifitRed</item>
-        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textColor">@color/text_on_actifit_red</item>
         <item name="cornerRadius">@dimen/button_corner_radius</item>
         <item name="android:minHeight">@dimen/button_height</item>
         <item name="android:textSize">@dimen/text_body</item>

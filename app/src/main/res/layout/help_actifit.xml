@@ -41,6 +41,7 @@
         />
 
     <com.google.android.material.button.MaterialButton
+        style="@style/AppTheme.ActifitButton"
         android:id="@+id/closeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,8 +49,6 @@
         android:padding="16dp"
         android:text="@string/close_button"
         android:textColor="@color/text_on_actifit_red"
-        app:backgroundTint="@color/actifitRed"
-        app:cornerRadius="@dimen/button_corner_radius"
         android:textAllCaps="false" />
 
 

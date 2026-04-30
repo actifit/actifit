@@ -267,14 +267,40 @@
                     android:padding="@dimen/spacing_md">
 
                     <!-- Date -->
-                    <TextView
-                        android:id="@+id/current_date"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/md_theme_primary"
-                        android:gravity="center"
-                        android:textSize="@dimen/text_subtitle"
-                        android:paddingBottom="@dimen/spacing_xs" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs">
+
+                        <!-- Left spacer to keep date centered if needed, 
+                             but date is center gravity anyway -->
+                        <View
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:visibility="invisible" />
+
+                        <TextView
+                            android:id="@+id/current_date"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/md_theme_primary"
+                            android:gravity="center"
+                            android:textSize="@dimen/text_subtitle" />
+
+                        <ImageView
+                            android:id="@+id/health_connect_status_hero"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:contentDescription="Health Connect"
+                            android:src="@mipmap/health_connect_logo"
+                            android:scaleType="fitCenter"
+                            android:padding="2dp"
+                            android:background="@drawable/health_connect_indicator_bg"
+                            android:visibility="gone" />
+                    </LinearLayout>
 
                     <!-- Pie Chart Area -->
                     <FrameLayout
@@ -787,29 +813,6 @@
                     android:text="@string/hourly" />
             </LinearLayout>
 
-            <!-- Health Connect Status -->
-            <FrameLayout
-                android:id="@+id/health_connect_status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_sm"
-                android:layout_margin="@dimen/spacing_sm"
-                android:background="@drawable/button_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:padding="@dimen/spacing_sm"
-                android:elevation="2dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/health_connect_button"
-                    android:scaleType="fitCenter"
-                    android:contentDescription="Health Connect Status" />
-            </FrameLayout>
-
             <!-- Workout Highlight -->
             <LinearLayout
                 android:id="@+id/btn_start_workout_section"
@@ -820,7 +823,7 @@
                 android:elevation="6dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="@dimen/spacing_md">
 
@@ -835,8 +838,9 @@
                     tools:ignore="HardcodedText" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="@string/manage_workouts"
                     android:textColor="@color/colorWhite"
                     android:textSize="@dimen/text_title"
