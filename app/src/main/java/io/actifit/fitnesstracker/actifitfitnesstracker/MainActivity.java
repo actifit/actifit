@@ -813,7 +813,7 @@ public class MainActivity extends BaseActivity {
         trackingManager = new TrackingManager(this, this);
         trackingManager.setSensorService(mSensorService);
         trackingManager.setServiceIntent(mServiceIntent);
-                trackingManager.initialize(chartManager, mStepsDBHelper, findViewById(R.id.health_connect_status_hero));
+                trackingManager.initialize(chartManager, mStepsDBHelper, findViewById(R.id.health_connect_status));
         trackingManager.startHealthConnectCheck();
 
         // support dark mode
@@ -3018,11 +3018,14 @@ public class MainActivity extends BaseActivity {
             final boolean hcActivated = isHealthConnectPermActivated(); // isHealthConnectEnabledInSettings() &&
             runOnUiThread(() -> {
 
-                                ImageView hcs = findViewById(R.id.health_connect_status_hero);
+                                View hcs = findViewById(R.id.health_connect_status);
+                ImageView hcsHero = findViewById(R.id.health_connect_status_hero);
                 if (hcActivated) {
                     hcs.setVisibility(GONE);
+                    hcsHero.setVisibility(View.VISIBLE);
                 } else {
                     hcs.setVisibility(View.VISIBLE);
+                    hcsHero.setVisibility(GONE);
                 }
 
                 displayDate();

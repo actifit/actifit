@@ -58,56 +58,46 @@ public class NotificationsActivity extends BaseActivity{
         progress.setMessage(getString(R.string.fetching_notifications));
         progress.show();*/
 
-        // This holds the url to connect to the API and grab the transactions.
-        // We append to it the username
-        String notificationsUrl = Utils.apiUrl(this)+getString(R.string.user_all_notifications_api_url)+username;
+        loadNotificationsWithRetry(queue, callerContext, actifitNotificationsView, actifitNotificationsError, 0);
+    }
 
-        // Request the transactions of the user first via JsonArrayRequest
-        // according to our data format
+    private void loadNotificationsWithRetry(RequestQueue queue, Context callerContext,
+            ListView notificationsView, TextView errorView, int attempt) {
+        final int MAX_RETRIES = 3;
+        final int BASE_DELAY_MS = 2000;
+
+        String notificationsUrl = Utils.apiUrl(this) + getString(R.string.user_all_notifications_api_url) + username;
+
         JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET,
                 notificationsUrl, null, notificationsListArray -> {
-
-            // Handle the result
             try {
-
+                notificationList.clear();
                 for (int i = 0; i < notificationsListArray.length(); i++) {
-                    // Retrieve each JSON object within the JSON array
                     JSONObject jsonObject = notificationsListArray.getJSONObject(i);
-
-                    NotificationModel postEntry = new NotificationModel(jsonObject);
-                    notificationList.add(postEntry);
-
+                    notificationList.add(new NotificationModel(jsonObject));
                 }
-
                 Collections.reverse(notificationList);
-                // Create the adapter to convert the array to views
                 listingAdapter = new NotificationEntryAdapter(callerContext,
-                        NotificationsActivity.this , notificationList);
-
-                actifitNotificationsView.setAdapter(listingAdapter);
+                        NotificationsActivity.this, notificationList);
+                notificationsView.setAdapter(listingAdapter);
                 loader.setVisibility(View.GONE);
-                //hide dialog
-                //progress.hide();
-                //actifitTransactions.setText("Response is: "+ response);
-            }catch (Exception e) {
-                //hide dialog
-                //progress.hide();
-                //actifitTransactionsError.setVisibility(View.VISIBLE);
-                actifitNotificationsError.setVisibility(View.VISIBLE);
+            } catch (Exception e) {
+                errorView.setVisibility(View.VISIBLE);
                 loader.setVisibility(View.GONE);
                 e.printStackTrace();
             }
         }, error -> {
-            //hide dialog
-            //progress.hide();
-            //actifitTransactionsView.setText("Unable to fetch balance");
-            loader.setVisibility(View.GONE);
-            actifitNotificationsError.setVisibility(View.VISIBLE);
-
+            if (attempt < MAX_RETRIES) {
+                int delayMs = BASE_DELAY_MS * (1 << attempt);
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() ->
+                        loadNotificationsWithRetry(queue, callerContext, notificationsView, errorView, attempt + 1),
+                        delayMs);
+            } else {
+                loader.setVisibility(View.GONE);
+                errorView.setVisibility(View.VISIBLE);
+            }
         });
 
-
-        // Add transaction request to be processed
         queue.add(transactionRequest);
 
         //display a progress dialog not to keep the user waiting

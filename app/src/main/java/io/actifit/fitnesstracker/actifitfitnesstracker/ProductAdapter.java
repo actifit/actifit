@@ -267,12 +267,15 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
             // if (!reqtMet){
             if (!postEntry.allReqtsMet) {
-                // disable buy buttons
                 buyAFIT.setEnabled(false);
+                buyAFIT.setAlpha(0.4f);
                 buyHIVE.setEnabled(false);
+                buyHIVE.setAlpha(0.4f);
             } else {
                 buyAFIT.setEnabled(true);
+                buyAFIT.setAlpha(1.0f);
                 buyHIVE.setEnabled(true);
+                buyHIVE.setAlpha(1.0f);
             }
 
             if (postEntry.nonConsumedCopy == SingleProductModel.BOUGHTCOPY) {

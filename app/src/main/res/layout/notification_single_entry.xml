@@ -57,14 +57,19 @@
         />
 
 
-    <Button
-        style="@style/AppTheme.ActifitButton"
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/entryDetailsBtn"
-        android:layout_width="40sp"
-        android:layout_height="40sp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:fontFamily="@font/font_awesome_6_solid"
         android:text="\uf15c"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:gravity="center"
+        android:textColor="@color/text_on_actifit_red"
+        android:background="@drawable/actifit_button_ripple_bg"
+        android:padding="0dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp" />
 
 
 </LinearLayout>
