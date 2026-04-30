@@ -76,7 +76,7 @@
             android:hint="@string/comment_hint"
             android:layout_marginEnd="8dp"
             /><!--android:layout_weight="1"-->
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/insert_image_comment"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -84,14 +84,10 @@
             android:fontFamily="@font/font_awesome_6_regular"
             android:text="\uf03e"
             android:textColor="@color/text_on_actifit_red"
-            android:background="@drawable/rounded_button_bg"
+            android:background="@drawable/actifit_button_ripple_bg"
             android:padding="0dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
             />
 
 
@@ -116,27 +112,25 @@
         >
 
         <com.google.android.material.button.MaterialButton
+            style="@style/AppTheme.ActifitButton"
             android:id="@+id/close_btn"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/cancel_action"
             android:textColor="@color/text_on_actifit_red"
-            app:backgroundTint="@color/actifitRed"
-            app:cornerRadius="@dimen/button_corner_radius"
             android:textAllCaps="false"
             android:layout_marginEnd="@dimen/spacing_xs"
             />
 
         <com.google.android.material.button.MaterialButton
+            style="@style/AppTheme.ActifitButton"
             android:id="@+id/proceed_comment_btn"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/reply_action"
             android:textColor="@color/text_on_actifit_red"
-            app:backgroundTint="@color/actifitRed"
-            app:cornerRadius="@dimen/button_corner_radius"
             android:textAllCaps="false"
             />
 

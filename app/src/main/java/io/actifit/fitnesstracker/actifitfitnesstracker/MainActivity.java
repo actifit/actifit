@@ -813,7 +813,7 @@ public class MainActivity extends BaseActivity {
         trackingManager = new TrackingManager(this, this);
         trackingManager.setSensorService(mSensorService);
         trackingManager.setServiceIntent(mServiceIntent);
-        trackingManager.initialize(chartManager, mStepsDBHelper, findViewById(R.id.health_connect_status));
+                trackingManager.initialize(chartManager, mStepsDBHelper, findViewById(R.id.health_connect_status_hero));
         trackingManager.startHealthConnectCheck();
 
         // support dark mode
@@ -1110,7 +1110,7 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        ImageView healthConnectLogo = findViewById(R.id.health_connect_logo);
+                ImageView healthConnectLogo = findViewById(R.id.health_connect_status_hero);
         healthConnectLogo.setOnClickListener(view -> {
             String lastMainSyncDate = sharedPreferences.getString("healthConnectLastSyncDate", "");
             if (!lastMainSyncDate.isEmpty())
@@ -3018,7 +3018,7 @@ public class MainActivity extends BaseActivity {
             final boolean hcActivated = isHealthConnectPermActivated(); // isHealthConnectEnabledInSettings() &&
             runOnUiThread(() -> {
 
-                FrameLayout hcs = findViewById(R.id.health_connect_status);
+                                ImageView hcs = findViewById(R.id.health_connect_status_hero);
                 if (hcActivated) {
                     hcs.setVisibility(GONE);
                 } else {

@@ -42,22 +42,19 @@
             android:gravity="end"
             android:orientation="horizontal">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/close_btn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="end"
                 android:text="✕"
+                android:gravity="center"
                 android:textSize="16sp"
                 android:textColor="@color/text_on_actifit_red"
-                android:background="@drawable/rounded_button_bg"
+                android:background="@drawable/actifit_button_ripple_bg"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
                 />
         </LinearLayout>
     </LinearLayout>
@@ -91,64 +88,53 @@
             android:paddingStart="5sp">
 
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/insert_image_comment"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:textSize="16sp"
                 android:fontFamily="@font/font_awesome_6_regular"
-                android:text="\uf03e"
+                android:text="&#xf03e;"
+                android:gravity="center"
                 android:textColor="@color/text_on_actifit_red"
-                android:background="@drawable/rounded_button_bg"
+                android:background="@drawable/actifit_button_ripple_bg"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
                 android:layout_marginEnd="8dp"
                 />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/expand_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:ems="10"
                 android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf358"
+                android:text="&#xf358;"
+                android:gravity="center"
                 android:textSize="16sp"
-                android:textColor="@color/colorWhite"
+                android:textColor="@color/text_on_actifit_red"
                 android:visibility="gone"
-                android:background="@drawable/rounded_button_bg"
+                android:background="@drawable/actifit_button_ripple_bg"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
                 android:layout_marginEnd="8dp"
                 />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/retract_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:ems="10"
                 android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf0aa"
+                android:text="&#xf0aa;"
+                android:gravity="center"
                 android:textSize="16sp"
-                android:textColor="@color/colorWhite"
+                android:textColor="@color/text_on_actifit_red"
                 android:visibility="visible"
-                android:background="@drawable/rounded_button_bg"
+                android:background="@drawable/actifit_button_ripple_bg"
                 android:padding="0dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
                 android:layout_marginEnd="8dp"
                 />
 
@@ -197,22 +183,19 @@
 
                 </RadioGroup>
 
-                <com.google.android.material.button.MaterialButton
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/post_wave"
-                    android:layout_width="wrap_content"
+                    android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="end"
-                    android:text="@string/post_thread"
-                    android:textSize="14sp"
+                    android:text="&#xf1d8;"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/font_awesome_6_solid"
                     android:textColor="@color/text_on_actifit_red"
-                    app:backgroundTint="@color/actifitRed"
-                    app:cornerRadius="@dimen/button_corner_radius"
-                    android:textAllCaps="false"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:minWidth="80dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
+                    android:background="@drawable/actifit_button_ripple_bg"
+                    android:padding="0dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
                     />
 
             </LinearLayout>
@@ -259,17 +242,15 @@
         />
 
     <com.google.android.material.button.MaterialButton
+        style="@style/AppTheme.ActifitButton"
         android:id="@+id/load_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14dp"
         android:visibility="invisible"
         android:layout_gravity="center"
         android:elevation="20dp"
         android:text="Load More"
         android:textColor="@color/text_on_actifit_red"
-        app:backgroundTint="@color/actifitRed"
-        app:cornerRadius="@dimen/button_corner_radius"
         android:textAllCaps="false"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"

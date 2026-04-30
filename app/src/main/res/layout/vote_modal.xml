@@ -63,6 +63,7 @@
         android:gravity="center">
 
         <com.google.android.material.button.MaterialButton
+            style="@style/AppTheme.ActifitButton"
             android:id="@+id/sub_10"
             android:layout_width="70sp"
             android:layout_height="wrap_content"
@@ -70,8 +71,6 @@
             android:textSize="12sp"
             android:text="@string/sub_10"
             android:textColor="@color/text_on_actifit_red"
-            app:backgroundTint="@color/actifitRed"
-            app:cornerRadius="@dimen/button_corner_radius"
             android:textAllCaps="false"
             android:layout_marginEnd="@dimen/spacing_xs"
             />
@@ -98,6 +97,7 @@
             />
 
         <com.google.android.material.button.MaterialButton
+            style="@style/AppTheme.ActifitButton"
             android:id="@+id/add_10"
             android:layout_width="70sp"
             android:layout_height="wrap_content"
@@ -105,8 +105,6 @@
             android:textSize="12sp"
             android:text="@string/add_10"
             android:textColor="@color/text_on_actifit_red"
-            app:backgroundTint="@color/actifitRed"
-            app:cornerRadius="@dimen/button_corner_radius"
             android:textAllCaps="false"
             />
     </LinearLayout>
@@ -118,6 +116,7 @@
         android:layout_marginTop="@dimen/spacing_sm">
 
         <com.google.android.material.button.MaterialButton
+            style="@style/AppTheme.ActifitButton"
             android:id="@+id/close_btn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -125,13 +124,12 @@
             android:textSize="12sp"
             android:text="@string/close_button"
             android:textColor="@color/text_on_actifit_red"
-            app:backgroundTint="@color/actifitRed"
-            app:cornerRadius="@dimen/button_corner_radius"
             android:textAllCaps="false"
             android:layout_marginEnd="@dimen/spacing_xs"
             />
 
         <com.google.android.material.button.MaterialButton
+            style="@style/AppTheme.ActifitButton"
             android:id="@+id/voters_list_btn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -139,13 +137,12 @@
             android:textSize="12sp"
             android:text="@string/voters_list"
             android:textColor="@color/text_on_actifit_red"
-            app:backgroundTint="@color/actifitRed"
-            app:cornerRadius="@dimen/button_corner_radius"
             android:textAllCaps="false"
             android:layout_marginEnd="@dimen/spacing_xs"
             />
 
         <com.google.android.material.button.MaterialButton
+            style="@style/AppTheme.ActifitButton"
             android:id="@+id/proceed_vote_btn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -153,8 +150,6 @@
             android:layout_gravity="center"
             android:text="@string/vote_action"
             android:textColor="@color/text_on_actifit_red"
-            app:backgroundTint="@color/actifitRed"
-            app:cornerRadius="@dimen/button_corner_radius"
             android:textAllCaps="false"
             />
 
