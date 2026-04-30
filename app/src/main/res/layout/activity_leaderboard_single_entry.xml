@@ -50,11 +50,11 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/entryDetailsBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:fontFamily="@font/font_awesome_6_solid"
             android:text="\uf15c"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:gravity="center"
             android:textColor="@color/text_on_actifit_red"
             android:background="@drawable/actifit_button_ripple_bg"

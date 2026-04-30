@@ -1110,9 +1110,10 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-                ImageView healthConnectLogo = findViewById(R.id.health_connect_status_hero);
-        healthConnectLogo.setOnClickListener(view -> {
-            String lastMainSyncDate = sharedPreferences.getString("healthConnectLastSyncDate", "");
+                ImageView healthConnectLogoInChart = findViewById(R.id.health_connect_logo);
+        healthConnectLogoInChart.setOnClickListener(view -> {
+            SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+            String lastMainSyncDate = prefs.getString("healthConnectLastSyncDate", "");
             if (!lastMainSyncDate.isEmpty())
                 Toast.makeText(ctx, "Health Connect last synced on : " + lastMainSyncDate, Toast.LENGTH_LONG).show();
             else {
@@ -3020,12 +3021,11 @@ public class MainActivity extends BaseActivity {
 
                                 View hcs = findViewById(R.id.health_connect_status);
                 ImageView hcsHero = findViewById(R.id.health_connect_status_hero);
+                hcsHero.setVisibility(GONE);
                 if (hcActivated) {
                     hcs.setVisibility(GONE);
-                    hcsHero.setVisibility(View.VISIBLE);
                 } else {
                     hcs.setVisibility(View.VISIBLE);
-                    hcsHero.setVisibility(GONE);
                 }
 
                 displayDate();

@@ -35,22 +35,17 @@
         android:maxLines="1"
         />
 
-    <androidx.core.widget.NestedScrollView
+    <TextView
+        android:id="@+id/entryDetails"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:maxHeight="72dp"
+        android:textSize="12sp"
+        android:maxLines="3"
+        android:ellipsize="end"
         android:paddingStart="5dp"
-        android:paddingEnd="5dp">
-
-        <TextView
-            android:id="@+id/entryDetails"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            />
-
-    </androidx.core.widget.NestedScrollView>
+        android:paddingEnd="5dp"
+        />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/entryDetailsBtn"
