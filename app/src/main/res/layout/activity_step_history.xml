@@ -30,14 +30,19 @@
             android:orientation="horizontal"
             android:gravity="end"
             >
-        <Button
-            style="@style/AppTheme.ActifitButton"
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/chart_view"
-            android:layout_width="50sp"
-            android:layout_height="50sp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:text="\uf080"
-            android:textSize="25sp"
+            android:textSize="22sp"
             android:fontFamily="@font/font_awesome_6_solid"
+            android:gravity="center"
+            android:textColor="@color/text_on_actifit_red"
+            android:background="@drawable/actifit_button_ripple_bg"
+            android:padding="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
             />
         </LinearLayout>
     </LinearLayout>
