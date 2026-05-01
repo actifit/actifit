@@ -205,7 +205,7 @@ public class RewardManager {
         rewardsDialogBuilder.show();
     }
 
-    private void resetRewardClaimStatus() {
+    void resetRewardClaimStatus() {
         Date date = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
         int curDate = parseInt(dateFormat.format(date));
