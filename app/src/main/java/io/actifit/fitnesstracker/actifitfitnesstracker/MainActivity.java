@@ -816,22 +816,6 @@ public class MainActivity extends BaseActivity {
                 trackingManager.initialize(chartManager, mStepsDBHelper, findViewById(R.id.health_connect_status));
         trackingManager.startHealthConnectCheck();
 
-        // support dark mode
-        // In Application class or base Activity's onCreate()
-        SharedPreferences sharedPrefs = getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
-
-        int initialNightMode;
-        if (sharedPrefs.contains(PREF_KEY_DARK_MODE)) {
-            // If the preference exists, use the saved boolean state
-            boolean isDarkModeEnabled = sharedPrefs.getBoolean(PREF_KEY_DARK_MODE, false); // Default false doesn't
-            // matter here
-            initialNightMode = isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
-        } else {
-            // If the preference does NOT exist, default to following the system
-            initialNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
-        }
-
-        AppCompatDelegate.setDefaultNightMode(initialNightMode);
 
         // short rotate animation
         rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
