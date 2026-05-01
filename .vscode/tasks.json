@@ -100,6 +100,28 @@
         "panel": "shared"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "emulator: start Samsung A56 API36",
+      "type": "shell",
+      "command": "$env:ANDROID_AVD_HOME = 'C:\\Users\\mcfar\\.android\\avd'; & 'C:\\Users\\mcfar\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe' -avd Samsung_A56_API36 -gpu swiftshader_indirect -no-snapshot-load",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "emulator: deploy & AOT compile",
+      "type": "shell",
+      "command": "$adb = 'C:\\Users\\mcfar\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe'; $apk = (Get-ChildItem 'app\\build\\outputs\\apk\\debug\\*.apk' | Select-Object -First 1).FullName; & $adb install -r $apk; & $adb shell cmd package compile -m speed io.actifit.fitnesstracker.actifitfitnesstracker; & $adb shell am start -n 'io.actifit.fitnesstracker.actifitfitnesstracker/.LoginActivity'",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "dependsOn": "assembleDebug"
     }
   ]
 }

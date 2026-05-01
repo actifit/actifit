@@ -805,6 +805,9 @@ public class MainActivity extends BaseActivity {
         uiHelper.initializeAnimations();
         chartManager.setScaler(uiHelper.getScalerAnimation());
 
+        if (mStepsDBHelper == null) {
+            mStepsDBHelper = new StepsDBHelper(this);
+        }
         rewardManager = new RewardManager(this, this, activityMilestoneOne, activityMilestoneTwo, activityMilestoneThree,
                 checkMark, uiHelper.getScalerAnimation(), mStepsDBHelper);
 
