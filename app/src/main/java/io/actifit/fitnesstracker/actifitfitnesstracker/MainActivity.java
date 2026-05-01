@@ -1384,6 +1384,13 @@ public class MainActivity extends BaseActivity {
 
             // Get reference to the Current Steps TextView
             textViewCurrentSteps = rewardsLayout.findViewById(R.id.textViewCurrentSteps);
+
+            // Sync dialog views into RewardManager so its reward callback operates on the correct views
+            rewardManager.setGiftLoader(giftLoader);
+            rewardManager.setRewardButtons(freeRewardButton, fivekRewardButton, sevenkRewardButton, tenkRewardButton);
+            rewardManager.setRewardStatusTextViews(textViewFreeRewardStatus, textView5kRewardStatus, textView7kRewardStatus, textView10kRewardStatus);
+            rewardManager.resetRewardClaimStatus();
+
             /*
              * moveTotweets = rewardsLayout.findViewById(R.id.displayTweets);
              *
