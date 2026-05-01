@@ -2,6 +2,9 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+
+import androidx.appcompat.app.AppCompatDelegate;
 
 /*
  * Class handles providing an instance of our running Actifit app
@@ -15,6 +18,11 @@ public class ActifitApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
+        boolean isDarkModeEnabled = sharedPreferences.getBoolean("theme_mode", false);
+        AppCompatDelegate.setDefaultNightMode(
+                isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
+        );
     }
     @Override
     public Context getApplicationContext() {
