@@ -240,7 +240,7 @@
     <string name="today_report_option">Today</string>
     <string name="yesterday_report_option">Yesterday</string>
     <string name="report_date_option_group_title">Activity Date</string>
-    <string name="fitbit_sync_again_notice">Please Re-Sync Your Fitbit Data</string>
+    <string name="fitbit_sync_again_notice">Please Re-Sync</string>
     <string name="actifit_crash_restarted">Actifit restarted after crash</string>
     <string name="entry_view_details_button">Post Details</string>
     <string name="notification_details_button">Details</string>
