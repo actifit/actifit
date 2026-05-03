@@ -726,6 +726,18 @@
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/content_progress_bar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:max="100"
+                            android:progress="0"
+                            app:indicatorColor="@color/actifitRed"
+                            app:trackColor="@color/md_theme_separator"
+                            app:trackThickness="3dp"
+                            app:trackCornerRadius="2dp" />
+
                         <!-- Editor -->
                         <EditText
                             android:id="@+id/steemit_post_text"
@@ -780,19 +792,6 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <!-- Content Progress Bar -->
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/content_progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="56dp"
-        android:max="100"
-        android:progress="0"
-        app:indicatorColor="@color/actifitRed"
-        app:trackColor="@color/md_theme_separator"
-        app:trackThickness="4dp"
-        app:trackCornerRadius="0dp" />
 
     <!-- FAB Post Button -->
     <Button
