@@ -644,4 +644,7 @@
     <string name="restore_failed">Restore failed!</string>
     <string name="restore_confirmation">This will overwrite your current data. Are you sure you want to proceed?</string>
     <string name="select_backup_file">Select backup file</string>
+    <string name="add_tag_hint">Add tag...</string>
+    <string name="show_more_activities">More activities</string>
+    <string name="show_fewer_activities">Fewer activities</string>
 </resources>

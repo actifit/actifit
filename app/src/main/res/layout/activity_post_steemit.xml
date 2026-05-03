@@ -118,27 +118,30 @@
                             android:textColor="@color/md_theme_onSurface"
                             android:layout_marginBottom="@dimen/spacing_sm" />
 
-                        <RadioGroup
+                        <com.google.android.material.button.MaterialButtonToggleGroup
                             android:id="@+id/report_date_option_group"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginBottom="@dimen/spacing_md">
+                            android:layout_marginBottom="@dimen/spacing_md"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
 
-                            <RadioButton
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/report_today_option"
-                                android:layout_width="wrap_content"
+                                style="@style/AppTheme.ActifitButton.Outlined"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="@string/today_report_option"
-                                android:checked="true" />
+                                android:layout_weight="1"
+                                android:text="@string/today_report_option" />
 
-                            <RadioButton
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/report_yesterday_option"
-                                android:layout_width="wrap_content"
+                                style="@style/AppTheme.ActifitButton.Outlined"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="@string/yesterday_report_option"
-                                android:layout_marginStart="@dimen/spacing_lg" />
-                        </RadioGroup>
+                                android:layout_weight="1"
+                                android:text="@string/yesterday_report_option" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
 
                         <!-- Steps Section -->
                         <TextView
@@ -222,12 +225,29 @@
                             android:textColor="@color/md_theme_onSurface"
                             android:layout_marginBottom="@dimen/spacing_sm" />
 
-                        <io.actifit.fitnesstracker.actifitfitnesstracker.MultiSelectionSpinner
-                            android:id="@+id/steemit_activity_type"
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/activity_chip_group"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_sm"
-                            android:layout_marginBottom="@dimen/spacing_sm" />
+                            app:chipSpacingHorizontal="@dimen/spacing_xs"
+                            app:chipSpacingVertical="@dimen/spacing_xs" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/activity_chip_group_more"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            app:chipSpacingHorizontal="@dimen/spacing_xs"
+                            app:chipSpacingVertical="@dimen/spacing_xs" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_show_more_activities"
+                            style="@style/AppTheme.ActifitButton.Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:text="@string/show_more_activities" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -247,281 +267,292 @@
                         android:orientation="vertical"
                         android:padding="@dimen/spacing_md">
 
-                        <TextView
-                            android:id="@+id/measurements_section_lbl"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/track_measurements_lbl"
-                            android:textSize="@dimen/text_subtitle"
-                            android:textStyle="bold"
-                            android:textColor="@color/md_theme_onSurface"
-                            android:layout_marginBottom="@dimen/spacing_md" />
-
-                        <!-- Row 1: Height + Weight + Body Fat -->
+                        <!-- Clickable header with chevron -->
                         <LinearLayout
+                            android:id="@+id/measurements_header"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:layout_marginBottom="@dimen/spacing_sm">
+                            android:gravity="center_vertical"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackground">
 
-                            <LinearLayout
+                            <TextView
+                                android:id="@+id/measurements_section_lbl"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:orientation="vertical">
+                                android:text="@string/track_measurements_lbl"
+                                android:textSize="@dimen/text_subtitle"
+                                android:textStyle="bold"
+                                android:textColor="@color/md_theme_onSurface"
+                                android:paddingTop="@dimen/spacing_xs"
+                                android:paddingBottom="@dimen/spacing_xs" />
 
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/measurements_chevron"
+                                style="@style/AppTheme.ToolbarIconButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:text="" />
+                        </LinearLayout>
+
+                        <!-- Collapsible measurements content -->
+                        <LinearLayout
+                            android:id="@+id/measurements_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone"
+                            android:paddingTop="@dimen/spacing_sm">
+
+                            <!-- Height -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
                                 <TextView
-                                    android:id="@+id/measurements_height_lbl"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="@string/height_lbl"
                                     android:textStyle="bold"
                                     android:textColor="@color/md_theme_textSecondary"
                                     android:textSize="@dimen/text_body" />
-
-                                <LinearLayout
+                                <TextView
+                                    android:id="@+id/measurements_height_value"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:gravity="center_vertical">
-
-                                    <EditText
-                                        android:id="@+id/measurements_height"
-                                        android:layout_width="64dp"
-                                        android:layout_height="wrap_content"
-                                        android:inputType="numberDecimal"
-                                        android:nextFocusDown="@+id/measurements_weight"
-                                        android:background="@drawable/input_background"
-                                        android:padding="@dimen/spacing_sm"
-                                        android:textColor="@color/md_theme_onSurface"
-                                        android:textSize="@dimen/text_subtitle" />
-
-                                    <TextView
-                                        android:id="@+id/measurements_height_unit"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/unit_lbl"
-                                        android:paddingStart="@dimen/spacing_xs"
-                                        android:textColor="@color/md_theme_textSecondary" />
-                                </LinearLayout>
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
+                                    android:text="&#8212;"
+                                    android:textColor="@color/actifitRed"
+                                    android:textStyle="bold"
+                                    android:textSize="@dimen/text_body" />
                                 <TextView
-                                    android:id="@+id/measurements_weight_lbl"
+                                    android:id="@+id/measurements_height_unit"
                                     android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/unit_lbl"
+                                    android:paddingStart="@dimen/spacing_xs"
+                                    android:textColor="@color/md_theme_textSecondary"
+                                    android:textSize="@dimen/text_body" />
+                            </LinearLayout>
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/measurements_height"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/spacing_md"
+                                app:thumbColor="@color/actifitRed"
+                                app:trackColorActive="@color/actifitRed"
+                                app:haloColor="@color/actifitRed"
+                                app:labelBehavior="floating" />
+
+                            <!-- Weight -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="@string/weight_lbl"
                                     android:textStyle="bold"
                                     android:textColor="@color/md_theme_textSecondary"
                                     android:textSize="@dimen/text_body" />
-
-                                <LinearLayout
+                                <TextView
+                                    android:id="@+id/measurements_weight_value"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:gravity="center_vertical">
-
-                                    <EditText
-                                        android:id="@+id/measurements_weight"
-                                        android:layout_width="64dp"
-                                        android:layout_height="wrap_content"
-                                        android:inputType="numberDecimal"
-                                        android:nextFocusDown="@+id/measurements_bodyfat"
-                                        android:background="@drawable/input_background"
-                                        android:padding="@dimen/spacing_sm"
-                                        android:textColor="@color/md_theme_onSurface"
-                                        android:textSize="@dimen/text_subtitle" />
-
-                                    <TextView
-                                        android:id="@+id/measurements_weight_unit"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/unit_lbl"
-                                        android:paddingStart="@dimen/spacing_xs"
-                                        android:textColor="@color/md_theme_textSecondary" />
-                                </LinearLayout>
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
+                                    android:text="&#8212;"
+                                    android:textColor="@color/actifitRed"
+                                    android:textStyle="bold"
+                                    android:textSize="@dimen/text_body" />
                                 <TextView
-                                    android:id="@+id/measurements_bodyfat_lbl"
+                                    android:id="@+id/measurements_weight_unit"
                                     android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/unit_lbl"
+                                    android:paddingStart="@dimen/spacing_xs"
+                                    android:textColor="@color/md_theme_textSecondary"
+                                    android:textSize="@dimen/text_body" />
+                            </LinearLayout>
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/measurements_weight"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/spacing_md"
+                                app:thumbColor="@color/actifitRed"
+                                app:trackColorActive="@color/actifitRed"
+                                app:haloColor="@color/actifitRed"
+                                app:labelBehavior="floating" />
+
+                            <!-- Body Fat -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="@string/body_fat_lbl"
                                     android:textStyle="bold"
                                     android:textColor="@color/md_theme_textSecondary"
                                     android:textSize="@dimen/text_body" />
-
-                                <LinearLayout
+                                <TextView
+                                    android:id="@+id/measurements_bodyfat_value"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:gravity="center_vertical">
-
-                                    <EditText
-                                        android:id="@+id/measurements_bodyfat"
-                                        android:layout_width="64dp"
-                                        android:layout_height="wrap_content"
-                                        android:inputType="numberDecimal"
-                                        android:nextFocusDown="@+id/measurements_waistsize"
-                                        android:background="@drawable/input_background"
-                                        android:padding="@dimen/spacing_sm"
-                                        android:textColor="@color/md_theme_onSurface"
-                                        android:textSize="@dimen/text_subtitle" />
-
-                                    <TextView
-                                        android:id="@+id/measurements_bodyfat_unit"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/percent_lbl"
-                                        android:paddingStart="@dimen/spacing_xs"
-                                        android:textColor="@color/md_theme_textSecondary" />
-                                </LinearLayout>
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <!-- Row 2: Waist + Thighs + Chest -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
+                                    android:text="&#8212;"
+                                    android:textColor="@color/actifitRed"
+                                    android:textStyle="bold"
+                                    android:textSize="@dimen/text_body" />
                                 <TextView
-                                    android:id="@+id/measurements_waistsize_lbl"
+                                    android:id="@+id/measurements_bodyfat_unit"
                                     android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/percent_lbl"
+                                    android:paddingStart="@dimen/spacing_xs"
+                                    android:textColor="@color/md_theme_textSecondary"
+                                    android:textSize="@dimen/text_body" />
+                            </LinearLayout>
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/measurements_bodyfat"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/spacing_md"
+                                app:thumbColor="@color/actifitRed"
+                                app:trackColorActive="@color/actifitRed"
+                                app:haloColor="@color/actifitRed"
+                                app:labelBehavior="floating" />
+
+                            <!-- Waist -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="@string/waist_size_lbl"
                                     android:textStyle="bold"
                                     android:textColor="@color/md_theme_textSecondary"
                                     android:textSize="@dimen/text_body" />
-
-                                <LinearLayout
+                                <TextView
+                                    android:id="@+id/measurements_waistsize_value"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:gravity="center_vertical">
-
-                                    <EditText
-                                        android:id="@+id/measurements_waistsize"
-                                        android:layout_width="64dp"
-                                        android:layout_height="wrap_content"
-                                        android:inputType="numberDecimal"
-                                        android:nextFocusDown="@+id/measurements_thighs"
-                                        android:background="@drawable/input_background"
-                                        android:padding="@dimen/spacing_sm"
-                                        android:textColor="@color/md_theme_onSurface"
-                                        android:textSize="@dimen/text_subtitle" />
-
-                                    <TextView
-                                        android:id="@+id/measurements_waistsize_unit"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/unit_lbl"
-                                        android:paddingStart="@dimen/spacing_xs"
-                                        android:textColor="@color/md_theme_textSecondary" />
-                                </LinearLayout>
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
+                                    android:text="&#8212;"
+                                    android:textColor="@color/actifitRed"
+                                    android:textStyle="bold"
+                                    android:textSize="@dimen/text_body" />
                                 <TextView
-                                    android:id="@+id/measurements_thighs_lbl"
+                                    android:id="@+id/measurements_waistsize_unit"
                                     android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/unit_lbl"
+                                    android:paddingStart="@dimen/spacing_xs"
+                                    android:textColor="@color/md_theme_textSecondary"
+                                    android:textSize="@dimen/text_body" />
+                            </LinearLayout>
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/measurements_waistsize"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/spacing_md"
+                                app:thumbColor="@color/actifitRed"
+                                app:trackColorActive="@color/actifitRed"
+                                app:haloColor="@color/actifitRed"
+                                app:labelBehavior="floating" />
+
+                            <!-- Thighs -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="@string/thighs_size_lbl"
                                     android:textStyle="bold"
                                     android:textColor="@color/md_theme_textSecondary"
                                     android:textSize="@dimen/text_body" />
-
-                                <LinearLayout
+                                <TextView
+                                    android:id="@+id/measurements_thighs_value"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:gravity="center_vertical">
-
-                                    <EditText
-                                        android:id="@+id/measurements_thighs"
-                                        android:layout_width="64dp"
-                                        android:layout_height="wrap_content"
-                                        android:inputType="numberDecimal"
-                                        android:nextFocusDown="@+id/measurements_chest"
-                                        android:background="@drawable/input_background"
-                                        android:padding="@dimen/spacing_sm"
-                                        android:textColor="@color/md_theme_onSurface"
-                                        android:textSize="@dimen/text_subtitle" />
-
-                                    <TextView
-                                        android:id="@+id/measurements_thighs_unit"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/unit_lbl"
-                                        android:paddingStart="@dimen/spacing_xs"
-                                        android:textColor="@color/md_theme_textSecondary" />
-                                </LinearLayout>
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
+                                    android:text="&#8212;"
+                                    android:textColor="@color/actifitRed"
+                                    android:textStyle="bold"
+                                    android:textSize="@dimen/text_body" />
                                 <TextView
-                                    android:id="@+id/measurements_chest_lbl"
+                                    android:id="@+id/measurements_thighs_unit"
                                     android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/unit_lbl"
+                                    android:paddingStart="@dimen/spacing_xs"
+                                    android:textColor="@color/md_theme_textSecondary"
+                                    android:textSize="@dimen/text_body" />
+                            </LinearLayout>
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/measurements_thighs"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/spacing_md"
+                                app:thumbColor="@color/actifitRed"
+                                app:trackColorActive="@color/actifitRed"
+                                app:haloColor="@color/actifitRed"
+                                app:labelBehavior="floating" />
+
+                            <!-- Chest -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="@string/chest_size_lbl"
                                     android:textStyle="bold"
                                     android:textColor="@color/md_theme_textSecondary"
                                     android:textSize="@dimen/text_body" />
-
-                                <LinearLayout
+                                <TextView
+                                    android:id="@+id/measurements_chest_value"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:gravity="center_vertical">
-
-                                    <EditText
-                                        android:id="@+id/measurements_chest"
-                                        android:layout_width="64dp"
-                                        android:layout_height="wrap_content"
-                                        android:inputType="numberDecimal"
-                                        android:nextFocusDown="@+id/steemit_post_tags"
-                                        android:background="@drawable/input_background"
-                                        android:padding="@dimen/spacing_sm"
-                                        android:textColor="@color/md_theme_onSurface"
-                                        android:textSize="@dimen/text_subtitle" />
-
-                                    <TextView
-                                        android:id="@+id/measurements_chest_unit"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/unit_lbl"
-                                        android:paddingStart="@dimen/spacing_xs"
-                                        android:textColor="@color/md_theme_textSecondary" />
-                                </LinearLayout>
+                                    android:text="&#8212;"
+                                    android:textColor="@color/actifitRed"
+                                    android:textStyle="bold"
+                                    android:textSize="@dimen/text_body" />
+                                <TextView
+                                    android:id="@+id/measurements_chest_unit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/unit_lbl"
+                                    android:paddingStart="@dimen/spacing_xs"
+                                    android:textColor="@color/md_theme_textSecondary"
+                                    android:textSize="@dimen/text_body" />
                             </LinearLayout>
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/measurements_chest"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/spacing_xs"
+                                app:thumbColor="@color/actifitRed"
+                                app:trackColorActive="@color/actifitRed"
+                                app:haloColor="@color/actifitRed"
+                                app:labelBehavior="floating" />
                         </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -552,15 +583,24 @@
                             android:textColor="@color/md_theme_onSurface"
                             android:layout_marginBottom="@dimen/spacing_sm" />
 
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/tags_chip_group"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_xs"
+                            app:chipSpacingHorizontal="@dimen/spacing_xs"
+                            app:chipSpacingVertical="@dimen/spacing_xs" />
+
                         <EditText
                             android:id="@+id/steemit_post_tags"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:ems="10"
                             android:background="@drawable/input_background"
                             android:padding="@dimen/spacing_md"
                             android:inputType="text"
-                            android:maxLines="2"
+                            android:imeOptions="actionDone"
+                            android:maxLines="1"
+                            android:hint="@string/add_tag_hint"
                             android:textColor="@color/md_theme_onSurface"
                             android:textSize="@dimen/text_subtitle" />
                     </LinearLayout>
@@ -739,6 +779,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
+
+    <!-- Content Progress Bar -->
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/content_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="56dp"
+        android:max="100"
+        android:progress="0"
+        app:indicatorColor="@color/actifitRed"
+        app:trackColor="@color/md_theme_separator"
+        app:trackThickness="4dp"
+        app:trackCornerRadius="0dp" />
 
     <!-- FAB Post Button -->
     <Button
