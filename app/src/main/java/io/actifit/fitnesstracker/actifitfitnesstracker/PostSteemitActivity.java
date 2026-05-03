@@ -955,16 +955,31 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             return false;
         });
         steemitPostTags.addTextChangedListener(new TextWatcher() {
+            private boolean processing = false;
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void afterTextChanged(Editable s) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() > 0 && s.charAt(s.length() - 1) == ',') {
-                    String tag = s.toString().replace(",", "").trim();
-                    if (!tag.isEmpty() && tagsChipGroup.getChildCount() < 10) {
-                        addTagChip(tag);
-                        steemitPostTags.setText("");
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                if (processing) return;
+                String text = s.toString();
+                if (!text.contains(",") && !text.contains(" ")) return;
+                processing = true;
+                String[] tokens = text.split("[,\\s]+", -1);
+                boolean endsWithDelimiter = text.length() > 0
+                        && (text.charAt(text.length() - 1) == ','
+                            || Character.isWhitespace(text.charAt(text.length() - 1)));
+                String remaining = "";
+                for (int i = 0; i < tokens.length; i++) {
+                    String token = tokens[i].trim();
+                    if (token.isEmpty()) continue;
+                    if (i == tokens.length - 1 && !endsWithDelimiter) {
+                        remaining = token;
+                    } else if (tagsChipGroup.getChildCount() < 10) {
+                        addTagChip(token);
                     }
                 }
+                steemitPostTags.setText(remaining);
+                steemitPostTags.setSelection(remaining.length());
+                processing = false;
             }
         });
 
