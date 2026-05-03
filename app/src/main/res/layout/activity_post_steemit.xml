@@ -620,37 +620,28 @@
 
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/btn_choose_file"
-                                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                                    style="@style/AppTheme.ToolbarIconButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/font_awesome_6_regular"
-                                    android:text="  Image"
-                                    android:textSize="@dimen/text_body"
-                                    android:textColor="@color/md_theme_onSurface"
-                                    android:textAllCaps="false" />
+                                    android:text="  Image" />
 
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/btn_video_post"
-                                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                                    style="@style/AppTheme.ToolbarIconButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/font_awesome_6_solid"
-                                    android:text="  Video"
-                                    android:textSize="@dimen/text_body"
-                                    android:textColor="@color/md_theme_onSurface"
-                                    android:textAllCaps="false" />
+                                    android:text="  Video" />
 
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/btn_expand_editor"
-                                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                                    style="@style/AppTheme.ToolbarIconButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:contentDescription="Expand Editor"
                                     android:fontFamily="@font/font_awesome_6_solid"
-                                    android:text="  Expand"
-                                    android:textSize="@dimen/text_body"
-                                    android:textColor="@color/md_theme_onSurface"
-                                    android:textAllCaps="false" />
+                                    android:text="  Expand" />
 
                                 <View
                                     android:layout_width="0dp"
@@ -661,13 +652,13 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:orientation="horizontal"
-                                    android:gravity="center_vertical">
+                                    android:gravity="center_vertical"
+                                    android:paddingEnd="@dimen/spacing_xs">
 
                                     <TextView
                                         android:id="@+id/charCount"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:gravity="end"
                                         android:text="0"
                                         android:textColor="@color/md_theme_textSecondary"
                                         android:textSize="@dimen/text_body" />
@@ -676,9 +667,7 @@
                                         android:id="@+id/minCharCount"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:gravity="end"
                                         android:text="/100"
-                                        android:padding="@dimen/spacing_xs"
                                         android:textColor="@color/md_theme_textSecondary"
                                         android:textSize="@dimen/text_body" />
 
@@ -689,8 +678,8 @@
                                         android:fontFamily="@font/font_awesome_6_solid"
                                         android:textColor="@color/md_theme_error"
                                         android:text="\uf05a"
-                                        android:textSize="20sp"
-                                        android:padding="@dimen/spacing_xs" />
+                                        android:textSize="@dimen/text_subtitle"
+                                        android:paddingStart="@dimen/spacing_xs" />
                                 </LinearLayout>
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
