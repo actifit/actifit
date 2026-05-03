@@ -24,7 +24,6 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -1796,8 +1795,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         View cardTags = findViewById(R.id.card_tags);
 
         EditText postText = findViewById(R.id.steemit_post_text);
-        TextView previewLabel = findViewById(R.id.steemit_post_preview_lbl);
-        TextView previewText = findViewById(R.id.md_view);
         Button expandBtn = findViewById(R.id.btn_expand_editor);
 
         int formVisibility = expand ? View.GONE : View.VISIBLE;
@@ -1806,18 +1803,14 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         cardActivityType.setVisibility(formVisibility);
         cardMeasurements.setVisibility(formVisibility);
         cardTags.setVisibility(formVisibility);
-        previewLabel.setVisibility(formVisibility);
-        previewText.setVisibility(formVisibility);
 
         if (expand) {
             postText.setMaxLines(Integer.MAX_VALUE);
             postText.setMinLines(20);
-            postText.setMovementMethod(new ScrollingMovementMethod());
             postText.requestFocus();
         } else {
             postText.setMaxLines(6);
             postText.setMinLines(1);
-            postText.setMovementMethod(null);
         }
         nestedScrollView.post(() -> nestedScrollView.scrollTo(0, 0));
         expandBtn.setText(expand ? "" : "");

@@ -52,6 +52,20 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
+    <style name="AppTheme.ToolbarIconButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/actifitRed</item>
+        <item name="android:textSize">@dimen/text_subtitle</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">@dimen/spacing_sm</item>
+        <item name="android:paddingEnd">@dimen/spacing_sm</item>
+        <item name="android:paddingTop">@dimen/spacing_xs</item>
+        <item name="android:paddingBottom">@dimen/spacing_xs</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+
     <style name="AppTheme.ActifitInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxCornerRadiusTopStart">@dimen/input_corner_radius</item>
         <item name="boxCornerRadiusTopEnd">@dimen/input_corner_radius</item>
