@@ -1863,7 +1863,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                                 new SimpleDateFormat("yyyyMMdd", Locale.US)
                                                         .format(mCalendar.getTime()));
                                         editor.apply();
-                                        findViewById(R.id.fitbit_sync_notice).setVisibility(View.INVISIBLE);
+                                        findViewById(R.id.fitbit_sync_notice).setVisibility(View.GONE);
                                         Toast.makeText(PostSteemitActivity.this, "Steps Synced!", Toast.LENGTH_SHORT)
                                                 .show();
                                     });

@@ -155,41 +155,43 @@
                             android:id="@+id/activity_data_section"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                            android:orientation="vertical">
 
-                            <EditText
-                                android:id="@+id/steemit_step_count"
-                                android:layout_width="100dp"
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:ems="10"
-                                android:enabled="false"
-                                android:inputType="textMultiLine"
-                                android:background="@drawable/input_background"
-                                android:padding="@dimen/spacing_md"
-                                android:textColor="@color/md_theme_onSurface"
-                                android:textSize="@dimen/text_subtitle" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
 
-                            <Button
-                                style="@style/AppTheme.ActifitButton"
-                                android:id="@+id/sync_data"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/spacing_sm"
-                                android:ems="10"
-                                android:text="@string/sync_data_btn_lbl" />
+                                <EditText
+                                    android:id="@+id/steemit_step_count"
+                                    android:layout_width="100dp"
+                                    android:layout_height="wrap_content"
+                                    android:enabled="false"
+                                    android:inputType="textMultiLine"
+                                    android:background="@drawable/input_background"
+                                    android:padding="@dimen/spacing_md"
+                                    android:textColor="@color/md_theme_onSurface"
+                                    android:textSize="@dimen/text_subtitle" />
+
+                                <Button
+                                    style="@style/AppTheme.ActifitButton"
+                                    android:id="@+id/sync_data"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/spacing_sm"
+                                    android:text="@string/sync_data_btn_lbl" />
+                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/fitbit_sync_notice"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="top"
-                                android:layout_marginStart="@dimen/spacing_sm"
-                                android:paddingTop="@dimen/spacing_xs"
+                                android:layout_marginTop="@dimen/spacing_xs"
                                 android:text="@string/fitbit_sync_again_notice"
                                 android:textColor="@color/md_theme_error"
                                 android:textStyle="bold"
-                                android:visibility="invisible" />
+                                android:visibility="gone" />
                         </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
