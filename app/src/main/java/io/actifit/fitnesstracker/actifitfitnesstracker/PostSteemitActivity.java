@@ -1793,6 +1793,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         View cardActivityType = findViewById(R.id.card_activity_type);
         View cardMeasurements = findViewById(R.id.card_measurements);
         View cardTags = findViewById(R.id.card_tags);
+        View contentLabel = findViewById(R.id.steemit_post_content_lbl);
+        View contentNote = findViewById(R.id.steemit_post_content_note);
 
         EditText postText = findViewById(R.id.steemit_post_text);
         Button expandBtn = findViewById(R.id.btn_expand_editor);
@@ -1803,18 +1805,38 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         cardActivityType.setVisibility(formVisibility);
         cardMeasurements.setVisibility(formVisibility);
         cardTags.setVisibility(formVisibility);
+        contentLabel.setVisibility(formVisibility);
+        contentNote.setVisibility(formVisibility);
 
         if (expand) {
             postText.setMaxLines(Integer.MAX_VALUE);
-            postText.setMinLines(20);
-            postText.requestFocus();
+            nestedScrollView.post(() -> {
+                int nsHeight = nestedScrollView.getHeight();
+                View toolbarCard = (View) findViewById(R.id.btn_container).getParent();
+                int overhead = toolbarCard.getHeight()
+                        + findViewById(R.id.steemit_post_preview_lbl).getHeight()
+                        + findViewById(R.id.md_view).getHeight()
+                        + getResources().getDimensionPixelSize(R.dimen.spacing_md) * 3;
+                int editorH = Math.max(nsHeight - overhead,
+                        getResources().getDimensionPixelSize(R.dimen.spacing_md) * 20);
+                ViewGroup.LayoutParams lp = postText.getLayoutParams();
+                lp.height = editorH;
+                postText.setLayoutParams(lp);
+                postText.requestFocus();
+                nestedScrollView.scrollTo(0, 0);
+            });
         } else {
+            ViewGroup.LayoutParams lp = postText.getLayoutParams();
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            postText.setLayoutParams(lp);
             postText.setMaxLines(6);
             postText.setMinLines(1);
+            nestedScrollView.post(() -> nestedScrollView.scrollTo(0, 0));
         }
-        nestedScrollView.post(() -> nestedScrollView.scrollTo(0, 0));
+
         expandBtn.setText(expand ? "" : "");
     }
+
     private void checkHealthConnectAndFetchSteps() {
         if (healthConnectCheckRunning.getAndSet(true)) {
             Log.d(TAG, "Health Connect check is already running.");
