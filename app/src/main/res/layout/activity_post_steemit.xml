@@ -27,128 +27,18 @@
                 android:layout_height="wrap_content"
                 android:paddingBottom="60dp">
 
-                <!-- Hidden container views for ConstraintSet compatibility -->
-                <LinearLayout android:id="@+id/post_title_container" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-                <LinearLayout android:id="@+id/post_date_container" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-                <LinearLayout android:id="@+id/step_count_container" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-                <LinearLayout android:id="@+id/activity_type_container" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-                <LinearLayout android:id="@+id/measurements_container" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-                <LinearLayout android:id="@+id/tags_container" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-                <LinearLayout android:id="@+id/post_content_container" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-
-                <!-- Scrollable Content -->
-                <ScrollView
-                    android:id="@+id/redesign_scroll_view"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:fillViewport="true"
-                    android:overScrollMode="never"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/spacing_md">
-
-                <!-- Stepper Indicator -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginBottom="@dimen/spacing_lg">
-
-                    <TextView
-                        android:id="@+id/titleCount"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:gravity="center_vertical"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:text="1"
-                        android:textColor="@color/md_theme_primary" />
-
-                    <View
-                        android:layout_width="24dp"
-                        android:layout_height="2dp"
-                        android:background="@color/md_theme_primary" />
-
-                    <TextView
-                        android:id="@+id/dateCount"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:gravity="center_vertical"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:text="2"
-                        android:textColor="@color/md_theme_textSecondary" />
-
-                    <View
-                        android:layout_width="24dp"
-                        android:layout_height="2dp"
-                        android:background="@color/md_theme_separator" />
-
-                    <TextView
-                        android:id="@+id/activityCount"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:gravity="center_vertical"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:text="3"
-                        android:textColor="@color/md_theme_textSecondary" />
-
-                    <View
-                        android:layout_width="24dp"
-                        android:layout_height="2dp"
-                        android:background="@color/md_theme_separator" />
-
-                    <TextView
-                        android:id="@+id/activityTypeCount"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:gravity="center_vertical"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:text="4"
-                        android:textColor="@color/md_theme_textSecondary" />
-
-                    <View
-                        android:layout_width="24dp"
-                        android:layout_height="2dp"
-                        android:background="@color/md_theme_separator" />
-
-                    <TextView
-                        android:id="@+id/tagsCount"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:gravity="center_vertical"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:text="5"
-                        android:textColor="@color/md_theme_textSecondary" />
-
-                    <View
-                        android:layout_width="24dp"
-                        android:layout_height="2dp"
-                        android:background="@color/md_theme_separator" />
-
-                    <TextView
-                        android:id="@+id/contentCount"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:gravity="center_vertical"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:text="6"
-                        android:textColor="@color/md_theme_textSecondary" />
-                </LinearLayout>
-
                 <!-- Title Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/spacing_md"
@@ -203,6 +93,7 @@
 
                 <!-- Date & Steps Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_date_steps"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/spacing_md"
@@ -305,6 +196,7 @@
 
                 <!-- Activity Type Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_activity_type"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/spacing_md"
@@ -339,6 +231,7 @@
 
                 <!-- Measurements Card (Collapsible) -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_measurements"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/spacing_md"
@@ -633,6 +526,7 @@
 
                 <!-- Tags Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_tags"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/spacing_md"
@@ -845,7 +739,6 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
-                </ScrollView>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
 
