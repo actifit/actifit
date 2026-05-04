@@ -673,5 +673,7 @@
     <string name="restore_failed">Herstel mislukt!</string>
     <string name="restore_confirmation">Dit zal uw huidige gegevens overschrijven. Weet u zeker dat u wilt doorgaan?</string>
     <string name="select_backup_file">Back-upbestand selecteren</string>
-    </resources>
+        <string name="watch_and_earn">Bekijk en verdien</string>
+    <string name="steps_to_unlock">Loop nog %1$,d stappen om te ontgrendelen</string>
+</resources>
 

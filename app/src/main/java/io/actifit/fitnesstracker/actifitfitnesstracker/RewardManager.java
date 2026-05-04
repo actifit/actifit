@@ -191,7 +191,7 @@ public class RewardManager {
 
         resetRewardClaimStatus();
 
-        int curStepCount = stepsDBHelper.fetchTodayStepCount();
+        int curStepCount = getCurrentStepCount(stepsDBHelper);
 
         String stepsLabel = context.getString(R.string.activity_count_lbl);
         textViewCurrentSteps.setText(stepsLabel + ": " + curStepCount);
@@ -314,7 +314,7 @@ public class RewardManager {
     }
 
     void showRewardedVideo(View view, int tier) {
-        int curStepCount = mStepsDBHelper.fetchTodayStepCount();
+        int curStepCount = getCurrentStepCount(mStepsDBHelper);
         if (giftLoader != null) {
             giftLoader.startAnimation(scaler);
         }
@@ -497,6 +497,18 @@ public class RewardManager {
                     && !(tenkRewardButton.getTag() instanceof ObjectAnimator)) {
                 startPulseAnimation(tenkRewardButton);
             }
+        }
+    }
+
+    private int getCurrentStepCount(StepsDBHelper stepsDBHelper) {
+        String trackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                context.getString(R.string.device_tracking_ntt));
+        if (trackingSystem.equals(context.getString(R.string.health_connect_tracking_ntt))) {
+            return sharedPreferences.getInt("healthConnectSyncCount", 0);
+        } else if (trackingSystem.equals(context.getString(R.string.fitbit_tracking_ntt))) {
+            return sharedPreferences.getInt("fitbitSyncCount", 0);
+        } else {
+            return stepsDBHelper != null ? stepsDBHelper.fetchTodayStepCount() : 0;
         }
     }
 

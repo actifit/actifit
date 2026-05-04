@@ -672,5 +672,7 @@
     <string name="restore_failed">Помилка відновлення!</string>
     <string name="restore_confirmation">Це призведе до перезапису поточних даних. Ви впевнені, що хочете продовжити?</string>
     <string name="select_backup_file">Виберіть файл резервної копії</string>
-    </resources>
+        <string name="watch_and_earn">Дивись і заробляй</string>
+    <string name="steps_to_unlock">Пройдіть ще %1$,d кроків для розблокування</string>
+</resources>
 

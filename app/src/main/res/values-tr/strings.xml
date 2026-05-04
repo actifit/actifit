@@ -672,4 +672,6 @@
     <string name="restore_failed">Geri yükleme başarısız!</string>
     <string name="restore_confirmation">Bu, mevcut verilerinizin üzerine yazacaktır. Devam etmek istediğinizden emin misiniz?</string>
     <string name="select_backup_file">Yedekleme dosyasını seçin</string>
-    </resources>
+        <string name="watch_and_earn">İzle ve Kazan</string>
+    <string name="steps_to_unlock">Kilit açmak için %1$,d adım daha atın</string>
+</resources>

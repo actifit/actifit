@@ -685,5 +685,7 @@
     <string name="restore_failed">فشلت الاستعادة!</string>
     <string name="restore_confirmation">سيؤدي هذا إلى الكتابة فوق بياناتك الحالية. هل أنت متأكد أنك تريد المتابعة؟</string>
     <string name="select_backup_file">حدد ملف النسخ الاحتياطي</string>
+    <string name="watch_and_earn">شاهد واكسب</string>
+    <string name="steps_to_unlock">امشِ %1$,d خطوة أخرى للفتح</string>
 </resources>
 
