@@ -677,5 +677,7 @@
     <string name="restore_failed">Wiederherstellung fehlgeschlagen!</string>
     <string name="restore_confirmation">Dies überschreibt Ihre aktuellen Daten. Sind Sie sicher, dass Sie fortfahren möchten?</string>
     <string name="select_backup_file">Sicherungsdatei auswählen</string>
+    <string name="watch_and_earn">Anschauen &amp; Verdienen</string>
+    <string name="steps_to_unlock">Noch %1$,d Schritte bis zur Freischaltung</string>
 </resources>
 

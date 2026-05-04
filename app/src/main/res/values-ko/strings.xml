@@ -673,5 +673,7 @@
     <string name="restore_failed">복구에 실패했습니다!</string>
     <string name="restore_confirmation">현재 데이터를 덮어씁니다. 계속하시겠습니까?</string>
     <string name="select_backup_file">백업 파일 선택</string>
+    <string name="watch_and_earn">시청하고 획득하기</string>
+    <string name="steps_to_unlock">%1$,d 걸음 더 걸어서 잠금 해제</string>
 </resources>
 
