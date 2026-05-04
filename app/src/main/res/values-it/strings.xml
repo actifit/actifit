@@ -673,5 +673,7 @@
     <string name="restore_failed">Ripristino fallito!</string>
     <string name="restore_confirmation">Questo sovrascriverà i tuoi dati attuali. Sei sicuro di voler procedere?</string>
     <string name="select_backup_file">Seleziona il file di backup</string>
+    <string name="watch_and_earn">Guarda e guadagna</string>
+    <string name="steps_to_unlock">Cammina altri %1$,d passi per sbloccare</string>
 </resources>
 

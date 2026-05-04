@@ -673,5 +673,7 @@
     <string name="restore_failed">Atunṣe kuna!</string>
     <string name="restore_confirmation">Eyi yoo kọ sori data lọwọlọwọ rẹ. Ṣe o da ọ loju pe o fẹ tẹsiwaju?</string>
     <string name="select_backup_file">Yan faili afẹyinti</string>
+    <string name="watch_and_earn">Wo &amp; Gba</string>
+    <string name="steps_to_unlock">Rìn igbésẹ̀ %1$,d síi láti ṣí</string>
 </resources>
 

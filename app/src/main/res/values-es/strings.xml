@@ -676,5 +676,7 @@
     <string name="restore_failed">¡Fallo en la restauración!</string>
     <string name="restore_confirmation">Esto sobrescribirá sus datos actuales. ¿Está seguro de que desea continuar?</string>
     <string name="select_backup_file">Seleccionar archivo de copia de seguridad</string>
+    <string name="watch_and_earn">Ver y ganar</string>
+    <string name="steps_to_unlock">Camina %1$,d pasos más para desbloquear</string>
 </resources>
 

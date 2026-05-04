@@ -672,4 +672,6 @@
     <string name="restore_failed">恢复失败！</string>
     <string name="restore_confirmation">这将覆盖您当前的数据。您确定要继续吗？</string>
     <string name="select_backup_file">选择备份文件</string>
-    </resources>
+        <string name="watch_and_earn">观看并获得</string>
+    <string name="steps_to_unlock">再走 %1$,d 步即可解锁</string>
+</resources>

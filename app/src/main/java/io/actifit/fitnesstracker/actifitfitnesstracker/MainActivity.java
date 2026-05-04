@@ -617,25 +617,24 @@ public class MainActivity extends BaseActivity {
     // SLIDER SETUP INFO:
     // //https://www.section.io/engineering-education/how-to-create-an-automatic-slider-in-android-studio/
     private void loadNewsSlider(RequestQueue queue) {
+        loadNewsSliderWithRetry(queue, 0);
+    }
+
+    private void loadNewsSliderWithRetry(RequestQueue queue, int attempt) {
+        final int MAX_RETRIES = 3;
+        final int BASE_DELAY_MS = 2000;
 
         newsPage = findViewById(R.id.news_pager);
-
         newsTabLayout = findViewById(R.id.news_tablayout);
-
         listItems = new ArrayList<>();
 
         String newsArticlesUrl = Utils.apiUrl(this) + getString(R.string.news_articles);
 
-        // also set and popup any mainAnnounce news
-
         JsonArrayRequest newsArticlesReq = new JsonArrayRequest(Request.Method.GET,
                 newsArticlesUrl, null, listArray -> {
-            // hide dialog
-            // progress.hide();
-            Slider_Items_Model_Class mainAnnounce = null;
-            // Handle the result
             try {
                 if (listArray != null && listArray.length() > 0) {
+                    Slider_Items_Model_Class mainAnnounce = null;
                     for (int i = 0; i < listArray.length(); i++) {
                         Slider_Items_Model_Class entry = new Slider_Items_Model_Class(
                                 listArray.getJSONObject(i));
@@ -648,15 +647,12 @@ public class MainActivity extends BaseActivity {
                     Slider_items_Pager_Adapter itemsPager_adapter = new Slider_items_Pager_Adapter(
                             this, listItems, MainActivity.this);
                     newsPage.setAdapter(itemsPager_adapter);
-
                     newsTabLayout.setupWithViewPager(newsPage, true);
 
-                    // The_slide_timer
                     java.util.Timer timer = new java.util.Timer();
                     timer.scheduleAtFixedRate(new Slide_timer(), 2000, 3000);
                     newsTabLayout.setupWithViewPager(newsPage, true);
 
-                    // show popup with mainAnnounce, with pseudo-ranom display every 5 times
                     SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
                     int announceViews = (sharedPreferences.getInt(getString(R.string.main_announce_view), 0));
                     announceViews += 1;
@@ -668,45 +664,29 @@ public class MainActivity extends BaseActivity {
                     editor.apply();
 
                     if (mainAnnounce != null && announceViews <= 1) {
-                        // show mainAnnounce if there exists one
                         MainAnnounceFragment mainAnnounceDialog = MainAnnounceFragment.newInstance(mainAnnounce);
                         mainAnnounceDialog.show(getSupportFragmentManager(), "main_announce");
                     }
                 }
             } catch (Exception e) {
-                // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                Log.e(TAG, "ERROR");
+                Log.e(TAG, "News slider parse error");
                 e.printStackTrace();
             }
 
         }, error -> {
-            error.printStackTrace();
+            Log.e(TAG, "News slider load failed (attempt " + (attempt + 1) + "): " + error.getMessage());
+            if (attempt < MAX_RETRIES) {
+                int delayMs = BASE_DELAY_MS * (1 << attempt);
+                Log.d(TAG, "Retrying news slider in " + (delayMs / 1000) + "s...");
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    loadNewsSliderWithRetry(queue, attempt + 1);
+                }, delayMs);
+            } else {
+                Log.e(TAG, "News slider failed after " + MAX_RETRIES + " retries");
+            }
         });
 
         queue.add(newsArticlesReq);
-
-        // test data for slider
-        /*
-         *
-         * //listItems.add(new
-         * Slider_Items_Model_Class(R.drawable.default_pic,"Slider 1 Title"));
-         * //listItems.add(new
-         * Slider_Items_Model_Class(R.drawable.default_pic,"Slider 2 Title"));
-         * //listItems.add(new
-         * Slider_Items_Model_Class(R.drawable.default_pic,"Slider 3 Title"));
-         * listItems.add(new Slider_Items_Model_Class(
-         * "https://actifit.io/img/actifit_hive_fest_4th_anniversary.png", "New Event",
-         * "https://actifit.io"));
-         * listItems.add(new Slider_Items_Model_Class(
-         * "https://actifit.io/img/actifit_hive_fest_4th_anniversary.png", "Eventto",
-         * "https://actifit.io"));
-         * listItems.add(new Slider_Items_Model_Class(
-         * "https://actifit.io/img/actifit_hive_fest_4th_anniversary.png", "Uno Event",
-         * "https://actifit.io"));
-         */
-
-        /***********************/
-
     }
 
     /**
@@ -816,11 +796,18 @@ public class MainActivity extends BaseActivity {
         chartManager.setBtnWaves(BtnWaves);
         chartManager.setBtnPostSteemit(BtnPostSteemit);
 
+        // Initialize bar chart references for chart switching
+        dayChart = findViewById(R.id.main_today_activity_chart);
+        fullChart = findViewById(R.id.main_history_activity_chart);
+
         securityManager = new SecurityManager(this);
         uiHelper = new UiHelper(this, this);
         uiHelper.initializeAnimations();
         chartManager.setScaler(uiHelper.getScalerAnimation());
 
+        if (mStepsDBHelper == null) {
+            mStepsDBHelper = new StepsDBHelper(this);
+        }
         rewardManager = new RewardManager(this, this, activityMilestoneOne, activityMilestoneTwo, activityMilestoneThree,
                 checkMark, uiHelper.getScalerAnimation(), mStepsDBHelper);
 
@@ -829,25 +816,9 @@ public class MainActivity extends BaseActivity {
         trackingManager = new TrackingManager(this, this);
         trackingManager.setSensorService(mSensorService);
         trackingManager.setServiceIntent(mServiceIntent);
-        trackingManager.initialize(chartManager, mStepsDBHelper, findViewById(R.id.health_connect_status));
+                trackingManager.initialize(chartManager, mStepsDBHelper, findViewById(R.id.health_connect_status));
         trackingManager.startHealthConnectCheck();
 
-        // support dark mode
-        // In Application class or base Activity's onCreate()
-        SharedPreferences sharedPrefs = getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
-
-        int initialNightMode;
-        if (sharedPrefs.contains(PREF_KEY_DARK_MODE)) {
-            // If the preference exists, use the saved boolean state
-            boolean isDarkModeEnabled = sharedPrefs.getBoolean(PREF_KEY_DARK_MODE, false); // Default false doesn't
-            // matter here
-            initialNightMode = isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
-        } else {
-            // If the preference does NOT exist, default to following the system
-            initialNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
-        }
-
-        AppCompatDelegate.setDefaultNightMode(initialNightMode);
 
         // short rotate animation
         rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
@@ -1126,9 +1097,10 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        ImageView healthConnectLogo = findViewById(R.id.health_connect_logo);
-        healthConnectLogo.setOnClickListener(view -> {
-            String lastMainSyncDate = sharedPreferences.getString("healthConnectLastSyncDate", "");
+                ImageView healthConnectLogoInChart = findViewById(R.id.health_connect_logo);
+        healthConnectLogoInChart.setOnClickListener(view -> {
+            SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+            String lastMainSyncDate = prefs.getString("healthConnectLastSyncDate", "");
             if (!lastMainSyncDate.isEmpty())
                 Toast.makeText(ctx, "Health Connect last synced on : " + lastMainSyncDate, Toast.LENGTH_LONG).show();
             else {
@@ -1412,6 +1384,13 @@ public class MainActivity extends BaseActivity {
 
             // Get reference to the Current Steps TextView
             textViewCurrentSteps = rewardsLayout.findViewById(R.id.textViewCurrentSteps);
+
+            // Sync dialog views into RewardManager so its reward callback operates on the correct views
+            rewardManager.setGiftLoader(giftLoader);
+            rewardManager.setRewardButtons(freeRewardButton, fivekRewardButton, sevenkRewardButton, tenkRewardButton);
+            rewardManager.setRewardStatusTextViews(textViewFreeRewardStatus, textView5kRewardStatus, textView7kRewardStatus, textView10kRewardStatus);
+            rewardManager.resetRewardClaimStatus();
+
             /*
              * moveTotweets = rewardsLayout.findViewById(R.id.displayTweets);
              *
@@ -2284,7 +2263,7 @@ public class MainActivity extends BaseActivity {
                                              String claimedValue, Animation animation,
                                              String checkMarkIcon, int currentStepCount) {
         rewardManager.updateRewardButtonAndStatus(button, statusTextView, isClaimed, requiredSteps,
-                claimedValue, animation, checkMarkIcon, currentStepCount);
+                claimedValue, animation, checkMarkIcon, currentStepCount, null);
     }
             // Keep the default "Claim Reward" text, just disable it
 
@@ -3034,7 +3013,9 @@ public class MainActivity extends BaseActivity {
             final boolean hcActivated = isHealthConnectPermActivated(); // isHealthConnectEnabledInSettings() &&
             runOnUiThread(() -> {
 
-                FrameLayout hcs = findViewById(R.id.health_connect_status);
+                                View hcs = findViewById(R.id.health_connect_status);
+                ImageView hcsHero = findViewById(R.id.health_connect_status_hero);
+                hcsHero.setVisibility(GONE);
                 if (hcActivated) {
                     hcs.setVisibility(GONE);
                 } else {

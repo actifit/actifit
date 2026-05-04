@@ -242,7 +242,7 @@ public class StepHistoryActivity extends BaseActivity { // Assuming BaseActivity
             SimpleDateFormat dateFormIn = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()); // List uses this format
             SimpleDateFormat dateFormMatch = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()); // Posts use this format? Need to confirm
 
-            if (currentStepList != null && userPostsFromNetwork != null && userPostsFromNetwork.length() > 0) {
+            if (currentStepList != null && userPostsFromNetwork != null) {
                 for (int i = 0; i < currentStepList.size(); i++) {
                     if (isCancelled()) {
                         Log.d(MainActivity.TAG, "Post matching loop interrupted");
