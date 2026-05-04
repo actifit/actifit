@@ -6,12 +6,17 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.animation.ObjectAnimator;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.text.HtmlCompat;
@@ -62,6 +67,7 @@ public class RewardManager {
     private TextView textViewFreeRewardStatus, textView5kRewardStatus, textView7kRewardStatus, textView10kRewardStatus;
     private TextView textViewCurrentSteps;
     private TextView giftLoader;
+    private LinearProgressIndicator progress5kReward, progress7kReward, progress10kReward;
 
     private boolean dailyRewardClaimed, fivekRewardClaimed, sevenkRewardClaimed, tenkRewardClaimed;
 
@@ -175,6 +181,9 @@ public class RewardManager {
         textView7kRewardStatus = rewardsLayout.findViewById(R.id.textView7kRewardStatus);
         textView10kRewardStatus = rewardsLayout.findViewById(R.id.textView10kRewardStatus);
         textViewCurrentSteps = rewardsLayout.findViewById(R.id.textViewCurrentSteps);
+        progress5kReward = rewardsLayout.findViewById(R.id.progress_5k_reward);
+        progress7kReward = rewardsLayout.findViewById(R.id.progress_7k_reward);
+        progress10kReward = rewardsLayout.findViewById(R.id.progress_10k_reward);
 
         freeRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 1));
         fivekRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 2));
@@ -183,19 +192,19 @@ public class RewardManager {
 
         resetRewardClaimStatus();
 
-        int curStepCount = stepsDBHelper.fetchTodayStepCount();
+        int curStepCount = getCurrentStepCount(stepsDBHelper);
 
         String stepsLabel = context.getString(R.string.activity_count_lbl);
         textViewCurrentSteps.setText(stepsLabel + ": " + curStepCount);
 
         updateRewardButtonAndStatus(freeRewardButton, textViewFreeRewardStatus, dailyRewardClaimed, 0,
-                sharedPreferences.getString("freerewardedValue", ""), scaler, checkMark, curStepCount);
+                sharedPreferences.getString("freerewardedValue", ""), scaler, checkMark, curStepCount, null);
         updateRewardButtonAndStatus(fivekRewardButton, textView5kRewardStatus, fivekRewardClaimed, activityMilestoneOne,
-                sharedPreferences.getString("5krewardedValue", ""), scaler, checkMark, curStepCount);
+                sharedPreferences.getString("5krewardedValue", ""), scaler, checkMark, curStepCount, progress5kReward);
         updateRewardButtonAndStatus(sevenkRewardButton, textView7kRewardStatus, sevenkRewardClaimed, activityMilestoneTwo,
-                sharedPreferences.getString("7krewardedValue", ""), scaler, checkMark, curStepCount);
+                sharedPreferences.getString("7krewardedValue", ""), scaler, checkMark, curStepCount, progress7kReward);
         updateRewardButtonAndStatus(tenkRewardButton, textView10kRewardStatus, tenkRewardClaimed, activityMilestoneThree,
-                sharedPreferences.getString("10krewardedValue", ""), scaler, checkMark, curStepCount);
+                sharedPreferences.getString("10krewardedValue", ""), scaler, checkMark, curStepCount, progress10kReward);
 
         AlertDialog pointer = rewardsDialogBuilder.setView(rewardsLayout)
                 .setIcon(context.getResources().getDrawable(R.drawable.actifit_logo))
@@ -205,7 +214,7 @@ public class RewardManager {
         rewardsDialogBuilder.show();
     }
 
-    private void resetRewardClaimStatus() {
+    void resetRewardClaimStatus() {
         Date date = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
         int curDate = parseInt(dateFormat.format(date));
@@ -246,40 +255,82 @@ public class RewardManager {
     void updateRewardButtonAndStatus(Button button, TextView statusTextView,
                                              boolean isClaimed, int requiredSteps,
                                              String claimedValue, Animation animation,
-                                             String checkMarkIcon, int currentStepCount) {
-        button.setText(context.getString(R.string.claim_now));
+                                             String checkMarkIcon, int currentStepCount,
+                                             LinearProgressIndicator stepProgress) {
+        if (stepProgress != null) stepProgress.setVisibility(View.GONE);
 
         if (isClaimed) {
+            button.setText(context.getString(R.string.claim_now));
             button.setEnabled(false);
+            setButtonDisabled(button);
             String claimedStatusText;
             if (claimedValue != null && !claimedValue.isEmpty()) {
                 String checkmarkHtml = HtmlCompat.fromHtml(checkMarkIcon, HtmlCompat.FROM_HTML_MODE_COMPACT).toString();
-                claimedStatusText = context.getString(R.string.reward_claimed) + claimedValue + "AFIT" + checkmarkHtml;
+                claimedStatusText = context.getString(R.string.reward_claimed) + claimedValue + " AFIT " + checkmarkHtml;
             } else {
                 claimedStatusText = context.getString(R.string.reward_claimed);
             }
             statusTextView.setText(HtmlCompat.fromHtml(claimedStatusText, HtmlCompat.FROM_HTML_MODE_COMPACT));
             statusTextView.setVisibility(View.VISIBLE);
-            button.clearAnimation();
+            stopPulseAnimation(button);
+        } else if (currentStepCount >= requiredSteps) {
+            button.setText(context.getString(R.string.watch_and_earn));
+            button.setEnabled(true);
+            setButtonEnabled(button);
+            statusTextView.setText(context.getString(R.string.available_lbl));
+            statusTextView.setVisibility(View.VISIBLE);
+            startPulseAnimation(button);
         } else {
-            if (currentStepCount >= requiredSteps) {
-                button.setEnabled(true);
-                statusTextView.setText(context.getString(R.string.available_lbl));
-                statusTextView.setVisibility(View.VISIBLE);
-                if (animation != null) {
-                    button.startAnimation(animation);
-                }
-            } else {
-                button.setEnabled(false);
-                statusTextView.setText("Not Met");
-                statusTextView.setVisibility(View.VISIBLE);
-                button.clearAnimation();
+            button.setText(context.getString(R.string.claim_now));
+            button.setEnabled(false);
+            setButtonDisabled(button);
+            int stepsNeeded = requiredSteps - currentStepCount;
+            statusTextView.setText(String.format(Locale.getDefault(),
+                    context.getString(R.string.steps_to_unlock), stepsNeeded));
+            statusTextView.setVisibility(View.VISIBLE);
+            stopPulseAnimation(button);
+            if (stepProgress != null) {
+                stepProgress.setProgressCompat((int) ((float) currentStepCount / requiredSteps * 100), false);
+                stepProgress.setVisibility(View.VISIBLE);
             }
         }
     }
 
+    private void setButtonEnabled(Button button) {
+        button.setBackgroundTintList(ColorStateList.valueOf(
+                context.getResources().getColor(R.color.actifitRed)));
+        button.setTextColor(context.getResources().getColor(R.color.text_on_actifit_red));
+    }
+
+    private void setButtonDisabled(Button button) {
+        button.setBackgroundTintList(ColorStateList.valueOf(
+                context.getResources().getColor(R.color.md_theme_separator)));
+        button.setTextColor(context.getResources().getColor(R.color.md_theme_textSecondary));
+    }
+
+    private void startPulseAnimation(Button button) {
+        stopPulseAnimation(button);
+        ObjectAnimator pulse = ObjectAnimator.ofFloat(button, "alpha", 1f, 0.55f, 1f);
+        pulse.setDuration(1500);
+        pulse.setInterpolator(new AccelerateDecelerateInterpolator());
+        pulse.setRepeatCount(ObjectAnimator.INFINITE);
+        pulse.setRepeatMode(ObjectAnimator.RESTART);
+        pulse.start();
+        button.setTag(pulse);
+    }
+
+    private void stopPulseAnimation(Button button) {
+        Object tag = button.getTag();
+        if (tag instanceof ObjectAnimator) {
+            ((ObjectAnimator) tag).cancel();
+        }
+        button.setTag(null);
+        button.setAlpha(1f);
+        button.clearAnimation();
+    }
+
     void showRewardedVideo(View view, int tier) {
-        int curStepCount = mStepsDBHelper.fetchTodayStepCount();
+        int curStepCount = getCurrentStepCount(mStepsDBHelper);
         if (giftLoader != null) {
             giftLoader.startAnimation(scaler);
         }
@@ -373,7 +424,7 @@ public class RewardManager {
 
             recordRewardClaim(view.getId(), finalRewardValue);
             updateRewardButtonAndStatus((Button) view, getRewardStatusTextView(view.getId()), true,
-                    getRequiredSteps(view.getId()), finalRewardValue + "", scaler, checkMark, curStepCount);
+                    getRequiredSteps(view.getId()), finalRewardValue + "", scaler, checkMark, curStepCount, null);
             adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
         });
     }
@@ -440,43 +491,48 @@ public class RewardManager {
     public void adjustRewardButtonsStatus(int stepCount) {
         if (freeRewardButton != null && fivekRewardButton != null && tenkRewardButton != null) {
             if (dailyRewardClaimed) {
-                freeRewardButton.clearAnimation();
-            } else if (freeRewardButton.getAnimation() == null || !freeRewardButton.getAnimation().hasStarted()) {
-                freeRewardButton.setAnimation(scaler);
+                stopPulseAnimation(freeRewardButton);
+            } else if (!(freeRewardButton.getTag() instanceof ObjectAnimator)) {
+                startPulseAnimation(freeRewardButton);
             }
             if (fivekRewardClaimed) {
-                fivekRewardButton.clearAnimation();
+                stopPulseAnimation(fivekRewardButton);
             } else if (stepCount >= activityMilestoneOne
-                    && (fivekRewardButton.getAnimation() == null || !fivekRewardButton.getAnimation().hasStarted())) {
-                fivekRewardButton.setAnimation(scaler);
+                    && !(fivekRewardButton.getTag() instanceof ObjectAnimator)) {
+                startPulseAnimation(fivekRewardButton);
             }
             if (sevenkRewardClaimed) {
-                sevenkRewardButton.clearAnimation();
+                stopPulseAnimation(sevenkRewardButton);
             } else if (stepCount >= activityMilestoneTwo
-                    && (sevenkRewardButton.getAnimation() == null || !sevenkRewardButton.getAnimation().hasStarted())) {
-                sevenkRewardButton.setAnimation(scaler);
+                    && !(sevenkRewardButton.getTag() instanceof ObjectAnimator)) {
+                startPulseAnimation(sevenkRewardButton);
             }
             if (tenkRewardClaimed) {
-                tenkRewardButton.clearAnimation();
+                stopPulseAnimation(tenkRewardButton);
             } else if (stepCount >= activityMilestoneThree
-                    && (tenkRewardButton.getAnimation() == null || !tenkRewardButton.getAnimation().hasStarted())) {
-                tenkRewardButton.setAnimation(scaler);
+                    && !(tenkRewardButton.getTag() instanceof ObjectAnimator)) {
+                startPulseAnimation(tenkRewardButton);
             }
         }
     }
 
-    private float generateRandomVal(float max, float min) {
-        Random rand = new Random();
-        float finalVal = rand.nextFloat() * (max - min) + min;
-        for (int i = 0; i < 5; i++) {
-            float randomVal = rand.nextFloat() * (max - min) + min;
-            if (randomVal < finalVal) {
-                finalVal = randomVal;
-            }
+    private int getCurrentStepCount(StepsDBHelper stepsDBHelper) {
+        String trackingSystem = sharedPreferences.getString("dataTrackingSystem",
+                context.getString(R.string.device_tracking_ntt));
+        if (trackingSystem.equals(context.getString(R.string.health_connect_tracking_ntt))) {
+            return sharedPreferences.getInt("healthConnectSyncCount", 0);
+        } else if (trackingSystem.equals(context.getString(R.string.fitbit_tracking_ntt))) {
+            return sharedPreferences.getInt("fitbitSyncCount", 0);
+        } else {
+            return stepsDBHelper != null ? stepsDBHelper.fetchTodayStepCount() : 0;
         }
-        if (finalVal < min) finalVal = min;
-        if (finalVal > max) finalVal = max;
-        return finalVal;
+    }
+
+    private float generateRandomVal(float max, float min) {
+        float value = new Random().nextFloat() * (max - min) + min;
+        if (value < min) value = min;
+        if (value > max) value = max;
+        return value;
     }
 
     public void loadConsentData(Boolean goForAds) {

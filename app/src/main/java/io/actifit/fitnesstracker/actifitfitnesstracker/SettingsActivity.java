@@ -51,7 +51,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import androidx.multidex.BuildConfig;
+import io.actifit.fitnesstracker.actifitfitnesstracker.BuildConfig;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.mlkit.vision.barcode.common.Barcode;
@@ -194,11 +194,6 @@ public class SettingsActivity extends BaseActivity {
 
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
         boolean isDarkModeEnabled = sharedPreferences.getBoolean(PREF_KEY_DARK_MODE, false);
-        if (isDarkModeEnabled) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO); // Or MODE_NIGHT_FOLLOW_SYSTEM
-        }
 
         SwitchCompat darkModeSwitch = findViewById(R.id.darkModeSwitch);
         //iconSun = findViewById(R.id.icon_sun);
@@ -271,7 +266,7 @@ public class SettingsActivity extends BaseActivity {
             public void onClick(View view) {
                 //remove logged in credentials
 
-                if (!MainActivity.username.equals("")) {
+                if (!TextUtils.isEmpty(MainActivity.username)) {
 
                     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                         @Override
@@ -501,7 +496,7 @@ public class SettingsActivity extends BaseActivity {
 
                                                             int desiredWidth = notifListView.getWidth();
                                                             if (desiredWidth == 0) {
-                                                                desiredWidth = LinearLayout.LayoutParams.MATCH_PARENT;
+                                                                desiredWidth = getResources().getDisplayMetrics().widthPixels;
                                                             }
                                                             desiredWidth = View.MeasureSpec.makeMeasureSpec(desiredWidth, View.MeasureSpec.AT_MOST);
 
@@ -689,7 +684,7 @@ public class SettingsActivity extends BaseActivity {
             fullSPayRadioBtn.setChecked(true);
         }else if (reportPayMode.equals(liquidPay)){
             liquidPayRadioBtn.setChecked(true);
-        }else if (declinePayRadioBtn.isChecked()){
+        }else if (reportPayMode.equals(declinePay)){
             declinePayRadioBtn.setChecked(true);
         }else{
             //default
@@ -1076,7 +1071,7 @@ public class SettingsActivity extends BaseActivity {
                     public void onErrorResponse(VolleyError error) {
                         // error
                         Log.d( MainActivity.TAG, "save settings error");
-                        Toast.makeText(getApplicationContext(), getString(R.string.error_saving_settings),Toast.LENGTH_LONG);
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_saving_settings),Toast.LENGTH_LONG).show();
                     }
                 }) {
                     @NonNull

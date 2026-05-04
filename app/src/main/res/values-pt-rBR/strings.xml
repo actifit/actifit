@@ -673,6 +673,8 @@
     <string name="restore_failed">Falha na restauração!</string>
     <string name="restore_confirmation">Isso substituirá seus dados atuais. Tem certeza de que deseja continuar?</string>
     <string name="select_backup_file">Selecionar arquivo de backup</string>
+    <string name="watch_and_earn">Assistir e ganhar</string>
+    <string name="steps_to_unlock">Caminhe mais %1$,d passos para desbloquear</string>
 </resources>
 
 

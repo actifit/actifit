@@ -474,111 +474,133 @@
 
         <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingLeft="10dp">
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/reply_button"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:textSize="16sp"
                 android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf3e5"
+                android:text="&#xf3e5;"
                 android:gravity="center"
+                android:textColor="@color/text_on_actifit_red"
+                android:background="@drawable/actifit_button_ripple_bg"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:layout_marginEnd="6dp"
                 />
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/upvote_button"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:textSize="16sp"
                 android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf164"
+                android:text="&#xf164;"
                 android:gravity="center"
+                android:textColor="@color/text_on_actifit_red"
+                android:background="@drawable/actifit_button_ripple_bg"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:layout_marginEnd="6dp"
                 />
 
             <TextView
                 android:id="@+id/upvote_count"
                 android:text="0"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 />
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/comment_button"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:textSize="16sp"
                 android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf086"
+                android:text="&#xf086;"
+                android:gravity="center"
+                android:textColor="@color/text_on_actifit_red"
+                android:background="@drawable/actifit_button_ripple_bg"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:layout_marginEnd="6dp"
                 />
 
             <TextView
                 android:id="@+id/comment_count"
                 android:text="0"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 />
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/expand_button"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:textSize="16sp"
                 android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf103"
+                android:text="&#xf103;"
+                android:gravity="center"
+                android:textColor="@color/text_on_actifit_red"
+                android:background="@drawable/actifit_button_ripple_bg"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:layout_marginEnd="6dp"
                 />
 
-            <Button
-                style="@style/AppTheme.ActifitButton"
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/retract_button"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:textSize="16sp"
                 android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf102"
+                android:text="&#xf102;"
+                android:gravity="center"
                 android:visibility="gone"
+                android:textColor="@color/text_on_actifit_red"
+                android:background="@drawable/actifit_button_ripple_bg"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:layout_marginEnd="6dp"
                 />
 
-            <!--<Button
-                style="@style/AppTheme.ActifitButton"
-                android:id="@+id/test_button"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="wrap_content"
-                android:textSize="14dp"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf103"
-                android:layout_weight="1"
-                />-->
-
-            <Button
-                style="@style/AppTheme.ActifitButton"
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/share_social"
-                android:layout_width="wrap_content"
-                android:minWidth="45dp"
-                android:layout_height="45dp"
-                android:textSize="14dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:textSize="16sp"
                 android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf1e0"
+                android:text="&#xf1e0;"
+                android:gravity="center"
+                android:textColor="@color/text_on_actifit_red"
+                android:background="@drawable/actifit_button_ripple_bg"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
                 />
 
 

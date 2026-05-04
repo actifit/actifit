@@ -20,7 +20,7 @@
         android:textStyle="bold"
         android:layout_gravity="center"
         android:text="@string/voting_note"
-        android:drawableStart="@drawable/actifit_logo" /> <!-- Add your icon drawable here -->
+        android:drawableStart="@drawable/actifit_logo" />
 
 
     <LinearLayout
@@ -62,15 +62,17 @@
         android:layout_gravity="center"
         android:gravity="center">
 
-        <Button
-            android:id="@+id/sub_10"
+        <com.google.android.material.button.MaterialButton
             style="@style/AppTheme.ActifitButton"
+            android:id="@+id/sub_10"
             android:layout_width="70sp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:paddingLeft="10dp"
             android:textSize="12sp"
             android:text="@string/sub_10"
+            android:textColor="@color/text_on_actifit_red"
+            android:textAllCaps="false"
+            android:layout_marginEnd="@dimen/spacing_xs"
             />
 
         <EditText
@@ -80,7 +82,8 @@
             android:inputType="number"
             android:gravity="center"
             android:text="10"
-            android:background="@drawable/edittextbackground" />
+            android:background="@drawable/edittextbackground"
+            android:layout_marginEnd="@dimen/spacing_xs" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -90,48 +93,55 @@
             android:paddingTop="10dp"
             android:paddingLeft="5dp"
             android:textStyle="bold"
+            android:layout_marginEnd="@dimen/spacing_xs"
             />
 
-        <Button
-            android:id="@+id/add_10"
+        <com.google.android.material.button.MaterialButton
             style="@style/AppTheme.ActifitButton"
+            android:id="@+id/add_10"
             android:layout_width="70sp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:paddingLeft="10dp"
             android:textSize="12sp"
             android:text="@string/add_10"
+            android:textColor="@color/text_on_actifit_red"
+            android:textAllCaps="false"
             />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/spacing_sm">
 
-        <Button
-            android:id="@+id/close_btn"
+        <com.google.android.material.button.MaterialButton
             style="@style/AppTheme.ActifitButton"
+            android:id="@+id/close_btn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textSize="12sp"
             android:text="@string/close_button"
+            android:textColor="@color/text_on_actifit_red"
+            android:textAllCaps="false"
+            android:layout_marginEnd="@dimen/spacing_xs"
             />
 
-
-
-        <Button
-            android:id="@+id/voters_list_btn"
+        <com.google.android.material.button.MaterialButton
             style="@style/AppTheme.ActifitButton"
+            android:id="@+id/voters_list_btn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textSize="12sp"
             android:text="@string/voters_list"
+            android:textColor="@color/text_on_actifit_red"
+            android:textAllCaps="false"
+            android:layout_marginEnd="@dimen/spacing_xs"
             />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             style="@style/AppTheme.ActifitButton"
             android:id="@+id/proceed_vote_btn"
             android:layout_width="100dp"
@@ -139,8 +149,8 @@
             android:textSize="12sp"
             android:layout_gravity="center"
             android:text="@string/vote_action"
-
-
+            android:textColor="@color/text_on_actifit_red"
+            android:textAllCaps="false"
             />
 
     </LinearLayout>

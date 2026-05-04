@@ -1,183 +1,258 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/loginContainer"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/loginContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
+    android:background="@drawable/login_gradient_background">
 
-    >
-    <!--<TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/login_title"
-
-        android:textColor="@color/colorPrimary"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-    -->
-    <LinearLayout
+    <!-- Background image (loaded dynamically from API) -->
+    <ImageView
         android:id="@+id/login_hero"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginTop="20dp"
-        android:layout_weight="1"
-        android:orientation="horizontal" />
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:alpha="0.3"
+        android:contentDescription="Login background" />
 
-    <!--   android:background="@drawable/login_background"
-       />-->
+    <!-- Overlay to darken background -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000" />
 
-
-
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-        android:layout_weight="1"
-            android:orientation="vertical"
-
-            >
-
-    <!--<ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/actifit_header_slimmer"
-        />-->
-
-    <TextView
-        android:textColor="@color/colorPrimary"
-        android:id="@+id/steemit_username_lbl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/steem_username_lbl"
-        android:textStyle="bold"
-        android:paddingTop="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:textColorLink="@color/colorPrimary"
-        android:id="@+id/username_create_account_link"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:text="@string/create_account_link"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/steemit_username_lbl" />
-
-    <EditText
-        android:textColor="@color/colorPrimary"
-        android:id="@+id/username_login"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:ems="10"
-        android:background="@drawable/edittextbackground"
-        android:inputType="text"
-        android:padding="10dp"
-        android:hint="Username"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username_create_account_link" />
-
-
-    <TextView
-        android:textColor="@color/colorPrimary"
-        android:id="@+id/steemit_posting_key_lbl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="@string/steem_pvt_posting_key"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/steemit_username" />
-
-    <TextView
-        android:id="@+id/posting_key_link"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:text="@string/actifit_find_posting_key_vid"
-        android:textColorLink="@color/colorPrimary"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/steemit_posting_key_lbl" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/posting_key_link"
-            >
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="@dimen/spacing_lg">
 
-    <EditText
-        android:id="@+id/posting_key_login"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:ems="10"
-        android:inputType="textPassword"
-        android:padding="10dp"
-        android:hint="Private Posting Key"
-                android:background="@drawable/edittextbackground" />
-
-            <Button
-                android:id="@+id/qrCodeButton"
+            <!-- Logo & Branding -->
+            <LinearLayout
+                android:id="@+id/login_logo_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorPrimary"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:paddingTop="@dimen/spacing_xl">
 
-                android:textSize="20sp"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:text="\uf029"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                />
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/actifit_logo"
+                    android:contentDescription="Actifit Logo"
+                    android:layout_marginBottom="@dimen/spacing_sm" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ACTIFIT"
+                    android:textSize="@dimen/text_display"
+                    android:textStyle="bold"
+                    android:textColor="@color/md_theme_primary"
+                    android:letterSpacing="0.1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Move. Earn. Thrive."
+                    android:textSize="@dimen/text_subtitle"
+                    android:textColor="@color/colorWhite"
+                    android:textStyle="bold"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="3"
+                    android:layout_marginTop="@dimen/spacing_xs" />
+
+            </LinearLayout>
+
+            <!-- Login Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground"
+                android:layout_marginBottom="@dimen/spacing_md">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_lg">
+
+                    <!-- Username Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Username"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusTopStart="@dimen/input_corner_radius"
+                        app:boxCornerRadiusTopEnd="@dimen/input_corner_radius"
+                        app:boxCornerRadiusBottomStart="@dimen/input_corner_radius"
+                        app:boxCornerRadiusBottomEnd="@dimen/input_corner_radius"
+                        app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                        app:startIconTint="@color/md_theme_textSecondary"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/username_login"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:maxLines="1"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="@dimen/text_subtitle" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Posting Key Input with QR Button -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="@dimen/spacing_md">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Private Posting Key"
+                            app:boxBackgroundMode="outline"
+                            app:boxCornerRadiusTopStart="@dimen/input_corner_radius"
+                            app:boxCornerRadiusTopEnd="0dp"
+                            app:boxCornerRadiusBottomStart="@dimen/input_corner_radius"
+                            app:boxCornerRadiusBottomEnd="0dp"
+                            app:endIconMode="password_toggle"
+                            app:startIconDrawable="@android:drawable/ic_lock_lock"
+                            app:startIconTint="@color/md_theme_textSecondary"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/posting_key_login"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textPassword"
+                                android:maxLines="1"
+                                android:textColor="@color/md_theme_onSurface"
+                                android:textSize="@dimen/text_subtitle" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <Button
+                            android:id="@+id/qrCodeButton"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="8dp"
+                            android:backgroundTint="@color/md_theme_primary"
+                            android:textSize="20sp"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:text="\uf029"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white"
+                            app:cornerRadius="@dimen/input_corner_radius" />
+
+                    </LinearLayout>
+
+                    <!-- Login Button -->
+                    <Button
+                        android:id="@+id/loginButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="@dimen/spacing_lg"
+                        android:text="@string/login_title"
+                        android:textSize="@dimen/text_subtitle"
+                        android:textStyle="bold"
+                        android:textAllCaps="false"
+                        android:backgroundTint="@color/md_theme_primary"
+                        app:cornerRadius="@dimen/button_corner_radius" />
+
+                    <!-- Divider -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:layout_marginBottom="@dimen/spacing_md">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="@color/md_theme_separator" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="or"
+                            android:textColor="@color/md_theme_textSecondary"
+                            android:textSize="@dimen/text_body"
+                            android:paddingStart="@dimen/spacing_sm"
+                            android:paddingEnd="@dimen/spacing_sm" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="@color/md_theme_separator" />
+
+                    </LinearLayout>
+
+                    <!-- Guest/Skip Button -->
+                    <Button
+                        android:id="@+id/skipButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:text="Continue as Guest"
+                        android:textSize="@dimen/text_subtitle"
+                        android:textAllCaps="false"
+                        style="@style/AppTheme.ActifitButton.Outlined"
+                        app:cornerRadius="@dimen/button_corner_radius" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Helper Links -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="end"
+                android:layout_marginTop="@dimen/spacing_sm">
+
+                <TextView
+                    android:id="@+id/username_create_account_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/create_account_link"
+                    android:textSize="@dimen/text_body"
+                    android:textColor="#80FFFFFF"
+                    android:padding="@dimen/spacing_sm" />
+
+                <TextView
+                    android:id="@+id/posting_key_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/actifit_find_posting_key_vid"
+                    android:textSize="@dimen/text_body"
+                    android:textColor="#80FFFFFF"
+                    android:padding="@dimen/spacing_sm" />
+            </LinearLayout>
 
         </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="end"
-        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/skipButton"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+    </ScrollView>
 
-            android:text="@string/skip"
-            android:textColor="@color/colorPrimary" />
-
-        <Button
-            android:id="@+id/loginButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:backgroundTint="@color/colorPrimary"
-            android:text="@string/login_title"
-            android:textColor="@android:color/white"
-             />
-
-    </LinearLayout>
-</LinearLayout>
-
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

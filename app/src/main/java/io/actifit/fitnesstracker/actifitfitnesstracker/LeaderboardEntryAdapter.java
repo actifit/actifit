@@ -49,7 +49,7 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
         TextView entryCount = convertView.findViewById(R.id.activityCount);
         ImageView userProfilePic = convertView.findViewById(R.id.userProfilePic);
         // FrameLayout picFrame = convertView.findViewById(R.id.picFrame);
-        TextView detailsButton = convertView.findViewById(R.id.entryDetailsBtn);
+        View detailsButton = convertView.findViewById(R.id.entryDetailsBtn);
 
         // Populate the data into the template view using the data object
 

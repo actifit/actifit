@@ -1,57 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!--<androidx.core.widget.NestedScrollView
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nestedScrollView"
-    >-->
-
-
-<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="10dp"
-    android:paddingStart="10dp"
-    android:paddingEnd="10dp"
-    android:background="?android:attr/windowBackground"
+    android:background="?android:attr/windowBackground">
 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
+    <!-- Header Row -->
     <LinearLayout
         android:id="@+id/main_header"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        >
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md"
+        android:gravity="center_vertical">
 
+        <!-- Profile + Greeting -->
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/user_profile_pic"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="@dimen/profile_pic_size"
+            android:layout_height="@dimen/profile_pic_size"
             android:src="@drawable/actifit_logo"
-            app:civ_border_width="0dp"
-            android:layout_gravity="top|start"
-            android:paddingEnd="3dp"
-        />
+            app:civ_border_width="0dp" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingBottom="15dp">
+            android:layout_marginStart="@dimen/spacing_sm">
+
             <TextView
                 android:id="@+id/welcome_user"
-                android:layout_width="150dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
-                android:gravity="start"
-                android:textColor="@color/actifitRed"
-                android:textSize="20sp" />
+                android:textColor="@color/md_theme_primary"
+                android:textSize="@dimen/text_title"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:id="@+id/rank_container"
@@ -59,383 +46,266 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:visibility="gone"
-                android:paddingTop="5dp">
+                android:paddingTop="@dimen/spacing_xs">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/actifitRed"
+                    android:textColor="@color/md_theme_primary"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf091"
-                    android:textSize="20sp"
-                    android:paddingEnd="5dp"
+                    android:textSize="@dimen/text_title"
+                    android:paddingEnd="@dimen/spacing_xs"
                     tools:ignore="HardcodedText" />
 
-                <TextView android:id="@+id/user_rank"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/user_rank"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="20sp"
-                    />
+                    android:textColor="@color/md_theme_primary"
+                    android:textSize="@dimen/text_title" />
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Right side actions -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end"
-            android:paddingBottom="5dp">
+            android:orientation="horizontal"
+            android:gravity="end">
 
+            <!-- Login/Signup links (shown when not logged in) -->
             <LinearLayout
                 android:id="@+id/login_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="end"
                 android:orientation="horizontal"
-                >
-                <TextView android:id="@+id/signup_action"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="20sp"
-                    android:text="@string/signup"
-                    android:textStyle="normal"
-                    />
-
-                <TextView android:id="@+id/separator"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="20sp"
-                    android:text=" | "
-                    tools:ignore="HardcodedText" />
-
-                <TextView android:id="@+id/login_action"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="20sp"
-                    android:text="@string/login"
-                    />
-
-            </LinearLayout>
-
-            <GridLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:columnCount="3"
-                android:rowCount="2"
-                android:layout_gravity="end"
-                android:id="@+id/top_icons_container">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/btn_settings"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:textColor="@color/actifitRed"
-                        android:textSize="22sp"
-                        android:text="\uf013"
-                        android:gravity="center"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        tools:ignore="HardcodedText" />
-
-                </LinearLayout>
-
-
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-
-                    >
-
-                    <TextView android:id="@+id/notif_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="18dp"
-                        android:layout_gravity="top"
-                        android:padding="4dp"
-                        android:textColor="@color/colorWhite"
-                        android:textSize="16sp"
-                        android:background="@color/actifitRed"
-                        />
-
-
-                    <TextView
-                        android:id="@+id/btn_view_notifications"
-                        android:layout_width="wrap_content"
-                        android:layout_height="30dp"
-                        android:textColor="@color/actifitRed"
-                        android:textSize="25sp"
-                        android:text="\uf0f3"
-                        android:gravity="center"
-                        android:paddingEnd="30dp"
-                        android:layout_gravity="end"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        tools:ignore="HardcodedText" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/btn_view_wallet"
-                    android:layout_width="35dp"
-                    android:layout_height="30dp"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="25sp"
-                    android:layout_gravity="end"
-                    android:text="@string/fa_wallet_solid"
-                    android:paddingEnd="5dp"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    />
-
-                <TextView
-                    android:layout_width="35dp"
-                    android:layout_height="30dp"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="25sp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="5dp"
-                    android:layout_gravity="start"
-                    android:gravity="start"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:text="\uf624"
-                    tools:ignore="HardcodedText" />
-
-                <TextView android:id="@+id/account_rc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="5dp"
-                    android:layout_gravity="end"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="20sp"
-                    />
-
-                <TextView android:id="@+id/verify_newbie"
-                    android:layout_width="40dp"
-                    android:layout_height="30dp"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="25sp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="5dp"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:text="\uf2c1"
-                    tools:ignore="HardcodedText" />
-
-            </GridLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-
-                <TextView android:id="@+id/logout_action"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="20sp"
-                    android:text="@string/logout"
-                    android:visibility="gone"
-                    />
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:id="@+id/rc_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="end"
-                android:paddingTop="5dp"
                 android:visibility="gone">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/signup_action"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/actifitRed"
-                    android:textSize="20sp"
-                    android:paddingEnd="5dp"
-                    android:fontFamily="@font/font_awesome_6_solid"
-                    android:text="\uf624"
+                    android:text="@string/signup"
+                    android:textColor="@color/md_theme_primary"
+                    android:textSize="@dimen/text_subtitle" />
+
+                <TextView
+                    android:id="@+id/separator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" | "
+                    android:textColor="@color/md_theme_primary"
+                    android:textSize="@dimen/text_subtitle"
                     tools:ignore="HardcodedText" />
 
+                <TextView
+                    android:id="@+id/login_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/login"
+                    android:textColor="@color/md_theme_primary"
+                    android:textSize="@dimen/text_subtitle" />
             </LinearLayout>
+
+            <!-- Notifications -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_sm">
+
+                <TextView
+                    android:id="@+id/btn_view_notifications"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:textColor="@color/md_theme_primary"
+                    android:textSize="22sp"
+                    android:text="\uf0f3"
+                    android:gravity="center"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/notif_count"
+                    android:layout_width="@dimen/badge_size"
+                    android:layout_height="@dimen/badge_size"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/circle_badge"
+                    android:gravity="center"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="@dimen/badge_text_size"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Wallet -->
+            <TextView
+                android:id="@+id/btn_view_wallet"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:textColor="@color/md_theme_primary"
+                android:textSize="22sp"
+                android:text="@string/fa_wallet_solid"
+                android:gravity="center"
+                android:fontFamily="@font/font_awesome_6_solid" />
+
+            <!-- Settings -->
+            <TextView
+                android:id="@+id/btn_settings"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:textColor="@color/md_theme_primary"
+                android:textSize="20sp"
+                android:text="\uf013"
+                android:gravity="center"
+                android:fontFamily="@font/font_awesome_6_solid"
+                android:layout_marginStart="@dimen/spacing_sm"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Hidden views for compatibility -->
+    <TextView
+        android:id="@+id/logout_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
+    <GridLayout
+        android:id="@+id/top_icons_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="2"
+        android:visibility="gone" />
 
+    <LinearLayout
+        android:id="@+id/rc_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/account_rc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/verify_newbie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <!-- Scrollable Content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        >
+        android:fillViewport="true"
+        android:overScrollMode="never">
 
+        <LinearLayout
+            android:id="@+id/main_center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_md">
 
-            <LinearLayout
-                android:id="@+id/main_center"
-                android:orientation="vertical"
+            <!-- News Carousel -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:background="@drawable/slider_background">
 
-                <!-- top news view -->
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/news_pager"
+                    android:layout_width="0dp"
+                    android:layout_height="130dp"
+                    android:importantForAccessibility="no"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/news_tablayout"
                     android:layout_width="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/slider_background"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    app:tabGravity="center"
+                    app:tabBackground="@drawable/indicator_selector"
+                    app:tabIndicatorHeight="0dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/news_pager" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <androidx.viewpager.widget.ViewPager
-                        android:id="@+id/news_pager"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_width="0dp"
-                        android:layout_height="130dp"
-                        android:importantForAccessibility="no"
-                        app:layout_constraintStart_toStartOf="parent"/>
+            <!-- Hidden image view for compatibility -->
+            <ImageView
+                android:id="@+id/image_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:minHeight="40dp"
+                android:layout_weight="1"
+                android:visibility="gone"
+                app:srcCompat="@drawable/actifit_logo"
+                android:contentDescription="@string/actifit_logo_desc" />
 
-                    <com.google.android.material.tabs.TabLayout
-                        app:layout_constraintBottom_toBottomOf="@+id/news_pager"
-                        app:tabGravity="center"
-                        android:id="@+id/news_tablayout"
-                        app:tabBackground="@drawable/indicator_selector"
-                        app:tabIndicatorHeight="0dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAccessibility="no"
-                        >
-                    </com.google.android.material.tabs.TabLayout>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <ImageView
-                    android:id="@+id/image_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:minHeight="40dp"
-                    app:srcCompat="@drawable/actifit_logo"
-                    android:contentDescription="@string/actifit_logo_desc"
-                    android:layout_weight="1"
-                    android:visibility="gone"
-                    />
-
+            <!-- Hero Activity Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
 
                 <LinearLayout
-                    android:orientation="horizontal"
-                    android:gravity="top"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:weightSum="2"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="5dp"
-                    >
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
 
+                    <!-- Date row with HC status indicator -->
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs">
 
+                        <View
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:visibility="invisible" />
 
                         <TextView
                             android:id="@+id/current_date"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/actifitRed"
+                            android:layout_weight="1"
+                            android:textColor="@color/md_theme_primary"
                             android:gravity="center"
-                            android:textSize="18sp"
-                            android:paddingBottom="2dp"
-                            />
+                            android:textSize="@dimen/text_subtitle" />
 
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:id="@+id/third_party_active"
-                            android:visibility="gone"
-                            android:layout_height="match_parent">
+                        <ImageView
+                            android:id="@+id/health_connect_status_hero"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:contentDescription="Health Connect"
+                            android:src="@mipmap/health_connect_logo"
+                            android:scaleType="fitCenter"
+                            android:padding="2dp"
+                            android:background="@drawable/health_connect_indicator_bg"
+                            android:visibility="gone" />
+                    </LinearLayout>
 
-                            <com.github.mikephil.charting.charts.PieChart
-                                android:id="@+id/step_pie_chart_fitbit"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center" />
+                    <!-- Pie Chart Area -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/pie_chart_size">
 
-                            <ImageView
-                                android:id="@+id/fitbit_logo"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-
-                                android:contentDescription="Fitbit Logo"
-                                android:src="@drawable/fitbit_app_icon"
-                                tools:ignore="HardcodedText" />
-
-                            <TextView
-                                android:id="@+id/sync"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                android:text="@string/fitbit_sync_btn"
-                                android:textColor="@color/actifitRed"
-
-                                android:textSize="25sp"
-                                android:layout_alignEnd="@id/step_pie_chart_fitbit"
-                                android:layout_alignTop="@id/step_pie_chart_fitbit"
-                                />
-
-                            <TextView
-                                android:id="@+id/switchSettingsFitbit"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/actifitRed"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                android:textSize="25sp"
-                                android:padding="5dp"
-                                android:text="@string/switch_settings_btn"
-                                android:layout_alignBottom="@+id/step_pie_chart_fitbit"
-                                android:layout_alignEnd="@+id/step_pie_chart_fitbit"
-                                />
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:layout_alignBottom="@id/step_pie_chart_fitbit"
-                                android:layout_alignStart="@id/step_pie_chart_fitbit"
-                                android:gravity="center"
-                                >
-
-                                <TextView
-                                    android:id="@+id/btn_share_achievement_fitbit"
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
-                                    android:textColor="@color/actifitRed"
-                                    android:textSize="22sp"
-                                    android:text="\uf1e0"
-                                    android:gravity="center"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    tools:ignore="HardcodedText" />
-
-                            </LinearLayout>
-                        </RelativeLayout>
-
+                        <!-- Default pie chart -->
                         <RelativeLayout
                             android:id="@+id/health_connect_active"
                             android:layout_width="match_parent"
@@ -463,7 +333,7 @@
                                 android:layout_alignEnd="@id/step_pie_chart_health_connect"
                                 android:fontFamily="@font/font_awesome_6_solid"
                                 android:text="@string/fitbit_sync_btn"
-                                android:textColor="@color/actifitRed"
+                                android:textColor="@color/md_theme_primary"
                                 android:textSize="25sp" />
 
                             <TextView
@@ -475,7 +345,7 @@
                                 android:fontFamily="@font/font_awesome_6_solid"
                                 android:padding="5dp"
                                 android:text="@string/switch_settings_btn"
-                                android:textColor="@color/actifitRed"
+                                android:textColor="@color/md_theme_primary"
                                 android:textSize="25sp" />
 
                             <LinearLayout
@@ -484,34 +354,97 @@
                                 android:orientation="horizontal"
                                 android:layout_alignBottom="@id/step_pie_chart_health_connect"
                                 android:layout_alignStart="@id/step_pie_chart_health_connect"
-                                android:gravity="center"
-                                >
+                                android:gravity="center">
 
                                 <TextView
                                     android:id="@+id/btn_share_achievement_hc"
                                     android:layout_width="30dp"
                                     android:layout_height="30dp"
-                                    android:textColor="@color/actifitRed"
+                                    android:textColor="@color/md_theme_primary"
                                     android:textSize="22sp"
                                     android:text="\uf1e0"
                                     android:gravity="center"
                                     android:fontFamily="@font/font_awesome_6_solid"
                                     tools:ignore="HardcodedText" />
-
                             </LinearLayout>
                         </RelativeLayout>
 
+                        <!-- Fitbit pie chart -->
+                        <RelativeLayout
+                            android:id="@+id/third_party_active"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone">
+
+                            <com.github.mikephil.charting.charts.PieChart
+                                android:id="@+id/step_pie_chart_fitbit"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center" />
+
+                            <ImageView
+                                android:id="@+id/fitbit_logo"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:contentDescription="Fitbit Logo"
+                                android:src="@drawable/fitbit_app_icon"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:id="@+id/sync"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:text="@string/fitbit_sync_btn"
+                                android:textColor="@color/md_theme_primary"
+                                android:textSize="25sp"
+                                android:layout_alignEnd="@id/step_pie_chart_fitbit"
+                                android:layout_alignTop="@id/step_pie_chart_fitbit" />
+
+                            <TextView
+                                android:id="@+id/switchSettingsFitbit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/md_theme_primary"
+                                android:fontFamily="@font/font_awesome_6_solid"
+                                android:textSize="25sp"
+                                android:padding="5dp"
+                                android:text="@string/switch_settings_btn"
+                                android:layout_alignBottom="@+id/step_pie_chart_fitbit"
+                                android:layout_alignEnd="@+id/step_pie_chart_fitbit" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_alignBottom="@id/step_pie_chart_fitbit"
+                                android:layout_alignStart="@id/step_pie_chart_fitbit"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:id="@+id/btn_share_achievement_fitbit"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:textColor="@color/md_theme_primary"
+                                    android:textSize="22sp"
+                                    android:text="\uf1e0"
+                                    android:gravity="center"
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    tools:ignore="HardcodedText" />
+                            </LinearLayout>
+                        </RelativeLayout>
+
+                        <!-- Default Actifit pie chart -->
                         <RelativeLayout
                             android:layout_width="match_parent"
-                            android:visibility="visible"
-                            android:layout_height="match_parent">
+                            android:layout_height="match_parent"
+                            android:visibility="visible">
 
                             <com.github.mikephil.charting.charts.PieChart
                                 android:id="@+id/step_pie_chart"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:gravity="center"
-                                />
+                                android:gravity="center" />
 
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -519,14 +452,13 @@
                                 android:orientation="horizontal"
                                 android:layout_alignBottom="@id/step_pie_chart"
                                 android:layout_alignStart="@+id/step_pie_chart"
-                                android:gravity="center"
-                                >
+                                android:gravity="center">
 
                                 <TextView
                                     android:id="@+id/btn_share_achievement"
                                     android:layout_width="30dp"
                                     android:layout_height="30dp"
-                                    android:textColor="@color/actifitRed"
+                                    android:textColor="@color/md_theme_primary"
                                     android:textSize="22sp"
                                     android:text="\uf1e0"
                                     android:gravity="center"
@@ -537,482 +469,414 @@
                                     android:id="@+id/battery_notice"
                                     android:layout_width="25dp"
                                     android:layout_height="25dp"
-                                    android:textColor="@color/actifitRed"
+                                    android:textColor="@color/md_theme_primary"
                                     android:textSize="20sp"
                                     android:text="@string/fa_exclamation_circle_solid"
                                     android:fontFamily="@font/font_awesome_6_solid"
-                                    android:layout_marginStart="10dp"
-                                    />
-
+                                    android:layout_marginStart="10dp" />
                             </LinearLayout>
 
                             <TextView
                                 android:id="@+id/switchSettings"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/actifitRed"
+                                android:textColor="@color/md_theme_primary"
                                 android:textSize="25sp"
                                 android:padding="5dp"
                                 android:text="@string/switch_settings_btn"
                                 android:layout_alignBottom="@+id/step_pie_chart"
                                 android:layout_alignEnd="@+id/step_pie_chart"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                />
-
-
+                                android:fontFamily="@font/font_awesome_6_solid" />
                         </RelativeLayout>
+                    </FrameLayout>
 
-                    </LinearLayout>
-
+                    <!-- Action Row: Sync, Settings, Share -->
                     <LinearLayout
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:paddingEnd="5dp"
-                        android:layout_height="match_parent">
-
-                        <LinearLayout
-                            android:id="@+id/post_action_container"
-                            android:orientation="horizontal"
-                            android:gravity="left"
-                            android:paddingStart="5dp"
-                            android:paddingBottom="5dp"
-                            android:layout_gravity="start"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            >
-
-                            <androidx.appcompat.widget.AppCompatButton
-                                style="@style/AppTheme.ActifitButton"
-                                android:id="@+id/btn_post_steemit"
-                                android:textSize="14sp"
-                                android:layout_width="wrap_content"
-                                android:layout_height="48dp"
-                                android:text="@string/post_to_steem_btn_txt" />
-
-                            <Button
-                                style="@style/AppTheme.ActifitButton"
-                                android:id="@+id/btn_waves"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-
-                                android:text="\uf086"
-                                android:textSize="16sp"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                />
-
-                            <!--android:text="\uf773"-->
-
-                            <!--<TextView
-                                android:id="@+id/btn_waves"
-                                style="@style/AppTheme.ActifitButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="0.5"
-                                android:fontFamily="@font/font_awesome_6_solid"
-
-                                android:text="\uf773"
-                                android:textSize="25dp"
-                                android:padding="7dp"
-                                />
-                            -->
-
-                        </LinearLayout>
-                        <LinearLayout
-                            android:id="@+id/voting_status_container"
-                            android:orientation="horizontal"
-                            android:paddingStart="5dp"
-                            android:paddingBottom="5dp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:weightSum="1.0">
-
-                            <TextView
-                                android:id="@+id/voting_cycle"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                android:textColor="@color/actifitRed"
-                                android:text="\uf4b9"
-                                android:textSize="20sp"
-                                />
-
-                            <TextView
-                                android:id="@+id/voting_status_text"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:singleLine="true"
-                                android:paddingStart="5dp"
-                                android:paddingEnd="5dp"
-                                android:scrollHorizontally="true"
-                                android:text="@string/rewards_processing"/>
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/earnings_panel"
-                            android:orientation="horizontal"
-                            android:paddingStart="5dp"
-                            android:paddingBottom="5dp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:weightSum="1.0">
-
-
-                            <TextView
-                                android:id="@+id/token_notice"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:textColor="@color/actifitRed"
-                                android:textSize="20sp"
-                                android:text="@string/fa_exclamation_circle_solid"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                />
-
-
-                            <ImageView
-                                android:id="@+id/afit_logo"
-                                android:contentDescription="AFIT icon"
-                                android:src="@drawable/actifit_logo"
-                                android:layout_height="25dp"
-                                android:layout_width="25dp"
-                                />
-                            <ImageView
-                                android:id="@+id/hive_logo"
-                                android:contentDescription="HIVE icon"
-                                android:src="@drawable/hive"
-                                android:layout_height="25dp"
-                                android:layout_width="25dp"
-                                />
-                            <ImageView
-                                android:id="@+id/steem_logo"
-                                android:importantForAccessibility="no"
-                                android:src="@drawable/steem"
-                                android:layout_height="25dp"
-                                android:layout_width="0dp"
-                                android:visibility="invisible"
-                                />
-                            <ImageView
-                                android:id="@+id/blurt_logo"
-                                android:contentDescription="BLURT icon"
-                                android:src="@drawable/blurt"
-                                android:layout_height="25dp"
-                                android:layout_width="25dp"
-                                />
-
-                            <ImageView
-                                android:id="@+id/sports_logo"
-                                android:contentDescription="SPORTS icon"
-                                android:src="@drawable/sports"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                />
-                        </LinearLayout>
-
-
-
-                            <LinearLayout
-                                android:id="@+id/user_gadgets"
-                                android:orientation="horizontal"
-                                android:paddingBottom="5dp"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:minHeight="40dp"
-                                android:weightSum="1.0">
-
-                                <!--<LinearLayout
-                                    android:id="@+id/user_gadgets_view_container"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    />-->
-                                <LinearLayout
-                                    android:id="@+id/missing_active_gadgets_container"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:paddingStart="5dp">
-
-                                    <TextView
-                                        android:layout_width="25dp"
-                                        android:layout_height="25dp"
-                                        android:fontFamily="@font/font_awesome_6_solid"
-                                        android:textColor="@color/actifitRed"
-                                        android:text="\uf54e"
-                                        android:textSize="20sp"
-                                        />
-
-                                    <TextView
-                                        android:id="@+id/missing_active_gadgets"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        android:text="@string/no_active_gadgets_found"
-                                        android:paddingStart="5dp"
-                                        android:paddingEnd="5dp"
-                                        />
-
-                                </LinearLayout>
-
-                            </LinearLayout>
-
-
-
-                        <LinearLayout
-                            android:id="@+id/wallet_alt_container"
-                            android:orientation="horizontal"
-                            android:paddingStart="5dp"
-                            android:paddingBottom="5dp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:weightSum="1.0">
-
-
-                            <TextView
-                                android:id="@+id/wallet_alt_btn"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:text="@string/fa_wallet_solid"
-                                android:textSize="20sp"
-                                android:textColor="@color/actifitRed"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                />
-
-                            <TextView
-                                android:id="@+id/token_notice_wallet"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:text="@string/fa_exclamation_circle_solid"
-                                android:textColor="@color/actifitRed"
-                                android:textSize="20sp"
-                                android:visibility="gone"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                />
-
-
-                            <TextView
-                                android:id="@+id/bal_display"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="left"
-                                android:textSize="16sp"
-                                android:paddingStart="5dp"
-                                />
-
-                        </LinearLayout>
-
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:orientation="horizontal">
-
-
-                            <!--<LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/actifitnp">-->
-                            <Button
-                                style="@style/AppTheme.ActifitButton"
-                                android:id="@+id/daily_reward"
-                                android:layout_width="70dp"
-                                android:layout_height="wrap_content"
-                                android:text="&#127873;"
-                                android:textSize="20sp"
-                                android:textStyle="bold"
-                                android:layout_weight="1"
-                                />
-
-                            <!--</LinearLayout>-->
-
-                            <Button
-                                style="@style/AppTheme.ActifitButton"
-                                android:id="@+id/refer_friend_button"
-                                android:layout_width="70dp"
-                                android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                android:text="\uf234"
-                                android:layout_weight="1"
-                                />
-
-                            <Button
-                                style="@style/AppTheme.ActifitButton"
-                                android:id="@+id/btn_buy_afit"
-                                android:layout_width="70dp"
-                                android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:fontFamily="@font/font_awesome_6_solid"
-                                android:text="\uf201"
-                                android:layout_weight="1"
-                                tools:ignore="HardcodedText" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <LinearLayout
-                        android:id="@+id/bar_chart_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:minHeight="130dp"
-                        android:orientation="horizontal">
-
-
-                        <com.github.mikephil.charting.charts.BarChart
-                            android:id="@+id/main_today_activity_chart"
-                            android:layout_width="match_parent"
-                            android:layout_height="130dp"
-                            android:layout_weight="1"
-                            android:paddingTop="10dp" />
-
-                        <com.github.mikephil.charting.charts.BarChart
-                            android:id="@+id/main_history_activity_chart"
-                            android:layout_width="match_parent"
-                            android:layout_height="130dp"
-                            android:paddingTop="10dp"
-                            android:layout_weight="1"
-                            android:visibility="gone"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        >
+                        android:gravity="center"
+                        android:layout_marginTop="@dimen/spacing_sm">
 
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/wallet_alt_btn"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:text="@string/fa_wallet_solid"
+                            android:textSize="20sp"
+                            android:textColor="@color/md_theme_primary"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/token_notice_wallet"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:text="@string/fa_exclamation_circle_solid"
+                            android:textColor="@color/md_theme_primary"
+                            android:textSize="20sp"
+                            android:visibility="gone"
+                            android:fontFamily="@font/font_awesome_6_solid" />
+
+                        <TextView
+                            android:id="@+id/bal_display"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_gravity="top">
-
-
-
-
-
-                            <FrameLayout
-                                android:id="@+id/health_connect_status"
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:layout_height="match_parent"
-                                android:layout_marginStart="8dp"
-                                android:background="@drawable/button_background"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:foreground="?attr/selectableItemBackground"
-                                android:padding="10dp"
-                                android:layout_margin="6dp"
-                                android:elevation="2dp">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/health_connect_button"
-                                    android:scaleType="fitCenter"
-                                    android:contentDescription="Health Connect Status" />
-                            </FrameLayout>
-
-                        </LinearLayout>
-
-
-                        <LinearLayout
-                            android:id="@+id/chart_switcher"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            >
-
-
-                            <View
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1" />
-
-
-
-                            <Button
-                                android:id="@+id/daily_chart_btn"
-                                android:theme="@style/AppTheme.ActifitButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="end"
-                                android:text="@string/daily"/>
-                            <Button
-                                android:id="@+id/hourly_chart_btn"
-                                android:theme="@style/AppTheme.ActifitButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="end"
-                                android:visibility="gone"
-                                android:text="@string/hourly"/>
-
-                        </LinearLayout>
-
+                            android:textSize="@dimen/text_subtitle"
+                            android:paddingStart="@dimen/spacing_sm"
+                            android:visibility="gone" />
                     </LinearLayout>
-
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
+            <!-- Quick Actions Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:weightSum="2">
 
-                <!-- Workout Highlight Section -->
-                <LinearLayout
-                    android:id="@+id/btn_start_workout_section"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/workout_highlight_bg"
-                    android:elevation="6dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                <com.google.android.material.button.MaterialButton
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/btn_post_steemit"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm"
+                    android:text="@string/post_to_steem_btn_txt"
+                    android:textSize="@dimen/text_body" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        android:text="\uf44b"
-                        android:textColor="@color/colorWhite"
-                        android:textSize="24sp"
-                        android:layout_marginEnd="12dp"
-                        tools:ignore="HardcodedText" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/manage_workouts"
-                        android:textColor="@color/colorWhite"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-
-
+                <com.google.android.material.button.MaterialButton
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/btn_waves"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm"
+                    android:text="\uf086"
+                    android:textSize="@dimen/text_body"
+                    android:fontFamily="@font/font_awesome_6_solid" />
             </LinearLayout>
 
+            <!-- Voting Status -->
+            <LinearLayout
+                android:id="@+id/voting_status_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/spacing_sm"
+                android:paddingBottom="@dimen/spacing_sm"
+                android:weightSum="1.0">
 
+                <TextView
+                    android:id="@+id/voting_cycle"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/md_theme_primary"
+                    android:text="\uf4b9"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/voting_status_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:singleLine="true"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:paddingEnd="@dimen/spacing_sm"
+                    android:scrollHorizontally="true"
+                    android:text="@string/rewards_processing" />
+            </LinearLayout>
+
+            <!-- Earnings Panel -->
+            <LinearLayout
+                android:id="@+id/earnings_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/spacing_sm"
+                android:paddingBottom="@dimen/spacing_sm"
+                android:weightSum="1.0">
+
+                <TextView
+                    android:id="@+id/token_notice"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:textColor="@color/md_theme_primary"
+                    android:textSize="20sp"
+                    android:text="@string/fa_exclamation_circle_solid"
+                    android:fontFamily="@font/font_awesome_6_solid" />
+
+                <ImageView
+                    android:id="@+id/afit_logo"
+                    android:contentDescription="AFIT icon"
+                    android:src="@drawable/actifit_logo"
+                    android:layout_height="25dp"
+                    android:layout_width="25dp" />
+
+                <ImageView
+                    android:id="@+id/hive_logo"
+                    android:contentDescription="HIVE icon"
+                    android:src="@drawable/hive"
+                    android:layout_height="25dp"
+                    android:layout_width="25dp" />
+
+                <ImageView
+                    android:id="@+id/steem_logo"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/steem"
+                    android:layout_height="25dp"
+                    android:layout_width="0dp"
+                    android:visibility="invisible" />
+
+                <ImageView
+                    android:id="@+id/blurt_logo"
+                    android:contentDescription="BLURT icon"
+                    android:src="@drawable/blurt"
+                    android:layout_height="25dp"
+                    android:layout_width="25dp" />
+
+                <ImageView
+                    android:id="@+id/sports_logo"
+                    android:contentDescription="SPORTS icon"
+                    android:src="@drawable/sports"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp" />
+            </LinearLayout>
+
+            <!-- User Gadgets -->
+            <LinearLayout
+                android:id="@+id/user_gadgets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/spacing_sm"
+                android:minHeight="40dp"
+                android:weightSum="1.0">
+
+                <LinearLayout
+                    android:id="@+id/missing_active_gadgets_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/spacing_sm">
+
+                    <TextView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:textColor="@color/md_theme_primary"
+                        android:text="\uf54e"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/missing_active_gadgets"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/no_active_gadgets_found"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:paddingEnd="@dimen/spacing_sm" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Wallet Alt Container (hidden, for compatibility) -->
+            <LinearLayout
+                android:id="@+id/wallet_alt_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/spacing_sm"
+                android:paddingBottom="@dimen/spacing_sm"
+                android:visibility="gone"
+                android:weightSum="1.0">
+
+                <TextView
+                    android:id="@+id/wallet_alt_btn"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:text="@string/fa_wallet_solid"
+                    android:textSize="20sp"
+                    android:textColor="@color/md_theme_primary"
+                    android:fontFamily="@font/font_awesome_6_solid" />
+
+                <TextView
+                    android:id="@+id/token_notice_wallet"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:text="@string/fa_exclamation_circle_solid"
+                    android:textColor="@color/md_theme_primary"
+                    android:textSize="20sp"
+                    android:visibility="gone"
+                    android:fontFamily="@font/font_awesome_6_solid" />
+
+                <TextView
+                    android:id="@+id/bal_display"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:textSize="@dimen/text_subtitle"
+                    android:paddingStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <!-- Rewards Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/spacing_md">
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/daily_reward"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_xs"
+                    android:text="&#127873;"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/refer_friend_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:layout_marginEnd="@dimen/spacing_xs"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf234" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/btn_buy_afit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf201"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+            <!-- Bar Chart -->
+            <LinearLayout
+                android:id="@+id/bar_chart_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/bar_chart_height"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/spacing_sm">
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/main_today_activity_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/bar_chart_height"
+                    android:layout_weight="1"
+                    android:paddingTop="@dimen/spacing_sm" />
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/main_history_activity_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/bar_chart_height"
+                    android:layout_weight="1"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Chart Switcher with compact Health Connect button -->
+            <LinearLayout
+                android:id="@+id/chart_switcher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/spacing_sm">
+
+                <FrameLayout
+                    android:id="@+id/health_connect_status"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/actifit_button_ripple_bg"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:elevation="2dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/health_connect_button"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="Health Connect Status" />
+                </FrameLayout>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/daily_chart_btn"
+                    android:theme="@style/AppTheme.ActifitButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/daily" />
+
+                <Button
+                    android:id="@+id/hourly_chart_btn"
+                    android:theme="@style/AppTheme.ActifitButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="@string/hourly" />
+            </LinearLayout>
+
+            <!-- Workout Highlight -->
+            <LinearLayout
+                android:id="@+id/btn_start_workout_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/spacing_md"
+                android:background="@drawable/workout_highlight_bg"
+                android:elevation="6dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/spacing_md">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf44b"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="24sp"
+                    android:layout_marginEnd="@dimen/spacing_md"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/manage_workouts"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="@dimen/text_title"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
     </ScrollView>
 
+    <!-- Footer Menu -->
     <include
         android:id="@+id/bottom_menu_container"
         layout="@layout/footer_menu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        /> <!-- Menu takes only the vertical space it needs -->
-        <!-- No layout_weight needed here -->
+        android:layout_height="wrap_content" />
 </LinearLayout>
-
-
-    <!--</androidx.core.widget.NestedScrollView>-->

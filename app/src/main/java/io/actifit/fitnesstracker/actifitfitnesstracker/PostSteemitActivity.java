@@ -24,8 +24,6 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
-import android.text.method.ScrollingMovementMethod;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,10 +35,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.animation.ObjectAnimator;
+import android.content.res.ColorStateList;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.slider.Slider;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -49,8 +56,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.widget.NestedScrollView;
 import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.PermissionController;
@@ -144,9 +149,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     TextView measureSectionLabel;
 
-    // references to the new points system in post
-    TextView titleCountRef, dateCountRef, activityCountRef, activityTypeCountRef, tagsCountRef,
-            contentCountRef, charCount, minCharCount, charInfo;
+    TextView charCount, minCharCount, charInfo;
 
     TextView heightSizeUnit;
     TextView weightSizeUnit;
@@ -156,19 +159,28 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     EditText steemitPostTags;
 
-    // CheckBox fullAFITPay;
+    ChipGroup activityChipGroup;
+    ChipGroup activityChipGroupMore;
+    ChipGroup tagsChipGroup;
+    LinearProgressIndicator contentProgressBar;
+    LinearLayout measurementsContent;
 
-    EditText heightSize;
-    EditText weightSize;
-    EditText bodyFat;
-    EditText chestSize;
-    EditText thighsSize;
-    EditText waistSize;
+    Slider heightSize;
+    Slider weightSize;
+    Slider bodyFat;
+    Slider chestSize;
+    Slider thighsSize;
+    Slider waistSize;
+
+    TextView heightSizeValue;
+    TextView weightSizeValue;
+    TextView bodyFatValue;
+    TextView waistSizeValue;
+    TextView thighsSizeValue;
+    TextView chestSizeValue;
 
     // MarkedView mdView;
     TextView mdView;
-
-    MultiSelectionSpinner activityTypeSelector;
 
     String accountUsername, accountPostingKey, accountActivityCount, finalPostTitle, finalPostTags,
             finalPostContent;
@@ -448,7 +460,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         setContentView(R.layout.activity_post_steemit);
 
         Button expandBtn = findViewById(R.id.btn_expand_editor);
-
+        expandBtn.setText("");
         expandBtn.setOnClickListener(v -> {
             isEditorExpanded = !isEditorExpanded;
             toggleEditorMode(isEditorExpanded);
@@ -499,13 +511,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         chestSizeUnit = findViewById(R.id.measurements_chest_unit);
         thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
 
-        // fill in point references
-        titleCountRef = findViewById(R.id.titleCount);
-        dateCountRef = findViewById(R.id.dateCount);
-        activityCountRef = findViewById(R.id.activityCount);
-        activityTypeCountRef = findViewById(R.id.activityTypeCount);
-        tagsCountRef = findViewById(R.id.tagsCount);
-        contentCountRef = findViewById(R.id.contentCount);
         charCount = findViewById(R.id.charCount);
         minCharCount = findViewById(R.id.minCharCount);
         charInfo = findViewById(R.id.charInfo);
@@ -513,9 +518,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         // final EditText steemitPostContentInner =
         // findViewById(R.id.steemit_post_text);
         steemitPostTags = findViewById(R.id.steemit_post_tags);
-        activityTypeSelector = findViewById(R.id.steemit_activity_type);
+        tagsChipGroup = findViewById(R.id.tags_chip_group);
 
-        // fullAFITPay = findViewById(R.id.full_afit_pay);
+        activityChipGroup = findViewById(R.id.activity_chip_group);
+        activityChipGroupMore = findViewById(R.id.activity_chip_group_more);
 
         heightSize = findViewById(R.id.measurements_height);
         weightSize = findViewById(R.id.measurements_weight);
@@ -524,64 +530,27 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         thighsSize = findViewById(R.id.measurements_thighs);
         waistSize = findViewById(R.id.measurements_waistsize);
 
+        heightSizeValue = findViewById(R.id.measurements_height_value);
+        weightSizeValue = findViewById(R.id.measurements_weight_value);
+        bodyFatValue = findViewById(R.id.measurements_bodyfat_value);
+        waistSizeValue = findViewById(R.id.measurements_waistsize_value);
+        thighsSizeValue = findViewById(R.id.measurements_thighs_value);
+        chestSizeValue = findViewById(R.id.measurements_chest_value);
+
         heightSizeUnit = findViewById(R.id.measurements_height_unit);
         weightSizeUnit = findViewById(R.id.measurements_weight_unit);
         waistSizeUnit = findViewById(R.id.measurements_waistsize_unit);
         chestSizeUnit = findViewById(R.id.measurements_chest_unit);
         thighsSizeUnit = findViewById(R.id.measurements_thighs_unit);
 
+        contentProgressBar = findViewById(R.id.content_progress_bar);
+        measurementsContent = findViewById(R.id.measurements_content);
+
         mdView = findViewById(R.id.md_view);
 
         // call from code
         // MarkedView mdView = new MarkedView(this);
 
-        // hook to event of adjusting color of the title point
-        steemitPostTitle.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String title = steemitPostTitle.getText().toString();
-                if (title.trim().isEmpty()) {
-                    titleCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
-                } else {
-                    titleCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
-                }
-            }
-        });
-
-        // hook to event of adjusting tag content for the post
-        steemitPostTags.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String text = steemitPostTags.getText().toString();
-                if (text.trim().isEmpty()) {
-                    tagsCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
-                } else {
-                    tagsCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
-                }
-            }
-        });
 
         final Markwon markwon = Markwon.builder(steemit_post_context)
                 // .usePlugin(ImagesPlugin.create())
@@ -649,14 +618,20 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                 }
                 if (s.length() < min_char_count) {
-                    contentCountRef.setTextColor(getResources().getColor(R.color.actifitRed));
                     charCount.setTextColor(getResources().getColor(R.color.actifitRed));
                 } else {
-                    contentCountRef.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
                     charCount.setTextColor(getResources().getColor(R.color.actifitDarkGreen));
                 }
                 // set text count
                 charCount.setText(s.length() + "");
+                // update progress bar
+                if (contentProgressBar != null) {
+                    int prog = Math.min(s.length() * 100 / min_char_count, 100);
+                    contentProgressBar.setProgress(prog);
+                    contentProgressBar.setIndicatorColor(prog >= 100
+                            ? getResources().getColor(R.color.actifitDarkGreen)
+                            : getResources().getColor(R.color.actifitRed));
+                }
 
             }
         });
@@ -699,7 +674,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         // need to check if user switched to fetch yesterday's data
 
-        RadioGroup reportDateOptionGroup = findViewById(R.id.report_date_option_group);
+        MaterialButtonToggleGroup reportDateOptionGroup = findViewById(R.id.report_date_option_group);
 
         // check if the user is allowed to post yesterday's report
         Calendar myCalendar = Calendar.getInstance();
@@ -715,24 +690,25 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         if (!lastPostDate.isEmpty()) {
             if (parseInt(lastPostDate) >= parseInt(currentDate)) {
                 // need to disable yesterday's option
-                RadioButton yesterdayOption = findViewById(R.id.report_yesterday_option);
-                yesterdayOption.setEnabled(false);
+                findViewById(R.id.report_yesterday_option).setEnabled(false);
                 yesterdayReport = false;
                 // ensure today is selected
                 reportDateOptionGroup.check(R.id.report_today_option);
             }
         }
 
-        // make sure to select proper radio button in case it was previously set
+        // make sure to select proper button in case it was previously set
         if (yesterdayReport) {
             reportDateOptionGroup.check(R.id.report_yesterday_option);
+        } else {
+            reportDateOptionGroup.check(R.id.report_today_option);
         }
 
         final TextView fitbitSyncNotice = findViewById(R.id.fitbit_sync_notice);
 
         // event listener for change in selection
-        reportDateOptionGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            // common code for both cases
+        reportDateOptionGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
 
             // if user had synced before, we need to notify that they need to sync again
             // after change of date
@@ -766,9 +742,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         // Initialize the ExecutorService
         executorService = Executors.newSingleThreadExecutor(); // Use a single thread for serial processing
 
-        findViewById(R.id.btn_choose_file).setOnClickListener(this);
+        Button btnChooseFile = (Button) findViewById(R.id.btn_choose_file);
+        btnChooseFile.setText("");
+        btnChooseFile.setOnClickListener(this);
 
-        findViewById(R.id.btn_video_post).setOnClickListener(this);
+        Button btnVideoPost = (Button) findViewById(R.id.btn_video_post);
+        btnVideoPost.setText("");
+        btnVideoPost.setOnClickListener(this);
 
         // Launcher for picking images
         imagePickerLauncher = registerForActivityResult(
@@ -872,26 +852,143 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         // sort options in alpha order
         Arrays.sort(activity_type);
 
-        activityTypeSelector = findViewById(R.id.steemit_activity_type);
-        activityTypeSelector.setHighlighterView(activityTypeCountRef);
-        activityTypeSelector.setItems(activity_type);
+        // top activities always shown first (most common)
+        java.util.Set<String> topActivities = new java.util.LinkedHashSet<>(Arrays.asList(
+                getString(R.string.Walking), getString(R.string.Running), getString(R.string.Cycling),
+                getString(R.string.Gym), getString(R.string.Dancing), getString(R.string.Yoga),
+                getString(R.string.Swimming), getString(R.string.Hiking),
+                getString(R.string.DailyActivity), getString(R.string.WeightLifting)));
+
+        for (String activity : topActivities) {
+            activityChipGroup.addView(createActivityChip(activity));
+        }
+        for (String activity : activity_type) {
+            if (!topActivities.contains(activity)) {
+                activityChipGroupMore.addView(createActivityChip(activity));
+            }
+        }
+
+        Button btnShowMoreActivities = findViewById(R.id.btn_show_more_activities);
+        btnShowMoreActivities.setOnClickListener(v -> {
+            boolean moreVisible = activityChipGroupMore.getVisibility() == View.VISIBLE;
+            activityChipGroupMore.setVisibility(moreVisible ? View.GONE : View.VISIBLE);
+            btnShowMoreActivities.setText(moreVisible
+                    ? getString(R.string.show_more_activities)
+                    : getString(R.string.show_fewer_activities));
+        });
 
         // grab current selection for measure system
         String activeSystem = sharedPreferences.getString("activeSystem", getString(R.string.metric_system_ntt));
         // adjust units accordingly
+        // init slider base config (valueFrom=0, stepSize=1, value=0 for all)
+        for (Slider s : new Slider[]{heightSize, weightSize, bodyFat, waistSize, thighsSize, chestSize}) {
+            s.setValueFrom(0f);
+            s.setStepSize(1f);
+        }
         if (activeSystem.equals(getString(R.string.metric_system_ntt))) {
             weightSizeUnit.setText(getString(R.string.kg_unit));
             heightSizeUnit.setText(getString(R.string.cm_unit));
             waistSizeUnit.setText(getString(R.string.cm_unit));
             chestSizeUnit.setText(getString(R.string.cm_unit));
             thighsSizeUnit.setText(getString(R.string.cm_unit));
+            // metric slider ranges
+            heightSize.setValueTo(250f);
+            weightSize.setValueTo(300f);
+            waistSize.setValueTo(200f); thighsSize.setValueTo(200f); chestSize.setValueTo(200f);
         } else {
             weightSizeUnit.setText(getString(R.string.lb_unit));
             heightSizeUnit.setText(getString(R.string.ft_unit));
             waistSizeUnit.setText(getString(R.string.in_unit));
             chestSizeUnit.setText(getString(R.string.in_unit));
             thighsSizeUnit.setText(getString(R.string.in_unit));
+            // imperial slider ranges
+            heightSize.setValueTo(96f);
+            weightSize.setValueTo(660f);
+            waistSize.setValueTo(79f); thighsSize.setValueTo(79f); chestSize.setValueTo(79f);
         }
+        bodyFat.setValueTo(60f);
+        // all sliders start at 0 (= not entered)
+        for (Slider s : new Slider[]{heightSize, weightSize, bodyFat, waistSize, thighsSize, chestSize}) {
+            s.setValue(0f);
+        }
+
+        // slider change listeners — update value badge
+        heightSize.addOnChangeListener((s, v, f) ->
+                heightSizeValue.setText(v > 0 ? String.format("%.0f", v) : "—"));
+        weightSize.addOnChangeListener((s, v, f) ->
+                weightSizeValue.setText(v > 0 ? String.format("%.0f", v) : "—"));
+        bodyFat.addOnChangeListener((s, v, f) ->
+                bodyFatValue.setText(v > 0 ? String.format("%.0f", v) : "—"));
+        waistSize.addOnChangeListener((s, v, f) ->
+                waistSizeValue.setText(v > 0 ? String.format("%.0f", v) : "—"));
+        thighsSize.addOnChangeListener((s, v, f) ->
+                thighsSizeValue.setText(v > 0 ? String.format("%.0f", v) : "—"));
+        chestSize.addOnChangeListener((s, v, f) ->
+                chestSizeValue.setText(v > 0 ? String.format("%.0f", v) : "—"));
+
+        // measurements collapse/expand
+        MaterialButton measurementsChevron = findViewById(R.id.measurements_chevron);
+        measurementsChevron.setText("");
+        boolean measurementsExpanded = sharedPreferences.getBoolean("measurementsExpanded", false);
+        measurementsContent.setVisibility(measurementsExpanded ? View.VISIBLE : View.GONE);
+        measurementsChevron.setRotation(measurementsExpanded ? 180f : 0f);
+        LinearLayout measurementsHeader = findViewById(R.id.measurements_header);
+        measurementsHeader.setOnClickListener(v -> {
+            boolean nowExpanded = measurementsContent.getVisibility() != View.VISIBLE;
+            measurementsContent.setVisibility(nowExpanded ? View.VISIBLE : View.GONE);
+            ObjectAnimator.ofFloat(measurementsChevron, "rotation",
+                    measurementsChevron.getRotation(), nowExpanded ? 180f : 0f)
+                    .setDuration(200).start();
+            sharedPreferences.edit().putBoolean("measurementsExpanded", nowExpanded).apply();
+        });
+
+        // tag chip input — add chip on IME Done or comma
+        steemitPostTags.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                String tag = steemitPostTags.getText().toString().trim();
+                if (!tag.isEmpty() && tagsChipGroup.getChildCount() < 10) {
+                    addTagChip(tag);
+                    steemitPostTags.setText("");
+                }
+                return true;
+            }
+            return false;
+        });
+        steemitPostTags.addTextChangedListener(new TextWatcher() {
+            private boolean processing = false;
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                if (processing) return;
+                String text = s.toString();
+                if (!text.contains(",") && !text.contains(" ")) return;
+                processing = true;
+                String[] tokens = text.split("[,\\s]+", -1);
+                boolean endsWithDelimiter = text.length() > 0
+                        && (text.charAt(text.length() - 1) == ','
+                            || Character.isWhitespace(text.charAt(text.length() - 1)));
+                String remaining = "";
+                for (int i = 0; i < tokens.length; i++) {
+                    String token = tokens[i].trim();
+                    if (token.isEmpty()) continue;
+                    if (i == tokens.length - 1 && !endsWithDelimiter) {
+                        remaining = token;
+                    } else if (tagsChipGroup.getChildCount() < 10) {
+                        addTagChip(token);
+                    }
+                }
+                steemitPostTags.setText(remaining);
+                steemitPostTags.setSelection(remaining.length());
+                processing = false;
+            }
+        });
+
+        // initialise progress bar from any already-loaded content
+        int initProgress = Math.min(steemitPostContent.getText().length() * 100 / min_char_count, 100);
+        contentProgressBar.setProgress(initProgress);
+        contentProgressBar.setIndicatorColor(initProgress >= 100
+                ? getResources().getColor(R.color.actifitDarkGreen)
+                : getResources().getColor(R.color.actifitRed));
 
         // popup display about min chat count requirement
         charInfo.setOnClickListener(view -> {
@@ -999,12 +1096,18 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt))) {
 
                         // grab and update user weight
-                        TextView weight = findViewById(R.id.measurements_weight);
-                        weight.setText(fitbit.getFieldFromProfile("weight"));
+                        try {
+                            String w = fitbit.getFieldFromProfile("weight");
+                            if (!w.isEmpty())
+                                weightSize.setValue(Math.min(Float.parseFloat(w), weightSize.getValueTo()));
+                        } catch (Exception ignored) {}
 
                         // grab and update user height
-                        TextView height = findViewById(R.id.measurements_height);
-                        height.setText(fitbit.getFieldFromProfile("height"));
+                        try {
+                            String h = fitbit.getFieldFromProfile("height");
+                            if (!h.isEmpty())
+                                heightSize.setValue(Math.min(Float.parseFloat(h), heightSize.getValueTo()));
+                        } catch (Exception ignored) {}
                     }
 
                 } catch (JSONException | InterruptedException | ExecutionException | IOException e) {
@@ -1740,7 +1843,27 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         // accountPostingKey = steemitPostingKey.getText().toString();
         accountActivityCount = stepCountContainer.getText().toString();
         finalPostTitle = steemitPostTitle.getText().toString();
-        selectedActivityCount = activityTypeSelector.getSelectedIndicies().size();
+
+        // collect selected activity chips from both groups
+        StringBuilder selectedActivities = new StringBuilder();
+        selectedActivityCount = 0;
+        for (int i = 0; i < activityChipGroup.getChildCount(); i++) {
+            Chip chip = (Chip) activityChipGroup.getChildAt(i);
+            if (chip.isChecked()) {
+                selectedActivityCount++;
+                if (selectedActivities.length() > 0) selectedActivities.append(",");
+                selectedActivities.append(chip.getText());
+            }
+        }
+        for (int i = 0; i < activityChipGroupMore.getChildCount(); i++) {
+            Chip chip = (Chip) activityChipGroupMore.getChildAt(i);
+            if (chip.isChecked()) {
+                selectedActivityCount++;
+                if (selectedActivities.length() > 0) selectedActivities.append(",");
+                selectedActivities.append(chip.getText());
+            }
+        }
+        selectedActivitiesVal = selectedActivities.toString();
 
         finalPostContent = steemitPostContent.getText().toString();
 
@@ -1753,18 +1876,27 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             }
         }
 
-        finalPostTags = steemitPostTags.getText().toString();
+        // collect tags from chips + any pending text in input field
+        StringBuilder tags = new StringBuilder();
+        for (int i = 0; i < tagsChipGroup.getChildCount(); i++) {
+            Chip chip = (Chip) tagsChipGroup.getChildAt(i);
+            if (tags.length() > 0) tags.append(",");
+            tags.append(chip.getText());
+        }
+        String pendingTag = steemitPostTags.getText().toString().trim();
+        if (!pendingTag.isEmpty()) {
+            if (tags.length() > 0) tags.append(",");
+            tags.append(pendingTag);
+        }
+        finalPostTags = tags.toString();
 
-        selectedActivitiesVal = activityTypeSelector.getSelectedItemsAsString();
-
-        // fullAFITPayVal = fullAFITPay.isChecked();
-
-        heightVal = heightSize.getText().toString();
-        weightVal = weightSize.getText().toString();
-        chestVal = chestSize.getText().toString();
-        waistVal = waistSize.getText().toString();
-        thighsVal = thighsSize.getText().toString();
-        bodyFatVal = bodyFat.getText().toString();
+        // collect measurement values from sliders (0 = not entered → empty string)
+        heightVal = heightSize.getValue() > 0 ? String.format("%.0f", heightSize.getValue()) : "";
+        weightVal = weightSize.getValue() > 0 ? String.format("%.0f", weightSize.getValue()) : "";
+        chestVal = chestSize.getValue() > 0 ? String.format("%.0f", chestSize.getValue()) : "";
+        waistVal = waistSize.getValue() > 0 ? String.format("%.0f", waistSize.getValue()) : "";
+        thighsVal = thighsSize.getValue() > 0 ? String.format("%.0f", thighsSize.getValue()) : "";
+        bodyFatVal = bodyFat.getValue() > 0 ? String.format("%.0f", bodyFat.getValue()) : "";
 
         heightUnit = heightSizeUnit.getText().toString();
         weightUnit = weightSizeUnit.getText().toString();
@@ -1846,176 +1978,78 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
+    private Chip createActivityChip(String label) {
+        Chip chip = new Chip(this);
+        chip.setText(label);
+        chip.setCheckable(true);
+        chip.setChipBackgroundColor(ColorStateList.valueOf(
+                getResources().getColor(R.color.md_theme_chipBackground)));
+        chip.setOnCheckedChangeListener((c, isChecked) -> ((Chip) c).setChipBackgroundColor(
+                ColorStateList.valueOf(isChecked
+                        ? getResources().getColor(R.color.actifitRed)
+                        : getResources().getColor(R.color.md_theme_chipBackground))));
+        return chip;
+    }
+
+    private void addTagChip(String tag) {
+        Chip chip = new Chip(this);
+        chip.setText(tag);
+        chip.setCloseIconVisible(true);
+        chip.setCheckable(false);
+        chip.setChipBackgroundColor(ColorStateList.valueOf(
+                getResources().getColor(R.color.md_theme_chipBackground)));
+        chip.setOnCloseIconClickListener(v -> tagsChipGroup.removeView(chip));
+        tagsChipGroup.addView(chip);
+    }
+
     private void toggleEditorMode(boolean expand) {
-        // Get references to views
-        NestedScrollView nestedScrollView = findViewById(R.id.nestedScrollView);
-        ConstraintLayout cLayout = findViewById(R.id.cLayout); // The content ConstraintLayout inside NestedScrollView
-        LinearLayout btnContainer = findViewById(R.id.btn_container); // Your button bar, now inside cLayout
+        View cardTitle = findViewById(R.id.card_title);
+        View cardDateSteps = findViewById(R.id.card_date_steps);
+        View cardActivityType = findViewById(R.id.card_activity_type);
+        View cardMeasurements = findViewById(R.id.card_measurements);
+        View cardTags = findViewById(R.id.card_tags);
+        View contentLabel = findViewById(R.id.steemit_post_content_lbl);
+        View contentNote = findViewById(R.id.steemit_post_content_note);
+
         EditText postText = findViewById(R.id.steemit_post_text);
-        TextView previewLabel = findViewById(R.id.steemit_post_preview_lbl);
-        TextView previewText = findViewById(R.id.md_view);
         Button expandBtn = findViewById(R.id.btn_expand_editor);
 
-        // This ensures smooth animation for all layout changes within cLayout
-        TransitionManager.beginDelayedTransition(cLayout);
-
-        // ConstraintSet for cLayout to adjust all its children dynamically
-        ConstraintSet cLayoutSet = new ConstraintSet();
-        cLayoutSet.clone(cLayout); // Clone the current state of the content layout
+        int formVisibility = expand ? View.GONE : View.VISIBLE;
+        cardTitle.setVisibility(formVisibility);
+        cardDateSteps.setVisibility(formVisibility);
+        cardActivityType.setVisibility(formVisibility);
+        cardMeasurements.setVisibility(formVisibility);
+        cardTags.setVisibility(formVisibility);
+        contentLabel.setVisibility(formVisibility);
+        contentNote.setVisibility(formVisibility);
 
         if (expand) {
-            // --- Make btn_container "sticky" at the top of cLayout's viewport ---
-            cLayoutSet.clear(R.id.btn_container, ConstraintSet.TOP); // Clear old top constraint
-            cLayoutSet.connect(R.id.btn_container, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-            cLayoutSet.setElevation(R.id.btn_container, 4f); // Add elevation to show it's "floating"
-
-            // --- Adjust EditText to fill space below sticky btn_container ---
-            postText.setMaxLines(Integer.MAX_VALUE); // Allow virtually unlimited lines internally
-            postText.setMovementMethod(new ScrollingMovementMethod()); // Enable internal scrolling
-            postText.setFocusable(true);
-            postText.setFocusableInTouchMode(true);
-            postText.setMinLines(20); // Visual hint for min expanded height
-
-            // Clear old constraints and connect EditText to fill space
-            cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.TOP);
-            cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.BOTTOM);
-            cLayoutSet.constrainHeight(R.id.steemit_post_text, 0); // MATCH_CONSTRAINT height
-            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.TOP, R.id.btn_container, ConstraintSet.BOTTOM);
-            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM);
-
-            // --- Hide all other form fields ---
-            cLayoutSet.setVisibility(R.id.post_title_container, View.GONE);
-            cLayoutSet.setVisibility(R.id.steemit_post_title, View.GONE);
-            cLayoutSet.setVisibility(R.id.full_afit_pay_lbl, View.GONE);
-            cLayoutSet.setVisibility(R.id.full_afit_pay, View.GONE);
-            cLayoutSet.setVisibility(R.id.post_date_container, View.GONE);
-            cLayoutSet.setVisibility(R.id.report_date_option_group, View.GONE);
-            cLayoutSet.setVisibility(R.id.step_count_container, View.GONE);
-            cLayoutSet.setVisibility(R.id.activity_data_section, View.GONE);
-            cLayoutSet.setVisibility(R.id.activity_type_container, View.GONE);
-            cLayoutSet.setVisibility(R.id.steemit_activity_type, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_container, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_height_lbl, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_height, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_height_unit, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_weight_lbl, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_weight, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_weight_unit, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_bodyfat_lbl, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_bodyfat, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_bodyfat_unit, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_waistsize_lbl, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_waistsize, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_waistsize_unit, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_thighs_lbl, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_thighs, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_thighs_unit, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_chest_lbl, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_chest, View.GONE);
-            cLayoutSet.setVisibility(R.id.measurements_chest_unit, View.GONE);
-            cLayoutSet.setVisibility(R.id.tags_container, View.GONE);
-            cLayoutSet.setVisibility(R.id.steemit_post_tags, View.GONE);
-            cLayoutSet.setVisibility(R.id.post_content_container, View.GONE);
-            cLayoutSet.setVisibility(R.id.steemit_post_content_note, View.GONE);
-            cLayoutSet.setVisibility(R.id.steemit_post_preview_lbl, View.GONE);
-            cLayoutSet.setVisibility(R.id.md_view, View.GONE);
-
-            // Apply the new constraints
-            cLayoutSet.applyTo(cLayout);
-
-            // Ensure the NestedScrollView is scrolled to the top to see the editor and
-            // sticky btn_container
+            postText.setMaxLines(Integer.MAX_VALUE);
             nestedScrollView.post(() -> {
-                nestedScrollView.scrollTo(0, 0); // Scroll NSSV to top first
-
-                // Now, post a second runnable to give focus and set selection,
-                // ensuring the layout has settled after the scroll.
-                postText.post(() -> {
-                    postText.requestFocus();
-                    postText.setSelection(0);
-
-                    // Optional: Force keyboard to show. Only use this if you *always*
-                    // want the keyboard to appear when expanding the editor.
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    if (imm != null) {
-                        imm.showSoftInput(postText, InputMethodManager.SHOW_IMPLICIT);
-                    }
-                });
+                int nsHeight = nestedScrollView.getHeight();
+                View toolbarCard = (View) findViewById(R.id.btn_container).getParent();
+                int overhead = toolbarCard.getHeight()
+                        + findViewById(R.id.steemit_post_preview_lbl).getHeight()
+                        + findViewById(R.id.md_view).getHeight()
+                        + getResources().getDimensionPixelSize(R.dimen.spacing_md) * 3;
+                int editorH = Math.max(nsHeight - overhead,
+                        getResources().getDimensionPixelSize(R.dimen.spacing_md) * 20);
+                ViewGroup.LayoutParams lp = postText.getLayoutParams();
+                lp.height = editorH;
+                postText.setLayoutParams(lp);
+                postText.requestFocus();
+                nestedScrollView.scrollTo(0, 0);
             });
-
-            // Give focus to the editor and place the cursor at the beginning
-            postText.requestFocus();
-            postText.setSelection(0);
-
-        } else { // Collapse mode
-            // --- Restore btn_container's original position (not sticky) ---
-            cLayoutSet.clear(R.id.btn_container, ConstraintSet.TOP); // Clear sticky top constraint
-            cLayoutSet.connect(R.id.btn_container, ConstraintSet.TOP, R.id.steemit_post_content_note,
-                    ConstraintSet.BOTTOM);
-            cLayoutSet.setElevation(R.id.btn_container, 0f); // Remove elevation
-
-            // --- Restore EditText properties and constraints ---
-            postText.setMinLines(6);
-            postText.setMaxLines(6); // Restore original max lines
-            // postText.setMovementMethod(null); // Optional: if you want to disable
-            // internal scrolling when collapsed
-
-            // Restore EditText constraints (wrap_content height, below btn_container, above
-            // preview)
-            cLayoutSet.constrainHeight(R.id.steemit_post_text, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-            cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.TOP);
-            cLayoutSet.clear(R.id.steemit_post_text, ConstraintSet.BOTTOM);
-            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.TOP, R.id.btn_container, ConstraintSet.BOTTOM);
-            cLayoutSet.connect(R.id.steemit_post_text, ConstraintSet.BOTTOM, R.id.steemit_post_preview_lbl,
-                    ConstraintSet.TOP);
-
-            // --- Show all other form fields ---
-            cLayoutSet.setVisibility(R.id.post_title_container, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.steemit_post_title, View.VISIBLE);
-            // cLayoutSet.setVisibility(R.id.full_afit_pay_lbl, View.VISIBLE);
-            // cLayoutSet.setVisibility(R.id.full_afit_pay, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.post_date_container, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.report_date_option_group, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.step_count_container, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.activity_data_section, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.activity_type_container, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.steemit_activity_type, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_container, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_height_lbl, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_height, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_height_unit, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_weight_lbl, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_weight, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_weight_unit, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_bodyfat_lbl, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_bodyfat, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_bodyfat_unit, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_waistsize_lbl, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_waistsize, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_waistsize_unit, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_thighs_lbl, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_thighs, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_thighs_unit, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_chest_lbl, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_chest, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.measurements_chest_unit, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.tags_container, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.steemit_post_tags, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.post_content_container, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.steemit_post_content_note, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.steemit_post_preview_lbl, View.VISIBLE);
-            cLayoutSet.setVisibility(R.id.md_view, View.VISIBLE);
-
-            // Apply the restored constraints
-            cLayoutSet.applyTo(cLayout);
-
-            // Ensure the NestedScrollView scrolls to the top of its content
+        } else {
+            ViewGroup.LayoutParams lp = postText.getLayoutParams();
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            postText.setLayoutParams(lp);
+            postText.setMaxLines(6);
+            postText.setMinLines(1);
             nestedScrollView.post(() -> nestedScrollView.scrollTo(0, 0));
         }
 
-        // Update the expand/collapse button icon
-        expandBtn.setText(expand ? "\uf066" : "\uf065");
+        expandBtn.setText(expand ? "" : "");
     }
 
     private void checkHealthConnectAndFetchSteps() {
@@ -2066,7 +2100,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                                 new SimpleDateFormat("yyyyMMdd", Locale.US)
                                                         .format(mCalendar.getTime()));
                                         editor.apply();
-                                        findViewById(R.id.fitbit_sync_notice).setVisibility(View.INVISIBLE);
+                                        findViewById(R.id.fitbit_sync_notice).setVisibility(View.GONE);
                                         Toast.makeText(PostSteemitActivity.this, "Steps Synced!", Toast.LENGTH_SHORT)
                                                 .show();
                                     });
