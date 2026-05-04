@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.text.HtmlCompat;
 
@@ -62,6 +64,7 @@ public class RewardManager {
     private TextView textViewFreeRewardStatus, textView5kRewardStatus, textView7kRewardStatus, textView10kRewardStatus;
     private TextView textViewCurrentSteps;
     private TextView giftLoader;
+    private LinearProgressIndicator progress5kReward, progress7kReward, progress10kReward;
 
     private boolean dailyRewardClaimed, fivekRewardClaimed, sevenkRewardClaimed, tenkRewardClaimed;
 
@@ -175,6 +178,9 @@ public class RewardManager {
         textView7kRewardStatus = rewardsLayout.findViewById(R.id.textView7kRewardStatus);
         textView10kRewardStatus = rewardsLayout.findViewById(R.id.textView10kRewardStatus);
         textViewCurrentSteps = rewardsLayout.findViewById(R.id.textViewCurrentSteps);
+        progress5kReward = rewardsLayout.findViewById(R.id.progress_5k_reward);
+        progress7kReward = rewardsLayout.findViewById(R.id.progress_7k_reward);
+        progress10kReward = rewardsLayout.findViewById(R.id.progress_10k_reward);
 
         freeRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 1));
         fivekRewardButton.setOnClickListener(innerView -> showRewardedVideo(innerView, 2));
@@ -189,13 +195,13 @@ public class RewardManager {
         textViewCurrentSteps.setText(stepsLabel + ": " + curStepCount);
 
         updateRewardButtonAndStatus(freeRewardButton, textViewFreeRewardStatus, dailyRewardClaimed, 0,
-                sharedPreferences.getString("freerewardedValue", ""), scaler, checkMark, curStepCount);
+                sharedPreferences.getString("freerewardedValue", ""), scaler, checkMark, curStepCount, null);
         updateRewardButtonAndStatus(fivekRewardButton, textView5kRewardStatus, fivekRewardClaimed, activityMilestoneOne,
-                sharedPreferences.getString("5krewardedValue", ""), scaler, checkMark, curStepCount);
+                sharedPreferences.getString("5krewardedValue", ""), scaler, checkMark, curStepCount, progress5kReward);
         updateRewardButtonAndStatus(sevenkRewardButton, textView7kRewardStatus, sevenkRewardClaimed, activityMilestoneTwo,
-                sharedPreferences.getString("7krewardedValue", ""), scaler, checkMark, curStepCount);
+                sharedPreferences.getString("7krewardedValue", ""), scaler, checkMark, curStepCount, progress7kReward);
         updateRewardButtonAndStatus(tenkRewardButton, textView10kRewardStatus, tenkRewardClaimed, activityMilestoneThree,
-                sharedPreferences.getString("10krewardedValue", ""), scaler, checkMark, curStepCount);
+                sharedPreferences.getString("10krewardedValue", ""), scaler, checkMark, curStepCount, progress10kReward);
 
         AlertDialog pointer = rewardsDialogBuilder.setView(rewardsLayout)
                 .setIcon(context.getResources().getDrawable(R.drawable.actifit_logo))
@@ -246,34 +252,40 @@ public class RewardManager {
     void updateRewardButtonAndStatus(Button button, TextView statusTextView,
                                              boolean isClaimed, int requiredSteps,
                                              String claimedValue, Animation animation,
-                                             String checkMarkIcon, int currentStepCount) {
-        button.setText(context.getString(R.string.claim_now));
+                                             String checkMarkIcon, int currentStepCount,
+                                             LinearProgressIndicator stepProgress) {
+        if (stepProgress != null) stepProgress.setVisibility(View.GONE);
 
         if (isClaimed) {
+            button.setText(context.getString(R.string.claim_now));
             button.setEnabled(false);
             String claimedStatusText;
             if (claimedValue != null && !claimedValue.isEmpty()) {
                 String checkmarkHtml = HtmlCompat.fromHtml(checkMarkIcon, HtmlCompat.FROM_HTML_MODE_COMPACT).toString();
-                claimedStatusText = context.getString(R.string.reward_claimed) + claimedValue + "AFIT" + checkmarkHtml;
+                claimedStatusText = context.getString(R.string.reward_claimed) + claimedValue + " AFIT " + checkmarkHtml;
             } else {
                 claimedStatusText = context.getString(R.string.reward_claimed);
             }
             statusTextView.setText(HtmlCompat.fromHtml(claimedStatusText, HtmlCompat.FROM_HTML_MODE_COMPACT));
             statusTextView.setVisibility(View.VISIBLE);
             button.clearAnimation();
+        } else if (currentStepCount >= requiredSteps) {
+            button.setText(context.getString(R.string.watch_and_earn));
+            button.setEnabled(true);
+            statusTextView.setText(context.getString(R.string.available_lbl));
+            statusTextView.setVisibility(View.VISIBLE);
+            if (animation != null) button.startAnimation(animation);
         } else {
-            if (currentStepCount >= requiredSteps) {
-                button.setEnabled(true);
-                statusTextView.setText(context.getString(R.string.available_lbl));
-                statusTextView.setVisibility(View.VISIBLE);
-                if (animation != null) {
-                    button.startAnimation(animation);
-                }
-            } else {
-                button.setEnabled(false);
-                statusTextView.setText("Not Met");
-                statusTextView.setVisibility(View.VISIBLE);
-                button.clearAnimation();
+            button.setText(context.getString(R.string.claim_now));
+            button.setEnabled(false);
+            int stepsNeeded = requiredSteps - currentStepCount;
+            statusTextView.setText(String.format(Locale.getDefault(),
+                    context.getString(R.string.steps_to_unlock), stepsNeeded));
+            statusTextView.setVisibility(View.VISIBLE);
+            button.clearAnimation();
+            if (stepProgress != null) {
+                stepProgress.setProgressCompat((int) ((float) currentStepCount / requiredSteps * 100), false);
+                stepProgress.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -373,7 +385,7 @@ public class RewardManager {
 
             recordRewardClaim(view.getId(), finalRewardValue);
             updateRewardButtonAndStatus((Button) view, getRewardStatusTextView(view.getId()), true,
-                    getRequiredSteps(view.getId()), finalRewardValue + "", scaler, checkMark, curStepCount);
+                    getRequiredSteps(view.getId()), finalRewardValue + "", scaler, checkMark, curStepCount, null);
             adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
         });
     }
@@ -466,17 +478,10 @@ public class RewardManager {
     }
 
     private float generateRandomVal(float max, float min) {
-        Random rand = new Random();
-        float finalVal = rand.nextFloat() * (max - min) + min;
-        for (int i = 0; i < 5; i++) {
-            float randomVal = rand.nextFloat() * (max - min) + min;
-            if (randomVal < finalVal) {
-                finalVal = randomVal;
-            }
-        }
-        if (finalVal < min) finalVal = min;
-        if (finalVal > max) finalVal = max;
-        return finalVal;
+        float value = new Random().nextFloat() * (max - min) + min;
+        if (value < min) value = min;
+        if (value > max) value = max;
+        return value;
     }
 
     public void loadConsentData(Boolean goForAds) {

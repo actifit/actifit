@@ -450,11 +450,13 @@
     <string name="cancel_action">Cancel</string>
     <string name="reply_to">Replying to</string>
     <string name="referrals_details">For every referral that signs up to actifit using your referral link, you earn: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;One time AFIT amount equal to 20% of the AFIT rewards your referral earns upon successful signup! (usually minimum 20 AFIT) &lt;/li&gt;&lt;li&gt; Up to 35% of your referral\'s actifit report rewards for one month, across all tokens rewarded (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
-    <string name="daily_rewards_description">You can earn daily extra rewards by clicking on the bonus buttons below.</string>
-    <string name="free_daily_rewards_description">Free bonus can be claimed once daily. Earn extra random reward up to 3 AFIT</string>
-    <string name="daily_5k_rewards_description">Unlocked when you reach 5,000 activity count. Earn extra random reward up to 5 AFIT</string>
-    <string name="daily_7k_rewards_description">Unlocked when you reach 7,000 activity count. Earn extra random reward up to 7 AFIT</string>
-    <string name="daily_10k_rewards_description">Unlocked when you reach 10,000 activity count. Earn extra random reward up to 10 AFIT</string>
+    <string name="daily_rewards_description">Watch a short video once per tier to earn AFIT tokens. Each reward resets daily.</string>
+    <string name="free_daily_rewards_description">Always available. Watch a short video to earn between 0.01 and 3 AFIT tokens.</string>
+    <string name="daily_5k_rewards_description">Unlocked at 5,000 steps. Watch a short video to earn between 0.01 and 5 AFIT tokens.</string>
+    <string name="daily_7k_rewards_description">Unlocked at 7,000 steps. Watch a short video to earn between 0.01 and 7 AFIT tokens.</string>
+    <string name="daily_10k_rewards_description">Unlocked at 10,000 steps. Watch a short video to earn between 0.01 and 10 AFIT tokens.</string>
+    <string name="watch_and_earn">Watch &amp; Earn</string>
+    <string name="steps_to_unlock">Walk %1$,d more steps to unlock</string>
     <string name="reward_already_claimed">You have already claimed this reward today! You can do so again tomorrow.</string>
     <string name="bold_container" translatable="false">&lt;b&gt; _TEXT_ &lt;/b&gt;</string>
     <string name="ad_reward_success">You have been successfully rewarded _VAL_ AFIT Tokens!</string>
