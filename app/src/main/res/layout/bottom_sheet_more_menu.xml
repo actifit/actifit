@@ -127,7 +127,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:textSize="15sp"
-            android:text="Social Feed"
+            android:text="Follow Us"
             tools:ignore="HardcodedText" />
     </LinearLayout>
 

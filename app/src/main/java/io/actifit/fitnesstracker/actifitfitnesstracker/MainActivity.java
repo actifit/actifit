@@ -1787,8 +1787,8 @@ public class MainActivity extends BaseActivity {
             dialog.show(getSupportFragmentManager(), "video_upload_fragment");
         });
 
-        // More footer button — opens bottom sheet overflow menu
-        TextView BtnMoreFooter = findViewById(R.id.btn_more_footer);
+        // More footer button — handled by BaseActivity.showMoreMenu()
+        View BtnMoreFooter = findViewById(R.id.btn_more_footer);
         if (BtnMoreFooter != null) {
             BtnMoreFooter.setOnClickListener(v -> showMoreMenu());
         }
@@ -2488,41 +2488,6 @@ public class MainActivity extends BaseActivity {
 
     private void loadSignupLinks(RequestQueue queue) {
         apiManager.loadSignupLinks(queue);
-    }
-
-    private void showMoreMenu() {
-        com.google.android.material.bottomsheet.BottomSheetDialog sheet =
-                new com.google.android.material.bottomsheet.BottomSheetDialog(this);
-        android.view.View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_more_menu, null);
-        sheet.setContentView(sheetView);
-
-        sheetView.findViewById(R.id.more_item_history).setOnClickListener(v -> {
-            sheet.dismiss();
-            startActivity(new Intent(this, StepHistoryActivity.class));
-        });
-        sheetView.findViewById(R.id.more_item_videos).setOnClickListener(v -> {
-            sheet.dismiss();
-            VideoUploadFragment vDialog = new VideoUploadFragment(getApplicationContext(),
-                    LoginActivity.accessToken, this, false);
-            vDialog.show(getSupportFragmentManager(), "video_upload_fragment");
-        });
-        sheetView.findViewById(R.id.more_item_socials).setOnClickListener(v -> {
-            sheet.dismiss();
-            startActivity(new Intent(this, SocialActivity.class));
-        });
-        sheetView.findViewById(R.id.more_item_help).setOnClickListener(v -> {
-            sheet.dismiss();
-            androidx.browser.customtabs.CustomTabsIntent.Builder helpBuilder =
-                    new androidx.browser.customtabs.CustomTabsIntent.Builder();
-            helpBuilder.setToolbarColor(getResources().getColor(R.color.actifitRed));
-            helpBuilder.build().launchUrl(this, android.net.Uri.parse("https://actifit.io/faq"));
-        });
-        sheetView.findViewById(R.id.more_item_chat).setOnClickListener(v -> {
-            sheet.dismiss();
-            startActivity(new Intent(this, SocialActivity.class));
-        });
-
-        sheet.show();
     }
 
     private void updateNudgeCard(int stepCount) {
