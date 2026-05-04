@@ -833,34 +833,34 @@
                         android:text="@string/fa_exclamation_circle_solid"
                         android:fontFamily="@font/font_awesome_6_solid" />
 
-                <ImageView
-                    android:id="@+id/hive_logo"
-                    android:contentDescription="HIVE icon"
-                    android:src="@drawable/hive"
-                    android:layout_height="25dp"
-                    android:layout_width="25dp" />
+                    <ImageView
+                        android:id="@+id/hive_logo"
+                        android:contentDescription="HIVE icon"
+                        android:src="@drawable/hive"
+                        android:layout_height="25dp"
+                        android:layout_width="25dp" />
 
-                <ImageView
-                    android:id="@+id/steem_logo"
-                    android:importantForAccessibility="no"
-                    android:src="@drawable/steem"
-                    android:layout_height="25dp"
-                    android:layout_width="0dp"
-                    android:visibility="invisible" />
+                    <ImageView
+                        android:id="@+id/steem_logo"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/steem"
+                        android:layout_height="25dp"
+                        android:layout_width="0dp"
+                        android:visibility="invisible" />
 
-                <ImageView
-                    android:id="@+id/blurt_logo"
-                    android:contentDescription="BLURT icon"
-                    android:src="@drawable/blurt"
-                    android:layout_height="25dp"
-                    android:layout_width="25dp" />
+                    <ImageView
+                        android:id="@+id/blurt_logo"
+                        android:contentDescription="BLURT icon"
+                        android:src="@drawable/blurt"
+                        android:layout_height="25dp"
+                        android:layout_width="25dp" />
 
-                <ImageView
-                    android:id="@+id/sports_logo"
-                    android:contentDescription="SPORTS icon"
-                    android:src="@drawable/sports"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp" />
+                    <ImageView
+                        android:id="@+id/sports_logo"
+                        android:contentDescription="SPORTS icon"
+                        android:src="@drawable/sports"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp" />
                 </LinearLayout>
             </LinearLayout>
 
