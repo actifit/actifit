@@ -6,8 +6,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.animation.ObjectAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
@@ -268,13 +270,13 @@ public class RewardManager {
             }
             statusTextView.setText(HtmlCompat.fromHtml(claimedStatusText, HtmlCompat.FROM_HTML_MODE_COMPACT));
             statusTextView.setVisibility(View.VISIBLE);
-            button.clearAnimation();
+            stopPulseAnimation(button);
         } else if (currentStepCount >= requiredSteps) {
             button.setText(context.getString(R.string.watch_and_earn));
             button.setEnabled(true);
             statusTextView.setText(context.getString(R.string.available_lbl));
             statusTextView.setVisibility(View.VISIBLE);
-            if (animation != null) button.startAnimation(animation);
+            startPulseAnimation(button);
         } else {
             button.setText(context.getString(R.string.claim_now));
             button.setEnabled(false);
@@ -282,12 +284,33 @@ public class RewardManager {
             statusTextView.setText(String.format(Locale.getDefault(),
                     context.getString(R.string.steps_to_unlock), stepsNeeded));
             statusTextView.setVisibility(View.VISIBLE);
-            button.clearAnimation();
+            stopPulseAnimation(button);
             if (stepProgress != null) {
                 stepProgress.setProgressCompat((int) ((float) currentStepCount / requiredSteps * 100), false);
                 stepProgress.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    private void startPulseAnimation(Button button) {
+        stopPulseAnimation(button);
+        ObjectAnimator pulse = ObjectAnimator.ofFloat(button, "alpha", 1f, 0.55f, 1f);
+        pulse.setDuration(1500);
+        pulse.setInterpolator(new AccelerateDecelerateInterpolator());
+        pulse.setRepeatCount(ObjectAnimator.INFINITE);
+        pulse.setRepeatMode(ObjectAnimator.RESTART);
+        pulse.start();
+        button.setTag(pulse);
+    }
+
+    private void stopPulseAnimation(Button button) {
+        Object tag = button.getTag();
+        if (tag instanceof ObjectAnimator) {
+            ((ObjectAnimator) tag).cancel();
+        }
+        button.setTag(null);
+        button.setAlpha(1f);
+        button.clearAnimation();
     }
 
     void showRewardedVideo(View view, int tier) {
@@ -452,27 +475,27 @@ public class RewardManager {
     public void adjustRewardButtonsStatus(int stepCount) {
         if (freeRewardButton != null && fivekRewardButton != null && tenkRewardButton != null) {
             if (dailyRewardClaimed) {
-                freeRewardButton.clearAnimation();
-            } else if (freeRewardButton.getAnimation() == null || !freeRewardButton.getAnimation().hasStarted()) {
-                freeRewardButton.setAnimation(scaler);
+                stopPulseAnimation(freeRewardButton);
+            } else if (!(freeRewardButton.getTag() instanceof ObjectAnimator)) {
+                startPulseAnimation(freeRewardButton);
             }
             if (fivekRewardClaimed) {
-                fivekRewardButton.clearAnimation();
+                stopPulseAnimation(fivekRewardButton);
             } else if (stepCount >= activityMilestoneOne
-                    && (fivekRewardButton.getAnimation() == null || !fivekRewardButton.getAnimation().hasStarted())) {
-                fivekRewardButton.setAnimation(scaler);
+                    && !(fivekRewardButton.getTag() instanceof ObjectAnimator)) {
+                startPulseAnimation(fivekRewardButton);
             }
             if (sevenkRewardClaimed) {
-                sevenkRewardButton.clearAnimation();
+                stopPulseAnimation(sevenkRewardButton);
             } else if (stepCount >= activityMilestoneTwo
-                    && (sevenkRewardButton.getAnimation() == null || !sevenkRewardButton.getAnimation().hasStarted())) {
-                sevenkRewardButton.setAnimation(scaler);
+                    && !(sevenkRewardButton.getTag() instanceof ObjectAnimator)) {
+                startPulseAnimation(sevenkRewardButton);
             }
             if (tenkRewardClaimed) {
-                tenkRewardButton.clearAnimation();
+                stopPulseAnimation(tenkRewardButton);
             } else if (stepCount >= activityMilestoneThree
-                    && (tenkRewardButton.getAnimation() == null || !tenkRewardButton.getAnimation().hasStarted())) {
-                tenkRewardButton.setAnimation(scaler);
+                    && !(tenkRewardButton.getTag() instanceof ObjectAnimator)) {
+                startPulseAnimation(tenkRewardButton);
             }
         }
     }
