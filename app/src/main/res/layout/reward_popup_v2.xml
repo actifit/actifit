@@ -1,263 +1,308 @@
-<?xml version = "1.0" encoding = "utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView
-    xmlns:android = "http://schemas.android.com/apk/res/android"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width = "match_parent"
-    android:layout_height = "wrap_content"
-    android:fillViewport="true">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <LinearLayout
-        android:layout_width = "match_parent"
-        android:layout_height = "wrap_content"
+        android:id="@+id/daily_rewards_dialog_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:id="@+id/daily_rewards_dialog_layout">
+        android:padding="@dimen/spacing_md">
 
         <TextView
             android:id="@+id/dialogTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="@string/rewards_note"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:gravity="center"/>
+            android:textColor="@color/md_theme_onSurface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/spacing_xs" />
 
         <TextView
             android:id="@+id/daily_rewards_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="@string/daily_rewards_description"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+            android:textColor="@color/md_theme_textSecondary"
+            android:textSize="@dimen/text_body"
+            android:layout_marginBottom="@dimen/spacing_sm" />
 
         <TextView
             android:id="@+id/textViewCurrentSteps"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:gravity="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/md_theme_onSurface"
+            android:textSize="@dimen/text_subtitle"
             android:textStyle="bold"
-            tools:text="Your steps today: 8500" />
+            android:layout_marginBottom="@dimen/spacing_md" />
 
         <TextView
             android:id="@+id/daily_reward_icon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingTop="16dp"
-            android:text="&#127873;"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:text="&#127942;"
+            android:textSize="28sp"
+            android:layout_marginBottom="@dimen/spacing_sm" />
 
-        <androidx.cardview.widget.CardView
+        <!-- Free tier -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="2dp">
+            android:layout_marginBottom="@dimen/spacing_sm"
+            app:cardBackgroundColor="@color/md_theme_cardBackground"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="@dimen/card_elevation">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="@dimen/spacing_md">
 
                 <TextView
                     android:id="@+id/textViewFreeRewardTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/daily_free_reward"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textColor="@color/md_theme_onSurface"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:layout_marginBottom="@dimen/spacing_xs" />
 
                 <TextView
                     android:id="@+id/textViewFreeRewardDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/free_daily_rewards_description"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"/>
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body"
+                    android:layout_marginBottom="@dimen/spacing_sm" />
 
                 <Button
                     android:id="@+id/daily_free_reward"
                     style="@style/AppTheme.ActifitButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="48dp"
                     android:text="@string/claim_now" />
 
                 <TextView
                     android:id="@+id/textViewFreeRewardStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:gravity="center"
-                    android:textStyle="italic"
-                    android:textColor="#555555"
-                    android:visibility="gone"
-                    tools:text="Status: Claimed Today" />
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body"
+                    android:visibility="gone" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <!-- 5K tier -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="2dp">
+            android:layout_marginBottom="@dimen/spacing_sm"
+            app:cardBackgroundColor="@color/md_theme_cardBackground"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="@dimen/card_elevation">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="@dimen/spacing_md">
 
                 <TextView
                     android:id="@+id/textView5kRewardTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/daily_5k_reward"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textColor="@color/md_theme_onSurface"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:layout_marginBottom="@dimen/spacing_xs" />
 
                 <TextView
                     android:id="@+id/textView5kRewardDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/daily_5k_rewards_description"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"/>
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body"
+                    android:layout_marginBottom="@dimen/spacing_sm" />
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progress_5k_reward"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:max="100"
+                    android:visibility="gone"
+                    app:indicatorColor="@color/actifitRed"
+                    app:trackColor="@color/md_theme_separator"
+                    app:trackThickness="3dp"
+                    app:trackCornerRadius="2dp" />
 
                 <Button
                     android:id="@+id/daily_5k_reward"
                     style="@style/AppTheme.ActifitButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="48dp"
                     android:text="@string/claim_now" />
 
                 <TextView
                     android:id="@+id/textView5kRewardStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:gravity="center"
-                    android:textStyle="italic"
-                    android:textColor="#555555"
-                    android:visibility="gone"
-                    tools:text="Status: Steps Not Met" />
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body"
+                    android:visibility="gone" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <!-- 7K tier -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="2dp">
+            android:layout_marginBottom="@dimen/spacing_sm"
+            app:cardBackgroundColor="@color/md_theme_cardBackground"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="@dimen/card_elevation">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="@dimen/spacing_md">
 
                 <TextView
                     android:id="@+id/textView7kRewardTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/daily_7k_reward"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textColor="@color/md_theme_onSurface"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:layout_marginBottom="@dimen/spacing_xs" />
 
                 <TextView
                     android:id="@+id/textView7kRewardDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/daily_7k_rewards_description"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"/>
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body"
+                    android:layout_marginBottom="@dimen/spacing_sm" />
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progress_7k_reward"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:max="100"
+                    android:visibility="gone"
+                    app:indicatorColor="@color/actifitRed"
+                    app:trackColor="@color/md_theme_separator"
+                    app:trackThickness="3dp"
+                    app:trackCornerRadius="2dp" />
 
                 <Button
                     android:id="@+id/daily_7k_reward"
                     style="@style/AppTheme.ActifitButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="48dp"
                     android:text="@string/claim_now" />
 
                 <TextView
                     android:id="@+id/textView7kRewardStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:gravity="center"
-                    android:textStyle="italic"
-                    android:textColor="#555555"
-                    android:visibility="gone"
-                    tools:text="Status: Available to Claim" />
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body"
+                    android:visibility="gone" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <!-- 10K tier -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="2dp">
+            android:layout_marginBottom="@dimen/spacing_sm"
+            app:cardBackgroundColor="@color/md_theme_cardBackground"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="@dimen/card_elevation">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="@dimen/spacing_md">
 
                 <TextView
                     android:id="@+id/textView10kRewardTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/daily_10k_reward"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textColor="@color/md_theme_onSurface"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:layout_marginBottom="@dimen/spacing_xs" />
 
                 <TextView
                     android:id="@+id/textView10kRewardDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/daily_10k_rewards_description"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"/>
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body"
+                    android:layout_marginBottom="@dimen/spacing_sm" />
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progress_10k_reward"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:max="100"
+                    android:visibility="gone"
+                    app:indicatorColor="@color/actifitRed"
+                    app:trackColor="@color/md_theme_separator"
+                    app:trackThickness="3dp"
+                    app:trackCornerRadius="2dp" />
 
                 <Button
                     android:id="@+id/daily_10k_reward"
                     style="@style/AppTheme.ActifitButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="48dp"
                     android:text="@string/claim_now" />
 
                 <TextView
                     android:id="@+id/textView10kRewardStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:gravity="center"
-                    android:textStyle="italic"
-                    android:textColor="#555555"
-                    android:visibility="gone"
-                    tools:text="Status: Not Yet Available" />
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body"
+                    android:visibility="gone" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>

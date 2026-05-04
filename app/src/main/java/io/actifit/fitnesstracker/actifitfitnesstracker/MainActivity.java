@@ -2263,7 +2263,7 @@ public class MainActivity extends BaseActivity {
                                              String claimedValue, Animation animation,
                                              String checkMarkIcon, int currentStepCount) {
         rewardManager.updateRewardButtonAndStatus(button, statusTextView, isClaimed, requiredSteps,
-                claimedValue, animation, checkMarkIcon, currentStepCount);
+                claimedValue, animation, checkMarkIcon, currentStepCount, null);
     }
             // Keep the default "Claim Reward" text, just disable it
 
