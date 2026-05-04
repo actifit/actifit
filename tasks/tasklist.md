@@ -34,10 +34,44 @@ Organized by priority. All tasks are UI/UX enhancements unless otherwise noted.
   Move Videos, Socials, Help, and Chat into a bottom sheet triggered by "More".
   _Files: activity_main.xml (footer), MainActivity.java (footer click handlers)_
 
-- [ ] **P1-5: Earnings clarity card — single "Today's Reward" number**
+- [ ] **P1-5: Earnings clarity card — estimated AFIT reward**
   Replace the four opaque token logos in the earnings panel with a single card showing
-  `Today's Estimated Reward: ~2.4 AFIT`. Tap to expand for per-token breakdown.
-  _Files: activity_main.xml (earnings panel), MainActivity.java_
+  `Estimated Reward: ~142 AFIT` sourced from a new server-side scoring endpoint.
+  Tap to expand for the per-token blockchain breakdown (HIVE/BLURT, already via
+  `/pendingRewards`).
+
+  **How the estimate is calculated (server-side, Option C):**
+  A new endpoint `GET /getEstimatedReward?user={username}` is added to the API server
+  (`c:\mo\coding\actifitbot\app.js`). It fetches the user's latest actifit post
+  (from the `verified_posts` collection or Hive blockchain), then applies the same
+  scoring formula used by the curation bot (`c:\mo\coding\actifitvoter\curation-bot.js`):
+
+  ```
+  estimated_afit = activity_score(step_count)
+                 + content_score(body_length)
+                 + media_score(image_count)
+                 + upvote_score(net_votes)
+                 + comment_score(comment_count)
+                 + moderator_score
+                 + user_rank_score(rank * rank_factor / 100)
+                 + applicable boosts
+  ```
+
+  Scoring rules and factors (activity_factor, rank_factor, etc.) must be shared or
+  replicated from actifitvoter config into actifitbot so the endpoint can run the
+  formula without cross-repo dependency at runtime.
+
+  Returns: `{ estimated_afit, post_url, post_date, already_rewarded: bool }`
+  — `already_rewarded: true` means the curation bot already ran for this post,
+  in which case the app shows "Last reward: X AFIT" instead of "Estimated".
+
+  **Work split:**
+  - Backend (`actifitbot/app.js`): new `/getEstimatedReward` endpoint + scoring logic
+  - Android (`ApiManager.java`, `activity_main.xml`, `MainActivity.java`): call endpoint,
+    display result in earnings panel replacing the token logo row
+
+  _Android files: activity_main.xml (earnings panel), ApiManager.java, MainActivity.java_
+  _Backend repo: c:\mo\coding\actifitbot\app.js_
 
 ---
 
@@ -109,7 +143,7 @@ Organized by priority. All tasks are UI/UX enhancements unless otherwise noted.
 | P1-2 | Today's Goal progress label | High | Low |
 | P1-3 | Contextual action banner | High | Low |
 | P1-4 | Condense footer to 5 items | High | Low |
-| P1-5 | Earnings clarity card | High | Low |
+| P1-5 | Earnings clarity card (estimated AFIT) | High | Medium — needs new backend endpoint |
 | P2-1 | 7-day streak tracker | High | Medium |
 | P2-2 | AI insight card (Gemini) | High | Medium |
 | P2-3 | Gadgets empty-state CTA | Medium | Low |

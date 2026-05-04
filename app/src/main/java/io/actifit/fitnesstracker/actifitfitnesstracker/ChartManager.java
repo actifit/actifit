@@ -17,7 +17,6 @@ import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
@@ -27,13 +26,10 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,9 +48,11 @@ public class ChartManager {
 
     private final Context context;
 
-    private PieChart btnPieChart;
-    private PieChart fitbitPieChart;
-    private PieChart healthConnectPieChart;
+    private CircularProgressIndicator stepRing;
+    private CircularProgressIndicator stepRingFitbit;
+    private CircularProgressIndicator stepRingHc;
+
+    private static final int DAILY_GOAL = 10000;
 
     private BarChart dayChart, fullChart;
     private BarData chartBarData, dayBarData;
@@ -102,10 +100,6 @@ public class ChartManager {
         this.chartSwitcher = chartSwitcher;
     }
 
-    public PieChart getBtnPieChart() {
-        return btnPieChart;
-    }
-
     public BarChart getDayChart() {
         return dayChart;
     }
@@ -122,11 +116,39 @@ public class ChartManager {
         return dayBarData;
     }
 
+    private void updateRing(CircularProgressIndicator ring, android.widget.TextView tvCount,
+                            android.widget.TextView tvGoal, android.widget.TextView tvPct,
+                            int stepCount, boolean animate) {
+        int steps = Math.max(stepCount, 0);
+        int progress = Math.min((steps * 100) / DAILY_GOAL, 100);
+        int color = steps >= activityMilestoneOne
+                ? ContextCompat.getColor(context, R.color.actifitDarkGreen)
+                : ContextCompat.getColor(context, R.color.actifitRed);
+
+        ring.setIndicatorColor(color);
+        if (animate) {
+            ring.setProgressCompat(progress, true);
+        } else {
+            ring.setProgress(progress, false);
+        }
+
+        if (tvCount != null) {
+            tvCount.setText(java.text.NumberFormat.getInstance().format(steps));
+            tvCount.setTextColor(color);
+        }
+        if (tvGoal != null) tvGoal.setText("/ " + java.text.NumberFormat.getInstance().format(DAILY_GOAL) + " steps");
+        if (tvPct != null) tvPct.setText(progress + "% to goal");
+    }
+
     public void displayActivityChart(final int stepCount, final boolean animate) {
         ((android.app.Activity) context).runOnUiThread(() -> {
-            btnPieChart = ((android.app.Activity) context).findViewById(R.id.step_pie_chart);
-            ArrayList<PieEntry> activityArray = new ArrayList();
-            activityArray.add(new PieEntry(stepCount, ""));
+            stepRing = ((android.app.Activity) context).findViewById(R.id.step_ring);
+            android.widget.TextView tvCount = ((android.app.Activity) context).findViewById(R.id.tv_step_count);
+            android.widget.TextView tvGoal = ((android.app.Activity) context).findViewById(R.id.tv_step_goal);
+            android.widget.TextView tvPct = ((android.app.Activity) context).findViewById(R.id.tv_step_pct);
+            if (stepRing == null) return;
+
+            updateRing(stepRing, tvCount, tvGoal, tvPct, stepCount, animate);
 
             if (stepCount > 2000) {
                 if (BtnWaves != null && (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted())) {
@@ -135,175 +157,72 @@ public class ChartManager {
             } else {
                 if (BtnWaves != null) BtnWaves.clearAnimation();
             }
-
-            if (stepCount < activityMilestoneOne) {
-                activityArray.add(new PieEntry(activityMilestoneOne - stepCount, ""));
-                activityArray.add(new PieEntry(activityMilestoneOne, ""));
-            } else if (stepCount < activityMilestoneThree) {
+            if (stepCount >= activityMilestoneOne && stepCount < activityMilestoneThree) {
                 if (BtnPostSteemit != null && scaler != null) {
                     if (BtnPostSteemit.getAnimation() == null || BtnPostSteemit.getAnimation().hasStarted()) {
                         BtnPostSteemit.startAnimation(scaler);
                     }
                 }
-                activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
-            } else {
+            } else if (stepCount >= activityMilestoneThree) {
                 if (BtnPostSteemit != null) BtnPostSteemit.clearAnimation();
-            }
-
-            PieDataSet dataSet = new PieDataSet(activityArray, "");
-            PieData data = new PieData(dataSet);
-            btnPieChart.setData(data);
-            btnPieChart.getDescription().setEnabled(false);
-            btnPieChart.setCenterText("" + (Math.max(stepCount, 0)));
-            btnPieChart.setCenterTextColor(context.getResources().getColor(R.color.actifitRed));
-            btnPieChart.setCenterTextSize(20f);
-            btnPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
-            btnPieChart.setDrawEntryLabels(false);
-            btnPieChart.getLegend().setEnabled(false);
-
-            if (stepCount < activityMilestoneOne) {
-                dataSet.setColors(context.getResources().getColor(R.color.actifitRed),
-                        context.getResources().getColor(android.R.color.tab_indicator_text),
-                        context.getResources().getColor(android.R.color.tab_indicator_text));
-            } else if (stepCount < activityMilestoneThree) {
-                dataSet.setColors(context.getResources().getColor(R.color.actifitDarkGreen),
-                        context.getResources().getColor(android.R.color.tab_indicator_text),
-                        context.getResources().getColor(android.R.color.tab_indicator_text));
-            } else {
-                dataSet.setColors(context.getResources().getColor(R.color.actifitDarkGreen));
-            }
-
-            dataSet.setSliceSpace(1f);
-            dataSet.setHighlightEnabled(true);
-            dataSet.setValueTextSize(0f);
-            dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
-            dataSet.setValueTextColor(R.color.actifitRed);
-
-            if (animate) {
-                btnPieChart.animateXY(2000, 2000);
-            } else {
-                btnPieChart.invalidate();
             }
         });
     }
 
     public void displayActivityChartFitbit(final int stepCount, final boolean animate) {
         ((android.app.Activity) context).runOnUiThread(() -> {
-            fitbitPieChart = ((android.app.Activity) context).findViewById(R.id.step_pie_chart_fitbit);
-            ArrayList<PieEntry> activityArray = new ArrayList();
-            activityArray.add(new PieEntry(stepCount, ""));
+            stepRingFitbit = ((android.app.Activity) context).findViewById(R.id.step_ring_fitbit);
+            android.widget.TextView tvCount = ((android.app.Activity) context).findViewById(R.id.tv_step_count_fitbit);
+            android.widget.TextView tvGoal = ((android.app.Activity) context).findViewById(R.id.tv_step_goal_fitbit);
+            android.widget.TextView tvPct = ((android.app.Activity) context).findViewById(R.id.tv_step_pct_fitbit);
+            if (stepRingFitbit == null) return;
+
+            updateRing(stepRingFitbit, tvCount, tvGoal, tvPct, stepCount, animate);
 
             if (stepCount > 2000) {
-                if (BtnWaves != null && (BtnWaves.getAnimation() == null || BtnWaves.getAnimation().hasStarted())) {
-                    if (scaler != null) BtnWaves.setAnimation(scaler);
+                if (BtnWaves != null && (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted())) {
+                    if (scaler != null) BtnWaves.startAnimation(scaler);
                 }
+            } else {
+                if (BtnWaves != null) BtnWaves.clearAnimation();
             }
-
-            if (stepCount < activityMilestoneOne) {
-                activityArray.add(new PieEntry(activityMilestoneOne - stepCount, ""));
-                activityArray.add(new PieEntry(activityMilestoneOne, ""));
-            } else if (stepCount < activityMilestoneThree) {
+            if (stepCount >= activityMilestoneOne && stepCount < activityMilestoneThree) {
                 if (BtnPostSteemit != null && scaler != null) {
                     if (BtnPostSteemit.getAnimation() == null || BtnPostSteemit.getAnimation().hasStarted()) {
                         BtnPostSteemit.startAnimation(scaler);
                     }
                 }
-                activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
-            }
-
-            PieDataSet dataSet = new PieDataSet(activityArray, "");
-            PieData data = new PieData(dataSet);
-            fitbitPieChart.setData(data);
-            fitbitPieChart.getDescription().setEnabled(false);
-            fitbitPieChart.setCenterText("" + (Math.max(stepCount, 0)));
-            fitbitPieChart.setCenterTextColor(context.getResources().getColor(R.color.actifitRed));
-            fitbitPieChart.setCenterTextSize(20f);
-            fitbitPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
-            fitbitPieChart.setDrawEntryLabels(false);
-            fitbitPieChart.getLegend().setEnabled(false);
-
-            if (stepCount < activityMilestoneOne) {
-                dataSet.setColors(context.getResources().getColor(R.color.actifitRed),
-                        context.getResources().getColor(android.R.color.tab_indicator_text),
-                        context.getResources().getColor(android.R.color.tab_indicator_text));
-            } else if (stepCount < activityMilestoneThree) {
-                dataSet.setColors(context.getResources().getColor(R.color.actifitDarkGreen),
-                        context.getResources().getColor(android.R.color.tab_indicator_text),
-                        context.getResources().getColor(android.R.color.tab_indicator_text));
-            } else {
-                dataSet.setColors(context.getResources().getColor(R.color.actifitDarkGreen));
-            }
-
-            dataSet.setSliceSpace(1f);
-            dataSet.setHighlightEnabled(true);
-            dataSet.setValueTextSize(0f);
-            dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
-            dataSet.setValueTextColor(R.color.actifitRed);
-
-            if (animate) {
-                fitbitPieChart.animateXY(2000, 2000);
-            } else {
-                fitbitPieChart.invalidate();
+            } else if (stepCount >= activityMilestoneThree) {
+                if (BtnPostSteemit != null) BtnPostSteemit.clearAnimation();
             }
         });
     }
 
     public void displayActivityChartHealthConnect(final int stepCount, final boolean animate) {
         ((android.app.Activity) context).runOnUiThread(() -> {
-            healthConnectPieChart = ((android.app.Activity) context).findViewById(R.id.step_pie_chart_health_connect);
-            ArrayList<PieEntry> activityArray = new ArrayList();
-            activityArray.add(new PieEntry(stepCount, ""));
+            stepRingHc = ((android.app.Activity) context).findViewById(R.id.step_ring_hc);
+            android.widget.TextView tvCount = ((android.app.Activity) context).findViewById(R.id.tv_step_count_hc);
+            android.widget.TextView tvGoal = ((android.app.Activity) context).findViewById(R.id.tv_step_goal_hc);
+            android.widget.TextView tvPct = ((android.app.Activity) context).findViewById(R.id.tv_step_pct_hc);
+            if (stepRingHc == null) return;
+
+            updateRing(stepRingHc, tvCount, tvGoal, tvPct, stepCount, animate);
 
             if (stepCount > 2000) {
                 if (BtnWaves != null && (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted())) {
                     if (scaler != null) BtnWaves.startAnimation(scaler);
                 }
+            } else {
+                if (BtnWaves != null) BtnWaves.clearAnimation();
             }
-
-            if (stepCount < activityMilestoneOne) {
-                activityArray.add(new PieEntry(activityMilestoneOne - stepCount, ""));
-                activityArray.add(new PieEntry(activityMilestoneOne, ""));
-            } else if (stepCount < activityMilestoneThree) {
+            if (stepCount >= activityMilestoneOne && stepCount < activityMilestoneThree) {
                 if (BtnPostSteemit != null && scaler != null) {
                     if (BtnPostSteemit.getAnimation() == null || !BtnPostSteemit.getAnimation().hasStarted()) {
                         BtnPostSteemit.startAnimation(scaler);
                     }
                 }
-                activityArray.add(new PieEntry(activityMilestoneThree - stepCount, ""));
-            }
-
-            PieDataSet dataSet = new PieDataSet(activityArray, "");
-            PieData data = new PieData(dataSet);
-            healthConnectPieChart.setData(data);
-            healthConnectPieChart.getDescription().setEnabled(false);
-            healthConnectPieChart.setCenterText("" + (Math.max(stepCount, 0)));
-            healthConnectPieChart.setCenterTextColor(context.getResources().getColor(R.color.actifitRed));
-            healthConnectPieChart.setCenterTextSize(20f);
-            healthConnectPieChart.setEntryLabelColor(ColorTemplate.COLOR_NONE);
-            healthConnectPieChart.setDrawEntryLabels(false);
-            healthConnectPieChart.getLegend().setEnabled(false);
-
-            if (stepCount < activityMilestoneOne) {
-                dataSet.setColors(context.getResources().getColor(R.color.actifitRed),
-                        context.getResources().getColor(android.R.color.tab_indicator_text),
-                        context.getResources().getColor(android.R.color.tab_indicator_text));
-            } else if (stepCount < activityMilestoneThree) {
-                dataSet.setColors(context.getResources().getColor(R.color.actifitDarkGreen),
-                        context.getResources().getColor(android.R.color.tab_indicator_text),
-                        context.getResources().getColor(android.R.color.tab_indicator_text));
-            } else {
-                dataSet.setColors(context.getResources().getColor(R.color.actifitDarkGreen));
-            }
-
-            dataSet.setSliceSpace(1f);
-            dataSet.setHighlightEnabled(true);
-            dataSet.setValueTextSize(0f);
-            dataSet.setValueTextColor(ColorTemplate.COLOR_NONE);
-
-            if (animate) {
-                healthConnectPieChart.animateXY(2000, 2000);
-            } else {
-                healthConnectPieChart.invalidate();
+            } else if (stepCount >= activityMilestoneThree) {
+                if (BtnPostSteemit != null) BtnPostSteemit.clearAnimation();
             }
         });
     }
@@ -472,20 +391,17 @@ public class ChartManager {
     }
 
     public void hideCharts() {
-        if (btnPieChart == null) btnPieChart = ((android.app.Activity) context).findViewById(R.id.step_pie_chart);
+        View defaultContainer = ((android.app.Activity) context).findViewById(R.id.default_chart_container);
         if (thirdPartyTracking == null) thirdPartyTracking = ((android.app.Activity) context).findViewById(R.id.third_party_active);
         if (healthConnectTracking == null) healthConnectTracking = ((android.app.Activity) context).findViewById(R.id.health_connect_active);
 
-        View pieChartView = btnPieChart;
-        if (pieChartView != null && pieChartView.getParent() instanceof View) {
-            ((View) pieChartView.getParent()).setVisibility(View.GONE);
-        }
-        thirdPartyTracking.setVisibility(View.GONE);
-        healthConnectTracking.setVisibility(View.GONE);
+        if (defaultContainer != null) defaultContainer.setVisibility(View.GONE);
+        if (thirdPartyTracking != null) thirdPartyTracking.setVisibility(View.GONE);
+        if (healthConnectTracking != null) healthConnectTracking.setVisibility(View.GONE);
 
         if (chartSwitcher != null) chartSwitcher.setVisibility(View.INVISIBLE);
         View barCharts = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
-        barCharts.setVisibility(View.INVISIBLE);
+        if (barCharts != null) barCharts.setVisibility(View.INVISIBLE);
     }
 
     public void slideRight(View view) {

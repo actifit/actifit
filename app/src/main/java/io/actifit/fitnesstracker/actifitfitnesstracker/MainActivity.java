@@ -107,7 +107,6 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.Target;
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
@@ -300,9 +299,7 @@ public class MainActivity extends BaseActivity {
 
     String checkMark = "&#10003;";
 
-    PieChart btnPieChart;
-    PieChart fitbitPieChart;
-    PieChart healthConnectPieChart;
+    View defaultChartContainer;
 
     static boolean isActivityVisible = true;
 
@@ -840,7 +837,7 @@ public class MainActivity extends BaseActivity {
         fullChartButton = findViewById(R.id.daily_chart_btn);
         dayChartButton = findViewById(R.id.hourly_chart_btn);
         chartSwitcher = findViewById(R.id.chart_switcher);
-        btnPieChart = findViewById(R.id.step_pie_chart);
+        defaultChartContainer = findViewById(R.id.default_chart_container);
 
         // allow opening signup link
         signupLink.setMovementMethod(LinkMovementMethod.getInstance());
@@ -1787,9 +1784,45 @@ public class MainActivity extends BaseActivity {
             // show video modal
             VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken,
                     this, false);
-            // dialog.getView().setMinimumWidth(400);
             dialog.show(getSupportFragmentManager(), "video_upload_fragment");
         });
+
+        // More footer button — opens overflow menu with hidden items
+        TextView BtnMoreFooter = findViewById(R.id.btn_more_footer);
+        if (BtnMoreFooter != null) {
+            BtnMoreFooter.setOnClickListener(v -> {
+                String[] labels = {"History", "Videos", "Socials", "Help", "Chat"};
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("More")
+                        .setItems(labels, (dialog, which) -> {
+                            switch (which) {
+                                case 0:
+                                    startActivity(new Intent(MainActivity.this, StepHistoryActivity.class));
+                                    break;
+                                case 1:
+                                    VideoUploadFragment vDialog = new VideoUploadFragment(getApplicationContext(),
+                                            LoginActivity.accessToken, MainActivity.this, false);
+                                    vDialog.show(getSupportFragmentManager(), "video_upload_fragment");
+                                    break;
+                                case 2:
+                                    startActivity(new Intent(MainActivity.this, SocialActivity.class));
+                                    break;
+                                case 3:
+                                    androidx.browser.customtabs.CustomTabsIntent.Builder helpBuilder =
+                                            new androidx.browser.customtabs.CustomTabsIntent.Builder();
+                                    helpBuilder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+                                    helpBuilder.build().launchUrl(MainActivity.this,
+                                            android.net.Uri.parse("https://actifit.io/faq"));
+                                    break;
+                                case 4:
+                                    BtnVideo.performClick();
+                                    break;
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            });
+        }
 
         // handle activity to move to post to steemit screen
         BtnPostSteemit.setOnClickListener(arg0 -> {
@@ -2087,7 +2120,7 @@ public class MainActivity extends BaseActivity {
 
                 // Switch back to device sensor tracking
                 hideCharts();
-                ((View) btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                if (defaultChartContainer != null) defaultChartContainer.setVisibility(View.VISIBLE);
                 chartSwitcher.setVisibility(View.VISIBLE);
                 findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
 
@@ -2426,6 +2459,7 @@ public class MainActivity extends BaseActivity {
 
     private void displayActivityChart(final int stepCount, final boolean animate) {
         chartManager.displayActivityChart(stepCount, animate);
+        updateNudgeCard(stepCount);
     }
 
     private class DisplayDayChartDataAsyncTask extends AsyncTask<Boolean, Void, ArrayList<ActivitySlot>> {
@@ -2477,8 +2511,40 @@ public class MainActivity extends BaseActivity {
         apiManager.displayPendingRewards(queue);
     }
 
+    private void displayEstimatedReward() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        TextView tvEstimatedAfit = findViewById(R.id.tv_estimated_afit);
+        apiManager.displayEstimatedReward(queue, tvEstimatedAfit);
+    }
+
     private void loadSignupLinks(RequestQueue queue) {
         apiManager.loadSignupLinks(queue);
+    }
+
+    private void updateNudgeCard(int stepCount) {
+        View nudgeCard = findViewById(R.id.nudge_card);
+        TextView tvMsg = findViewById(R.id.tv_nudge_message);
+        TextView tvIcon = findViewById(R.id.tv_nudge_icon);
+        TextView tvDismiss = findViewById(R.id.tv_nudge_dismiss);
+        if (nudgeCard == null || tvMsg == null) return;
+
+        String msg;
+        String icon;
+        if (stepCount < activityMilestoneOne) {
+            int stepsLeft = activityMilestoneOne - stepCount;
+            msg = "Keep going! You're " + stepsLeft + " steps from your first reward";
+            icon = "";
+        } else if (stepCount < activityMilestoneThree) {
+            msg = "You've hit " + activityMilestoneOne + " steps — claim your reward now!";
+            icon = "";
+        } else {
+            msg = "Great day! Share your achievement";
+            icon = "";
+        }
+        tvMsg.setText(msg);
+        if (tvIcon != null) tvIcon.setText(icon);
+        nudgeCard.setVisibility(View.VISIBLE);
+        if (tvDismiss != null) tvDismiss.setOnClickListener(v -> nudgeCard.setVisibility(View.GONE));
     }
 
     private void claimFreeSignupLinks(RequestQueue queue) {
@@ -3028,6 +3094,8 @@ public class MainActivity extends BaseActivity {
 
                 displayUserBalance();
 
+                displayEstimatedReward();
+
                 displayVotingStatus();
 
                 displayUserGadgets();
@@ -3337,6 +3405,8 @@ public class MainActivity extends BaseActivity {
 
             displayUserBalance();
 
+            displayEstimatedReward();
+
             displayVotingStatus();
 
             displayPendingRewards();
@@ -3351,7 +3421,7 @@ public class MainActivity extends BaseActivity {
 
             if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
                 hideCharts();
-                ((View) btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                if (defaultChartContainer != null) defaultChartContainer.setVisibility(View.VISIBLE);
                 chartSwitcher.setVisibility(View.VISIBLE);
                 findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
                 displayActivityChart(stepCount, true);
@@ -3367,7 +3437,7 @@ public class MainActivity extends BaseActivity {
             } else {
                 // Default fallback
                 hideCharts();
-                ((View) btnPieChart.getParent()).setVisibility(View.VISIBLE);
+                if (defaultChartContainer != null) defaultChartContainer.setVisibility(View.VISIBLE);
                 displayActivityChart(stepCount, true);
             }
 
