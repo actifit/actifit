@@ -54,7 +54,8 @@
         android:textColor="@color/footer_menu_text_color"
         android:text="@string/fa_history_solid"
         android:textSize="23sp"
-        android:padding="5dp" />
+        android:padding="5dp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/btn_view_leaderboard"
@@ -77,7 +78,7 @@
     android:gravity="center">
     -->
 
-    <!-- Row 2 -->
+    <!-- Row 2 (hidden \u2014 moved to More menu) -->
 
     <TextView
         android:id="@+id/btn_video"
@@ -87,7 +88,8 @@
         android:textColor="@color/footer_menu_text_color"
         android:text="\uf03d"
         android:textSize="23sp"
-        android:padding="5dp" />
+        android:padding="5dp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/btn_socials"
@@ -97,7 +99,8 @@
         android:textColor="@color/footer_menu_text_color"
         android:text="\ue4e2"
         android:textSize="23sp"
-        android:padding="5dp" />
+        android:padding="5dp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/btn_help"
@@ -107,37 +110,48 @@
         android:textColor="@color/footer_menu_text_color"
         android:text="/?"
         android:textSize="23sp"
-        android:padding="5dp" />
+        android:padding="5dp"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:baselineAligned="false"
-        >
+        android:visibility="gone">
 
+        <TextView
+            android:id="@+id/btn_chat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/footer_menu_text_color"
+            android:text="\uf086"
+            android:textSize="23sp"
+            android:padding="5dp" />
+
+        <TextView android:id="@+id/chat_notif_count"
+            android:layout_width="wrap_content"
+            android:layout_height="15dp"
+            android:layout_gravity="top|start"
+            android:paddingTop="2dp"
+            android:textColor="@color/actifitRed"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:text="\uf111"
+            android:textSize="11sp"
+            android:visibility="visible" />
+
+    </LinearLayout>
+
+    <!-- More button (5th visible item) -->
     <TextView
-        android:id="@+id/btn_chat"
+        android:id="@+id/btn_more_footer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/font_awesome_6_solid"
         android:textColor="@color/footer_menu_text_color"
-        android:text="\uf086"
+        android:text="\uf141"
         android:textSize="23sp"
         android:padding="5dp" />
-
-    <TextView android:id="@+id/chat_notif_count"
-        android:layout_width="wrap_content"
-        android:layout_height="15dp"
-        android:layout_gravity="top|start"
-        android:paddingTop="2dp"
-        android:textColor="@color/actifitRed"
-        android:fontFamily="@font/font_awesome_6_solid"
-        android:text="\uf111"
-        android:textSize="11sp"
-        android:visibility="visible"
-        />
-
-    </LinearLayout>
 
 </LinearLayout>
