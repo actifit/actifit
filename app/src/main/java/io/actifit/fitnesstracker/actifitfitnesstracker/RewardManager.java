@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.animation.ObjectAnimator;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -261,6 +262,7 @@ public class RewardManager {
         if (isClaimed) {
             button.setText(context.getString(R.string.claim_now));
             button.setEnabled(false);
+            setButtonDisabled(button);
             String claimedStatusText;
             if (claimedValue != null && !claimedValue.isEmpty()) {
                 String checkmarkHtml = HtmlCompat.fromHtml(checkMarkIcon, HtmlCompat.FROM_HTML_MODE_COMPACT).toString();
@@ -274,12 +276,14 @@ public class RewardManager {
         } else if (currentStepCount >= requiredSteps) {
             button.setText(context.getString(R.string.watch_and_earn));
             button.setEnabled(true);
+            setButtonEnabled(button);
             statusTextView.setText(context.getString(R.string.available_lbl));
             statusTextView.setVisibility(View.VISIBLE);
             startPulseAnimation(button);
         } else {
             button.setText(context.getString(R.string.claim_now));
             button.setEnabled(false);
+            setButtonDisabled(button);
             int stepsNeeded = requiredSteps - currentStepCount;
             statusTextView.setText(String.format(Locale.getDefault(),
                     context.getString(R.string.steps_to_unlock), stepsNeeded));
@@ -290,6 +294,18 @@ public class RewardManager {
                 stepProgress.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    private void setButtonEnabled(Button button) {
+        button.setBackgroundTintList(ColorStateList.valueOf(
+                context.getResources().getColor(R.color.actifitRed)));
+        button.setTextColor(context.getResources().getColor(R.color.text_on_actifit_red));
+    }
+
+    private void setButtonDisabled(Button button) {
+        button.setBackgroundTintList(ColorStateList.valueOf(
+                context.getResources().getColor(R.color.md_theme_separator)));
+        button.setTextColor(context.getResources().getColor(R.color.md_theme_textSecondary));
     }
 
     private void startPulseAnimation(Button button) {
