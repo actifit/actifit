@@ -331,6 +331,7 @@ public class MainActivity extends BaseActivity {
     final int activityMilestoneOne = 5000;
     final int activityMilestoneTwo = 7000;
     final int activityMilestoneThree = 10000;
+    private int lastCelebrationMilestone = 0;
 
     private RewardedAd rewardedAd;
     private Button dailyRewardButton;
@@ -2429,6 +2430,7 @@ public class MainActivity extends BaseActivity {
     private void displayActivityChart(final int stepCount, final boolean animate) {
         chartManager.displayActivityChart(stepCount, animate);
         updateNudgeCard(stepCount);
+        if (animate) checkMilestoneCelebration(stepCount);
     }
 
     private class DisplayDayChartDataAsyncTask extends AsyncTask<Boolean, Void, ArrayList<ActivitySlot>> {
@@ -2573,6 +2575,182 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private void checkMilestoneCelebration(int stepCount) {
+        int milestone = 0;
+        String message = null;
+        if (stepCount >= activityMilestoneThree && lastCelebrationMilestone < activityMilestoneThree) {
+            milestone = activityMilestoneThree;
+            message = "10,000 steps! Daily goal complete!";
+        } else if (stepCount >= activityMilestoneTwo && lastCelebrationMilestone < activityMilestoneTwo) {
+            milestone = activityMilestoneTwo;
+            message = "7,000 steps! Almost there!";
+        } else if (stepCount >= activityMilestoneOne && lastCelebrationMilestone < activityMilestoneOne) {
+            milestone = activityMilestoneOne;
+            message = "5,000 steps! First reward unlocked!";
+        }
+        if (milestone == 0) return;
+        lastCelebrationMilestone = milestone;
+        final String finalMessage = message;
+        // Pulse the step count text
+        TextView tvCount = findViewById(R.id.tv_step_count);
+        if (tvCount != null) {
+            tvCount.animate().scaleX(1.4f).scaleY(1.4f).setDuration(150)
+                .withEndAction(() -> tvCount.animate().scaleX(1f).scaleY(1f).setDuration(250).start())
+                .start();
+        }
+        Toast.makeText(this, finalMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    private void loadAiInsight() {
+        android.content.SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String todayStr = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(new java.util.Date());
+        String cachedDate = prefs.getString("ai_insight_date", "");
+        String cachedText = prefs.getString("ai_insight_text", "");
+        View aiCard = findViewById(R.id.ai_insight_card);
+        TextView tvInsight = findViewById(R.id.tv_ai_insight);
+        if (aiCard == null || tvInsight == null) return;
+
+        if (todayStr.equals(cachedDate) && !cachedText.isEmpty()) {
+            tvInsight.setText(cachedText);
+            aiCard.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        // Compute inputs for the prompt
+        int todaySteps = mStepsDBHelper != null ? mStepsDBHelper.fetchTodayStepCount() : 0;
+        int streakDays = 0;
+        int totalSteps7d = 0;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+        Calendar todayStepsCal = Calendar.getInstance();
+        int todayStepsVal = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(todayStepsCal.getTime())) : -1;
+        int startDaysBack = (todayStepsVal >= 5000) ? 0 : 1;
+        for (int i = startDaysBack; i <= 30; i++) {
+            Calendar c = Calendar.getInstance(); c.add(Calendar.DATE, -i);
+            int s = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(c.getTime())) : -1;
+            if (s >= 5000) streakDays++; else break;
+        }
+        for (int i = 0; i < 7; i++) {
+            Calendar c = Calendar.getInstance(); c.add(Calendar.DATE, -i);
+            int s = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(c.getTime())) : 0;
+            totalSteps7d += Math.max(s, 0);
+        }
+        int avgSteps7d = totalSteps7d / 7;
+
+        AiService aiService = new AiService();
+        final int finalStreak = streakDays;
+        aiService.generateDashboardInsight(todaySteps, finalStreak, avgSteps7d, new AiService.TextResponseCallback() {
+            @Override
+            public void onSuccess(String insight) {
+                runOnUiThread(() -> {
+                    tvInsight.setText(insight);
+                    aiCard.setVisibility(View.VISIBLE);
+                    prefs.edit()
+                        .putString("ai_insight_date", todayStr)
+                        .putString("ai_insight_text", insight)
+                        .apply();
+                });
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.e(TAG, "AI insight error: " + errorMessage);
+            }
+        });
+    }
+
+    private void buildMonthHeatmap() {
+        LinearLayout heatmapGrid = findViewById(R.id.heatmap_grid);
+        if (heatmapGrid == null || mStepsDBHelper == null) return;
+        heatmapGrid.removeAllViews();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+        Calendar today = Calendar.getInstance();
+        int year = today.get(Calendar.YEAR);
+        int month = today.get(Calendar.MONTH);
+        int todayDay = today.get(Calendar.DAY_OF_MONTH);
+
+        Calendar monthStart = Calendar.getInstance();
+        monthStart.set(year, month, 1);
+        int daysInMonth = monthStart.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int firstDow = monthStart.get(Calendar.DAY_OF_WEEK);
+        int leadingBlanks = (firstDow == Calendar.SUNDAY) ? 6 : firstDow - Calendar.MONDAY;
+
+        // Update title with month name
+        TextView tvTitle = findViewById(R.id.tv_heatmap_title);
+        if (tvTitle != null) {
+            tvTitle.setText(new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH).format(today.getTime()));
+        }
+
+        int[] stepsByDay = new int[daysInMonth + 1];
+        for (int d = 1; d <= todayDay; d++) {
+            Calendar c = Calendar.getInstance();
+            c.set(year, month, d);
+            stepsByDay[d] = mStepsDBHelper.fetchStepCountByDate(sdf.format(c.getTime()));
+        }
+
+        float density = getResources().getDisplayMetrics().density;
+        int cellH = (int) (14 * density);
+        int gapPx = (int) (3 * density);
+
+        // Day header row
+        String[] headers = {"M", "T", "W", "T", "F", "S", "S"};
+        LinearLayout headerRow = new LinearLayout(this);
+        headerRow.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams headerLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        headerLp.setMargins(0, 0, 0, gapPx);
+        headerRow.setLayoutParams(headerLp);
+        for (String h : headers) {
+            TextView tv = new TextView(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            lp.setMargins(0, 0, gapPx, 0);
+            tv.setLayoutParams(lp);
+            tv.setText(h);
+            tv.setTextSize(9);
+            tv.setGravity(Gravity.CENTER);
+            tv.setTextColor(ContextCompat.getColor(this, R.color.md_theme_textSecondary));
+            headerRow.addView(tv);
+        }
+        heatmapGrid.addView(headerRow);
+
+        int totalCells = leadingBlanks + daysInMonth;
+        int numRows = (int) Math.ceil(totalCells / 7.0);
+        for (int row = 0; row < numRows; row++) {
+            LinearLayout rowLayout = new LinearLayout(this);
+            rowLayout.setOrientation(LinearLayout.HORIZONTAL);
+            LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, cellH);
+            rowLp.setMargins(0, 0, 0, gapPx);
+            rowLayout.setLayoutParams(rowLp);
+
+            for (int col = 0; col < 7; col++) {
+                int cellIdx = row * 7 + col;
+                int dayNum = cellIdx - leadingBlanks + 1;
+                View cell = new View(this);
+                LinearLayout.LayoutParams cellLp = new LinearLayout.LayoutParams(0, cellH, 1f);
+                cellLp.setMargins(0, 0, gapPx, 0);
+                cell.setLayoutParams(cellLp);
+
+                android.graphics.drawable.GradientDrawable gd = new android.graphics.drawable.GradientDrawable();
+                gd.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+
+                if (dayNum < 1 || dayNum > daysInMonth) {
+                    cell.setVisibility(View.INVISIBLE);
+                } else if (dayNum > todayDay) {
+                    gd.setColor(Color.TRANSPARENT);
+                    gd.setStroke((int) density, 0xFFE0E0E0);
+                    cell.setBackground(gd);
+                } else {
+                    int steps = stepsByDay[dayNum];
+                    if (steps <= 0) gd.setColor(0xFFE8E8E8);
+                    else if (steps < 5000) gd.setColor(0xFFFFCDD2);
+                    else if (steps < 7000) gd.setColor(0xFFEF9A9A);
+                    else gd.setColor(0xFFFF112D);
+                    cell.setBackground(gd);
+                }
+                rowLayout.addView(cell);
+            }
+            heatmapGrid.addView(rowLayout);
+        }
+    }
+
     private void claimFreeSignupLinks(RequestQueue queue) {
         String claimLink = Utils.apiUrl(this) + getString(R.string.claim_free_signup_links) + username;
         // Request the user's active gadgets list
@@ -2619,7 +2797,16 @@ public class MainActivity extends BaseActivity {
     private void displayUserGadgets() {
         RequestQueue queue = Volley.newRequestQueue(this);
         LinearLayout userGadgets = findViewById(R.id.user_gadgets);
+        LinearLayout ctaContainer = findViewById(R.id.missing_active_gadgets_container);
+        if (ctaContainer != null) ctaContainer.setVisibility(View.VISIBLE);
         TextView noActiveGadgets = findViewById(R.id.missing_active_gadgets);
+        View btnBrowseMarket = findViewById(R.id.btn_browse_market_gadgets);
+        if (btnBrowseMarket != null) {
+            btnBrowseMarket.setOnClickListener(v -> {
+                TextView btnMarket = findViewById(R.id.btn_view_market);
+                if (btnMarket != null) btnMarket.performClick();
+            });
+        }
         apiManager.displayUserGadgets(queue, userGadgets, noActiveGadgets);
     }
 
@@ -2647,11 +2834,9 @@ public class MainActivity extends BaseActivity {
 
             userGadgets.addView(horizontalScrollView);
 
-            // hide no gadgets display as we do have active gadgets
-            // LinearLayout noActiveGadgets =
-            // findViewById(R.id.missing_active_gadgets_container);
-            TextView noActiveGadgets = findViewById(R.id.missing_active_gadgets);
-            noActiveGadgets.setVisibility(GONE);
+            // hide no-gadgets CTA as we do have active gadgets
+            LinearLayout ctaContainer2 = findViewById(R.id.missing_active_gadgets_container);
+            if (ctaContainer2 != null) ctaContainer2.setVisibility(GONE);
             for (int i = 0; i < activeProducts.length(); i++) {
                 try {
                     // find matching image
@@ -3124,6 +3309,10 @@ public class MainActivity extends BaseActivity {
 
                 updateStreakStrip();
 
+                loadAiInsight();
+
+                buildMonthHeatmap();
+
                 displayVotingStatus();
 
                 displayUserGadgets();
@@ -3436,6 +3625,10 @@ public class MainActivity extends BaseActivity {
             displayEstimatedReward();
 
             updateStreakStrip();
+
+            loadAiInsight();
+
+            buildMonthHeatmap();
 
             displayVotingStatus();
 
