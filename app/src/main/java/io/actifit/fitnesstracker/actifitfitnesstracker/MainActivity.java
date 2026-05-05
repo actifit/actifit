@@ -952,7 +952,7 @@ public class MainActivity extends BaseActivity {
         thirdPartyTracking = findViewById(R.id.third_party_active);
         healthConnectTracking = findViewById(R.id.health_connect_active);
 
-        TextView BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
+        View BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         TextView BtnWallet = findViewById(R.id.btn_view_wallet);
         TextView BtnViewNotifications = findViewById(R.id.btn_view_notifications);
         LinearLayout BtnWalletAltContainer = findViewById(R.id.wallet_alt_container);
@@ -964,8 +964,8 @@ public class MainActivity extends BaseActivity {
         TextView BtnShareAchievement = findViewById(R.id.btn_share_achievement);
         TextView BtnShareAchievementFitbit = findViewById(R.id.btn_share_achievement_fitbit);
         TextView BtnShareAchievementHC = findViewById(R.id.btn_share_achievement_hc);
-        TextView BtnMarket = findViewById(R.id.btn_view_market);
-        TextView BtnPosts = findViewById(R.id.btn_view_social);
+        View BtnMarket = findViewById(R.id.btn_view_market);
+        View BtnPosts = findViewById(R.id.btn_view_social);
         BtnWaves = findViewById(R.id.btn_waves);
         TextView BtnSwitchSettings = findViewById(R.id.switchSettings);
 
@@ -2421,10 +2421,14 @@ public class MainActivity extends BaseActivity {
 
     private void displayActivityChartFitbit(final int stepCount, final boolean animate) {
         chartManager.displayActivityChartFitbit(stepCount, animate);
+        updateNudgeCard(stepCount);
+        if (animate) checkMilestoneCelebration(stepCount);
     }
 
     private void displayActivityChartHealthConnect(final int stepCount, final boolean animate) {
         chartManager.displayActivityChartHealthConnect(stepCount, animate);
+        updateNudgeCard(stepCount);
+        if (animate) checkMilestoneCelebration(stepCount);
     }
 
     private void displayActivityChart(final int stepCount, final boolean animate) {
@@ -2803,7 +2807,7 @@ public class MainActivity extends BaseActivity {
         View btnBrowseMarket = findViewById(R.id.btn_browse_market_gadgets);
         if (btnBrowseMarket != null) {
             btnBrowseMarket.setOnClickListener(v -> {
-                TextView btnMarket = findViewById(R.id.btn_view_market);
+                View btnMarket = findViewById(R.id.btn_view_market);
                 if (btnMarket != null) btnMarket.performClick();
             });
         }
