@@ -1,74 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:gravity="center_vertical"
     android:background="?android:attr/windowBackground"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:elevation="8dp"
+    android:paddingTop="6dp"
+    android:paddingBottom="10dp">
 
-    <TextView
+    <!-- Home -->
+    <LinearLayout
         android:id="@+id/btn_home"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:orientation="vertical"
         android:gravity="center"
-        android:fontFamily="@font/font_awesome_6_solid"
-        android:textColor="@color/footer_menu_text_color"
-        android:text=""
-        android:textSize="23sp"
-        android:padding="5dp" />
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
-    <TextView
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/footer_menu_text_color"
+            android:text="&#xe068;"
+            android:textSize="20sp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Home"
+            android:textSize="10sp"
+            android:textColor="@color/footer_menu_text_color"
+            android:paddingTop="2dp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <!-- Social -->
+    <LinearLayout
         android:id="@+id/btn_view_social"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:orientation="vertical"
         android:gravity="center"
-        android:fontFamily="@font/font_awesome_6_solid"
-        android:textColor="@color/footer_menu_text_color"
-        android:text=""
-        android:textSize="23sp"
-        android:padding="5dp" />
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
-    <TextView
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/footer_menu_text_color"
+            android:text="&#xe4e2;"
+            android:textSize="20sp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Social"
+            android:textSize="10sp"
+            android:textColor="@color/footer_menu_text_color"
+            android:paddingTop="2dp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <!-- Market -->
+    <LinearLayout
         android:id="@+id/btn_view_market"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:orientation="vertical"
         android:gravity="center"
-        android:fontFamily="@font/font_awesome_6_solid"
-        android:textColor="@color/footer_menu_text_color"
-        android:text=""
-        android:textSize="23sp"
-        android:padding="5dp" />
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
-    <TextView
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/footer_menu_text_color"
+            android:text="&#xf54e;"
+            android:textSize="20sp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Market"
+            android:textSize="10sp"
+            android:textColor="@color/footer_menu_text_color"
+            android:paddingTop="2dp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <!-- Leaderboard -->
+    <LinearLayout
         android:id="@+id/btn_view_leaderboard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:orientation="vertical"
         android:gravity="center"
-        android:fontFamily="@font/font_awesome_6_solid"
-        android:textColor="@color/footer_menu_text_color"
-        android:text=""
-        android:textSize="23sp"
-        android:padding="5dp" />
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
-    <TextView
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/footer_menu_text_color"
+            android:text="&#xf091;"
+            android:textSize="20sp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Leaders"
+            android:textSize="10sp"
+            android:textColor="@color/footer_menu_text_color"
+            android:paddingTop="2dp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <!-- More -->
+    <LinearLayout
         android:id="@+id/btn_more_footer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:orientation="vertical"
         android:gravity="center"
-        android:fontFamily="@font/font_awesome_6_solid"
-        android:textColor="@color/footer_menu_text_color"
-        android:text=""
-        android:textSize="23sp"
-        android:padding="5dp" />
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/footer_menu_text_color"
+            android:text="&#xf141;"
+            android:textSize="20sp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="More"
+            android:textSize="10sp"
+            android:textColor="@color/footer_menu_text_color"
+            android:paddingTop="2dp"
+            android:duplicateParentState="true"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
 
     <!-- Hidden items — accessible via More menu -->
     <TextView
@@ -87,7 +207,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/font_awesome_6_solid"
         android:textColor="@color/footer_menu_text_color"
-        android:text=""
+        android:text="&#xf03d;"
         android:textSize="23sp"
         android:visibility="gone" />
 
@@ -97,7 +217,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/font_awesome_6_solid"
         android:textColor="@color/footer_menu_text_color"
-        android:text=""
+        android:text="&#xe4e2;"
         android:textSize="23sp"
         android:visibility="gone" />
 
@@ -123,7 +243,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/font_awesome_6_solid"
             android:textColor="@color/footer_menu_text_color"
-            android:text=""
+            android:text="&#xf086;"
             android:textSize="23sp"
             android:padding="5dp" />
 
@@ -135,7 +255,7 @@
             android:paddingTop="2dp"
             android:textColor="@color/actifitRed"
             android:fontFamily="@font/font_awesome_6_solid"
-            android:text=""
+            android:text="&#xf111;"
             android:textSize="11sp"
             android:visibility="visible" />
     </LinearLayout>

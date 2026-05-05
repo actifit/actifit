@@ -75,24 +75,24 @@ public class BaseActivity extends AppCompatActivity {
 
     protected void updateNavigationButtonStates() {
 
-        TextView btnHome = findViewById(R.id.btn_home);
+        View btnHome = findViewById(R.id.btn_home);
         if (btnHome != null){
             btnHome.setSelected(this instanceof MainActivity);
         }
 
-        TextView btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
+        View btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         if (btnLeaderboard != null) {
-            btnLeaderboard.setSelected(this instanceof LeaderboardActivity); // Replace LeaderboardActivity
+            btnLeaderboard.setSelected(this instanceof LeaderboardActivity);
         }
 
-        TextView btnMarket = findViewById(R.id.btn_view_market);
+        View btnMarket = findViewById(R.id.btn_view_market);
         if (btnMarket != null) {
-            btnMarket.setSelected(this instanceof MarketActivity); // Replace LeaderboardActivity
+            btnMarket.setSelected(this instanceof MarketActivity);
         }
 
-        TextView btnViewSocial = findViewById(R.id.btn_view_social);
+        View btnViewSocial = findViewById(R.id.btn_view_social);
         if (btnViewSocial != null) {
-            btnViewSocial.setSelected(this instanceof SocialActivity); // Replace LeaderboardActivity
+            btnViewSocial.setSelected(this instanceof SocialActivity);
         }
 
         TextView btnStepHistory = findViewById(R.id.btn_view_history);
@@ -121,15 +121,16 @@ public class BaseActivity extends AppCompatActivity {
 
     protected void setupCommonActionButtons() {
 
-        TextView btnHome = findViewById(R.id.btn_home);
+        View btnHome = findViewById(R.id.btn_home);
         TextView btnSocials = findViewById(R.id.btn_socials);
         TextView btnChat = findViewById(R.id.btn_chat);
-        TextView btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
+        View btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         TextView btnVideo = findViewById(R.id.btn_video);
         TextView btnHelp = findViewById(R.id.btn_help);
-        TextView btnMarket = findViewById(R.id.btn_view_market);
+        View btnMarket = findViewById(R.id.btn_view_market);
         TextView btnStepHistory = findViewById(R.id.btn_view_history);
-        TextView btnViewSocial = findViewById(R.id.btn_view_social);
+        View btnViewSocial = findViewById(R.id.btn_view_social);
+        View btnMoreFooter = findViewById(R.id.btn_more_footer);
         chatNotifCount = findViewById(R.id.chat_notif_count);
 
 
@@ -314,7 +315,6 @@ public class BaseActivity extends AppCompatActivity {
             });
         }
 
-        TextView btnMoreFooter = findViewById(R.id.btn_more_footer);
         if (btnMoreFooter != null) {
             btnMoreFooter.setOnClickListener(v -> showMoreMenu());
         }
