@@ -2516,6 +2516,63 @@ public class MainActivity extends BaseActivity {
         if (tvDismiss != null) tvDismiss.setOnClickListener(v -> nudgeCard.setVisibility(View.GONE));
     }
 
+    private void updateStreakStrip() {
+        int[] dayViewIds = {
+            R.id.streak_day_0, R.id.streak_day_1, R.id.streak_day_2,
+            R.id.streak_day_3, R.id.streak_day_4, R.id.streak_day_5, R.id.streak_day_6
+        };
+        int[] labelViewIds = {
+            R.id.streak_label_0, R.id.streak_label_1, R.id.streak_label_2,
+            R.id.streak_label_3, R.id.streak_label_4, R.id.streak_label_5, R.id.streak_label_6
+        };
+        String[] dayAbbr = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+
+        // Fill 7-day window: index 0 = 6 days ago, index 6 = today
+        for (int i = 0; i < 7; i++) {
+            Calendar dayCal = Calendar.getInstance();
+            dayCal.add(Calendar.DATE, -(6 - i));
+            String dateStr = sdf.format(dayCal.getTime());
+            int steps = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(dateStr) : -1;
+            boolean active = steps >= 5000;
+
+            View dayView = findViewById(dayViewIds[i]);
+            if (dayView != null) {
+                dayView.setBackground(ContextCompat.getDrawable(this,
+                    active ? R.drawable.streak_day_active : R.drawable.streak_day_inactive));
+            }
+            TextView labelView = findViewById(labelViewIds[i]);
+            if (labelView != null) {
+                labelView.setText(dayAbbr[dayCal.get(Calendar.DAY_OF_WEEK) - 1]);
+            }
+        }
+
+        // Compute streak: consecutive days ending at today (skip today if inactive — day in progress)
+        Calendar todayCal = Calendar.getInstance();
+        int todaySteps = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(todayCal.getTime())) : -1;
+        int startDaysBack = (todaySteps >= 5000) ? 0 : 1;
+        int streak = 0;
+        for (int daysBack = startDaysBack; daysBack <= 30; daysBack++) {
+            Calendar dayCal = Calendar.getInstance();
+            dayCal.add(Calendar.DATE, -daysBack);
+            int steps = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(dayCal.getTime())) : -1;
+            if (steps >= 5000) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+
+        TextView tvStreakCount = findViewById(R.id.tv_streak_count);
+        if (tvStreakCount != null) {
+            if (streak == 0) {
+                tvStreakCount.setText("No streak yet");
+            } else {
+                tvStreakCount.setText(streak + (streak == 1 ? " day streak" : " day streak"));
+            }
+        }
+    }
+
     private void claimFreeSignupLinks(RequestQueue queue) {
         String claimLink = Utils.apiUrl(this) + getString(R.string.claim_free_signup_links) + username;
         // Request the user's active gadgets list
@@ -3065,6 +3122,8 @@ public class MainActivity extends BaseActivity {
 
                 displayEstimatedReward();
 
+                updateStreakStrip();
+
                 displayVotingStatus();
 
                 displayUserGadgets();
@@ -3375,6 +3434,8 @@ public class MainActivity extends BaseActivity {
             displayUserBalance();
 
             displayEstimatedReward();
+
+            updateStreakStrip();
 
             displayVotingStatus();
 

@@ -662,6 +662,138 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Streak Strip Card (P2-1) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/streak_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_sm"
+                    android:paddingBottom="@dimen/spacing_sm">
+
+                    <!-- Header: fire icon + label + streak count -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/md_theme_warning"
+                            android:textSize="16sp"
+                            android:text="&#xf06d;"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="8dp"
+                            android:text="Consistency"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/md_theme_onSurface"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/tv_streak_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="@color/actifitRed"
+                            android:textStyle="bold"
+                            android:text="0 day streak"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <!-- 7 day circles -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="7">
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_0" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_0" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="M"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_1" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_1" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="T"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_2" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_2" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="W"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_3" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_3" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="T"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_4" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_4" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="F"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_5" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_5" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="S"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_6" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_6" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="S"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Smart Nudge Card (P1-3) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/nudge_card"
