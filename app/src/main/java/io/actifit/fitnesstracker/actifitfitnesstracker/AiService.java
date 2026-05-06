@@ -289,6 +289,41 @@ public class AiService {
         void onFailure(String errorMessage);
     }
 
+    public void generateDashboardInsight(int todaySteps, int streakDays, int avgSteps7d, final TextResponseCallback callback) {
+        String prompt = "You are a fitness coach. Give one motivating, personalized fitness insight in exactly 1-2 short sentences. "
+                + "The user has walked " + todaySteps + " steps today, has a " + streakDays
+                + "-day streak, and averages " + avgSteps7d + " steps over the past 7 days. "
+                + "Be specific, positive, and actionable. Plain text only, no markdown.";
+        List<Map<String, Object>> contents = new ArrayList<>();
+        Map<String, Object> userMessage = new HashMap<>();
+        userMessage.put("parts", List.of(Map.of("text", prompt)));
+        contents.add(userMessage);
+        Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("contents", contents);
+        String requestJson = gson.toJson(requestBodyMap);
+        RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
+        Request request = new Request.Builder().url(API_URL).post(requestBody).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure("Network error: " + e.getMessage());
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    try {
+                        callback.onSuccess(parseSimpleTextResponse(responseBody).trim());
+                    } catch (Exception e) {
+                        callback.onFailure("Parse error: " + e.getMessage());
+                    }
+                } else {
+                    callback.onFailure("API error: " + response.code());
+                }
+            }
+        });
+    }
+
     public void translateText(String textToTranslate, final TextResponseCallback callback) {
         //String prompt = "Translate the following text into English. Provide only the translated text without any additional comments or introductions. The text is: \"" + textToTranslate + "\"";
         String prompt = "Identify the language of the following text. If the text is not English, translate it fully into English. If the text is already English, return it unchanged. Provide only the resulting English text, or the original English text if no translation was needed, without any additional comments or introductions. The text is: \"" + textToTranslate + "\"";

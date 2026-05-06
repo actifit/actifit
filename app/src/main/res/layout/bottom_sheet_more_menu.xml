@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="16dp">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/drag_handle_bg" />
+
+    <!-- Sheet title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="12dp"
+        android:text="More"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/md_theme_primary"
+        tools:ignore="HardcodedText" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_background"
+        android:layout_marginBottom="4dp" />
+
+    <!-- History -->
+    <LinearLayout
+        android:id="@+id/more_item_history"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:textSize="18sp"
+            android:text="&#xf1da;" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:textSize="15sp"
+            android:text="Activity History"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <!-- Videos -->
+    <LinearLayout
+        android:id="@+id/more_item_videos"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:textSize="18sp"
+            android:text="&#xf03d;" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:textSize="15sp"
+            android:text="Upload Video"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <!-- Socials -->
+    <LinearLayout
+        android:id="@+id/more_item_socials"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:textSize="18sp"
+            android:text="&#xe4e2;" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:textSize="15sp"
+            android:text="Follow Us"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <!-- Help -->
+    <LinearLayout
+        android:id="@+id/more_item_help"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:textSize="18sp"
+            android:text="&#xf059;" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:textSize="15sp"
+            android:text="Help &amp; FAQ"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <!-- Chat -->
+    <LinearLayout
+        android:id="@+id/more_item_chat"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:textSize="18sp"
+            android:text="&#xf086;" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:textSize="15sp"
+            android:text="Community Chat"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+</LinearLayout>
