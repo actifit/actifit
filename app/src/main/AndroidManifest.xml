@@ -46,6 +46,11 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH"/>
     <!--tools:node="remove"/>-->
 
+    <!-- Route map tracking -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -196,6 +201,13 @@
     <activity android:name=".HistoryChartActivity" />
     <activity android:name=".MarketActivity" android:windowSoftInputMode="adjustPan" />
     <activity android:name=".SocialActivity" android:windowSoftInputMode="adjustPan" />
+
+    <activity android:name=".RouteMapActivity" android:exported="false" />
+
+    <service
+        android:name=".RouteRecordingService"
+        android:foregroundServiceType="location"
+        android:exported="false" />
 
     <receiver android:name=".ResetPieChart" />
 
