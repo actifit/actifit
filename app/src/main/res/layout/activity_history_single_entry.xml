@@ -58,4 +58,19 @@
         android:layout_marginStart="10dp"
         />
 
+    <TextView
+        android:id="@+id/btn_view_route"
+        android:layout_width="40sp"
+        android:layout_height="40sp"
+        android:text="&#xf3c5;"
+        android:textColor="@color/actifitRed"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="6dp"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:visibility="gone"
+        android:fontFamily="@font/font_awesome_6_solid"
+        tools:ignore="HardcodedText"
+        xmlns:tools="http://schemas.android.com/tools" />
+
 </LinearLayout>

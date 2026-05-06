@@ -894,6 +894,106 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Route Tracking Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/route_tracking_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
+
+                    <!-- Card header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="14sp"
+                            android:text="&#xf279;"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="8dp"
+                            android:text="Route Tracking"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/md_theme_onSurface"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <!-- Last route summary (hidden when no routes exist) -->
+                    <LinearLayout
+                        android:id="@+id/last_route_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/md_theme_secondary"
+                            android:textSize="11sp"
+                            android:text="&#xf017;"
+                            android:paddingEnd="4dp"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/tv_last_route_info"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="12sp"
+                            android:textColor="@color/md_theme_secondary"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/tv_last_route_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="12sp"
+                            android:textColor="@color/actifitRed"
+                            android:paddingStart="@dimen/spacing_xs"
+                            android:text="View &#xf054;"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <!-- Start Recording button -->
+                    <com.google.android.material.button.MaterialButton
+                        style="@style/AppTheme.ActifitButton"
+                        android:id="@+id/btn_start_route_recording"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:text="&#x25b6;  Start Recording"
+                        tools:ignore="HardcodedText" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Quick Actions Row -->
             <LinearLayout
                 android:layout_width="match_parent"
