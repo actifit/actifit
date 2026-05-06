@@ -198,11 +198,17 @@
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
-    <!-- Scrollable Content -->
-    <ScrollView
+    <!-- Scrollable Content + FAB overlay -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="1">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="72dp"
+        android:clipToPadding="false"
         android:fillViewport="true"
         android:overScrollMode="never">
 
@@ -994,36 +1000,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Quick Actions Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="@dimen/spacing_md"
-                android:weightSum="2">
-
-                <com.google.android.material.button.MaterialButton
-                    style="@style/AppTheme.ActifitButton"
-                    android:id="@+id/btn_post_steemit"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="@dimen/spacing_sm"
-                    android:text="@string/post_to_steem_btn_txt"
-                    android:textSize="@dimen/text_body" />
-
-                <com.google.android.material.button.MaterialButton
-                    style="@style/AppTheme.ActifitButton"
-                    android:id="@+id/btn_waves"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_weight="1"
-                    android:layout_marginStart="@dimen/spacing_sm"
-                    android:text="\uf086"
-                    android:textSize="@dimen/text_body"
-                    android:fontFamily="@font/font_awesome_6_solid" />
-            </LinearLayout>
-
             <!-- Earnings & Gadgets Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/earnings_gadgets_card"
@@ -1317,11 +1293,12 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Rewards Row -->
+            <!-- Rewards + Discussions Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:weightSum="4"
                 android:layout_marginBottom="@dimen/spacing_md">
 
                 <com.google.android.material.button.MaterialButton
@@ -1354,9 +1331,22 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="@dimen/spacing_xs"
+                    android:layout_marginEnd="@dimen/spacing_xs"
                     android:textSize="20sp"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf201"
+                    tools:ignore="HardcodedText" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/btn_waves"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf086"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
 
@@ -1526,6 +1516,21 @@
 
         </LinearLayout>
     </ScrollView>
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/btn_post_steemit"
+            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:text="@string/post_to_steem_btn_txt"
+            app:icon="@drawable/ic_edit_black_24dp"
+            app:iconTint="@color/colorWhite"
+            app:backgroundTint="@color/actifitRed"
+            app:elevation="6dp" />
+
+    </FrameLayout>
 
     <!-- Footer Menu -->
     <include

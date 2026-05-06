@@ -49,6 +49,7 @@ public class RouteMapActivity extends BaseActivity {
     private final List<GeoPoint> routePoints = new ArrayList<>();
 
     private TextView tvDistance, tvDuration, tvPace, tvSteps, tvTimer, tvActivityLabel;
+    private TextView btnZoomIn, btnZoomOut, btnLocate;
     private LinearLayout liveControls, viewControls;
 
     private String mode = MODE_VIEW;
@@ -74,6 +75,7 @@ public class RouteMapActivity extends BaseActivity {
         mapView = findViewById(R.id.route_map_view);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
+        mapView.setMaxZoomLevel(19.0);
         mapView.getController().setZoom(16.0);
 
         tvDistance = findViewById(R.id.tv_route_distance);
@@ -84,6 +86,13 @@ public class RouteMapActivity extends BaseActivity {
         tvActivityLabel = findViewById(R.id.tv_route_activity_label);
         liveControls = findViewById(R.id.live_controls);
         viewControls = findViewById(R.id.view_controls);
+
+        btnZoomIn = findViewById(R.id.btn_zoom_in);
+        btnZoomOut = findViewById(R.id.btn_zoom_out);
+        btnLocate = findViewById(R.id.btn_locate);
+        btnZoomIn.setOnClickListener(v -> mapView.getController().zoomIn());
+        btnZoomOut.setOnClickListener(v -> mapView.getController().zoomOut());
+        btnLocate.setOnClickListener(v -> onLocateTapped());
 
         routePolyline = new Polyline();
         routePolyline.getOutlinePaint().setColor(ContextCompat.getColor(this, R.color.actifitRed));
@@ -107,6 +116,7 @@ public class RouteMapActivity extends BaseActivity {
         liveControls.setVisibility(View.VISIBLE);
         viewControls.setVisibility(View.GONE);
         currentPositionMarker.setVisible(true);
+        tvDuration.setVisibility(View.GONE); // top timer handles elapsed time in live mode
 
         String actType = getIntent().getStringExtra(EXTRA_ACTIVITY_TYPE);
         tvActivityLabel.setText(actType != null ? actType : "Recording");
@@ -158,6 +168,7 @@ public class RouteMapActivity extends BaseActivity {
         viewControls.setVisibility(View.VISIBLE);
         currentPositionMarker.setVisible(false);
         tvTimer.setVisibility(View.GONE);
+        tvDuration.setVisibility(View.VISIBLE);
 
         int dateInt = getIntent().getIntExtra(EXTRA_DATE, 0);
         long routeId = getIntent().getLongExtra(EXTRA_ROUTE_ID, -1);
@@ -179,8 +190,7 @@ public class RouteMapActivity extends BaseActivity {
         tvDuration.setText(route.getFormattedDuration());
         tvPace.setText(route.getFormattedPace());
 
-        int stepCount = db.fetchStepCountByDate(String.valueOf(dateInt));
-        tvSteps.setText(stepCount > 0 ? String.format(Locale.getDefault(), "%,d", stepCount) : "--");
+        tvSteps.setText("--"); // day total ≠ route steps; no per-route step data available
 
         // Draw route from stored waypoints
         if (route.waypointsJson != null) {
@@ -226,13 +236,31 @@ public class RouteMapActivity extends BaseActivity {
         }
     }
 
+    private void onLocateTapped() {
+        if (MODE_LIVE.equals(mode)) {
+            if (!routePoints.isEmpty()) {
+                mapView.getController().animateTo(routePoints.get(routePoints.size() - 1));
+            }
+        } else {
+            if (!routePoints.isEmpty()) {
+                fitMapToRoute();
+            }
+        }
+    }
+
     private void fitMapToRoute() {
         if (routePoints.size() < 2) {
             mapView.getController().setCenter(routePoints.get(0));
+            mapView.getController().setZoom(17.0);
             return;
         }
         BoundingBox box = BoundingBox.fromGeoPointsSafe(routePoints);
-        mapView.post(() -> mapView.zoomToBoundingBox(box, true, 80));
+        mapView.post(() -> {
+            mapView.zoomToBoundingBox(box, true, 80);
+            if (mapView.getZoomLevelDouble() > 19.0) {
+                mapView.getController().setZoom(19.0);
+            }
+        });
     }
 
     private void startTimer() {
