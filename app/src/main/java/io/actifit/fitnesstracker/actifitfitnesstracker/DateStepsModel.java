@@ -8,6 +8,8 @@ public class DateStepsModel {
     public Boolean hasRelevantPost = false;
     public String relevantPostLink;
     public Boolean relevantPostChecked = false;
+    public boolean hasRoute = false;
+    public int rawDate; // yyyyMMdd int for route lookup
 
     public DateStepsModel(){
 

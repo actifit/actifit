@@ -12,6 +12,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,6 +48,7 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
         TextView detailsButton = convertView.findViewById(R.id.activityDetailsBtn);
         TextView postViewButton = convertView.findViewById(R.id.post_link);
         ProgressBar loader = convertView.findViewById(R.id.loader);
+        TextView routeButton = convertView.findViewById(R.id.btn_view_route);
         // Populate the data into the template view using the data object
         entryDate.setText(activityEntry.mDate.toString());
 
@@ -143,6 +147,20 @@ public class ActivityEntryAdapter extends ArrayAdapter<DateStepsModel> {
                 }
             }
         });
+        // Route map button
+        if (activityEntry.hasRoute && activityEntry.rawDate != 0) {
+            routeButton.setVisibility(View.VISIBLE);
+            routeButton.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), RouteMapActivity.class);
+                intent.putExtra(RouteMapActivity.EXTRA_MODE, RouteMapActivity.MODE_VIEW);
+                intent.putExtra(RouteMapActivity.EXTRA_DATE, activityEntry.rawDate);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
+            });
+        } else {
+            routeButton.setVisibility(View.GONE);
+        }
+
         return convertView;
     }
 

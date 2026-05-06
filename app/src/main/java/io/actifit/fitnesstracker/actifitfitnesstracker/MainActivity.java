@@ -76,6 +76,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.Manifest;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -332,6 +334,8 @@ public class MainActivity extends BaseActivity {
     final int activityMilestoneTwo = 7000;
     final int activityMilestoneThree = 10000;
     private int lastCelebrationMilestone = 0;
+
+    private ActivityResultLauncher<String[]> locationPermissionLauncher;
 
     private RewardedAd rewardedAd;
     private Button dailyRewardButton;
@@ -1016,6 +1020,20 @@ public class MainActivity extends BaseActivity {
             Intent intent = new Intent(ctx, WorkoutWizardActivity.class);
             startActivity(intent);
         });
+
+        locationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(), results -> {
+                    Boolean fine = results.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
+                    Boolean coarse = results.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
+                    if (Boolean.TRUE.equals(fine) || Boolean.TRUE.equals(coarse)) {
+                        showActivityTypePicker();
+                    } else {
+                        Toast.makeText(this, "Location permission is required to record routes.",
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+
+        setupRouteCard();
 
         Uri returnUrl = getIntent().getData();
         if (returnUrl != null) {
@@ -2661,6 +2679,105 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    private void setupRouteCard() {
+        View btnStart = findViewById(R.id.btn_start_route_recording);
+        if (btnStart == null) return;
+        btnStart.setOnClickListener(v -> {
+            if (RouteRecordingService.isRunning) {
+                Intent intent = new Intent(this, RouteMapActivity.class);
+                intent.putExtra(RouteMapActivity.EXTRA_MODE, RouteMapActivity.MODE_LIVE);
+                startActivity(intent);
+                return;
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                showActivityTypePicker();
+            } else {
+                locationPermissionLauncher.launch(new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                });
+            }
+        });
+
+        TextView tvLastRouteView = findViewById(R.id.tv_last_route_view);
+        if (tvLastRouteView != null) {
+            tvLastRouteView.setOnClickListener(v -> {
+                if (mStepsDBHelper == null) return;
+                RouteModel route = mStepsDBHelper.getMostRecentRoute();
+                if (route != null) {
+                    Intent intent = new Intent(this, RouteMapActivity.class);
+                    intent.putExtra(RouteMapActivity.EXTRA_MODE, RouteMapActivity.MODE_VIEW);
+                    intent.putExtra(RouteMapActivity.EXTRA_DATE, route.date);
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+
+    private void loadLastRoute() {
+        if (mStepsDBHelper == null) return;
+        RouteModel route = mStepsDBHelper.getMostRecentRoute();
+        LinearLayout summary = findViewById(R.id.last_route_summary);
+        TextView tvInfo = findViewById(R.id.tv_last_route_info);
+        if (summary == null || tvInfo == null) return;
+        if (route != null) {
+            tvInfo.setText(route.getFormattedDistance() + "  •  " + route.getFormattedDuration()
+                    + "  •  " + (route.activityType != null ? route.activityType : ""));
+            summary.setVisibility(View.VISIBLE);
+        } else {
+            summary.setVisibility(View.GONE);
+        }
+    }
+
+    private void showActivityTypePicker() {
+        String[] outdoorTypes = {"Walking", "Running", "Cycling", "Hiking", "Jogging",
+                "Skating", "Skiing", "Geocaching", "Photowalking", "Plogging",
+                "Sailing", "Scootering", "Kayaking"};
+
+        com.google.android.material.bottomsheet.BottomSheetDialog sheet =
+                new com.google.android.material.bottomsheet.BottomSheetDialog(this);
+        android.view.View sheetView = getLayoutInflater().inflate(
+                R.layout.bottom_sheet_activity_picker, null);
+        com.google.android.material.chip.ChipGroup chipGroup =
+                sheetView.findViewById(R.id.activity_type_chip_group);
+
+        for (String type : outdoorTypes) {
+            com.google.android.material.chip.Chip chip = new com.google.android.material.chip.Chip(this);
+            chip.setText(type);
+            chip.setCheckable(true);
+            chipGroup.addView(chip);
+        }
+
+        sheetView.findViewById(R.id.activity_type_chip_group);
+        sheet.setContentView(sheetView);
+
+        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (!checkedIds.isEmpty()) {
+                com.google.android.material.chip.Chip selected =
+                        group.findViewById(checkedIds.get(0));
+                if (selected != null) {
+                    String actType = selected.getText().toString();
+                    sheet.dismiss();
+                    startRouteRecording(actType);
+                }
+            }
+        });
+
+        sheet.show();
+    }
+
+    private void startRouteRecording(String activityType) {
+        Intent serviceIntent = new Intent(this, RouteRecordingService.class);
+        serviceIntent.putExtra(RouteRecordingService.EXTRA_ACTIVITY_TYPE, activityType);
+        startForegroundService(serviceIntent);
+
+        Intent mapIntent = new Intent(this, RouteMapActivity.class);
+        mapIntent.putExtra(RouteMapActivity.EXTRA_MODE, RouteMapActivity.MODE_LIVE);
+        mapIntent.putExtra(RouteMapActivity.EXTRA_ACTIVITY_TYPE, activityType);
+        startActivity(mapIntent);
+    }
+
     private void buildMonthHeatmap() {
         LinearLayout heatmapGrid = findViewById(R.id.heatmap_grid);
         if (heatmapGrid == null || mStepsDBHelper == null) return;
@@ -3316,6 +3433,8 @@ public class MainActivity extends BaseActivity {
                 loadAiInsight();
 
                 buildMonthHeatmap();
+
+                loadLastRoute();
 
                 displayVotingStatus();
 

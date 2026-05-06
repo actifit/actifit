@@ -104,10 +104,9 @@ public class StepHistoryActivity extends BaseActivity { // Assuming BaseActivity
             }
 
             ArrayList<DateStepsModel> stepsList = null;
+            StepsDBHelper stepsDBHelper = null;
             try {
-                // Load steps from Database (ensure StepsDBHelper is thread-safe or create new instance)
-                // Using Activity context for DB helper is generally acceptable here.
-                StepsDBHelper stepsDBHelper = new StepsDBHelper(activity);
+                stepsDBHelper = new StepsDBHelper(activity);
                 stepsList = stepsDBHelper.readStepsEntries();
             } catch (Exception e) {
                 Log.e(MainActivity.TAG, "Error loading steps from DB", e);
@@ -122,13 +121,16 @@ public class StepHistoryActivity extends BaseActivity { // Assuming BaseActivity
                 SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
 
                 for (DateStepsModel stepEntry : stepsList) {
-                    if (isCancelled()) return null; // Check for cancellation
+                    if (isCancelled()) return null;
                     try {
                         Date feedingDate = dateFormIn.parse(stepEntry.mDate);
                         String dateDisplay = dateFormOut.format(feedingDate);
-                        // Create initial entry without post link data
                         DateStepsModel newEntry = new DateStepsModel(dateDisplay, stepEntry.mStepCount, stepEntry.mtrackingDevice);
-                        // relevantPostChecked and hasRelevantPost will be false by default
+                        int rawDate = Integer.parseInt(stepEntry.mDate);
+                        newEntry.rawDate = rawDate;
+                        if (stepsDBHelper != null) {
+                            newEntry.hasRoute = stepsDBHelper.hasRouteForDate(rawDate);
+                        }
                         initialStepFinalList.add(newEntry);
                     } catch (ParseException txtEx) {
                         Log.d(MainActivity.TAG, "Error parsing date for step entry: " + stepEntry.mDate, txtEx);

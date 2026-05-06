@@ -198,11 +198,17 @@
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
-    <!-- Scrollable Content -->
-    <ScrollView
+    <!-- Scrollable Content + FAB overlay -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="1">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="72dp"
+        android:clipToPadding="false"
         android:fillViewport="true"
         android:overScrollMode="never">
 
@@ -303,10 +309,9 @@
                             android:layout_width="28dp"
                             android:layout_height="28dp"
                             android:contentDescription="Health Connect"
-                            android:src="@mipmap/health_connect_logo"
+                            android:src="@mipmap/health_connect"
                             android:scaleType="fitCenter"
                             android:padding="2dp"
-                            android:background="@drawable/health_connect_indicator_bg"
                             android:visibility="gone" />
                     </LinearLayout>
 
@@ -377,7 +382,7 @@
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
                                 android:contentDescription="Health Connect Logo"
-                                android:src="@mipmap/health_connect_logo" />
+                                android:src="@mipmap/health_connect" />
 
                             <TextView
                                 android:id="@+id/sync_health_connect"
@@ -894,35 +899,105 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Quick Actions Row -->
-            <LinearLayout
+            <!-- Route Tracking Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/route_tracking_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginBottom="@dimen/spacing_md"
-                android:weightSum="2">
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
 
-                <com.google.android.material.button.MaterialButton
-                    style="@style/AppTheme.ActifitButton"
-                    android:id="@+id/btn_post_steemit"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="@dimen/spacing_sm"
-                    android:text="@string/post_to_steem_btn_txt"
-                    android:textSize="@dimen/text_body" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
 
-                <com.google.android.material.button.MaterialButton
-                    style="@style/AppTheme.ActifitButton"
-                    android:id="@+id/btn_waves"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_weight="1"
-                    android:layout_marginStart="@dimen/spacing_sm"
-                    android:text="\uf086"
-                    android:textSize="@dimen/text_body"
-                    android:fontFamily="@font/font_awesome_6_solid" />
-            </LinearLayout>
+                    <!-- Card header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="14sp"
+                            android:text="&#xf279;"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="8dp"
+                            android:text="Route Tracking"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/md_theme_onSurface"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <!-- Last route summary (hidden when no routes exist) -->
+                    <LinearLayout
+                        android:id="@+id/last_route_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/md_theme_secondary"
+                            android:textSize="11sp"
+                            android:text="&#xf017;"
+                            android:paddingEnd="4dp"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/tv_last_route_info"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="12sp"
+                            android:textColor="@color/md_theme_secondary"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/tv_last_route_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="12sp"
+                            android:textColor="@color/actifitRed"
+                            android:paddingStart="@dimen/spacing_xs"
+                            android:text="View &#xf054;"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <!-- Start Recording button -->
+                    <com.google.android.material.button.MaterialButton
+                        style="@style/AppTheme.ActifitButton"
+                        android:id="@+id/btn_start_route_recording"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:text="&#x25b6;  Start Recording"
+                        tools:ignore="HardcodedText" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Earnings & Gadgets Card -->
             <com.google.android.material.card.MaterialCardView
@@ -1217,11 +1292,12 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Rewards Row -->
+            <!-- Rewards + Discussions Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:weightSum="4"
                 android:layout_marginBottom="@dimen/spacing_md">
 
                 <com.google.android.material.button.MaterialButton
@@ -1254,9 +1330,22 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="@dimen/spacing_xs"
+                    android:layout_marginEnd="@dimen/spacing_xs"
                     android:textSize="20sp"
                     android:fontFamily="@font/font_awesome_6_solid"
                     android:text="\uf201"
+                    tools:ignore="HardcodedText" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/AppTheme.ActifitButton"
+                    android:id="@+id/btn_waves"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:text="\uf086"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
 
@@ -1426,6 +1515,21 @@
 
         </LinearLayout>
     </ScrollView>
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/btn_post_steemit"
+            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:text="@string/post_to_steem_btn_txt"
+            app:icon="@drawable/ic_edit_black_24dp"
+            app:iconTint="@color/colorWhite"
+            app:backgroundTint="@color/actifitRed"
+            app:elevation="6dp" />
+
+    </FrameLayout>
 
     <!-- Footer Menu -->
     <include
