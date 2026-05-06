@@ -58,6 +58,70 @@
             tools:ignore="HardcodedText" />
     </LinearLayout>
 
+    <!-- Floating map controls (right side, vertically centered) -->
+    <LinearLayout
+        android:id="@+id/map_controls"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical"
+        android:background="#CC222222"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:id="@+id/btn_zoom_in"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="+"
+            android:textColor="@color/colorWhite"
+            android:textSize="22sp"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            tools:ignore="HardcodedText" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#44FFFFFF" />
+
+        <TextView
+            android:id="@+id/btn_zoom_out"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="&#x2212;"
+            android:textColor="@color/colorWhite"
+            android:textSize="22sp"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            tools:ignore="HardcodedText" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#44FFFFFF" />
+
+        <TextView
+            android:id="@+id/btn_locate"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="&#xf05b;"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
     <!-- Bottom panel: stats + controls -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -183,8 +247,7 @@
                 style="@style/AppTheme.ActifitButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="&#xf04d;  Stop &amp; Save"
-                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="Stop &amp; Save"
                 tools:ignore="HardcodedText" />
         </LinearLayout>
 
@@ -202,8 +265,7 @@
                 style="@style/AppTheme.ActifitButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="&#xf1e0;  Share"
-                android:fontFamily="@font/font_awesome_6_solid"
+                android:text="Share Route"
                 tools:ignore="HardcodedText" />
         </LinearLayout>
 
