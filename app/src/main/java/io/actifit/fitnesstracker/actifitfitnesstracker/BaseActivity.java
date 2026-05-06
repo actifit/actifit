@@ -75,24 +75,24 @@ public class BaseActivity extends AppCompatActivity {
 
     protected void updateNavigationButtonStates() {
 
-        TextView btnHome = findViewById(R.id.btn_home);
+        View btnHome = findViewById(R.id.btn_home);
         if (btnHome != null){
             btnHome.setSelected(this instanceof MainActivity);
         }
 
-        TextView btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
+        View btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         if (btnLeaderboard != null) {
-            btnLeaderboard.setSelected(this instanceof LeaderboardActivity); // Replace LeaderboardActivity
+            btnLeaderboard.setSelected(this instanceof LeaderboardActivity);
         }
 
-        TextView btnMarket = findViewById(R.id.btn_view_market);
+        View btnMarket = findViewById(R.id.btn_view_market);
         if (btnMarket != null) {
-            btnMarket.setSelected(this instanceof MarketActivity); // Replace LeaderboardActivity
+            btnMarket.setSelected(this instanceof MarketActivity);
         }
 
-        TextView btnViewSocial = findViewById(R.id.btn_view_social);
+        View btnViewSocial = findViewById(R.id.btn_view_social);
         if (btnViewSocial != null) {
-            btnViewSocial.setSelected(this instanceof SocialActivity); // Replace LeaderboardActivity
+            btnViewSocial.setSelected(this instanceof SocialActivity);
         }
 
         TextView btnStepHistory = findViewById(R.id.btn_view_history);
@@ -121,15 +121,16 @@ public class BaseActivity extends AppCompatActivity {
 
     protected void setupCommonActionButtons() {
 
-        TextView btnHome = findViewById(R.id.btn_home);
+        View btnHome = findViewById(R.id.btn_home);
         TextView btnSocials = findViewById(R.id.btn_socials);
         TextView btnChat = findViewById(R.id.btn_chat);
-        TextView btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
+        View btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         TextView btnVideo = findViewById(R.id.btn_video);
         TextView btnHelp = findViewById(R.id.btn_help);
-        TextView btnMarket = findViewById(R.id.btn_view_market);
+        View btnMarket = findViewById(R.id.btn_view_market);
         TextView btnStepHistory = findViewById(R.id.btn_view_history);
-        TextView btnViewSocial = findViewById(R.id.btn_view_social);
+        View btnViewSocial = findViewById(R.id.btn_view_social);
+        View btnMoreFooter = findViewById(R.id.btn_more_footer);
         chatNotifCount = findViewById(R.id.chat_notif_count);
 
 
@@ -310,11 +311,13 @@ public class BaseActivity extends AppCompatActivity {
             btnVideo.setOnClickListener(arg0 -> {
                 //show video modal
                 VideoUploadFragment dialog = new VideoUploadFragment(this, LoginActivity.accessToken, this, false);
-                //dialog.getView().setMinimumWidth(400);
                 dialog.show(getSupportFragmentManager(), "video_upload_fragment");
             });
         }
 
+        if (btnMoreFooter != null) {
+            btnMoreFooter.setOnClickListener(v -> showMoreMenu());
+        }
 
         new Thread(() -> {
             runOnUiThread(() -> {
@@ -325,6 +328,60 @@ public class BaseActivity extends AppCompatActivity {
         }).start();
 
         updateNavigationButtonStates(); // Highlight the current activity's button
+    }
+
+    protected void showMoreMenu() {
+        com.google.android.material.bottomsheet.BottomSheetDialog sheet =
+                new com.google.android.material.bottomsheet.BottomSheetDialog(this);
+        android.view.View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_more_menu, null);
+        sheet.setContentView(sheetView);
+
+        sheetView.findViewById(R.id.more_item_history).setOnClickListener(v -> {
+            sheet.dismiss();
+            if (!(this instanceof StepHistoryActivity))
+                startActivity(new Intent(this, StepHistoryActivity.class));
+        });
+        sheetView.findViewById(R.id.more_item_videos).setOnClickListener(v -> {
+            sheet.dismiss();
+            VideoUploadFragment vd = new VideoUploadFragment(this, LoginActivity.accessToken, this, false);
+            vd.show(getSupportFragmentManager(), "video_upload_fragment");
+        });
+        sheetView.findViewById(R.id.more_item_socials).setOnClickListener(v -> {
+            sheet.dismiss();
+            AlertDialog.Builder b = new AlertDialog.Builder(this);
+            android.view.View socialLayout = getLayoutInflater().inflate(R.layout.social_actifit, null);
+            socialLayout.findViewById(R.id.facebook_actifit).setOnClickListener(v2 -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.facebook_actifit)))); } catch (Exception ignored) {} });
+            socialLayout.findViewById(R.id.twitter_actifit).setOnClickListener(v2 -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.twitter_actifit)))); } catch (Exception ignored) {} });
+            socialLayout.findViewById(R.id.telegram_actifit).setOnClickListener(v2 -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.telegram_actifit)))); } catch (Exception ignored) {} });
+            socialLayout.findViewById(R.id.discord_actifit).setOnClickListener(v2 -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.discord_actifit)))); } catch (Exception ignored) {} });
+            socialLayout.findViewById(R.id.instagram_actifit).setOnClickListener(v2 -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.instagram_actifit)))); } catch (Exception ignored) {} });
+            socialLayout.findViewById(R.id.linkedin_actifit).setOnClickListener(v2 -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.linkedin_actifit)))); } catch (Exception ignored) {} });
+            socialLayout.findViewById(R.id.youtube_actifit).setOnClickListener(v2 -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.youtube_actifit)))); } catch (Exception ignored) {} });
+            b.setView(socialLayout).setTitle(getString(R.string.socials_note))
+                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
+                    .setPositiveButton(getString(R.string.close_button), null).show();
+        });
+        sheetView.findViewById(R.id.more_item_help).setOnClickListener(v -> {
+            sheet.dismiss();
+            if (tutVidUrl[0] != null && !tutVidUrl[0].isEmpty()) {
+                try {
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(tutVidUrl[0]));
+                    i.setPackage("com.google.android.youtube");
+                    startActivity(i);
+                } catch (android.content.ActivityNotFoundException e) {
+                    try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(tutVidUrl[0]))); }
+                    catch (Exception ignored) {}
+                }
+            }
+        });
+        sheetView.findViewById(R.id.more_item_chat).setOnClickListener(v -> {
+            sheet.dismiss();
+            storeNotifDate(new Date(), "");
+            storeNotifCount(lastChatCount);
+            ChatDialogFragment.newInstance(this).show(getSupportFragmentManager(), "chat_dialog");
+        });
+
+        sheet.show();
     }
 
 

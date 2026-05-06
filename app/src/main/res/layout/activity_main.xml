@@ -214,31 +214,41 @@
             android:padding="@dimen/spacing_md">
 
             <!-- News Carousel -->
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_md"
-                android:background="@drawable/slider_background">
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
 
-                <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/news_pager"
-                    android:layout_width="0dp"
-                    android:layout_height="130dp"
-                    android:importantForAccessibility="no"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/news_tablayout"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    app:tabGravity="center"
-                    app:tabBackground="@drawable/indicator_selector"
-                    app:tabIndicatorHeight="0dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/news_pager" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:layout_height="180dp">
+
+                    <androidx.viewpager.widget.ViewPager
+                        android:id="@+id/news_pager"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:importantForAccessibility="no" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_gravity="bottom"
+                        android:background="@drawable/news_gradient_overlay" />
+
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/news_tablayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:importantForAccessibility="no"
+                        app:tabGravity="center"
+                        app:tabBackground="@drawable/indicator_selector"
+                        app:tabIndicatorHeight="0dp" />
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Hidden image view for compatibility -->
             <ImageView
@@ -312,11 +322,55 @@
                             android:layout_height="match_parent"
                             android:visibility="gone">
 
-                            <com.github.mikephil.charting.charts.PieChart
+                            <FrameLayout
                                 android:id="@+id/step_pie_chart_health_connect"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center" />
+                                android:layout_height="match_parent">
+
+                                <com.google.android.material.progressindicator.CircularProgressIndicator
+                                    android:id="@+id/step_ring_hc"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:progress="0"
+                                    android:max="100"
+                                    app:indicatorSize="160dp"
+                                    app:trackThickness="12dp"
+                                    app:indicatorColor="@color/actifitRed"
+                                    app:trackColor="#E0E0E0"
+                                    app:trackCornerRadius="6dp" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:orientation="vertical"
+                                    android:gravity="center">
+
+                                    <TextView
+                                        android:id="@+id/tv_step_count_hc"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textColor="@color/actifitRed"
+                                        android:textSize="28sp"
+                                        android:textStyle="bold"
+                                        android:text="0" />
+
+                                    <TextView
+                                        android:id="@+id/tv_step_goal_hc"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="11sp"
+                                        android:text="/ 10,000 steps" />
+
+                                    <TextView
+                                        android:id="@+id/tv_step_pct_hc"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="10sp"
+                                        android:text="0% to goal" />
+                                </LinearLayout>
+                            </FrameLayout>
 
                             <ImageView
                                 android:id="@+id/health_connect_logo"
@@ -376,11 +430,55 @@
                             android:layout_height="match_parent"
                             android:visibility="gone">
 
-                            <com.github.mikephil.charting.charts.PieChart
+                            <FrameLayout
                                 android:id="@+id/step_pie_chart_fitbit"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center" />
+                                android:layout_height="match_parent">
+
+                                <com.google.android.material.progressindicator.CircularProgressIndicator
+                                    android:id="@+id/step_ring_fitbit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:progress="0"
+                                    android:max="100"
+                                    app:indicatorSize="160dp"
+                                    app:trackThickness="12dp"
+                                    app:indicatorColor="@color/actifitRed"
+                                    app:trackColor="#E0E0E0"
+                                    app:trackCornerRadius="6dp" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:orientation="vertical"
+                                    android:gravity="center">
+
+                                    <TextView
+                                        android:id="@+id/tv_step_count_fitbit"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textColor="@color/actifitRed"
+                                        android:textSize="28sp"
+                                        android:textStyle="bold"
+                                        android:text="0" />
+
+                                    <TextView
+                                        android:id="@+id/tv_step_goal_fitbit"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="11sp"
+                                        android:text="/ 10,000 steps" />
+
+                                    <TextView
+                                        android:id="@+id/tv_step_pct_fitbit"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="10sp"
+                                        android:text="0% to goal" />
+                                </LinearLayout>
+                            </FrameLayout>
 
                             <ImageView
                                 android:id="@+id/fitbit_logo"
@@ -436,15 +534,60 @@
 
                         <!-- Default Actifit pie chart -->
                         <RelativeLayout
+                            android:id="@+id/default_chart_container"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:visibility="visible">
 
-                            <com.github.mikephil.charting.charts.PieChart
+                            <FrameLayout
                                 android:id="@+id/step_pie_chart"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center" />
+                                android:layout_height="match_parent">
+
+                                <com.google.android.material.progressindicator.CircularProgressIndicator
+                                    android:id="@+id/step_ring"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:progress="0"
+                                    android:max="100"
+                                    app:indicatorSize="160dp"
+                                    app:trackThickness="12dp"
+                                    app:indicatorColor="@color/actifitRed"
+                                    app:trackColor="#E0E0E0"
+                                    app:trackCornerRadius="6dp" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:orientation="vertical"
+                                    android:gravity="center">
+
+                                    <TextView
+                                        android:id="@+id/tv_step_count"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textColor="@color/actifitRed"
+                                        android:textSize="28sp"
+                                        android:textStyle="bold"
+                                        android:text="0" />
+
+                                    <TextView
+                                        android:id="@+id/tv_step_goal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="11sp"
+                                        android:text="/ 10,000 steps" />
+
+                                    <TextView
+                                        android:id="@+id/tv_step_pct"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="10sp"
+                                        android:text="0% to goal" />
+                                </LinearLayout>
+                            </FrameLayout>
 
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -529,6 +672,228 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Streak Strip Card (P2-1) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/streak_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_sm"
+                    android:paddingBottom="@dimen/spacing_sm">
+
+                    <!-- Header: fire icon + label + streak count -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/md_theme_warning"
+                            android:textSize="16sp"
+                            android:text="&#xf06d;"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="8dp"
+                            android:text="Consistency"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/md_theme_onSurface"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/tv_streak_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="@color/actifitRed"
+                            android:textStyle="bold"
+                            android:text="0 day streak"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <!-- 7 day circles -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="7">
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_0" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_0" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="M"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_1" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_1" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="T"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_2" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_2" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="W"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_3" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_3" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="T"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_4" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_4" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="F"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_5" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_5" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="S"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                            <View android:id="@+id/streak_day_6" android:layout_width="28dp" android:layout_height="28dp"
+                                android:background="@drawable/streak_day_inactive" />
+                            <TextView android:id="@+id/streak_label_6" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="10sp" android:paddingTop="3dp" android:text="S"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Smart Nudge Card (P1-3) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/nudge_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/spacing_md"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_nudge_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:textColor="@color/md_theme_primary"
+                        android:textSize="20sp"
+                        android:text=""
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/tv_nudge_message"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:paddingEnd="@dimen/spacing_xs"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_nudge_dismiss"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:textColor="@color/md_theme_primary"
+                        android:textSize="16sp"
+                        android:padding="4dp"
+                        android:text=""
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- AI Insight Card (P2-2) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/ai_insight_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/spacing_md"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:textColor="@color/md_theme_secondary"
+                        android:textSize="20sp"
+                        android:text="&#xf0eb;"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/tv_ai_insight"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:textSize="13sp"
+                        android:lineSpacingMultiplier="1.3"
+                        android:text="Generating insight..."
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Quick Actions Row -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -559,12 +924,67 @@
                     android:fontFamily="@font/font_awesome_6_solid" />
             </LinearLayout>
 
-            <!-- Voting Status -->
+            <!-- Earnings & Gadgets Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/earnings_gadgets_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_sm"
+                    android:paddingBottom="@dimen/spacing_sm">
+
+                    <!-- Card header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="14sp"
+                            android:text="&#xf4b3;"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="8dp"
+                            android:text="Earnings &amp; Gadgets"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/md_theme_onSurface"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/md_theme_separator"
+                        android:layout_marginBottom="@dimen/spacing_xs" />
+
+            <!-- Voting Status (hidden — replaced by nudge card) -->
             <LinearLayout
                 android:id="@+id/voting_status_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 android:paddingStart="@dimen/spacing_sm"
                 android:paddingBottom="@dimen/spacing_sm"
                 android:weightSum="1.0">
@@ -594,55 +1014,90 @@
                 android:id="@+id/earnings_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:paddingStart="@dimen/spacing_sm"
-                android:paddingBottom="@dimen/spacing_sm"
-                android:weightSum="1.0">
+                android:paddingEnd="@dimen/spacing_sm"
+                android:paddingBottom="@dimen/spacing_xs">
 
+                <!-- Row 1: label + compact token logos -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="2dp">
+
+                    <ImageView
+                        android:id="@+id/afit_logo"
+                        android:contentDescription="AFIT icon"
+                        android:src="@drawable/actifit_logo"
+                        android:layout_height="16dp"
+                        android:layout_width="16dp" />
+
+                    <TextView
+                        android:id="@+id/tv_reward_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingStart="@dimen/spacing_xs"
+                        android:text="Estimated Reward"
+                        android:textSize="12sp"
+                        android:textColor="@color/md_theme_secondary"
+                        tools:ignore="HardcodedText" />
+
+                    <!-- token_notice kept for Java compat, hidden visually -->
+                    <TextView
+                        android:id="@+id/token_notice"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone"
+                        android:textColor="@color/md_theme_primary"
+                        android:textSize="0sp"
+                        android:text="@string/fa_exclamation_circle_solid"
+                        android:fontFamily="@font/font_awesome_6_solid" />
+
+                    <ImageView
+                        android:id="@+id/hive_logo"
+                        android:contentDescription="HIVE icon"
+                        android:src="@drawable/hive"
+                        android:layout_height="18dp"
+                        android:layout_width="18dp"
+                        android:layout_marginStart="4dp" />
+
+                    <ImageView
+                        android:id="@+id/steem_logo"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/steem"
+                        android:layout_height="18dp"
+                        android:layout_width="0dp"
+                        android:visibility="invisible" />
+
+                    <ImageView
+                        android:id="@+id/blurt_logo"
+                        android:contentDescription="BLURT icon"
+                        android:src="@drawable/blurt"
+                        android:layout_height="18dp"
+                        android:layout_width="18dp"
+                        android:layout_marginStart="4dp" />
+
+                    <ImageView
+                        android:id="@+id/sports_logo"
+                        android:contentDescription="SPORTS icon"
+                        android:src="@drawable/sports"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
+
+                <!-- Row 2: hero AFIT amount -->
                 <TextView
-                    android:id="@+id/token_notice"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:textColor="@color/md_theme_primary"
-                    android:textSize="20sp"
-                    android:text="@string/fa_exclamation_circle_solid"
-                    android:fontFamily="@font/font_awesome_6_solid" />
-
-                <ImageView
-                    android:id="@+id/afit_logo"
-                    android:contentDescription="AFIT icon"
-                    android:src="@drawable/actifit_logo"
-                    android:layout_height="25dp"
-                    android:layout_width="25dp" />
-
-                <ImageView
-                    android:id="@+id/hive_logo"
-                    android:contentDescription="HIVE icon"
-                    android:src="@drawable/hive"
-                    android:layout_height="25dp"
-                    android:layout_width="25dp" />
-
-                <ImageView
-                    android:id="@+id/steem_logo"
-                    android:importantForAccessibility="no"
-                    android:src="@drawable/steem"
-                    android:layout_height="25dp"
-                    android:layout_width="0dp"
-                    android:visibility="invisible" />
-
-                <ImageView
-                    android:id="@+id/blurt_logo"
-                    android:contentDescription="BLURT icon"
-                    android:src="@drawable/blurt"
-                    android:layout_height="25dp"
-                    android:layout_width="25dp" />
-
-                <ImageView
-                    android:id="@+id/sports_logo"
-                    android:contentDescription="SPORTS icon"
-                    android:src="@drawable/sports"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp" />
+                    android:id="@+id/tv_estimated_afit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/actifitRed"
+                    android:text="..." />
             </LinearLayout>
 
             <!-- User Gadgets -->
@@ -651,32 +1106,72 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingBottom="@dimen/spacing_sm"
                 android:minHeight="40dp"
                 android:weightSum="1.0">
 
                 <LinearLayout
                     android:id="@+id/missing_active_gadgets_container"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingStart="@dimen/spacing_sm">
-
-                    <TextView
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        android:textColor="@color/md_theme_primary"
-                        android:text="\uf54e"
-                        android:textSize="20sp" />
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:paddingEnd="@dimen/spacing_sm"
+                    android:paddingTop="@dimen/spacing_xs"
+                    android:paddingBottom="@dimen/spacing_sm">
 
                     <TextView
                         android:id="@+id/missing_active_gadgets"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="@string/no_active_gadgets_found"
-                        android:paddingStart="@dimen/spacing_sm"
-                        android:paddingEnd="@dimen/spacing_sm" />
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="12sp"
+                        android:textColor="@color/md_theme_secondary"
+                        android:text="No active gadgets"
+                        tools:ignore="HardcodedText" />
+
+                    <LinearLayout
+                        android:id="@+id/btn_browse_market_gadgets"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="@dimen/spacing_xs"
+                        android:paddingEnd="@dimen/spacing_xs"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="11sp"
+                            android:text="&#xf54e;"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="12sp"
+                            android:text="Market"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="3dp"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="10sp"
+                            android:text="&#xf054;"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
@@ -718,6 +1213,9 @@
                     android:textSize="@dimen/text_subtitle"
                     android:paddingStart="@dimen/spacing_sm" />
             </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Rewards Row -->
             <LinearLayout
@@ -835,6 +1333,62 @@
                     android:visibility="gone"
                     android:text="@string/hourly" />
             </LinearLayout>
+
+            <!-- Monthly Heatmap (P2-5) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/heatmap_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_sm"
+                    android:paddingBottom="@dimen/spacing_sm">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="@dimen/spacing_xs">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="14sp"
+                            android:text="&#xf133;"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/tv_heatmap_title"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="8dp"
+                            android:text="This Month"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/md_theme_onSurface"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/heatmap_grid"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Workout Highlight -->
             <LinearLayout

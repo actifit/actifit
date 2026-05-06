@@ -406,6 +406,29 @@ public class ApiManager {
         queue.add(pendRewardsRequest);
     }
 
+    public void displayEstimatedReward(RequestQueue queue, TextView tvEstimatedAfit) {
+        String username = sharedPreferences.getString("actifitUser", "");
+        if (username.isEmpty() || tvEstimatedAfit == null) return;
+
+        String rewardUrl = Utils.apiUrl(context) + context.getString(R.string.estimated_reward_api_url) + username;
+        JsonObjectRequest rewardRequest = new JsonObjectRequest(Request.Method.GET, rewardUrl, null, response -> {
+            try {
+                double estimatedAfit = response.optDouble("estimated_afit", 0);
+                boolean alreadyRewarded = response.optBoolean("already_rewarded", false);
+                String label;
+                if (alreadyRewarded) {
+                    label = String.format(java.util.Locale.getDefault(), "%.1f AFIT (last reward)", estimatedAfit);
+                } else {
+                    label = String.format(java.util.Locale.getDefault(), "~%.1f AFIT (estimated)", estimatedAfit);
+                }
+                ((Activity) context).runOnUiThread(() -> tvEstimatedAfit.setText(label));
+            } catch (Exception e) {
+                Log.e(TAG, "error parsing estimated reward");
+            }
+        }, error -> Log.e(TAG, "error fetching estimated reward"));
+        queue.add(rewardRequest);
+    }
+
     public void displayUserGadgets(RequestQueue queue, LinearLayout userGadgets, TextView noActiveGadgets) {
         String username = sharedPreferences.getString("actifitUser", "");
         if (username.isEmpty()) {
