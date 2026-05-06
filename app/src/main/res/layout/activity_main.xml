@@ -309,10 +309,9 @@
                             android:layout_width="28dp"
                             android:layout_height="28dp"
                             android:contentDescription="Health Connect"
-                            android:src="@mipmap/health_connect_logo"
+                            android:src="@mipmap/health_connect"
                             android:scaleType="fitCenter"
                             android:padding="2dp"
-                            android:background="@drawable/health_connect_indicator_bg"
                             android:visibility="gone" />
                     </LinearLayout>
 
@@ -383,7 +382,7 @@
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
                                 android:contentDescription="Health Connect Logo"
-                                android:src="@mipmap/health_connect_logo" />
+                                android:src="@mipmap/health_connect" />
 
                             <TextView
                                 android:id="@+id/sync_health_connect"
