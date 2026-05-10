@@ -381,6 +381,8 @@
                                 android:id="@+id/health_connect_logo"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
+                                android:layout_marginTop="-5dp"
+                                android:layout_marginStart="-5dp"
                                 android:contentDescription="Health Connect Logo"
                                 android:src="@mipmap/health_connect" />
 
