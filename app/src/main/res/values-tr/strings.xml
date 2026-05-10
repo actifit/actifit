@@ -674,4 +674,9 @@
     <string name="select_backup_file">Yedekleme dosyasını seçin</string>
         <string name="watch_and_earn">İzle ve Kazan</string>
     <string name="steps_to_unlock">Kilit açmak için %1$,d adım daha atın</string>
+    <string name="help_video_unavailable">Öğretici video kullanılamıyor. Lütfen daha sonra tekrar deneyin.</string>
+    <string name="add_tag_hint">Etiket ekle...</string>
+    <string name="show_more_activities">Daha fazla aktivite</string>
+    <string name="show_fewer_activities">Daha az aktivite</string>
+    <string name="x_like_btn">♡  X'te Beğen</string>
 </resources>

@@ -8,10 +8,12 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
@@ -37,8 +39,25 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
-
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        Slider_Items_Model_Class item = sliderItemsModelClasses.get(position);
+
+        if (item.isTweet()) {
+            View tweetLayout = inflater.inflate(R.layout.slider_tweet_layout, null);
+
+            TextView tweetText = tweetLayout.findViewById(R.id.tweet_text_content);
+            TextView tweetTimestamp = tweetLayout.findViewById(R.id.tweet_timestamp);
+            Button likeBtn = tweetLayout.findViewById(R.id.like_on_x_btn);
+
+            tweetText.setText(item.getNews_title());
+            tweetTimestamp.setText(item.getTweetTimestamp());
+
+            likeBtn.setOnClickListener(v -> openInCustomTab(item.getLink_url()));
+
+            container.addView(tweetLayout);
+            return tweetLayout;
+        }
+
         View sliderLayout = inflater.inflate(R.layout.slider_items_layout, null);
 
         ImageView featured_image = sliderLayout.findViewById(R.id.news_featured_image);
@@ -50,33 +69,24 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
                 return;
             }
             Glide.with(ctx)
-                    .load(sliderItemsModelClasses.get(position).getFeatured_image_url())
+                    .load(item.getFeatured_image_url())
                     .into(featured_image);
         });
 
-        // featured_image.setImageResource();
-        caption_title.setText(sliderItemsModelClasses.get(position).getNews_title());
+        caption_title.setText(item.getNews_title());
         container.addView(sliderLayout);
 
-        sliderLayout.setOnClickListener(view -> {
-            // Toast.makeText (Mcontext, "test", Toast.LENGTH_LONG).show();
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-
-            builder.setToolbarColor(ctx.getResources().getColor(R.color.actifitRed));
-
-            // animation for showing and closing fitbit authorization screen
-            builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
-
-            // animation for back button clicks
-            builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
-                    android.R.anim.slide_out_right);
-
-            CustomTabsIntent customTabsIntent = builder.build();
-
-            customTabsIntent.launchUrl(ctx, Uri.parse(sliderItemsModelClasses.get(position).getLink_url()));
-        });
+        sliderLayout.setOnClickListener(view -> openInCustomTab(item.getLink_url()));
 
         return sliderLayout;
+    }
+
+    private void openInCustomTab(String url) {
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        builder.setToolbarColor(ContextCompat.getColor(ctx, R.color.actifitRed));
+        builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
+        builder.setExitAnimations(ctx, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        builder.build().launchUrl(ctx, Uri.parse(url));
     }
 
     @Override

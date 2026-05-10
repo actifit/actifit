@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/news_card_bg"
+    android:padding="@dimen/spacing_md">
+
+    <!-- Header: X logo + handle + timestamp -->
+    <LinearLayout
+        android:id="@+id/tweet_header"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="𝕏"
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="6dp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@actifit_fitness"
+            android:textColor="#BBBBBB"
+            android:textSize="12sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tweet_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#888888"
+            android:textSize="11sp"
+            tools:text="2h ago" />
+
+    </LinearLayout>
+
+    <!-- Top divider -->
+    <View
+        android:id="@+id/tweet_divider_top"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#33FFFFFF"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tweet_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Tweet text -->
+    <TextView
+        android:id="@+id/tweet_text_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:textColor="@color/colorWhite"
+        android:textSize="13sp"
+        android:lineSpacingMultiplier="1.3"
+        android:maxLines="4"
+        android:ellipsize="end"
+        android:gravity="top"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tweet_divider_top"
+        app:layout_constraintBottom_toTopOf="@id/tweet_divider_bottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="Congrats to all our step champions today! Keep moving and earning AFIT rewards. The community is growing stronger every day 💪" />
+
+    <!-- Bottom divider -->
+    <View
+        android:id="@+id/tweet_divider_bottom"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#33FFFFFF"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/like_on_x_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Like on X button -->
+    <Button
+        android:id="@+id/like_on_x_btn"
+        style="@style/AppTheme.ActifitButton"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:text="@string/x_like_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

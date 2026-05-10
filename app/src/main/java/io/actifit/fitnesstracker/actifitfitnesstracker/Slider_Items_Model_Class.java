@@ -11,6 +11,8 @@ public class Slider_Items_Model_Class {
     private String news_title;
     private String link_url;
     private boolean main_announce;
+    private boolean is_tweet = false;
+    private String tweet_timestamp;
     private boolean is_survey = false;
     private JSONArray survey_options;
     private int survey_duration;
@@ -57,6 +59,17 @@ public class Slider_Items_Model_Class {
         this.news_title = news_title;
         this.link_url = link_url;
     }
+
+    public static Slider_Items_Model_Class fromTweet(String tweetText, String tweetUrl, String timestamp) {
+        Slider_Items_Model_Class item = new Slider_Items_Model_Class("", tweetText, tweetUrl);
+        item.is_tweet = true;
+        item.tweet_timestamp = timestamp != null ? timestamp : "";
+        return item;
+    }
+
+    public boolean isTweet() { return is_tweet; }
+
+    public String getTweetTimestamp() { return tweet_timestamp != null ? tweet_timestamp : ""; }
 
     public String getFeatured_image_url() {
         return featured_image_url;

@@ -675,5 +675,10 @@
     <string name="select_backup_file">Yan faili afẹyinti</string>
     <string name="watch_and_earn">Wo &amp; Gba</string>
     <string name="steps_to_unlock">Rìn igbésẹ̀ %1$,d síi láti ṣí</string>
+    <string name="help_video_unavailable">Fídíò ìkọ́ kò sí. Jọwọ gbiyanju lẹ́ẹ̀kan sí lẹ́yìn náà.</string>
+    <string name="add_tag_hint">Fi àmì kun...</string>
+    <string name="show_more_activities">Àwọn ìgbésẹ̀ síi</string>
+    <string name="show_fewer_activities">Àwọn ìgbésẹ̀ díẹ̀</string>
+    <string name="x_like_btn">♡  Fẹ́ràn lórí X</string>
 </resources>
 
