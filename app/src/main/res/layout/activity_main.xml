@@ -1469,6 +1469,16 @@
                             android:textStyle="bold"
                             android:textColor="@color/md_theme_onSurface"
                             tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/tv_heatmap_streak"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="12sp"
+                            android:textColor="@color/actifitRed"
+                            android:textStyle="bold"
+                            android:visibility="gone"
+                            tools:ignore="HardcodedText" />
                     </LinearLayout>
 
                     <LinearLayout
