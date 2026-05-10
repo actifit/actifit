@@ -106,4 +106,9 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
         return view == o;
     }
 
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        return POSITION_NONE;
+    }
+
 }

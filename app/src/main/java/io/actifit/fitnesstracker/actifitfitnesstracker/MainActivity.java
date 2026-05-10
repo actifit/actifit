@@ -669,6 +669,8 @@ public class MainActivity extends BaseActivity {
                         MainAnnounceFragment mainAnnounceDialog = MainAnnounceFragment.newInstance(mainAnnounce);
                         mainAnnounceDialog.show(getSupportFragmentManager(), "main_announce");
                     }
+
+                    loadLatestTweetIntoCarousel(queue);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "News slider parse error");
@@ -973,8 +975,6 @@ public class MainActivity extends BaseActivity {
         loadNewsSlider(queue);
 
         loadSurvey(queue);
-
-        loadLatestTweetIntoCarousel(queue);
 
         // grab pointers to specific elements/buttons to be able to capture events and
         // take action
