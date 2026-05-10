@@ -260,7 +260,7 @@ public class RewardManager {
         if (stepProgress != null) stepProgress.setVisibility(View.GONE);
 
         if (isClaimed) {
-            button.setText(context.getString(R.string.claim_now));
+            button.setText(context.getString(R.string.watch_and_earn));
             button.setEnabled(false);
             setButtonDisabled(button);
             String claimedStatusText;
@@ -281,7 +281,7 @@ public class RewardManager {
             statusTextView.setVisibility(View.VISIBLE);
             startPulseAnimation(button);
         } else {
-            button.setText(context.getString(R.string.claim_now));
+            button.setText(context.getString(R.string.watch_and_earn));
             button.setEnabled(false);
             setButtonDisabled(button);
             int stepsNeeded = requiredSteps - currentStepCount;

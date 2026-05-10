@@ -281,7 +281,7 @@ public class MainActivity extends BaseActivity {
 
     /* items related to batch data capturing */
 
-    // private int curStepCount = 0;
+    private int currentDisplayedStepCount = 0;
     private static final String BUNDLE_LISTENER = "listener";
 
     private static Intent mServiceIntent;
@@ -2464,18 +2464,21 @@ public class MainActivity extends BaseActivity {
     }
 
     private void displayActivityChartFitbit(final int stepCount, final boolean animate) {
+        currentDisplayedStepCount = stepCount;
         chartManager.displayActivityChartFitbit(stepCount, animate);
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
     }
 
     private void displayActivityChartHealthConnect(final int stepCount, final boolean animate) {
+        currentDisplayedStepCount = stepCount;
         chartManager.displayActivityChartHealthConnect(stepCount, animate);
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
     }
 
     private void displayActivityChart(final int stepCount, final boolean animate) {
+        currentDisplayedStepCount = stepCount;
         chartManager.displayActivityChart(stepCount, animate);
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
@@ -2533,7 +2536,7 @@ public class MainActivity extends BaseActivity {
     private void displayEstimatedReward() {
         RequestQueue queue = Volley.newRequestQueue(this);
         TextView tvEstimatedAfit = findViewById(R.id.tv_estimated_afit);
-        apiManager.displayEstimatedReward(queue, tvEstimatedAfit);
+        apiManager.displayEstimatedReward(queue, tvEstimatedAfit, currentDisplayedStepCount);
     }
 
     private void loadSignupLinks(RequestQueue queue) {
@@ -2556,6 +2559,10 @@ public class MainActivity extends BaseActivity {
         } else if (stepCount < activityMilestoneThree) {
             msg = "You've hit " + activityMilestoneOne + " steps — claim your reward now!";
             icon = "";
+            nudgeCard.setOnClickListener(v -> {
+                Button rewardBtn = findViewById(R.id.daily_reward);
+                if (rewardBtn != null) rewardBtn.performClick();
+            });
         } else {
             msg = "Great day! Share your achievement";
             icon = "";

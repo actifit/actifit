@@ -379,8 +379,8 @@
 
                             <ImageView
                                 android:id="@+id/health_connect_logo"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
                                 android:contentDescription="Health Connect Logo"
                                 android:src="@mipmap/health_connect" />
 
@@ -487,8 +487,8 @@
 
                             <ImageView
                                 android:id="@+id/fitbit_logo"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
                                 android:contentDescription="Fitbit Logo"
                                 android:src="@drawable/fitbit_app_icon"
                                 tools:ignore="HardcodedText" />
@@ -619,6 +619,7 @@
                                     android:layout_height="25dp"
                                     android:textColor="@color/md_theme_primary"
                                     android:textSize="20sp"
+                                    android:gravity="center"
                                     android:text="@string/fa_exclamation_circle_solid"
                                     android:fontFamily="@font/font_awesome_6_solid"
                                     android:layout_marginStart="10dp" />
@@ -1053,13 +1054,13 @@
                         android:background="@color/md_theme_separator"
                         android:layout_marginBottom="@dimen/spacing_xs" />
 
-            <!-- Voting Status (hidden — replaced by nudge card) -->
+            <!-- Voting Status / Reward Cycle Timer -->
             <LinearLayout
                 android:id="@+id/voting_status_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:paddingStart="@dimen/spacing_sm"
                 android:paddingBottom="@dimen/spacing_sm"
                 android:weightSum="1.0">

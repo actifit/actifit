@@ -406,11 +406,12 @@ public class ApiManager {
         queue.add(pendRewardsRequest);
     }
 
-    public void displayEstimatedReward(RequestQueue queue, TextView tvEstimatedAfit) {
+    public void displayEstimatedReward(RequestQueue queue, TextView tvEstimatedAfit, int currentStepCount) {
         String username = sharedPreferences.getString("actifitUser", "");
         if (username.isEmpty() || tvEstimatedAfit == null) return;
 
-        String rewardUrl = Utils.apiUrl(context) + context.getString(R.string.estimated_reward_api_url) + username;
+        String rewardUrl = Utils.apiUrl(context) + context.getString(R.string.estimated_reward_api_url) + username
+                + (currentStepCount > 0 ? "&steps=" + currentStepCount : "");
         JsonObjectRequest rewardRequest = new JsonObjectRequest(Request.Method.GET, rewardUrl, null, response -> {
             try {
                 double estimatedAfit = response.optDouble("estimated_afit", 0);
