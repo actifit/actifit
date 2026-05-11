@@ -121,7 +121,7 @@ Organized by priority. All tasks are UI/UX enhancements unless otherwise noted.
   Calories · Active Minutes · Resting Heart Rate (if available via HC APIs).
   _Files: activity_main.xml, MainActivity.java, HealthConnectManager.java_
 
-- [ ] **P3-3: Community feed preview strip**
+- [x] **P3-3: Community feed preview strip**
   Add a horizontal scrollable strip of 3 recent community posts (avatar + username +
   step count) just above the footer. Creates social proof and reduces the feeling of
   posting into a void. Pull data already fetched for the Social screen.
@@ -151,5 +151,5 @@ Organized by priority. All tasks are UI/UX enhancements unless otherwise noted.
 | P2-5 | Monthly activity heatmap | Medium | Medium | ✅ Done |
 | P3-1 | Reorderable dashboard cards | High | High | ⬜ Pending |
 | P3-2 | Health metrics chips | Medium | Medium | ⬜ Pending |
-| P3-3 | Community feed preview | Medium | High | ⬜ Pending |
+| P3-3 | Community feed preview | Medium | High | ✅ Done |
 | P3-4 | Configurable step goal | High | Medium | ⬜ Pending |
