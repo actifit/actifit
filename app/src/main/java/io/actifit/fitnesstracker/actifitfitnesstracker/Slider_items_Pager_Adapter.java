@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 
@@ -44,6 +45,7 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
 
         if (item.isTweet()) {
             View tweetLayout = inflater.inflate(R.layout.slider_tweet_layout, null);
+            tweetLayout.setLayoutParams(new ViewPager.LayoutParams());
 
             TextView tweetText = tweetLayout.findViewById(R.id.tweet_text_content);
             TextView tweetTimestamp = tweetLayout.findViewById(R.id.tweet_timestamp);
