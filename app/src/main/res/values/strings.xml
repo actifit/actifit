@@ -652,4 +652,5 @@
     <string name="show_more_activities">More activities</string>
     <string name="show_fewer_activities">Fewer activities</string>
     <string name="x_like_btn">♡  Like on X</string>
+    <string name="powered_by_gemini">Powered by Gemini</string>
 </resources>
