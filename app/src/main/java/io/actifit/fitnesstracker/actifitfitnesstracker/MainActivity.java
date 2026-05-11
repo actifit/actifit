@@ -728,6 +728,40 @@ public class MainActivity extends BaseActivity {
         queue.add(req);
     }
 
+    private void loadCommunityFeed() {
+        androidx.recyclerview.widget.RecyclerView rv = findViewById(R.id.community_feed_rv);
+        if (rv == null) return;
+        rv.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(
+                this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+
+        HiveRequests hiveReq = new HiveRequests(this);
+        new Thread(() -> {
+            try {
+                org.json.JSONObject params = new org.json.JSONObject();
+                params.put("sort", "created");
+                params.put("tag", getString(R.string.actifit_community));
+                params.put("start_author", "");
+                params.put("start_permlink", "");
+                params.put("limit", 5);
+                org.json.JSONArray result = hiveReq.getRankedPosts(params);
+                java.util.List<SingleHivePostModel> posts = new java.util.ArrayList<>();
+                for (int i = 0; i < result.length(); i++) {
+                    posts.add(new SingleHivePostModel(result.getJSONObject(i), this));
+                }
+                runOnUiThread(() -> {
+                    rv.setAdapter(new CommunityFeedAdapter(this, posts));
+                    android.widget.TextView seeAll = findViewById(R.id.btn_see_all_community);
+                    if (seeAll != null) {
+                        seeAll.setOnClickListener(v ->
+                                startActivity(new android.content.Intent(this, SocialActivity.class)));
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "loadCommunityFeed error: " + e.getMessage());
+            }
+        }).start();
+    }
+
     /**
      * Persist token to third-party servers.
      *
@@ -986,6 +1020,8 @@ public class MainActivity extends BaseActivity {
         loadNewsSlider(queue);
 
         loadSurvey(queue);
+
+        loadCommunityFeed();
 
         // grab pointers to specific elements/buttons to be able to capture events and
         // take action
@@ -2858,7 +2894,7 @@ public class MainActivity extends BaseActivity {
         startActivity(mapIntent);
     }
 
-    private void buildMonthHeatmap() {
+    public void buildMonthHeatmap() {
         LinearLayout heatmapGrid = findViewById(R.id.heatmap_grid);
         if (heatmapGrid == null || mStepsDBHelper == null) return;
         heatmapGrid.removeAllViews();
