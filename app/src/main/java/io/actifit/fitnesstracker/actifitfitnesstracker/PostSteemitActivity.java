@@ -1143,11 +1143,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                         // store date of last sync to avoid improper use of older fitbit data
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("fitbitLastSyncDate",
-                                new SimpleDateFormat("yyyyMMdd").format(
-                                        mCalendar.getTime()));
+                        final String fitbitDate = new SimpleDateFormat("yyyyMMdd").format(mCalendar.getTime());
+                        editor.putString("fitbitLastSyncDate", fitbitDate);
                         editor.putLong("fitbitLastSyncTime", System.currentTimeMillis());
                         editor.apply();
+                        final int fitbitCount = trackedActivityCount;
+                        new Thread(() -> mStepsDBHelper.upsertFitbitSummary(fitbitDate, fitbitCount)).start();
                     } else {
                         Log.d(MainActivity.TAG, "No auto-tracked activity found for today");
                     }
@@ -1441,26 +1442,23 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     }
                 }
 
-                // no need to send detailed step data if this is a fitbit sync
+                // fetch hourly slot data for device and HC modes (Fitbit has none)
                 String stepDataString = "";
-                if (fitbitSyncDone == 0) {
-                    // prepare relevant day detailed data
-                    ArrayList<ActivitySlot> timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDate);
-
-                    // loop through the data to prepare it for proper display
+                ArrayList<ActivitySlot> timeSlotActivity = null;
+                if (fitbitSyncDone == 0 && healthConnectSyncDone == 0) {
+                    timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDate);
+                } else if (healthConnectSyncDone == 1) {
+                    timeSlotActivity = mStepsDBHelper.fetchHCDateTimeSlotActivity(targetDate);
+                }
+                if (timeSlotActivity != null) {
                     for (int position = 0; position < timeSlotActivity.size(); position++) {
                         try {
-                            // grab date entry according to stored format
                             String slotTime = (timeSlotActivity.get(position)).slot;
                             String slotEntryFormat = slotTime;
                             if (slotTime.length() < 4) {
-                                // no leading zero, add leading zero
                                 slotEntryFormat = "0" + slotTime;
                             }
-
-                            // append to display
                             stepDataString += slotEntryFormat + (timeSlotActivity.get(position)).activityCount + "|";
-
                         } catch (Exception ex) {
                             Log.d(MainActivity.TAG, ex.toString());
                             ex.printStackTrace();
@@ -2072,7 +2070,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         if (hasPermissions) {
                             ZonedDateTime day = yesterdayReport ? ZonedDateTime.now().minus(1, ChronoUnit.DAYS)
                                     : ZonedDateTime.now();
-                            healthConnectManager.readStepsData(day).whenComplete((steps, throwable) -> {
+                            healthConnectManager.readAndPersistStepsData(day, mStepsDBHelper).whenComplete((steps, throwable) -> {
                                 if (throwable != null) {
                                     Log.e(TAG, "Error reading steps from Health Connect", throwable);
                                     runOnUiThread(() -> Toast
