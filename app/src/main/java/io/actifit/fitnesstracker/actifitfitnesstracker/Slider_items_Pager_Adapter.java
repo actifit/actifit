@@ -49,15 +49,10 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
             ((TextView) tweetLayout.findViewById(R.id.tweet_timestamp)).setText(item.getTweetTimestamp());
             tweetLayout.findViewById(R.id.like_on_x_btn).setOnClickListener(v -> openInCustomTab(item.getLink_url()));
 
-            ImageView profileBg = tweetLayout.findViewById(R.id.tweet_profile_bg);
-            String profileImageUrl = item.getTweetProfileImageUrl();
-            if (!profileImageUrl.isEmpty()) {
-                Handler uiHandler = new Handler(Looper.getMainLooper());
-                uiHandler.post(() -> {
-                    if (!activity.isFinishing() && !activity.isDestroyed()) {
-                        Glide.with(ctx).load(profileImageUrl).centerCrop().into(profileBg);
-                    }
-                });
+            ImageView bgImage = tweetLayout.findViewById(R.id.tweet_profile_bg);
+            String tweetImageUrl = item.getTweetImageUrl();
+            if (!tweetImageUrl.isEmpty()) {
+                Glide.with(ctx).load(tweetImageUrl).centerCrop().into(bgImage);
             }
 
             container.addView(tweetLayout);
