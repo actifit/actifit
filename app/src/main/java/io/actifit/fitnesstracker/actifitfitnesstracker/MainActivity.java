@@ -653,7 +653,7 @@ public class MainActivity extends BaseActivity {
                     newsTabLayout.setupWithViewPager(newsPage, true);
 
                     java.util.Timer timer = new java.util.Timer();
-                    timer.scheduleAtFixedRate(new Slide_timer(), 2000, 3000);
+                    timer.scheduleAtFixedRate(new Slide_timer(), 2000, 5000);
                     newsTabLayout.setupWithViewPager(newsPage, true);
 
                     SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
