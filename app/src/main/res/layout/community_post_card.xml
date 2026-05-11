@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <ImageView
+        android:id="@+id/community_avatar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/community_avatar_placeholder"
+        android:contentDescription="" />
+
+    <TextView
+        android:id="@+id/community_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textSize="11sp"
+        android:textColor="#BBBBBB"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxWidth="72dp"
+        tools:text="@username" />
+
+    <TextView
+        android:id="@+id/community_steps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="@color/actifitRed"
+        android:maxLines="1"
+        tools:text="6,234" />
+
+</LinearLayout>

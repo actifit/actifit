@@ -675,5 +675,10 @@
     <string name="select_backup_file">백업 파일 선택</string>
     <string name="watch_and_earn">시청하고 획득하기</string>
     <string name="steps_to_unlock">%1$,d 걸음 더 걸어서 잠금 해제</string>
+    <string name="help_video_unavailable">튜토리얼 동영상을 사용할 수 없습니다. 나중에 다시 시도해 주세요.</string>
+    <string name="add_tag_hint">태그 추가...</string>
+    <string name="show_more_activities">더 많은 활동</string>
+    <string name="show_fewer_activities">더 적은 활동</string>
+    <string name="x_like_btn">♡  X에서 좋아요</string>
 </resources>
 

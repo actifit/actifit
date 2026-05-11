@@ -245,7 +245,7 @@ public class TrackingManager {
         hcTracking.setVisibility(View.VISIBLE);
 
         ZonedDateTime today = ZonedDateTime.now();
-        healthConnectManager.readStepsData(today).whenComplete((steps, readThrowable) -> {
+        healthConnectManager.readAndPersistStepsData(today, mStepsDBHelper).whenComplete((steps, readThrowable) -> {
             ((Activity) context).runOnUiThread(() -> {
                 if (readThrowable != null) {
                     Log.e(TAG, "Error reading steps from HC: " + readThrowable.getMessage(), readThrowable);
@@ -264,6 +264,40 @@ public class TrackingManager {
                 }
                 editor.apply();
                 chartManager.displayActivityChartHealthConnect(steps != null ? steps.intValue() : 0, true);
+
+                View barChartContainer = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
+                if (barChartContainer != null) barChartContainer.setVisibility(View.VISIBLE);
+                View chartSwitcherView = ((android.app.Activity) context).findViewById(R.id.chart_switcher);
+                if (chartSwitcherView != null) chartSwitcherView.setVisibility(View.VISIBLE);
+                chartManager.displayChartDataHC(true);
+                chartManager.displayDayChartDataHC(true);
+                if (context instanceof MainActivity) ((MainActivity) context).buildMonthHeatmap();
+
+                if (mStepsDBHelper != null) {
+                    Runnable heatmapRefresh = () -> ((Activity) context).runOnUiThread(() -> {
+                        chartManager.displayChartDataHC(false);
+                        if (context instanceof MainActivity) ((MainActivity) context).buildMonthHeatmap();
+                    });
+                    int hcEntryCount = mStepsDBHelper.readHCStepsEntries().size();
+                    Log.d(TAG, "HC entry count: " + hcEntryCount);
+                    if (hcEntryCount < 30) {
+                        Log.d(TAG, "HC table has fewer than 30 days — triggering backfill for " + (30 - hcEntryCount) + " missing days");
+                        healthConnectManager.backfillHCHistory(mStepsDBHelper, 30, heatmapRefresh);
+                    } else {
+                        try {
+                            String lastHCDate = mStepsDBHelper.getLastHCDate();
+                            java.util.Date last = new SimpleDateFormat("yyyyMMdd").parse(lastHCDate);
+                            long diffMs = new java.util.Date().getTime() - last.getTime();
+                            int diffDays = (int) (diffMs / (1000 * 60 * 60 * 24));
+                            Log.d(TAG, "HC gap days: " + diffDays);
+                            if (diffDays > 1) {
+                                healthConnectManager.backfillHCHistory(mStepsDBHelper, diffDays, heatmapRefresh);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error calculating HC gap: " + e.getMessage());
+                        }
+                    }
+                }
             });
         });
     }
@@ -298,6 +332,42 @@ public class TrackingManager {
                     thirdPartyTracking.setVisibility(View.VISIBLE);
                     int fitbitStepCount = sharedPreferences.getInt("fitbitSyncCount", 0);
                     chartManager.displayActivityChartFitbit(fitbitStepCount, true);
+                    View barChartContainer = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
+                    barChartContainer.setVisibility(View.VISIBLE);
+                    chartManager.displayChartDataFitbit(true);
+                } else if (dataTrackingSystem.equals(context.getString(R.string.health_connect_tracking_ntt))) {
+                    View barChartContainer = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
+                    barChartContainer.setVisibility(View.VISIBLE);
+                    View chartSwitcher = ((android.app.Activity) context).findViewById(R.id.chart_switcher);
+                    chartSwitcher.setVisibility(View.VISIBLE);
+                    chartManager.displayChartDataHC(true);
+                    chartManager.displayDayChartDataHC(true);
+                    if (context instanceof MainActivity) ((MainActivity) context).buildMonthHeatmap();
+                    if (mStepsDBHelper != null) {
+                        Runnable heatmapRefresh = () -> ((Activity) context).runOnUiThread(() -> {
+                            chartManager.displayChartDataHC(false);
+                            if (context instanceof MainActivity) ((MainActivity) context).buildMonthHeatmap();
+                        });
+                        int hcEntryCount = mStepsDBHelper.readHCStepsEntries().size();
+                        Log.d(TAG, "HC entry count (useDefaultTrackingMethod): " + hcEntryCount);
+                        if (hcEntryCount < 30) {
+                            Log.d(TAG, "HC table has fewer than 30 days — triggering backfill for " + (30 - hcEntryCount) + " missing days");
+                            healthConnectManager.backfillHCHistory(mStepsDBHelper, 30, heatmapRefresh);
+                        } else {
+                            try {
+                                String lastHCDate = mStepsDBHelper.getLastHCDate();
+                                java.util.Date last = new SimpleDateFormat("yyyyMMdd").parse(lastHCDate);
+                                long diffMs = new java.util.Date().getTime() - last.getTime();
+                                int diffDays = (int) (diffMs / (1000 * 60 * 60 * 24));
+                                Log.d(TAG, "HC gap days (useDefaultTrackingMethod): " + diffDays);
+                                if (diffDays > 1) {
+                                    healthConnectManager.backfillHCHistory(mStepsDBHelper, diffDays, heatmapRefresh);
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error calculating HC gap: " + e.getMessage());
+                            }
+                        }
+                    }
                 } else {
                     View pieChartView = ((android.app.Activity) context).findViewById(R.id.step_pie_chart);
                     if (pieChartView != null && pieChartView.getParent() instanceof View) {

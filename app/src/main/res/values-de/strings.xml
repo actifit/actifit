@@ -679,5 +679,10 @@
     <string name="select_backup_file">Sicherungsdatei auswählen</string>
     <string name="watch_and_earn">Anschauen &amp; Verdienen</string>
     <string name="steps_to_unlock">Noch %1$,d Schritte bis zur Freischaltung</string>
+    <string name="help_video_unavailable">Das Tutorial-Video ist nicht verfügbar. Bitte versuche es später erneut.</string>
+    <string name="add_tag_hint">Tag hinzufügen...</string>
+    <string name="show_more_activities">Mehr Aktivitäten</string>
+    <string name="show_fewer_activities">Weniger Aktivitäten</string>
+    <string name="x_like_btn">♡  Gefällt mir auf X</string>
 </resources>
 

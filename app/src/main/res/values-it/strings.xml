@@ -675,5 +675,10 @@
     <string name="select_backup_file">Seleziona il file di backup</string>
     <string name="watch_and_earn">Guarda e guadagna</string>
     <string name="steps_to_unlock">Cammina altri %1$,d passi per sbloccare</string>
+    <string name="help_video_unavailable">Il video tutorial non è disponibile. Riprova più tardi.</string>
+    <string name="add_tag_hint">Aggiungi tag...</string>
+    <string name="show_more_activities">Altre attività</string>
+    <string name="show_fewer_activities">Meno attività</string>
+    <string name="x_like_btn">♡  Mi piace su X</string>
 </resources>
 

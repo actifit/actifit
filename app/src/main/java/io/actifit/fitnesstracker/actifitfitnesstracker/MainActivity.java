@@ -281,7 +281,7 @@ public class MainActivity extends BaseActivity {
 
     /* items related to batch data capturing */
 
-    // private int curStepCount = 0;
+    private int currentDisplayedStepCount = 0;
     private static final String BUNDLE_LISTENER = "listener";
 
     private static Intent mServiceIntent;
@@ -637,7 +637,8 @@ public class MainActivity extends BaseActivity {
             try {
                 if (listArray != null && listArray.length() > 0) {
                     Slider_Items_Model_Class mainAnnounce = null;
-                    for (int i = 0; i < listArray.length(); i++) {
+                    int newsLimit = Math.min(8, listArray.length());
+                    for (int i = 0; i < newsLimit; i++) {
                         Slider_Items_Model_Class entry = new Slider_Items_Model_Class(
                                 listArray.getJSONObject(i));
                         listItems.add(entry);
@@ -652,7 +653,7 @@ public class MainActivity extends BaseActivity {
                     newsTabLayout.setupWithViewPager(newsPage, true);
 
                     java.util.Timer timer = new java.util.Timer();
-                    timer.scheduleAtFixedRate(new Slide_timer(), 2000, 3000);
+                    timer.scheduleAtFixedRate(new Slide_timer(), 2000, 5000);
                     newsTabLayout.setupWithViewPager(newsPage, true);
 
                     SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
@@ -669,6 +670,8 @@ public class MainActivity extends BaseActivity {
                         MainAnnounceFragment mainAnnounceDialog = MainAnnounceFragment.newInstance(mainAnnounce);
                         mainAnnounceDialog.show(getSupportFragmentManager(), "main_announce");
                     }
+
+                    loadLatestTweetIntoCarousel(queue);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "News slider parse error");
@@ -689,6 +692,74 @@ public class MainActivity extends BaseActivity {
         });
 
         queue.add(newsArticlesReq);
+    }
+
+    private void loadLatestTweetIntoCarousel(RequestQueue queue) {
+        String url = Utils.apiUrl(this) + getString(R.string.x_latest_post_url);
+        com.android.volley.toolbox.JsonObjectRequest req = new com.android.volley.toolbox.JsonObjectRequest(
+                com.android.volley.Request.Method.GET, url, null,
+                response -> {
+                    org.json.JSONArray tweetsArray = response.optJSONArray("tweets");
+                    if (tweetsArray == null || tweetsArray.length() == 0) return;
+
+                    java.util.List<Slider_Items_Model_Class> tweetSlides = new java.util.ArrayList<>();
+                    int count = Math.min(2, tweetsArray.length());
+                    for (int i = 0; i < count; i++) {
+                        org.json.JSONObject t = tweetsArray.optJSONObject(i);
+                        if (t == null) continue;
+                        String tweetText = t.optString("tweetText", "");
+                        String tweetUrl = t.optString("tweetUrl", "");
+                        if (tweetText.isEmpty() || tweetUrl.isEmpty()) continue;
+                        String timestamp = t.optString("tweetTimestamp", "");
+                        String tweetImageUrl = t.optString("tweetImageUrl", "");
+                        tweetSlides.add(Slider_Items_Model_Class.fromTweet(tweetText, tweetUrl, timestamp, tweetImageUrl));
+                    }
+                    if (tweetSlides.isEmpty()) return;
+
+                    runOnUiThread(() -> {
+                        if (listItems != null && newsPage != null && newsPage.getAdapter() != null) {
+                            listItems.addAll(0, tweetSlides);
+                            newsPage.getAdapter().notifyDataSetChanged();
+                            newsTabLayout.setupWithViewPager(newsPage, true);
+                        }
+                    });
+                },
+                error -> Log.e(TAG, "loadLatestTweetIntoCarousel failed: " + error.getMessage()));
+        queue.add(req);
+    }
+
+    private void loadCommunityFeed() {
+        androidx.recyclerview.widget.RecyclerView rv = findViewById(R.id.community_feed_rv);
+        if (rv == null) return;
+        rv.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(
+                this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+
+        HiveRequests hiveReq = new HiveRequests(this);
+        new Thread(() -> {
+            try {
+                org.json.JSONObject params = new org.json.JSONObject();
+                params.put("sort", "created");
+                params.put("tag", getString(R.string.actifit_community));
+                params.put("start_author", "");
+                params.put("start_permlink", "");
+                params.put("limit", 5);
+                org.json.JSONArray result = hiveReq.getRankedPosts(params);
+                java.util.List<SingleHivePostModel> posts = new java.util.ArrayList<>();
+                for (int i = 0; i < result.length(); i++) {
+                    posts.add(new SingleHivePostModel(result.getJSONObject(i), this));
+                }
+                runOnUiThread(() -> {
+                    rv.setAdapter(new CommunityFeedAdapter(this, posts));
+                    android.widget.TextView seeAll = findViewById(R.id.btn_see_all_community);
+                    if (seeAll != null) {
+                        seeAll.setOnClickListener(v ->
+                                startActivity(new android.content.Intent(this, SocialActivity.class)));
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "loadCommunityFeed error: " + e.getMessage());
+            }
+        }).start();
     }
 
     /**
@@ -949,6 +1020,8 @@ public class MainActivity extends BaseActivity {
         loadNewsSlider(queue);
 
         loadSurvey(queue);
+
+        loadCommunityFeed();
 
         // grab pointers to specific elements/buttons to be able to capture events and
         // take action
@@ -2122,6 +2195,9 @@ public class MainActivity extends BaseActivity {
                 resumeAsyncTask.execute();
 
                 displayActivityChart(steps, true);
+                new DisplayChartDataAsyncTask(true).execute(true);
+                new DisplayDayChartDataAsyncTask(true).execute(true);
+                buildMonthHeatmap();
             }
         });
 
@@ -2141,6 +2217,9 @@ public class MainActivity extends BaseActivity {
                 editor.commit();
                 int steps = mStepsDBHelper.fetchTodayStepCount();
                 displayActivityChartFitbit(steps, true);
+                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                chartManager.displayChartDataFitbit(true);
+                buildMonthHeatmap();
             }
         });
 
@@ -2438,18 +2517,21 @@ public class MainActivity extends BaseActivity {
     }
 
     private void displayActivityChartFitbit(final int stepCount, final boolean animate) {
+        currentDisplayedStepCount = stepCount;
         chartManager.displayActivityChartFitbit(stepCount, animate);
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
     }
 
     private void displayActivityChartHealthConnect(final int stepCount, final boolean animate) {
+        currentDisplayedStepCount = stepCount;
         chartManager.displayActivityChartHealthConnect(stepCount, animate);
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
     }
 
     private void displayActivityChart(final int stepCount, final boolean animate) {
+        currentDisplayedStepCount = stepCount;
         chartManager.displayActivityChart(stepCount, animate);
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
@@ -2490,6 +2572,42 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private class DisplayHCHistoryChartAsyncTask extends AsyncTask<Boolean, Void, Void> {
+        Boolean animate = false;
+        public DisplayHCHistoryChartAsyncTask(Boolean _animate) { animate = _animate; }
+        @Override
+        protected Void doInBackground(Boolean... params) { return null; }
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            chartManager.displayChartDataHC(animate);
+        }
+    }
+
+    private class DisplayHCDayChartAsyncTask extends AsyncTask<Boolean, Void, Void> {
+        Boolean animate = false;
+        public DisplayHCDayChartAsyncTask(Boolean _animate) { animate = _animate; }
+        @Override
+        protected Void doInBackground(Boolean... params) { return null; }
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            chartManager.displayDayChartDataHC(animate);
+        }
+    }
+
+    private class DisplayFitbitHistoryChartAsyncTask extends AsyncTask<Boolean, Void, Void> {
+        Boolean animate = false;
+        public DisplayFitbitHistoryChartAsyncTask(Boolean _animate) { animate = _animate; }
+        @Override
+        protected Void doInBackground(Boolean... params) { return null; }
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            chartManager.displayChartDataFitbit(animate);
+        }
+    }
+
     private void displayChartData(final boolean animate) {
         chartManager.displayChartData(animate);
     }
@@ -2507,7 +2625,7 @@ public class MainActivity extends BaseActivity {
     private void displayEstimatedReward() {
         RequestQueue queue = Volley.newRequestQueue(this);
         TextView tvEstimatedAfit = findViewById(R.id.tv_estimated_afit);
-        apiManager.displayEstimatedReward(queue, tvEstimatedAfit);
+        apiManager.displayEstimatedReward(queue, tvEstimatedAfit, currentDisplayedStepCount);
     }
 
     private void loadSignupLinks(RequestQueue queue) {
@@ -2530,6 +2648,10 @@ public class MainActivity extends BaseActivity {
         } else if (stepCount < activityMilestoneThree) {
             msg = "You've hit " + activityMilestoneOne + " steps — claim your reward now!";
             icon = "";
+            nudgeCard.setOnClickListener(v -> {
+                Button rewardBtn = findViewById(R.id.daily_reward);
+                if (rewardBtn != null) rewardBtn.performClick();
+            });
         } else {
             msg = "Great day! Share your achievement";
             icon = "";
@@ -2778,7 +2900,7 @@ public class MainActivity extends BaseActivity {
         startActivity(mapIntent);
     }
 
-    private void buildMonthHeatmap() {
+    public void buildMonthHeatmap() {
         LinearLayout heatmapGrid = findViewById(R.id.heatmap_grid);
         if (heatmapGrid == null || mStepsDBHelper == null) return;
         heatmapGrid.removeAllViews();
@@ -2795,12 +2917,7 @@ public class MainActivity extends BaseActivity {
         int firstDow = monthStart.get(Calendar.DAY_OF_WEEK);
         int leadingBlanks = (firstDow == Calendar.SUNDAY) ? 6 : firstDow - Calendar.MONDAY;
 
-        // Update title with month name
-        TextView tvTitle = findViewById(R.id.tv_heatmap_title);
-        if (tvTitle != null) {
-            tvTitle.setText(new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH).format(today.getTime()));
-        }
-
+        // Load step counts for all past days this month
         int[] stepsByDay = new int[daysInMonth + 1];
         for (int d = 1; d <= todayDay; d++) {
             Calendar c = Calendar.getInstance();
@@ -2808,15 +2925,42 @@ public class MainActivity extends BaseActivity {
             stepsByDay[d] = mStepsDBHelper.fetchStepCountByDate(sdf.format(c.getTime()));
         }
 
-        float density = getResources().getDisplayMetrics().density;
-        int cellH = (int) (14 * density);
-        int gapPx = (int) (3 * density);
+        // Calculate streak matching streak-strip logic:
+        // skip today if not yet at 5K, require 5K per day (same threshold as streak strip)
+        int streak = 0;
+        int startDay = (stepsByDay[todayDay] >= 5000) ? todayDay : todayDay - 1;
+        for (int d = startDay; d >= 1; d--) {
+            if (stepsByDay[d] >= 5000) streak++;
+            else break;
+        }
 
-        // Day header row
+        // Update title with month name
+        TextView tvTitle = findViewById(R.id.tv_heatmap_title);
+        if (tvTitle != null) {
+            tvTitle.setText(new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH).format(today.getTime()));
+        }
+
+        // Show streak badge (hidden when streak is 0)
+        TextView tvStreak = findViewById(R.id.tv_heatmap_streak);
+        if (tvStreak != null) {
+            if (streak > 0) {
+                tvStreak.setText("🔥 " + streak + (streak == 1 ? " day" : " days"));
+                tvStreak.setVisibility(View.VISIBLE);
+            } else {
+                tvStreak.setVisibility(View.GONE);
+            }
+        }
+
+        float density = getResources().getDisplayMetrics().density;
+        int cellH = (int) (20 * density);
+        int gapPx = (int) (4 * density);
+
+        // Day-of-week header row
         String[] headers = {"M", "T", "W", "T", "F", "S", "S"};
         LinearLayout headerRow = new LinearLayout(this);
         headerRow.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams headerLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams headerLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         headerLp.setMargins(0, 0, 0, gapPx);
         headerRow.setLayoutParams(headerLp);
         for (String h : headers) {
@@ -2825,19 +2969,21 @@ public class MainActivity extends BaseActivity {
             lp.setMargins(0, 0, gapPx, 0);
             tv.setLayoutParams(lp);
             tv.setText(h);
-            tv.setTextSize(9);
+            tv.setTextSize(10);
             tv.setGravity(Gravity.CENTER);
             tv.setTextColor(ContextCompat.getColor(this, R.color.md_theme_textSecondary));
             headerRow.addView(tv);
         }
         heatmapGrid.addView(headerRow);
 
+        // Calendar grid
         int totalCells = leadingBlanks + daysInMonth;
         int numRows = (int) Math.ceil(totalCells / 7.0);
         for (int row = 0; row < numRows; row++) {
             LinearLayout rowLayout = new LinearLayout(this);
             rowLayout.setOrientation(LinearLayout.HORIZONTAL);
-            LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, cellH);
+            LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, cellH);
             rowLp.setMargins(0, 0, 0, gapPx);
             rowLayout.setLayoutParams(rowLp);
 
@@ -2855,21 +3001,89 @@ public class MainActivity extends BaseActivity {
                 if (dayNum < 1 || dayNum > daysInMonth) {
                     cell.setVisibility(View.INVISIBLE);
                 } else if (dayNum > todayDay) {
-                    gd.setColor(Color.TRANSPARENT);
-                    gd.setStroke((int) density, 0xFFE0E0E0);
+                    // Future day — solid light grey so the past/future split is obvious
+                    gd.setColor(0xFFEEEEEE);
                     cell.setBackground(gd);
                 } else {
                     int steps = stepsByDay[dayNum];
-                    if (steps <= 0) gd.setColor(0xFFE8E8E8);
+                    if (steps <= 0) gd.setColor(0xFFD0D0D0);
                     else if (steps < 5000) gd.setColor(0xFFFFCDD2);
                     else if (steps < 7000) gd.setColor(0xFFEF9A9A);
                     else gd.setColor(0xFFFF112D);
                     cell.setBackground(gd);
+
+                    // Tap to show step count for that day
+                    int finalDay = dayNum;
+                    int finalSteps = steps;
+                    cell.setClickable(true);
+                    cell.setFocusable(true);
+                    cell.setOnClickListener(v -> {
+                        String label = new SimpleDateFormat("MMM d", Locale.ENGLISH)
+                                .format(new java.util.Date(
+                                        new java.util.GregorianCalendar(year, month, finalDay)
+                                                .getTimeInMillis()));
+                        String msg = finalSteps > 0
+                                ? label + ": " + String.format(Locale.ENGLISH, "%,d", finalSteps) + " steps"
+                                : label + ": No activity";
+                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                    });
                 }
                 rowLayout.addView(cell);
             }
             heatmapGrid.addView(rowLayout);
         }
+
+        // Colour legend
+        int legendTopMargin = (int) (8 * density);
+        LinearLayout legend = new LinearLayout(this);
+        legend.setOrientation(LinearLayout.HORIZONTAL);
+        legend.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams legendLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        legendLp.setMargins(0, legendTopMargin, 0, 0);
+        legend.setLayoutParams(legendLp);
+
+        int[][] legendItems = {
+                {0xFFD0D0D0, 0},       // no activity
+                {0xFFFFCDD2, 1},       // < 5K
+                {0xFFEF9A9A, 5000},    // 5K–7K
+                {0xFFFF112D, 7000}     // 7K+
+        };
+        String[] legendLabels = {"0", "< 5K", "5–7K", "7K+"};
+
+        for (int i = 0; i < legendItems.length; i++) {
+            LinearLayout item = new LinearLayout(this);
+            item.setOrientation(LinearLayout.HORIZONTAL);
+            item.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams itemLp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            itemLp.setMargins(0, 0, (int) (12 * density), 0);
+            item.setLayoutParams(itemLp);
+
+            // Colour dot
+            View dot = new View(this);
+            int dotSize = (int) (10 * density);
+            LinearLayout.LayoutParams dotLp = new LinearLayout.LayoutParams(dotSize, dotSize);
+            dotLp.setMargins(0, 0, (int) (4 * density), 0);
+            dot.setLayoutParams(dotLp);
+            android.graphics.drawable.GradientDrawable dotGd = new android.graphics.drawable.GradientDrawable();
+            dotGd.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            dotGd.setColor(legendItems[i][0]);
+            dot.setBackground(dotGd);
+            item.addView(dot);
+
+            // Label
+            TextView label = new TextView(this);
+            label.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            label.setText(legendLabels[i]);
+            label.setTextSize(10);
+            label.setTextColor(ContextCompat.getColor(this, R.color.md_theme_textSecondary));
+            item.addView(label);
+
+            legend.addView(item);
+        }
+        heatmapGrid.addView(legend);
     }
 
     private void claimFreeSignupLinks(RequestQueue queue) {
