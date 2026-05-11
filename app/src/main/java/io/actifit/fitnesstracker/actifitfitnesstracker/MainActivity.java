@@ -2195,6 +2195,9 @@ public class MainActivity extends BaseActivity {
                 resumeAsyncTask.execute();
 
                 displayActivityChart(steps, true);
+                new DisplayChartDataAsyncTask(true).execute(true);
+                new DisplayDayChartDataAsyncTask(true).execute(true);
+                buildMonthHeatmap();
             }
         });
 
@@ -2214,6 +2217,9 @@ public class MainActivity extends BaseActivity {
                 editor.commit();
                 int steps = mStepsDBHelper.fetchTodayStepCount();
                 displayActivityChartFitbit(steps, true);
+                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                chartManager.displayChartDataFitbit(true);
+                buildMonthHeatmap();
             }
         });
 

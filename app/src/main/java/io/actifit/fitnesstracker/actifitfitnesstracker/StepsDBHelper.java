@@ -21,7 +21,7 @@ import java.util.Locale;
 import static java.lang.String.format;
 
 public class StepsDBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME = "ActifitFitness";
     public static final String TABLE_STEPS_SUMMARY = "ActifitFitness";
     private static final String CREATION_DATE = "creationdate";//Date format is yyyyMMdd
@@ -47,6 +47,31 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     public static final String DEVICE_SENSORS = "Device Sensors";
     public static final String FITBIT = "Fitbit";
+    public static final String HEALTH_CONNECT = "Health Connect";
+
+    public static final String TABLE_HC_STEPS_SUMMARY = "HCStepsSummary";
+    public static final String TABLE_HC_STEPS_DETAILS = "HCStepsDetails";
+    public static final String TABLE_FITBIT_STEPS_SUMMARY = "FitbitStepsSummary";
+
+    private static final String CREATE_TABLE_HC_SUMMARY = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_HC_STEPS_SUMMARY
+            + "(" + CREATION_DATE + " INTEGER PRIMARY KEY,"
+            + STEPS_COUNT + " INTEGER,"
+            + TRACKING_DEVICE + " TEXT"
+            + ")";
+
+    private static final String CREATE_TABLE_HC_DETAILS = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_HC_STEPS_DETAILS
+            + "(" + DATE_ENTRY + " INTEGER, "
+            + TIME_SLOT + " INTEGER, "
+            + ACTIVITY_COUNT + " INTEGER)";
+
+    private static final String CREATE_TABLE_FITBIT_SUMMARY = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_FITBIT_STEPS_SUMMARY
+            + "(" + CREATION_DATE + " INTEGER PRIMARY KEY,"
+            + STEPS_COUNT + " INTEGER,"
+            + TRACKING_DEVICE + " TEXT"
+            + ")";
 
     private static SQLiteDatabase dbInstance;
 
@@ -99,6 +124,11 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         if (oldVersion < 4) {
             db.execSQL(CREATE_TABLE_ACTIVITY_ROUTES);
         }
+        if (oldVersion < 5) {
+            db.execSQL(CREATE_TABLE_HC_SUMMARY);
+            db.execSQL(CREATE_TABLE_HC_DETAILS);
+            db.execSQL(CREATE_TABLE_FITBIT_SUMMARY);
+        }
     }
 
     @Override
@@ -106,6 +136,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_ACTIFIT);
         db.execSQL(CREATE_TABLE_ACTIVITY_DETAILS);
         db.execSQL(CREATE_TABLE_ACTIVITY_ROUTES);
+        db.execSQL(CREATE_TABLE_HC_SUMMARY);
+        db.execSQL(CREATE_TABLE_HC_DETAILS);
+        db.execSQL(CREATE_TABLE_FITBIT_SUMMARY);
     }
 
     public int recordDetailedSteps(int incrementVal) {
@@ -343,13 +376,18 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     @SuppressLint("Range")
     public int fetchStepCountByDate(String dateString)
     {
+        String mode = sharedPreferences.getString("dataTrackingSystem",
+                ctx.getString(R.string.device_tracking_ntt));
+        String table = mode.equals(ctx.getString(R.string.health_connect_tracking_ntt)) ? TABLE_HC_STEPS_SUMMARY :
+                       mode.equals(ctx.getString(R.string.fitbit_tracking_ntt))         ? TABLE_FITBIT_STEPS_SUMMARY :
+                                                                                          TABLE_STEPS_SUMMARY;
         //ensure we are using proper numeric format for dates
         dateString = format(Locale.ENGLISH, "%d", Integer.parseInt(dateString));
         //tracking found step count. Initiate at -1 to know if entry was found
         int currentDateStepCounts = -1;
 
         String selectQuery = "SELECT " + STEPS_COUNT + " FROM "
-                + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE +" = "+ dateString;
+                + table + " WHERE " + CREATION_DATE +" = "+ dateString;
         try {
 
             //SQLiteDatabase db = this.getReadableDatabase();
@@ -509,6 +547,144 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         if (dbInstance.isOpen()){
             dbInstance.close();
         }
+    }
+
+    // ── HC / Fitbit parallel tables ─────────────────────────────────────────
+
+    public boolean upsertHCSummary(String yyyyMMdd, int steps) {
+        try {
+            int dateInt = Integer.parseInt(format(Locale.ENGLISH, "%d", Integer.parseInt(yyyyMMdd)));
+            ContentValues values = new ContentValues();
+            values.put(CREATION_DATE, dateInt);
+            values.put(STEPS_COUNT, steps);
+            values.put(TRACKING_DEVICE, HEALTH_CONNECT);
+            int updated = dbInstance.update(TABLE_HC_STEPS_SUMMARY, values,
+                    CREATION_DATE + "=" + dateInt, null);
+            if (updated < 1) {
+                dbInstance.insert(TABLE_HC_STEPS_SUMMARY, null, values);
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "ERROR");
+        }
+        return false;
+    }
+
+    public boolean upsertHCSlot(String yyyyMMdd, int timeSlot, int count) {
+        try {
+            int dateInt = Integer.parseInt(format(Locale.ENGLISH, "%d", Integer.parseInt(yyyyMMdd)));
+            ContentValues values = new ContentValues();
+            values.put(DATE_ENTRY, dateInt);
+            values.put(TIME_SLOT, timeSlot);
+            values.put(ACTIVITY_COUNT, count);
+            int updated = dbInstance.update(TABLE_HC_STEPS_DETAILS, values,
+                    DATE_ENTRY + "=" + dateInt + " AND " + TIME_SLOT + "=" + timeSlot, null);
+            if (updated < 1) {
+                dbInstance.insert(TABLE_HC_STEPS_DETAILS, null, values);
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "ERROR");
+        }
+        return false;
+    }
+
+    public boolean upsertFitbitSummary(String yyyyMMdd, int steps) {
+        try {
+            int dateInt = Integer.parseInt(format(Locale.ENGLISH, "%d", Integer.parseInt(yyyyMMdd)));
+            ContentValues values = new ContentValues();
+            values.put(CREATION_DATE, dateInt);
+            values.put(STEPS_COUNT, steps);
+            values.put(TRACKING_DEVICE, FITBIT);
+            int updated = dbInstance.update(TABLE_FITBIT_STEPS_SUMMARY, values,
+                    CREATION_DATE + "=" + dateInt, null);
+            if (updated < 1) {
+                dbInstance.insert(TABLE_FITBIT_STEPS_SUMMARY, null, values);
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "ERROR");
+        }
+        return false;
+    }
+
+    @SuppressLint("Range")
+    public String getLastHCDate() {
+        String result = null;
+        Cursor c = dbInstance.rawQuery(
+                "SELECT MAX(" + CREATION_DATE + ") FROM " + TABLE_HC_STEPS_SUMMARY, null);
+        if (c.moveToFirst() && !c.isNull(0)) {
+            result = c.getString(0);
+        }
+        c.close();
+        return result;
+    }
+
+    @SuppressLint("Range")
+    public ArrayList<DateStepsModel> readHCStepsEntries() {
+        ArrayList<DateStepsModel> mStepCountList = new ArrayList<>();
+        String selectQuery = "SELECT * FROM " + TABLE_HC_STEPS_SUMMARY;
+        try {
+            Cursor c = dbInstance.rawQuery(selectQuery, null);
+            if (c.moveToFirst()) {
+                do {
+                    DateStepsModel m = new DateStepsModel();
+                    m.mDate = c.getString(c.getColumnIndex(CREATION_DATE));
+                    m.mStepCount = c.getInt(c.getColumnIndex(STEPS_COUNT));
+                    m.mtrackingDevice = c.getString(c.getColumnIndex(TRACKING_DEVICE));
+                    mStepCountList.add(m);
+                } while (c.moveToNext());
+            }
+            c.close();
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "ERROR");
+        }
+        return mStepCountList;
+    }
+
+    @SuppressLint("Range")
+    public ArrayList<ActivitySlot> fetchHCDateTimeSlotActivity(String targetDateString) {
+        ArrayList<ActivitySlot> activitySlots = new ArrayList<>();
+        targetDateString = format(Locale.ENGLISH, "%d", Integer.parseInt(targetDateString));
+        String selectQuery = "SELECT * FROM "
+                + TABLE_HC_STEPS_DETAILS + " WHERE " + DATE_ENTRY + " = " + targetDateString;
+        try {
+            Cursor c = dbInstance.rawQuery(selectQuery, null);
+            if (c.moveToFirst()) {
+                do {
+                    String timeSlot = format(Locale.ENGLISH, "%04d",
+                            c.getInt(c.getColumnIndex(TIME_SLOT)));
+                    activitySlots.add(new ActivitySlot(timeSlot,
+                            c.getInt(c.getColumnIndex(ACTIVITY_COUNT))));
+                } while (c.moveToNext());
+            }
+            c.close();
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "ERROR");
+        }
+        return activitySlots;
+    }
+
+    @SuppressLint("Range")
+    public ArrayList<DateStepsModel> readFitbitStepsEntries() {
+        ArrayList<DateStepsModel> mStepCountList = new ArrayList<>();
+        String selectQuery = "SELECT * FROM " + TABLE_FITBIT_STEPS_SUMMARY;
+        try {
+            Cursor c = dbInstance.rawQuery(selectQuery, null);
+            if (c.moveToFirst()) {
+                do {
+                    DateStepsModel m = new DateStepsModel();
+                    m.mDate = c.getString(c.getColumnIndex(CREATION_DATE));
+                    m.mStepCount = c.getInt(c.getColumnIndex(STEPS_COUNT));
+                    m.mtrackingDevice = c.getString(c.getColumnIndex(TRACKING_DEVICE));
+                    mStepCountList.add(m);
+                } while (c.moveToNext());
+            }
+            c.close();
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "ERROR");
+        }
+        return mStepCountList;
     }
 
     // ── Route CRUD ──────────────────────────────────────────────────────────
