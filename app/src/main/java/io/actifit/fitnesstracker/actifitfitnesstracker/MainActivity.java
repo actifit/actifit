@@ -701,10 +701,11 @@ public class MainActivity extends BaseActivity {
                     String tweetText = response.optString("tweetText", "");
                     String tweetUrl = response.optString("tweetUrl", "");
                     String timestamp = response.optString("tweetTimestamp", "");
+                    String profileImageUrl = response.optString("profileImageUrl", "");
                     if (tweetText.isEmpty() || tweetUrl.isEmpty()) return;
 
                     Slider_Items_Model_Class tweetSlide =
-                            Slider_Items_Model_Class.fromTweet(tweetText, tweetUrl, timestamp);
+                            Slider_Items_Model_Class.fromTweet(tweetText, tweetUrl, timestamp, profileImageUrl);
                     runOnUiThread(() -> {
                         if (listItems != null && newsPage != null && newsPage.getAdapter() != null) {
                             listItems.add(0, tweetSlide);
