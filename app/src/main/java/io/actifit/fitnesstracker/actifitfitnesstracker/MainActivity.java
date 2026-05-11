@@ -637,7 +637,8 @@ public class MainActivity extends BaseActivity {
             try {
                 if (listArray != null && listArray.length() > 0) {
                     Slider_Items_Model_Class mainAnnounce = null;
-                    for (int i = 0; i < listArray.length(); i++) {
+                    int newsLimit = Math.min(8, listArray.length());
+                    for (int i = 0; i < newsLimit; i++) {
                         Slider_Items_Model_Class entry = new Slider_Items_Model_Class(
                                 listArray.getJSONObject(i));
                         listItems.add(entry);
@@ -2526,6 +2527,42 @@ public class MainActivity extends BaseActivity {
         protected void onPostExecute(ArrayList<DateStepsModel> mStepCountList) {
             super.onPostExecute(mStepCountList);
             chartManager.displayChartData(animate);
+        }
+    }
+
+    private class DisplayHCHistoryChartAsyncTask extends AsyncTask<Boolean, Void, Void> {
+        Boolean animate = false;
+        public DisplayHCHistoryChartAsyncTask(Boolean _animate) { animate = _animate; }
+        @Override
+        protected Void doInBackground(Boolean... params) { return null; }
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            chartManager.displayChartDataHC(animate);
+        }
+    }
+
+    private class DisplayHCDayChartAsyncTask extends AsyncTask<Boolean, Void, Void> {
+        Boolean animate = false;
+        public DisplayHCDayChartAsyncTask(Boolean _animate) { animate = _animate; }
+        @Override
+        protected Void doInBackground(Boolean... params) { return null; }
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            chartManager.displayDayChartDataHC(animate);
+        }
+    }
+
+    private class DisplayFitbitHistoryChartAsyncTask extends AsyncTask<Boolean, Void, Void> {
+        Boolean animate = false;
+        public DisplayFitbitHistoryChartAsyncTask(Boolean _animate) { animate = _animate; }
+        @Override
+        protected Void doInBackground(Boolean... params) { return null; }
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            chartManager.displayChartDataFitbit(animate);
         }
     }
 
