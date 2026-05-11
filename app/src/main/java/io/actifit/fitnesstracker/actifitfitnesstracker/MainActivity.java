@@ -698,17 +698,26 @@ public class MainActivity extends BaseActivity {
         com.android.volley.toolbox.JsonObjectRequest req = new com.android.volley.toolbox.JsonObjectRequest(
                 com.android.volley.Request.Method.GET, url, null,
                 response -> {
-                    String tweetText = response.optString("tweetText", "");
-                    String tweetUrl = response.optString("tweetUrl", "");
-                    String timestamp = response.optString("tweetTimestamp", "");
-                    String tweetImageUrl = response.optString("tweetImageUrl", "");
-                    if (tweetText.isEmpty() || tweetUrl.isEmpty()) return;
+                    org.json.JSONArray tweetsArray = response.optJSONArray("tweets");
+                    if (tweetsArray == null || tweetsArray.length() == 0) return;
 
-                    Slider_Items_Model_Class tweetSlide =
-                            Slider_Items_Model_Class.fromTweet(tweetText, tweetUrl, timestamp, tweetImageUrl);
+                    java.util.List<Slider_Items_Model_Class> tweetSlides = new java.util.ArrayList<>();
+                    int count = Math.min(2, tweetsArray.length());
+                    for (int i = 0; i < count; i++) {
+                        org.json.JSONObject t = tweetsArray.optJSONObject(i);
+                        if (t == null) continue;
+                        String tweetText = t.optString("tweetText", "");
+                        String tweetUrl = t.optString("tweetUrl", "");
+                        if (tweetText.isEmpty() || tweetUrl.isEmpty()) continue;
+                        String timestamp = t.optString("tweetTimestamp", "");
+                        String tweetImageUrl = t.optString("tweetImageUrl", "");
+                        tweetSlides.add(Slider_Items_Model_Class.fromTweet(tweetText, tweetUrl, timestamp, tweetImageUrl));
+                    }
+                    if (tweetSlides.isEmpty()) return;
+
                     runOnUiThread(() -> {
                         if (listItems != null && newsPage != null && newsPage.getAdapter() != null) {
-                            listItems.add(0, tweetSlide);
+                            listItems.addAll(0, tweetSlides);
                             newsPage.getAdapter().notifyDataSetChanged();
                             newsTabLayout.setupWithViewPager(newsPage, true);
                         }
