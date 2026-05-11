@@ -675,5 +675,10 @@
     <string name="select_backup_file">बैकअप फ़ाइल चुनें</string>
         <string name="watch_and_earn">देखें और कमाएं</string>
     <string name="steps_to_unlock">अनलॉक करने के लिए %1$,d और कदम चलें</string>
+    <string name="help_video_unavailable">ट्यूटोरियल वीडियो उपलब्ध नहीं है। कृपया बाद में पुनः प्रयास करें।</string>
+    <string name="add_tag_hint">टैग जोड़ें...</string>
+    <string name="show_more_activities">अधिक गतिविधियां</string>
+    <string name="show_fewer_activities">कम गतिविधियां</string>
+    <string name="x_like_btn">♡  X पर लाइक करें</string>
 </resources>
 

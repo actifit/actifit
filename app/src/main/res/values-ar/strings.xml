@@ -687,5 +687,10 @@
     <string name="select_backup_file">حدد ملف النسخ الاحتياطي</string>
     <string name="watch_and_earn">شاهد واكسب</string>
     <string name="steps_to_unlock">امشِ %1$,d خطوة أخرى للفتح</string>
+    <string name="help_video_unavailable">مقطع الفيديو التعليمي غير متاح. يُرجى المحاولة مرة أخرى لاحقاً.</string>
+    <string name="add_tag_hint">أضف علامة...</string>
+    <string name="show_more_activities">المزيد من الأنشطة</string>
+    <string name="show_fewer_activities">أنشطة أقل</string>
+    <string name="x_like_btn">♡  أعجبني على X</string>
 </resources>
 

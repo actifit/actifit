@@ -678,5 +678,10 @@
     <string name="select_backup_file">Seleccionar archivo de copia de seguridad</string>
     <string name="watch_and_earn">Ver y ganar</string>
     <string name="steps_to_unlock">Camina %1$,d pasos más para desbloquear</string>
+    <string name="help_video_unavailable">El video tutorial no está disponible. Por favor, inténtalo de nuevo más tarde.</string>
+    <string name="add_tag_hint">Agregar etiqueta...</string>
+    <string name="show_more_activities">Más actividades</string>
+    <string name="show_fewer_activities">Menos actividades</string>
+    <string name="x_like_btn">♡  Me gusta en X</string>
 </resources>
 

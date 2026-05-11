@@ -270,7 +270,7 @@ public class ChartManager {
             dayBarData = new BarData(dataSet);
             dayBarData.setBarWidth(0.8f);
 
-            IAxisValueFormatter formatter = (value, axis) -> labels[(int) value];
+            IAxisValueFormatter formatter = (value, axis) -> { int i = (int) value; return (i >= 0 && i < labels.length) ? labels[i] : ""; };
             XAxis xAxis = dayChart.getXAxis();
             xAxis.setGranularity(1f);
             xAxis.setValueFormatter(formatter);
@@ -340,7 +340,7 @@ public class ChartManager {
             chartBarData = new BarData(dataSet);
             chartBarData.setBarWidth(0.5f);
 
-            IAxisValueFormatter formatter = (value, axis) -> labels[(int) value];
+            IAxisValueFormatter formatter = (value, axis) -> { int i = (int) value; return (i >= 0 && i < labels.length) ? labels[i] : ""; };
             XAxis xAxis = fullChart.getXAxis();
             xAxis.setGranularity(1f);
             xAxis.setValueFormatter(formatter);
@@ -399,9 +399,179 @@ public class ChartManager {
         if (thirdPartyTracking != null) thirdPartyTracking.setVisibility(View.GONE);
         if (healthConnectTracking != null) healthConnectTracking.setVisibility(View.GONE);
 
-        if (chartSwitcher != null) chartSwitcher.setVisibility(View.INVISIBLE);
+        if (chartSwitcher != null) chartSwitcher.setVisibility(View.GONE);
         View barCharts = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
-        if (barCharts != null) barCharts.setVisibility(View.INVISIBLE);
+        if (barCharts != null) barCharts.setVisibility(View.GONE);
+    }
+
+    // ── HC / Fitbit chart display methods ───────────────────────────────────
+
+    public void displayChartDataHC(final boolean animate) {
+        ((android.app.Activity) context).runOnUiThread(() -> {
+            StepsDBHelper db = new StepsDBHelper(context);
+            ArrayList<DateStepsModel> data = db.readHCStepsEntries();
+            fullChart = ((android.app.Activity) context).findViewById(R.id.main_history_activity_chart);
+            renderDailyBars(fullChart, data, animate);
+        });
+    }
+
+    public void displayDayChartDataHC(final boolean animate) {
+        ((android.app.Activity) context).runOnUiThread(() -> {
+            String strDate = new SimpleDateFormat("yyyyMMdd", java.util.Locale.getDefault()).format(new Date());
+            StepsDBHelper db = new StepsDBHelper(context);
+            ArrayList<ActivitySlot> data = db.fetchHCDateTimeSlotActivity(strDate);
+            dayChart = ((android.app.Activity) context).findViewById(R.id.main_today_activity_chart);
+            renderHourlyBars(dayChart, data, animate);
+        });
+    }
+
+    public void displayChartDataFitbit(final boolean animate) {
+        ((android.app.Activity) context).runOnUiThread(() -> {
+            StepsDBHelper db = new StepsDBHelper(context);
+            ArrayList<DateStepsModel> data = db.readFitbitStepsEntries();
+            fullChart = ((android.app.Activity) context).findViewById(R.id.main_history_activity_chart);
+            renderDailyBars(fullChart, data, animate);
+        });
+    }
+
+    private void renderDailyBars(BarChart chart, ArrayList<DateStepsModel> data, boolean animate) {
+        SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
+        SimpleDateFormat dateFormOutFull = new SimpleDateFormat("MM/dd/yy");
+
+        List<BarEntry> entries = new ArrayList<>();
+        final String[] labels = new String[data.size()];
+        int dataId = 0;
+
+        try {
+            for (DateStepsModel item : data) {
+                Date feedingDate = dateFormIn.parse(item.mDate);
+                String dateDisplay = dateFormOut.format(feedingDate);
+                if (dateDisplay.substring(0, 2).equals("01") || dateDisplay.substring(0, 2).equals("12")) {
+                    dateDisplay = dateFormOutFull.format(feedingDate);
+                }
+                labels[dataId] = dateDisplay;
+                entries.add(new BarEntry(dataId, (float) item.mStepCount));
+                dataId++;
+            }
+        } catch (ParseException e) {
+            Log.e(TAG, "ERROR");
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, context.getString(R.string.activity_count_lbl));
+        BarData barData = new BarData(dataSet);
+        barData.setBarWidth(0.5f);
+
+        IAxisValueFormatter formatter = (value, axis) -> {
+            int i = (int) value;
+            return (i >= 0 && i < labels.length) ? labels[i] : "";
+        };
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(formatter);
+
+        YAxis yAxisLeft = chart.getAxisLeft();
+        YAxis yAxisRight = chart.getAxisRight();
+        int textColor = ContextCompat.getColor(context, R.color.colorBlack);
+
+        if (yAxisLeft.getLimitLines().isEmpty()) {
+            LimitLine line = new LimitLine(activityMilestoneOne, context.getString(R.string.min_reward_level_chart));
+            line.enableDashedLine(10f, 10f, 10f);
+            line.setLineColor(ContextCompat.getColor(context, R.color.actifitRed));
+            line.setLineWidth(2f);
+            line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+            line.setTextColor(Color.BLACK);
+            line.setTextSize(12f);
+            yAxisLeft.addLimitLine(line);
+            line = new LimitLine(activityMilestoneThree, context.getString(R.string.max_reward_level_chart));
+            line.setLineColor(ContextCompat.getColor(context, R.color.actifitDarkGreen));
+            line.setLineWidth(2f);
+            line.setTextStyle(Paint.Style.FILL_AND_STROKE);
+            line.setTextColor(textColor);
+            line.setTextSize(12f);
+            yAxisLeft.addLimitLine(line);
+        }
+
+        Description chartDescription = new Description();
+        chartDescription.setText(context.getString(R.string.activity_history_chart_title));
+        chart.setDescription(chartDescription);
+        chart.getLegend().setEnabled(false);
+        chart.setData(barData);
+
+        Legend legend = chart.getLegend();
+        legend.setTextColor(textColor);
+        xAxis.setTextColor(textColor);
+        yAxisLeft.setTextColor(textColor);
+        yAxisRight.setTextColor(textColor);
+        dataSet.setValueTextColor(textColor);
+        chartDescription.setTextColor(textColor);
+
+        if (animate) {
+            chart.animateXY(1500, 1500);
+        } else {
+            chart.invalidate();
+        }
+    }
+
+    private void renderHourlyBars(BarChart chart, ArrayList<ActivitySlot> data, boolean animate) {
+        List<BarEntry> entries = new ArrayList<>();
+        int dataId = 0;
+        int[] minInt = {0, 15, 30, 45};
+        final String[] labels = new String[24 * minInt.length];
+
+        for (int indHr = 0; indHr < 24; indHr++) {
+            for (int indMin = 0; indMin < minInt.length; indMin++) {
+                String slotLabel = indHr < 10 ? "0" + indHr : "" + indHr;
+                labels[dataId] = slotLabel + ":";
+                if (minInt[indMin] < 10) {
+                    slotLabel += "0" + minInt[indMin];
+                    labels[dataId] += "0" + minInt[indMin];
+                } else {
+                    slotLabel += minInt[indMin];
+                    labels[dataId] += minInt[indMin];
+                }
+                int matchingSlot = data.indexOf(new ActivitySlot(slotLabel, 0));
+                entries.add(new BarEntry(dataId,
+                        matchingSlot > -1 ? (float) data.get(matchingSlot).activityCount : 0f));
+                dataId++;
+            }
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, context.getString(R.string.activity_count_lbl));
+        BarData barData = new BarData(dataSet);
+        barData.setBarWidth(0.8f);
+
+        IAxisValueFormatter formatter = (value, axis) -> labels[(int) value];
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(formatter);
+
+        IValueFormatter yFormatter = (value, entry, dataSetIndex, viewPortHandler) -> value < 1 ? "" : "" + (int) value;
+        barData.setValueFormatter(yFormatter);
+
+        YAxis yAxisLeft = chart.getAxisLeft();
+        YAxis yAxisRight = chart.getAxisRight();
+        int textColor = ContextCompat.getColor(context, R.color.colorBlack);
+
+        Description chartDescription = new Description();
+        chartDescription.setText(context.getString(R.string.activity_details_chart_title));
+        chart.setDescription(chartDescription);
+        chart.getLegend().setEnabled(false);
+        chart.setData(barData);
+
+        Legend legend = chart.getLegend();
+        legend.setTextColor(textColor);
+        xAxis.setTextColor(textColor);
+        yAxisLeft.setTextColor(textColor);
+        yAxisRight.setTextColor(textColor);
+        dataSet.setValueTextColor(textColor);
+        chartDescription.setTextColor(textColor);
+
+        if (animate) {
+            chart.animateXY(1500, 1500);
+        } else {
+            chart.invalidate();
+        }
     }
 
     public void slideRight(View view) {

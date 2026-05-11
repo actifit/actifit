@@ -379,8 +379,10 @@
 
                             <ImageView
                                 android:id="@+id/health_connect_logo"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:layout_marginTop="-5dp"
+                                android:layout_marginStart="-5dp"
                                 android:contentDescription="Health Connect Logo"
                                 android:src="@mipmap/health_connect" />
 
@@ -487,8 +489,8 @@
 
                             <ImageView
                                 android:id="@+id/fitbit_logo"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
                                 android:contentDescription="Fitbit Logo"
                                 android:src="@drawable/fitbit_app_icon"
                                 tools:ignore="HardcodedText" />
@@ -619,6 +621,7 @@
                                     android:layout_height="25dp"
                                     android:textColor="@color/md_theme_primary"
                                     android:textSize="20sp"
+                                    android:gravity="center"
                                     android:text="@string/fa_exclamation_circle_solid"
                                     android:fontFamily="@font/font_awesome_6_solid"
                                     android:layout_marginStart="10dp" />
@@ -1053,13 +1056,13 @@
                         android:background="@color/md_theme_separator"
                         android:layout_marginBottom="@dimen/spacing_xs" />
 
-            <!-- Voting Status (hidden — replaced by nudge card) -->
+            <!-- Voting Status / Reward Cycle Timer -->
             <LinearLayout
                 android:id="@+id/voting_status_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:paddingStart="@dimen/spacing_sm"
                 android:paddingBottom="@dimen/spacing_sm"
                 android:weightSum="1.0">
@@ -1469,6 +1472,16 @@
                             android:textStyle="bold"
                             android:textColor="@color/md_theme_onSurface"
                             tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/tv_heatmap_streak"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="12sp"
+                            android:textColor="@color/actifitRed"
+                            android:textStyle="bold"
+                            android:visibility="gone"
+                            tools:ignore="HardcodedText" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -1512,6 +1525,62 @@
                     android:textSize="@dimen/text_title"
                     android:textStyle="bold" />
             </LinearLayout>
+
+            <!-- Community Feed Preview (P3-3) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/community_strip_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_md"
+                android:layout_marginEnd="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/md_theme_surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/community_feed_title"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/btn_see_all_community"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/community_see_all"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="13sp"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/community_feed_rv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>

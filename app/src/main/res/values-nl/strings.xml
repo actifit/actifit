@@ -675,5 +675,10 @@
     <string name="select_backup_file">Back-upbestand selecteren</string>
         <string name="watch_and_earn">Bekijk en verdien</string>
     <string name="steps_to_unlock">Loop nog %1$,d stappen om te ontgrendelen</string>
+    <string name="help_video_unavailable">Tutorialvideo is niet beschikbaar. Probeer het later opnieuw.</string>
+    <string name="add_tag_hint">Tag toevoegen...</string>
+    <string name="show_more_activities">Meer activiteiten</string>
+    <string name="show_fewer_activities">Minder activiteiten</string>
+    <string name="x_like_btn">♡  Vind ik leuk op X</string>
 </resources>
 

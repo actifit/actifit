@@ -16,7 +16,10 @@ import androidx.health.connect.client.response.ReadRecordsResponse;
 import androidx.health.connect.client.time.TimeRangeFilter;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Set;
@@ -177,6 +180,86 @@ public class HealthConnectManager {
         });
     }
 
+
+    public CompletableFuture<Long> readAndPersistStepsData(ZonedDateTime day, StepsDBHelper db) {
+        if (healthConnectClient == null) {
+            return CompletableFuture.completedFuture(0L);
+        }
+        final String dateStr = day.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        return hasAllPermissions().thenCompose(hasPermissions -> {
+            if (!hasPermissions) {
+                Log.d(TAG, "Permissions not granted for reading steps, returning 0.");
+                return CompletableFuture.completedFuture(0L);
+            }
+
+            Instant startOfDay = day.truncatedTo(ChronoUnit.DAYS).toInstant();
+            Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
+            TimeRangeFilter timeRangeFilter = TimeRangeFilter.between(startOfDay, endOfDay);
+
+            ReadRecordsRequest<StepsRecord> request = new ReadRecordsRequest<>(
+                    JvmClassMappingKt.getKotlinClass(StepsRecord.class),
+                    timeRangeFilter,
+                    Collections.emptySet(),
+                    true,
+                    1000,
+                    null
+            );
+
+            return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                    (scope, continuation) -> {
+                        try {
+                            return healthConnectClient.readRecords(request, continuation);
+                        } catch (Throwable e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            ).thenApply(response -> {
+                long totalSteps = 0;
+                ReadRecordsResponse<StepsRecord> recordsResponse = (ReadRecordsResponse<StepsRecord>) response;
+
+                for (StepsRecord record : recordsResponse.getRecords()) {
+                    int recordingMethod = record.getMetadata().getRecordingMethod();
+                    if (recordingMethod != Metadata.RECORDING_METHOD_MANUAL_ENTRY) {
+                        totalSteps += record.getCount();
+                        LocalDateTime ldt = LocalDateTime.ofInstant(
+                                record.getStartTime(), ZoneId.systemDefault());
+                        db.upsertHCSlot(dateStr, bucketTimeSlot(ldt), (int) record.getCount());
+                    }
+                }
+                db.upsertHCSummary(dateStr, (int) totalSteps);
+                return totalSteps;
+            });
+        }).exceptionally(e -> {
+            Log.e(TAG, "Error in the readAndPersistStepsData pipeline", e);
+            return 0L;
+        });
+    }
+
+    public void backfillHCHistory(StepsDBHelper db, int days, Runnable onComplete) {
+        new Thread(() -> {
+            ZonedDateTime today = ZonedDateTime.now();
+            for (int i = days; i >= 1; i--) {
+                ZonedDateTime day = today.minusDays(i);
+                try {
+                    readAndPersistStepsData(day, db).get();
+                } catch (Exception e) {
+                    Log.e(TAG, "backfillHCHistory error for day -" + i, e);
+                }
+            }
+            if (onComplete != null) onComplete.run();
+        }).start();
+    }
+
+    private int bucketTimeSlot(LocalDateTime ldt) {
+        int hour = ldt.getHour();
+        int min = ldt.getMinute();
+        if (min >= 45) min = 45;
+        else if (min >= 30) min = 30;
+        else if (min >= 15) min = 15;
+        else min = 0;
+        return hour * 100 + min;
+    }
 
     public Intent createPermissionRequestIntent() {
         Intent intent = new Intent("androidx.health.connect.client.action.HEALTH_CONNECT_SETTINGS");

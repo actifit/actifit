@@ -674,5 +674,10 @@
     <string name="select_backup_file">Виберіть файл резервної копії</string>
         <string name="watch_and_earn">Дивись і заробляй</string>
     <string name="steps_to_unlock">Пройдіть ще %1$,d кроків для розблокування</string>
+    <string name="help_video_unavailable">Навчальне відео недоступне. Будь ласка, спробуйте пізніше.</string>
+    <string name="add_tag_hint">Додати тег...</string>
+    <string name="show_more_activities">Більше активностей</string>
+    <string name="show_fewer_activities">Менше активностей</string>
+    <string name="x_like_btn">♡  Подобається на X</string>
 </resources>
 
