@@ -2658,6 +2658,20 @@ public class MainActivity extends BaseActivity {
         }
         tvMsg.setText(msg);
         if (tvIcon != null) tvIcon.setText(icon);
+
+        View accentBar = nudgeCard.findViewById(R.id.nudge_accent_bar);
+        if (accentBar != null) {
+            int barColor;
+            if (stepCount < activityMilestoneOne) {
+                barColor = android.graphics.Color.parseColor("#FFA000"); // amber — in progress
+            } else if (stepCount < activityMilestoneThree) {
+                barColor = ContextCompat.getColor(this, R.color.md_theme_secondary); // green — claim now
+            } else {
+                barColor = android.graphics.Color.parseColor("#1976D2"); // blue — goal met
+            }
+            accentBar.setBackgroundColor(barColor);
+        }
+
         nudgeCard.setVisibility(View.VISIBLE);
         if (tvDismiss != null) tvDismiss.setOnClickListener(v -> nudgeCard.setVisibility(View.GONE));
     }
@@ -2802,6 +2816,24 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setupRouteCard() {
+        View compactRow = findViewById(R.id.route_compact_row);
+        View fullContent = findViewById(R.id.route_full_content);
+        if (compactRow != null && fullContent != null) {
+            compactRow.setOnClickListener(v -> {
+                boolean expanded = fullContent.getVisibility() == View.VISIBLE;
+                fullContent.setVisibility(expanded ? View.GONE : View.VISIBLE);
+            });
+        }
+
+        View chipRecord = findViewById(R.id.chip_record_compact);
+        if (chipRecord != null) {
+            chipRecord.setOnClickListener(v -> {
+                if (fullContent != null) fullContent.setVisibility(View.VISIBLE);
+                View btnStart2 = findViewById(R.id.btn_start_route_recording);
+                if (btnStart2 != null) btnStart2.performClick();
+            });
+        }
+
         View btnStart = findViewById(R.id.btn_start_route_recording);
         if (btnStart == null) return;
         btnStart.setOnClickListener(v -> {
@@ -2842,11 +2874,13 @@ public class MainActivity extends BaseActivity {
         RouteModel route = mStepsDBHelper.getMostRecentRoute();
         LinearLayout summary = findViewById(R.id.last_route_summary);
         TextView tvInfo = findViewById(R.id.tv_last_route_info);
+        View fullContent = findViewById(R.id.route_full_content);
         if (summary == null || tvInfo == null) return;
         if (route != null) {
             tvInfo.setText(route.getFormattedDistance() + "  •  " + route.getFormattedDuration()
                     + "  •  " + (route.activityType != null ? route.activityType : ""));
             summary.setVisibility(View.VISIBLE);
+            if (fullContent != null) fullContent.setVisibility(View.VISIBLE);
         } else {
             summary.setVisibility(View.GONE);
         }
