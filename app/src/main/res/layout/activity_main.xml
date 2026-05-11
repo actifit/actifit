@@ -320,7 +320,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:textColor="@color/actifitRed"
-                                        android:textSize="28sp"
+                                        android:textSize="32sp"
                                         android:textStyle="bold"
                                         android:text="0" />
 
@@ -328,7 +328,7 @@
                                         android:id="@+id/tv_step_goal_hc"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:textSize="11sp"
+                                        android:textSize="12sp"
                                         android:text="/ 10,000 steps" />
 
                                     <TextView
@@ -430,7 +430,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:textColor="@color/actifitRed"
-                                        android:textSize="28sp"
+                                        android:textSize="32sp"
                                         android:textStyle="bold"
                                         android:text="0" />
 
@@ -438,7 +438,7 @@
                                         android:id="@+id/tv_step_goal_fitbit"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:textSize="11sp"
+                                        android:textSize="12sp"
                                         android:text="/ 10,000 steps" />
 
                                     <TextView
@@ -539,7 +539,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:textColor="@color/actifitRed"
-                                        android:textSize="28sp"
+                                        android:textSize="32sp"
                                         android:textStyle="bold"
                                         android:text="0" />
 
@@ -547,7 +547,7 @@
                                         android:id="@+id/tv_step_goal"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:textSize="11sp"
+                                        android:textSize="12sp"
                                         android:text="/ 10,000 steps" />
 
                                     <TextView
@@ -1161,7 +1161,7 @@
                 android:paddingEnd="@dimen/spacing_sm"
                 android:paddingBottom="@dimen/spacing_xs">
 
-                <!-- Row 1: label + compact token logos -->
+                <!-- Earnings header: label + hidden compat views -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -1169,25 +1169,24 @@
                     android:gravity="center_vertical"
                     android:paddingBottom="2dp">
 
+                    <!-- hidden for Java compat only -->
                     <ImageView
                         android:id="@+id/afit_logo"
                         android:contentDescription="AFIT icon"
                         android:src="@drawable/actifit_logo"
-                        android:layout_height="16dp"
-                        android:layout_width="16dp" />
+                        android:layout_height="0dp"
+                        android:layout_width="0dp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_reward_label"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:paddingStart="@dimen/spacing_xs"
                         android:text="Estimated Reward"
                         android:textSize="12sp"
                         android:textColor="@color/md_theme_secondary"
                         tools:ignore="HardcodedText" />
 
-                    <!-- token_notice kept for Java compat, hidden visually -->
                     <TextView
                         android:id="@+id/token_notice"
                         android:layout_width="0dp"
@@ -1197,38 +1196,6 @@
                         android:textSize="0sp"
                         android:text="@string/fa_exclamation_circle_solid"
                         android:fontFamily="@font/font_awesome_6_solid" />
-
-                    <ImageView
-                        android:id="@+id/hive_logo"
-                        android:contentDescription="HIVE icon"
-                        android:src="@drawable/hive"
-                        android:layout_height="18dp"
-                        android:layout_width="18dp"
-                        android:layout_marginStart="4dp" />
-
-                    <ImageView
-                        android:id="@+id/steem_logo"
-                        android:importantForAccessibility="no"
-                        android:src="@drawable/steem"
-                        android:layout_height="18dp"
-                        android:layout_width="0dp"
-                        android:visibility="invisible" />
-
-                    <ImageView
-                        android:id="@+id/blurt_logo"
-                        android:contentDescription="BLURT icon"
-                        android:src="@drawable/blurt"
-                        android:layout_height="18dp"
-                        android:layout_width="18dp"
-                        android:layout_marginStart="4dp" />
-
-                    <ImageView
-                        android:id="@+id/sports_logo"
-                        android:contentDescription="SPORTS icon"
-                        android:src="@drawable/sports"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="4dp" />
                 </LinearLayout>
 
                 <!-- Row 2: hero AFIT amount -->
@@ -1240,6 +1207,65 @@
                     android:textStyle="bold"
                     android:textColor="@color/actifitRed"
                     android:text="..." />
+
+                <!-- Row 3: tap-to-expand breakdown affordance -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="6dp">
+
+                    <ImageView
+                        android:id="@+id/hive_logo"
+                        android:contentDescription="HIVE icon"
+                        android:src="@drawable/hive"
+                        android:layout_height="14dp"
+                        android:layout_width="14dp" />
+
+                    <ImageView
+                        android:id="@+id/steem_logo"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/steem"
+                        android:layout_height="14dp"
+                        android:layout_width="0dp"
+                        android:visibility="invisible" />
+
+                    <ImageView
+                        android:id="@+id/blurt_logo"
+                        android:contentDescription="BLURT icon"
+                        android:src="@drawable/blurt"
+                        android:layout_height="14dp"
+                        android:layout_width="14dp"
+                        android:layout_marginStart="4dp" />
+
+                    <ImageView
+                        android:id="@+id/sports_logo"
+                        android:contentDescription="SPORTS icon"
+                        android:src="@drawable/sports"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginStart="4dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingStart="6dp"
+                        android:text="HIVE · BLURT · SPORTS"
+                        android:textSize="11sp"
+                        android:textColor="@color/md_theme_secondary"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:textColor="@color/md_theme_secondary"
+                        android:textSize="10sp"
+                        android:text="&#xf054;"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- User Gadgets -->
