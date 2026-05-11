@@ -15,7 +15,6 @@ import android.widget.TextView;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 
@@ -45,16 +44,21 @@ public class Slider_items_Pager_Adapter extends PagerAdapter {
 
         if (item.isTweet()) {
             View tweetLayout = inflater.inflate(R.layout.slider_tweet_layout, null);
-            tweetLayout.setLayoutParams(new ViewPager.LayoutParams());
 
-            TextView tweetText = tweetLayout.findViewById(R.id.tweet_text_content);
-            TextView tweetTimestamp = tweetLayout.findViewById(R.id.tweet_timestamp);
-            Button likeBtn = tweetLayout.findViewById(R.id.like_on_x_btn);
+            ((TextView) tweetLayout.findViewById(R.id.tweet_text_content)).setText(item.getNews_title());
+            ((TextView) tweetLayout.findViewById(R.id.tweet_timestamp)).setText(item.getTweetTimestamp());
+            tweetLayout.findViewById(R.id.like_on_x_btn).setOnClickListener(v -> openInCustomTab(item.getLink_url()));
 
-            tweetText.setText(item.getNews_title());
-            tweetTimestamp.setText(item.getTweetTimestamp());
-
-            likeBtn.setOnClickListener(v -> openInCustomTab(item.getLink_url()));
+            ImageView profileBg = tweetLayout.findViewById(R.id.tweet_profile_bg);
+            String profileImageUrl = item.getTweetProfileImageUrl();
+            if (!profileImageUrl.isEmpty()) {
+                Handler uiHandler = new Handler(Looper.getMainLooper());
+                uiHandler.post(() -> {
+                    if (!activity.isFinishing() && !activity.isDestroyed()) {
+                        Glide.with(ctx).load(profileImageUrl).centerCrop().into(profileBg);
+                    }
+                });
+            }
 
             container.addView(tweetLayout);
             return tweetLayout;

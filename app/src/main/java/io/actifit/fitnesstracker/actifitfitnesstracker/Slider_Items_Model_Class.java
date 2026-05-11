@@ -13,6 +13,7 @@ public class Slider_Items_Model_Class {
     private boolean main_announce;
     private boolean is_tweet = false;
     private String tweet_timestamp;
+    private String tweet_profile_image_url = "";
     private boolean is_survey = false;
     private JSONArray survey_options;
     private int survey_duration;
@@ -60,16 +61,19 @@ public class Slider_Items_Model_Class {
         this.link_url = link_url;
     }
 
-    public static Slider_Items_Model_Class fromTweet(String tweetText, String tweetUrl, String timestamp) {
+    public static Slider_Items_Model_Class fromTweet(String tweetText, String tweetUrl, String timestamp, String profileImageUrl) {
         Slider_Items_Model_Class item = new Slider_Items_Model_Class("", tweetText, tweetUrl);
         item.is_tweet = true;
         item.tweet_timestamp = timestamp != null ? timestamp : "";
+        item.tweet_profile_image_url = profileImageUrl != null ? profileImageUrl : "";
         return item;
     }
 
     public boolean isTweet() { return is_tweet; }
 
     public String getTweetTimestamp() { return tweet_timestamp != null ? tweet_timestamp : ""; }
+
+    public String getTweetProfileImageUrl() { return tweet_profile_image_url; }
 
     public String getFeatured_image_url() {
         return featured_image_url;
