@@ -679,5 +679,37 @@
     <string name="show_more_activities">Більше активностей</string>
     <string name="show_fewer_activities">Менше активностей</string>
     <string name="x_like_btn">♡  Подобається на X</string>
+    <string name="community_feed_title">Спільнота</string>
+    <string name="community_see_all">Переглянути все →</string>
+    <string name="powered_by_gemini">Підтримується Gemini</string>
+    <string name="consistency_label">Послідовність</string>
+    <string name="generating_insight">Генерація аналізу...</string>
+    <string name="route_tracking_label">Відстеження маршруту</string>
+    <string name="route_view_btn">Переглянути →</string>
+    <string name="route_start_recording">▶  Почати запис</string>
+    <string name="earnings_gadgets_label">Прибутки та гаджети</string>
+    <string name="estimated_reward_label">Орієнтовна винагорода</string>
+    <string name="this_month_label">Цього місяця</string>
+    <string name="footer_home">Головна</string>
+    <string name="footer_social">Соцмережі</string>
+    <string name="footer_leaders">Лідери</string>
+    <string name="footer_more">Більше</string>
+    <string name="nudge_keep_going">Продовжуй! До першої нагороди залишилось %1\$,d кроків</string>
+    <string name="nudge_claim_reward">Ви подолали %1\$,d кроків — отримайте свою нагороду!</string>
+    <string name="nudge_goal_met">Чудовий день! Поділись своїм досягненням</string>
+    <string name="milestone_10k_msg">10 000 кроків! Щоденна мета виконана!</string>
+    <string name="milestone_7k_msg">7 000 кроків! Вже майже!</string>
+    <string name="milestone_5k_msg">5 000 кроків! Перша нагорода розблокована!</string>
+    <string name="no_streak_yet">Ще немає серії</string>
+    <string name="day_streak_label">Серія %1\$d днів</string>
+    <string name="heatmap_streak_badge">🔥 %1\$d день</string>
+    <string name="heatmap_streak_badge_plural">🔥 %1\$d днів</string>
+    <string name="day_abbr_sun">Нд</string>
+    <string name="day_abbr_mon">Пн</string>
+    <string name="day_abbr_tue">Вт</string>
+    <string name="day_abbr_wed">Ср</string>
+    <string name="day_abbr_thu">Чт</string>
+    <string name="day_abbr_fri">Пт</string>
+    <string name="day_abbr_sat">Сб</string>
 </resources>
 

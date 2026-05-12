@@ -653,4 +653,41 @@
     <string name="show_fewer_activities">Fewer activities</string>
     <string name="x_like_btn">♡  Like on X</string>
     <string name="powered_by_gemini">Powered by Gemini</string>
+
+    <!-- Dashboard card labels -->
+    <string name="consistency_label">Consistency</string>
+    <string name="generating_insight">Generating insight...</string>
+    <string name="route_tracking_label">Route Tracking</string>
+    <string name="route_view_btn">View →</string>
+    <string name="route_start_recording">▶  Start Recording</string>
+    <string name="earnings_gadgets_label">Earnings &amp; Gadgets</string>
+    <string name="estimated_reward_label">Estimated Reward</string>
+    <string name="this_month_label">This Month</string>
+
+    <!-- Footer navigation labels -->
+    <string name="footer_home">Home</string>
+    <string name="footer_social">Social</string>
+    <string name="footer_leaders">Leaders</string>
+    <string name="footer_more">More</string>
+
+    <!-- Dynamic dashboard nudge / streak messages -->
+    <string name="nudge_keep_going">Keep going! You\'re %1$,d steps from your first reward</string>
+    <string name="nudge_claim_reward">You\'ve hit %1$,d steps — claim your reward now!</string>
+    <string name="nudge_goal_met">Great day! Share your achievement</string>
+    <string name="milestone_10k_msg">10,000 steps! Daily goal complete!</string>
+    <string name="milestone_7k_msg">7,000 steps! Almost there!</string>
+    <string name="milestone_5k_msg">5,000 steps! First reward unlocked!</string>
+    <string name="no_streak_yet">No streak yet</string>
+    <string name="day_streak_label">%1$d day streak</string>
+    <string name="heatmap_streak_badge">🔥 %1$d day</string>
+    <string name="heatmap_streak_badge_plural">🔥 %1$d days</string>
+
+    <!-- Day abbreviations for weekly streak strip (index 0=Sun .. 6=Sat) -->
+    <string name="day_abbr_sun">Su</string>
+    <string name="day_abbr_mon">Mo</string>
+    <string name="day_abbr_tue">Tu</string>
+    <string name="day_abbr_wed">We</string>
+    <string name="day_abbr_thu">Th</string>
+    <string name="day_abbr_fri">Fr</string>
+    <string name="day_abbr_sat">Sa</string>
 </resources>

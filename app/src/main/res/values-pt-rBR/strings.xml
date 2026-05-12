@@ -680,6 +680,38 @@
     <string name="show_more_activities">Mais atividades</string>
     <string name="show_fewer_activities">Menos atividades</string>
     <string name="x_like_btn">♡  Curtir no X</string>
+    <string name="community_feed_title">Comunidade</string>
+    <string name="community_see_all">Ver tudo →</string>
+    <string name="powered_by_gemini">Desenvolvido por Gemini</string>
+    <string name="consistency_label">Consistência</string>
+    <string name="generating_insight">Gerando insight...</string>
+    <string name="route_tracking_label">Rastreamento de rota</string>
+    <string name="route_view_btn">Ver →</string>
+    <string name="route_start_recording">▶  Iniciar gravação</string>
+    <string name="earnings_gadgets_label">Ganhos e gadgets</string>
+    <string name="estimated_reward_label">Recompensa estimada</string>
+    <string name="this_month_label">Este mês</string>
+    <string name="footer_home">Início</string>
+    <string name="footer_social">Social</string>
+    <string name="footer_leaders">Líderes</string>
+    <string name="footer_more">Mais</string>
+    <string name="nudge_keep_going">Continue! Você está a %1\$,d passos da sua primeira recompensa</string>
+    <string name="nudge_claim_reward">Você atingiu %1\$,d passos — resgate sua recompensa agora!</string>
+    <string name="nudge_goal_met">Ótimo dia! Compartilhe sua conquista</string>
+    <string name="milestone_10k_msg">10.000 passos! Meta diária completa!</string>
+    <string name="milestone_7k_msg">7.000 passos! Quase lá!</string>
+    <string name="milestone_5k_msg">5.000 passos! Primeira recompensa desbloqueada!</string>
+    <string name="no_streak_yet">Sem sequência ainda</string>
+    <string name="day_streak_label">Sequência de %1\$d dias</string>
+    <string name="heatmap_streak_badge">🔥 %1\$d dia</string>
+    <string name="heatmap_streak_badge_plural">🔥 %1\$d dias</string>
+    <string name="day_abbr_sun">Dom</string>
+    <string name="day_abbr_mon">Seg</string>
+    <string name="day_abbr_tue">Ter</string>
+    <string name="day_abbr_wed">Qua</string>
+    <string name="day_abbr_thu">Qui</string>
+    <string name="day_abbr_fri">Sex</string>
+    <string name="day_abbr_sat">Sáb</string>
 </resources>
 
 

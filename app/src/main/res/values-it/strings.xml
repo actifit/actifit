@@ -680,5 +680,37 @@
     <string name="show_more_activities">Altre attività</string>
     <string name="show_fewer_activities">Meno attività</string>
     <string name="x_like_btn">♡  Mi piace su X</string>
+    <string name="community_feed_title">Community</string>
+    <string name="community_see_all">Vedi tutto →</string>
+    <string name="powered_by_gemini">Sviluppato da Gemini</string>
+    <string name="consistency_label">Costanza</string>
+    <string name="generating_insight">Generazione informazioni...</string>
+    <string name="route_tracking_label">Tracciamento percorso</string>
+    <string name="route_view_btn">Visualizza →</string>
+    <string name="route_start_recording">▶  Inizia registrazione</string>
+    <string name="earnings_gadgets_label">Guadagni e gadget</string>
+    <string name="estimated_reward_label">Ricompensa stimata</string>
+    <string name="this_month_label">Questo mese</string>
+    <string name="footer_home">Home</string>
+    <string name="footer_social">Social</string>
+    <string name="footer_leaders">Leader</string>
+    <string name="footer_more">Altro</string>
+    <string name="nudge_keep_going">Continua così! Sei a %1\$,d passi dalla tua prima ricompensa</string>
+    <string name="nudge_claim_reward">Hai raggiunto %1\$,d passi — riscatta la tua ricompensa ora!</string>
+    <string name="nudge_goal_met">Grande giornata! Condividi il tuo risultato</string>
+    <string name="milestone_10k_msg">10.000 passi! Obiettivo giornaliero raggiunto!</string>
+    <string name="milestone_7k_msg">7.000 passi! Ci siamo quasi!</string>
+    <string name="milestone_5k_msg">5.000 passi! Primo premio sbloccato!</string>
+    <string name="no_streak_yet">Nessuna serie ancora</string>
+    <string name="day_streak_label">Serie di %1\$d giorni</string>
+    <string name="heatmap_streak_badge">🔥 %1\$d giorno</string>
+    <string name="heatmap_streak_badge_plural">🔥 %1\$d giorni</string>
+    <string name="day_abbr_sun">Do</string>
+    <string name="day_abbr_mon">Lu</string>
+    <string name="day_abbr_tue">Ma</string>
+    <string name="day_abbr_wed">Me</string>
+    <string name="day_abbr_thu">Gi</string>
+    <string name="day_abbr_fri">Ve</string>
+    <string name="day_abbr_sat">Sa</string>
 </resources>
 
