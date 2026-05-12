@@ -742,7 +742,7 @@ public class MainActivity extends BaseActivity {
                 params.put("tag", getString(R.string.actifit_community));
                 params.put("start_author", "");
                 params.put("start_permlink", "");
-                params.put("limit", 5);
+                params.put("limit", 10);
                 org.json.JSONArray result = hiveReq.getRankedPosts(params);
                 java.util.List<SingleHivePostModel> posts = new java.util.ArrayList<>();
                 for (int i = 0; i < result.length(); i++) {
@@ -1801,21 +1801,18 @@ public class MainActivity extends BaseActivity {
                 // mStepsDBHelper.reConnect();
                 // }
 
-                // display activity count chart
-                displayActivityChart(stepCount, false);
-                // to avoid system overload, only update activity charts when activity is
-                // visible
-                if (MainActivity.isActivityVisible) {
-                    // display today's chart data
-                    // displayDayChartData(false);
-                    DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(false);
-                    dispChartData.execute(false);
-
-                    // display all historical data
-                    // displayChartData(false);
-                    DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(false);
-                    dispCData.execute(false);
-
+                // Only update ring/charts from device sensor in device mode;
+                // HC and Fitbit modes have their own update paths.
+                String activeMode = sharedPreferences.getString("dataTrackingSystem",
+                        getString(R.string.device_tracking_ntt));
+                if (activeMode.equals(getString(R.string.device_tracking_ntt))) {
+                    displayActivityChart(stepCount, false);
+                    if (MainActivity.isActivityVisible) {
+                        DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(false);
+                        dispChartData.execute(false);
+                        DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(false);
+                        dispCData.execute(false);
+                    }
                 }
             }
         };
@@ -4022,28 +4019,28 @@ public class MainActivity extends BaseActivity {
 
             displayPendingRewards();
 
-            // display today's chart data
-            DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
-            dispChartData.execute(true);
-
-            // display all historical data
-            DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
-            dispCData.execute(true);
-
             if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
                 hideCharts();
                 if (defaultChartContainer != null) defaultChartContainer.setVisibility(View.VISIBLE);
                 chartSwitcher.setVisibility(View.VISIBLE);
                 findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
                 displayActivityChart(stepCount, true);
+                // Device-mode charts
+                new DisplayDayChartDataAsyncTask(true).execute(true);
+                new DisplayChartDataAsyncTask(true).execute(true);
             } else if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
                 hideCharts();
                 thirdPartyTracking.setVisibility(View.VISIBLE);
                 int fitbitStepCount = sharedPreferences.getInt("fitbitSyncCount", 0);
                 displayActivityChartFitbit(fitbitStepCount, true);
+                // Fitbit-mode charts
+                new DisplayFitbitHistoryChartAsyncTask(true).execute(true);
             } else if (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt))) {
                 hideCharts();
                 healthConnectTracking.setVisibility(View.VISIBLE);
+                // Show cached HC chart data immediately; fresh data arrives via checkPermissionsAndReadData
+                new DisplayHCHistoryChartAsyncTask(true).execute(true);
+                new DisplayHCDayChartAsyncTask(true).execute(true);
                 checkPermissionsAndReadData();
             } else {
                 // Default fallback
