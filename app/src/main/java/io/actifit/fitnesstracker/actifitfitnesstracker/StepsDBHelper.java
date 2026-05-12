@@ -690,6 +690,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     // ── Route CRUD ──────────────────────────────────────────────────────────
 
     public long insertRoute(RouteModel route) {
+        reConnect();
         ContentValues values = new ContentValues();
         values.put(ROUTE_DATE, route.date);
         values.put(ROUTE_ACTIVITY_TYPE, route.activityType);
@@ -704,6 +705,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     @SuppressLint("Range")
     public RouteModel getRouteForDate(int date) {
+        reConnect();
         Cursor cursor = dbInstance.query(TABLE_ACTIVITY_ROUTES, null,
                 ROUTE_DATE + "=?", new String[]{String.valueOf(date)},
                 null, null, ROUTE_START_TIME + " DESC", "1");
@@ -718,6 +720,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
     @SuppressLint("Range")
     public RouteModel getMostRecentRoute() {
+        reConnect();
         Cursor cursor = dbInstance.query(TABLE_ACTIVITY_ROUTES, null,
                 null, null, null, null, ROUTE_START_TIME + " DESC", "1");
         if (cursor != null && cursor.moveToFirst()) {
@@ -730,6 +733,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     }
 
     public boolean hasRouteForDate(int date) {
+        reConnect();
         Cursor cursor = dbInstance.query(TABLE_ACTIVITY_ROUTES,
                 new String[]{ROUTE_ID}, ROUTE_DATE + "=?",
                 new String[]{String.valueOf(date)}, null, null, null, "1");
@@ -739,6 +743,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     }
 
     public void deleteRoute(long routeId) {
+        reConnect();
         dbInstance.delete(TABLE_ACTIVITY_ROUTES, ROUTE_ID + "=?",
                 new String[]{String.valueOf(routeId)});
     }

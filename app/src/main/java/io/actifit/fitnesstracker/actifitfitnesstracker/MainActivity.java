@@ -1712,7 +1712,8 @@ public class MainActivity extends BaseActivity {
                     .setPositiveButton(getString(R.string.close_button), null)
                     .create();
 
-            rewardsDialogBuilder.show();
+            AlertDialog rewardsDialog = rewardsDialogBuilder.show();
+            rewardsDialog.setOnDismissListener(d -> refreshSecondaryCards());
             /*
              * pointer.getWindow().getAttributes().windowAnimations =
              * R.style.DialogAnimation;
@@ -2675,6 +2676,17 @@ public class MainActivity extends BaseActivity {
         apiManager.loadSignupLinks(queue);
     }
 
+    private boolean isRewardClaimedToday(String prefKey) {
+        SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String strDate = prefs.getString(prefKey, "");
+        if (strDate.isEmpty()) return false;
+        try {
+            int curDate = Integer.parseInt(
+                new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(new Date()));
+            return curDate <= Integer.parseInt(strDate);
+        } catch (NumberFormatException e) { return false; }
+    }
+
     private void updateNudgeCard(int stepCount) {
         View nudgeCard = findViewById(R.id.nudge_card);
         TextView tvMsg = findViewById(R.id.tv_nudge_message);
@@ -2685,35 +2697,61 @@ public class MainActivity extends BaseActivity {
         // DB returns -1 when no entry exists yet for today; treat as 0 steps
         stepCount = Math.max(0, stepCount);
 
+        boolean fiveKClaimed  = isRewardClaimedToday(getString(R.string.daily_5k_reward));
+        boolean sevenKClaimed = isRewardClaimedToday(getString(R.string.daily_7k_reward));
+        boolean tenKClaimed   = isRewardClaimedToday(getString(R.string.daily_10k_reward));
+
         String msg;
-        String icon;
+        String icon = "";
+        boolean claimable = false;
+        boolean postable  = false;
+
         if (stepCount < activityMilestoneOne) {
-            int stepsLeft = activityMilestoneOne - stepCount;
-            msg = getString(R.string.nudge_keep_going, stepsLeft);
-            icon = "";
-        } else if (stepCount < activityMilestoneThree) {
+            msg = getString(R.string.nudge_keep_going, activityMilestoneOne - stepCount);
+        } else if (!fiveKClaimed) {
             msg = getString(R.string.nudge_claim_reward, activityMilestoneOne);
-            icon = "";
+            claimable = true;
+        } else if (stepCount < activityMilestoneTwo) {
+            msg = getString(R.string.nudge_next_reward_steps, activityMilestoneTwo - stepCount);
+        } else if (!sevenKClaimed) {
+            msg = getString(R.string.nudge_claim_reward, activityMilestoneTwo);
+            claimable = true;
+        } else if (stepCount < activityMilestoneThree) {
+            msg = getString(R.string.nudge_next_reward_steps, activityMilestoneThree - stepCount);
+        } else if (!tenKClaimed) {
+            msg = getString(R.string.nudge_claim_reward, activityMilestoneThree);
+            claimable = true;
+        } else {
+            msg = getString(R.string.nudge_all_done_post);
+            postable = true;
+        }
+
+        tvMsg.setText(msg);
+        if (tvIcon != null) tvIcon.setText(icon);
+
+        nudgeCard.setOnClickListener(null);
+        if (claimable) {
             nudgeCard.setOnClickListener(v -> {
                 Button rewardBtn = findViewById(R.id.daily_reward);
                 if (rewardBtn != null) rewardBtn.performClick();
             });
-        } else {
-            msg = getString(R.string.nudge_goal_met);
-            icon = "";
+        } else if (postable) {
+            nudgeCard.setOnClickListener(v -> {
+                if (BtnPostSteemit != null) BtnPostSteemit.performClick();
+            });
         }
-        tvMsg.setText(msg);
-        if (tvIcon != null) tvIcon.setText(icon);
 
         View accentBar = nudgeCard.findViewById(R.id.nudge_accent_bar);
         if (accentBar != null) {
             int barColor;
-            if (stepCount < activityMilestoneOne) {
-                barColor = android.graphics.Color.parseColor("#FFA000"); // amber — in progress
-            } else if (stepCount < activityMilestoneThree) {
-                barColor = ContextCompat.getColor(this, R.color.md_theme_secondary); // green — claim now
+            if (claimable && stepCount >= activityMilestoneThree) {
+                barColor = android.graphics.Color.parseColor("#1976D2"); // blue -- 10K claimable
+            } else if (claimable) {
+                barColor = ContextCompat.getColor(this, R.color.md_theme_secondary); // green -- 5K/7K claimable
+            } else if (postable) {
+                barColor = android.graphics.Color.parseColor("#1976D2"); // blue -- all done, go post
             } else {
-                barColor = android.graphics.Color.parseColor("#1976D2"); // blue — goal met
+                barColor = android.graphics.Color.parseColor("#FFA000"); // amber -- in progress
             }
             accentBar.setBackgroundColor(barColor);
         }
@@ -2721,7 +2759,6 @@ public class MainActivity extends BaseActivity {
         nudgeCard.setVisibility(View.VISIBLE);
         if (tvDismiss != null) tvDismiss.setOnClickListener(v -> nudgeCard.setVisibility(View.GONE));
     }
-
     private void updateStreakStrip() {
         int[] dayViewIds = {
             R.id.streak_day_0, R.id.streak_day_1, R.id.streak_day_2,

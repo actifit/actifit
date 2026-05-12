@@ -695,9 +695,11 @@
     <string name="footer_social">सोशल</string>
     <string name="footer_leaders">लीडर्स</string>
     <string name="footer_more">अधिक</string>
-    <string name="nudge_keep_going">जारी रखें! आप अपने पहले पुरस्कार से %1\$,d कदम दूर हैं</string>
+    <string name="nudge_keep_going">जारी रखें! आप अपने 5K पुरस्कार से %1\$,d कदम दूर हैं</string>
     <string name="nudge_claim_reward">आपने %1\$,d कदम पूरे किए — अभी अपना पुरस्कार प्राप्त करें!</string>
     <string name="nudge_goal_met">बढ़िया दिन! अपनी उपलब्धि साझा करें</string>
+    <string name="nudge_next_reward_steps">अगला पुरस्कार अनलॉक करने के लिए %1\$,d और कदम चलें</string>
+    <string name="nudge_all_done_post">सभी पुरस्कार प्राप्त हो गए — AFIT कमाने के लिए अपनी गतिविधि पोस्ट करें</string>
     <string name="milestone_10k_msg">10,000 कदम! दैनिक लक्ष्य पूरा!</string>
     <string name="milestone_7k_msg">7,000 कदम! लगभग पहुँच गए!</string>
     <string name="milestone_5k_msg">5,000 कदम! पहला पुरस्कार अनलॉक!</string>

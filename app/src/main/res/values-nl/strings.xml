@@ -695,9 +695,11 @@
     <string name="footer_social">Sociaal</string>
     <string name="footer_leaders">Leiders</string>
     <string name="footer_more">Meer</string>
-    <string name="nudge_keep_going">Ga door! Je bent nog %1\$,d stappen verwijderd van je eerste beloning</string>
+    <string name="nudge_keep_going">Ga door! Je bent nog %1\$,d stappen verwijderd van je 5K-beloning</string>
     <string name="nudge_claim_reward">Je hebt %1\$,d stappen bereikt — claim nu je beloning!</string>
     <string name="nudge_goal_met">Geweldige dag! Deel je prestatie</string>
+    <string name="nudge_next_reward_steps">Loop nog %1\$,d stappen om je volgende beloning te ontgrendelen</string>
+    <string name="nudge_all_done_post">Alle beloningen geclaimd — post je activiteit om AFIT te verdienen</string>
     <string name="milestone_10k_msg">10.000 stappen! Dagelijkse doelstelling voltooid!</string>
     <string name="milestone_7k_msg">7.000 stappen! Bijna klaar!</string>
     <string name="milestone_5k_msg">5.000 stappen! Eerste beloning ontgrendeld!</string>

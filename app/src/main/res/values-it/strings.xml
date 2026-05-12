@@ -695,9 +695,11 @@
     <string name="footer_social">Social</string>
     <string name="footer_leaders">Leader</string>
     <string name="footer_more">Altro</string>
-    <string name="nudge_keep_going">Continua così! Sei a %1\$,d passi dalla tua prima ricompensa</string>
+    <string name="nudge_keep_going">Continua così! Sei a %1\$,d passi dal tuo premio 5K</string>
     <string name="nudge_claim_reward">Hai raggiunto %1\$,d passi — riscatta la tua ricompensa ora!</string>
     <string name="nudge_goal_met">Grande giornata! Condividi il tuo risultato</string>
+    <string name="nudge_next_reward_steps">Cammina ancora %1\$,d passi per sbloccare il prossimo premio</string>
+    <string name="nudge_all_done_post">Tutti i premi riscattati — pubblica la tua attività per guadagnare AFIT</string>
     <string name="milestone_10k_msg">10.000 passi! Obiettivo giornaliero raggiunto!</string>
     <string name="milestone_7k_msg">7.000 passi! Ci siamo quasi!</string>
     <string name="milestone_5k_msg">5.000 passi! Primo premio sbloccato!</string>
