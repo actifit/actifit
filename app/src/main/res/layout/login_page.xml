@@ -151,16 +151,17 @@
 
                         <Button
                             android:id="@+id/qrCodeButton"
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
+                            style="@style/AppTheme.ActifitButton"
+                            android:layout_width="48dp"
+                            android:layout_height="match_parent"
                             android:layout_marginStart="8dp"
-                            android:backgroundTint="@color/md_theme_primary"
-                            android:textSize="20sp"
+                            android:minWidth="0dp"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="0dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
                             android:fontFamily="@font/font_awesome_6_solid"
-                            android:text="\uf029"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/white"
-                            app:cornerRadius="@dimen/input_corner_radius" />
+                            android:text="&#xf029;" />
 
                     </LinearLayout>
 

@@ -65,10 +65,12 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -363,7 +365,7 @@ public class MainActivity extends BaseActivity {
     ScaleAnimation scaler;
     ValueAnimator valueAnimator;
 
-    Button BtnPostSteemit;
+    ExtendedFloatingActionButton BtnPostSteemit;
 
     private ConsentInformation consentInformation;
     private ConsentForm consentForm;
@@ -742,7 +744,7 @@ public class MainActivity extends BaseActivity {
                 params.put("tag", getString(R.string.actifit_community));
                 params.put("start_author", "");
                 params.put("start_permlink", "");
-                params.put("limit", 5);
+                params.put("limit", 10);
                 org.json.JSONArray result = hiveReq.getRankedPosts(params);
                 java.util.List<SingleHivePostModel> posts = new java.util.ArrayList<>();
                 for (int i = 0; i < result.length(); i++) {
@@ -1047,6 +1049,18 @@ public class MainActivity extends BaseActivity {
         TextView BtnSwitchSettings = findViewById(R.id.switchSettings);
 
         BtnPostSteemit = findViewById(R.id.btn_post_steemit);
+
+        ScrollView mainScrollView = findViewById(R.id.main_scroll_view);
+        if (mainScrollView != null) {
+            mainScrollView.setOnScrollChangeListener((View.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+                if (scrollY > oldScrollY + 8) {
+                    BtnPostSteemit.shrink();
+                } else if (scrollY < oldScrollY - 8 || scrollY == 0) {
+                    BtnPostSteemit.extend();
+                }
+            });
+        }
+
         Button BtnBuyAFIT = findViewById(R.id.btn_buy_afit);
         Button BtnReferFriend = findViewById(R.id.refer_friend_button);
 
@@ -1698,7 +1712,8 @@ public class MainActivity extends BaseActivity {
                     .setPositiveButton(getString(R.string.close_button), null)
                     .create();
 
-            rewardsDialogBuilder.show();
+            AlertDialog rewardsDialog = rewardsDialogBuilder.show();
+            rewardsDialog.setOnDismissListener(d -> refreshSecondaryCards());
             /*
              * pointer.getWindow().getAttributes().windowAnimations =
              * R.style.DialogAnimation;
@@ -1801,21 +1816,18 @@ public class MainActivity extends BaseActivity {
                 // mStepsDBHelper.reConnect();
                 // }
 
-                // display activity count chart
-                displayActivityChart(stepCount, false);
-                // to avoid system overload, only update activity charts when activity is
-                // visible
-                if (MainActivity.isActivityVisible) {
-                    // display today's chart data
-                    // displayDayChartData(false);
-                    DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(false);
-                    dispChartData.execute(false);
-
-                    // display all historical data
-                    // displayChartData(false);
-                    DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(false);
-                    dispCData.execute(false);
-
+                // Only update ring/charts from device sensor in device mode;
+                // HC and Fitbit modes have their own update paths.
+                String activeMode = sharedPreferences.getString("dataTrackingSystem",
+                        getString(R.string.device_tracking_ntt));
+                if (activeMode.equals(getString(R.string.device_tracking_ntt))) {
+                    displayActivityChart(stepCount, false);
+                    if (MainActivity.isActivityVisible) {
+                        DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(false);
+                        dispChartData.execute(false);
+                        DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(false);
+                        dispCData.execute(false);
+                    }
                 }
             }
         };
@@ -2162,9 +2174,16 @@ public class MainActivity extends BaseActivity {
             } else {
                 // Switch to Health Connect
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-
                 editor.putString("dataTrackingSystem", getString(R.string.health_connect_tracking_ntt));
                 editor.commit();
+                hideCharts();
+                healthConnectTracking.setVisibility(View.VISIBLE);
+                chartSwitcher.setVisibility(View.VISIBLE);
+                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                dayChart.setVisibility(View.GONE);
+                fullChart.setVisibility(View.VISIBLE);
+                fullChartButton.setVisibility(View.GONE);
+                dayChartButton.setVisibility(View.VISIBLE);
                 checkPermissionsAndReadData();
             }
         });
@@ -2184,6 +2203,10 @@ public class MainActivity extends BaseActivity {
                 if (defaultChartContainer != null) defaultChartContainer.setVisibility(View.VISIBLE);
                 chartSwitcher.setVisibility(View.VISIBLE);
                 findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                dayChart.setVisibility(View.GONE);
+                fullChart.setVisibility(View.VISIBLE);
+                fullChartButton.setVisibility(View.GONE);
+                dayChartButton.setVisibility(View.VISIBLE);
 
                 editor.putString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
                 editor.commit();
@@ -2197,7 +2220,7 @@ public class MainActivity extends BaseActivity {
                 displayActivityChart(steps, true);
                 new DisplayChartDataAsyncTask(true).execute(true);
                 new DisplayDayChartDataAsyncTask(true).execute(true);
-                buildMonthHeatmap();
+                refreshSecondaryCards();
             }
         });
 
@@ -2212,14 +2235,17 @@ public class MainActivity extends BaseActivity {
 
                 // Switch to Fitbit
                 hideCharts();
+                chartSwitcher.setVisibility(View.GONE);
                 thirdPartyTracking.setVisibility(View.VISIBLE);
                 editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
                 editor.commit();
                 int steps = mStepsDBHelper.fetchTodayStepCount();
                 displayActivityChartFitbit(steps, true);
                 findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                dayChart.setVisibility(View.GONE);
+                fullChart.setVisibility(View.VISIBLE);
                 chartManager.displayChartDataFitbit(true);
-                buildMonthHeatmap();
+                refreshSecondaryCards();
             }
         });
 
@@ -2537,6 +2563,24 @@ public class MainActivity extends BaseActivity {
         if (animate) checkMilestoneCelebration(stepCount);
     }
 
+    /**
+     * Refreshes all secondary dashboard cards (streak, heatmap, AI insight, estimated reward)
+     * using the currently active tracking mode's data source.
+     * fetchStepCountByDate/fetchTodayStepCount are already mode-aware so no extra branching needed.
+     */
+    public void refreshSecondaryCards() {
+        int todaySteps = Math.max(0, mStepsDBHelper != null
+                ? mStepsDBHelper.fetchTodayStepCount()
+                : currentDisplayedStepCount);
+        updateNudgeCard(todaySteps);
+        RequestQueue q = Volley.newRequestQueue(this);
+        TextView tvAfit = findViewById(R.id.tv_estimated_afit);
+        apiManager.displayEstimatedReward(q, tvAfit, todaySteps);
+        updateStreakStrip();
+        buildMonthHeatmap();
+        loadAiInsight();
+    }
+
     private class DisplayDayChartDataAsyncTask extends AsyncTask<Boolean, Void, ArrayList<ActivitySlot>> {
         Boolean animate = false;
         public DisplayDayChartDataAsyncTask(Boolean _animate) { animate = _animate; }
@@ -2632,6 +2676,17 @@ public class MainActivity extends BaseActivity {
         apiManager.loadSignupLinks(queue);
     }
 
+    private boolean isRewardClaimedToday(String prefKey) {
+        SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String strDate = prefs.getString(prefKey, "");
+        if (strDate.isEmpty()) return false;
+        try {
+            int curDate = Integer.parseInt(
+                new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(new Date()));
+            return curDate <= Integer.parseInt(strDate);
+        } catch (NumberFormatException e) { return false; }
+    }
+
     private void updateNudgeCard(int stepCount) {
         View nudgeCard = findViewById(R.id.nudge_card);
         TextView tvMsg = findViewById(R.id.tv_nudge_message);
@@ -2639,29 +2694,71 @@ public class MainActivity extends BaseActivity {
         TextView tvDismiss = findViewById(R.id.tv_nudge_dismiss);
         if (nudgeCard == null || tvMsg == null) return;
 
+        // DB returns -1 when no entry exists yet for today; treat as 0 steps
+        stepCount = Math.max(0, stepCount);
+
+        boolean fiveKClaimed  = isRewardClaimedToday(getString(R.string.daily_5k_reward));
+        boolean sevenKClaimed = isRewardClaimedToday(getString(R.string.daily_7k_reward));
+        boolean tenKClaimed   = isRewardClaimedToday(getString(R.string.daily_10k_reward));
+
         String msg;
-        String icon;
+        String icon = "";
+        boolean claimable = false;
+        boolean postable  = false;
+
         if (stepCount < activityMilestoneOne) {
-            int stepsLeft = activityMilestoneOne - stepCount;
-            msg = "Keep going! You're " + stepsLeft + " steps from your first reward";
-            icon = "";
+            msg = getString(R.string.nudge_keep_going, activityMilestoneOne - stepCount);
+        } else if (!fiveKClaimed) {
+            msg = getString(R.string.nudge_claim_reward, activityMilestoneOne);
+            claimable = true;
+        } else if (stepCount < activityMilestoneTwo) {
+            msg = getString(R.string.nudge_next_reward_steps, activityMilestoneTwo - stepCount);
+        } else if (!sevenKClaimed) {
+            msg = getString(R.string.nudge_claim_reward, activityMilestoneTwo);
+            claimable = true;
         } else if (stepCount < activityMilestoneThree) {
-            msg = "You've hit " + activityMilestoneOne + " steps — claim your reward now!";
-            icon = "";
+            msg = getString(R.string.nudge_next_reward_steps, activityMilestoneThree - stepCount);
+        } else if (!tenKClaimed) {
+            msg = getString(R.string.nudge_claim_reward, activityMilestoneThree);
+            claimable = true;
+        } else {
+            msg = getString(R.string.nudge_all_done_post);
+            postable = true;
+        }
+
+        tvMsg.setText(msg);
+        if (tvIcon != null) tvIcon.setText(icon);
+
+        nudgeCard.setOnClickListener(null);
+        if (claimable) {
             nudgeCard.setOnClickListener(v -> {
                 Button rewardBtn = findViewById(R.id.daily_reward);
                 if (rewardBtn != null) rewardBtn.performClick();
             });
-        } else {
-            msg = "Great day! Share your achievement";
-            icon = "";
+        } else if (postable) {
+            nudgeCard.setOnClickListener(v -> {
+                if (BtnPostSteemit != null) BtnPostSteemit.performClick();
+            });
         }
-        tvMsg.setText(msg);
-        if (tvIcon != null) tvIcon.setText(icon);
+
+        View accentBar = nudgeCard.findViewById(R.id.nudge_accent_bar);
+        if (accentBar != null) {
+            int barColor;
+            if (claimable && stepCount >= activityMilestoneThree) {
+                barColor = android.graphics.Color.parseColor("#1976D2"); // blue -- 10K claimable
+            } else if (claimable) {
+                barColor = ContextCompat.getColor(this, R.color.md_theme_secondary); // green -- 5K/7K claimable
+            } else if (postable) {
+                barColor = android.graphics.Color.parseColor("#1976D2"); // blue -- all done, go post
+            } else {
+                barColor = android.graphics.Color.parseColor("#FFA000"); // amber -- in progress
+            }
+            accentBar.setBackgroundColor(barColor);
+        }
+
         nudgeCard.setVisibility(View.VISIBLE);
         if (tvDismiss != null) tvDismiss.setOnClickListener(v -> nudgeCard.setVisibility(View.GONE));
     }
-
     private void updateStreakStrip() {
         int[] dayViewIds = {
             R.id.streak_day_0, R.id.streak_day_1, R.id.streak_day_2,
@@ -2671,7 +2768,12 @@ public class MainActivity extends BaseActivity {
             R.id.streak_label_0, R.id.streak_label_1, R.id.streak_label_2,
             R.id.streak_label_3, R.id.streak_label_4, R.id.streak_label_5, R.id.streak_label_6
         };
-        String[] dayAbbr = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+        String[] dayAbbr = {
+            getString(R.string.day_abbr_sun), getString(R.string.day_abbr_mon),
+            getString(R.string.day_abbr_tue), getString(R.string.day_abbr_wed),
+            getString(R.string.day_abbr_thu), getString(R.string.day_abbr_fri),
+            getString(R.string.day_abbr_sat)
+        };
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
 
         // Fill 7-day window: index 0 = 6 days ago, index 6 = today
@@ -2712,9 +2814,9 @@ public class MainActivity extends BaseActivity {
         TextView tvStreakCount = findViewById(R.id.tv_streak_count);
         if (tvStreakCount != null) {
             if (streak == 0) {
-                tvStreakCount.setText("No streak yet");
+                tvStreakCount.setText(getString(R.string.no_streak_yet));
             } else {
-                tvStreakCount.setText(streak + (streak == 1 ? " day streak" : " day streak"));
+                tvStreakCount.setText(getString(R.string.day_streak_label, streak));
             }
         }
     }
@@ -2724,13 +2826,13 @@ public class MainActivity extends BaseActivity {
         String message = null;
         if (stepCount >= activityMilestoneThree && lastCelebrationMilestone < activityMilestoneThree) {
             milestone = activityMilestoneThree;
-            message = "10,000 steps! Daily goal complete!";
+            message = getString(R.string.milestone_10k_msg);
         } else if (stepCount >= activityMilestoneTwo && lastCelebrationMilestone < activityMilestoneTwo) {
             milestone = activityMilestoneTwo;
-            message = "7,000 steps! Almost there!";
+            message = getString(R.string.milestone_7k_msg);
         } else if (stepCount >= activityMilestoneOne && lastCelebrationMilestone < activityMilestoneOne) {
             milestone = activityMilestoneOne;
-            message = "5,000 steps! First reward unlocked!";
+            message = getString(R.string.milestone_5k_msg);
         }
         if (milestone == 0) return;
         lastCelebrationMilestone = milestone;
@@ -2802,6 +2904,24 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setupRouteCard() {
+        View compactRow = findViewById(R.id.route_compact_row);
+        View fullContent = findViewById(R.id.route_full_content);
+        if (compactRow != null && fullContent != null) {
+            compactRow.setOnClickListener(v -> {
+                boolean expanded = fullContent.getVisibility() == View.VISIBLE;
+                fullContent.setVisibility(expanded ? View.GONE : View.VISIBLE);
+            });
+        }
+
+        View chipRecord = findViewById(R.id.chip_record_compact);
+        if (chipRecord != null) {
+            chipRecord.setOnClickListener(v -> {
+                if (fullContent != null) fullContent.setVisibility(View.VISIBLE);
+                View btnStart2 = findViewById(R.id.btn_start_route_recording);
+                if (btnStart2 != null) btnStart2.performClick();
+            });
+        }
+
         View btnStart = findViewById(R.id.btn_start_route_recording);
         if (btnStart == null) return;
         btnStart.setOnClickListener(v -> {
@@ -2842,11 +2962,13 @@ public class MainActivity extends BaseActivity {
         RouteModel route = mStepsDBHelper.getMostRecentRoute();
         LinearLayout summary = findViewById(R.id.last_route_summary);
         TextView tvInfo = findViewById(R.id.tv_last_route_info);
+        View fullContent = findViewById(R.id.route_full_content);
         if (summary == null || tvInfo == null) return;
         if (route != null) {
             tvInfo.setText(route.getFormattedDistance() + "  •  " + route.getFormattedDuration()
                     + "  •  " + (route.activityType != null ? route.activityType : ""));
             summary.setVisibility(View.VISIBLE);
+            if (fullContent != null) fullContent.setVisibility(View.VISIBLE);
         } else {
             summary.setVisibility(View.GONE);
         }
@@ -2937,14 +3059,14 @@ public class MainActivity extends BaseActivity {
         // Update title with month name
         TextView tvTitle = findViewById(R.id.tv_heatmap_title);
         if (tvTitle != null) {
-            tvTitle.setText(new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH).format(today.getTime()));
+            tvTitle.setText(new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(today.getTime()));
         }
 
         // Show streak badge (hidden when streak is 0)
         TextView tvStreak = findViewById(R.id.tv_heatmap_streak);
         if (tvStreak != null) {
             if (streak > 0) {
-                tvStreak.setText("🔥 " + streak + (streak == 1 ? " day" : " days"));
+                tvStreak.setText(streak == 1 ? getString(R.string.heatmap_streak_badge, streak) : getString(R.string.heatmap_streak_badge_plural, streak));
                 tvStreak.setVisibility(View.VISIBLE);
             } else {
                 tvStreak.setVisibility(View.GONE);
@@ -3660,13 +3782,14 @@ public class MainActivity extends BaseActivity {
                 // mStepsDBHelper.reConnect();
                 // }
 
-                // displayDayChartData(true);
-                DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
-                dispChartData.execute(true);
-
-                // displayChartData(true);
-                DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
-                dispCData.execute(true);
+                if (getSharedPreferences("actifitSets", MODE_PRIVATE)
+                        .getString("dataTrackingSystem", getString(R.string.device_tracking_ntt))
+                        .equals(getString(R.string.device_tracking_ntt))) {
+                    DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
+                    dispChartData.execute(true);
+                    DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
+                    dispCData.execute(true);
+                }
 
                 ResumeAsyncTask resumeAsyncTask = new ResumeAsyncTask();
                 resumeAsyncTask.execute();
@@ -3940,6 +4063,7 @@ public class MainActivity extends BaseActivity {
                 }
 
                 stepCount = mStepsDBHelper.fetchTodayStepCount();
+                if (stepCount < 0) stepCount = 0;
             }
             Log.d(TAG, "[Actifit] PrepareGround end");
             return null;
@@ -3971,28 +4095,42 @@ public class MainActivity extends BaseActivity {
 
             displayPendingRewards();
 
-            // display today's chart data
-            DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
-            dispChartData.execute(true);
-
-            // display all historical data
-            DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
-            dispCData.execute(true);
-
             if (dataTrackingSystem.equals(getString(R.string.device_tracking_ntt))) {
                 hideCharts();
                 if (defaultChartContainer != null) defaultChartContainer.setVisibility(View.VISIBLE);
                 chartSwitcher.setVisibility(View.VISIBLE);
                 findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                dayChart.setVisibility(View.GONE);
+                fullChart.setVisibility(View.VISIBLE);
+                fullChartButton.setVisibility(View.GONE);
+                dayChartButton.setVisibility(View.VISIBLE);
                 displayActivityChart(stepCount, true);
+                // Device-mode charts
+                new DisplayDayChartDataAsyncTask(true).execute(true);
+                new DisplayChartDataAsyncTask(true).execute(true);
             } else if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
                 hideCharts();
+                chartSwitcher.setVisibility(View.GONE);
                 thirdPartyTracking.setVisibility(View.VISIBLE);
                 int fitbitStepCount = sharedPreferences.getInt("fitbitSyncCount", 0);
                 displayActivityChartFitbit(fitbitStepCount, true);
+                // Fitbit-mode charts
+                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                dayChart.setVisibility(View.GONE);
+                fullChart.setVisibility(View.VISIBLE);
+                new DisplayFitbitHistoryChartAsyncTask(true).execute(true);
             } else if (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt))) {
                 hideCharts();
                 healthConnectTracking.setVisibility(View.VISIBLE);
+                chartSwitcher.setVisibility(View.VISIBLE);
+                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
+                dayChart.setVisibility(View.GONE);
+                fullChart.setVisibility(View.VISIBLE);
+                fullChartButton.setVisibility(View.GONE);
+                dayChartButton.setVisibility(View.VISIBLE);
+                // Show cached HC chart data immediately; fresh data arrives via checkPermissionsAndReadData
+                new DisplayHCHistoryChartAsyncTask(true).execute(true);
+                new DisplayHCDayChartAsyncTask(true).execute(true);
                 checkPermissionsAndReadData();
             } else {
                 // Default fallback

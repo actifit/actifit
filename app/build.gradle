@@ -191,7 +191,7 @@ dependencies {
     implementation "androidx.media3:media3-ui:1.1.1"
 
     //for QR code support
-    implementation 'com.google.android.gms:play-services-code-scanner:16.1.0'
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
     //for translations via deepl API
     implementation "com.deepl.api:deepl-java:1.5.0"

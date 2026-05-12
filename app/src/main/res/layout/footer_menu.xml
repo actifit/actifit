@@ -38,12 +38,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Home"
+            android:text="@string/footer_home"
             android:textSize="10sp"
             android:textColor="@color/footer_menu_text_color"
             android:paddingTop="2dp"
-            android:duplicateParentState="true"
-            tools:ignore="HardcodedText" />
+            android:duplicateParentState="true" />
     </LinearLayout>
 
     <!-- Social -->
@@ -74,12 +73,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Social"
+            android:text="@string/footer_social"
             android:textSize="10sp"
             android:textColor="@color/footer_menu_text_color"
             android:paddingTop="2dp"
-            android:duplicateParentState="true"
-            tools:ignore="HardcodedText" />
+            android:duplicateParentState="true" />
     </LinearLayout>
 
     <!-- Market -->
@@ -110,12 +108,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Market"
+            android:text="@string/market_title"
             android:textSize="10sp"
             android:textColor="@color/footer_menu_text_color"
             android:paddingTop="2dp"
-            android:duplicateParentState="true"
-            tools:ignore="HardcodedText" />
+            android:duplicateParentState="true" />
     </LinearLayout>
 
     <!-- Leaderboard -->
@@ -146,12 +143,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Leaders"
+            android:text="@string/footer_leaders"
             android:textSize="10sp"
             android:textColor="@color/footer_menu_text_color"
             android:paddingTop="2dp"
-            android:duplicateParentState="true"
-            tools:ignore="HardcodedText" />
+            android:duplicateParentState="true" />
     </LinearLayout>
 
     <!-- More -->
@@ -182,12 +178,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="More"
+            android:text="@string/footer_more"
             android:textSize="10sp"
             android:textColor="@color/footer_menu_text_color"
             android:paddingTop="2dp"
-            android:duplicateParentState="true"
-            tools:ignore="HardcodedText" />
+            android:duplicateParentState="true" />
     </LinearLayout>
 
     <!-- Hidden items — accessible via More menu -->
