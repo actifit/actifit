@@ -271,7 +271,7 @@ public class TrackingManager {
                 if (chartSwitcherView != null) chartSwitcherView.setVisibility(View.VISIBLE);
                 chartManager.displayChartDataHC(true);
                 chartManager.displayDayChartDataHC(true);
-                if (context instanceof MainActivity) ((MainActivity) context).buildMonthHeatmap();
+                if (context instanceof MainActivity) ((MainActivity) context).refreshSecondaryCards();
 
                 if (mStepsDBHelper != null) {
                     Runnable heatmapRefresh = () -> ((Activity) context).runOnUiThread(() -> {

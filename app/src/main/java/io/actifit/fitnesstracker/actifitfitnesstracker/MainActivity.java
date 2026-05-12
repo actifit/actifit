@@ -2197,7 +2197,7 @@ public class MainActivity extends BaseActivity {
                 displayActivityChart(steps, true);
                 new DisplayChartDataAsyncTask(true).execute(true);
                 new DisplayDayChartDataAsyncTask(true).execute(true);
-                buildMonthHeatmap();
+                refreshSecondaryCards();
             }
         });
 
@@ -2219,7 +2219,7 @@ public class MainActivity extends BaseActivity {
                 displayActivityChartFitbit(steps, true);
                 findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
                 chartManager.displayChartDataFitbit(true);
-                buildMonthHeatmap();
+                refreshSecondaryCards();
             }
         });
 
@@ -2535,6 +2535,23 @@ public class MainActivity extends BaseActivity {
         chartManager.displayActivityChart(stepCount, animate);
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
+    }
+
+    /**
+     * Refreshes all secondary dashboard cards (streak, heatmap, AI insight, estimated reward)
+     * using the currently active tracking mode's data source.
+     * fetchStepCountByDate/fetchTodayStepCount are already mode-aware so no extra branching needed.
+     */
+    public void refreshSecondaryCards() {
+        int todaySteps = mStepsDBHelper != null
+                ? mStepsDBHelper.fetchTodayStepCount()
+                : currentDisplayedStepCount;
+        RequestQueue q = Volley.newRequestQueue(this);
+        TextView tvAfit = findViewById(R.id.tv_estimated_afit);
+        apiManager.displayEstimatedReward(q, tvAfit, todaySteps);
+        updateStreakStrip();
+        buildMonthHeatmap();
+        loadAiInsight();
     }
 
     private class DisplayDayChartDataAsyncTask extends AsyncTask<Boolean, Void, ArrayList<ActivitySlot>> {
