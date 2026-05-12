@@ -680,5 +680,37 @@
     <string name="show_more_activities">Àwọn ìgbésẹ̀ síi</string>
     <string name="show_fewer_activities">Àwọn ìgbésẹ̀ díẹ̀</string>
     <string name="x_like_btn">♡  Fẹ́ràn lórí X</string>
+    <string name="community_feed_title">Àwùjọ</string>
+    <string name="community_see_all">Wo gbogbo →</string>
+    <string name="powered_by_gemini">Gba agbara nipasẹ Gemini</string>
+    <string name="consistency_label">Ìtẹramọ́</string>
+    <string name="generating_insight">Ṣíṣẹ̀ ìmọ̀...</string>
+    <string name="route_tracking_label">Ìtọ́pa ọ̀nà</string>
+    <string name="route_view_btn">Wò →</string>
+    <string name="route_start_recording">▶  Bẹ̀rẹ̀ gbigbasilẹ</string>
+    <string name="earnings_gadgets_label">Èrè àti ohun èlò</string>
+    <string name="estimated_reward_label">Èrè tí a retí</string>
+    <string name="this_month_label">Oṣù yìí</string>
+    <string name="footer_home">Ile</string>
+    <string name="footer_social">Àwùjọ</string>
+    <string name="footer_leaders">Àwọn olórí</string>
+    <string name="footer_more">Síi</string>
+    <string name="nudge_keep_going">Tẹsiwaju! O jẹ %1\$,d igbesẹ síi sí èrè àkọ́kọ́ rẹ</string>
+    <string name="nudge_claim_reward">O ti de %1\$,d igbesẹ — gba èrè rẹ báyìí!</string>
+    <string name="nudge_goal_met">Ọjọ́ tó dára! Pin ìdárayá rẹ</string>
+    <string name="milestone_10k_msg">Igbesẹ 10,000! Ibi-afẹde ọjọ̀ pari!</string>
+    <string name="milestone_7k_msg">Igbesẹ 7,000! Ó fẹ́rẹ̀ tán!</string>
+    <string name="milestone_5k_msg">Igbesẹ 5,000! Èrè àkọ́kọ́ ti ṣí!</string>
+    <string name="no_streak_yet">Kò sí ìtẹramọ́ síbẹ̀</string>
+    <string name="day_streak_label">Ìtẹramọ́ ọjọ́ %1\$d</string>
+    <string name="heatmap_streak_badge">🔥 Ọjọ́ %1\$d</string>
+    <string name="heatmap_streak_badge_plural">🔥 Ọjọ́ %1\$d</string>
+    <string name="day_abbr_sun">Àì</string>
+    <string name="day_abbr_mon">Aj</string>
+    <string name="day_abbr_tue">Ìṣ</string>
+    <string name="day_abbr_wed">Ọr</string>
+    <string name="day_abbr_thu">Ọb</string>
+    <string name="day_abbr_fri">Ẹt</string>
+    <string name="day_abbr_sat">Àb</string>
 </resources>
 
