@@ -695,9 +695,11 @@
     <string name="footer_social">Social</string>
     <string name="footer_leaders">Líderes</string>
     <string name="footer_more">Mais</string>
-    <string name="nudge_keep_going">Continue! Você está a %1\$,d passos da sua primeira recompensa</string>
+    <string name="nudge_keep_going">Continue! Você está a %1\$,d passos da sua recompensa de 5K</string>
     <string name="nudge_claim_reward">Você atingiu %1\$,d passos — resgate sua recompensa agora!</string>
     <string name="nudge_goal_met">Ótimo dia! Compartilhe sua conquista</string>
+    <string name="nudge_next_reward_steps">Caminhe mais %1\$,d passos para desbloquear a próxima recompensa</string>
+    <string name="nudge_all_done_post">Todas as recompensas resgatadas — publique sua atividade para ganhar AFIT</string>
     <string name="milestone_10k_msg">10.000 passos! Meta diária completa!</string>
     <string name="milestone_7k_msg">7.000 passos! Quase lá!</string>
     <string name="milestone_5k_msg">5.000 passos! Primeira recompensa desbloqueada!</string>

@@ -694,9 +694,11 @@
     <string name="footer_social">社交</string>
     <string name="footer_leaders">领袖</string>
     <string name="footer_more">更多</string>
-    <string name="nudge_keep_going">继续！距离您的第一个奖励还有 %1\$,d 步</string>
+    <string name="nudge_keep_going">继续！距离您的5K奖励还有 %1\$,d 步</string>
     <string name="nudge_claim_reward">您已达到 %1\$,d 步 — 立即领取您的奖励！</string>
     <string name="nudge_goal_met">精彩的一天！分享您的成就</string>
+    <string name="nudge_next_reward_steps">再走 %1\$,d 步即可解锁下一个奖励</string>
+    <string name="nudge_all_done_post">所有奖励已领取 — 发布您的活动以赚取 AFIT</string>
     <string name="milestone_10k_msg">10,000步！完成每日目标！</string>
     <string name="milestone_7k_msg">7,000步！快到了！</string>
     <string name="milestone_5k_msg">5,000步！第一个奖励已解锁！</string>

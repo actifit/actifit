@@ -694,9 +694,11 @@
     <string name="footer_social">Соцмережі</string>
     <string name="footer_leaders">Лідери</string>
     <string name="footer_more">Більше</string>
-    <string name="nudge_keep_going">Продовжуй! До першої нагороди залишилось %1\$,d кроків</string>
+    <string name="nudge_keep_going">Продовжуй! До нагороди 5K залишилось %1\$,d кроків</string>
     <string name="nudge_claim_reward">Ви подолали %1\$,d кроків — отримайте свою нагороду!</string>
     <string name="nudge_goal_met">Чудовий день! Поділись своїм досягненням</string>
+    <string name="nudge_next_reward_steps">Пройди ще %1\$,d кроків, щоб відкрити наступну нагороду</string>
+    <string name="nudge_all_done_post">Усі нагороди отримано — опублікуй активність, щоб заробити AFIT</string>
     <string name="milestone_10k_msg">10 000 кроків! Щоденна мета виконана!</string>
     <string name="milestone_7k_msg">7 000 кроків! Вже майже!</string>
     <string name="milestone_5k_msg">5 000 кроків! Перша нагорода розблокована!</string>

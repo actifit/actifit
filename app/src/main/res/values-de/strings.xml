@@ -699,9 +699,11 @@
     <string name="footer_social">Sozial</string>
     <string name="footer_leaders">Rangliste</string>
     <string name="footer_more">Mehr</string>
-    <string name="nudge_keep_going">Weiter so! Du bist noch %1\$,d Schritte von deiner ersten Belohnung entfernt</string>
+    <string name="nudge_keep_going">Weiter so! Du bist noch %1\$,d Schritte von deiner 5K-Belohnung entfernt</string>
     <string name="nudge_claim_reward">Du hast %1\$,d Schritte erreicht — hol dir jetzt deine Belohnung!</string>
     <string name="nudge_goal_met">Toller Tag! Teile deine Leistung</string>
+    <string name="nudge_next_reward_steps">Geh noch %1\$,d Schritte, um deine nächste Belohnung freizuschalten</string>
+    <string name="nudge_all_done_post">Alle Belohnungen beansprucht — poste deine Aktivität, um AFIT zu verdienen</string>
     <string name="milestone_10k_msg">10.000 Schritte! Tagesziel erreicht!</string>
     <string name="milestone_7k_msg">7.000 Schritte! Fast geschafft!</string>
     <string name="milestone_5k_msg">5.000 Schritte! Erste Belohnung freigeschaltet!</string>

@@ -671,9 +671,11 @@
     <string name="footer_more">More</string>
 
     <!-- Dynamic dashboard nudge / streak messages -->
-    <string name="nudge_keep_going">Keep going! You\'re %1$,d steps from your first reward</string>
+    <string name="nudge_keep_going">Keep going! You\'re %1$,d steps from your 5K reward</string>
     <string name="nudge_claim_reward">You\'ve hit %1$,d steps — claim your reward now!</string>
     <string name="nudge_goal_met">Great day! Share your achievement</string>
+    <string name="nudge_next_reward_steps">Walk %1$,d more steps to unlock your next reward</string>
+    <string name="nudge_all_done_post">All rewards claimed — post your activity to earn AFIT</string>
     <string name="milestone_10k_msg">10,000 steps! Daily goal complete!</string>
     <string name="milestone_7k_msg">7,000 steps! Almost there!</string>
     <string name="milestone_5k_msg">5,000 steps! First reward unlocked!</string>

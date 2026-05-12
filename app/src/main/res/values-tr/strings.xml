@@ -694,9 +694,11 @@
     <string name="footer_social">Sosyal</string>
     <string name="footer_leaders">Liderler</string>
     <string name="footer_more">Daha fazla</string>
-    <string name="nudge_keep_going">Devam et! İlk ödülüne %1\$,d adım kaldı</string>
+    <string name="nudge_keep_going">Devam et! 5K ödülüne %1\$,d adım kaldı</string>
     <string name="nudge_claim_reward">%1\$,d adıma ulaştınız — ödülünüzü şimdi talep edin!</string>
     <string name="nudge_goal_met">Harika gün! Başarını paylaş</string>
+    <string name="nudge_next_reward_steps">Bir sonraki ödülü açmak için %1\$,d adım daha at</string>
+    <string name="nudge_all_done_post">Tüm ödüller talep edildi — AFIT kazanmak için aktiviteni paylaş</string>
     <string name="milestone_10k_msg">10.000 adım! Günlük hedef tamamlandı!</string>
     <string name="milestone_7k_msg">7.000 adım! Neredeyse tamamdı!</string>
     <string name="milestone_5k_msg">5.000 adım! İlk ödül açıldı!</string>

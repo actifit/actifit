@@ -695,9 +695,11 @@
     <string name="footer_social">소셜</string>
     <string name="footer_leaders">리더</string>
     <string name="footer_more">더보기</string>
-    <string name="nudge_keep_going">계속해요! 첫 번째 보상까지 %1\$,d걸음 남았어요</string>
+    <string name="nudge_keep_going">계속해요! 5K 보상까지 %1\$,d걸음 남았어요</string>
     <string name="nudge_claim_reward">%1\$,d걸음을 달성했습니다 — 지금 보상을 받으세요!</string>
     <string name="nudge_goal_met">훌륭한 하루! 성과를 공유하세요</string>
+    <string name="nudge_next_reward_steps">다음 보상을 잠금 해제하려면 %1\$,d걸음 더 걸으세요</string>
+    <string name="nudge_all_done_post">모든 보상을 받았습니다 — AFIT를 얻으려면 활동을 게시하세요</string>
     <string name="milestone_10k_msg">10,000걸음! 일일 목표 달성!</string>
     <string name="milestone_7k_msg">7,000걸음! 거의 다 왔어요!</string>
     <string name="milestone_5k_msg">5,000걸음! 첫 번째 보상 해제!</string>
