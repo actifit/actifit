@@ -23,6 +23,9 @@
     </queries>
 
 
+    <!-- required for QR code scanning -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
     <!-- required by android 13 / post notifications permission  -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- required by android 13 /  for high sensor usage  -->
@@ -114,12 +117,6 @@
         android:name="com.google.firebase.messaging.default_notification_channel_id"
         android:value="@string/actifit_fcm_msg_channel_id" />
     <!-- [END fcm_default_channel] -->
-
-        <!-- for QR code support via google services -->
-        <meta-data
-            android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="barcode_ui"/>
-        <!-- end -->
 
     <activity android:name=".LoginActivity"
         android:theme="@style/Theme.App.Starting"

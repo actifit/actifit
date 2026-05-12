@@ -27,8 +27,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.multidex.BuildConfig;
+
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -65,6 +69,7 @@ public class LoginActivity extends BaseActivity {
     Button loginBtn;
     Button skipBtn;
     ProgressDialog progress;
+    private ActivityResultLauncher<ScanOptions> qrLauncher;
 
     Context ctx;
 
@@ -84,6 +89,12 @@ public class LoginActivity extends BaseActivity {
         // androidx.core.splashscreen.R.
 
         ctx = this;
+
+        qrLauncher = registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() != null && keyEntry != null) {
+                keyEntry.setText(result.getContents());
+            }
+        });
 
         // load login hero image as background
         final ImageView heroImage = findViewById(R.id.login_hero);
@@ -319,6 +330,15 @@ public class LoginActivity extends BaseActivity {
         });
 
         skipBtn.setOnClickListener(view -> proceedMain());
+
+        Button qrCodeButton = findViewById(R.id.qrCodeButton);
+        qrCodeButton.setOnClickListener(v -> qrLauncher.launch(
+            new ScanOptions()
+                .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                .setPrompt("Scan your Private Posting Key QR code")
+                .setBeepEnabled(false)
+                .setOrientationLocked(false)
+        ));
 
         // make sure PPKey link click works
         TextView ppHelpLink = findViewById(R.id.posting_key_link);
