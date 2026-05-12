@@ -54,10 +54,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import io.actifit.fitnesstracker.actifitfitnesstracker.BuildConfig;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.mlkit.vision.barcode.common.Barcode;
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
-import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
@@ -99,7 +97,7 @@ public class SettingsActivity extends BaseActivity {
     private EditText activeKey, fundsPassword, voteWeight;
 
     Button qrCodeBtn;
-    GmsBarcodeScanner scanner;
+    private ActivityResultLauncher<ScanOptions> qrLauncher;
 
     TextView logoutLink;
 
@@ -124,17 +122,6 @@ public class SettingsActivity extends BaseActivity {
 
         break;
     }*/
-
-    private void prepQRCode(){
-        GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
-                .setBarcodeFormats(
-                        Barcode.FORMAT_QR_CODE,
-                        Barcode.FORMAT_AZTEC)
-                .enableAutoZoom()
-                .build();
-        scanner = GmsBarcodeScanning.getClient(this, options);
-        //GmsBarcodeScanning.getClient(this);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,34 +217,18 @@ public class SettingsActivity extends BaseActivity {
 
         qrCodeBtn = findViewById(R.id.qrCodeButton);
 
-        prepQRCode();
-
-        qrCodeBtn.setOnClickListener(view ->{
-
-            if (scanner != null) {
-                scanner
-                        .startScan()
-                        .addOnSuccessListener(
-                                barcode -> {
-                                    // Task completed successfully
-                                    String rawValue = barcode.getRawValue();
-                                    //inject value into the active key text
-                                    activeKey.setText(rawValue);
-                                    //keyEntry.setText(rawValue);
-                                    //attempt login
-                                    //loginBtn.performClick();
-
-                                })
-                        .addOnCanceledListener(
-                                () -> {
-                                    // Task canceled
-                                })
-                        .addOnFailureListener(
-                                e -> {
-                                    // Task failed with an exception
-                                });
+        qrLauncher = registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() != null) {
+                activeKey.setText(result.getContents());
             }
         });
+
+        qrCodeBtn.setOnClickListener(v -> qrLauncher.launch(
+            new ScanOptions()
+                .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                .setBeepEnabled(false)
+                .setOrientationLocked(false)
+        ));
 
         finalList = new ArrayList<>();
 
