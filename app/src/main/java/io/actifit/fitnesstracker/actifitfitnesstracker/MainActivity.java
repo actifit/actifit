@@ -65,10 +65,12 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -363,7 +365,7 @@ public class MainActivity extends BaseActivity {
     ScaleAnimation scaler;
     ValueAnimator valueAnimator;
 
-    Button BtnPostSteemit;
+    ExtendedFloatingActionButton BtnPostSteemit;
 
     private ConsentInformation consentInformation;
     private ConsentForm consentForm;
@@ -1047,6 +1049,18 @@ public class MainActivity extends BaseActivity {
         TextView BtnSwitchSettings = findViewById(R.id.switchSettings);
 
         BtnPostSteemit = findViewById(R.id.btn_post_steemit);
+
+        ScrollView mainScrollView = findViewById(R.id.main_scroll_view);
+        if (mainScrollView != null) {
+            mainScrollView.setOnScrollChangeListener((View.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+                if (scrollY > oldScrollY + 8) {
+                    BtnPostSteemit.shrink();
+                } else if (scrollY < oldScrollY - 8 || scrollY == 0) {
+                    BtnPostSteemit.extend();
+                }
+            });
+        }
+
         Button BtnBuyAFIT = findViewById(R.id.btn_buy_afit);
         Button BtnReferFriend = findViewById(R.id.refer_friend_button);
 

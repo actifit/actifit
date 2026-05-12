@@ -205,6 +205,7 @@
         android:layout_weight="1">
 
     <ScrollView
+        android:id="@+id/main_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="72dp"
@@ -1626,6 +1627,7 @@
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="8dp"
             android:text="@string/post_to_steem_btn_txt"
+            android:textAllCaps="false"
             app:icon="@drawable/ic_edit_black_24dp"
             app:iconTint="@color/colorWhite"
             app:backgroundTint="@color/actifitRed"
