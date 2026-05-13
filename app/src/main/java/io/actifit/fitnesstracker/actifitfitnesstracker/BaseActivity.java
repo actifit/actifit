@@ -97,7 +97,12 @@ public class BaseActivity extends AppCompatActivity {
 
         TextView btnStepHistory = findViewById(R.id.btn_view_history);
         if (btnStepHistory != null) {
-            btnStepHistory.setSelected(this instanceof StepHistoryActivity); // Replace LeaderboardActivity
+            btnStepHistory.setSelected(this instanceof StepHistoryActivity);
+        }
+
+        View btnMoreFooter = findViewById(R.id.btn_more_footer);
+        if (btnMoreFooter != null) {
+            btnMoreFooter.setSelected(this instanceof StepHistoryActivity);
         }
     }
 
@@ -336,7 +341,11 @@ public class BaseActivity extends AppCompatActivity {
         android.view.View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_more_menu, null);
         sheet.setContentView(sheetView);
 
-        sheetView.findViewById(R.id.more_item_history).setOnClickListener(v -> {
+        View historyItem = sheetView.findViewById(R.id.more_item_history);
+        if (this instanceof StepHistoryActivity) {
+            historyItem.setBackgroundColor(0x1AFF112D);
+        }
+        historyItem.setOnClickListener(v -> {
             sheet.dismiss();
             if (!(this instanceof StepHistoryActivity))
                 startActivity(new Intent(this, StepHistoryActivity.class));

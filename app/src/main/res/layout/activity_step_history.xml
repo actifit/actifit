@@ -4,81 +4,118 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="10dp"
-    android:paddingStart="10dp"
-    android:paddingEnd="10dp"
-    >
+    android:background="@color/md_theme_background">
 
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-
-        >
+        android:padding="@dimen/spacing_md"
+        android:gravity="center_vertical"
+        android:background="@color/md_theme_surface">
 
         <TextView
             android:id="@+id/textView"
-            android:layout_width="200dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/activity_step_history_title"
-            android:textColor="@color/actifitRed"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+            android:textColor="@color/md_theme_primary"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            >
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/chart_view"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:text="\uf080"
-            android:textSize="22sp"
+            android:text="&#xf080;"
+            android:textSize="20sp"
             android:fontFamily="@font/font_awesome_6_solid"
             android:gravity="center"
             android:textColor="@color/text_on_actifit_red"
             android:background="@drawable/actifit_button_ripple_bg"
             android:padding="0dp"
             android:minWidth="0dp"
-            android:minHeight="0dp"
-            />
-        </LinearLayout>
+            android:minHeight="0dp" />
+
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_separator" />
+
+    <!-- Column headers -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/spacing_sm"
+        android:paddingEnd="@dimen/spacing_sm"
+        android:paddingTop="@dimen/spacing_xs"
+        android:paddingBottom="@dimen/spacing_xs"
+        android:background="@color/md_theme_surface"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Date"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_body"
+            android:textColor="@color/md_theme_textSecondary" />
+
+        <TextView
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:text="Steps"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_body"
+            android:textColor="@color/md_theme_textSecondary" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Source"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_body"
+            android:textColor="@color/md_theme_textSecondary" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_separator" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:id="@+id/progressBarRelLayout"
         android:visibility="visible"
-        android:layout_weight="1"
-        >
+        android:layout_weight="1">
 
         <ProgressBar
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:progress="@integer/material_motion_duration_long_1"
-            android:layout_centerInParent="true"
-            />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true" />
 
     </RelativeLayout>
 
     <ListView
         android:id="@+id/steps_list"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:dividerHeight="0.1dp"
-        android:divider="@color/colorBlack"
-        android:layout_weight="1"
-        />
-
+        android:dividerHeight="1dp"
+        android:divider="@color/md_theme_separator"
+        android:layout_weight="1" />
 
     <include
         android:id="@+id/bottom_menu_container"
         layout="@layout/footer_menu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

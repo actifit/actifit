@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -28,6 +29,7 @@ public class LeaderboardActivity extends BaseActivity {
     private Context leadership_post_context;
     private LeaderboardEntryAdapter listingAdapter;
     private RelativeLayout progressBarRelLayout;
+    private TextView emptyStateView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,7 @@ public class LeaderboardActivity extends BaseActivity {
 
         progressBarRelLayout = findViewById(R.id.progressBarRelLayout);
         progressBarRelLayout.setVisibility(View.VISIBLE);
+        emptyStateView = findViewById(R.id.leaderboard_empty_state);
 
         /*progress = new ProgressDialog(this);
 
@@ -83,19 +86,18 @@ public class LeaderboardActivity extends BaseActivity {
                         //progress.hide();
                         //actifitTransactions.setText("Response is: "+ response);
                     }catch (Exception e) {
-                        //hide dialog
-                        //progress.hide();
-                        //actifitTransactionsError.setVisibility(View.VISIBLE);
                         e.printStackTrace();
                     }
                     progressBarRelLayout.setVisibility(View.GONE);
+                    if (mAccountsFinalList.isEmpty()) {
+                        emptyStateView.setText(R.string.leader_no_results);
+                        emptyStateView.setVisibility(View.VISIBLE);
+                    }
 
                 }, error -> {
-            //hide dialog
-            //progress.hide();
             progressBarRelLayout.setVisibility(View.GONE);
-            //actifitTransactionsView.setText("Unable to fetch balance");
-            //actifitTransactionsError.setVisibility(View.VISIBLE);
+            emptyStateView.setText(R.string.leader_error);
+            emptyStateView.setVisibility(View.VISIBLE);
         });
 
 
