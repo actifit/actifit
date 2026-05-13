@@ -5,96 +5,92 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp">
+    android:background="@color/md_theme_background">
 
-
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md"
+        android:gravity="center_vertical"
+        android:background="@color/md_theme_surface">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/social_title"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:textColor="@color/actifitRed"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/social_title"
+            android:textColor="@color/md_theme_primary"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/social_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/font_awesome_6_solid"
-            android:textColor="@color/actifitRed"
-            android:text="\uf05a"
-            android:textSize="20dp"
-            android:padding="7dp"
-            />
-
+            android:textColor="@color/md_theme_primary"
+            android:text=""
+            android:textSize="20sp"
+            android:padding="@dimen/spacing_sm" />
 
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_separator" />
+
     <ProgressBar
         android:id="@+id/loader"
-        android:layout_width="50dp"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
-        android:progress="@integer/material_motion_duration_long_1"
         android:visibility="visible" />
-
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        >
+        android:layout_weight="1">
 
         <ListView
             android:id="@+id/postList"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:dividerHeight="0dp"
-            android:divider="#0000CC"
-            />
+            android:divider="@android:color/transparent"
+            android:padding="@dimen/spacing_sm"
+            android:clipToPadding="false" />
 
         <Button
             style="@style/AppTheme.ActifitButton"
             android:id="@+id/load_more"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14dp"
             android:visibility="invisible"
-            android:layout_gravity="center"
-            android:elevation="20dp"
+            android:elevation="@dimen/fab_elevation"
             android:text="Load More"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-
-            />
+            android:layout_marginBottom="@dimen/spacing_md" />
 
         <ProgressBar
             android:id="@+id/loaderMore"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:progress="@integer/material_motion_duration_long_1"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:visibility="gone"
-             />
+            android:layout_marginBottom="@dimen/spacing_md"
+            android:visibility="gone" />
 
     </RelativeLayout>
-
 
     <include
         android:id="@+id/bottom_menu_container"
         layout="@layout/footer_menu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

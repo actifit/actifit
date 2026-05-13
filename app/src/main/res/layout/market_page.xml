@@ -4,45 +4,54 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    >
+    android:background="@color/md_theme_background">
 
-
-    <TextView
-        android:id="@+id/textView"
+    <!-- Header -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/market_title"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:textColor="@color/actifitRed"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+        android:orientation="vertical"
+        android:background="@color/md_theme_surface"
+        android:padding="@dimen/spacing_md">
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/market_title"
+            android:textColor="@color/md_theme_primary"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold" />
 
-    <TextView
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/gadgets_description"
+            android:textColor="@color/md_theme_textSecondary"
+            android:textSize="@dimen/text_body"
+            android:paddingTop="@dimen/spacing_xs" />
+
+    </LinearLayout>
+
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/gadgets_description"
-        android:textStyle="bold"
-
-        android:padding="10dp"/>
+        android:layout_height="1dp"
+        android:background="@color/md_theme_separator" />
 
     <ListView
         android:id="@+id/productList"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:dividerHeight="0dp"
-        android:divider="#0000CC"
+        android:divider="@android:color/transparent"
         android:layout_weight="1"
-        />
+        android:padding="@dimen/spacing_sm"
+        android:clipToPadding="false" />
 
     <include
         android:id="@+id/bottom_menu_container"
         layout="@layout/footer_menu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
-
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
