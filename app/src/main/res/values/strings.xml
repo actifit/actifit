@@ -144,6 +144,10 @@
     <string name="afit_token_balance">AFIT Tokens</string>
     <string name="actifit_transactions_lbl">AFIT Transactions</string>
     <string name="actifit_transactions_error">Unable to Fetch</string>
+    <string name="hive_transactions_lbl">Hive Transactions</string>
+    <string name="hive_transactions_error">Unable to load Hive transactions</string>
+    <string name="hive_transactions_empty">No financial transactions found</string>
+    <string name="load_more_lbl">Load More</string>
     <string name="setting_shareNetworkAgreement">Share network resources</string>
     <string name="setting_shareNetworkAgreementDesc">Only active when device is plugged in and connected to WiFi network</string>
     <string name="tot_activity_string">Total Activity:</string>
