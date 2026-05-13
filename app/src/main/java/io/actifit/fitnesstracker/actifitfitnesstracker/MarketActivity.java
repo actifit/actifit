@@ -327,7 +327,7 @@ public class MarketActivity extends BaseActivity {
                     Collections.sort(productList);
                     // Create the adapter to convert the array to views
                     String pkey = sharedPreferences.getString("actifitPst", "");
-                    productAdapter = new ProductAdapter(getApplicationContext(), productList,
+                    productAdapter = new ProductAdapter(MarketActivity.this, productList,
                             MainActivity.username, pkey);
 
                     marketView.setAdapter(productAdapter);

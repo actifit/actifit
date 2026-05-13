@@ -1,76 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:gravity="center_vertical"
+    android:paddingStart="@dimen/spacing_sm"
+    android:paddingEnd="@dimen/spacing_sm"
+    android:paddingTop="@dimen/spacing_xs"
+    android:paddingBottom="@dimen/spacing_xs"
+    android:minHeight="48dp"
+    android:background="?attr/selectableItemBackground">
 
     <TextView
         android:id="@+id/activityEntryDate"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        />
+        android:textSize="@dimen/text_body" />
+
     <TextView
         android:id="@+id/activityEntryCount"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
-        />
+        android:textSize="@dimen/text_body" />
 
     <TextView
         android:id="@+id/activityDevice"
-        android:layout_width="50dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        />
+        android:layout_weight="1"
+        android:textSize="@dimen/text_body"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
     <TextView
         android:id="@+id/activityDetailsBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="\uf1fe"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:text="&#xf1fe;"
         android:textColor="@color/actifitRed"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="10dp"
-        android:textSize="30sp"
+        android:textSize="20sp"
+        android:gravity="center"
         android:fontFamily="@font/font_awesome_6_solid"
-        />
-
+        android:background="?attr/selectableItemBackground" />
 
     <TextView
         android:id="@+id/post_link"
-        android:layout_width="40sp"
-        android:layout_height="40sp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:text=""
         android:textColor="@color/actifitRed"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="10dp"
-        android:textSize="30sp"
+        android:textSize="20sp"
+        android:gravity="center"
         android:visibility="gone"
         android:fontFamily="@font/font_awesome_6_solid"
-        />
+        android:background="?attr/selectableItemBackground" />
 
     <ProgressBar
         android:id="@+id/loader"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:progress="@integer/material_motion_duration_long_1"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="10dp"
-        />
+        android:layout_margin="5dp"
+        android:progress="@integer/material_motion_duration_long_1" />
 
     <TextView
         android:id="@+id/btn_view_route"
-        android:layout_width="40sp"
-        android:layout_height="40sp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:text="&#xf3c5;"
         android:textColor="@color/actifitRed"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="6dp"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:gravity="center"
         android:visibility="gone"
         android:fontFamily="@font/font_awesome_6_solid"
-        tools:ignore="HardcodedText"
-        xmlns:tools="http://schemas.android.com/tools" />
+        android:background="?attr/selectableItemBackground"
+        tools:ignore="HardcodedText" />
 
 </LinearLayout>
