@@ -539,12 +539,10 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/section_transactions"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_md"
         android:layout_marginEnd="@dimen/spacing_md"
         android:layout_marginTop="@dimen/spacing_sm"
-        android:layout_marginBottom="@dimen/spacing_sm"
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/card_elevation"
         app:cardBackgroundColor="@color/md_theme_cardBackground"
@@ -552,7 +550,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <LinearLayout
@@ -605,8 +603,7 @@
             <LinearLayout
                 android:id="@+id/content_transactions"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="280dp"
                 android:orientation="vertical"
                 android:visibility="gone">
 
@@ -627,6 +624,125 @@
                     android:divider="@color/md_theme_separator"
                     android:fadeScrollbars="false"
                     android:scrollbarFadeDuration="0" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- HIVE TRANSACTIONS SECTION -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/section_hive_transactions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_marginEnd="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginBottom="@dimen/spacing_sm"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:cardBackgroundColor="@color/md_theme_cardBackground"
+        app:cardUseCompatPadding="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/header_hive_transactions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="@dimen/spacing_md"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="&#xf0ec;"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/font_awesome_6_solid" />
+
+                <TextView
+                    android:id="@+id/hive_transactions_lbl"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:textSize="@dimen/text_subtitle"
+                    android:textStyle="bold"
+                    android:text="@string/hive_transactions_lbl" />
+
+                <TextView
+                    android:id="@+id/btn_refresh_hive_transactions"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf2f1;"
+                    android:textSize="18sp"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/indicator_hive_transactions"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf078;"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:rotation="0" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/md_theme_separator" />
+
+            <LinearLayout
+                android:id="@+id/content_hive_transactions"
+                android:layout_width="match_parent"
+                android:layout_height="280dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/hive_transactions_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/spacing_md"
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:gravity="center"
+                    android:visibility="gone" />
+
+                <ListView
+                    android:id="@+id/hive_transactions_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:dividerHeight="1dp"
+                    android:divider="@color/md_theme_separator"
+                    android:fadeScrollbars="false"
+                    android:scrollbarFadeDuration="0" />
+
+                <TextView
+                    android:id="@+id/btn_load_more_hive_transactions"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:gravity="center"
+                    android:text="@string/load_more_lbl"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="@dimen/text_body"
+                    android:background="?attr/selectableItemBackground"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

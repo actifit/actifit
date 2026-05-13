@@ -108,18 +108,30 @@ public class WalletActivity extends BaseActivity {
     private LinearLayout headerHeBalance;
     private LinearLayout headerClaimableRewards;
     private LinearLayout headerTransactions;
+    private LinearLayout headerHiveTransactions;
 
     // Content Containers
     private LinearLayout contentCoreBalance;
     private ScrollView contentHeBalanceScrollView;
     private LinearLayout contentClaimableRewards;
     private LinearLayout contentTransactions;
+    private LinearLayout contentHiveTransactions;
 
     // Indicators
     private TextView indicatorCoreBalance;
     private TextView indicatorHeBalance;
     private TextView indicatorClaimableRewards;
     private TextView indicatorTransactions;
+    private TextView indicatorHiveTransactions;
+
+    // Hive transactions views
+    private ListView hiveTransactionsView;
+    private TextView hiveTransactionsError;
+    private TextView btnRefreshHiveTransactions;
+    private TextView btnLoadMoreHiveTransactions;
+    private ArrayList<TransactionItem> hiveTransactionsList = new ArrayList<>();
+    private TransactionAdapter hiveTransactionsAdapter;
+    private long hiveHistoryMinSeq = -1;
 
     // List to hold pairs of (contentView, indicatorView) for easy management
     private List<Pair<View, TextView>> sectionPairs;
@@ -180,12 +192,21 @@ public class WalletActivity extends BaseActivity {
         contentTransactions = findViewById(R.id.content_transactions);
         indicatorTransactions = findViewById(R.id.indicator_transactions);
 
+        headerHiveTransactions = findViewById(R.id.header_hive_transactions);
+        contentHiveTransactions = findViewById(R.id.content_hive_transactions);
+        indicatorHiveTransactions = findViewById(R.id.indicator_hive_transactions);
+        hiveTransactionsView = findViewById(R.id.hive_transactions_list);
+        hiveTransactionsError = findViewById(R.id.hive_transactions_error);
+        btnRefreshHiveTransactions = findViewById(R.id.btn_refresh_hive_transactions);
+        btnLoadMoreHiveTransactions = findViewById(R.id.btn_load_more_hive_transactions);
+
         // 2. Create the list of section pairs
         sectionPairs = new ArrayList<>();
         sectionPairs.add(new Pair<>(contentCoreBalance, indicatorCoreBalance));
         sectionPairs.add(new Pair<>(contentHeBalanceScrollView, indicatorHeBalance));
         sectionPairs.add(new Pair<>(contentClaimableRewards, indicatorClaimableRewards));
         sectionPairs.add(new Pair<>(contentTransactions, indicatorTransactions));
+        sectionPairs.add(new Pair<>(contentHiveTransactions, indicatorHiveTransactions));
 
         // 3. Set up Click Listeners
         // Pass both the content and the indicator to the toggle method
@@ -195,6 +216,8 @@ public class WalletActivity extends BaseActivity {
         headerClaimableRewards
                 .setOnClickListener(v -> toggleSectionVisibility(contentClaimableRewards, indicatorClaimableRewards));
         headerTransactions.setOnClickListener(v -> toggleSectionVisibility(contentTransactions, indicatorTransactions));
+        headerHiveTransactions
+                .setOnClickListener(v -> toggleSectionVisibility(contentHiveTransactions, indicatorHiveTransactions));
 
         // define standard rotate animation
 
@@ -258,12 +281,17 @@ public class WalletActivity extends BaseActivity {
         stakeToken = findViewById(R.id.btn_stake_token);
         unstakeToken = findViewById(R.id.btn_unstake_token);
 
+        btnRefreshHiveTransactions.setOnClickListener(v -> loadHiveTransactions(username));
+        btnLoadMoreHiveTransactions.setOnClickListener(v -> fetchHiveHistoryBatch(username, hiveHistoryMinSeq - 1, 0, false));
+
         // make sure we have a value, and if so, automatically grab it
         if (!username.equals("")) {
             // if we already have data, emulate a click to grab the info
             loadAccountBalance(username, callerActivity, callerContext);
 
             loadHEBalance(username);
+
+            loadHiveTransactions(username);
 
             // fetch user global settings - server based
 
@@ -1450,6 +1478,174 @@ public class WalletActivity extends BaseActivity {
             }
         });
 
+    }
+
+    private void loadHiveTransactions(String username) {
+        if (username == null || username.isEmpty()) return;
+        // Reset state for a fresh load
+        hiveTransactionsList.clear();
+        hiveHistoryMinSeq = -1;
+        hiveTransactionsAdapter = null;
+        hiveTransactionsView.setAdapter(null);
+        btnLoadMoreHiveTransactions.setVisibility(View.GONE);
+        hiveTransactionsError.setVisibility(View.GONE);
+        fetchHiveHistoryBatch(username, -1, 0, true);
+    }
+
+    // start: -1 for most recent, or oldest seq seen minus 1 for pagination
+    // autoFetchCount: how many batches have been auto-fetched so far (max 3)
+    // isRefresh: true when triggered by refresh button (shows spinner)
+    private void fetchHiveHistoryBatch(String username, long start, int autoFetchCount, boolean isRefresh) {
+        if (isRefresh) btnRefreshHiveTransactions.startAnimation(rotate);
+        btnLoadMoreHiveTransactions.setVisibility(View.GONE);
+
+        HiveRequests hiveRequests = new HiveRequests(this);
+        String rpcUrl = hiveRequests.hiveRPCUrl;
+
+        JSONObject requestBody = new JSONObject();
+        try {
+            JSONArray params = new JSONArray();
+            params.put(username);
+            params.put(start);
+            params.put(1000); // fetch max per batch
+            requestBody.put("jsonrpc", "2.0");
+            requestBody.put("method", "condenser_api.get_account_history");
+            requestBody.put("params", params);
+            requestBody.put("id", 1);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            if (isRefresh) btnRefreshHiveTransactions.clearAnimation();
+            return;
+        }
+
+        SimpleDateFormat hiveDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ROOT);
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, rpcUrl, requestBody,
+                response -> {
+                    if (isRefresh) btnRefreshHiveTransactions.clearAnimation();
+                    try {
+                        JSONArray history = response.getJSONArray("result");
+                        int newlyFound = 0;
+                        long batchMinSeq = Long.MAX_VALUE;
+
+                        // Iterate newest-first (reverse order of returned array)
+                        for (int i = history.length() - 1; i >= 0; i--) {
+                            JSONArray entry = history.getJSONArray(i);
+                            long seq = entry.getLong(0);
+                            if (seq < batchMinSeq) batchMinSeq = seq;
+
+                            JSONObject txData = entry.getJSONObject(1);
+                            JSONArray op = txData.getJSONArray("op");
+                            String opType = op.getString(0);
+                            JSONObject opData = op.getJSONObject(1);
+
+                            TransactionItem item = new TransactionItem();
+                            item.date = txData.optString("timestamp", "");
+                            if (!item.date.isEmpty()) {
+                                try { item.parsedDate = hiveDateFormat.parse(item.date); } catch (Exception ignored) {}
+                            }
+
+                            switch (opType) {
+                                case "transfer":
+                                    String to = opData.optString("to", "");
+                                    String from = opData.optString("from", "");
+                                    String amount = opData.optString("amount", "0");
+                                    item.note = opData.optString("memo", "");
+                                    item.tokenCount = parseHiveAmount(amount);
+                                    item.tokenSymbol = extractHiveSymbol(amount);
+                                    if (to.equals(username)) {
+                                        item.activityType = "Transfer In";
+                                        item.user = from;
+                                    } else {
+                                        item.activityType = "Transfer Out";
+                                        item.recipient = to;
+                                        item.tokenCount = -item.tokenCount;
+                                    }
+                                    break;
+                                case "transfer_to_vesting":
+                                    item.activityType = "Power Up";
+                                    item.user = opData.optString("from", "");
+                                    item.tokenCount = parseHiveAmount(opData.optString("amount", "0"));
+                                    item.tokenSymbol = "HIVE";
+                                    break;
+                                case "withdraw_vesting":
+                                    item.activityType = "Power Down";
+                                    item.tokenCount = -parseHiveAmount(opData.optString("vesting_shares", "0"));
+                                    item.tokenSymbol = "VESTS";
+                                    break;
+                                case "claim_reward_balance":
+                                    item.activityType = "Claim Rewards";
+                                    item.tokenCount = parseHiveAmount(opData.optString("reward_hive", "0"));
+                                    item.tokenSymbol = "HIVE";
+                                    item.note = "HBD: " + opData.optString("reward_hbd", "0");
+                                    break;
+                                default:
+                                    continue;
+                            }
+                            hiveTransactionsList.add(item);
+                            newlyFound++;
+                        }
+
+                        // Update cursor for next page
+                        if (batchMinSeq != Long.MAX_VALUE) {
+                            hiveHistoryMinSeq = batchMinSeq;
+                        }
+
+                        boolean hasMoreHistory = history.length() == 1000 && batchMinSeq > 0;
+
+                        if (hiveTransactionsList.isEmpty() && !hasMoreHistory) {
+                            hiveTransactionsError.setText(R.string.hive_transactions_empty);
+                            hiveTransactionsError.setVisibility(View.VISIBLE);
+                            return;
+                        }
+
+                        // Auto-fetch next batch if we found too few financial txns
+                        if (newlyFound < 10 && hasMoreHistory && autoFetchCount < 3) {
+                            fetchHiveHistoryBatch(username, hiveHistoryMinSeq - 1, autoFetchCount + 1, false);
+                            return;
+                        }
+
+                        // Render the accumulated list
+                        hiveTransactionsError.setVisibility(View.GONE);
+                        if (hiveTransactionsAdapter == null) {
+                            hiveTransactionsAdapter = new TransactionAdapter(
+                                    WalletActivity.this, R.layout.list_item_transaction, hiveTransactionsList);
+                            hiveTransactionsView.setAdapter(hiveTransactionsAdapter);
+                        } else {
+                            hiveTransactionsAdapter.notifyDataSetChanged();
+                        }
+
+                        // Show "Load More" only if there's potentially more history
+                        btnLoadMoreHiveTransactions.setVisibility(hasMoreHistory ? View.VISIBLE : View.GONE);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        hiveTransactionsError.setText(R.string.hive_transactions_error);
+                        hiveTransactionsError.setVisibility(View.VISIBLE);
+                    }
+                },
+                error -> {
+                    if (isRefresh) btnRefreshHiveTransactions.clearAnimation();
+                    hiveTransactionsError.setText(R.string.hive_transactions_error);
+                    hiveTransactionsError.setVisibility(View.VISIBLE);
+                    // Show Load More if we already have results so user can retry
+                    if (!hiveTransactionsList.isEmpty()) {
+                        btnLoadMoreHiveTransactions.setVisibility(View.VISIBLE);
+                    }
+                });
+
+        queue.add(request);
+    }
+
+    private double parseHiveAmount(String amount) {
+        try { return Double.parseDouble(amount.split(" ")[0]); } catch (Exception e) { return 0.0; }
+    }
+
+    private String extractHiveSymbol(String amount) {
+        try {
+            String[] parts = amount.split(" ");
+            return parts.length > 1 ? parts[1] : "HIVE";
+        } catch (Exception e) { return "HIVE"; }
     }
 
 }

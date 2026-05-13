@@ -77,7 +77,8 @@ public class TransactionAdapter extends ArrayAdapter<TransactionItem> {
         }
 
         // Token Amount (Coloring logic remains)
-        String amountText = String.format(Locale.getDefault(), "%.3f AFIT(s)", item.tokenCount);
+        String symbol = (item.tokenSymbol != null && !item.tokenSymbol.isEmpty()) ? item.tokenSymbol : "AFIT(s)";
+        String amountText = String.format(Locale.getDefault(), "%.3f %s", item.tokenCount, symbol);
         String prefix = "";
         if (item.tokenCount > 0) {
             prefix = "+";
