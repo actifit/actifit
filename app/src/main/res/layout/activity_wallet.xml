@@ -1,552 +1,643 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
+    android:background="@color/md_theme_background"
     android:id="@+id/root_layout">
 
-    <TextView
-        android:id="@+id/textView"
+    <!-- Header -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/actifitRed"
-        android:text="@string/your_wallet_title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md"
+        android:gravity="center_vertical"
+        android:background="@color/md_theme_surface">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/your_wallet_title"
+            android:textColor="@color/md_theme_primary"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_separator" />
 
     <!-- CORE BALANCE SECTION -->
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/section_core_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp">
+        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_marginEnd="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_md"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:cardBackgroundColor="@color/md_theme_cardBackground"
+        app:cardUseCompatPadding="true">
 
-        <!-- Header -->
         <LinearLayout
-            android:id="@+id/header_core_balance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?android:attr/selectableItemBackground">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fa_wallet_solid"
-                android:textColor="@color/actifitRed"
-                android:fontFamily="@font/font_awesome_6_solid"/>
-
-            <TextView
-                android:id="@+id/balance_lbl"
-                android:paddingLeft="10dp"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="16dp"
-                android:text="@string/core_balance_lbl"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-            <TextView
-                android:id="@+id/btn_refresh_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:textColor="@color/actifitRed"
-                android:text="\uf2f1"
-                android:textSize="20dp"
-                android:padding="10dp"/>
-
-            <!-- Indicator Added Here -->
-            <TextView
-                android:id="@+id/indicator_core_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:textColor="@color/actifitRed"
-                android:text="\uf078"
-            android:textSize="18dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:rotation="180" /> <!-- Initially rotated for the default open section -->
-
-        </LinearLayout>
-
-        <!-- Content -->
-        <LinearLayout
-            android:id="@+id/content_core_balance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-            <TableLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:stretchColumns="*"
-                android:shrinkColumns="1,2">
-
-                <include
-                    layout="@layout/wallet_header" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?android:attr/listDivider" />
-
-                <TableRow>
-                    <ImageView
-                        android:layout_width="28sp"
-                        android:layout_height="28sp"
-                        android:src="@drawable/actifit_logo"/>
-                    <TextView
-                        android:id="@+id/actifit_balance"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-                    <TextView
-                        android:id="@+id/btn_send_afit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        android:textColor="@color/actifitRed"
-                        android:text="\uf14d"
-                        android:textSize="20dp"
-                        android:paddingRight="5dp"
-                        android:gravity="center"/>
-                </TableRow>
-
-                <TableRow>
-                    <ImageView
-                        android:layout_width="25sp"
-                        android:layout_height="25sp"
-                        android:src="@drawable/hive"/>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_gravity="center_vertical">
-                        <TextView
-                            android:id="@+id/hive_balance"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:text="" />
-                        <TextView
-                            android:id="@+id/hbd_balance"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:text="" />
-                    </LinearLayout>
-                    <TextView
-                        android:id="@+id/hp_balance"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="" />
-                    <TextView
-                        android:id="@+id/expand_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textColor="@color/actifitRed"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        android:text="\uf0ab"
-                        android:textSize="25sp"
-                        android:paddingRight="5dp"/>
-                </TableRow>
-
-                <LinearLayout
-                    android:id="@+id/hive_actions_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="5dp"
-                    android:gravity="center"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/btn_send_token"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        android:textColor="@color/actifitRed"
-                        android:text="\uf14d"
-                        android:textSize="20sp"
-                        android:padding="5dp"/>
-
-                    <TextView
-                        android:id="@+id/btn_stake_token"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        android:textColor="@color/actifitRed"
-                        android:padding="5dp"
-                        android:text="\uf023"
-                        android:textSize="20sp"/>
-
-                    <TextView
-                        android:id="@+id/btn_unstake_token"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/font_awesome_6_solid"
-                        android:textColor="@color/actifitRed"
-                        android:padding="5dp"
-                        android:text="\uf09c"
-                        android:textSize="20sp"/>
-                </LinearLayout>
-
-                <TableRow>
-                    <ImageView
-                        android:layout_width="25sp"
-                        android:layout_height="25sp"
-                        android:src="@drawable/blurt"/>
-                    <TextView
-                        android:id="@+id/blurt_balance"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="" />
-                    <TextView
-                        android:id="@+id/bp_balance"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-                </TableRow>
-
-            </TableLayout>
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/header_core_balance"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp">
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:src="@drawable/sports"
-                    android:visibility="gone"/>
+                android:gravity="center_vertical"
+                android:padding="@dimen/spacing_md"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
                 <TextView
-                    android:id="@+id/sports_balance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fa_wallet_solid"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/font_awesome_6_solid" />
+
+                <TextView
+                    android:id="@+id/balance_lbl"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:textSize="@dimen/text_subtitle"
+                    android:textStyle="bold"
+                    android:text="@string/core_balance_lbl" />
+
+                <TextView
+                    android:id="@+id/btn_refresh_balance"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf2f1;"
+                    android:textSize="18sp"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/indicator_core_balance"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf078;"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:rotation="180" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/md_theme_separator" />
+
+            <LinearLayout
+                android:id="@+id/content_core_balance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TableLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:visibility="gone" />
+                    android:stretchColumns="*"
+                    android:shrinkColumns="1,2"
+                    android:padding="@dimen/spacing_sm">
+
+                    <include layout="@layout/wallet_header" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/md_theme_separator" />
+
+                    <TableRow
+                        android:minHeight="48dp"
+                        android:gravity="center_vertical">
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/actifit_logo" />
+                        <TextView
+                            android:id="@+id/actifit_balance"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="@dimen/spacing_xs"
+                            android:text="" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="" />
+                        <TextView
+                            android:id="@+id/btn_send_afit"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:text="&#xf14d;"
+                            android:textSize="18sp"
+                            android:gravity="center" />
+                    </TableRow>
+
+                    <TableRow
+                        android:minHeight="48dp"
+                        android:gravity="center_vertical">
+                        <ImageView
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/hive" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_gravity="center_vertical"
+                            android:paddingStart="@dimen/spacing_xs">
+                            <TextView
+                                android:id="@+id/hive_balance"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:text="" />
+                            <TextView
+                                android:id="@+id/hbd_balance"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:text="" />
+                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/hp_balance"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="" />
+                        <TextView
+                            android:id="@+id/expand_view"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:gravity="center"
+                            android:textColor="@color/actifitRed"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:text="&#xf0ab;"
+                            android:textSize="20sp" />
+                    </TableRow>
+
+                    <LinearLayout
+                        android:id="@+id/hive_actions_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_sm"
+                        android:gravity="center"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/btn_send_token"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:text="&#xf14d;"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground" />
+
+                        <TextView
+                            android:id="@+id/btn_stake_token"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:text="&#xf023;"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground" />
+
+                        <TextView
+                            android:id="@+id/btn_unstake_token"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:text="&#xf09c;"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground" />
+
+                    </LinearLayout>
+
+                    <TableRow
+                        android:minHeight="48dp"
+                        android:gravity="center_vertical">
+                        <ImageView
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/blurt" />
+                        <TextView
+                            android:id="@+id/blurt_balance"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:paddingStart="@dimen/spacing_xs"
+                            android:text="" />
+                        <TextView
+                            android:id="@+id/bp_balance"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="" />
+                        <TextView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp" />
+                    </TableRow>
+
+                </TableLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/spacing_sm"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/sports"
+                        android:visibility="gone" />
+                    <TextView
+                        android:id="@+id/sports_balance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <!-- HE BALANCE SECTION -->
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/section_he_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp">
+        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_marginEnd="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_sm"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:cardBackgroundColor="@color/md_theme_cardBackground"
+        app:cardUseCompatPadding="true">
 
-        <!-- Header -->
         <LinearLayout
-            android:id="@+id/header_he_balance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?android:attr/selectableItemBackground">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/header_he_balance"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/fa_wallet_solid"
-                android:textColor="@color/actifitRed"
-                android:fontFamily="@font/font_awesome_6_solid"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="@dimen/spacing_md"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
 
-            <TextView
-                android:id="@+id/he_balance_lbl"
-                android:paddingLeft="10dp"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="16dp"
-                android:text="@string/he_balance_lbl"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fa_wallet_solid"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/font_awesome_6_solid" />
 
-            <TextView
-                android:id="@+id/btn_refresh_he_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:textColor="@color/actifitRed"
-                android:text="\uf2f1"
-                android:textSize="20dp"
-                android:padding="10dp"/>
+                <TextView
+                    android:id="@+id/he_balance_lbl"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:textSize="@dimen/text_subtitle"
+                    android:textStyle="bold"
+                    android:text="@string/he_balance_lbl" />
 
-            <!-- Indicator Added Here -->
-            <TextView
-                android:id="@+id/indicator_he_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:textColor="@color/actifitRed"
-                android:text="\uf078"
-                android:textSize="18dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
+                <TextView
+                    android:id="@+id/btn_refresh_he_balance"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf2f1;"
+                    android:textSize="18sp"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/indicator_he_balance"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf078;"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:rotation="0" />
+
+            </LinearLayout>
+
+            <ScrollView
+                android:id="@+id/content_he_balance_scrollview"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:fadeScrollbars="false"
+                android:scrollbarFadeDuration="0"
+                android:visibility="gone">
+
+                <TableLayout
+                    android:id="@+id/he_tokens_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="*"
+                    android:shrinkColumns="1,2">
+                </TableLayout>
+
+            </ScrollView>
 
         </LinearLayout>
 
-        <!-- Content -->
-        <ScrollView
-            android:id="@+id/content_he_balance_scrollview"
-            android:layout_width="match_parent"
-            android:layout_height="200sp"
-            android:maxHeight="200sp"
-            android:fadeScrollbars="false"
-            android:scrollbarFadeDuration="0"
-            android:visibility="gone">
-
-            <TableLayout
-                android:id="@+id/he_tokens_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:stretchColumns="*"
-                android:shrinkColumns="1,2">
-
-            </TableLayout>
-        </ScrollView>
-
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <!-- CLAIMABLE REWARDS SECTION -->
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/section_claimable_rewards"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp">
+        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_marginEnd="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_sm"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:cardBackgroundColor="@color/md_theme_cardBackground"
+        app:cardUseCompatPadding="true">
 
-        <!-- Header -->
         <LinearLayout
-            android:id="@+id/header_claimable_rewards"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?android:attr/selectableItemBackground">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fa_coins_solid"
-                android:textColor="@color/actifitRed"
-                android:fontFamily="@font/font_awesome_6_solid"/>
-
-            <TextView
-                android:id="@+id/claimable_rewards_lbl"
-                android:padding="10dp"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="16dp"
-                android:text="@string/claimable_rewards_lbl"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-            <TextView
-                android:id="@+id/btn_claim_pending_rewards"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:textColor="@color/actifitRed"
-                android:text="\uf81d"
-                android:textSize="20dp"
-                android:padding="10dp"/>
-
-            <TextView
-                android:id="@+id/btn_get_pending_rewards"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:textColor="@color/actifitRed"
-                android:text="\uf254"
-                android:textSize="20dp"
-                android:padding="10dp"/>
-
-            <!-- Indicator Added Here -->
-            <TextView
-                android:id="@+id/indicator_claimable_rewards"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:textColor="@color/actifitRed"
-                android:text="\uf078"
-            android:textSize="18dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
-
-        </LinearLayout>
-
-        <!-- Content -->
-        <LinearLayout
-            android:id="@+id/content_claimable_rewards"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/header_claimable_rewards"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="25sp"
-                    android:layout_height="25sp"
-                    android:src="@drawable/hive"/>
-                <TextView
-                    android:id="@+id/hive_rewards"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
                 android:orientation="horizontal"
-                android:visibility="invisible">
-                <ImageView
-                    android:layout_width="25sp"
-                    android:layout_height="25sp"
-                    android:src="@drawable/steem"/>
+                android:gravity="center_vertical"
+                android:padding="@dimen/spacing_md"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
                 <TextView
-                    android:id="@+id/steem_rewards"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="" />
+                    android:text="@string/fa_coins_solid"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/font_awesome_6_solid" />
+
+                <TextView
+                    android:id="@+id/claimable_rewards_lbl"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:textSize="@dimen/text_subtitle"
+                    android:textStyle="bold"
+                    android:text="@string/claimable_rewards_lbl" />
+
+                <TextView
+                    android:id="@+id/btn_claim_pending_rewards"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf81d;"
+                    android:textSize="18sp"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/btn_get_pending_rewards"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf254;"
+                    android:textSize="18sp"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/indicator_claimable_rewards"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf078;"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:rotation="0" />
+
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/md_theme_separator" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/content_claimable_rewards"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:src="@drawable/blurt"/>
-                <TextView
-                    android:id="@+id/blurt_rewards"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_md"
+                android:visibility="gone">
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="@dimen/spacing_xs">
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/hive" />
+                    <TextView
+                        android:id="@+id/hive_rewards"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:text="" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="invisible">
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/steem" />
+                    <TextView
+                        android:id="@+id/steem_rewards"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:text="" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="@dimen/spacing_xs">
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/blurt" />
+                    <TextView
+                        android:id="@+id/blurt_rewards"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:text="" />
+                </LinearLayout>
+
             </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <!-- ACTIFIT TRANSACTIONS SECTION -->
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/section_transactions"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp">
+        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_marginEnd="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginBottom="@dimen/spacing_sm"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:cardBackgroundColor="@color/md_theme_cardBackground"
+        app:cardUseCompatPadding="true">
 
-        <!-- Header -->
         <LinearLayout
-            android:id="@+id/header_transactions"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?android:attr/selectableItemBackground">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fa_file"
-                android:textColor="@color/actifitRed"
-                android:fontFamily="@font/font_awesome_6_solid"/>
-
-            <TextView
-                android:id="@+id/actifit_transactions_lbl"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="16sp"
-                android:padding="10dp"
-                android:text="@string/actifit_transactions_lbl"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-            <!-- Indicator Added Here -->
-            <TextView
-                android:id="@+id/indicator_transactions"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_awesome_6_solid"
-                android:textColor="@color/actifitRed"
-                android:text="\uf078"
-                android:textSize="18sp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:rotation="0" /> <!-- Initially not rotated (pointing down) -->
-
-        </LinearLayout>
-
-        <!-- Content -->
-        <LinearLayout
-            android:id="@+id/content_transactions"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/actifit_transactions_error"
+            <LinearLayout
+                android:id="@+id/header_transactions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/actifit_transactions_error"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:visibility="gone"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="@dimen/spacing_md"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
 
-            <ListView
-                android:id="@+id/actifit_transactions"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fa_file"
+                    android:textColor="@color/actifitRed"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/font_awesome_6_solid" />
+
+                <TextView
+                    android:id="@+id/actifit_transactions_lbl"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:textSize="@dimen/text_subtitle"
+                    android:textStyle="bold"
+                    android:text="@string/actifit_transactions_lbl" />
+
+                <TextView
+                    android:id="@+id/indicator_transactions"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:fontFamily="@font/font_awesome_6_solid"
+                    android:textColor="@color/actifitRed"
+                    android:text="&#xf078;"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:rotation="0" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/md_theme_separator" />
+
+            <LinearLayout
+                android:id="@+id/content_transactions"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:dividerHeight="0.1dp"
-                android:divider="@color/colorBlack"
-                android:paddingStart="10dp"
-                android:fadeScrollbars="false"
-                android:scrollbarFadeDuration="0"
-                />
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/actifit_transactions_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/actifit_transactions_error"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:visibility="gone" />
+
+                <ListView
+                    android:id="@+id/actifit_transactions"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:dividerHeight="1dp"
+                    android:divider="@color/md_theme_separator"
+                    android:fadeScrollbars="false"
+                    android:scrollbarFadeDuration="0" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <include
         android:id="@+id/bottom_menu_container"
         layout="@layout/footer_menu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

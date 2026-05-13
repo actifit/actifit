@@ -1,27 +1,49 @@
 <TableRow
-    xmlns:android="http://schemas.android.com/apk/res/android" >
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minHeight="36dp"
+    android:gravity="center_vertical">
     <TextView
         android:text="@string/table_token_title"
-        android:padding="3dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
         android:textStyle="bold"
+        android:textSize="12sp"
+        android:textColor="@color/md_theme_textSecondary"
         android:maxLines="1"
         android:layout_column="0"/>
     <TextView
         android:text="@string/table_balance_title"
-        android:padding="3dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
         android:textStyle="bold"
+        android:textSize="12sp"
+        android:textColor="@color/md_theme_textSecondary"
         android:maxLines="1"
         android:layout_column="1"/>
     <TextView
         android:text="@string/table_staked_title"
-        android:padding="5dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
         android:textStyle="bold"
+        android:textSize="12sp"
+        android:textColor="@color/md_theme_textSecondary"
         android:maxLines="1"
         android:layout_column="2"/>
     <TextView
         android:text="@string/table_actions_title"
-        android:padding="5dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
         android:textStyle="bold"
+        android:textSize="12sp"
+        android:textColor="@color/md_theme_textSecondary"
         android:maxLines="1"
         android:layout_column="3"/>
 </TableRow>

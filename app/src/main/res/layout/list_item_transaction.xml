@@ -9,8 +9,9 @@
     android:layout_marginBottom="4dp"
     android:layout_marginStart="2dp"
     android:layout_marginEnd="2dp"
-    app:cardCornerRadius="4dp"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="8dp"
+    app:cardElevation="@dimen/card_elevation"
+    app:cardBackgroundColor="@color/md_theme_cardBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -37,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="#666666"
+            android:textColor="@color/md_theme_textSecondary"
             android:clickable="true"
             android:focusable="true"
             android:background="?android:attr/selectableItemBackground"
@@ -66,7 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:textColor="#333333"
+            android:textColor="?android:attr/textColorPrimary"
             android:layout_marginTop="4dp"
             app:layout_constraintTop_toBottomOf="@+id/textViewTokenAmount"
             app:layout_constraintStart_toStartOf="parent"
@@ -79,7 +80,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="#666666"
+            android:textColor="@color/md_theme_textSecondary"
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/textViewUserRecipient"
             app:layout_constraintStart_toStartOf="parent"
