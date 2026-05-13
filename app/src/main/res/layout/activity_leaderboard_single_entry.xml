@@ -4,56 +4,63 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp"
-    android:layout_gravity="center_horizontal"
-    android:gravity="center"
+    android:paddingStart="@dimen/spacing_sm"
+    android:paddingEnd="@dimen/spacing_sm"
+    android:paddingTop="@dimen/spacing_sm"
+    android:paddingBottom="@dimen/spacing_sm"
+    android:gravity="center_vertical"
     android:id="@+id/entryContainer">
 
+    <!-- Rank — matches header "#" column (40dp) -->
     <TextView
         android:id="@+id/entryRank"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_width="45dp"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
-        />
+        android:gravity="center"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
 
+    <!-- Avatar — matches header spacer (36dp) -->
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/userProfilePic"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:src="@drawable/actifit_logo"
         app:civ_border_width="0dp"
-        android:layout_gravity="top|center"
-        android:paddingEnd="3dp"
-        />
+        android:layout_marginEnd="4dp" />
 
+    <!-- Username — flexible, matches header weight=1 column -->
     <TextView
         android:id="@+id/userName"
-        android:layout_width="150dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        />
+        android:layout_weight="1"
+        android:textSize="@dimen/text_body"
+        android:paddingStart="@dimen/spacing_xs"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
+    <!-- Steps — matches header "Steps" column (80dp) -->
     <TextView
         android:id="@+id/activityCount"
-        android:layout_width="60dp"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
-        />
+        android:gravity="end|center_vertical"
+        android:textSize="@dimen/text_body" />
 
-
+    <!-- Details button — matches header spacer (44dp) -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="44dp"
         android:layout_height="wrap_content"
-        android:gravity="center|end"
-        android:paddingEnd="8dp"
-        android:paddingStart="4dp">
+        android:gravity="center"
+        android:paddingStart="@dimen/spacing_xs">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/entryDetailsBtn"
             android:layout_width="34dp"
             android:layout_height="34dp"
             android:fontFamily="@font/font_awesome_6_solid"
-            android:text="\uf15c"
+            android:text="&#xf15c;"
             android:textSize="15sp"
             android:gravity="center"
             android:textColor="@color/text_on_actifit_red"
@@ -61,6 +68,7 @@
             android:padding="0dp"
             android:minWidth="0dp"
             android:minHeight="0dp" />
+
     </LinearLayout>
 
 </LinearLayout>
