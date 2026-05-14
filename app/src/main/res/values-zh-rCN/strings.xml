@@ -1,4 +1,4 @@
-﻿<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Actifit</string>
     <string name="sending_post">发送帖子中...</string>
     <string name="success_post">您的帖子已成功提交</string>
@@ -145,6 +145,7 @@
 <string name="afit_token_balance">AFIT 代币</string>
 <string name="actifit_transactions_lbl">AFIT 交易</string>
 <string name="actifit_transactions_error">无法获取</string>
+    <string name="no_he_tokens_lbl">未找到代币</string>
 <string name="setting_shareNetworkAgreement">共享网络资源</string>
 <string name="setting_shareNetworkAgreementDesc">仅在设备插入电源并连接到 WiFi 网络时激活</string>
 <string name="tot_activity_string">总活动量：</string>

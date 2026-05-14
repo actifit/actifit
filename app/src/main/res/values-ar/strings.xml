@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Actifit (أكيتفيت)</string>
     <string name="sending_post">جارٍ إرسال منشورك...</string>
@@ -148,6 +148,7 @@
     <string name="afit_token_balance">رموز AFIT</string>
     <string name="actifit_transactions_lbl">معاملات Actifit</string>
     <string name="actifit_transactions_error">تعذر جلب المعاملات</string>
+    <string name="no_he_tokens_lbl">لم يتم العثور على رموز</string>
     <string name="setting_shareNetworkAgreement">مشاركة موارد الشبكة</string>
     <string name="setting_shareNetworkAgreementDesc">نشط فقط عند  
      توصيل الجهاز بالتيار الكهربائي والاتصال بشبكة Wi-Fi</string>

@@ -1,4 +1,4 @@
-﻿<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Actifit</string>
     <string name="sending_post">Gönderinizi gönderiyor...</string>
     <string name="success_post">Gönderiniz başarıyla gönderildi</string>
@@ -145,6 +145,7 @@
 <string name="afit_token_balance">AFIT Tokenları</string>
 <string name="actifit_transactions_lbl">AFIT İşlemleri</string>
 <string name="actifit_transactions_error">Alınamadı</string>
+    <string name="no_he_tokens_lbl">Токени не знайдено</string>
 <string name="setting_shareNetworkAgreement">Ağ kaynaklarını paylaş</string>
 <string name="setting_shareNetworkAgreementDesc">Sadece cihaz takılı ve WiFi ağına bağlıyken aktiftir</string>
 <string name="tot_activity_string">Toplam Aktivite:</string>

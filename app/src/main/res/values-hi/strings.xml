@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Actifit</string>
     <string name="sending_post">आपकी पोस्ट भेजी जा रही है...</string>
@@ -146,6 +146,7 @@
 	<string name="afit_token_balance">AFIT टोकन्स</string>
 	<string name="actifit_transactions_lbl">AFIT लेनदेन</string>
 	<string name="actifit_transactions_error">प्राप्त करने में असमर्थ</string>
+    <string name="no_he_tokens_lbl">कोई टोकन नहीं मिला</string>
 	<string name="setting_shareNetworkAgreement">नेटवर्क संसाधन साझा करें</string>
 	<string name="setting_shareNetworkAgreementDesc">केवल तभी सक्रिय जब डिवाइस प्लग इन और WiFi नेटवर्क से कनेक्ट हो</string>
 	<string name="tot_activity_string">कुल गतिविधि:</string>

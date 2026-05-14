@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Actifit</string>
     <string name="sending_post">게시물을 보내는 중...</string>
@@ -146,6 +146,7 @@
 	<string name="afit_token_balance">AFIT 토큰</string>
 	<string name="actifit_transactions_lbl">AFIT 거래</string>
 	<string name="actifit_transactions_error">가져올 수 없습니다</string>
+    <string name="no_he_tokens_lbl">토큰을 찾을 수 없음</string>
 	<string name="setting_shareNetworkAgreement">네트워크 리소스 공유</string>
 	<string name="setting_shareNetworkAgreementDesc">장치가 플러그에 연결되고 WiFi 네트워크에 연결된 경우에만 활성화됩니다</string>
 	<string name="tot_activity_string">총 활동:</string>
