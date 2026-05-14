@@ -336,6 +336,8 @@ public class TrackingManager {
                     barChartContainer.setVisibility(View.VISIBLE);
                     chartManager.displayChartDataFitbit(true);
                 } else if (dataTrackingSystem.equals(context.getString(R.string.health_connect_tracking_ntt))) {
+                    View hcContainer = ((android.app.Activity) context).findViewById(R.id.health_connect_active);
+                    if (hcContainer != null) hcContainer.setVisibility(View.VISIBLE);
                     View barChartContainer = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
                     barChartContainer.setVisibility(View.VISIBLE);
                     View chartSwitcher = ((android.app.Activity) context).findViewById(R.id.chart_switcher);
