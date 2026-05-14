@@ -150,6 +150,9 @@
     <string name="actifit_transactions_lbl">Transacciones de Actifit</string>
     <string name="actifit_transactions_error">No se puede recuperar</string>
     <string name="no_he_tokens_lbl">No se encontraron tokens</string>
+    <string name="hc_banner_title">Health Connect</string>
+    <string name="hc_banner_desc">Conceder acceso para rastrear sus pasos</string>
+    <string name="hc_banner_grant_btn">Conceder</string>
     <string name="setting_shareNetworkAgreement">Compartir recursos de red</string>
     <string name="setting_shareNetworkAgreementDesc">Solo activo cuando el dispositivo está conectado y conectado a la red Wi-Fi</string>
     <string name="tot_activity_string">Actividad total:</string>

@@ -145,9 +145,9 @@
     <string name="actifit_transactions_lbl">AFIT Transactions</string>
     <string name="actifit_transactions_error">Unable to Fetch</string>
     <string name="no_he_tokens_lbl">No tokens found</string>
-    <string name="hc_banner_title" translatable="false">Health Connect</string>
-    <string name="hc_banner_desc" translatable="false">Grant access to track your steps</string>
-    <string name="hc_banner_grant_btn" translatable="false">Grant</string>
+    <string name="hc_banner_title">Health Connect</string>
+    <string name="hc_banner_desc">Grant access to track your steps</string>
+    <string name="hc_banner_grant_btn">Grant</string>
     <string name="hive_transactions_lbl">Hive Transactions</string>
     <string name="hive_transactions_error">Unable to load Hive transactions</string>
     <string name="hive_transactions_empty">No financial transactions found</string>
