@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Actifit</string>
     <string name="sending_post">Nfi ranṣẹ ranṣẹ rẹ...</string>
@@ -146,6 +146,7 @@
 <string name="afit_token_balance">Awọn AFIT Token</string>
 <string name="actifit_transactions_lbl">Awọn Igbese AFIT</string>
 <string name="actifit_transactions_error">Ko le Mu</string>
+    <string name="no_he_tokens_lbl">Ko si awon token ri</string>
 <string name="setting_shareNetworkAgreement">Pin awọn orisun nẹtiwọọki</string>
 <string name="setting_shareNetworkAgreementDesc">Ti nṣiṣe lọwọ nikan nigbati ẹrọ ba sopọ si ati asopọ si nẹtiwọọki WiFi</string>
 <string name="tot_activity_string">Lapapọ Iṣẹ:</string>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Actifit</string>
     <string name="sending_post">Enviando seu post...</string>
@@ -146,6 +146,7 @@
 <string name="afit_token_balance">Tokens AFIT</string>
 <string name="actifit_transactions_lbl">Transações AFIT</string>
 <string name="actifit_transactions_error">Incapaz de Buscar</string>
+    <string name="no_he_tokens_lbl">Nenhum token encontrado</string>
 <string name="setting_shareNetworkAgreement">Compartilhar recursos de rede</string>
 <string name="setting_shareNetworkAgreementDesc">Ativo apenas quando o dispositivo está conectado e plugado em uma rede WiFi</string>
 <string name="tot_activity_string">Atividade Total:</string>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Actifit</string>
   <string name="sending_post">Verzenden van je bericht...</string>
@@ -146,6 +146,7 @@
 	<string name="afit_token_balance">AFIT-tokens</string>
 	<string name="actifit_transactions_lbl">Actifit-transacties</string>
 	<string name="actifit_transactions_error">Kan niet ophalen</string>
+    <string name="no_he_tokens_lbl">Geen tokens gevonden</string>
 	<string name="setting_shareNetworkAgreement">Netwerkbronnen delen</string>
 	<string name="setting_shareNetworkAgreementDesc">Alleen actief wanneer het apparaat is aangesloten en verbonden met een Wi-Fi-netwerk</string>
 	<string name="tot_activity_string">Totale activiteit:</string>

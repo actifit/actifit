@@ -735,7 +735,6 @@ public class WalletActivity extends BaseActivity {
         HiveEngineAPI herpc = new HiveEngineAPI(getApplicationContext());
         BtnCheckHEBalance.startAnimation(rotate);
 
-        // Fetch all token metadata first (icons, staking info), then display user balances
         herpc.fetchAllTokens(new HiveEngineAPI.VolleyCallback() {
             @Override
             public void onSuccess(JSONArray tokenExtraDetails) {
@@ -754,7 +753,6 @@ public class WalletActivity extends BaseActivity {
             }
             @Override
             public void onFailure(String error) {
-                // fetchAllTokens failed — still show balances with letter icons
                 herpc.queryHEContract(username, new HiveEngineAPI.VolleyCallback() {
                     @Override
                     public void onSuccess(JSONArray result) {
@@ -772,6 +770,15 @@ public class WalletActivity extends BaseActivity {
     }
 
     private void displayHETokens(JSONArray heTokens, JSONArray tokenExtraDetails, LinearLayout tokensContainer) {
+        if (heTokens.length() == 0) {
+            TextView emptyView = new TextView(this);
+            emptyView.setText(getString(R.string.no_he_tokens_lbl));
+            emptyView.setGravity(android.view.Gravity.CENTER);
+            emptyView.setPadding(0, Utils.dpToPx(this, 24), 0, Utils.dpToPx(this, 24));
+            tokensContainer.addView(emptyView);
+            return;
+        }
+
         Handler uiHandler = new Handler(Looper.getMainLooper());
         DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
 

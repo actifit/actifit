@@ -371,10 +371,10 @@
 
             </LinearLayout>
 
-            <ScrollView
+            <androidx.core.widget.NestedScrollView
                 android:id="@+id/content_he_balance_scrollview"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="260dp"
                 android:fadeScrollbars="false"
                 android:scrollbarFadeDuration="0"
                 android:visibility="gone">
@@ -387,7 +387,7 @@
                     android:shrinkColumns="1,2">
                 </TableLayout>
 
-            </ScrollView>
+            </androidx.core.widget.NestedScrollView>
 
         </LinearLayout>
 
