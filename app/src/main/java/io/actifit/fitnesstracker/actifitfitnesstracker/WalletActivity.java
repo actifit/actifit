@@ -41,7 +41,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
+import androidx.core.widget.NestedScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -114,7 +114,7 @@ public class WalletActivity extends BaseActivity {
 
     // Content Containers
     private LinearLayout contentCoreBalance;
-    private ScrollView contentHeBalanceScrollView;
+    private NestedScrollView contentHeBalanceScrollView;
     private LinearLayout contentClaimableRewards;
     private LinearLayout contentTransactions;
     private LinearLayout contentHiveTransactions;
