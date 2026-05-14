@@ -13,6 +13,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.widget.AbsListView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -132,6 +134,7 @@ public class WalletActivity extends BaseActivity {
     private ArrayList<TransactionItem> hiveTransactionsList = new ArrayList<>();
     private TransactionAdapter hiveTransactionsAdapter;
     private long hiveHistoryMinSeq = -1;
+    private boolean hasMoreHiveHistory = false;
 
     // List to hold pairs of (contentView, indicatorView) for easy management
     private List<Pair<View, TextView>> sectionPairs;
@@ -174,7 +177,7 @@ public class WalletActivity extends BaseActivity {
         setContentView(R.layout.activity_wallet);
 
         // 1. Get references to Views
-        rootView = findViewById(R.id.root_layout);
+        rootView = findViewById(R.id.cards_container);
 
         headerCoreBalance = findViewById(R.id.header_core_balance);
         contentCoreBalance = findViewById(R.id.content_core_balance);
@@ -199,6 +202,30 @@ public class WalletActivity extends BaseActivity {
         hiveTransactionsError = findViewById(R.id.hive_transactions_error);
         btnRefreshHiveTransactions = findViewById(R.id.btn_refresh_hive_transactions);
         btnLoadMoreHiveTransactions = findViewById(R.id.btn_load_more_hive_transactions);
+
+        // Allow ListView to scroll inside NestedScrollView
+        hiveTransactionsView.setOnTouchListener((v, event) -> {
+            int action = event.getAction();
+            if (action == MotionEvent.ACTION_DOWN) {
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                v.getParent().requestDisallowInterceptTouchEvent(false);
+            }
+            return false;
+        });
+
+        // Show Load More only when scrolled to the bottom of the list
+        hiveTransactionsView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override public void onScrollStateChanged(AbsListView view, int scrollState) {}
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                boolean atBottom = totalItemCount > 0 &&
+                        (firstVisibleItem + visibleItemCount >= totalItemCount);
+                btnLoadMoreHiveTransactions.setVisibility(
+                        (atBottom && hasMoreHiveHistory) ? View.VISIBLE : View.GONE);
+            }
+        });
 
         // 2. Create the list of section pairs
         sectionPairs = new ArrayList<>();
@@ -686,281 +713,168 @@ public class WalletActivity extends BaseActivity {
 
         // cleanup existing content
         LinearLayout tokensContainer = findViewById(R.id.he_tokens_container);
-        // TableLayout tokensContainer = findViewById(R.id.he_tokens_container);
 
         tokensContainer.removeAllViewsInLayout();
 
         // add header view
-        View walletHeader = LayoutInflater.from(this)// getApplicationContext()) //getApplicationContext())
+        View walletHeader = LayoutInflater.from(this)
                 .inflate(R.layout.wallet_header, tokensContainer, false);
-
         tokensContainer.addView(walletHeader);
 
-        // Add a separator line below the header row (can be a separate View row)
+        // separator below header
         TableRow separatorRow = new TableRow(this);
         View separatorLine = new View(this);
         TableRow.LayoutParams separatorParams = new TableRow.LayoutParams(
-                TableRow.LayoutParams.MATCH_PARENT,
-                Utils.dpToPx(this, 1) // 1dp height
-        );
-        separatorParams.span = 4; // Make the line span all columns
+                TableRow.LayoutParams.MATCH_PARENT, Utils.dpToPx(this, 1));
+        separatorParams.span = 4;
         separatorLine.setLayoutParams(separatorParams);
-        // separatorLine.setBackgroundColor(ContextCompat.getColor(this,
-        // R.color.medium_gray_like_CCCCCC)); // Define medium_gray_like_CCCCCC
-
+        setBackgroundFromThemeAttribute(separatorLine, android.R.attr.listDivider);
         separatorRow.addView(separatorLine);
-
-        boolean success = setBackgroundFromThemeAttribute(separatorLine, android.R.attr.listDivider);
-        if (!success) {
-            // Handle the case where the attribute couldn't be resolved or applied
-            // Maybe set a fallback color?
-            // separatorLine.setBackgroundColor(Color.GRAY); // Example fallback
-            Log.w("WalletActivity", "Failed to set listDivider background from theme attribute.");
-        } else {
-            Log.w("WalletActivity", "set listDivider background from theme attribute.");
-        }
-
-        // Add separatorRow to he_tokens_container
         tokensContainer.addView(separatorRow);
 
         HiveEngineAPI herpc = new HiveEngineAPI(getApplicationContext());
-
-        // loader.setVisibility(View.VISIBLE);
         BtnCheckHEBalance.startAnimation(rotate);
 
-        herpc.fetchAllTokens(new HiveEngineAPI.VolleyCallback() {
+        // Fetch user balances first; enrich icons in background via fetchAllTokens
+        herpc.queryHEContract(username, new HiveEngineAPI.VolleyCallback() {
             @Override
             public void onSuccess(JSONArray result) {
+                heTokens = result;
+                Handler uiHandler = new Handler(Looper.getMainLooper());
+                DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
+                HashMap<String, ImageView> iconMap = new HashMap<>();
+                HashMap<String, String[]> iconHolderMap = new HashMap<>();
 
-                JSONArray tokenExtraDetails = result;
+                for (int i = 0; i < heTokens.length(); i++) {
+                    try {
+                        JSONObject entry = heTokens.getJSONObject(i);
+                        View tokenView = LayoutInflater.from(WalletActivity.this)
+                                .inflate(R.layout.he_token_entry, null, false);
 
-                herpc.queryHEContract(username, new HiveEngineAPI.VolleyCallback() {
-                    @Override
-                    public void onSuccess(JSONArray result) {
-                        // Handle the successful response here
+                        ImageView tokenIcon = tokenView.findViewById(R.id.token_icon);
 
-                        heTokens = result;
-                        Handler uiHandler = new Handler(Looper.getMainLooper());
+                        String symbol = entry.has("symbol") ? entry.getString("symbol") : "";
 
-                        // format token display
-                        DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
-
-                        for (int i = 0; i < heTokens.length(); i++) {
-                            try {
-                                JSONObject entry = heTokens.getJSONObject(i);
-                                // populate tokens to the main wallet view
-                                View tokenView = LayoutInflater.from(WalletActivity.this)
-                                        .inflate(R.layout.he_token_entry, null, false);
-
-                                ImageView tokenIcon = tokenView.findViewById(R.id.token_icon);
-
-                                String symbol = entry.has("symbol") ? entry.getString("symbol") : "";
-
-                                TextView balance = tokenView.findViewById(R.id.balance);
-                                String balval = decimalFormat
-                                        .format(entry.has("balance") ? entry.getDouble("balance") : 0);
-                                balance.setText(balval + " " + symbol);
-
-                                TextView stake = tokenView.findViewById(R.id.stake);
-                                String val = decimalFormat.format(entry.has("stake") ? entry.getDouble("stake") : 0);
-                                stake.setText(val + " " + symbol);
-
-                                // holds the symbol icon's url
-                                String icon = "";
-                                boolean stakable = false;
-                                String unstakePeriod = "";
-
-                                if (!symbol.isEmpty()) {
-                                    // match icon
-                                    JSONObject matchEntry = null;
-                                    JSONObject tokenDetail = null;
-                                    for (int j = 0; j < tokenExtraDetails.length(); j++) {
-                                        tokenDetail = tokenExtraDetails.getJSONObject(j);
-                                        if (tokenDetail.getString("symbol").equals(symbol)) {
-                                            matchEntry = tokenDetail;
-                                            break;
-                                        }
-                                    }
-                                    if (matchEntry != null) {
-                                        try {
-                                            JSONObject metadataJson = new JSONObject(matchEntry.getString("metadata"));
-                                            System.out.println(metadataJson.toString());
-                                            // JSONObject metadataJson = (matchEntry.has("metadata") ?
-                                            // matchEntry.get("metadata") : null);
-                                            if (metadataJson.length() > 0) {
-                                                icon = metadataJson.getString("icon");
-                                                stakable = tokenDetail.has("stakingEnabled")
-                                                        && tokenDetail.getBoolean("stakingEnabled");
-                                                unstakePeriod = tokenDetail.has("unstakingCooldown")
-                                                        ? tokenDetail.getInt("unstakingCooldown") + " days"
-                                                        : "";
-                                                if (!icon.isEmpty()) {
-
-                                                    // placeholder or error fallback
-                                                    LetterDrawable placeholderDrawable = new LetterDrawable(
-                                                            symbol.substring(0, 1));
-
-                                                    try {
-                                                        String finalIcon = icon;
-                                                        uiHandler.post(() -> {
-                                                            Glide.with(WalletActivity.this).load(finalIcon)
-                                                                    .placeholder(placeholderDrawable)
-                                                                    .error(placeholderDrawable)
-                                                                    .into(tokenIcon);
-                                                        });
-                                                    } catch (Exception ex) {
-                                                        ex.printStackTrace();
-                                                    }
-
-                                                }
-                                            }
-                                        } catch (Exception inn) {
-                                            inn.printStackTrace();
-                                        }
-                                    }
-                                }
-
-                                // transfer action
-                                TextView expander = tokenView.findViewById(R.id.expand_view);
-
-                                // actions container view
-                                View expandedView = LayoutInflater.from(WalletActivity.this)
-                                        .inflate(R.layout.he_token_actions, null, false);
-
-                                // LinearLayout expandedView = tokenView.findViewById(R.id.token_expanded_view);
-                                expander.setOnClickListener(v -> {
-                                    if (expandedView.getVisibility() == View.GONE) {
-                                        // expand
-                                        expandedView.setVisibility(View.VISIBLE);
-                                        // switch button wording
-                                        expander.setText("\uf0aa");
-                                    } else {
-                                        expandedView.setVisibility(View.GONE);
-                                        // switch button wording
-                                        expander.setText("\uf0ab");
-                                    }
-                                });
-                                String finalIcon1 = icon;
-                                // handles token transfer event
-                                sendHEToken = expandedView.findViewById(R.id.btn_send_token);
-                                // sendHEToken = tokenView.findViewById(R.id.btn_send_token);
-
-                                sendHEToken.setOnClickListener(arg0 -> {
-
-                                    SendTokenModalDialogFragment dialogFragment = new SendTokenModalDialogFragment(
-                                            getApplicationContext(), balval, queue);
-                                    // new SendTokenModalDialogFragment(this, afitBal, queue);
-
-                                    dialogFragment.setHeToken(true, symbol, finalIcon1);
-                                    FragmentManager fmgr = ((AppCompatActivity) callerActivity)
-                                            .getSupportFragmentManager(); // ((AppCompatActivity)
-                                                                          // this).getSupportFragmentManager();
-                                    dialogFragment.show(fmgr, "send_he_token");
-
-                                });
-
-                                stakeHEToken = expandedView.findViewById(R.id.btn_stake_token);
-                                unstakeHEToken = expandedView.findViewById(R.id.btn_unstake_token);
-
-                                // stakeHEToken = tokenView.findViewById(R.id.btn_stake_token);
-                                // unstakeHEToken = tokenView.findViewById(R.id.btn_unstake_token);
-
-                                if (!stakable) {
-                                    // disable staking button
-                                    stakeHEToken.setEnabled(false);
-                                    stakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
-                                    unstakeHEToken.setEnabled(false);
-                                    unstakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
-                                }
-
-                                if (Float.parseFloat(balval.replace(",", "")) == 0) {
-                                    // no balance to stake
-                                    stakeHEToken.setEnabled(false);
-                                    stakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
-                                }
-
-                                if (Float.parseFloat(val.replace(",", "")) == 0) {
-                                    // no staked balance to unstake
-                                    unstakeHEToken.setEnabled(false);
-                                    unstakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
-                                }
-
-                                String finalUnstakePeriod = unstakePeriod;
-                                stakeHEToken.setOnClickListener(arg0 -> {
-
-                                    StakeTokenModalDialogFragment dialogFragment = new StakeTokenModalDialogFragment(
-                                            getApplicationContext(), balval, queue, 0 // 0 for staking
-                                            , true, symbol, finalIcon1, finalUnstakePeriod);
-                                    FragmentManager fmgr = ((AppCompatActivity) callerActivity)
-                                            .getSupportFragmentManager(); // ((AppCompatActivity)
-                                                                          // this).getSupportFragmentManager();
-                                    dialogFragment.show(fmgr, "stake_he_token");
-
-                                });
-
-                                unstakeHEToken.setOnClickListener(arg0 -> {
-
-                                    StakeTokenModalDialogFragment dialogFragment = new StakeTokenModalDialogFragment(
-                                            getApplicationContext(), val, queue, 1 // 1 for unstaking
-                                            , true, symbol, finalIcon1, finalUnstakePeriod);
-                                    FragmentManager fmgr = ((AppCompatActivity) callerActivity)
-                                            .getSupportFragmentManager(); // ((AppCompatActivity)
-                                                                          // this).getSupportFragmentManager();
-                                    dialogFragment.show(fmgr, "unstake_he_token");
-
-                                });
-
-                                tokensContainer.addView(tokenView);
-                                // also add token actions row
-                                tokensContainer.addView(expandedView);
-                            } catch (Exception exc) {
-                                exc.printStackTrace();
-                            }
+                        // Show letter placeholder immediately; icon enriched after fetchAllTokens
+                        if (!symbol.isEmpty()) {
+                            tokenIcon.setImageDrawable(new LetterDrawable(symbol.substring(0, 1)));
+                            iconMap.put(symbol, tokenIcon);
+                            iconHolderMap.put(symbol, new String[]{""});
                         }
 
-                        // loader.setVisibility(View.GONE);
-                        BtnCheckHEBalance.clearAnimation();
+                        TextView balance = tokenView.findViewById(R.id.balance);
+                        String balval = decimalFormat
+                                .format(entry.has("balance") ? entry.getDouble("balance") : 0);
+                        balance.setText(balval + " " + symbol);
 
-                        /*
-                         * ScrollView scrollView = findViewById(R.id.he_token_scrollview);
-                         * //adjust scrolls visibility
-                         * scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-                         * if (scrollView.getChildAt(0).getBottom() <= (scrollView.getHeight() +
-                         * scrollView.getScrollY())) {
-                         * // Content is fully visible, hide the scrollbar
-                         * scrollView.setVerticalScrollBarEnabled(false);
-                         * } else {
-                         * // Content is not fully visible, show the scrollbar
-                         * scrollView.setVerticalScrollBarEnabled(true);
-                         * }
-                         * });
-                         */
+                        TextView stake = tokenView.findViewById(R.id.stake);
+                        String val = decimalFormat.format(entry.has("stake") ? entry.getDouble("stake") : 0);
+                        stake.setText(val + " " + symbol);
 
+                        TextView expander = tokenView.findViewById(R.id.expand_view);
+                        View expandedView = LayoutInflater.from(WalletActivity.this)
+                                .inflate(R.layout.he_token_actions, null, false);
+
+                        expander.setOnClickListener(v -> {
+                            if (expandedView.getVisibility() == View.GONE) {
+                                expandedView.setVisibility(View.VISIBLE);
+                                expander.setText("");
+                            } else {
+                                expandedView.setVisibility(View.GONE);
+                                expander.setText("");
+                            }
+                        });
+
+                        String[] iconHolder = iconHolderMap.get(symbol);
+
+                        sendHEToken = expandedView.findViewById(R.id.btn_send_token);
+                        sendHEToken.setOnClickListener(arg0 -> {
+                            SendTokenModalDialogFragment dialogFragment = new SendTokenModalDialogFragment(
+                                    getApplicationContext(), balval, queue);
+                            dialogFragment.setHeToken(true, symbol, iconHolder != null ? iconHolder[0] : "");
+                            FragmentManager fmgr = ((AppCompatActivity) callerActivity)
+                                    .getSupportFragmentManager();
+                            dialogFragment.show(fmgr, "send_he_token");
+                        });
+
+                        stakeHEToken = expandedView.findViewById(R.id.btn_stake_token);
+                        unstakeHEToken = expandedView.findViewById(R.id.btn_unstake_token);
+
+                        if (Float.parseFloat(balval.replace(",", "")) == 0) {
+                            stakeHEToken.setEnabled(false);
+                            stakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                        }
+                        if (Float.parseFloat(val.replace(",", "")) == 0) {
+                            unstakeHEToken.setEnabled(false);
+                            unstakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                        }
+
+                        stakeHEToken.setOnClickListener(arg0 -> {
+                            StakeTokenModalDialogFragment dialogFragment = new StakeTokenModalDialogFragment(
+                                    getApplicationContext(), balval, queue, 0,
+                                    true, symbol, iconHolder != null ? iconHolder[0] : "", "");
+                            FragmentManager fmgr = ((AppCompatActivity) callerActivity)
+                                    .getSupportFragmentManager();
+                            dialogFragment.show(fmgr, "stake_he_token");
+                        });
+
+                        unstakeHEToken.setOnClickListener(arg0 -> {
+                            StakeTokenModalDialogFragment dialogFragment = new StakeTokenModalDialogFragment(
+                                    getApplicationContext(), val, queue, 1,
+                                    true, symbol, iconHolder != null ? iconHolder[0] : "", "");
+                            FragmentManager fmgr = ((AppCompatActivity) callerActivity)
+                                    .getSupportFragmentManager();
+                            dialogFragment.show(fmgr, "unstake_he_token");
+                        });
+
+                        tokensContainer.addView(tokenView);
+                        tokensContainer.addView(expandedView);
+                    } catch (Exception exc) {
+                        exc.printStackTrace();
                     }
+                }
 
+                BtnCheckHEBalance.clearAnimation();
+
+                // Enrich token icons in the background — failures are non-fatal
+                herpc.fetchAllTokens(new HiveEngineAPI.VolleyCallback() {
+                    @Override
+                    public void onSuccess(JSONArray tokenDetails) {
+                        for (int i = 0; i < tokenDetails.length(); i++) {
+                            try {
+                                JSONObject tokenDetail = tokenDetails.getJSONObject(i);
+                                String sym = tokenDetail.optString("symbol", "");
+                                if (!iconMap.containsKey(sym)) continue;
+                                JSONObject meta = new JSONObject(tokenDetail.optString("metadata", "{}"));
+                                String iconUrl = meta.optString("icon", "");
+                                if (iconUrl.isEmpty()) continue;
+                                ImageView iv = iconMap.get(sym);
+                                String[] holder = iconHolderMap.get(sym);
+                                if (holder != null) holder[0] = iconUrl;
+                                LetterDrawable placeholder = new LetterDrawable(sym.substring(0, 1));
+                                uiHandler.post(() -> Glide.with(WalletActivity.this)
+                                        .load(iconUrl)
+                                        .placeholder(placeholder)
+                                        .error(placeholder)
+                                        .into(iv));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                     @Override
                     public void onFailure(String error) {
-                        // Handle the error here
-                        // System.out.println(">>>> back to wallet");
-                        System.out.println(error);
-                        // loader.setVisibility(View.GONE);
-                        BtnCheckHEBalance.clearAnimation();
+                        // icons remain as letter placeholders — acceptable
                     }
                 });
             }
 
             @Override
             public void onFailure(String error) {
-                // Handle the error here
-                // System.out.println(">>>> back to wallet");
                 System.out.println(error);
-                // loader.setVisibility(View.GONE);
                 BtnCheckHEBalance.clearAnimation();
             }
-
         });
-
-        // Utils.queryHEContract(getApplicationContext());
     }
 
     void loadAccountBalance(String username, Activity callerActivity, Context callerContext) {
@@ -986,6 +900,17 @@ public class WalletActivity extends BaseActivity {
             final TextView actifitTransactionsLbl = findViewById(R.id.actifit_transactions_lbl);
             final ListView actifitTransactionsView = findViewById(R.id.actifit_transactions);
             final TextView actifitTransactionsError = findViewById(R.id.actifit_transactions_error);
+
+            // Allow AFIT transactions ListView to scroll inside NestedScrollView
+            actifitTransactionsView.setOnTouchListener((v, event) -> {
+                int action = event.getAction();
+                if (action == MotionEvent.ACTION_DOWN) {
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                }
+                return false;
+            });
 
             hiveBalance = findViewById(R.id.hive_balance);
             hbdBalance = findViewById(R.id.hbd_balance);
@@ -1051,8 +976,8 @@ public class WalletActivity extends BaseActivity {
                         try {
                             chainInfoFetched = true;
                             hiveChainInfo = response.getJSONObject("HIVE");
-                            steemChainInfo = response.getJSONObject("STEEM");
-                            blurtChainInfo = response.getJSONObject("BLURT");
+                            steemChainInfo = response.optJSONObject("STEEM");
+                            blurtChainInfo = response.optJSONObject("BLURT");
                             loadData();
                         } catch (Exception e) {
                             // hide dialog
@@ -1348,7 +1273,7 @@ public class WalletActivity extends BaseActivity {
             TextView hiveRewardsTxt = findViewById(R.id.hive_rewards);
             hiveRewardsTxt.setText(hiveRewards);
 
-            if (balanceData.has("BLURT")) {
+            if (balanceData.has("BLURT") && blurtChainInfo != null) {
                 JSONObject blurtData = balanceData.getJSONObject("BLURT");
                 String blurtBalances = blurtData.getString("balance");
                 blurtChainInfo.put("chainName", "blurt");
@@ -1485,6 +1410,7 @@ public class WalletActivity extends BaseActivity {
         // Reset state for a fresh load
         hiveTransactionsList.clear();
         hiveHistoryMinSeq = -1;
+        hasMoreHiveHistory = false;
         hiveTransactionsAdapter = null;
         hiveTransactionsView.setAdapter(null);
         btnLoadMoreHiveTransactions.setVisibility(View.GONE);
@@ -1591,7 +1517,7 @@ public class WalletActivity extends BaseActivity {
                             hiveHistoryMinSeq = batchMinSeq;
                         }
 
-                        boolean hasMoreHistory = history.length() == 1000 && batchMinSeq > 0;
+                        boolean hasMoreHistory = batchMinSeq != Long.MAX_VALUE && batchMinSeq > 0;
 
                         if (hiveTransactionsList.isEmpty() && !hasMoreHistory) {
                             hiveTransactionsError.setText(R.string.hive_transactions_empty);
@@ -1615,8 +1541,8 @@ public class WalletActivity extends BaseActivity {
                             hiveTransactionsAdapter.notifyDataSetChanged();
                         }
 
-                        // Show "Load More" only if there's potentially more history
-                        btnLoadMoreHiveTransactions.setVisibility(hasMoreHistory ? View.VISIBLE : View.GONE);
+                        // Scroll listener will show Load More when user reaches the bottom
+                        hasMoreHiveHistory = hasMoreHistory;
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -1628,10 +1554,7 @@ public class WalletActivity extends BaseActivity {
                     if (isRefresh) btnRefreshHiveTransactions.clearAnimation();
                     hiveTransactionsError.setText(R.string.hive_transactions_error);
                     hiveTransactionsError.setVisibility(View.VISIBLE);
-                    // Show Load More if we already have results so user can retry
-                    if (!hiveTransactionsList.isEmpty()) {
-                        btnLoadMoreHiveTransactions.setVisibility(View.VISIBLE);
-                    }
+                    hasMoreHiveHistory = !hiveTransactionsList.isEmpty();
                 });
 
         queue.add(request);

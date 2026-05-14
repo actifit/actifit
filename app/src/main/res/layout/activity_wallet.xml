@@ -32,6 +32,19 @@
         android:layout_height="1dp"
         android:background="@color/md_theme_separator" />
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:id="@+id/cards_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/spacing_md">
+
     <!-- CORE BALANCE SECTION -->
     <androidx.cardview.widget.CardView
         android:id="@+id/section_core_balance"
@@ -39,11 +52,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_md"
         android:layout_marginEnd="@dimen/spacing_md"
-        android:layout_marginTop="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_xs"
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/card_elevation"
-        app:cardBackgroundColor="@color/md_theme_cardBackground"
-        app:cardUseCompatPadding="true">
+        app:cardBackgroundColor="@color/md_theme_cardBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -297,11 +309,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_md"
         android:layout_marginEnd="@dimen/spacing_md"
-        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginTop="@dimen/spacing_xs"
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/card_elevation"
-        app:cardBackgroundColor="@color/md_theme_cardBackground"
-        app:cardUseCompatPadding="true">
+        app:cardBackgroundColor="@color/md_theme_cardBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -389,11 +400,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_md"
         android:layout_marginEnd="@dimen/spacing_md"
-        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginTop="@dimen/spacing_xs"
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/card_elevation"
-        app:cardBackgroundColor="@color/md_theme_cardBackground"
-        app:cardUseCompatPadding="true">
+        app:cardBackgroundColor="@color/md_theme_cardBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -542,11 +552,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_md"
         android:layout_marginEnd="@dimen/spacing_md"
-        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginTop="@dimen/spacing_xs"
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/card_elevation"
-        app:cardBackgroundColor="@color/md_theme_cardBackground"
-        app:cardUseCompatPadding="true">
+        app:cardBackgroundColor="@color/md_theme_cardBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -638,12 +647,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_md"
         android:layout_marginEnd="@dimen/spacing_md"
-        android:layout_marginTop="@dimen/spacing_sm"
-        android:layout_marginBottom="@dimen/spacing_sm"
+        android:layout_marginTop="@dimen/spacing_xs"
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/card_elevation"
-        app:cardBackgroundColor="@color/md_theme_cardBackground"
-        app:cardUseCompatPadding="true">
+        app:cardBackgroundColor="@color/md_theme_cardBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -749,6 +756,10 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
     <include
         android:id="@+id/bottom_menu_container"
