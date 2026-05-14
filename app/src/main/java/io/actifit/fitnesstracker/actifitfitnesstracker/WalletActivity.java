@@ -735,146 +735,155 @@ public class WalletActivity extends BaseActivity {
         HiveEngineAPI herpc = new HiveEngineAPI(getApplicationContext());
         BtnCheckHEBalance.startAnimation(rotate);
 
-        // Fetch user balances first; enrich icons in background via fetchAllTokens
-        herpc.queryHEContract(username, new HiveEngineAPI.VolleyCallback() {
+        // Fetch all token metadata first (icons, staking info), then display user balances
+        herpc.fetchAllTokens(new HiveEngineAPI.VolleyCallback() {
             @Override
-            public void onSuccess(JSONArray result) {
-                heTokens = result;
-                Handler uiHandler = new Handler(Looper.getMainLooper());
-                DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
-                HashMap<String, ImageView> iconMap = new HashMap<>();
-                HashMap<String, String[]> iconHolderMap = new HashMap<>();
-
-                for (int i = 0; i < heTokens.length(); i++) {
-                    try {
-                        JSONObject entry = heTokens.getJSONObject(i);
-                        View tokenView = LayoutInflater.from(WalletActivity.this)
-                                .inflate(R.layout.he_token_entry, null, false);
-
-                        ImageView tokenIcon = tokenView.findViewById(R.id.token_icon);
-
-                        String symbol = entry.has("symbol") ? entry.getString("symbol") : "";
-
-                        // Show letter placeholder immediately; icon enriched after fetchAllTokens
-                        if (!symbol.isEmpty()) {
-                            tokenIcon.setImageDrawable(new LetterDrawable(symbol.substring(0, 1)));
-                            iconMap.put(symbol, tokenIcon);
-                            iconHolderMap.put(symbol, new String[]{""});
-                        }
-
-                        TextView balance = tokenView.findViewById(R.id.balance);
-                        String balval = decimalFormat
-                                .format(entry.has("balance") ? entry.getDouble("balance") : 0);
-                        balance.setText(balval + " " + symbol);
-
-                        TextView stake = tokenView.findViewById(R.id.stake);
-                        String val = decimalFormat.format(entry.has("stake") ? entry.getDouble("stake") : 0);
-                        stake.setText(val + " " + symbol);
-
-                        TextView expander = tokenView.findViewById(R.id.expand_view);
-                        View expandedView = LayoutInflater.from(WalletActivity.this)
-                                .inflate(R.layout.he_token_actions, null, false);
-
-                        expander.setOnClickListener(v -> {
-                            if (expandedView.getVisibility() == View.GONE) {
-                                expandedView.setVisibility(View.VISIBLE);
-                                expander.setText("");
-                            } else {
-                                expandedView.setVisibility(View.GONE);
-                                expander.setText("");
-                            }
-                        });
-
-                        String[] iconHolder = iconHolderMap.get(symbol);
-
-                        sendHEToken = expandedView.findViewById(R.id.btn_send_token);
-                        sendHEToken.setOnClickListener(arg0 -> {
-                            SendTokenModalDialogFragment dialogFragment = new SendTokenModalDialogFragment(
-                                    getApplicationContext(), balval, queue);
-                            dialogFragment.setHeToken(true, symbol, iconHolder != null ? iconHolder[0] : "");
-                            FragmentManager fmgr = ((AppCompatActivity) callerActivity)
-                                    .getSupportFragmentManager();
-                            dialogFragment.show(fmgr, "send_he_token");
-                        });
-
-                        stakeHEToken = expandedView.findViewById(R.id.btn_stake_token);
-                        unstakeHEToken = expandedView.findViewById(R.id.btn_unstake_token);
-
-                        if (Float.parseFloat(balval.replace(",", "")) == 0) {
-                            stakeHEToken.setEnabled(false);
-                            stakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
-                        }
-                        if (Float.parseFloat(val.replace(",", "")) == 0) {
-                            unstakeHEToken.setEnabled(false);
-                            unstakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
-                        }
-
-                        stakeHEToken.setOnClickListener(arg0 -> {
-                            StakeTokenModalDialogFragment dialogFragment = new StakeTokenModalDialogFragment(
-                                    getApplicationContext(), balval, queue, 0,
-                                    true, symbol, iconHolder != null ? iconHolder[0] : "", "");
-                            FragmentManager fmgr = ((AppCompatActivity) callerActivity)
-                                    .getSupportFragmentManager();
-                            dialogFragment.show(fmgr, "stake_he_token");
-                        });
-
-                        unstakeHEToken.setOnClickListener(arg0 -> {
-                            StakeTokenModalDialogFragment dialogFragment = new StakeTokenModalDialogFragment(
-                                    getApplicationContext(), val, queue, 1,
-                                    true, symbol, iconHolder != null ? iconHolder[0] : "", "");
-                            FragmentManager fmgr = ((AppCompatActivity) callerActivity)
-                                    .getSupportFragmentManager();
-                            dialogFragment.show(fmgr, "unstake_he_token");
-                        });
-
-                        tokensContainer.addView(tokenView);
-                        tokensContainer.addView(expandedView);
-                    } catch (Exception exc) {
-                        exc.printStackTrace();
-                    }
-                }
-
-                BtnCheckHEBalance.clearAnimation();
-
-                // Enrich token icons in the background — failures are non-fatal
-                herpc.fetchAllTokens(new HiveEngineAPI.VolleyCallback() {
+            public void onSuccess(JSONArray tokenExtraDetails) {
+                herpc.queryHEContract(username, new HiveEngineAPI.VolleyCallback() {
                     @Override
-                    public void onSuccess(JSONArray tokenDetails) {
-                        for (int i = 0; i < tokenDetails.length(); i++) {
-                            try {
-                                JSONObject tokenDetail = tokenDetails.getJSONObject(i);
-                                String sym = tokenDetail.optString("symbol", "");
-                                if (!iconMap.containsKey(sym)) continue;
-                                JSONObject meta = new JSONObject(tokenDetail.optString("metadata", "{}"));
-                                String iconUrl = meta.optString("icon", "");
-                                if (iconUrl.isEmpty()) continue;
-                                ImageView iv = iconMap.get(sym);
-                                String[] holder = iconHolderMap.get(sym);
-                                if (holder != null) holder[0] = iconUrl;
-                                LetterDrawable placeholder = new LetterDrawable(sym.substring(0, 1));
-                                uiHandler.post(() -> Glide.with(WalletActivity.this)
-                                        .load(iconUrl)
-                                        .placeholder(placeholder)
-                                        .error(placeholder)
-                                        .into(iv));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
+                    public void onSuccess(JSONArray result) {
+                        displayHETokens(result, tokenExtraDetails, tokensContainer);
+                        BtnCheckHEBalance.clearAnimation();
                     }
                     @Override
                     public void onFailure(String error) {
-                        // icons remain as letter placeholders — acceptable
+                        System.out.println(error);
+                        BtnCheckHEBalance.clearAnimation();
                     }
                 });
             }
-
             @Override
             public void onFailure(String error) {
-                System.out.println(error);
-                BtnCheckHEBalance.clearAnimation();
+                // fetchAllTokens failed — still show balances with letter icons
+                herpc.queryHEContract(username, new HiveEngineAPI.VolleyCallback() {
+                    @Override
+                    public void onSuccess(JSONArray result) {
+                        displayHETokens(result, new JSONArray(), tokensContainer);
+                        BtnCheckHEBalance.clearAnimation();
+                    }
+                    @Override
+                    public void onFailure(String error2) {
+                        System.out.println(error2);
+                        BtnCheckHEBalance.clearAnimation();
+                    }
+                });
             }
         });
+    }
+
+    private void displayHETokens(JSONArray heTokens, JSONArray tokenExtraDetails, LinearLayout tokensContainer) {
+        Handler uiHandler = new Handler(Looper.getMainLooper());
+        DecimalFormat decimalFormat = new DecimalFormat("#,###,##0.000");
+
+        for (int i = 0; i < heTokens.length(); i++) {
+            try {
+                JSONObject entry = heTokens.getJSONObject(i);
+                View tokenView = LayoutInflater.from(WalletActivity.this)
+                        .inflate(R.layout.he_token_entry, null, false);
+
+                ImageView tokenIcon = tokenView.findViewById(R.id.token_icon);
+                String symbol = entry.has("symbol") ? entry.getString("symbol") : "";
+
+                TextView balance = tokenView.findViewById(R.id.balance);
+                String balval = decimalFormat.format(entry.has("balance") ? entry.getDouble("balance") : 0);
+                balance.setText(balval + " " + symbol);
+
+                TextView stake = tokenView.findViewById(R.id.stake);
+                String val = decimalFormat.format(entry.has("stake") ? entry.getDouble("stake") : 0);
+                stake.setText(val + " " + symbol);
+
+                String icon = "";
+                boolean stakable = false;
+                String unstakePeriod = "";
+
+                if (!symbol.isEmpty()) {
+                    tokenIcon.setImageDrawable(new LetterDrawable(symbol.substring(0, 1)));
+                    for (int j = 0; j < tokenExtraDetails.length(); j++) {
+                        JSONObject tokenDetail = tokenExtraDetails.getJSONObject(j);
+                        if (tokenDetail.getString("symbol").equals(symbol)) {
+                            try {
+                                JSONObject meta = new JSONObject(tokenDetail.optString("metadata", "{}"));
+                                icon = meta.optString("icon", "");
+                                stakable = tokenDetail.optBoolean("stakingEnabled", false);
+                                unstakePeriod = tokenDetail.has("unstakingCooldown")
+                                        ? tokenDetail.getInt("unstakingCooldown") + " days" : "";
+                                if (!icon.isEmpty()) {
+                                    String finalIcon = icon;
+                                    LetterDrawable placeholder = new LetterDrawable(symbol.substring(0, 1));
+                                    uiHandler.post(() -> Glide.with(WalletActivity.this)
+                                            .load(finalIcon).placeholder(placeholder).error(placeholder)
+                                            .into(tokenIcon));
+                                }
+                            } catch (Exception inn) { inn.printStackTrace(); }
+                            break;
+                        }
+                    }
+                }
+
+                TextView expander = tokenView.findViewById(R.id.expand_view);
+                View expandedView = LayoutInflater.from(WalletActivity.this)
+                        .inflate(R.layout.he_token_actions, null, false);
+
+                expander.setOnClickListener(v -> {
+                    if (expandedView.getVisibility() == View.GONE) {
+                        expandedView.setVisibility(View.VISIBLE);
+                        expander.setText("");
+                    } else {
+                        expandedView.setVisibility(View.GONE);
+                        expander.setText("");
+                    }
+                });
+
+                String finalIcon = icon;
+                String finalUnstakePeriod = unstakePeriod;
+
+                sendHEToken = expandedView.findViewById(R.id.btn_send_token);
+                sendHEToken.setOnClickListener(arg0 -> {
+                    SendTokenModalDialogFragment dlg = new SendTokenModalDialogFragment(
+                            getApplicationContext(), balval, queue);
+                    dlg.setHeToken(true, symbol, finalIcon);
+                    ((AppCompatActivity) callerActivity).getSupportFragmentManager()
+                            .beginTransaction().add(dlg, "send_he_token").commitAllowingStateLoss();
+                });
+
+                stakeHEToken = expandedView.findViewById(R.id.btn_stake_token);
+                unstakeHEToken = expandedView.findViewById(R.id.btn_unstake_token);
+
+                if (!stakable) {
+                    stakeHEToken.setEnabled(false);
+                    stakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                    unstakeHEToken.setEnabled(false);
+                    unstakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                }
+                if (Float.parseFloat(balval.replace(",", "")) == 0) {
+                    stakeHEToken.setEnabled(false);
+                    stakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                }
+                if (Float.parseFloat(val.replace(",", "")) == 0) {
+                    unstakeHEToken.setEnabled(false);
+                    unstakeHEToken.setTextColor(getResources().getColor(R.color.colorBlack));
+                }
+
+                stakeHEToken.setOnClickListener(arg0 -> {
+                    StakeTokenModalDialogFragment dlg = new StakeTokenModalDialogFragment(
+                            getApplicationContext(), balval, queue, 0, true, symbol, finalIcon, finalUnstakePeriod);
+                    ((AppCompatActivity) callerActivity).getSupportFragmentManager()
+                            .beginTransaction().add(dlg, "stake_he_token").commitAllowingStateLoss();
+                });
+
+                unstakeHEToken.setOnClickListener(arg0 -> {
+                    StakeTokenModalDialogFragment dlg = new StakeTokenModalDialogFragment(
+                            getApplicationContext(), val, queue, 1, true, symbol, finalIcon, finalUnstakePeriod);
+                    ((AppCompatActivity) callerActivity).getSupportFragmentManager()
+                            .beginTransaction().add(dlg, "unstake_he_token").commitAllowingStateLoss();
+                });
+
+                tokensContainer.addView(tokenView);
+                tokensContainer.addView(expandedView);
+            } catch (Exception exc) {
+                exc.printStackTrace();
+            }
+        }
     }
 
     void loadAccountBalance(String username, Activity callerActivity, Context callerContext) {
