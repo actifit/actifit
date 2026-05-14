@@ -1100,6 +1100,18 @@ public class MainActivity extends BaseActivity {
             checkPermissionsAndReadData();
         });
 
+        // HC permission banner
+        View hcBannerCard = findViewById(R.id.hc_banner_card);
+        ImageView hcsHero = findViewById(R.id.health_connect_status_hero);
+        findViewById(R.id.hc_banner_grant).setOnClickListener(v -> checkHealthConnectStatusAndPermissions());
+        findViewById(R.id.hc_banner_dismiss).setOnClickListener(v -> {
+            getSharedPreferences("actifitSets", MODE_PRIVATE)
+                    .edit().putBoolean("hcBannerDismissed", true).apply();
+            hcBannerCard.setVisibility(View.GONE);
+            hcsHero.setVisibility(View.VISIBLE);
+        });
+        hcsHero.setOnClickListener(v -> checkHealthConnectStatusAndPermissions());
+
         View launchWorkoutWizardButton = findViewById(R.id.btn_start_workout_section); // Assuming you have this
         // button in MainActivity
         // layout
@@ -3747,13 +3759,20 @@ public class MainActivity extends BaseActivity {
             final boolean hcActivated = isHealthConnectPermActivated(); // isHealthConnectEnabledInSettings() &&
             runOnUiThread(() -> {
 
-                                View hcs = findViewById(R.id.health_connect_status);
+                View hcBannerCard = findViewById(R.id.hc_banner_card);
                 ImageView hcsHero = findViewById(R.id.health_connect_status_hero);
-                hcsHero.setVisibility(GONE);
+                SharedPreferences hcPrefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                boolean bannerDismissed = hcPrefs.getBoolean("hcBannerDismissed", false);
                 if (hcActivated) {
-                    hcs.setVisibility(GONE);
+                    hcBannerCard.setVisibility(View.GONE);
+                    hcsHero.setVisibility(View.GONE);
+                    hcPrefs.edit().remove("hcBannerDismissed").apply();
+                } else if (bannerDismissed) {
+                    hcBannerCard.setVisibility(View.GONE);
+                    hcsHero.setVisibility(View.VISIBLE);
                 } else {
-                    hcs.setVisibility(View.VISIBLE);
+                    hcBannerCard.setVisibility(View.VISIBLE);
+                    hcsHero.setVisibility(View.GONE);
                 }
 
                 displayDate();

@@ -220,6 +220,83 @@
             android:orientation="vertical"
             android:padding="@dimen/spacing_md">
 
+            <!-- Health Connect Permission Banner -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/hc_banner_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:visibility="gone"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/actifitRed"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@mipmap/health_connect"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="Health Connect" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="@dimen/spacing_sm"
+                        android:paddingEnd="@dimen/spacing_sm">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hc_banner_title"
+                            android:textStyle="bold"
+                            android:textSize="@dimen/text_subtitle"
+                            android:textColor="@color/md_theme_onSurface" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hc_banner_desc"
+                            android:textSize="12sp"
+                            android:textColor="@color/md_theme_onSurface" />
+
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/hc_banner_grant"
+                        android:theme="@style/AppTheme.ActifitButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hc_banner_grant_btn"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/hc_banner_dismiss"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:text="&#xf00d;"
+                        android:fontFamily="@font/font_awesome_6_solid"
+                        android:gravity="center"
+                        android:textColor="@color/md_theme_onSurface"
+                        android:textSize="14sp"
+                        android:layout_marginStart="@dimen/spacing_xs"
+                        android:clickable="true"
+                        android:focusable="true"
+                        tools:ignore="HardcodedText" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Hidden image view for compatibility -->
             <ImageView
                 android:id="@+id/image_view"
@@ -1475,25 +1552,12 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="@dimen/spacing_sm">
 
+                <!-- health_connect_status kept hidden; referenced by TrackingManager -->
                 <FrameLayout
                     android:id="@+id/health_connect_status"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/actifit_button_ripple_bg"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    android:elevation="2dp"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/health_connect_button"
-                        android:scaleType="fitCenter"
-                        android:contentDescription="Health Connect Status" />
-                </FrameLayout>
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
 
                 <View
                     android:layout_width="0dp"
