@@ -146,6 +146,9 @@
     <string name="actifit_transactions_lbl">AFIT İşlemleri</string>
     <string name="actifit_transactions_error">Alınamadı</string>
     <string name="no_he_tokens_lbl">Token bulunamadı</string>
+    <string name="hc_banner_title">Health Connect</string>
+    <string name="hc_banner_desc">Adımlarınızı takip etmek için izin verin</string>
+    <string name="hc_banner_grant_btn">Ver</string>
     <string name="setting_shareNetworkAgreement">Ağ kaynaklarını paylaş</string>
     <string name="setting_shareNetworkAgreementDesc">Sadece cihaz takılı ve WiFi ağına bağlıyken aktiftir</string>
     <string name="tot_activity_string">Toplam Aktivite:</string>

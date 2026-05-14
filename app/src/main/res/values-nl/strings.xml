@@ -147,6 +147,9 @@
 	<string name="actifit_transactions_lbl">Actifit-transacties</string>
 	<string name="actifit_transactions_error">Kan niet ophalen</string>
     <string name="no_he_tokens_lbl">Geen tokens gevonden</string>
+    <string name="hc_banner_title">Health Connect</string>
+    <string name="hc_banner_desc">Toegang verlenen om uw stappen bij te houden</string>
+    <string name="hc_banner_grant_btn">Verlenen</string>
 	<string name="setting_shareNetworkAgreement">Netwerkbronnen delen</string>
 	<string name="setting_shareNetworkAgreementDesc">Alleen actief wanneer het apparaat is aangesloten en verbonden met een Wi-Fi-netwerk</string>
 	<string name="tot_activity_string">Totale activiteit:</string>

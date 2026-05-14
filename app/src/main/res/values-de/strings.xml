@@ -150,6 +150,9 @@
     <string name="actifit_transactions_lbl">AFIT-Transaktionen</string>
     <string name="actifit_transactions_error">Abrufen nicht möglich</string>
     <string name="no_he_tokens_lbl">Keine Token gefunden</string>
+    <string name="hc_banner_title">Health Connect</string>
+    <string name="hc_banner_desc">Zugriff gewähren, um Ihre Schritte zu verfolgen</string>
+    <string name="hc_banner_grant_btn">Gewähren</string>
     <string name="setting_shareNetworkAgreement">Netzwerkressourcen teilen</string>
     <string name="setting_shareNetworkAgreementDesc">Nur aktiv, wenn das Gerät angeschlossen und mit dem WLAN-Netzwerk verbunden ist</string>
     <string name="tot_activity_string">Gesamtaktivität:</string>

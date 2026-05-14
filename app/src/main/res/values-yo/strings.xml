@@ -147,6 +147,9 @@
 <string name="actifit_transactions_lbl">Awọn Igbese AFIT</string>
 <string name="actifit_transactions_error">Ko le Mu</string>
     <string name="no_he_tokens_lbl">Ko si awon token ri</string>
+    <string name="hc_banner_title">Health Connect</string>
+    <string name="hc_banner_desc">Fun laaye lati tọpinpin igbesẹ rẹ</string>
+    <string name="hc_banner_grant_btn">Fun laaye</string>
 <string name="setting_shareNetworkAgreement">Pin awọn orisun nẹtiwọọki</string>
 <string name="setting_shareNetworkAgreementDesc">Ti nṣiṣe lọwọ nikan nigbati ẹrọ ba sopọ si ati asopọ si nẹtiwọọki WiFi</string>
 <string name="tot_activity_string">Lapapọ Iṣẹ:</string>

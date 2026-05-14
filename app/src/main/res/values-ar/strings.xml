@@ -149,6 +149,9 @@
     <string name="actifit_transactions_lbl">معاملات Actifit</string>
     <string name="actifit_transactions_error">تعذر جلب المعاملات</string>
     <string name="no_he_tokens_lbl">لم يتم العثور على رموز</string>
+    <string name="hc_banner_title">Health Connect</string>
+    <string name="hc_banner_desc">امنح الوصول لتتبع خطواتك</string>
+    <string name="hc_banner_grant_btn">منح</string>
     <string name="setting_shareNetworkAgreement">مشاركة موارد الشبكة</string>
     <string name="setting_shareNetworkAgreementDesc">نشط فقط عند  
      توصيل الجهاز بالتيار الكهربائي والاتصال بشبكة Wi-Fi</string>

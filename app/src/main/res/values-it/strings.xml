@@ -147,6 +147,9 @@
 	<string name="actifit_transactions_lbl">Transazioni AFIT</string>
 	<string name="actifit_transactions_error">Impossibile Recuperare</string>
     <string name="no_he_tokens_lbl">Nessun token trovato</string>
+    <string name="hc_banner_title">Health Connect</string>
+    <string name="hc_banner_desc">Concedi l\'accesso per monitorare i tuoi passi</string>
+    <string name="hc_banner_grant_btn">Concedi</string>
 	<string name="setting_shareNetworkAgreement">Condividi Risorse di Rete</string>
 	<string name="setting_shareNetworkAgreementDesc">Attivo solo quando il dispositivo è collegato e connesso alla rete WiFi</string>
 	<string name="tot_activity_string">Attività Totale:</string>

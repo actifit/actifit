@@ -147,6 +147,9 @@
 	<string name="actifit_transactions_lbl">AFIT लेनदेन</string>
 	<string name="actifit_transactions_error">प्राप्त करने में असमर्थ</string>
     <string name="no_he_tokens_lbl">कोई टोकन नहीं मिला</string>
+    <string name="hc_banner_title">Health Connect</string>
+    <string name="hc_banner_desc">अपने कदम ट्रैक करने के लिए पहुंच दें</string>
+    <string name="hc_banner_grant_btn">दें</string>
 	<string name="setting_shareNetworkAgreement">नेटवर्क संसाधन साझा करें</string>
 	<string name="setting_shareNetworkAgreementDesc">केवल तभी सक्रिय जब डिवाइस प्लग इन और WiFi नेटवर्क से कनेक्ट हो</string>
 	<string name="tot_activity_string">कुल गतिविधि:</string>
