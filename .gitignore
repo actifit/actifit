@@ -27,3 +27,4 @@ local.properties
 /app/release/baselineProfiles/*/*.dm
 /app/release/output-metadata.json
 .vscode/
+.claude/settings.local.json
