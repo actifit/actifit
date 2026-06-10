@@ -700,4 +700,13 @@
     <string name="day_abbr_thu">Th</string>
     <string name="day_abbr_fri">Fr</string>
     <string name="day_abbr_sat">Sa</string>
+
+    <!-- DHF proposal vote prompt -->
+    <string name="dhf_vote_title">Support our work 💪</string>
+    <string name="dhf_vote_message">A 1-tap vote on our proposal helps support our ongoing work on Hive — and it costs you nothing.</string>
+    <string name="dhf_vote_btn_hivesigner">Vote in 1 tap (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Read &amp; vote (PeakD)</string>
+    <string name="dhf_vote_btn_later">Maybe later</string>
+    <string name="dhf_vote_btn_vote_now">Vote now</string>
+    <string name="dhf_vote_thanks">Thanks for supporting Actifit! 🙏</string>
 </resources>

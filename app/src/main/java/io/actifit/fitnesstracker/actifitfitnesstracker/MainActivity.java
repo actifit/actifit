@@ -213,6 +213,7 @@ import androidx.health.connect.client.records.StepsRecord;
  */
 public class MainActivity extends BaseActivity {
     private CircleImageView userProfilePic;
+    private DhfVotePromptManager dhfVotePromptManager;
     public static SensorManager sensorManager;
     public static String username = "";
     public static String commToken;
@@ -3815,6 +3816,20 @@ public class MainActivity extends BaseActivity {
 
                 checkBatteryOptimization(false);
 
+                // DHF proposal vote nudge for users who haven't voted yet
+                if (dhfVotePromptManager == null) {
+                    dhfVotePromptManager = new DhfVotePromptManager(MainActivity.this);
+                }
+                refreshDhfCard(); // initial bind from cached state
+                dhfVotePromptManager.onResumeRecheck(MainActivity.this, this::refreshDhfCard);
+                SharedPreferences dhfPrefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+                if (dhfPrefs.getBoolean("dhfJustPosted", false)) {
+                    dhfPrefs.edit().putBoolean("dhfJustPosted", false).apply();
+                    dhfVotePromptManager.maybeShowAfterPost(MainActivity.this, this::refreshDhfCard);
+                } else {
+                    dhfVotePromptManager.maybeShowOnAppOpen(MainActivity.this, this::refreshDhfCard);
+                }
+
                 Log.d(TAG, "[Actifit] MainActivity Resume");
             });
 
@@ -3822,6 +3837,36 @@ public class MainActivity extends BaseActivity {
             // new IntentFilter("ACTIFIT_SERVICE")
             // );
         }).start();
+    }
+
+    /** Shows/updates the collapsible DHF proposal vote card on the dashboard. */
+    private void refreshDhfCard() {
+        final View card = findViewById(R.id.dhf_vote_card);
+        if (card == null || dhfVotePromptManager == null) return;
+        if (!dhfVotePromptManager.isCardEligible()) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        final View body = findViewById(R.id.dhf_vote_body);
+        final TextView chevron = findViewById(R.id.dhf_vote_chevron);
+        card.setVisibility(View.VISIBLE);
+
+        boolean collapsed = dhfVotePromptManager.isCardCollapsed();
+        body.setVisibility(collapsed ? View.GONE : View.VISIBLE);
+        chevron.setText(collapsed ? "\uf078" : "\uf077"); // chevron-down / chevron-up
+
+        findViewById(R.id.dhf_vote_header).setOnClickListener(v -> {
+            boolean nowCollapse = body.getVisibility() == View.VISIBLE;
+            body.setVisibility(nowCollapse ? View.GONE : View.VISIBLE);
+            chevron.setText(nowCollapse ? "\uf078" : "\uf077");
+            dhfVotePromptManager.setCardCollapsed(nowCollapse);
+        });
+        findViewById(R.id.dhf_vote_dismiss).setOnClickListener(v -> {
+            dhfVotePromptManager.dismissCard();
+            card.setVisibility(View.GONE);
+        });
+        findViewById(R.id.dhf_vote_action).setOnClickListener(v ->
+                dhfVotePromptManager.onCardVoteClicked(MainActivity.this));
     }
 
     @Override

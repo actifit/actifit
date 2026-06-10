@@ -240,13 +240,74 @@ public class HiveRequests {
 
 
 
+    /** Callback for the async DHF proposal-vote lookup. */
+    public interface VoteStatusListener {
+        void onResult(boolean hasVoted);
+        void onError();
+    }
+
+    /**
+     * Checks on-chain whether {@code username} has an active vote for DHF proposal
+     * {@code proposalId}. Non-blocking; result is delivered on {@code listener}.
+     * Uses condenser_api.list_proposal_votes ordered by_voter_proposal, starting at
+     * [voter, proposalId] with limit 1 — the single returned vote matches only when the
+     * user has voted for exactly that proposal.
+     */
+    @TargetApi(Build.VERSION_CODES.N)
+    public void hasVotedForProposal(final String username, final int proposalId,
+                                    final VoteStatusListener listener) {
+        JSONArray params = new JSONArray();
+        try {
+            JSONArray start = new JSONArray();
+            start.put(username);
+            start.put(proposalId);
+            params.put(start);                 // start: [voter, proposalId]
+            params.put(1);                     // limit
+            params.put("by_voter_proposal");   // order
+            params.put("ascending");           // order_direction
+            params.put("all");                 // status
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        processRequest(ctx.getString(R.string.list_proposal_votes), params)
+                .thenAccept(result -> {
+                    try {
+                        boolean voted = false;
+                        if (result != null && result.length() > 0) {
+                            JSONObject vote = result.getJSONObject(0);
+                            String voter = vote.optString("voter", "");
+                            JSONObject proposal = vote.optJSONObject("proposal");
+                            int returnedId = (proposal != null)
+                                    ? proposal.optInt("proposal_id", -1) : -1;
+                            voted = username.equalsIgnoreCase(voter) && returnedId == proposalId;
+                        }
+                        if (listener != null) listener.onResult(voted);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        if (listener != null) listener.onError();
+                    }
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    if (listener != null) listener.onError();
+                    return null;
+                });
+    }
+
     @TargetApi(Build.VERSION_CODES.N)
     public CompletableFuture<JSONArray> processRequest(String method, JSONObject params) {
         return processRequestWithRetry(method, params, 0);
     }
 
+    // overload for RPC methods (e.g. condenser_api) that expect positional array params
     @TargetApi(Build.VERSION_CODES.N)
-    private CompletableFuture<JSONArray> processRequestWithRetry(String method, JSONObject params, final int retryCount) {
+    public CompletableFuture<JSONArray> processRequest(String method, JSONArray params) {
+        return processRequestWithRetry(method, params, 0);
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    private CompletableFuture<JSONArray> processRequestWithRetry(String method, Object params, final int retryCount) {
         CompletableFuture<JSONArray> future = new CompletableFuture<>();
         String currentUrl = hiveRPCNodes.get(retryCount % hiveRPCNodes.size());
         JsonObjectRequest request;
@@ -313,7 +374,7 @@ public class HiveRequests {
         return future;
     }
 
-    private byte[] prepareJSONReq(String method, JSONObject params){
+    private byte[] prepareJSONReq(String method, Object params){
         JSONObject jsonRequest = new JSONObject();
         try {
             jsonRequest.put("jsonrpc", "2.0");
