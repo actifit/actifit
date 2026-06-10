@@ -17,6 +17,7 @@
     <string name="get_account_posts" translatable="false">bridge.get_account_posts</string>
     <string name="get_post_comments" translatable="false">condenser_api.get_content_replies</string>
     <string name="get_dynamic_global_properties" translatable="false">condenser_api.get_dynamic_global_properties</string>
+    <string name="list_proposal_votes" translatable="false">condenser_api.list_proposal_votes</string>
     <string name="actifit_community" translatable="false">hive-193552</string>
     <string name="actifit_name" translatable="false">actifit</string>
     <string name="hive_image_host_url" translatable="false">https://images.hive.blog/u/USERNAME/avatar</string>

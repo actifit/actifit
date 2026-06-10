@@ -297,6 +297,108 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- DHF Proposal Vote Card (collapsible) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/dhf_vote_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:visibility="gone"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/actifitRed"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
+
+                    <!-- Header row: tap to collapse / expand -->
+                    <LinearLayout
+                        android:id="@+id/dhf_vote_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/actifit_logo"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/actifit_logo_desc" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="@dimen/spacing_sm"
+                            android:paddingEnd="@dimen/spacing_sm"
+                            android:text="@string/dhf_vote_title"
+                            android:textStyle="bold"
+                            android:textSize="@dimen/text_subtitle"
+                            android:textColor="@color/md_theme_onSurface" />
+
+                        <TextView
+                            android:id="@+id/dhf_vote_chevron"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:text="&#xf077;"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:gravity="center"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="14sp"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/dhf_vote_dismiss"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:text="&#xf00d;"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:gravity="center"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="14sp"
+                            android:layout_marginStart="@dimen/spacing_xs"
+                            android:clickable="true"
+                            android:focusable="true"
+                            tools:ignore="HardcodedText" />
+
+                    </LinearLayout>
+
+                    <!-- Body: collapsible -->
+                    <LinearLayout
+                        android:id="@+id/dhf_vote_body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingTop="@dimen/spacing_sm">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/dhf_vote_message"
+                            android:textSize="12sp"
+                            android:textColor="@color/md_theme_onSurface" />
+
+                        <Button
+                            android:id="@+id/dhf_vote_action"
+                            android:theme="@style/AppTheme.ActifitButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_sm"
+                            android:text="@string/dhf_vote_btn_vote_now"
+                            android:textSize="12sp" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Hidden image view for compatibility -->
             <ImageView
                 android:id="@+id/image_view"
