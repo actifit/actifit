@@ -11,10 +11,16 @@ import androidx.health.connect.client.permission.HealthPermission;
 //import androidx.health.connect.client.records.DistanceRecord;
 //import androidx.health.connect.client.records.HeartRateRecord;
 import androidx.health.connect.client.records.StepsRecord;
+import androidx.health.connect.client.aggregate.AggregateMetric;
+import androidx.health.connect.client.aggregate.AggregationResult;
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration;
+import androidx.health.connect.client.request.AggregateRequest;
+import androidx.health.connect.client.request.AggregateGroupByDurationRequest;
 import androidx.health.connect.client.request.ReadRecordsRequest;
 import androidx.health.connect.client.response.ReadRecordsResponse;
 import androidx.health.connect.client.time.TimeRangeFilter;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -22,6 +28,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -138,40 +146,26 @@ public class HealthConnectManager {
             Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
             TimeRangeFilter timeRangeFilter = TimeRangeFilter.between(startOfDay, endOfDay);
 
-            ReadRecordsRequest<StepsRecord> request = new ReadRecordsRequest<>(
-                    JvmClassMappingKt.getKotlinClass(StepsRecord.class),
-                    timeRangeFilter,
-                    Collections.emptySet(), 
-                    true, 
-                    1000, 
-                    null
-            );
-
+            // Use Health Connect aggregation rather than summing raw records. Aggregation
+            // de-duplicates overlapping step records across data origins (e.g. Samsung Health
+            // plus a system source) via Health Connect's priority list, so we don't double count.
+            Set<AggregateMetric<?>> metrics = new HashSet<>();
+            metrics.add(StepsRecord.COUNT_TOTAL);
+            AggregateRequest request = new AggregateRequest(metrics, timeRangeFilter, Collections.emptySet());
 
             return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
                     (scope, continuation) -> {
                         try {
-                            return healthConnectClient.readRecords(request, continuation);
+                            return healthConnectClient.aggregate(request, continuation);
                         } catch (Throwable e) {
                             throw new RuntimeException(e);
                         }
                     }
             ).thenApply(response -> {
-                long totalSteps = 0;
-                ReadRecordsResponse<StepsRecord> recordsResponse = (ReadRecordsResponse<StepsRecord>) response;
-
-                for (StepsRecord record : recordsResponse.getRecords()) {
-                    String sourceApp = record.getMetadata().getDataOrigin().getPackageName();
-                    int recordingMethod = record.getMetadata().getRecordingMethod();
-
-                    if (recordingMethod != Metadata.RECORDING_METHOD_MANUAL_ENTRY) { // 1 == Metadata.RECORDING_METHOD_MANUALLY_ENTERED
-                        totalSteps += record.getCount();
-                        Log.d(TAG, "Found " + record.getCount() + " steps from app: " + sourceApp + " (Method: " + recordingMethod + ")");
-                    } else {
-                        Log.w(TAG, "Skipping " + record.getCount() + " manually entered steps from app: " + sourceApp);
-                    }
-                }
-
+                AggregationResult result = (AggregationResult) response;
+                Long total = result.get(StepsRecord.COUNT_TOTAL);
+                long totalSteps = (total != null) ? total : 0L;
+                Log.d(TAG, "Aggregated " + totalSteps + " de-duplicated steps for " + day.toLocalDate());
                 return totalSteps;
             });
         }).exceptionally(e -> {
@@ -197,37 +191,41 @@ public class HealthConnectManager {
             Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
             TimeRangeFilter timeRangeFilter = TimeRangeFilter.between(startOfDay, endOfDay);
 
-            ReadRecordsRequest<StepsRecord> request = new ReadRecordsRequest<>(
-                    JvmClassMappingKt.getKotlinClass(StepsRecord.class),
-                    timeRangeFilter,
-                    Collections.emptySet(),
-                    true,
-                    1000,
-                    null
-            );
+            // Aggregate grouped by 15-minute slices (matching bucketTimeSlot granularity).
+            // Aggregation de-duplicates overlapping records across data origins per slice, so
+            // both the per-slot chart values and the daily total avoid double counting.
+            Set<AggregateMetric<?>> metrics = new HashSet<>();
+            metrics.add(StepsRecord.COUNT_TOTAL);
+            AggregateGroupByDurationRequest request = new AggregateGroupByDurationRequest(
+                    metrics, timeRangeFilter, Duration.ofMinutes(15), Collections.emptySet());
 
             return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
                     (scope, continuation) -> {
                         try {
-                            return healthConnectClient.readRecords(request, continuation);
+                            return healthConnectClient.aggregateGroupByDuration(request, continuation);
                         } catch (Throwable e) {
                             throw new RuntimeException(e);
                         }
                     }
             ).thenApply(response -> {
-                long totalSteps = 0;
-                ReadRecordsResponse<StepsRecord> recordsResponse = (ReadRecordsResponse<StepsRecord>) response;
+                List<AggregationResultGroupedByDuration> groups =
+                        (List<AggregationResultGroupedByDuration>) response;
 
-                for (StepsRecord record : recordsResponse.getRecords()) {
-                    int recordingMethod = record.getMetadata().getRecordingMethod();
-                    if (recordingMethod != Metadata.RECORDING_METHOD_MANUAL_ENTRY) {
-                        totalSteps += record.getCount();
-                        LocalDateTime ldt = LocalDateTime.ofInstant(
-                                record.getStartTime(), ZoneId.systemDefault());
-                        db.upsertHCSlot(dateStr, bucketTimeSlot(ldt), (int) record.getCount());
-                    }
+                long totalSteps = 0;
+                for (AggregationResultGroupedByDuration group : groups) {
+                    Long count = group.getResult().get(StepsRecord.COUNT_TOTAL);
+                    if (count == null || count == 0) continue;
+                    totalSteps += count;
+                    LocalDateTime ldt = LocalDateTime.ofInstant(group.getStartTime(), ZoneId.systemDefault());
+                    db.upsertHCSlot(dateStr, bucketTimeSlot(ldt), count.intValue());
+                }
+                if (groups.isEmpty()) {
+                    Log.w(TAG, "No Health Connect step data found for " + dateStr
+                            + " — source app (e.g. Samsung Health) may not be writing steps to Health Connect.");
                 }
                 db.upsertHCSummary(dateStr, (int) totalSteps);
+                Log.d(TAG, "Persisted " + totalSteps + " de-duplicated steps for " + dateStr
+                        + " across " + groups.size() + " slots");
                 return totalSteps;
             });
         }).exceptionally(e -> {
