@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "*****",
+    "firebase_url": "https://actifit-io.firebaseio.com",
+    "project_id": "actifit-io",
+    "storage_bucket": "actifit-io.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "*****",
+        "android_client_info": {
+          "package_name": "io.actifit.fitnesstracker.actifitfitnesstracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "*****",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "*****"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "*****",
+              "client_type": 3
+            },
+            {
+              "client_id": "*****",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.Actifit.fitnesstracker",
+                "app_store_id": "1433969051"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
