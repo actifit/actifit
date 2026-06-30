@@ -33,6 +33,27 @@ You can create your actifit account for as low as 2$, and get following extra be
 [Signup Link](https://actifit.io/signup)
 
 
+## For Developers — Required Local Files
+
+The following files are **git-ignored** (they hold machine-specific paths and secrets) but are required to build the project. For each one, copy the matching `.example` template to the real filename and replace every `*****` placeholder with the real value. Secrets are provided separately by the project owner through a secure channel — never commit them.
+
+| Real file (create this) | Template | Required for | Notes |
+|---|---|---|---|
+| `local.properties` | [`local.properties.example`](local.properties.example) | All builds | Set `sdk.dir` to your own Android SDK path (Android Studio auto-creates this) and fill in `gemini.api.key` (injected into `BuildConfig.GEMINI_API_KEY`). |
+| `keystore.properties` | [`keystore.properties.example`](keystore.properties.example) | All builds | Loaded unconditionally by `app/build.gradle`, so it must exist even for debug. Fill in the alias and passwords. |
+| `app/google-services.json` | [`app/google-services.json.example`](app/google-services.json.example) | All builds | Firebase config — the `google-services` Gradle plugin fails without it. Get the real file from the Firebase console (project `actifit-io`) or the project owner. |
+| `app/src/main/res/values/unofficial_strings.xml` | [`app/src/main/res/values/unofficial_strings.xml.example`](app/src/main/res/values/unofficial_strings.xml.example) | All builds | App endpoints + credentials (Fitbit, DeepL, AdMob, media, sign key, etc.). Won't compile without it; masked keys must be filled in for the related features to work. |
+| `keystore/*.jks` (+ `pepk.jar`, `encryption_public_key.pem`) | — (binary, not templatable) | **Release** builds only | Signing keystores referenced by `keystore.properties` → `storeFile`. Obtain from the project owner over a secure channel. Debug builds (`gradlew.bat assembleDebug`) work without them. |
+
+After placing the files, verify the setup:
+
+```bash
+gradlew.bat assembleDebug      # Windows
+./gradlew assembleDebug        # macOS/Linux
+```
+
+> ⚠️ **Security:** These files stay in `.gitignore` for a reason. Share real secrets only through a secure channel, never via the repo or plain email.
+
 ##### Contact us on
 [Our Website](https://actifit.io) |
 [Our blog](https://actifit.io/actifit/blog) |
