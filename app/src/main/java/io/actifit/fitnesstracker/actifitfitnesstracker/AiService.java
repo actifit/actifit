@@ -27,8 +27,7 @@ public class AiService {
 
     private static final String API_KEY = BuildConfig.GEMINI_API_KEY; // **REPLACE WITH YOUR ACTUAL API KEY!**
     //private static final String API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key="
-            + API_KEY;
+    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
     //private final OkHttpClient client = new OkHttpClient();
     private final OkHttpClient client = NetworkClient.getInstance(); // use singleton client
 
@@ -372,5 +371,39 @@ public class AiService {
             }
         }
         throw new Exception("Could not find translated text in response.");
+    }
+
+    public void generateFromPrompt(String prompt, final TextResponseCallback callback) {
+        List<Map<String, Object>> contents = new ArrayList<>();
+        Map<String, Object> userMessage = new HashMap<>();
+        userMessage.put("parts", List.of(Map.of("text", prompt)));
+        contents.add(userMessage);
+        Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("contents", contents);
+        String requestJson = gson.toJson(requestBodyMap);
+        RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
+        Request request = new Request.Builder()
+                .url(API_URL)
+                .addHeader("x-goog-api-key", API_KEY)
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(Call call, IOException e) {
+                callback.onFailure("Network error: " + e.getMessage());
+            }
+            @Override public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    try {
+                        callback.onSuccess(parseSimpleTextResponse(responseBody).trim());
+                    } catch (Exception e) {
+                        callback.onFailure("Parse error: " + e.getMessage());
+                    }
+                } else {
+                    callback.onFailure("API error: " + response.code() + " - " + responseBody);
+                }
+            }
+        });
     }
 }

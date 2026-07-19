@@ -684,6 +684,13 @@
                                     android:contentDescription="Expand Editor"
                                     android:fontFamily="@font/font_awesome_6_solid"
                                     android:text="  Expand" />
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btn_ai_suggest"
+                                    style="@style/AppTheme.ToolbarIconButton"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/font_awesome_6_solid"
+                                    android:text="  AI" />
 
                                 <View
                                     android:layout_width="0dp"
