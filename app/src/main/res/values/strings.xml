@@ -737,4 +737,11 @@
     <string name="more_menu_follow_us">Follow Us</string>
     <string name="more_menu_help_faq">Help &amp; FAQ</string>
     <string name="more_menu_community_chat">Community Chat</string>
+    <string name="ai_popup_title">AI Assistant</string>
+    <string name="ai_hint_input">Enter your content here.</string>
+    <string name="ai_preview_placeholder">AI response will appear here.</string>
+    <string name="ai_preview_empty_warning">Please enter some text first.</string>
+    <string name="ai_is_thinking">[AI is thinking…]</string>
+    <string name="ai_error_prefix">[AI error] </string>
+    <string name="ai_no_valid_response">No valid AI response to accept.</string>
 </resources>
