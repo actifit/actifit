@@ -570,6 +570,20 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         return false;
     }
 
+    // Remove all persisted 15-min slots for a date before re-writing them, so a re-sync fully
+    // replaces stale slot data (e.g. previously smeared uniform values) rather than leaving
+    // orphan slots that the fresh write doesn't touch.
+    public boolean clearHCSlots(String yyyyMMdd) {
+        try {
+            int dateInt = Integer.parseInt(format(Locale.ENGLISH, "%d", Integer.parseInt(yyyyMMdd)));
+            dbInstance.delete(TABLE_HC_STEPS_DETAILS, DATE_ENTRY + "=" + dateInt, null);
+            return true;
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "ERROR");
+        }
+        return false;
+    }
+
     public boolean upsertHCSlot(String yyyyMMdd, int timeSlot, int count) {
         try {
             int dateInt = Integer.parseInt(format(Locale.ENGLISH, "%d", Integer.parseInt(yyyyMMdd)));
