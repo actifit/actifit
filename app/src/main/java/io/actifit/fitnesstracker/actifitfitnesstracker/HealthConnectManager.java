@@ -13,14 +13,11 @@ import androidx.health.connect.client.permission.HealthPermission;
 import androidx.health.connect.client.records.StepsRecord;
 import androidx.health.connect.client.aggregate.AggregateMetric;
 import androidx.health.connect.client.aggregate.AggregationResult;
-import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration;
 import androidx.health.connect.client.request.AggregateRequest;
-import androidx.health.connect.client.request.AggregateGroupByDurationRequest;
 import androidx.health.connect.client.request.ReadRecordsRequest;
 import androidx.health.connect.client.response.ReadRecordsResponse;
 import androidx.health.connect.client.time.TimeRangeFilter;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,8 +25,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -191,41 +190,111 @@ public class HealthConnectManager {
             Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
             TimeRangeFilter timeRangeFilter = TimeRangeFilter.between(startOfDay, endOfDay);
 
-            // Aggregate grouped by 15-minute slices (matching bucketTimeSlot granularity).
-            // Aggregation de-duplicates overlapping records across data origins per slice, so
-            // both the per-slot chart values and the daily total avoid double counting.
+            // The daily total (which drives rewards) is read via aggregation so it stays
+            // de-duplicated across overlapping data origins (Samsung Health + a system source).
+            // But grouped aggregation (aggregateGroupByDuration) prorates any record that spans
+            // multiple buckets EVENLY across every 15-min slice, which flattens the per-slot
+            // breakdown into an identical value in every slot when the source writes coarse,
+            // long-spanning records. So we read RAW records for the per-slot detail and bucket
+            // each record by its real start time — preserving actual activity timing.
             Set<AggregateMetric<?>> metrics = new HashSet<>();
             metrics.add(StepsRecord.COUNT_TOTAL);
-            AggregateGroupByDurationRequest request = new AggregateGroupByDurationRequest(
-                    metrics, timeRangeFilter, Duration.ofMinutes(15), Collections.emptySet());
+            AggregateRequest aggregateRequest =
+                    new AggregateRequest(metrics, timeRangeFilter, Collections.emptySet());
 
-            return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+            CompletableFuture<Long> totalFuture = FutureKt.future(
+                    coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
                     (scope, continuation) -> {
                         try {
-                            return healthConnectClient.aggregateGroupByDuration(request, continuation);
+                            return healthConnectClient.aggregate(aggregateRequest, continuation);
                         } catch (Throwable e) {
                             throw new RuntimeException(e);
                         }
                     }
             ).thenApply(response -> {
-                List<AggregationResultGroupedByDuration> groups =
-                        (List<AggregationResultGroupedByDuration>) response;
+                AggregationResult result = (AggregationResult) response;
+                Long total = result.get(StepsRecord.COUNT_TOTAL);
+                return (total != null) ? total : 0L;
+            });
 
-                long totalSteps = 0;
-                for (AggregationResultGroupedByDuration group : groups) {
-                    Long count = group.getResult().get(StepsRecord.COUNT_TOTAL);
-                    if (count == null || count == 0) continue;
-                    totalSteps += count;
-                    LocalDateTime ldt = LocalDateTime.ofInstant(group.getStartTime(), ZoneId.systemDefault());
-                    db.upsertHCSlot(dateStr, bucketTimeSlot(ldt), count.intValue());
+            ReadRecordsRequest<StepsRecord> recordsRequest = new ReadRecordsRequest<>(
+                    JvmClassMappingKt.getKotlinClass(StepsRecord.class),
+                    timeRangeFilter,
+                    Collections.emptySet(),
+                    true,
+                    1000,
+                    null
+            );
+
+            CompletableFuture<List<StepsRecord>> recordsFuture = FutureKt.future(
+                    coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                    (scope, continuation) -> {
+                        try {
+                            return healthConnectClient.readRecords(recordsRequest, continuation);
+                        } catch (Throwable e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            ).thenApply(response ->
+                    ((ReadRecordsResponse<StepsRecord>) response).getRecords());
+
+            return totalFuture.thenCombine(recordsFuture, (total, records) -> {
+                // Pick the primary (highest-priority) data origin: the non-manual source that
+                // contributed the most steps for the day. Using a single origin for the per-slot
+                // breakdown de-duplicates the case where two apps mirror the same steps (which is
+                // what previously doubled the raw sum), while still reflecting real per-slot timing.
+                Map<String, Long> stepsByOrigin = new HashMap<>();
+                for (StepsRecord record : records) {
+                    if (record.getMetadata().getRecordingMethod()
+                            == Metadata.RECORDING_METHOD_MANUAL_ENTRY) {
+                        continue;
+                    }
+                    String origin = record.getMetadata().getDataOrigin().getPackageName();
+                    stepsByOrigin.merge(origin, record.getCount(), Long::sum);
                 }
-                if (groups.isEmpty()) {
+
+                String primaryOrigin = null;
+                long bestOriginTotal = -1;
+                for (Map.Entry<String, Long> entry : stepsByOrigin.entrySet()) {
+                    if (entry.getValue() > bestOriginTotal) {
+                        bestOriginTotal = entry.getValue();
+                        primaryOrigin = entry.getKey();
+                    }
+                }
+
+                // Bucket only the primary origin's records into 15-min slots, keyed by start time.
+                Map<Integer, Integer> slotCounts = new HashMap<>();
+                if (primaryOrigin != null) {
+                    for (StepsRecord record : records) {
+                        if (record.getMetadata().getRecordingMethod()
+                                == Metadata.RECORDING_METHOD_MANUAL_ENTRY) {
+                            continue;
+                        }
+                        if (!primaryOrigin.equals(
+                                record.getMetadata().getDataOrigin().getPackageName())) {
+                            continue;
+                        }
+                        LocalDateTime ldt = LocalDateTime.ofInstant(
+                                record.getStartTime(), ZoneId.systemDefault());
+                        slotCounts.merge(bucketTimeSlot(ldt), (int) record.getCount(), Integer::sum);
+                    }
+                }
+                // Wipe the day's existing slots first so a re-sync fully replaces any stale
+                // (e.g. previously smeared) values instead of leaving orphan slots behind.
+                db.clearHCSlots(dateStr);
+                for (Map.Entry<Integer, Integer> slot : slotCounts.entrySet()) {
+                    db.upsertHCSlot(dateStr, slot.getKey(), slot.getValue());
+                }
+
+                long totalSteps = (total != null) ? total : 0L;
+                if (records.isEmpty()) {
                     Log.w(TAG, "No Health Connect step data found for " + dateStr
                             + " — source app (e.g. Samsung Health) may not be writing steps to Health Connect.");
                 }
                 db.upsertHCSummary(dateStr, (int) totalSteps);
-                Log.d(TAG, "Persisted " + totalSteps + " de-duplicated steps for " + dateStr
-                        + " across " + groups.size() + " slots");
+                Log.d(TAG, "Persisted de-duplicated total " + totalSteps + " for " + dateStr
+                        + "; per-slot detail from primary origin " + primaryOrigin
+                        + " across " + slotCounts.size() + " slots");
                 return totalSteps;
             });
         }).exceptionally(e -> {
