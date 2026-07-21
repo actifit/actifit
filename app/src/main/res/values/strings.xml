@@ -1,4 +1,27 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">Profile</string>
+    <string name="back_button">Back</string>
+    <string name="tracked_activity_api_url" translatable="false">trackedActivity/</string>
+    <string name="profile_tier_loading">Awakening…</string>
+    <string name="profile_share_card">Share my card</string>
+    <string name="profile_recent_activity">Recent activity</string>
+    <string name="profile_no_activity">No recent activity reports yet.</string>
+    <string name="profile_stat_today">Today</string>
+    <string name="profile_stat_streak">Day streak</string>
+    <string name="profile_stat_lifetime">Lifetime steps</string>
+    <string name="profile_stat_best">Best day</string>
+    <string name="profile_stat_rank">Rank</string>
+    <string name="profile_stat_latest">Latest</string>
+    <string name="profile_stat_posts">Reports</string>
+    <string name="profile_vitality_streak">%1$d-day streak keeping the aura alive</string>
+    <string name="profile_vitality_rank">Rank %1$s · %2$s tier</string>
+    <string name="profile_subtitle_rank">Rank %1$s</string>
+    <string name="profile_activity_row">%1$s · %2$s</string>
+    <string name="profile_companion_hint">Tap the aura to choose your companion</string>
+    <string name="profile_companion_picker_title">Choose your companion</string>
+    <string name="profile_tier_element">%1$s %2$s · %3$s</string>
+
     <string name="sending_post">Sending your post...</string>
     <string name="success_post">Your post has been successfully submitted</string>
     <string name="failed_post">There was an error submitting your post</string>

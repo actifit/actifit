@@ -1,0 +1,443 @@
+package io.actifit.fitnesstracker.actifitfitnesstracker;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import androidx.browser.customtabs.CustomTabsIntent;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
+
+/**
+ * The "Living Fitness Identity" — a native profile screen replacing the web CustomTab.
+ *
+ * Centrepiece is the {@link AuraView} companion: an energy aura whose arc = today's goal
+ * progress and whose tier (colour/glow/pulse) reflects the user's vitality — driven by the
+ * streak for the logged-in user, and by rank for other users.
+ *
+ * Launch with an optional string extra {@link #EXTRA_USERNAME}; when absent (or equal to the
+ * logged-in user) it renders the viewer's own profile from local step data.
+ */
+public class ProfileActivity extends BaseActivity {
+
+    public static final String EXTRA_USERNAME = "username";
+
+    private static final int DAILY_GOAL = 10000;
+    private static final int ACTIVE_THRESHOLD = 5000;
+
+    private AuraView auraView;
+    private CircleImageView avatar;
+    private TextView tierLabel, usernameTv, subtitleTv;
+    private TextView tile1Value, tile1Label, tile2Value, tile2Label, tile3Value, tile3Label;
+    private LinearLayout recentContainer;
+    private TextView recentEmpty;
+    private Button shareButton;
+
+    private RequestQueue queue;
+    private String username;
+    private boolean isSelf;
+    private SharedPreferences prefs;
+
+    private TextView companionHint;
+    private int companionIndex = 0;
+
+    // aura state assembled from possibly-async sources
+    private float auraFill = 0f;
+    private int auraLevel = 0;
+
+    // kept for the share card
+    private int shareSteps = 0;
+    private String shareRank = "0";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_profile);
+
+        auraView = findViewById(R.id.aura_view);
+        avatar = findViewById(R.id.profile_avatar);
+        tierLabel = findViewById(R.id.tier_label);
+        usernameTv = findViewById(R.id.profile_username);
+        subtitleTv = findViewById(R.id.profile_subtitle);
+        tile1Value = findViewById(R.id.tile1_value);
+        tile1Label = findViewById(R.id.tile1_label);
+        tile2Value = findViewById(R.id.tile2_value);
+        tile2Label = findViewById(R.id.tile2_label);
+        tile3Value = findViewById(R.id.tile3_value);
+        tile3Label = findViewById(R.id.tile3_label);
+        recentContainer = findViewById(R.id.recent_activity_container);
+        recentEmpty = findViewById(R.id.recent_activity_empty);
+        shareButton = findViewById(R.id.btn_share_card);
+        companionHint = findViewById(R.id.companion_hint);
+
+        findViewById(R.id.back_button).setOnClickListener(v -> finish());
+
+        prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String loggedInUser = prefs.getString("actifitUser", "");
+
+        username = getIntent().getStringExtra(EXTRA_USERNAME);
+        if (username == null || username.trim().isEmpty()) {
+            username = loggedInUser;
+        }
+        username = username.trim().toLowerCase().replace("@", "");
+        isSelf = !username.isEmpty() && username.equalsIgnoreCase(loggedInUser);
+
+        // the logged-in user picks and keeps their companion; other users get a stable
+        // element derived from their name so their identity is consistent across sessions
+        companionIndex = CompanionUtil.resolveCompanion(prefs, username, isSelf);
+        auraView.setCompanion(companionIndex);
+
+        usernameTv.setText("@" + username);
+        loadAvatar();
+
+        queue = Volley.newRequestQueue(this);
+
+        if (isSelf) {
+            bindSelfStats();
+            shareButton.setVisibility(View.VISIBLE);
+            shareButton.setOnClickListener(v -> shareCard());
+            companionHint.setVisibility(View.VISIBLE);
+            View.OnClickListener pick = v -> showCompanionPicker();
+            auraView.setOnClickListener(pick);
+            companionHint.setOnClickListener(pick);
+        }
+
+        updateAura();
+        fetchRank();
+        fetchRecentActivity();
+    }
+
+    private void showCompanionPicker() {
+        int count = AuraView.companionCount();
+        CharSequence[] items = new CharSequence[count];
+        for (int i = 0; i < count; i++) {
+            items[i] = AuraView.companionEmoji(i) + "  " + AuraView.companionName(i);
+        }
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.profile_companion_picker_title)
+                .setSingleChoiceItems(items, companionIndex, (dialog, which) -> {
+                    companionIndex = which;
+                    prefs.edit().putInt(CompanionUtil.PREF_COMPANION, which).apply();
+                    auraView.setCompanion(which);
+                    updateAura();
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.cancel_button, null)
+                .show();
+    }
+
+    private void loadAvatar() {
+        String url = getString(R.string.hive_image_host_url).replace("USERNAME", username);
+        Glide.with(this)
+                .load(url)
+                .placeholder(R.drawable.default_pic)
+                .error(R.drawable.default_pic)
+                .into(avatar);
+    }
+
+    private void updateAura() {
+        if (auraView != null) {
+            auraView.setAura(auraFill, auraLevel);
+        }
+        tierLabel.setText(getString(R.string.profile_tier_element,
+                AuraView.companionEmoji(companionIndex),
+                AuraView.companionName(companionIndex),
+                AuraView.tierName(auraLevel)));
+        tierLabel.setTextColor(AuraView.companionColor(companionIndex));
+    }
+
+    // compact large numbers so tiles never overflow: 15,322 · 392K · 1.2M
+    private String compact(long n) {
+        if (n < 100000) return NumberFormat.getInstance().format(n);
+        if (n < 1000000) return Math.round(n / 1000.0) + "K";
+        return String.format(Locale.getDefault(), "%.1fM", n / 1000000.0);
+    }
+
+    // ── Self (logged-in) profile from local step data ────────────────────────────
+
+    private void bindSelfStats() {
+        StepsDBHelper db = new StepsDBHelper(this);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+
+        int todaySteps = Math.max(0, db.fetchStepCountByDate(sdf.format(new Date())));
+        int streak = computeStreak(db, sdf);
+
+        Map<String, Integer> byDate = collectAllDailySteps(db);
+        long lifetime = 0;
+        int best = 0;
+        for (int steps : byDate.values()) {
+            lifetime += steps;
+            if (steps > best) best = steps;
+        }
+
+        shareSteps = todaySteps;
+        auraFill = todaySteps / (float) DAILY_GOAL;
+        auraLevel = CompanionUtil.levelFromStreak(streak);
+        updateAura();
+
+        tile1Value.setText(compact(todaySteps));
+        tile1Label.setText(R.string.profile_stat_today);
+        tile2Value.setText(String.valueOf(streak));
+        tile2Label.setText(R.string.profile_stat_streak);
+        tile3Value.setText(compact(lifetime));
+        tile3Label.setText(R.string.profile_stat_lifetime);
+    }
+
+    // replicates MainActivity.updateStreakStrip streak logic (>= 5000 steps, today in progress)
+    private int computeStreak(StepsDBHelper db, SimpleDateFormat sdf) {
+        int todaySteps = db.fetchStepCountByDate(sdf.format(new Date()));
+        int startDaysBack = (todaySteps >= ACTIVE_THRESHOLD) ? 0 : 1;
+        int streak = 0;
+        for (int daysBack = startDaysBack; daysBack <= 366; daysBack++) {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, -daysBack);
+            int steps = db.fetchStepCountByDate(sdf.format(cal.getTime()));
+            if (steps >= ACTIVE_THRESHOLD) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        return streak;
+    }
+
+    // merge the mode-specific summary tables, keeping the max per date to avoid double counting
+    private Map<String, Integer> collectAllDailySteps(StepsDBHelper db) {
+        Map<String, Integer> byDate = new HashMap<>();
+        mergeEntries(byDate, db.readStepsEntries());
+        mergeEntries(byDate, db.readHCStepsEntries());
+        mergeEntries(byDate, db.readFitbitStepsEntries());
+        return byDate;
+    }
+
+    private void mergeEntries(Map<String, Integer> byDate, ArrayList<DateStepsModel> entries) {
+        if (entries == null) return;
+        for (DateStepsModel m : entries) {
+            if (m == null || m.mDate == null) continue;
+            Integer existing = byDate.get(m.mDate);
+            if (existing == null || m.mStepCount > existing) {
+                byDate.put(m.mDate, m.mStepCount);
+            }
+        }
+    }
+
+    // ── Rank (both self and other users) ─────────────────────────────────────────
+
+    private void fetchRank() {
+        String url = Utils.apiUrl(this) + getString(R.string.user_rank_api_url) + username;
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                response -> {
+                    String rank = response.optString("user_rank", "0");
+                    shareRank = rank;
+                    subtitleTv.setText(getString(R.string.profile_subtitle_rank, rank));
+                    if (!isSelf) {
+                        // other users: the aura tier comes from rank
+                        auraLevel = CompanionUtil.levelFromRank(rank);
+                        updateAura();
+                        tile2Value.setText(rank);
+                        tile2Label.setText(R.string.profile_stat_rank);
+                    }
+                },
+                error -> { /* leave subtitle blank on failure */ });
+        queue.add(request);
+    }
+
+    // ── Recent activity list (both) + other-user aura fill ───────────────────────
+
+    private void fetchRecentActivity() {
+        String url = Utils.apiUrl(this) + getString(R.string.tracked_activity_api_url) + username;
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,
+                this::bindRecentActivity,
+                error -> showNoActivity());
+        queue.add(request);
+    }
+
+    private void bindRecentActivity(JSONArray posts) {
+        recentContainer.removeAllViews();
+        if (posts == null || posts.length() == 0) {
+            showNoActivity();
+            if (!isSelf) {
+                tile3Value.setText("0");
+                tile3Label.setText(R.string.profile_stat_posts);
+            }
+            return;
+        }
+        recentEmpty.setVisibility(View.GONE);
+
+        NumberFormat nf = NumberFormat.getInstance();
+        int rows = Math.min(posts.length(), 12);
+        int latestSteps = -1;
+
+        for (int i = 0; i < rows; i++) {
+            JSONObject post = posts.optJSONObject(i);
+            if (post == null) continue;
+            JSONObject meta = post.optJSONObject("json_metadata");
+
+            int steps = firstIntFromMeta(meta, "step_count");
+            String type = firstStringFromMeta(meta, "activity_type");
+            String dateStr = firstStringFromMeta(meta, "activityDate");
+            String author = post.optString("author", username);
+            String permlink = post.optString("permlink", "");
+
+            if (latestSteps < 0 && steps >= 0) latestSteps = steps;
+
+            addActivityRow(author, permlink, type, dateStr, steps, nf);
+        }
+
+        if (!isSelf) {
+            // other users: aura arc fill comes from their latest report
+            if (latestSteps >= 0) {
+                auraFill = latestSteps / (float) DAILY_GOAL;
+                updateAura();
+                tile1Value.setText(compact(latestSteps));
+                tile1Label.setText(R.string.profile_stat_latest);
+            }
+            tile3Value.setText(String.valueOf(posts.length()));
+            tile3Label.setText(R.string.profile_stat_posts);
+        }
+    }
+
+    private void addActivityRow(String author, String permlink, String type, String dateStr,
+                                int steps, NumberFormat nf) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        int padV = dp(12);
+        row.setPadding(0, padV, 0, padV);
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setBackgroundResource(outValueSelectableBackground());
+
+        TextView left = new TextView(this);
+        LinearLayout.LayoutParams leftLp =
+                new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        left.setLayoutParams(leftLp);
+        String typeLabel = (type == null || type.isEmpty()) ? getString(R.string.profile_stat_today) : type;
+        left.setText(getString(R.string.profile_activity_row, typeLabel, formatDate(dateStr)));
+        left.setTextColor(getColorCompat(R.color.md_theme_onSurface));
+
+        TextView right = new TextView(this);
+        right.setText(steps >= 0 ? nf.format(steps) : "—");
+        right.setTextColor(getColorCompat(R.color.md_theme_primary));
+        right.getPaint().setFakeBoldText(true);
+
+        row.addView(left);
+        row.addView(right);
+
+        if (!permlink.isEmpty()) {
+            String postUrl = MainActivity.ACTIFIT_CORE_URL + "/@" + author + "/" + permlink;
+            row.setOnClickListener(v -> openUrl(postUrl));
+        }
+
+        recentContainer.addView(row);
+
+        View sep = new View(this);
+        sep.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 1));
+        sep.setBackgroundColor(getColorCompat(R.color.md_theme_separator));
+        recentContainer.addView(sep);
+    }
+
+    private void showNoActivity() {
+        if (recentContainer.getChildCount() == 0) {
+            recentEmpty.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // ── helpers ──────────────────────────────────────────────────────────────────
+
+    private void shareCard() {
+        Intent intent = new Intent(this, ShareAchievementActivity.class);
+        intent.putExtra("steps", String.valueOf(shareSteps));
+        intent.putExtra("rank", shareRank);
+        intent.putExtra("username", username);
+        startActivity(intent);
+    }
+
+    private void openUrl(String url) {
+        try {
+            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
+            customTabsIntent.launchUrl(this, Uri.parse(url));
+        } catch (Exception e) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+    }
+
+    private int firstIntFromMeta(JSONObject meta, String key) {
+        String s = firstStringFromMeta(meta, key);
+        if (s == null) return -1;
+        try {
+            return (int) Float.parseFloat(s);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    private String firstStringFromMeta(JSONObject meta, String key) {
+        if (meta == null) return null;
+        try {
+            Object val = meta.opt(key);
+            if (val instanceof JSONArray) {
+                JSONArray arr = (JSONArray) val;
+                return arr.length() > 0 ? arr.optString(0) : null;
+            }
+            if (val != null) {
+                return val.toString();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        return null;
+    }
+
+    private String formatDate(String yyyymmdd) {
+        if (yyyymmdd == null || yyyymmdd.length() != 8) return yyyymmdd == null ? "" : yyyymmdd;
+        try {
+            SimpleDateFormat in = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+            SimpleDateFormat out = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
+            return out.format(in.parse(yyyymmdd));
+        } catch (Exception e) {
+            return yyyymmdd;
+        }
+    }
+
+    private int getColorCompat(int resId) {
+        return androidx.core.content.ContextCompat.getColor(this, resId);
+    }
+
+    private int outValueSelectableBackground() {
+        android.util.TypedValue outValue = new android.util.TypedValue();
+        getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+        return outValue.resourceId;
+    }
+
+    private int dp(int v) {
+        return Math.round(v * getResources().getDisplayMetrics().density);
+    }
+}

@@ -1,6 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.content.Context;
+import android.content.Intent;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -118,20 +119,10 @@ public class LeaderboardEntryAdapter extends ArrayAdapter<SinglePostModel> {
     private void openUserAccount(SinglePostModel postEntry) {
         final String username = postEntry.username;
         if (!Objects.equals(username, "")) {
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-
-            builder.setToolbarColor(getContext().getResources().getColor(R.color.actifitRed));
-
-            // animation for showing and closing fitbit authorization screen
-            builder.setStartAnimations(getContext(), R.anim.slide_in_right, R.anim.slide_out_left);
-
-            // animation for back button clicks
-            builder.setExitAnimations(getContext(), android.R.anim.slide_in_left,
-                    android.R.anim.slide_out_right);
-
-            CustomTabsIntent customTabsIntent = builder.build();
-
-            customTabsIntent.launchUrl(getContext(), Uri.parse(MainActivity.ACTIFIT_CORE_URL + '/' + username));
+            // open the native profile screen (was: web CustomTab to actifit.io/<user>)
+            Intent intent = new Intent(getContext(), ProfileActivity.class);
+            intent.putExtra(ProfileActivity.EXTRA_USERNAME, username);
+            getContext().startActivity(intent);
         }
     }
 }

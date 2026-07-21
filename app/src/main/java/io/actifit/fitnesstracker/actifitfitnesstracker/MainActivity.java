@@ -2471,7 +2471,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void openUserAccount(SharedPreferences sharedPreferences) {
-        uiHelper.openUserAccount();
+        // open the native profile screen for the logged-in user (was: web CustomTab)
+        startActivity(new Intent(this, ProfileActivity.class));
     }
 
     private void openUserRank() {
@@ -2832,6 +2833,19 @@ public class MainActivity extends BaseActivity {
                 tvStreakCount.setText(getString(R.string.day_streak_label, streak));
             }
         }
+
+        // reflect the living companion aura around the top-bar avatar too
+        updateHeaderAura(Math.max(0, todaySteps), streak);
+    }
+
+    /** Renders the companion aura around the dashboard header avatar (same identity as the profile). */
+    private void updateHeaderAura(int todaySteps, int streak) {
+        AuraView headerAura = findViewById(R.id.header_aura);
+        if (headerAura == null) return;
+        SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String user = prefs.getString("actifitUser", "");
+        headerAura.setCompanion(CompanionUtil.resolveCompanion(prefs, user, true));
+        headerAura.setAura(todaySteps / 10000f, CompanionUtil.levelFromStreak(streak));
     }
 
     private void checkMilestoneCelebration(int stepCount) {
