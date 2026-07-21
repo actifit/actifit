@@ -49,6 +49,7 @@
 
     <!-- Profile -->
     <dimen name="profile_pic_size">40dp</dimen>
+    <dimen name="header_aura_size">62dp</dimen>
     <dimen name="profile_pic_size_small">30dp</dimen>
 
     <!-- Badge -->

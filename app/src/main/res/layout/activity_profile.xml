@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/md_theme_background">
+
+    <!-- Header bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md"
+        android:gravity="center_vertical"
+        android:background="@color/md_theme_surface">
+
+        <TextView
+            android:id="@+id/back_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="‹"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="@color/md_theme_primary"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/back_button" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/profile_title"
+            android:textColor="@color/md_theme_primary"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold"
+            android:paddingStart="@dimen/spacing_sm"
+            android:paddingEnd="@dimen/spacing_sm" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_separator" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/spacing_xl">
+
+            <!-- Living companion: aura ring behind the avatar -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/spacing_lg"
+                android:paddingBottom="@dimen/spacing_sm">
+
+                <io.actifit.fitnesstracker.actifitfitnesstracker.AuraView
+                    android:id="@+id/aura_view"
+                    android:layout_width="240dp"
+                    android:layout_height="240dp"
+                    android:layout_gravity="center_horizontal" />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/profile_avatar"
+                    android:layout_width="132dp"
+                    android:layout_height="132dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/default_pic"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="@color/md_theme_surface" />
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tier_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/profile_tier_loading"
+                android:textStyle="bold"
+                android:letterSpacing="0.15"
+                android:textAllCaps="true"
+                android:textSize="@dimen/text_body"
+                android:textColor="@color/md_theme_primary" />
+
+            <TextView
+                android:id="@+id/profile_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="@dimen/spacing_xs"
+                android:text="@string/profile_title"
+                android:textStyle="bold"
+                android:textSize="@dimen/text_headline"
+                android:textColor="@color/md_theme_onSurface" />
+
+            <TextView
+                android:id="@+id/profile_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="@dimen/spacing_xs"
+                android:text=""
+                android:textSize="@dimen/text_subtitle"
+                android:textColor="@color/md_theme_textSecondary" />
+
+            <TextView
+                android:id="@+id/companion_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="@dimen/spacing_xs"
+                android:paddingBottom="@dimen/spacing_md"
+                android:text="@string/profile_companion_hint"
+                android:textSize="@dimen/text_subtitle"
+                android:textColor="@color/md_theme_primary"
+                android:visibility="gone" />
+
+            <!-- Stat tiles -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="104dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_margin="@dimen/spacing_xs"
+                    android:padding="@dimen/spacing_md"
+                    android:background="@drawable/profile_stat_tile">
+
+                    <TextView
+                        android:id="@+id/tile1_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeMaxTextSize="22sp"
+                        android:textColor="@color/md_theme_onSurface" />
+
+                    <TextView
+                        android:id="@+id/tile1_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="@dimen/text_subtitle"
+                        android:textColor="@color/md_theme_textSecondary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="104dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_margin="@dimen/spacing_xs"
+                    android:padding="@dimen/spacing_md"
+                    android:background="@drawable/profile_stat_tile">
+
+                    <TextView
+                        android:id="@+id/tile2_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeMaxTextSize="22sp"
+                        android:textColor="@color/md_theme_onSurface" />
+
+                    <TextView
+                        android:id="@+id/tile2_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="@dimen/text_subtitle"
+                        android:textColor="@color/md_theme_textSecondary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="104dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_margin="@dimen/spacing_xs"
+                    android:padding="@dimen/spacing_md"
+                    android:background="@drawable/profile_stat_tile">
+
+                    <TextView
+                        android:id="@+id/tile3_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeMaxTextSize="22sp"
+                        android:textColor="@color/md_theme_onSurface" />
+
+                    <TextView
+                        android:id="@+id/tile3_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="@dimen/text_subtitle"
+                        android:textColor="@color/md_theme_textSecondary" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_share_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_md"
+                android:layout_marginEnd="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:text="@string/profile_share_card"
+                android:textColor="@color/colorWhite"
+                android:backgroundTint="@color/md_theme_primary"
+                android:visibility="gone" />
+
+            <!-- Recent activity -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_recent_activity"
+                android:textStyle="bold"
+                android:textSize="@dimen/text_subtitle"
+                android:textColor="@color/md_theme_onSurface"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:paddingTop="@dimen/spacing_lg"
+                android:paddingBottom="@dimen/spacing_sm" />
+
+            <LinearLayout
+                android:id="@+id/recent_activity_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md" />
+
+            <TextView
+                android:id="@+id/recent_activity_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_no_activity"
+                android:gravity="center"
+                android:padding="@dimen/spacing_lg"
+                android:textColor="@color/md_theme_textSecondary"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <include
+        android:id="@+id/bottom_menu_container"
+        layout="@layout/footer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

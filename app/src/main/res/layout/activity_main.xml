@@ -17,13 +17,26 @@
         android:padding="@dimen/spacing_md"
         android:gravity="center_vertical">
 
-        <!-- Profile + Greeting -->
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/user_profile_pic"
-            android:layout_width="@dimen/profile_pic_size"
-            android:layout_height="@dimen/profile_pic_size"
-            android:src="@drawable/actifit_logo"
-            app:civ_border_width="0dp" />
+        <!-- Profile + Greeting: avatar wrapped in its living-companion aura -->
+        <FrameLayout
+            android:layout_width="@dimen/header_aura_size"
+            android:layout_height="@dimen/header_aura_size">
+
+            <io.actifit.fitnesstracker.actifitfitnesstracker.AuraView
+                android:id="@+id/header_aura"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/user_profile_pic"
+                android:layout_width="@dimen/profile_pic_size"
+                android:layout_height="@dimen/profile_pic_size"
+                android:layout_gravity="center"
+                android:src="@drawable/actifit_logo"
+                app:civ_border_width="0dp" />
+
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="0dp"

@@ -180,6 +180,18 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             TextView author = convertView.findViewById(R.id.author);
             final ImageView userProfilePic = convertView.findViewById(R.id.author_pic);
             TextView date = convertView.findViewById(R.id.date);
+
+            // tapping the author avatar or name opens their native profile
+            View.OnClickListener openAuthorProfile = v -> {
+                if (postEntry.author != null && !postEntry.author.isEmpty()) {
+                    Intent profileIntent = new Intent(ctx, ProfileActivity.class);
+                    profileIntent.putExtra(ProfileActivity.EXTRA_USERNAME, postEntry.author);
+                    profileIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    ctx.startActivity(profileIntent);
+                }
+            };
+            userProfilePic.setOnClickListener(openAuthorProfile);
+            author.setOnClickListener(openAuthorProfile);
             final RelativeLayout carouselContainer = convertView.findViewById(R.id.image_carousel_container);
             final RecyclerView imageCarousel = convertView.findViewById(R.id.image_carousel);
             final TextView imageCounter = convertView.findViewById(R.id.image_counter);

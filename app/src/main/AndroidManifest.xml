@@ -198,6 +198,7 @@
     <activity android:name=".HistoryChartActivity" />
     <activity android:name=".MarketActivity" android:windowSoftInputMode="adjustPan" />
     <activity android:name=".SocialActivity" android:windowSoftInputMode="adjustPan" />
+    <activity android:name=".ProfileActivity" android:exported="false" android:label="@string/profile_title" />
 
     <activity android:name=".RouteMapActivity" android:exported="false" />
 
