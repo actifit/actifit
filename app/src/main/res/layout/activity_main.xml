@@ -509,6 +509,14 @@
                                     android:gravity="center">
 
                                     <TextView
+                                        android:id="@+id/companion_animal_hc"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="26sp"
+                                        android:text="🦅"
+                                        tools:ignore="HardcodedText" />
+
+                                    <TextView
                                         android:id="@+id/tv_step_count_hc"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
@@ -619,6 +627,14 @@
                                     android:gravity="center">
 
                                     <TextView
+                                        android:id="@+id/companion_animal_fitbit"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="26sp"
+                                        android:text="🦅"
+                                        tools:ignore="HardcodedText" />
+
+                                    <TextView
                                         android:id="@+id/tv_step_count_fitbit"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
@@ -726,6 +742,14 @@
                                     android:layout_gravity="center"
                                     android:orientation="vertical"
                                     android:gravity="center">
+
+                                    <TextView
+                                        android:id="@+id/companion_animal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="26sp"
+                                        android:text="🦅"
+                                        tools:ignore="HardcodedText" />
 
                                     <TextView
                                         android:id="@+id/tv_step_count"

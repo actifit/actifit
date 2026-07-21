@@ -70,6 +70,7 @@ public class ProfileActivity extends BaseActivity {
     // aura state assembled from possibly-async sources
     private float auraFill = 0f;
     private int auraLevel = 0;
+    private boolean auraWilting = false;
 
     // kept for the share card
     private int shareSteps = 0;
@@ -163,7 +164,7 @@ public class ProfileActivity extends BaseActivity {
 
     private void updateAura() {
         if (auraView != null) {
-            auraView.setAura(auraFill, auraLevel);
+            auraView.setAura(auraFill, auraLevel, auraWilting);
         }
         tierLabel.setText(getString(R.string.profile_tier_element,
                 AuraView.companionEmoji(companionIndex),
@@ -196,10 +197,20 @@ public class ProfileActivity extends BaseActivity {
             if (steps > best) best = steps;
         }
 
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        auraWilting = CompanionUtil.isWilting(streak, todaySteps, hour);
+
         shareSteps = todaySteps;
         auraFill = todaySteps / (float) DAILY_GOAL;
         auraLevel = CompanionUtil.levelFromStreak(streak);
         updateAura();
+
+        // when the streak is at risk, turn the companion hint into a loss-aversion nudge
+        if (auraWilting) {
+            int remaining = Math.max(0, CompanionUtil.ACTIVE_THRESHOLD - todaySteps);
+            companionHint.setText(getString(R.string.profile_streak_at_risk, compact(remaining), streak));
+            companionHint.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.md_theme_warning));
+        }
 
         tile1Value.setText(compact(todaySteps));
         tile1Label.setText(R.string.profile_stat_today);
@@ -293,6 +304,7 @@ public class ProfileActivity extends BaseActivity {
         NumberFormat nf = NumberFormat.getInstance();
         int rows = Math.min(posts.length(), 12);
         int latestSteps = -1;
+        Map<String, Integer> typeCounts = new HashMap<>();
 
         for (int i = 0; i < rows; i++) {
             JSONObject post = posts.optJSONObject(i);
@@ -306,9 +318,16 @@ public class ProfileActivity extends BaseActivity {
             String permlink = post.optString("permlink", "");
 
             if (latestSteps < 0 && steps >= 0) latestSteps = steps;
+            if (type != null && !type.isEmpty()) {
+                Integer c = typeCounts.get(type);
+                typeCounts.put(type, c == null ? 1 : c + 1);
+            }
 
             addActivityRow(author, permlink, type, dateStr, steps, nf);
         }
+
+        // pick the spirit animal from the user's most-reported activity type
+        applySportCompanion(dominantKey(typeCounts));
 
         if (!isSelf) {
             // other users: aura arc fill comes from their latest report
@@ -362,6 +381,32 @@ public class ProfileActivity extends BaseActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT, 1));
         sep.setBackgroundColor(getColorCompat(R.color.md_theme_separator));
         recentContainer.addView(sep);
+    }
+
+    private String dominantKey(Map<String, Integer> counts) {
+        String best = null;
+        int bestVal = -1;
+        for (Map.Entry<String, Integer> e : counts.entrySet()) {
+            if (e.getValue() > bestVal) {
+                bestVal = e.getValue();
+                best = e.getKey();
+            }
+        }
+        return best;
+    }
+
+    // set the companion from the user's dominant sport; the logged-in user's explicit pick wins
+    private void applySportCompanion(String dominantActivity) {
+        if (dominantActivity == null) return;
+        int sportIdx = CompanionUtil.animalForActivity(dominantActivity);
+        if (isSelf) {
+            // cache for the dashboard header; only change the shown animal if not explicitly picked
+            prefs.edit().putInt(CompanionUtil.PREF_COMPANION_AUTO, sportIdx).apply();
+            if (prefs.contains(CompanionUtil.PREF_COMPANION)) return;
+        }
+        companionIndex = sportIdx;
+        auraView.setCompanion(companionIndex);
+        updateAura();
     }
 
     private void showNoActivity() {
