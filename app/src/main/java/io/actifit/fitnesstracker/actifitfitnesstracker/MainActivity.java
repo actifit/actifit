@@ -2838,14 +2838,37 @@ public class MainActivity extends BaseActivity {
         updateHeaderAura(Math.max(0, todaySteps), streak);
     }
 
-    /** Renders the companion aura around the dashboard header avatar (same identity as the profile). */
+    /** Renders the companion aura (header ring) and the spirit animal inside the step counter. */
     private void updateHeaderAura(int todaySteps, int streak) {
-        AuraView headerAura = findViewById(R.id.header_aura);
-        if (headerAura == null) return;
         SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
         String user = prefs.getString("actifitUser", "");
-        headerAura.setCompanion(CompanionUtil.resolveCompanion(prefs, user, true));
-        headerAura.setAura(todaySteps / 10000f, CompanionUtil.levelFromStreak(streak));
+        int companion = CompanionUtil.resolveCompanion(prefs, user, true);
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        boolean wilting = CompanionUtil.isWilting(streak, todaySteps, hour);
+
+        AuraView headerAura = findViewById(R.id.header_aura);
+        if (headerAura != null) {
+            headerAura.setShowAnimal(false); // the animal lives in the step counter, not the header
+            headerAura.setCompanion(companion);
+            headerAura.setAura(todaySteps / 10000f, CompanionUtil.levelFromStreak(streak), wilting);
+        }
+
+        // the spirit animal is shown inside the step counter, across all tracking modes,
+        // and grows with the fitness ladder tier (Couch → Champion)
+        String emoji = AuraView.companionEmoji(companion);
+        int level = CompanionUtil.levelFromStreak(streak);
+        float sizeSp = 22f + level * 3.5f; // Couch ~22sp → Champion ~40sp
+        setCompanionEmoji(R.id.companion_animal, emoji, sizeSp);
+        setCompanionEmoji(R.id.companion_animal_hc, emoji, sizeSp);
+        setCompanionEmoji(R.id.companion_animal_fitbit, emoji, sizeSp);
+    }
+
+    private void setCompanionEmoji(int viewId, String emoji, float sizeSp) {
+        TextView tv = findViewById(viewId);
+        if (tv != null) {
+            tv.setText(emoji);
+            tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, sizeSp);
+        }
     }
 
     private void checkMilestoneCelebration(int stepCount) {

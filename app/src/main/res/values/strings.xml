@@ -18,9 +18,10 @@
     <string name="profile_vitality_rank">Rank %1$s · %2$s tier</string>
     <string name="profile_subtitle_rank">Rank %1$s</string>
     <string name="profile_activity_row">%1$s · %2$s</string>
-    <string name="profile_companion_hint">Tap the aura to choose your companion</string>
-    <string name="profile_companion_picker_title">Choose your companion</string>
+    <string name="profile_companion_hint">Tap your companion to choose your spirit animal</string>
+    <string name="profile_companion_picker_title">Choose your spirit animal</string>
     <string name="profile_tier_element">%1$s %2$s · %3$s</string>
+    <string name="profile_streak_at_risk">⚠️ %1$s steps to go today to keep your %2$d-day streak alive</string>
 
     <string name="sending_post">Sending your post...</string>
     <string name="success_post">Your post has been successfully submitted</string>
