@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="signup_title">Create Actifit Account</string>
+    <string name="step_username">Step 1: Choose Username</string>
+    <string name="step_email">Step 2: Account Details</string>
+    <string name="step_verification">Step 3: Verification</string>
+    <string name="step_keys">Step 4: Secure Your Keys</string>
+
+    <string name="username_hint">Desired Username</string>
+    <string name="username_requirement">3-16 characters. Lowercase, numbers, and hyphens.</string>
+    <string name="check_availability">Check Availability</string>
+    <string name="username_available">Username is available!</string>
+    <string name="username_taken">Username is already taken.</string>
+    <string name="username_invalid">Invalid username format.</string>
+
+    <string name="email_hint">Recovery Email</string>
+    <string name="referral_hint">Referrer (Optional)</string>
+    <string name="promo_hint">Promo Code (Optional)</string>
+    <string name="tos_accept">I agree to the Terms of Service and Privacy Policy</string>
+    <string name="view_tos">View ToS</string>
+
+    <string name="verification_desc">We\'ve sent a verification code to your email. Please enter it below to continue.</string>
+    <string name="verification_code_hint">6-Digit Code</string>
+    <string name="verify_btn">Verify Code</string>
+    <string name="resend_code">Resend Code</string>
+
+    <string name="generate_keys">Generate Keys</string>
+    <string name="backup_warning">IMPORTANT: Write down your Master Password. It allows access to all your keys. Actifit cannot recover it for you!</string>
+    <string name="copy_master_password">Copy Master Password</string>
+    <string name="i_have_backed_up">I have securely saved my keys</string>
+
+    <string name="finish_signup">Create Account</string>
+    <string name="signing_up">Registering account...</string>
+    <string name="signup_success">Account created successfully! Welcome to Actifit.</string>
+    <string name="signup_error">Signup failed. %1$s</string>
+
+    <string name="master_password">Master Password</string>
+    <string name="error_tos_required">You must accept the Terms of Service to continue.</string>
+    <string name="error_email_invalid">Please enter a valid email address.</string>
+    <string name="error_verify_failed">Invalid verification code.</string>
+</resources>

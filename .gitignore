@@ -16,7 +16,7 @@ local.properties
 /build.gradle
 /keystore.properties
 /keystore/*
-/app/src/main/res/values/unofficial_strings.xml
+# /app/src/main/res/values/unofficial_strings.xml
 /.idea/caches/deviceStreaming.xml
 /.idea/vcs.xml
 /app/build/*
