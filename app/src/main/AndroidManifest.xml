@@ -5,16 +5,14 @@
 
     <!-- Permissions for Health Connect -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
-    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <!--<uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
-    <!--<uses-permission android:name="android.permission.health.READ_HEART_RATE" />-->
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />-->
 
-    <!--
+
      <uses-permission android:name="android.permission.health.WRITE_STEPS" />
      <uses-permission android:name="android.permission.health.READ_HEALTH_DATA" />
      <uses-permission android:name="android.permission.health.WRITE_HEALTH_DATA" />
-
-    -->
 
     <!-- If targeting API 34 and above -->
     <queries>
@@ -170,34 +168,31 @@
             android:value="io.actifit.fitnesstracker.actifitfitnesstracker.WorkoutWizardActivity" />
     </activity>
 
-    <activity android:name=".StepHistoryActivity" android:exported="false"/>
-    <activity
-        android:name=".ExerciseDetailActivity"
-        android:exported="false"/>
-    <activity
-        android:name=".PostSteemitActivity"
-        android:theme="@style/NoToolbarTheme"
-        android:exported="true"
-        >
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-
-            <data
-                android:host="fitbitcallback"
-                android:scheme="actifitcb" />
-        </intent-filter>
-    </activity>
-    <activity android:name=".SettingsActivity" />
-    <activity android:name=".LeaderboardActivity" />
-    <activity android:name=".WalletActivity" />
-    <activity android:name=".NotificationsActivity" />
-    <activity android:name=".DailyDetailedActivity" />
-    <activity android:name=".HistoryChartActivity" />
-    <activity android:name=".MarketActivity" android:windowSoftInputMode="adjustPan" />
-    <activity android:name=".SocialActivity" android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".StepHistoryActivity" android:exported="false"/>
+        <activity
+            android:name=".ExerciseDetailActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".PostSteemitActivity"
+            android:theme="@style/NoToolbarTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="fitbitcallback"
+                    android:scheme="actifitcb" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".LeaderboardActivity" />
+        <activity android:name=".WalletActivity" />
+        <activity android:name=".NotificationsActivity" />
+        <activity android:name=".DailyDetailedActivity" />
+        <activity android:name=".HistoryChartActivity" />
+        <activity android:name=".MarketActivity" android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".SocialActivity" android:windowSoftInputMode="adjustPan" />
     <activity android:name=".ProfileActivity" android:exported="false" android:label="@string/profile_title" />
 
     <activity android:name=".RouteMapActivity" android:exported="false" />
