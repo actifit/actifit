@@ -166,6 +166,10 @@ public class SingleHivePostModel implements Comparable<SingleHivePostModel>{
     }
 
     public Float calculateVoteRshares(){
+        // snaps/comments fetched from chain may omit active_votes entirely — guard against null
+        if (this.active_votes == null) {
+            return this.voteRshares;
+        }
         for (int i = 0; i < this.active_votes.length(); i++) {
             try {
                 VoteEntryAdapter.VoteEntry vEntry = new VoteEntryAdapter.VoteEntry((this.active_votes.getJSONObject(i)), 0);

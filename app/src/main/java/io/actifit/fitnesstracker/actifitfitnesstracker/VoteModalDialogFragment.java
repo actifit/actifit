@@ -143,6 +143,10 @@ public class VoteModalDialogFragment extends DialogFragment {
                             new Utils.APIResponseListener() {
                                 @Override
                                 public void onResponse(boolean success) {
+                                    // the broadcast returns asynchronously — the dialog/host may be gone by now
+                                    if (activity == null || activity.isFinishing() || !isAdded()) {
+                                        return;
+                                    }
                                     // Step 5: Perform another API call
                                     activity.runOnUiThread(() -> {
                                         taskProgress.setVisibility(View.GONE);
@@ -170,15 +174,17 @@ public class VoteModalDialogFragment extends DialogFragment {
 
                                             //refresh display
                                             //case for maintaining scroll position upon append
-                                            int currentPosition = socialView.getFirstVisiblePosition();
-                                            View v = socialView.getChildAt(0);
-                                            int topOffset = (v == null) ? 0 : v.getTop();
+                                            if (socialView != null && socialView.getAdapter() != null) {
+                                                int currentPosition = socialView.getFirstVisiblePosition();
+                                                View v = socialView.getChildAt(0);
+                                                int topOffset = (v == null) ? 0 : v.getTop();
 
-                                            // Set the new adapter
-                                            socialView.setAdapter(socialView.getAdapter());
+                                                // Set the new adapter
+                                                socialView.setAdapter(socialView.getAdapter());
 
-                                            // Restore the scroll position
-                                            socialView.setSelectionFromTop(currentPosition, topOffset);
+                                                // Restore the scroll position
+                                                socialView.setSelectionFromTop(currentPosition, topOffset);
+                                            }
 
                                             //close modal
                                             dismiss();
@@ -192,6 +198,9 @@ public class VoteModalDialogFragment extends DialogFragment {
                                 @Override
                                 public void onError(String errorMessage) {
                                     // Handle the error
+                                    if (activity == null || activity.isFinishing() || !isAdded()) {
+                                        return;
+                                    }
                                     activity.runOnUiThread(() -> {
                                         taskProgress.setVisibility(View.GONE);
                                         Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
@@ -210,8 +219,8 @@ public class VoteModalDialogFragment extends DialogFragment {
         Button votersListButton = view.findViewById(R.id.voters_list_btn);
         votersListButton.setOnClickListener(v -> {
 
-            //grab array from result
-            JSONArray actVotes = postEntry.active_votes;
+            //grab array from result (may be null for snaps/comments without vote data)
+            JSONArray actVotes = (postEntry.active_votes != null) ? postEntry.active_votes : new JSONArray();
 
             final View votersListLayout = LayoutInflater.from(ctx).inflate(R.layout.voters_page, null);
             final ListView votersListItem = votersListLayout.findViewById(R.id.votersList);

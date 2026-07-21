@@ -5,6 +5,7 @@ import static android.view.View.VISIBLE;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -30,7 +31,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -105,6 +105,31 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         // this.translator = new Translator(authKey);//, options);
         this.aiService = new AiService();
 
+    }
+
+    // Resolve a real AppCompatActivity to host dialogs / obtain a FragmentManager. Casting the
+    // static keyMainContext directly (as before) threw ClassCastException for comment votes,
+    // where keyMainContext could be a base/application context (e.g. SocialActivity passes
+    // getBaseContext()). Prefer the Activity this adapter was built with, then unwrap contexts.
+    private AppCompatActivity resolveHostActivity() {
+        if (activity instanceof AppCompatActivity) {
+            return (AppCompatActivity) activity;
+        }
+        AppCompatActivity fromCtx = unwrapActivity(ctx);
+        if (fromCtx != null) {
+            return fromCtx;
+        }
+        return unwrapActivity(keyMainContext);
+    }
+
+    private AppCompatActivity unwrapActivity(Context context) {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof AppCompatActivity) {
+                return (AppCompatActivity) context;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        return null;
     }
 
     private boolean userNewlyVotedPost(String voter, String permlink) { // int post_id){
@@ -206,11 +231,16 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             commentsList = convertView.findViewById(R.id.comments_list);
 
-            boolean isExtraVote = userNewlyVotedPost(MainActivity.username, postEntry.permlink); // postEntry.post_id);
+            // whether the chain data already reflects this user's vote
+            boolean alreadyVotedOnChain = postEntry.active_votes != null
+                    && Utils.userVotedPost(MainActivity.username, postEntry.active_votes, postEntry.permlink);
+            // only treat as an optimistic "extra" vote if the chain hasn't caught up yet — otherwise
+            // the +1 below double-counts once comments are re-fetched with the vote already included
+            boolean isExtraVote = !alreadyVotedOnChain
+                    && userNewlyVotedPost(MainActivity.username, postEntry.permlink); // postEntry.post_id);
 
             // check if user has voted for this post
-            if (Utils.userVotedPost(MainActivity.username, postEntry.active_votes, postEntry.permlink)// postEntry.post_id)
-                    || isExtraVote) {
+            if (alreadyVotedOnChain || isExtraVote) {
                 // upvoteButton.setBackgroundColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
                 upvoteButton.setTextColor(getContext().getResources().getColor(R.color.actifitDarkGreen));
             } else {
@@ -220,6 +250,16 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
 
             if (postEntry.commentsExpanded) {
                 commentsList.setVisibility(VISIBLE);
+                // Re-attach the nested comment adapter on every rebind of an expanded row.
+                // Previously getView only restored visibility, so after the outer adapter was
+                // reset (e.g. by the post-vote refresh) an expanded panel showed blank until the
+                // user toggled it closed/open. Re-using the already-loaded postEntry.comments
+                // avoids a network refetch, and rebuilding the adapter also prevents a recycled
+                // row from showing another post's comments.
+                if (postEntry.comments != null && !postEntry.comments.isEmpty()) {
+                    commentsList.setAdapter(new PostAdapter(ctx, postEntry.comments,
+                            socialView, socialActivContext, true, activity));
+                }
                 if (!this.isComment) {
                     expandButton.setVisibility(GONE);
                     retractButton.setVisibility(VISIBLE);
@@ -257,20 +297,17 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                 // AlertDialog.Builder voteDialogBuilder = new AlertDialog.Builder(new
                 // ContextThemeWrapper(ctx, R.style.Theme_AppCompat_Dialog));//(ctx);
 
-                // need to grab context of parent container as initiating under current context
-                // crashes the app
-                // Context mainContext = ((ListView)finalConvertView.getParent()).getContext();
-                if (!this.isComment) {
-                    PostAdapter.keyMainContext = ((ListView) finalConvertView.getParent()).getContext();
+                // need a real host Activity — initiating under a base/application context
+                // crashes the app (ClassCastException), which happened for replies on comments
+                AppCompatActivity replyHost = resolveHostActivity();
+                if (replyHost == null || replyHost.getSupportFragmentManager().isDestroyed()) {
+                    Toast.makeText(ctx, ctx.getString(R.string.comment_error), Toast.LENGTH_LONG).show();
+                    return;
                 }
-
-                if (PostAdapter.keyMainContext == null) {
-                    PostAdapter.keyMainContext = ctx;
-                }
+                PostAdapter.keyMainContext = replyHost;
 
                 CommentModalDialogFragment dialogFragment = CommentModalDialogFragment.newInstance(postEntry);
-                FragmentManager fmgr = ((AppCompatActivity) PostAdapter.keyMainContext).getSupportFragmentManager();
-                dialogFragment.show(fmgr, "comment_modal");
+                dialogFragment.show(replyHost.getSupportFragmentManager(), "comment_modal");
 
             });
 
@@ -279,21 +316,17 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                     Toast.makeText(ctx, ctx.getString(R.string.username_missing), Toast.LENGTH_LONG).show();
                     return;
                 }
-                if (!this.isComment) {
-                    PostAdapter.keyMainContext = ((ListView) finalConvertView.getParent()).getContext();
+                AppCompatActivity hostActivity = resolveHostActivity();
+                if (hostActivity == null || hostActivity.getSupportFragmentManager().isDestroyed()) {
+                    Toast.makeText(ctx, ctx.getString(R.string.vote_error), Toast.LENGTH_LONG).show();
+                    return;
                 }
-                if (PostAdapter.keyMainContext == null) {
-                    PostAdapter.keyMainContext = ctx;
-                }
-                VoteModalDialogFragment dialogFragment = new VoteModalDialogFragment(PostAdapter.keyMainContext,
+                // keep the static context valid for downstream usages (e.g. voters-list dialog)
+                PostAdapter.keyMainContext = hostActivity;
+                VoteModalDialogFragment dialogFragment = new VoteModalDialogFragment(hostActivity,
                         postEntry,
                         extraVotesList, socialView);
-                FragmentManager fmgr = ((AppCompatActivity) PostAdapter.keyMainContext).getSupportFragmentManager();
-                if (fmgr.isDestroyed()) {
-                    PostAdapter.keyMainContext = ctx;
-                    fmgr = ((AppCompatActivity) PostAdapter.keyMainContext).getSupportFragmentManager();
-                }
-                dialogFragment.show(fmgr, "vote_modal");
+                dialogFragment.show(hostActivity.getSupportFragmentManager(), "vote_modal");
             });
 
             commentButton.setOnClickListener(view -> {
@@ -421,7 +454,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             }
 
             date.setText(Utils.getTimeDifference(postEntry.created));
-            int voteCount = postEntry.active_votes.length();
+            int voteCount = (postEntry.active_votes != null) ? postEntry.active_votes.length() : 0;
             if (isExtraVote) {
                 voteCount += 1;
             }
