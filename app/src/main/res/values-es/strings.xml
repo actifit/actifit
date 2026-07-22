@@ -113,7 +113,7 @@
     <string name="fitbit_measurements_lbl">Obtener mediciones</string>
     <string name="fitbit_fetch_steps">Obtener pasos</string>
     <string name="steem_post_payout">Pago por publicación</string>
-    <string name="pay_option_50_50">50% HBD - 50% HP</string>
+    <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
     <string name="pay_option_full_sp">100% HP</string>
     <string name="pay_option_liquid">HBD/HP líquido</string>
     <string name="pay_option_decline">Rechazar pago</string>
@@ -454,7 +454,7 @@
     <string name="reply_action">Responder</string>
     <string name="cancel_action">Cancelar</string>
     <string name="reply_to">Respondiendo a</string>
-    <string name="referrals_details">Por cada referido que se registre en Actifit usando tu enlace de referido, ganas: <br /><ul><li>¡Una cantidad de AFIT única igual al 20% de las recompensas AFIT que gana tu referido al registrarse con éxito! (generalmente mínimo 20 AFIT)</li><li> Hasta un 35% de las recompensas de los informes de Actifit de tu referido durante un mes, en todos los tokens recompensados ​​(AFIT, HIVE, ...)</li></ul></string>
+    <string name="referrals_details" formatted="false">Por cada referido que se registre en Actifit usando tu enlace de referido, ganas: <br /><ul><li>¡Una cantidad de AFIT única igual al 20% de las recompensas AFIT que gana tu referido al registrarse con éxito! (generalmente mínimo 20 AFIT)</li><li> Hasta un 35% de las recompensas de los informes de Actifit de tu referido durante un mes, en todos los tokens recompensados ​​(AFIT, HIVE, ...)</li></ul></string>
     <string name="daily_rewards_description">Puedes ganar recompensas adicionales diarias haciendo clic en los botones de bonificación a continuación.</string>
     <string name="free_daily_rewards_description">La bonificación gratuita se puede reclamar una vez al día. Gana una recompensa aleatoria adicional de hasta 3 AFIT</string>
     <string name="daily_5k_rewards_description">Se desbloquea cuando alcanzas 5,000 puntos de actividad. Gana una recompensa aleatoria adicional de hasta 5 AFIT</string>

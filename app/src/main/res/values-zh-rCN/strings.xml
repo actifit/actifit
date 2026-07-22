@@ -109,7 +109,7 @@
 <string name="fitbit_measurements_lbl">获取测量数据</string>
 <string name="fitbit_fetch_steps">获取步骤</string>
 <string name="steem_post_payout">发布支付</string>
-<string name="pay_option_50_50">50% HBD - 50% HP</string>
+<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 <string name="pay_option_full_sp">100% HP</string>
 <string name="pay_option_liquid">流动 HBD/HP</string>
 <string name="pay_option_decline">拒绝支付</string>
@@ -450,7 +450,7 @@
 <string name="reply_action">回复</string>
 <string name="cancel_action">取消</string>
 <string name="reply_to">回复给</string>
-<string name="referrals_details">每次通过您的推荐链接注册 actifit，您将获得：&lt;br /&gt;&lt;ul&gt;&lt;li&gt;一次性 AFIT 数量相当于推荐人在成功注册后赚取的 AFIT 奖励的 20%！（通常至少 20 AFIT）&lt;/li&gt;&lt;li&gt; 最多 35% 的推荐人在一个月内的 actifit 报告奖励，涵盖所有奖励的代币（AFIT、HIVE 等）&lt;/li&gt;&lt;/ul&gt;</string>
+<string name="referrals_details" formatted="false">每次通过您的推荐链接注册 actifit，您将获得：&lt;br /&gt;&lt;ul&gt;&lt;li&gt;一次性 AFIT 数量相当于推荐人在成功注册后赚取的 AFIT 奖励的 20%！（通常至少 20 AFIT）&lt;/li&gt;&lt;li&gt; 最多 35% 的推荐人在一个月内的 actifit 报告奖励，涵盖所有奖励的代币（AFIT、HIVE 等）&lt;/li&gt;&lt;/ul&gt;</string>
 <string name="daily_rewards_description">点击下面的奖励按钮，您可以每天赚取额外奖励。</string>
 <string name="free_daily_rewards_description">免费奖励每天可领取一次。赚取最多 3 AFIT 的额外随机奖励</string>
 <string name="daily_5k_rewards_description">达到 5,000 活动量时解锁。赚取最多 5 AFIT 的额外随机奖励</string>

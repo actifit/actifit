@@ -133,7 +133,7 @@
     <string name="fitbit_measurements_lbl">Fetch Measurements</string>
     <string name="fitbit_fetch_steps">Fetch Steps</string>
     <string name="steem_post_payout">Post Payout</string>
-    <string name="pay_option_50_50">50% HBD - 50% HP</string>
+    <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
     <string name="pay_option_full_sp">100% HP</string>
     <string name="pay_option_liquid">Liquid HBD/HP</string>
     <string name="pay_option_decline">Decline Payout</string>
@@ -482,7 +482,7 @@
     <string name="reply_action">Reply</string>
     <string name="cancel_action">Cancel</string>
     <string name="reply_to">Replying to</string>
-    <string name="referrals_details">For every referral that signs up to actifit using your referral link, you earn: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;One time AFIT amount equal to 20% of the AFIT rewards your referral earns upon successful signup! (usually minimum 20 AFIT) &lt;/li&gt;&lt;li&gt; Up to 35% of your referral\'s actifit report rewards for one month, across all tokens rewarded (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
+    <string name="referrals_details" formatted="false">For every referral that signs up to actifit using your referral link, you earn: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;One time AFIT amount equal to 20% of the AFIT rewards your referral earns upon successful signup! (usually minimum 20 AFIT) &lt;/li&gt;&lt;li&gt; Up to 35% of your referral\'s actifit report rewards for one month, across all tokens rewarded (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
     <string name="daily_rewards_description">Watch a short video once per tier to earn AFIT tokens. Each reward resets daily.</string>
     <string name="free_daily_rewards_description">Always available. Watch a short video to earn between 0.01 and 3 AFIT tokens.</string>
     <string name="daily_5k_rewards_description">Unlocked at 5,000 steps. Watch a short video to earn between 0.01 and 5 AFIT tokens.</string>

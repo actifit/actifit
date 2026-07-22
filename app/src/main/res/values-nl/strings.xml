@@ -110,7 +110,7 @@
 	<string name="fitbit_measurements_lbl">Meetwaarden ophalen</string>
 	<string name="fitbit_fetch_steps">Stappen ophalen</string>
 	<string name="steem_post_payout">Uitbetaling na bericht</string>
-	<string name="pay_option_50_50">50% HBD - 50% HP</string>
+	<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 	<string name="pay_option_full_sp">100% HP</string>
 	<string name="pay_option_liquid">Vloeibaar HBD/HP</string>
 	<string name="pay_option_decline">Uitbetaling weigeren</string>
@@ -451,7 +451,7 @@
 	<string name="reply_action">Antwoorden</string>
 	<string name="cancel_action">Annuleren</string>
 	<string name="reply_to">Beantwoordt aan</string>
-	<string name="referrals_details">Voor elke verwijzing die zich registreert bij Actifit via uw verwijzingslink, verdient u: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Eenmalig AFIT-bedrag ter waarde van 20% van de AFIT-beloningen die uw referentie verdient bij een succesvolle registratie! (meestal minimaal 20 AFIT) &lt;/li&gt;&lt;li&gt; Tot 35% van de Actifit-rapportbeloningen van uw referent gedurende één maand, over alle beloonde tokens (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
+	<string name="referrals_details" formatted="false">Voor elke verwijzing die zich registreert bij Actifit via uw verwijzingslink, verdient u: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Eenmalig AFIT-bedrag ter waarde van 20% van de AFIT-beloningen die uw referentie verdient bij een succesvolle registratie! (meestal minimaal 20 AFIT) &lt;/li&gt;&lt;li&gt; Tot 35% van de Actifit-rapportbeloningen van uw referent gedurende één maand, over alle beloonde tokens (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
 	<string name="daily_rewards_description">U kunt dagelijks extra beloningen verdienen door op de bonusknoppen hieronder te klikken.</string>
 	<string name="free_daily_rewards_description">Gratis bonus kan eenmaal per dag worden geclaimd. Verdien extra willekeurige beloning tot 3 AFIT</string>
 	<string name="daily_5k_rewards_description">Ontgrendeld wanneer u een activiteitstelling van 5.000 bereikt. Verdien extra willekeurige beloning tot 5 AFIT</string>

@@ -110,7 +110,7 @@
 	<string name="fitbit_measurements_lbl">측정값 가져오기</string>
 	<string name="fitbit_fetch_steps">단계 가져오기</string>
 	<string name="steem_post_payout">포스트 지불</string>
-	<string name="pay_option_50_50">50% HBD - 50% HP</string>
+	<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 	<string name="pay_option_full_sp">100% HP</string>
 	<string name="pay_option_liquid">유동 HBD/HP</string>
 	<string name="pay_option_decline">지불 거절</string>
@@ -451,7 +451,7 @@
 	<string name="reply_action">답장</string>
 	<string name="cancel_action">취소</string>
 	<string name="reply_to">에게 답장</string>
-	<string name="referrals_details">귀하의 추천 링크를 사용하여 Actifit에 가입하는 모든 추천인에 대해, 귀하는 다음을 적립합니다: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;성공적인 가입 후 귀하의 추천인이 적립한 AFIT 보상의 20%에 해당하는 일회성 AFIT 금액! (일반적으로 최소 20 AFIT) &lt;/li&gt;&lt;li&gt; 한 달 동안 모든 토큰 보상 (AFIT, HIVE 등)의 최대 35%를 귀하의 추천인의 Actifit 보고서 보상에서 적립할 수 있습니다.&lt;/li&gt;&lt;/ul&gt;</string>
+	<string name="referrals_details" formatted="false">귀하의 추천 링크를 사용하여 Actifit에 가입하는 모든 추천인에 대해, 귀하는 다음을 적립합니다: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;성공적인 가입 후 귀하의 추천인이 적립한 AFIT 보상의 20%에 해당하는 일회성 AFIT 금액! (일반적으로 최소 20 AFIT) &lt;/li&gt;&lt;li&gt; 한 달 동안 모든 토큰 보상 (AFIT, HIVE 등)의 최대 35%를 귀하의 추천인의 Actifit 보고서 보상에서 적립할 수 있습니다.&lt;/li&gt;&lt;/ul&gt;</string>
 	<string name="daily_rewards_description">아래의 보너스 버튼을 클릭하여 매일 추가 보상을 적립할 수 있습니다.</string>
 	<string name="free_daily_rewards_description">무료 보너스는 하루에 한 번 청구할 수 있습니다. 최대 3 AFIT의 임의 보상을 적립하세요</string>
 	<string name="daily_5k_rewards_description">5,000 활동 횟수에 도달하면 잠금 해제됩니다. 최대 5 AFIT의 임의 보상을 적립하세요</string>

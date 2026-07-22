@@ -110,7 +110,7 @@
     <string name="fitbit_measurements_lbl">मापदंड प्राप्त करें</string>
     <string name="fitbit_fetch_steps">कदम प्राप्त करें</string>
     <string name="steem_post_payout">पोस्ट का भुगतान</string>
-	<string name="pay_option_50_50">50% HBD - 50% HP</string>
+	<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 	<string name="pay_option_full_sp">100% HP</string>
 	<string name="pay_option_liquid">लिक्विड HBD/HP</string>
 	<string name="pay_option_decline">भुगतान अस्वीकार करें</string>
@@ -451,7 +451,7 @@
 	<string name="reply_action">उत्तर दें</string>
 	<string name="cancel_action">रद्द करें</string>
 	<string name="reply_to">उत्तर दे रहे हैं</string>
-	<string name="referrals_details">हर रेफरल के लिए जो आपके रेफरल लिंक का उपयोग करके actifit में साइन अप करता है, आप कमाते हैं: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;एक बार AFIT राशि जो आपके रेफरल को सफल साइनअप पर अर्जित AFIT पुरस्कारों का 20% के बराबर होती है! (आमतौर पर न्यूनतम 20 AFIT) &lt;/li&gt;&lt;li&gt; एक महीने के लिए आपके रेफरल की actifit रिपोर्ट के पुरस्कारों का 35% तक, सभी टोकन पुरस्कारों पर (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
+	<string name="referrals_details" formatted="false">हर रेफरल के लिए जो आपके रेफरल लिंक का उपयोग करके actifit में साइन अप करता है, आप कमाते हैं: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;एक बार AFIT राशि जो आपके रेफरल को सफल साइनअप पर अर्जित AFIT पुरस्कारों का 20% के बराबर होती है! (आमतौर पर न्यूनतम 20 AFIT) &lt;/li&gt;&lt;li&gt; एक महीने के लिए आपके रेफरल की actifit रिपोर्ट के पुरस्कारों का 35% तक, सभी टोकन पुरस्कारों पर (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
 	<string name="daily_rewards_description">आप बोनस बटन नीचे क्लिक करके दैनिक अतिरिक्त पुरस्कार कमा सकते हैं।</string>
 	<string name="free_daily_rewards_description">मुफ्त बोनस का दावा एक बार दैनिक किया जा सकता है। अधिकतम 3 AFIT तक का यादृच्छिक इनाम कमाएं</string>
 	<string name="daily_5k_rewards_description">5,000 गतिविधि गिनती तक पहुंचने पर अनलॉक होता है। अधिकतम 5 AFIT तक का यादृच्छिक इनाम कमाएं</string>
