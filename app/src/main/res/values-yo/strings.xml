@@ -718,5 +718,23 @@
     <string name="day_abbr_thu">Ọb</string>
     <string name="day_abbr_fri">Ẹt</string>
     <string name="day_abbr_sat">Àb</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">Profaili</string>
+    <string name="back_button">Padà</string>
+    <string name="profile_tier_loading">Jíjí…</string>
+    <string name="profile_share_card">Pín káàdì mi</string>
+    <string name="profile_recent_activity">Iṣẹ́ àìpẹ́</string>
+    <string name="profile_no_activity">Kò sí ìjábọ̀ iṣẹ́ síbẹ̀.</string>
+    <string name="profile_stat_today">Òní</string>
+    <string name="profile_stat_streak">Ọ̀wọ́ ọjọ́</string>
+    <string name="profile_stat_lifetime">Àpapọ̀ ìṣísẹ̀</string>
+    <string name="profile_stat_rank">Ipò</string>
+    <string name="profile_stat_latest">Tuntun</string>
+    <string name="profile_stat_posts">Ìjábọ̀</string>
+    <string name="profile_subtitle_rank">Ipò %1$s</string>
+    <string name="profile_companion_hint">✎ Yí ẹranko padà</string>
+    <string name="profile_companion_picker_title">Yan ẹranko ẹ̀mí rẹ</string>
+    <string name="profile_streak_at_risk">⚠️ %1$s ìṣísẹ̀ ló kù lónìí láti pa ọ̀wọ́ ọjọ́ %2$d rẹ mọ́</string>
+    <string name="profile_metrics_legend">🚶 %1$s ìṣísẹ̀ · 📏 %2$s km · 🔥 %3$s kcal</string>
 </resources>
 

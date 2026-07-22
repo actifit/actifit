@@ -718,5 +718,23 @@
     <string name="day_abbr_thu">do</string>
     <string name="day_abbr_fri">vr</string>
     <string name="day_abbr_sat">za</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">Profiel</string>
+    <string name="back_button">Terug</string>
+    <string name="profile_tier_loading">Ontwaken…</string>
+    <string name="profile_share_card">Mijn kaart delen</string>
+    <string name="profile_recent_activity">Recente activiteit</string>
+    <string name="profile_no_activity">Nog geen activiteitsrapporten.</string>
+    <string name="profile_stat_today">Vandaag</string>
+    <string name="profile_stat_streak">Dagenreeks</string>
+    <string name="profile_stat_lifetime">Totaal aantal stappen</string>
+    <string name="profile_stat_rank">Rang</string>
+    <string name="profile_stat_latest">Nieuwste</string>
+    <string name="profile_stat_posts">Rapporten</string>
+    <string name="profile_subtitle_rank">Rang %1$s</string>
+    <string name="profile_companion_hint">✎ Dier wijzigen</string>
+    <string name="profile_companion_picker_title">Kies je totemdier</string>
+    <string name="profile_streak_at_risk">⚠️ Nog %1$s stappen vandaag om je reeks van %2$d dagen te behouden</string>
+    <string name="profile_metrics_legend">🚶 %1$s stappen · 📏 %2$s km · 🔥 %3$s kcal</string>
 </resources>
 

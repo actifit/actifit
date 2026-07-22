@@ -718,5 +718,23 @@
     <string name="day_abbr_thu">Gi</string>
     <string name="day_abbr_fri">Ve</string>
     <string name="day_abbr_sat">Sa</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">Profilo</string>
+    <string name="back_button">Indietro</string>
+    <string name="profile_tier_loading">Risveglio…</string>
+    <string name="profile_share_card">Condividi la mia scheda</string>
+    <string name="profile_recent_activity">Attività recente</string>
+    <string name="profile_no_activity">Ancora nessun report di attività.</string>
+    <string name="profile_stat_today">Oggi</string>
+    <string name="profile_stat_streak">Serie di giorni</string>
+    <string name="profile_stat_lifetime">Passi totali</string>
+    <string name="profile_stat_rank">Rango</string>
+    <string name="profile_stat_latest">Ultimo</string>
+    <string name="profile_stat_posts">Report</string>
+    <string name="profile_subtitle_rank">Rango %1$s</string>
+    <string name="profile_companion_hint">✎ Cambia animale</string>
+    <string name="profile_companion_picker_title">Scegli il tuo animale guida</string>
+    <string name="profile_streak_at_risk">⚠️ Ti mancano %1$s passi oggi per mantenere la tua serie di %2$d giorni</string>
+    <string name="profile_metrics_legend">🚶 %1$s passi · 📏 %2$s km · 🔥 %3$s kcal</string>
 </resources>
 

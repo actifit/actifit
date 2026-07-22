@@ -729,5 +729,23 @@
     <string name="day_abbr_thu">خم</string>
     <string name="day_abbr_fri">جم</string>
     <string name="day_abbr_sat">سب</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">الملف الشخصي</string>
+    <string name="back_button">رجوع</string>
+    <string name="profile_tier_loading">يستيقظ…</string>
+    <string name="profile_share_card">مشاركة بطاقتي</string>
+    <string name="profile_recent_activity">النشاط الأخير</string>
+    <string name="profile_no_activity">لا توجد تقارير نشاط بعد.</string>
+    <string name="profile_stat_today">اليوم</string>
+    <string name="profile_stat_streak">سلسلة الأيام</string>
+    <string name="profile_stat_lifetime">إجمالي الخطوات</string>
+    <string name="profile_stat_rank">الترتيب</string>
+    <string name="profile_stat_latest">الأحدث</string>
+    <string name="profile_stat_posts">التقارير</string>
+    <string name="profile_subtitle_rank">الترتيب %1$s</string>
+    <string name="profile_companion_hint">✎ تغيير الحيوان</string>
+    <string name="profile_companion_picker_title">اختر حيوانك الروحي</string>
+    <string name="profile_streak_at_risk">⚠️ بقيت %1$s خطوة اليوم للحفاظ على سلسلتك المكوّنة من %2$d يوم</string>
+    <string name="profile_metrics_legend">🚶 %1$s خطوة · 📏 %2$s كم · 🔥 %3$s سعرة</string>
 </resources>
 

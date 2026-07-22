@@ -721,5 +721,23 @@
     <string name="day_abbr_thu">Ju</string>
     <string name="day_abbr_fri">Vi</string>
     <string name="day_abbr_sat">Sá</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">Perfil</string>
+    <string name="back_button">Atrás</string>
+    <string name="profile_tier_loading">Despertando…</string>
+    <string name="profile_share_card">Compartir mi tarjeta</string>
+    <string name="profile_recent_activity">Actividad reciente</string>
+    <string name="profile_no_activity">Aún no hay informes de actividad.</string>
+    <string name="profile_stat_today">Hoy</string>
+    <string name="profile_stat_streak">Racha de días</string>
+    <string name="profile_stat_lifetime">Pasos totales</string>
+    <string name="profile_stat_rank">Rango</string>
+    <string name="profile_stat_latest">Último</string>
+    <string name="profile_stat_posts">Informes</string>
+    <string name="profile_subtitle_rank">Rango %1$s</string>
+    <string name="profile_companion_hint">✎ Cambiar animal</string>
+    <string name="profile_companion_picker_title">Elige tu animal espiritual</string>
+    <string name="profile_streak_at_risk">⚠️ Te faltan %1$s pasos hoy para mantener tu racha de %2$d días</string>
+    <string name="profile_metrics_legend">🚶 %1$s pasos · 📏 %2$s km · 🔥 %3$s kcal</string>
 </resources>
 
