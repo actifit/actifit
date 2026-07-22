@@ -360,20 +360,47 @@ public class AiService {
         });
     }
 
+    public static class ContentBlockedException extends Exception {
+        public ContentBlockedException(String message) {
+            super(message);
+        }
+    }
+
     private String parseSimpleTextResponse(String responseBody) throws Exception {
         Map<String, Object> responseMap = gson.fromJson(responseBody, Map.class);
+
+        // Check if the prompt itself was blocked before any candidate was generated
+        Map<String, Object> promptFeedback = (Map<String, Object>) responseMap.get("promptFeedback");
+        if (promptFeedback != null && promptFeedback.get("blockReason") != null) {
+            throw new ContentBlockedException("Your request couldn't be processed because it may violate content guidelines.");
+        }
+
         List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseMap.get("candidates");
         if (candidates != null && !candidates.isEmpty()) {
-            Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
-            List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
-            if (parts != null && !parts.isEmpty()) {
-                return (String) parts.get(0).get("text");
+            Map<String, Object> candidate = candidates.get(0);
+
+            // Check if the generated response itself was blocked/cut for safety reasons
+            String finishReason = (String) candidate.get("finishReason");
+            if ("SAFETY".equals(finishReason) || "PROHIBITED_CONTENT".equals(finishReason)) {
+                throw new ContentBlockedException("The response couldn't be generated because it may violate content guidelines.");
+            }
+
+            Map<String, Object> content = (Map<String, Object>) candidate.get("content");
+            if (content != null) {
+                List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
+                if (parts != null && !parts.isEmpty()) {
+                    return (String) parts.get(0).get("text");
+                }
             }
         }
         throw new Exception("Could not find translated text in response.");
     }
 
     public void generateFromPrompt(String prompt, final TextResponseCallback callback) {
+        generateFromPromptWithRetry(prompt, callback, 0);
+    }
+
+    private void generateFromPromptWithRetry(String prompt, final TextResponseCallback callback, final int attempt) {
         List<Map<String, Object>> contents = new ArrayList<>();
         Map<String, Object> userMessage = new HashMap<>();
         userMessage.put("parts", List.of(Map.of("text", prompt)));
@@ -397,9 +424,67 @@ public class AiService {
                 if (response.isSuccessful()) {
                     try {
                         callback.onSuccess(parseSimpleTextResponse(responseBody).trim());
+                    } catch (ContentBlockedException e) {
+                        callback.onFailure(e.getMessage());
                     } catch (Exception e) {
                         callback.onFailure("Parse error: " + e.getMessage());
                     }
+                } else if (response.code() == 503 && attempt < 3) {
+                    long delayMs = (attempt + 1) * 1500L;
+                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                            () -> generateFromPromptWithRetry(prompt, callback, attempt + 1),
+                            delayMs
+                    );
+                } else {
+                    callback.onFailure("API error: " + response.code() + " - " + responseBody);
+                }
+            }
+        });
+    }
+
+    public void generateChatResponse(List<ChatMessage> history, final TextResponseCallback callback) {
+        generateChatResponseWithRetry(history, callback, 0);
+    }
+
+    private void generateChatResponseWithRetry(List<ChatMessage> history, final TextResponseCallback callback, final int attempt) {
+        List<Map<String, Object>> contents = new ArrayList<>();
+        for (ChatMessage message : history) {
+            Map<String, Object> turn = new HashMap<>();
+            turn.put("role", message.getRole());
+            turn.put("parts", List.of(Map.of("text", message.getText())));
+            contents.add(turn);
+        }
+
+        Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("contents", contents);
+        String requestJson = gson.toJson(requestBodyMap);
+        RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
+        Request request = new Request.Builder()
+                .url(API_URL)
+                .addHeader("x-goog-api-key", API_KEY)
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(Call call, IOException e) {
+                callback.onFailure("Network error: " + e.getMessage());
+            }
+            @Override public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    try {
+                        callback.onSuccess(parseSimpleTextResponse(responseBody).trim());
+                    } catch (ContentBlockedException e) {
+                        callback.onFailure(e.getMessage());
+                    } catch (Exception e) {
+                        callback.onFailure("Parse error: " + e.getMessage());
+                    }
+                } else if (response.code() == 503 && attempt < 3) {
+                    long delayMs = (attempt + 1) * 1500L;
+                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                            () -> generateChatResponseWithRetry(history, callback, attempt + 1),
+                            delayMs
+                    );
                 } else {
                     callback.onFailure("API error: " + response.code() + " - " + responseBody);
                 }

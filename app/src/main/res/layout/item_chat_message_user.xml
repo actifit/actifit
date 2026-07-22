@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="end"
+    android:paddingTop="@dimen/spacing_xs"
+    android:paddingBottom="@dimen/spacing_xs">
+
+    <TextView
+        android:id="@+id/chat_bubble_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:background="@drawable/rounded_button_background"
+        android:backgroundTint="@color/md_theme_primary"
+        android:textColor="@color/md_theme_onPrimary"
+        android:padding="@dimen/spacing_sm"
+        android:textIsSelectable="true" />
+</LinearLayout>

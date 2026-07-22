@@ -689,8 +689,14 @@
                                     style="@style/AppTheme.ToolbarIconButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/font_awesome_6_solid"
-                                    android:text="  AI" />
+                                    android:contentDescription="AI Assistant"
+                                    app:icon="@drawable/ic_ai_sparkle"
+                                    app:iconTint="@color/actifitRed"
+                                    app:iconGravity="textStart"
+                                    app:iconPadding="0dp"
+                                    android:insetLeft="0dp"
+                                    android:insetRight="0dp"
+                                    android:text="" />
 
                                 <View
                                     android:layout_width="0dp"
