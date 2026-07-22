@@ -112,7 +112,7 @@
     <string name="fitbit_measurements_lbl">جلب القياسات</string>
     <string name="fitbit_fetch_steps">جلب الخطوات</string>
     <string name="steem_post_payout">مكافأة نشر Steem</string>
-    <string name="pay_option_50_50">50٪ HBD - 50٪ HP</string>
+    <string name="pay_option_50_50" formatted="false">50٪ HBD - 50٪ HP</string>
     <string name="pay_option_full_sp">100٪ HP</string>
     <string name="pay_option_liquid">HBD / HP السائل</string>
     <string name="pay_option_decline">رفض الدفع</string>
@@ -462,7 +462,7 @@
    <string name="reply_action">رد</string>
    <string name="cancel_action">إلغاء</string>
    <string name="reply_to">الرد على</string>
-   <string name="referrals_details">لكل عملية إحالة تشترك في Actifit باستخدام رابط الإحالة الخاص بك ، تكسب: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;مبلغ AFIT لمرة واحدة يساوي 20٪ من مكافآت AFIT التي يكسبها الشخص الذي أحيلته عند التسجيل الناجح! (عادة 20 AFIT على الأقل) &lt;/li&gt;&lt;li&gt; حتى 35٪ من مكافآت تقرير Actifit الخاص بالشخص الذي أحيلته لمدة شهر واحد ، عبر جميع الرموز التي تتم مكافأتها (AFIT ، HIVE ، ...) &lt;/li&gt;&lt;/ul&gt;</string>
+   <string name="referrals_details" formatted="false">لكل عملية إحالة تشترك في Actifit باستخدام رابط الإحالة الخاص بك ، تكسب: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;مبلغ AFIT لمرة واحدة يساوي 20٪ من مكافآت AFIT التي يكسبها الشخص الذي أحيلته عند التسجيل الناجح! (عادة 20 AFIT على الأقل) &lt;/li&gt;&lt;li&gt; حتى 35٪ من مكافآت تقرير Actifit الخاص بالشخص الذي أحيلته لمدة شهر واحد ، عبر جميع الرموز التي تتم مكافأتها (AFIT ، HIVE ، ...) &lt;/li&gt;&lt;/ul&gt;</string>
    <string name="daily_rewards_description">يمكنك كسب مكافآت إضافية يومية من خلال النقر على أزرار المكافآت أدناه.</string>
    <string name="free_daily_rewards_description">يمكن المطالبة بالمكافأة المجانية مرة واحدة يوميًا. احصل على مكافأة إضافية عشوائية تصل إلى 3 AFIT</string>
    <string name="daily_5k_rewards_description">يتم فتحه عند الوصول إلى عدد 5000 نشاط. احصل على مكافأة إضافية عشوائية تصل إلى 5 AFIT</string>

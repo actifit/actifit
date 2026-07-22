@@ -110,7 +110,7 @@
 <string name="fitbit_measurements_lbl">Buscar Medições</string>
 <string name="fitbit_fetch_steps">Buscar Passos</string>
 <string name="steem_post_payout">Pagamento da Postagem</string>
-<string name="pay_option_50_50">50% HBD - 50% HP</string>
+<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 <string name="pay_option_full_sp">100% HP</string>
 <string name="pay_option_liquid">HBD/HP Líquido</string>
 <string name="pay_option_decline">Recusar Pagamento</string>
@@ -451,7 +451,7 @@
 <string name="reply_action">Responder</string>
 <string name="cancel_action">Cancelar</string>
 <string name="reply_to">Respondendo a</string>
-<string name="referrals_details">Para cada indicação que se inscreve no actifit usando seu link de indicação, você ganha: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Uma quantidade única de AFIT igual a 20% das recompensas de AFIT que sua indicação ganha após a inscrição bem-sucedida! (normalmente mínimo de 20 AFIT) &lt;/li&gt;&lt;li&gt; Até 35% das recompensas do relatório actifit de sua indicação por um mês, em todos os tokens recompensados (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
+<string name="referrals_details" formatted="false">Para cada indicação que se inscreve no actifit usando seu link de indicação, você ganha: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Uma quantidade única de AFIT igual a 20% das recompensas de AFIT que sua indicação ganha após a inscrição bem-sucedida! (normalmente mínimo de 20 AFIT) &lt;/li&gt;&lt;li&gt; Até 35% das recompensas do relatório actifit de sua indicação por um mês, em todos os tokens recompensados (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
 <string name="daily_rewards_description">Você pode ganhar recompensas extras diárias clicando nos botões de bônus abaixo.</string>
 <string name="free_daily_rewards_description">O bônus grátis pode ser reclamado uma vez por dia. Ganhe uma recompensa aleatória extra de até 3 AFIT</string>
 <string name="daily_5k_rewards_description">Desbloqueado quando você alcança 5.000 contagem de atividades. Ganhe uma recompensa aleatória extra de até 5 AFIT</string>

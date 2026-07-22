@@ -113,7 +113,7 @@
     <string name="fitbit_measurements_lbl">Messungen abrufen</string>
     <string name="fitbit_fetch_steps">Schritte abrufen</string>
     <string name="steem_post_payout">Postauszahlung</string>
-    <string name="pay_option_50_50">50% HBD - 50% HP</string>
+    <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
     <string name="pay_option_full_sp">100% HP</string>
     <string name="pay_option_liquid">Flüssiges HBD/HP</string>
     <string name="pay_option_decline">Auszahlung ablehnen</string>
@@ -455,7 +455,7 @@
     <string name="reply_action">Antworten</string>
     <string name="cancel_action">Abbrechen</string>
     <string name="reply_to">Antworten an</string>
-    <string name="referrals_details">Für jede Empfehlung, die sich über Ihren Empfehlungslink bei Actifit anmeldet, verdienen Sie: <br /><ul><li>Ein einmaliger AFIT-Betrag in Höhe von 20% der AFIT-Belohnungen, die Ihr Empfehlungsgeber bei erfolgreicher Anmeldung verdient! (normalerweise mindestens 20 AFIT)</li><li> Bis zu 35% der Actifit-Berichtsbelohnungen Ihres Empfehlungsgebers für einen Monat, über alle belohnten Token (AFIT, HIVE, ...) hinweg</li></ul></string>
+    <string name="referrals_details" formatted="false">Für jede Empfehlung, die sich über Ihren Empfehlungslink bei Actifit anmeldet, verdienen Sie: <br /><ul><li>Ein einmaliger AFIT-Betrag in Höhe von 20% der AFIT-Belohnungen, die Ihr Empfehlungsgeber bei erfolgreicher Anmeldung verdient! (normalerweise mindestens 20 AFIT)</li><li> Bis zu 35% der Actifit-Berichtsbelohnungen Ihres Empfehlungsgebers für einen Monat, über alle belohnten Token (AFIT, HIVE, ...) hinweg</li></ul></string>
     <string name="daily_rewards_description">Sie können täglich zusätzliche Belohnungen verdienen, indem Sie auf die Bonus-Schaltflächen unten klicken.</string>
     <string name="free_daily_rewards_description">Kostenlose Bonus können einmal täglich beansprucht werden. Verdiene eine zusätzliche zufällige Belohnung bis zu 3 AFIT</string>
     <string name="daily_5k_rewards_description">Freigeschaltet, wenn Sie 5.000 Aktivitätspunkte erreichen. Verdiene eine zusätzliche zufällige Belohnung bis zu 5 AFIT</string>

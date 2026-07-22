@@ -110,7 +110,7 @@
 <string name="fitbit_measurements_lbl">Gba Awọn wiwọn</string>
 <string name="fitbit_fetch_steps">Gba Awọn igbesẹ</string>
 <string name="steem_post_payout">Firanṣẹ Payout</string>
-<string name="pay_option_50_50">50% HBD - 50% HP</string>
+<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 <string name="pay_option_full_sp">100% HP</string>
 <string name="pay_option_liquid">Epo HBD/HP</string>
 <string name="pay_option_decline">Kọ Payout</string>
@@ -451,7 +451,7 @@
 <string name="reply_action">Jẹki</string>
 <string name="cancel_action">Fagilee</string>
 <string name="reply_to">Idahun si</string>
-<string name="referrals_details">Fun itọkasi kọọkan ti o forukọsilẹ si actifit nipa lilo ọna asopọ itọkasi rẹ, o gba: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Iye AFIT kan ti o jẹ deede si 20% ti awọn ere AFIT ti itọkasi rẹ n gba lẹhin forukọsilẹ aṣeyọri! (deede kere ju 20 AFIT) &lt;/li&gt;&lt;li&gt; To 35% ti awọn ere iroyin actifit ti itọkasi rẹ fun oṣu kan, kọja gbogbo awọn token ti a san (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
+<string name="referrals_details" formatted="false">Fun itọkasi kọọkan ti o forukọsilẹ si actifit nipa lilo ọna asopọ itọkasi rẹ, o gba: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Iye AFIT kan ti o jẹ deede si 20% ti awọn ere AFIT ti itọkasi rẹ n gba lẹhin forukọsilẹ aṣeyọri! (deede kere ju 20 AFIT) &lt;/li&gt;&lt;li&gt; To 35% ti awọn ere iroyin actifit ti itọkasi rẹ fun oṣu kan, kọja gbogbo awọn token ti a san (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
 <string name="daily_rewards_description">O le jo\'ere awọn ere afikun lojoojumọ nipa tite lori awọn bọtini ajeseku ni isalẹ.</string>
 <string name="free_daily_rewards_description">Ajeseku ọfẹ le wa ni beere ni ẹẹkan lojoojumọ. Jo\'ere ere ti o padanu aleatorik to 3 AFIT</string>
 <string name="daily_5k_rewards_description">Ti ṣi silẹ nigbati o ba de 5,000 kikọ iṣẹ. Jo\'ere ere ti o padanu aleatorik to 5 AFIT</string>

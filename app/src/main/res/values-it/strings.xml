@@ -110,7 +110,7 @@
 	<string name="fitbit_measurements_lbl">Recupera Misurazioni</string>
 	<string name="fitbit_fetch_steps">Recupera Passi</string>
 	<string name="steem_post_payout">Pagamento del Post</string>
-	<string name="pay_option_50_50">50% HBD - 50% HP</string>
+	<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 	<string name="pay_option_full_sp">100% HP</string>
 	<string name="pay_option_liquid">Liquido HBD/HP</string>
 	<string name="pay_option_decline">Rifiuta Pagamento</string>
@@ -451,7 +451,7 @@
 	<string name="reply_action">Rispondi</string>
 	<string name="cancel_action">Annulla</string>
 	<string name="reply_to">Rispondendo a</string>
-	<string name="referrals_details">Per ogni riferimento che si iscrive a actifit utilizzando il tuo link di riferimento, guadagni: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Un importo di AFIT pari al 20% delle ricompense AFIT che il tuo riferimento guadagna al momento dell\'iscrizione! (di solito minimo 20 AFIT) &lt;/li&gt;&lt;li&gt; Fino al 35% delle ricompense del report actifit del tuo riferimento per un mese, per tutti i token ricompensati (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
+	<string name="referrals_details" formatted="false">Per ogni riferimento che si iscrive a actifit utilizzando il tuo link di riferimento, guadagni: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Un importo di AFIT pari al 20% delle ricompense AFIT che il tuo riferimento guadagna al momento dell\'iscrizione! (di solito minimo 20 AFIT) &lt;/li&gt;&lt;li&gt; Fino al 35% delle ricompense del report actifit del tuo riferimento per un mese, per tutti i token ricompensati (AFIT, HIVE, ...) &lt;/li&gt;&lt;/ul&gt;</string>
 	<string name="daily_rewards_description">Puoi guadagnare ricompense extra giornaliere cliccando sui pulsanti bonus qui sotto.</string>
 	<string name="free_daily_rewards_description">Il bonus gratuito può essere riscattato una volta al giorno. Guadagna un premio extra casuale fino a 3 AFIT</string>
 	<string name="daily_5k_rewards_description">Sbloccato quando raggiungi 5,000 conteggio di attività. Guadagna un premio extra casuale fino a 5 AFIT</string>

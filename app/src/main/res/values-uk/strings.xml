@@ -109,7 +109,7 @@
 <string name="fitbit_measurements_lbl">Ölçümleri Al</string>
 <string name="fitbit_fetch_steps">Adımları Al</string>
 <string name="steem_post_payout">Gönderi Ödemesi</string>
-<string name="pay_option_50_50">50% HBD - 50% HP</string>
+<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 <string name="pay_option_full_sp">100% HP</string>
 <string name="pay_option_liquid">Likid HBD/HP</string>
 <string name="pay_option_decline">Ödemeyi Reddet</string>
@@ -450,7 +450,7 @@
 <string name="reply_action">Yanıtla</string>
 <string name="cancel_action">İptal</string>
 <string name="reply_to">Yanıtlanıyor</string>
-<string name="referrals_details">Yönlendirme bağlantınızı kullanarak actifit\'e kaydolan her yönlendirme için şunları kazanırsınız: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Başarılı kayıttan sonra yönlendirmenizin kazandığı AFIT ödüllerinin %20\'sine eşit bir kerelik AFIT miktarı! (genellikle minimum 20 AFIT) &lt;/li&gt;&lt;li&gt; Bir ay boyunca tüm ödül tokenleri (AFIT, HIVE, ...) boyunca yönlendirmenizin actifit rapor ödüllerinin %35\'ine kadar&lt;/li&gt;&lt;/ul&gt;</string>
+<string name="referrals_details" formatted="false">Yönlendirme bağlantınızı kullanarak actifit\'e kaydolan her yönlendirme için şunları kazanırsınız: &lt;br /&gt;&lt;ul&gt;&lt;li&gt;Başarılı kayıttan sonra yönlendirmenizin kazandığı AFIT ödüllerinin %20\'sine eşit bir kerelik AFIT miktarı! (genellikle minimum 20 AFIT) &lt;/li&gt;&lt;li&gt; Bir ay boyunca tüm ödül tokenleri (AFIT, HIVE, ...) boyunca yönlendirmenizin actifit rapor ödüllerinin %35\'ine kadar&lt;/li&gt;&lt;/ul&gt;</string>
 <string name="daily_rewards_description">Aşağıdaki bonus düğmelerine tıklayarak günlük ekstra ödüller kazanabilirsiniz.</string>
 <string name="free_daily_rewards_description">Ücretsiz bonus günde bir kez talep edilebilir. Günlük ekstra rastgele ödül kazanın 3 AFIT\'e kadar</string>
 <string name="daily_5k_rewards_description">5.000 aktivite sayısına ulaştığınızda açılır. Günlük ekstra rastgele ödül kazanın 5 AFIT\'e kadar</string>
