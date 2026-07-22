@@ -717,5 +717,23 @@
     <string name="day_abbr_thu">Чт</string>
     <string name="day_abbr_fri">Пт</string>
     <string name="day_abbr_sat">Сб</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">Профіль</string>
+    <string name="back_button">Назад</string>
+    <string name="profile_tier_loading">Пробудження…</string>
+    <string name="profile_share_card">Поділитися карткою</string>
+    <string name="profile_recent_activity">Нещодавня активність</string>
+    <string name="profile_no_activity">Ще немає звітів про активність.</string>
+    <string name="profile_stat_today">Сьогодні</string>
+    <string name="profile_stat_streak">Серія днів</string>
+    <string name="profile_stat_lifetime">Усього кроків</string>
+    <string name="profile_stat_rank">Ранг</string>
+    <string name="profile_stat_latest">Останнє</string>
+    <string name="profile_stat_posts">Звіти</string>
+    <string name="profile_subtitle_rank">Ранг %1$s</string>
+    <string name="profile_companion_hint">✎ Змінити тварину</string>
+    <string name="profile_companion_picker_title">Обери свою тварину-духа</string>
+    <string name="profile_streak_at_risk">⚠️ Ще %1$s кроків сьогодні, щоб зберегти серію з %2$d днів</string>
+    <string name="profile_metrics_legend">🚶 %1$s кроків · 📏 %2$s км · 🔥 %3$s ккал</string>
 </resources>
 

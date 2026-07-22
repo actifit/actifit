@@ -10,17 +10,14 @@
     <string name="profile_stat_today">Today</string>
     <string name="profile_stat_streak">Day streak</string>
     <string name="profile_stat_lifetime">Lifetime steps</string>
-    <string name="profile_stat_best">Best day</string>
     <string name="profile_stat_rank">Rank</string>
     <string name="profile_stat_latest">Latest</string>
     <string name="profile_stat_posts">Reports</string>
-    <string name="profile_vitality_streak">%1$d-day streak keeping the aura alive</string>
-    <string name="profile_vitality_rank">Rank %1$s · %2$s tier</string>
     <string name="profile_subtitle_rank">Rank %1$s</string>
-    <string name="profile_activity_row">%1$s · %2$s</string>
-    <string name="profile_companion_hint">Tap your companion to choose your spirit animal</string>
+    <string name="profile_activity_row" translatable="false">%1$s · %2$s</string>
+    <string name="profile_companion_hint">✎ Tap to change animal</string>
     <string name="profile_companion_picker_title">Choose your spirit animal</string>
-    <string name="profile_tier_element">%1$s %2$s · %3$s</string>
+    <string name="profile_tier_element" translatable="false">%1$s %2$s · %3$s</string>
     <string name="profile_streak_at_risk">⚠️ %1$s steps to go today to keep your %2$d-day streak alive</string>
     <string name="profile_metrics_legend">🚶 %1$s steps · 📏 %2$s km · 🔥 %3$s kcal</string>
 

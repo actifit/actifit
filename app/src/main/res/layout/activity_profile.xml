@@ -138,14 +138,15 @@
 
             <TextView
                 android:id="@+id/companion_hint"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:gravity="center"
                 android:paddingTop="@dimen/spacing_xs"
-                android:paddingBottom="@dimen/spacing_md"
+                android:paddingBottom="@dimen/spacing_sm"
                 android:text="@string/profile_companion_hint"
-                android:textSize="@dimen/text_subtitle"
-                android:textColor="@color/md_theme_primary"
+                android:textSize="11sp"
+                android:textColor="@color/md_theme_textSecondary"
                 android:visibility="gone" />
 
             <!-- Stat tiles -->

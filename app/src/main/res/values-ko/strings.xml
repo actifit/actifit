@@ -718,5 +718,23 @@
     <string name="day_abbr_thu">목</string>
     <string name="day_abbr_fri">금</string>
     <string name="day_abbr_sat">토</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">프로필</string>
+    <string name="back_button">뒤로</string>
+    <string name="profile_tier_loading">깨어나는 중…</string>
+    <string name="profile_share_card">내 카드 공유</string>
+    <string name="profile_recent_activity">최근 활동</string>
+    <string name="profile_no_activity">아직 활동 보고서가 없습니다.</string>
+    <string name="profile_stat_today">오늘</string>
+    <string name="profile_stat_streak">연속 일수</string>
+    <string name="profile_stat_lifetime">총 걸음 수</string>
+    <string name="profile_stat_rank">순위</string>
+    <string name="profile_stat_latest">최신</string>
+    <string name="profile_stat_posts">보고서</string>
+    <string name="profile_subtitle_rank">순위 %1$s</string>
+    <string name="profile_companion_hint">✎ 동물 변경</string>
+    <string name="profile_companion_picker_title">수호 동물 선택</string>
+    <string name="profile_streak_at_risk">⚠️ %2$d일 연속 기록을 유지하려면 오늘 %1$s걸음 남았습니다</string>
+    <string name="profile_metrics_legend">🚶 %1$s걸음 · 📏 %2$s km · 🔥 %3$s kcal</string>
 </resources>
 

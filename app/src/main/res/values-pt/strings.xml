@@ -718,5 +718,23 @@
     <string name="day_abbr_thu">Qui</string>
     <string name="day_abbr_fri">Sex</string>
     <string name="day_abbr_sat">Sáb</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">Perfil</string>
+    <string name="back_button">Voltar</string>
+    <string name="profile_tier_loading">A despertar…</string>
+    <string name="profile_share_card">Partilhar o meu cartão</string>
+    <string name="profile_recent_activity">Atividade recente</string>
+    <string name="profile_no_activity">Ainda sem relatórios de atividade.</string>
+    <string name="profile_stat_today">Hoje</string>
+    <string name="profile_stat_streak">Sequência de dias</string>
+    <string name="profile_stat_lifetime">Passos totais</string>
+    <string name="profile_stat_rank">Classificação</string>
+    <string name="profile_stat_latest">Mais recente</string>
+    <string name="profile_stat_posts">Relatórios</string>
+    <string name="profile_subtitle_rank">Classificação %1$s</string>
+    <string name="profile_companion_hint">✎ Mudar animal</string>
+    <string name="profile_companion_picker_title">Escolhe o teu animal espiritual</string>
+    <string name="profile_streak_at_risk">⚠️ Faltam %1$s passos hoje para manteres a tua sequência de %2$d dias</string>
+    <string name="profile_metrics_legend">🚶 %1$s passos · 📏 %2$s km · 🔥 %3$s kcal</string>
 </resources>
 

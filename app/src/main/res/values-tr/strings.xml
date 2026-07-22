@@ -717,4 +717,22 @@
     <string name="day_abbr_thu">Per</string>
     <string name="day_abbr_fri">Cum</string>
     <string name="day_abbr_sat">Cmt</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">Profil</string>
+    <string name="back_button">Geri</string>
+    <string name="profile_tier_loading">Uyanıyor…</string>
+    <string name="profile_share_card">Kartımı paylaş</string>
+    <string name="profile_recent_activity">Son etkinlik</string>
+    <string name="profile_no_activity">Henüz etkinlik raporu yok.</string>
+    <string name="profile_stat_today">Bugün</string>
+    <string name="profile_stat_streak">Gün serisi</string>
+    <string name="profile_stat_lifetime">Toplam adım</string>
+    <string name="profile_stat_rank">Sıralama</string>
+    <string name="profile_stat_latest">En son</string>
+    <string name="profile_stat_posts">Raporlar</string>
+    <string name="profile_subtitle_rank">Sıralama %1$s</string>
+    <string name="profile_companion_hint">✎ Hayvanı değiştir</string>
+    <string name="profile_companion_picker_title">Ruh hayvanını seç</string>
+    <string name="profile_streak_at_risk">⚠️ %2$d günlük serini korumak için bugün %1$s adım kaldı</string>
+    <string name="profile_metrics_legend">🚶 %1$s adım · 📏 %2$s km · 🔥 %3$s kcal</string>
 </resources>

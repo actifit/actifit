@@ -717,4 +717,22 @@
     <string name="day_abbr_thu">四</string>
     <string name="day_abbr_fri">五</string>
     <string name="day_abbr_sat">六</string>
+    <!-- Profile ("Living Fitness Identity") -->
+    <string name="profile_title">个人资料</string>
+    <string name="back_button">返回</string>
+    <string name="profile_tier_loading">唤醒中…</string>
+    <string name="profile_share_card">分享我的卡片</string>
+    <string name="profile_recent_activity">最近活动</string>
+    <string name="profile_no_activity">暂无活动报告。</string>
+    <string name="profile_stat_today">今天</string>
+    <string name="profile_stat_streak">连续天数</string>
+    <string name="profile_stat_lifetime">累计步数</string>
+    <string name="profile_stat_rank">排名</string>
+    <string name="profile_stat_latest">最新</string>
+    <string name="profile_stat_posts">报告</string>
+    <string name="profile_subtitle_rank">排名 %1$s</string>
+    <string name="profile_companion_hint">✎ 更换动物</string>
+    <string name="profile_companion_picker_title">选择你的灵兽</string>
+    <string name="profile_streak_at_risk">⚠️ 今天还差 %1$s 步即可保持你的 %2$d 天连续记录</string>
+    <string name="profile_metrics_legend">🚶 %1$s 步 · 📏 %2$s 公里 · 🔥 %3$s 千卡</string>
 </resources>
