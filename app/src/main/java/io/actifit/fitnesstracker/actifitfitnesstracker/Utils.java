@@ -75,6 +75,9 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -82,7 +85,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.exifinterface.media.ExifInterface;
 
-    public class Utils {
+    public class  Utils {
 
         private static final String TAG = "Utils";
 
@@ -1558,19 +1561,51 @@ import androidx.exifinterface.media.ExifInterface;
 
         return exercises;
     }
-    public static  ExerciseModel findMatchingExercise(String aiExerciseName,  Map<String, ExerciseModel> allExercisesMap) {
-        if (allExercisesMap == null || allExercisesMap.isEmpty()) {
-            return null;
-        }
-        String normalizedAIExerciseName = normalizeString(aiExerciseName);
-        for(Map.Entry<String, ExerciseModel> entry : allExercisesMap.entrySet()){
-            String databaseExerciseName = normalizeString(entry.getKey());
-            if(databaseExerciseName.contains(normalizedAIExerciseName) || normalizedAIExerciseName.contains(databaseExerciseName)){
-                return entry.getValue();
+        public static ExerciseModel findMatchingExercise(String aiExerciseName, Map<String, ExerciseModel> allExercisesMap) {
+            if (allExercisesMap == null || allExercisesMap.isEmpty() || aiExerciseName == null) {
+                return null;
             }
+
+            String normalizedAIExerciseName = normalizeString(aiExerciseName);
+
+            // 1. Try exact match first
+            for (Map.Entry<String, ExerciseModel> entry : allExercisesMap.entrySet()) {
+                if (normalizeString(entry.getKey()).equals(normalizedAIExerciseName)) {
+                    return entry.getValue();
+                }
+            }
+
+            // 2. Fall back to word-overlap scoring
+            Set<String> aiWords = new HashSet<>(Arrays.asList(normalizedAIExerciseName.split("\\s+")));
+            aiWords.removeAll(Arrays.asList("the", "a", "an", "with", "of", "and"));
+
+            ExerciseModel bestMatch = null;
+            int bestScore = 0;
+
+            for (Map.Entry<String, ExerciseModel> entry : allExercisesMap.entrySet()) {
+                String dbName = normalizeString(entry.getKey());
+                Set<String> dbWords = new HashSet<>(Arrays.asList(dbName.split("\\s+")));
+                dbWords.removeAll(Arrays.asList("the", "a", "an", "with", "of", "and"));
+
+                int score = 0;
+                for (String aiWord : aiWords) {
+                    for (String dbWord : dbWords) {
+                        if (dbWord.equals(aiWord) ||
+                                dbWord.equals(aiWord + "s") ||
+                                aiWord.equals(dbWord + "s")) {
+                            score++;
+                        }
+                    }
+                }
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMatch = entry.getValue();
+                }
+            }
+
+            return bestScore > 0 ? bestMatch : null;
         }
-        return null;
-    }
 
 
     public static  ExerciseModel getExerciseModel(Exercise exercise) {
