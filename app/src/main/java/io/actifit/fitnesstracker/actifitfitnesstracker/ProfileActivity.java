@@ -18,6 +18,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieDrawable;
 import com.bumptech.glide.Glide;
 
 import org.json.JSONArray;
@@ -50,10 +52,16 @@ public class ProfileActivity extends BaseActivity {
 
     private static final int DAILY_GOAL = 10000;
     private static final int ACTIVE_THRESHOLD = 5000;
+    // activity-ring goals + derivation factors (distance/calories derived from steps for now)
+    private static final float DIST_GOAL_KM = 8f;
+    private static final float CAL_GOAL = 500f;
+    private static final float STRIDE_M = 0.762f;      // avg stride, steps → distance
+    private static final float KCAL_PER_STEP = 0.04f;  // rough steps → calories
 
     private AuraView auraView;
+    private LottieAnimationView profileAnimal;
     private CircleImageView avatar;
-    private TextView tierLabel, usernameTv, subtitleTv;
+    private TextView tierLabel, usernameTv, subtitleTv, metricsLegend;
     private TextView tile1Value, tile1Label, tile2Value, tile2Label, tile3Value, tile3Label;
     private LinearLayout recentContainer;
     private TextView recentEmpty;
@@ -68,7 +76,9 @@ public class ProfileActivity extends BaseActivity {
     private int companionIndex = 0;
 
     // aura state assembled from possibly-async sources
-    private float auraFill = 0f;
+    private float auraStepsFrac = 0f;
+    private float auraDistFrac = 0f;
+    private float auraCalFrac = 0f;
     private int auraLevel = 0;
     private boolean auraWilting = false;
 
@@ -82,10 +92,18 @@ public class ProfileActivity extends BaseActivity {
         setContentView(R.layout.activity_profile);
 
         auraView = findViewById(R.id.aura_view);
+        profileAnimal = findViewById(R.id.profile_animal);
         avatar = findViewById(R.id.profile_avatar);
+        // the animated animal is the hero in the ring centre, so the canvas emoji is off here;
+        // the avatar becomes a small identity badge nudged to the lower-right of the rings
+        auraView.setShowAnimal(false);
+        float badgeOffset = 74f * getResources().getDisplayMetrics().density;
+        avatar.setTranslationX(badgeOffset);
+        avatar.setTranslationY(badgeOffset);
         tierLabel = findViewById(R.id.tier_label);
         usernameTv = findViewById(R.id.profile_username);
         subtitleTv = findViewById(R.id.profile_subtitle);
+        metricsLegend = findViewById(R.id.metrics_legend);
         tile1Value = findViewById(R.id.tile1_value);
         tile1Label = findViewById(R.id.tile1_label);
         tile2Value = findViewById(R.id.tile2_value);
@@ -164,13 +182,66 @@ public class ProfileActivity extends BaseActivity {
 
     private void updateAura() {
         if (auraView != null) {
-            auraView.setAura(auraFill, auraLevel, auraWilting);
+            auraView.setActivityRings(auraStepsFrac, auraDistFrac, auraCalFrac, auraLevel, auraWilting);
         }
+        updateCompanionAnimal();
         tierLabel.setText(getString(R.string.profile_tier_element,
                 AuraView.companionEmoji(companionIndex),
                 AuraView.companionName(companionIndex),
                 AuraView.tierName(auraLevel)));
         tierLabel.setTextColor(AuraView.companionColor(companionIndex));
+    }
+
+    // real Health Connect distance (km) for today, or -1 to derive. Only for the logged-in
+    // user while in HC mode, with fresh (today's) metrics cached by TrackingManager.
+    private float realHcDistanceKm() {
+        if (!isSelf || !hcMetricsFresh()) return -1f;
+        float dM = prefs.getFloat("hcTodayDistanceM", -1f);
+        return dM >= 0 ? dM / 1000f : -1f;
+    }
+
+    private float realHcKcal() {
+        if (!isSelf || !hcMetricsFresh()) return -1f;
+        return prefs.getFloat("hcTodayKcal", -1f);
+    }
+
+    private boolean hcMetricsFresh() {
+        boolean hcMode = getString(R.string.health_connect_tracking_ntt)
+                .equals(prefs.getString("dataTrackingSystem", ""));
+        String today = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(new Date());
+        return hcMode && today.equals(prefs.getString("hcMetricsDate", ""));
+    }
+
+    // compute the three activity-ring fractions + legend. Real HC distance/calories are used
+    // when provided (>= 0); otherwise they're derived from steps.
+    private void computeMetrics(int steps, float realDistanceKm, float realKcal) {
+        float distKm = (realDistanceKm >= 0) ? realDistanceKm : steps * STRIDE_M / 1000f;
+        float cal = (realKcal >= 0) ? realKcal : steps * KCAL_PER_STEP;
+        auraStepsFrac = steps / (float) DAILY_GOAL;
+        auraDistFrac = distKm / DIST_GOAL_KM;
+        auraCalFrac = cal / CAL_GOAL;
+        metricsLegend.setText(getString(R.string.profile_metrics_legend,
+                compact(steps),
+                String.format(Locale.getDefault(), "%.1f", distKm),
+                String.valueOf(Math.round(cal))));
+    }
+
+    // drive the animated hero animal: swap the Lottie on companion change, grow it with tier,
+    // and slow it to a tired crawl when wilting
+    private void updateCompanionAnimal() {
+        if (profileAnimal == null) return;
+        String asset = AuraView.companionLottieAsset(companionIndex);
+        if (!asset.equals(profileAnimal.getTag())) {
+            profileAnimal.setTag(asset);
+            profileAnimal.setAnimation(asset);
+            profileAnimal.setRepeatCount(LottieDrawable.INFINITE);
+            profileAnimal.playAnimation();
+        }
+        float scale = 0.75f + 0.07f * auraLevel; // grows Couch → Champion
+        profileAnimal.setScaleX(scale);
+        profileAnimal.setScaleY(scale);
+        profileAnimal.setSpeed(auraWilting ? 0.3f : 1f);
+        profileAnimal.setAlpha(auraWilting ? 0.55f : 1f);
     }
 
     // compact large numbers so tiles never overflow: 15,322 · 392K · 1.2M
@@ -201,7 +272,7 @@ public class ProfileActivity extends BaseActivity {
         auraWilting = CompanionUtil.isWilting(streak, todaySteps, hour);
 
         shareSteps = todaySteps;
-        auraFill = todaySteps / (float) DAILY_GOAL;
+        computeMetrics(todaySteps, realHcDistanceKm(), realHcKcal());
         auraLevel = CompanionUtil.levelFromStreak(streak);
         updateAura();
 
@@ -332,7 +403,7 @@ public class ProfileActivity extends BaseActivity {
         if (!isSelf) {
             // other users: aura arc fill comes from their latest report
             if (latestSteps >= 0) {
-                auraFill = latestSteps / (float) DAILY_GOAL;
+                computeMetrics(latestSteps, -1f, -1f);
                 updateAura();
                 tile1Value.setText(compact(latestSteps));
                 tile1Label.setText(R.string.profile_stat_latest);

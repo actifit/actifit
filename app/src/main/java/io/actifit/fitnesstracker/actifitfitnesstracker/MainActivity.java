@@ -2835,7 +2835,37 @@ public class MainActivity extends BaseActivity {
         }
 
         // reflect the living companion aura around the top-bar avatar too
+        lastComputedStreak = streak;
         updateHeaderAura(Math.max(0, todaySteps), streak);
+    }
+
+    private int lastComputedStreak = 0;
+
+    /**
+     * Renders the multi-metric activity rings (steps/distance/calories) on the dashboard when in
+     * Health Connect mode. Distance/calories use real HC values when granted, else step-derived.
+     * Called by TrackingManager once today's HC metrics are read.
+     */
+    public void updateHcDashboardRings(int steps, float distanceMeters, float kcal) {
+        AuraView rings = findViewById(R.id.dashboard_rings_hc);
+        View materialRing = findViewById(R.id.step_ring_hc);
+        if (rings == null) return;
+
+        SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String user = prefs.getString("actifitUser", "");
+        int companion = CompanionUtil.resolveCompanion(prefs, user, true);
+        int level = CompanionUtil.levelFromStreak(lastComputedStreak);
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        boolean wilting = CompanionUtil.isWilting(lastComputedStreak, steps, hour);
+
+        float distKm = (distanceMeters >= 0) ? distanceMeters / 1000f : steps * 0.762f / 1000f;
+        float calVal = (kcal >= 0) ? kcal : steps * 0.04f;
+
+        rings.setShowAnimal(false); // the animated animal already sits in the counter centre
+        rings.setCompanion(companion);
+        rings.setActivityRings(steps / 10000f, distKm / 8f, calVal / 500f, level, wilting);
+        rings.setVisibility(View.VISIBLE);
+        if (materialRing != null) materialRing.setVisibility(View.GONE);
     }
 
     /** Renders the companion aura (header ring) and the spirit animal inside the step counter. */
@@ -2853,22 +2883,29 @@ public class MainActivity extends BaseActivity {
             headerAura.setAura(todaySteps / 10000f, CompanionUtil.levelFromStreak(streak), wilting);
         }
 
-        // the spirit animal is shown inside the step counter, across all tracking modes,
-        // and grows with the fitness ladder tier (Couch → Champion)
-        String emoji = AuraView.companionEmoji(companion);
+        // the animated spirit animal is shown inside the step counter, across all tracking
+        // modes, and grows with the fitness ladder tier (Couch → Champion)
+        String asset = AuraView.companionLottieAsset(companion);
         int level = CompanionUtil.levelFromStreak(streak);
-        float sizeSp = 22f + level * 3.5f; // Couch ~22sp → Champion ~40sp
-        setCompanionEmoji(R.id.companion_animal, emoji, sizeSp);
-        setCompanionEmoji(R.id.companion_animal_hc, emoji, sizeSp);
-        setCompanionEmoji(R.id.companion_animal_fitbit, emoji, sizeSp);
+        float scale = 0.8f + level * 0.08f; // Couch ~0.8 → Champion ~1.2
+        setCompanionAnimal(R.id.companion_animal, asset, scale, wilting);
+        setCompanionAnimal(R.id.companion_animal_hc, asset, scale, wilting);
+        setCompanionAnimal(R.id.companion_animal_fitbit, asset, scale, wilting);
     }
 
-    private void setCompanionEmoji(int viewId, String emoji, float sizeSp) {
-        TextView tv = findViewById(viewId);
-        if (tv != null) {
-            tv.setText(emoji);
-            tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, sizeSp);
+    private void setCompanionAnimal(int viewId, String asset, float scale, boolean wilting) {
+        com.airbnb.lottie.LottieAnimationView v = findViewById(viewId);
+        if (v == null) return;
+        if (!asset.equals(v.getTag())) {
+            v.setTag(asset);
+            v.setAnimation(asset);
+            v.setRepeatCount(com.airbnb.lottie.LottieDrawable.INFINITE);
+            v.playAnimation();
         }
+        v.setScaleX(scale);
+        v.setScaleY(scale);
+        v.setSpeed(wilting ? 0.3f : 1f);
+        v.setAlpha(wilting ? 0.55f : 1f);
     }
 
     private void checkMilestoneCelebration(int stepCount) {

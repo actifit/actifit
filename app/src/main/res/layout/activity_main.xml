@@ -488,6 +488,14 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
 
+                                <!-- multi-metric activity rings (steps/distance/calories) shown in HC mode -->
+                                <io.actifit.fitnesstracker.actifitfitnesstracker.AuraView
+                                    android:id="@+id/dashboard_rings_hc"
+                                    android:layout_width="184dp"
+                                    android:layout_height="184dp"
+                                    android:layout_gravity="center"
+                                    android:visibility="gone" />
+
                                 <com.google.android.material.progressindicator.CircularProgressIndicator
                                     android:id="@+id/step_ring_hc"
                                     android:layout_width="wrap_content"
@@ -508,13 +516,12 @@
                                     android:orientation="vertical"
                                     android:gravity="center">
 
-                                    <TextView
+                                    <com.airbnb.lottie.LottieAnimationView
                                         android:id="@+id/companion_animal_hc"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:textSize="26sp"
-                                        android:text="🦅"
-                                        tools:ignore="HardcodedText" />
+                                        android:layout_width="44dp"
+                                        android:layout_height="44dp"
+                                        app:lottie_autoPlay="true"
+                                        app:lottie_loop="true" />
 
                                     <TextView
                                         android:id="@+id/tv_step_count_hc"
@@ -626,13 +633,12 @@
                                     android:orientation="vertical"
                                     android:gravity="center">
 
-                                    <TextView
+                                    <com.airbnb.lottie.LottieAnimationView
                                         android:id="@+id/companion_animal_fitbit"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:textSize="26sp"
-                                        android:text="🦅"
-                                        tools:ignore="HardcodedText" />
+                                        android:layout_width="44dp"
+                                        android:layout_height="44dp"
+                                        app:lottie_autoPlay="true"
+                                        app:lottie_loop="true" />
 
                                     <TextView
                                         android:id="@+id/tv_step_count_fitbit"
@@ -743,13 +749,12 @@
                                     android:orientation="vertical"
                                     android:gravity="center">
 
-                                    <TextView
+                                    <com.airbnb.lottie.LottieAnimationView
                                         android:id="@+id/companion_animal"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:textSize="26sp"
-                                        android:text="🦅"
-                                        tools:ignore="HardcodedText" />
+                                        android:layout_width="44dp"
+                                        android:layout_height="44dp"
+                                        app:lottie_autoPlay="true"
+                                        app:lottie_loop="true" />
 
                                     <TextView
                                         android:id="@+id/tv_step_count"

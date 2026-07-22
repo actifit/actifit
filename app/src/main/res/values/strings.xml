@@ -22,6 +22,7 @@
     <string name="profile_companion_picker_title">Choose your spirit animal</string>
     <string name="profile_tier_element">%1$s %2$s · %3$s</string>
     <string name="profile_streak_at_risk">⚠️ %1$s steps to go today to keep your %2$d-day streak alive</string>
+    <string name="profile_metrics_legend">🚶 %1$s steps · 📏 %2$s km · 🔥 %3$s kcal</string>
 
     <string name="sending_post">Sending your post...</string>
     <string name="success_post">Your post has been successfully submitted</string>

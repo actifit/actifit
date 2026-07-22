@@ -66,20 +66,42 @@
 
                 <io.actifit.fitnesstracker.actifitfitnesstracker.AuraView
                     android:id="@+id/aura_view"
-                    android:layout_width="240dp"
-                    android:layout_height="240dp"
+                    android:layout_width="264dp"
+                    android:layout_height="264dp"
                     android:layout_gravity="center_horizontal" />
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/profile_avatar"
+                <!-- animated spirit-animal hero in the centre of the activity rings -->
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/profile_animal"
                     android:layout_width="132dp"
                     android:layout_height="132dp"
+                    android:layout_gravity="center"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true" />
+
+                <!-- the user's avatar kept as a small identity badge on the ring -->
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/profile_avatar"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_gravity="center"
                     android:src="@drawable/default_pic"
                     app:civ_border_width="2dp"
                     app:civ_border_color="@color/md_theme_surface" />
 
             </FrameLayout>
+
+            <TextView
+                android:id="@+id/metrics_legend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="@dimen/spacing_xs"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:text=""
+                android:textSize="@dimen/text_subtitle"
+                android:textColor="@color/md_theme_textSecondary" />
 
             <TextView
                 android:id="@+id/tier_label"

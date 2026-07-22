@@ -204,7 +204,7 @@ public class TrackingManager {
         try {
             int sdkStatus = HealthConnectClient.getSdkStatus(context);
             if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
-                hcRequestPermissionsLauncher.launch(healthConnectManager.permissions);
+                hcRequestPermissionsLauncher.launch(healthConnectManager.requestPermissions);
             } else {
                 showInstallOrUpdateHealthConnectRationale(sdkStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED);
             }
@@ -264,6 +264,24 @@ public class TrackingManager {
                 }
                 editor.apply();
                 chartManager.displayActivityChartHealthConnect(steps != null ? steps.intValue() : 0, true);
+
+                // additionally read today's distance + active calories (optional HC metrics) for
+                // the activity rings; stored to prefs and pushed to the dashboard when available
+                final int hcSteps = (steps != null) ? steps.intValue() : 0;
+                healthConnectManager.readTodayMetrics(ZonedDateTime.now()).whenComplete((metrics, mThrowable) -> {
+                    float distM = (metrics != null && metrics.length > 1) ? (float) metrics[1] : -1f;
+                    float kcal = (metrics != null && metrics.length > 2) ? (float) metrics[2] : -1f;
+                    SharedPreferences.Editor mEd = sharedPreferences.edit();
+                    mEd.putString("hcMetricsDate", new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+                    mEd.putFloat("hcTodayDistanceM", distM);
+                    mEd.putFloat("hcTodayKcal", kcal);
+                    mEd.apply();
+                    ((Activity) context).runOnUiThread(() -> {
+                        if (context instanceof MainActivity) {
+                            ((MainActivity) context).updateHcDashboardRings(hcSteps, distM, kcal);
+                        }
+                    });
+                });
 
                 View barChartContainer = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
                 if (barChartContainer != null) barChartContainer.setVisibility(View.VISIBLE);

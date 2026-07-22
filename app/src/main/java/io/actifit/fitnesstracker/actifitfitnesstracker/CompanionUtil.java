@@ -14,7 +14,7 @@ public final class CompanionUtil {
     public static final int ACTIVE_THRESHOLD = 5000;
 
     // spirit-animal indices (must match AuraView's animal arrays)
-    private static final int WOLF = 0, CHEETAH = 1, MUSTANG = 2, DOLPHIN = 3,
+    private static final int WOLF = 0, RABBIT = 1, MUSTANG = 2, DOLPHIN = 3,
             GORILLA = 4, TIGER = 5, FLAMINGO = 6, EAGLE = 7;
 
     private CompanionUtil() {}
@@ -23,7 +23,7 @@ public final class CompanionUtil {
     public static int animalForActivity(String activityType) {
         if (activityType == null) return EAGLE;
         String a = activityType.toLowerCase();
-        if (containsAny(a, "run", "jog", "sprint", "marathon")) return CHEETAH;
+        if (containsAny(a, "run", "jog", "sprint", "marathon")) return RABBIT;
         if (containsAny(a, "walk", "hik", "trek", "step")) return WOLF;
         if (containsAny(a, "cycl", "bike", "bik", "spin")) return MUSTANG;
         if (containsAny(a, "swim", "dive", "aqua")) return DOLPHIN;
