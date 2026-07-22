@@ -7,10 +7,12 @@ import android.util.Log;
 
 import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.permission.HealthPermission;
-//import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord;
-//import androidx.health.connect.client.records.DistanceRecord;
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord;
+import androidx.health.connect.client.records.DistanceRecord;
 //import androidx.health.connect.client.records.HeartRateRecord;
 import androidx.health.connect.client.records.StepsRecord;
+import androidx.health.connect.client.units.Energy;
+import androidx.health.connect.client.units.Length;
 import androidx.health.connect.client.aggregate.AggregateMetric;
 import androidx.health.connect.client.aggregate.AggregationResult;
 import androidx.health.connect.client.request.AggregateRequest;
@@ -52,12 +54,26 @@ public class HealthConnectManager {
     private final HealthConnectClient healthConnectClient;
     private final CoroutineScope coroutineScope;
 
+    // REQUIRED gate — steps only, so existing users who granted only steps keep working
     public final Set<String> permissions = Collections.unmodifiableSet(
             Stream.of(
-                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(StepsRecord.class))/*,
-                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(ActiveCaloriesBurnedRecord.class)),
-                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(HeartRateRecord.class)),
-                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(DistanceRecord.class))*/
+                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(StepsRecord.class))
+            ).collect(Collectors.toSet())
+    );
+
+    // permission strings for the optional activity-ring metrics (distance + active calories)
+    public static final String PERM_DISTANCE =
+            HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(DistanceRecord.class));
+    public static final String PERM_CALORIES =
+            HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(ActiveCaloriesBurnedRecord.class));
+
+    // what we ASK for on setup: steps + the optional metrics. The gate above still only needs
+    // steps, so granting a subset never breaks Health Connect mode.
+    public final Set<String> requestPermissions = Collections.unmodifiableSet(
+            Stream.of(
+                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(StepsRecord.class)),
+                    PERM_DISTANCE,
+                    PERM_CALORIES
             ).collect(Collectors.toSet())
     );
 
@@ -129,7 +145,75 @@ public class HealthConnectManager {
         });
     }
 
+    private CompletableFuture<Set<String>> getGrantedPermissions() {
+        if (healthConnectClient == null) {
+            return CompletableFuture.completedFuture(Collections.emptySet());
+        }
+        return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                (scope, continuation) -> {
+                    try {
+                        return healthConnectClient.getPermissionController()
+                                .getGrantedPermissions((Continuation<? super Set<String>>) continuation);
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        ).thenApply(r -> (Set<String>) r);
+    }
 
+    /**
+     * Reads today's step / distance / active-calorie totals for the activity rings.
+     * Distance and calories are read only when their (optional) permissions are granted;
+     * otherwise they come back as -1 so callers can fall back to step-derived estimates.
+     * @return {steps, distanceMeters, kilocalories}
+     */
+    public CompletableFuture<double[]> readTodayMetrics(ZonedDateTime day) {
+        if (healthConnectClient == null) {
+            return CompletableFuture.completedFuture(new double[]{0, -1, -1});
+        }
+        Instant startOfDay = day.truncatedTo(ChronoUnit.DAYS).toInstant();
+        Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
+        TimeRangeFilter timeRangeFilter = TimeRangeFilter.between(startOfDay, endOfDay);
+
+        return getGrantedPermissions().thenCompose(granted -> {
+            boolean hasDistance = granted.contains(PERM_DISTANCE);
+            boolean hasCalories = granted.contains(PERM_CALORIES);
+
+            Set<AggregateMetric<?>> metrics = new HashSet<>();
+            metrics.add(StepsRecord.COUNT_TOTAL);
+            if (hasDistance) metrics.add(DistanceRecord.DISTANCE_TOTAL);
+            if (hasCalories) metrics.add(ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL);
+            AggregateRequest request = new AggregateRequest(metrics, timeRangeFilter, Collections.emptySet());
+
+            return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                    (scope, continuation) -> {
+                        try {
+                            return healthConnectClient.aggregate(request, continuation);
+                        } catch (Throwable e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            ).thenApply(response -> {
+                AggregationResult result = (AggregationResult) response;
+                Long total = result.get(StepsRecord.COUNT_TOTAL);
+                double steps = (total != null) ? total : 0;
+                double distanceMeters = -1;
+                double kcal = -1;
+                if (hasDistance) {
+                    Length len = result.get(DistanceRecord.DISTANCE_TOTAL);
+                    distanceMeters = (len != null) ? len.getMeters() : 0;
+                }
+                if (hasCalories) {
+                    Energy en = result.get(ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL);
+                    kcal = (en != null) ? en.getKilocalories() : 0;
+                }
+                return new double[]{steps, distanceMeters, kcal};
+            });
+        }).exceptionally(e -> {
+            Log.e(TAG, "readTodayMetrics failed", e);
+            return new double[]{0, -1, -1};
+        });
+    }
 
     public CompletableFuture<Long> readStepsData(ZonedDateTime day) {
         if (healthConnectClient == null) {

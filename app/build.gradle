@@ -100,6 +100,7 @@ dependencies {
 
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.android.volley:volley:1.2.1'
+    implementation 'com.airbnb.android:lottie:6.4.0'
     //implementation('com.amazonaws:aws-android-sdk-mobile-client:2.7.+@aar') { transitive = true }
     //implementation 'com.amazonaws:aws-android-sdk-s3:2.7.+'
     //implementation 'com.amazonaws:aws-android-sdk-cognito:2.7.+'

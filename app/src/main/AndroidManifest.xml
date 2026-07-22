@@ -5,9 +5,9 @@
 
     <!-- Permissions for Health Connect -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
-    <!--<uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
-    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />-->
+    <!--<uses-permission android:name="android.permission.health.READ_HEART_RATE" />-->
 
     <!--
      <uses-permission android:name="android.permission.health.WRITE_STEPS" />
