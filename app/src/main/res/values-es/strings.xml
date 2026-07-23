@@ -739,5 +739,8 @@
     <string name="profile_companion_picker_title">Elige tu animal espiritual</string>
     <string name="profile_streak_at_risk">⚠️ Te faltan %1$s pasos hoy para mantener tu racha de %2$d días</string>
     <string name="profile_metrics_legend">🚶 %1$s pasos · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="ai_popup_title">Asistente de IA</string>
+    <string name="ai_hint_input">¿En qué te gustaría que te ayudara?</string>
+    <string name="ai_accept_button">Aceptar</string>
 </resources>
 

@@ -736,5 +736,8 @@
     <string name="profile_companion_picker_title">수호 동물 선택</string>
     <string name="profile_streak_at_risk">⚠️ %2$d일 연속 기록을 유지하려면 오늘 %1$s걸음 남았습니다</string>
     <string name="profile_metrics_legend">🚶 %1$s걸음 · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="ai_popup_title">AI 어시스턴트</string>
+    <string name="ai_hint_input">무엇을 도와드릴까요?</string>
+    <string name="ai_accept_button">수락</string>
 </resources>
 

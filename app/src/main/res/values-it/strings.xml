@@ -736,5 +736,8 @@
     <string name="profile_companion_picker_title">Scegli il tuo animale guida</string>
     <string name="profile_streak_at_risk">⚠️ Ti mancano %1$s passi oggi per mantenere la tua serie di %2$d giorni</string>
     <string name="profile_metrics_legend">🚶 %1$s passi · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="ai_popup_title">Assistente IA</string>
+    <string name="ai_hint_input">Con cosa vorresti essere aiutato?</string>
+    <string name="ai_accept_button">Accetta</string>
 </resources>
 
