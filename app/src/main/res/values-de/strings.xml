@@ -757,6 +757,10 @@
     <string name="hive_transactions_error">Hive-Transaktionen konnten nicht geladen werden</string>
     <string name="hive_transactions_empty">Keine finanziellen Transaktionen gefunden</string>
     <string name="load_more_lbl">Mehr laden</string>
+    <string name="profile_metrics_legend">🚶 %1$s Schritte · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="ai_popup_title">KI-Assistent</string>
+    <string name="ai_hint_input">Wobei möchtest du Hilfe?</string>
+    <string name="ai_accept_button">Übernehmen</string>
 </resources>
 
 

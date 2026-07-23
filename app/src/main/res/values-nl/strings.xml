@@ -735,7 +735,7 @@
     <string name="profile_companion_hint">✎ Dier wijzigen</string>
     <string name="profile_companion_picker_title">Kies je totemdier</string>
     <string name="profile_streak_at_risk">⚠️ Nog %1$s stappen vandaag om je reeks van %2$d dagen te behouden</string>
-    <string name="profile_metrics_legend">🚶 %1$s stappen · 📏 %2$s · 🔥 %3$s kcal</string>
+    <string name="profile_metrics_legend">🚶 %1$s stappen · 📏 %2$s km · 🔥 %3$s kcal</string>
     <string name="more_menu_title">Meer</string>
     <string name="more_menu_activity_history">Activiteitengeschiedenis</string>
     <string name="more_menu_upload_video">Video uploaden</string>
@@ -753,6 +753,10 @@
     <string name="hive_transactions_error">Hive-transacties konden niet worden geladen</string>
     <string name="hive_transactions_empty">Geen financiële transacties gevonden</string>
     <string name="load_more_lbl">Meer laden</string>
+    <string name="ai_popup_title">AI-assistent</string>
+    <string name="ai_hint_input">Waarmee wil je hulp?</string>
+    <string name="ai_accept_button">Accepteren</string>
+
 </resources>
 
 

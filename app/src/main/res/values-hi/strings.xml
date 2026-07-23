@@ -735,7 +735,7 @@
     <string name="profile_companion_hint">✎ जानवर बदलें</string>
     <string name="profile_companion_picker_title">अपना आत्मिक पशु चुनें</string>
     <string name="profile_streak_at_risk">⚠️ अपनी %2$d-दिन की श्रृंखला बनाए रखने के लिए आज %1$s कदम बाकी हैं</string>
-    <string name="profile_metrics_legend">🚶 %1$s कदम · 📏 %2$s · 🔥 %3$s कैलोरी</string>
+    <string name="profile_metrics_legend">🚶 %1$s कदम · 📏 %2$s किमी · 🔥 %3$s कैलोरी</string>
     <string name="more_menu_title">और अधिक</string>
     <string name="more_menu_activity_history">गतिविधि इतिहास</string>
     <string name="more_menu_upload_video">वीडियो अपलोड करें</string>
@@ -753,6 +753,10 @@
     <string name="hive_transactions_error">Hive लेनदेन लोड नहीं हो सके</string>
     <string name="hive_transactions_empty">कोई वित्तीय लेनदेन नहीं मिला</string>
     <string name="load_more_lbl">और लोड करें</string>
+    <string name="ai_popup_title">एआई सहायक</string>
+    <string name="ai_hint_input">आपको किस चीज़ में मदद चाहिए?</string>
+    <string name="ai_accept_button">स्वीकार करें</string>
+
 </resources>
 
 
