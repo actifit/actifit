@@ -168,11 +168,8 @@ public class SignupActivity extends BaseActivity {
         } else if (currentStep == 3) {
             startPaymentPolling();
         } else if (currentStep == 4) {
-            // Secure keys step finished, go to login
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
+            // Secure keys step finished, show final success dialog
+            showSuccessDialog();
         }
     }
 
@@ -187,7 +184,7 @@ public class SignupActivity extends BaseActivity {
     }
 
     private void updateStepUI() {
-        // Smooth card transitions using AlphaAnimation
+        // Smooth transitions
         animateTransition(step1Container, currentStep == 1);
         animateTransition(step2Container, currentStep == 2);
         animateTransition(step3Container, currentStep == 3);
@@ -195,10 +192,10 @@ public class SignupActivity extends BaseActivity {
 
         progressBar.setProgress(currentStep * 25);
 
-        // Consistency: Always label button as "Back"
+        // Always show "Back" label
         btnPrev.setText("Back");
         
-        // Hide Back button on final step once account is confirmed to prevent navigation errors
+        // Hide Back button on final step once account is created to prevent confusion
         if (currentStep == 4) {
             btnPrev.setVisibility(View.GONE);
         } else {
@@ -207,7 +204,7 @@ public class SignupActivity extends BaseActivity {
 
         if (currentStep == 1) {
             btnNext.setText(R.string.proceed);
-            btnNext.setEnabled(true); // Proceed without mandatory availability check as requested
+            btnNext.setEnabled(true); 
         } else if (currentStep == 2) {
             btnNext.setText(R.string.proceed);
             validateStep2();
@@ -216,7 +213,7 @@ public class SignupActivity extends BaseActivity {
             btnNext.setEnabled(true);
         } else {
             btnNext.setText("Go to Login");
-            btnNext.setEnabled(cbBackedUp.isChecked()); // Force key security confirmation
+            btnNext.setEnabled(cbBackedUp.isChecked());
         }
     }
 
@@ -243,8 +240,8 @@ public class SignupActivity extends BaseActivity {
 
     private void validateStep2() {
         if (currentStep != 2) return;
-        // Proceed button enabled if ToS is checked. Email format error handled in handleNextStep for better UX.
-        btnNext.setEnabled(cbTos.isChecked());
+        boolean isValid = cbTos.isChecked();
+        btnNext.setEnabled(isValid);
     }
 
     private void checkUsernameAvailability() {
@@ -327,6 +324,8 @@ public class SignupActivity extends BaseActivity {
     private void pollPayment() {
         if (!isPolling) return;
 
+        String url = "https://actifit.io/api/signup_verify"; 
+
         JSONObject body = new JSONObject();
         try {
             body.put("new_account", usernameInput.getText().toString().trim().toLowerCase());
@@ -335,51 +334,36 @@ public class SignupActivity extends BaseActivity {
             body.put("usd_invest", signupCostUsd);
             body.put("memo", generatedMemo);
             body.put("email", emailInput.getText().toString().trim());
-            body.put("referrer", referralInput.getText().toString().trim());
-            body.put("promo_code", promoInput.getText().toString().trim());
-            body.put("cur_bchain", "HIVE|");
+            
+            String promo = promoInput.getText().toString().trim();
+            if (!promo.isEmpty()) {
+                body.put("promo_code", promo);
+            }
+            
             body.put(getString(R.string.sec_param), getString(R.string.sec_param_val));
+            body.put("cur_bchain", "HIVE|");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        String url = "https://actifit.io/api/proxy/confirmPayment";
-
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, url, body,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, body,
                 response -> {
                     try {
-                        boolean created = response.optBoolean("accountCreated", false);
-                        String tx = response.optString("paymentReceivedTx", "");
-                        String errorMsg = response.optString("error", "");
-
-                        if (created) {
+                        if (response.has("success") && response.getBoolean("success")) {
                             stopPaymentPolling();
                             currentStep = 4;
                             updateStepUI();
-                        } else if (!tx.isEmpty()) {
-                            // Payment detected but account not yet created
-                            progress.setMessage("Payment detected. Creating account...");
-                            pollHandler.postDelayed(this::pollPayment, 3000);
                         } else {
-                            // No payment yet
-                            hideProgress();
-                            if (!errorMsg.isEmpty()) {
-                                showError(errorMsg);
-                            } else if (promoInput.getText().toString().trim().length() > 0) {
-                                showError("Invalid or expired Promo Code.");
-                            } else {
-                                showError("Payment not detected yet. Please ensure you sent the correct amount and memo.");
-                            }
-                            isPolling = false;
+                            // If not successful yet, retry after 5 seconds
+                            pollHandler.postDelayed(this::pollPayment, 5000);
                         }
-                    } catch (Exception e) {
-                        handleNetworkError(new VolleyError("Parsing error"));
+                    } catch (JSONException e) {
+                        pollHandler.postDelayed(this::pollPayment, 5000);
                     }
                 },
                 error -> {
-                    hideProgress();
-                    handleNetworkError(error);
-                    isPolling = false;
+                    // On timeout or network error, don't give up, just wait and retry
+                    pollHandler.postDelayed(this::pollPayment, 5000);
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -390,8 +374,14 @@ public class SignupActivity extends BaseActivity {
             }
         };
 
-        req.setRetryPolicy(new DefaultRetryPolicy(15000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        queue.add(req);
+        // FIX: Set timeout to 30 seconds and disable Volley's internal retries 
+        // to prevent overlapping requests
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                30000, 
+                0, 
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        queue.add(request);
     }
 
     private void generateKeys() {
