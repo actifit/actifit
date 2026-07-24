@@ -6,21 +6,14 @@
     <!-- Permissions for Health Connect -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
-    <!--<uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
-    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />-->
-
-
-     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
-     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA" />
-     <uses-permission android:name="android.permission.health.WRITE_HEALTH_DATA" />
 
     <!-- If targeting API 34 and above -->
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
         <package android:name="com.google.android.apps.healthconnect" />
     </queries>
-
 
     <!-- required for QR code scanning -->
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -29,7 +22,6 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- required by android 13 /  for high sensor usage  -->
     <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS"/>
-
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -46,7 +38,6 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH"/>
-    <!--tools:node="remove"/>-->
 
     <!-- Route map tracking -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -58,19 +49,18 @@
         android:required="false" />
 
     <application
-    android:allowBackup="true"
-    android:extractNativeLibs="true"
+        android:name=".ActifitApplication"
+        android:allowBackup="true"
+        android:extractNativeLibs="true"
         android:icon="@mipmap/actifit_launcher"
-    android:label="@string/app_name"
-    android:logo="@mipmap/actifit_launcher"
-    android:roundIcon="@mipmap/actifit_launcher_round"
-    android:supportsRtl="true"
-    android:networkSecurityConfig="@xml/network_security_config"
-    android:theme="@style/AppTheme"
-    android:name=".ActifitApplication"
-    android:requestLegacyExternalStorage="true"
-    android:usesCleartextTraffic="true"
-    >
+        android:label="@string/app_name"
+        android:logo="@mipmap/actifit_launcher"
+        android:roundIcon="@mipmap/actifit_launcher_round"
+        android:supportsRtl="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:theme="@style/AppTheme"
+        android:requestLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true">
 
         <activity-alias
             android:name="ViewPermissionUsageActivity"
@@ -84,7 +74,6 @@
         </activity-alias>
 
         <!-- Health Connect Provider for Android 13 (API 33) and below -->
-        <!-- Required to launch Health Connect app when it's not pre-installed system app -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -95,84 +84,77 @@
                 android:value="androidx.startup" />
         </provider>
 
-    <!-- request legacy is temporary measure for supporting current image upload/save
-        till moving to new android 11 -->
-
-    <!-- [START fcm_default_icon] -->
-    <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
-     See README(https://goo.gl/l4GJaQ) for more. -->
-    <meta-data
-        android:name="com.google.firebase.messaging.default_notification_icon"
-        android:resource="@drawable/actifit_logo" />
-    <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more. -->
-    <meta-data
-        android:name="com.google.firebase.messaging.default_notification_color"
-        android:resource="@color/actifitRed" />
-
-    <!-- [END fcm_default_icon] -->
-    <!-- [START fcm_default_channel] -->
-    <meta-data
-        android:name="com.google.firebase.messaging.default_notification_channel_id"
-        android:value="@string/actifit_fcm_msg_channel_id" />
-    <!-- [END fcm_default_channel] -->
-
-    <activity android:name=".LoginActivity"
-        android:theme="@style/Theme.App.Starting"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
-
-    <activity android:name=".MainActivity"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-
-            <data
-                android:host="fitbitcallbackmain"
-                android:scheme="actifitcb" /> <!--ftbmaincb-->
-        </intent-filter>
-    </activity>
-
-    <activity
-        android:name=".ShareAchievementActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-
-    <activity
-        android:name=".WorkoutWizardActivity"
- android:exported="false"/>
-
-    <activity
-        android:name=".EditWorkoutActivity"
-        android:exported="false"
-        android:label="@string/edit_workout_title"
-        android:parentActivityName=".WorkoutWizardActivity">
+        <!-- Firebase FCM metadata -->
         <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="io.actifit.fitnesstracker.actifitfitnesstracker.WorkoutWizardActivity" />
-    </activity>
-
-    <activity
-        android:name=".ExerciseSearchActivity"
-        android:exported="false"
-        android:label="@string/exercise_search_title"
-        android:parentActivityName=".WorkoutWizardActivity"> <!-- Assuming WorkoutWizardActivity is its logical parent -->
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/actifit_logo" />
         <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="io.actifit.fitnesstracker.actifitfitnesstracker.WorkoutWizardActivity" />
-    </activity>
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/actifitRed" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/actifit_fcm_msg_channel_id" />
+
+        <activity android:name=".LoginActivity"
+            android:theme="@style/Theme.App.Starting"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".SignupActivity"
+            android:exported="false"
+            android:label="@string/signup_title" />
+
+        <activity android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="fitbitcallbackmain"
+                    android:scheme="actifitcb" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ShareAchievementActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
+            android:name=".WorkoutWizardActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".EditWorkoutActivity"
+            android:exported="false"
+            android:label="@string/edit_workout_title"
+            android:parentActivityName=".WorkoutWizardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.actifit.fitnesstracker.actifitfitnesstracker.WorkoutWizardActivity" />
+        </activity>
+
+        <activity
+            android:name=".ExerciseSearchActivity"
+            android:exported="false"
+            android:label="@string/exercise_search_title"
+            android:parentActivityName=".WorkoutWizardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.actifit.fitnesstracker.actifitfitnesstracker.WorkoutWizardActivity" />
+        </activity>
 
         <activity android:name=".StepHistoryActivity" android:exported="false"/>
+
         <activity
             android:name=".ExerciseDetailActivity"
             android:exported="false"/>
+
         <activity
             android:name=".PostSteemitActivity"
             android:theme="@style/NoToolbarTheme"
@@ -186,6 +168,7 @@
                     android:scheme="actifitcb" />
             </intent-filter>
         </activity>
+
         <activity android:name=".SettingsActivity" />
         <activity android:name=".LeaderboardActivity" />
         <activity android:name=".WalletActivity" />
@@ -194,46 +177,43 @@
         <activity android:name=".HistoryChartActivity" />
         <activity android:name=".MarketActivity" android:windowSoftInputMode="adjustPan" />
         <activity android:name=".SocialActivity" android:windowSoftInputMode="adjustPan" />
-    <activity android:name=".ProfileActivity" android:exported="false" android:label="@string/profile_title" />
+        <activity android:name=".ProfileActivity" android:exported="false" android:label="@string/profile_title" />
+        <activity android:name=".RouteMapActivity" android:exported="false" />
 
-    <activity android:name=".RouteMapActivity" android:exported="false" />
+        <service
+            android:name=".RouteRecordingService"
+            android:foregroundServiceType="location"
+            android:exported="false" />
 
-    <service
-        android:name=".RouteRecordingService"
-        android:foregroundServiceType="location"
-        android:exported="false" />
+        <receiver android:name=".ResetPieChart" />
 
-    <receiver android:name=".ResetPieChart" />
+        <service
+            android:name=".ActivityMonitorService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="health"
+            android:description="@string/actifit_service_desc" />
 
-    <service
-        android:name=".ActivityMonitorService"
-        android:enabled="true"
-        android:exported="false"
-        android:foregroundServiceType="health"
-        android:description="@string/actifit_service_desc">
+        <service
+            android:name=".ActifitFirebaseMessagingService"
+            android:exported="false"
+            android:directBootAware="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
-    </service>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="io.actifit.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
-    <service
-        android:name=".ActifitFirebaseMessagingService"
-        android:exported="false"
-
-        android:directBootAware="true">
-        <intent-filter>
-            <action android:name="com.google.firebase.MESSAGING_EVENT" />
-        </intent-filter>
-    </service>
-
-    <provider
-        android:name="androidx.core.content.FileProvider"
-        android:authorities="io.actifit.fileprovider"
-        android:exported="false"
-        android:grantUriPermissions="true">
-        <meta-data
-            android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/file_paths"></meta-data>
-    </provider>
-    <receiver
+        <receiver
             android:name=".MonitorRestartBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
@@ -245,22 +225,21 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <!---->
-    <receiver
-        android:name=".ReminderNotificationService"
-        android:enabled="true"
-        android:exported="false"
-        android:description="@string/actifit_reminder_service_desc">
-        <intent-filter>
-            <action android:name="android.intent.action.BOOT_COMPLETED" />
-        </intent-filter>
-    </receiver>
 
-    <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
-    <meta-data
-        android:name="com.google.android.gms.ads.APPLICATION_ID"
-        android:value="@string/admob_app_id"/>
+        <receiver
+            android:name=".ReminderNotificationService"
+            android:enabled="true"
+            android:exported="false"
+            android:description="@string/actifit_reminder_service_desc">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
-</application>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/admob_app_id"/>
+
+    </application>
 
 </manifest>

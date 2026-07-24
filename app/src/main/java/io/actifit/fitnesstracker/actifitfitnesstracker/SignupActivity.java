@@ -46,6 +46,7 @@ import java.util.Map;
 public class SignupActivity extends BaseActivity {
 
     private static final String TAG = "SignupActivity";
+    private static final int MAX_POLL_ATTEMPTS = 60; // 5 minutes with 5s delay
 
     private int currentStep = 1;
     private LinearProgressIndicator progressBar;
@@ -68,6 +69,7 @@ public class SignupActivity extends BaseActivity {
     
     private Handler pollHandler = new Handler(Looper.getMainLooper());
     private boolean isPolling = false;
+    private int pollAttempts = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -149,9 +151,9 @@ public class SignupActivity extends BaseActivity {
             String email = emailInput.getText().toString().trim();
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 if (emailInputLayout != null) {
-                    emailInputLayout.setError("Please enter a correct email address");
+                    emailInputLayout.setError(getString(R.string.error_email_invalid));
                 } else {
-                    emailInput.setError("Please enter a correct email address");
+                    emailInput.setError(getString(R.string.error_email_invalid));
                 }
                 return;
             }
@@ -193,7 +195,7 @@ public class SignupActivity extends BaseActivity {
         progressBar.setProgress(currentStep * 25);
 
         // Always show "Back" label
-        btnPrev.setText("Back");
+        btnPrev.setText(R.string.back_button);
         
         // Hide Back button on final step once account is created to prevent confusion
         if (currentStep == 4) {
@@ -212,7 +214,7 @@ public class SignupActivity extends BaseActivity {
             updateNextButtonStep3();
             btnNext.setEnabled(true);
         } else {
-            btnNext.setText("Go to Login");
+            btnNext.setText(R.string.btn_go_to_login);
             btnNext.setEnabled(cbBackedUp.isChecked());
         }
     }
@@ -232,9 +234,9 @@ public class SignupActivity extends BaseActivity {
 
     private void updateNextButtonStep3() {
         if (promoInput.getText().toString().trim().length() > 0) {
-            btnNext.setText("Claim Promo");
+            btnNext.setText(R.string.btn_claim_promo);
         } else {
-            btnNext.setText("Check Payment");
+            btnNext.setText(R.string.btn_check_payment);
         }
     }
 
@@ -280,7 +282,7 @@ public class SignupActivity extends BaseActivity {
                 .exceptionally(ex -> {
                     runOnUiThread(() -> {
                         btnCheckUsername.setEnabled(true);
-                        showUsernameStatus("Error checking availability", Color.RED);
+                        showUsernameStatus(getString(R.string.error_check_availability), Color.RED);
                     });
                     return null;
                 });
@@ -311,24 +313,36 @@ public class SignupActivity extends BaseActivity {
     private void startPaymentPolling() {
         if (isPolling) return;
         isPolling = true;
-        String msg = promoInput.getText().toString().trim().length() > 0 ? "Applying Promo Code..." : "Verifying payment...";
+        pollAttempts = 0;
+        String msg = promoInput.getText().toString().trim().length() > 0 ? 
+                getString(R.string.msg_applying_promo) : getString(R.string.msg_verifying_payment);
         showProgress(msg);
         pollPayment();
     }
 
     private void stopPaymentPolling() {
         isPolling = false;
+        pollHandler.removeCallbacksAndMessages(null);
         hideProgress();
     }
 
     private void pollPayment() {
         if (!isPolling) return;
 
+        if (pollAttempts >= MAX_POLL_ATTEMPTS) {
+            stopPaymentPolling();
+            showError(getString(R.string.payment_timeout));
+            return;
+        }
+
+        pollAttempts++;
         String url = "https://actifit.io/api/signup_verify"; 
 
         JSONObject body = new JSONObject();
         try {
             body.put("new_account", usernameInput.getText().toString().trim().toLowerCase());
+            // NOTE: The server currently expects generatedMasterPassword to facilitate account creation.
+            // This trust model implies that the backend manages the final account_create transaction.
             body.put("new_pass", generatedMasterPassword);
             body.put("sent_cur", "HIVE"); 
             body.put("usd_invest", signupCostUsd);
@@ -402,7 +416,7 @@ public class SignupActivity extends BaseActivity {
     }
 
     private void handleNetworkError(com.android.volley.VolleyError error) {
-        String errorMsg = "Connection failed";
+        String errorMsg = getString(R.string.error_connection_failed);
         if (error.networkResponse != null) {
             errorMsg += " (Status: " + error.networkResponse.statusCode + ")";
             try {
@@ -440,7 +454,9 @@ public class SignupActivity extends BaseActivity {
     private void showProgress(String message) {
         if (progress == null) {
             progress = new ProgressDialog(this);
-            progress.setCancelable(false);
+            // Allow canceling to give user a way out as requested
+            progress.setCancelable(true);
+            progress.setOnCancelListener(dialog -> stopPaymentPolling());
         }
         progress.setMessage(message);
         progress.show();
@@ -450,6 +466,12 @@ public class SignupActivity extends BaseActivity {
         if (progress != null && progress.isShowing()) {
             progress.dismiss();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopPaymentPolling();
+        super.onDestroy();
     }
 
     private abstract static class SimpleTextWatcher implements TextWatcher {
