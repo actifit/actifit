@@ -2197,6 +2197,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 @Override
                 public void onSuccess(String result) {
                     runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
                         chatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, result));
@@ -2212,6 +2213,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 @Override
                 public void onFailure(String errorMessage) {
                     runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
                         chatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, errorMessage));
