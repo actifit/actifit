@@ -750,5 +750,16 @@
     <string name="ai_popup_title">مساعد الذكاء الاصطناعي</string>
     <string name="ai_hint_input">بماذا تريد المساعدة؟</string>
     <string name="ai_accept_button">قبول</string>
+    <string name="dhf_vote_title">ادعم عملنا 💪</string>
+    <string name="dhf_vote_message">تصويت واحد بضغطة واحدة على اقتراحنا يساعد في دعم عملنا المستمر على هايف — ولا يكلفك شيئًا.</string>
+    <string name="dhf_vote_btn_hivesigner">صوّت بضغطة واحدة (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">اقرأ وصوّت (PeakD)</string>
+    <string name="dhf_vote_btn_later">ربما لاحقًا</string>
+    <string name="dhf_vote_btn_vote_now">صوّت الآن</string>
+    <string name="dhf_vote_thanks">شكرًا لدعمك أكتيفت! 🙏</string>
+    <string name="hive_transactions_lbl">معاملات هايف</string>
+    <string name="hive_transactions_error">تعذر تحميل معاملات هايف</string>
+    <string name="hive_transactions_empty">لم يتم العثور على معاملات مالية</string>
+    <string name="load_more_lbl">تحميل المزيد</string>
 </resources>
 

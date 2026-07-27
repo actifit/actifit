@@ -742,5 +742,16 @@
     <string name="ai_popup_title">Asistente de IA</string>
     <string name="ai_hint_input">¿En qué te gustaría que te ayudara?</string>
     <string name="ai_accept_button">Aceptar</string>
+    <string name="dhf_vote_title">Apoya nuestro trabajo 💪</string>
+    <string name="dhf_vote_message">Un voto con un solo toque en nuestra propuesta ayuda a apoyar nuestro trabajo continuo en Hive — y no te cuesta nada.</string>
+    <string name="dhf_vote_btn_hivesigner">Vota en 1 toque (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Lee y vota (PeakD)</string>
+    <string name="dhf_vote_btn_later">Quizás más tarde</string>
+    <string name="dhf_vote_btn_vote_now">Votar ahora</string>
+    <string name="dhf_vote_thanks">¡Gracias por apoyar a Actifit! 🙏</string>
+    <string name="hive_transactions_lbl">Transacciones de Hive</string>
+    <string name="hive_transactions_error">No se pudieron cargar las transacciones de Hive</string>
+    <string name="hive_transactions_empty">No se encontraron transacciones financieras</string>
+    <string name="load_more_lbl">Cargar más</string>
 </resources>
 

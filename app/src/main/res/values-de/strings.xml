@@ -743,6 +743,17 @@
     <string name="ai_popup_title">KI-Assistent</string>
     <string name="ai_hint_input">Wobei möchtest du Hilfe?</string>
     <string name="ai_accept_button">Übernehmen</string>
+    <string name="dhf_vote_title">Unterstütze unsere Arbeit 💪</string>
+    <string name="dhf_vote_message">Eine 1-Tap-Abstimmung für unseren Vorschlag hilft, unsere laufende Arbeit auf Hive zu unterstützen — und kostet dich nichts.</string>
+    <string name="dhf_vote_btn_hivesigner">In 1 Tap abstimmen (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Lesen &amp; abstimmen (PeakD)</string>
+    <string name="dhf_vote_btn_later">Vielleicht später</string>
+    <string name="dhf_vote_btn_vote_now">Jetzt abstimmen</string>
+    <string name="dhf_vote_thanks">Danke, dass du Actifit unterstützt! 🙏</string>
+    <string name="hive_transactions_lbl">Hive-Transaktionen</string>
+    <string name="hive_transactions_error">Hive-Transaktionen konnten nicht geladen werden</string>
+    <string name="hive_transactions_empty">Keine finanziellen Transaktionen gefunden</string>
+    <string name="load_more_lbl">Mehr laden</string>
 </resources>
 
 
