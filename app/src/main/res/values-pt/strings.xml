@@ -736,5 +736,17 @@
     <string name="profile_companion_picker_title">Escolhe o teu animal espiritual</string>
     <string name="profile_streak_at_risk">⚠️ Faltam %1$s passos hoje para manteres a tua sequência de %2$d dias</string>
     <string name="profile_metrics_legend">🚶 %1$s passos · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="dhf_vote_title">Apoie o nosso trabalho 💪</string>
+    <string name="dhf_vote_message">Um voto com um toque na nossa proposta ajuda a apoiar o nosso trabalho contínuo na Hive — e não lhe custa nada.</string>
+    <string name="dhf_vote_btn_hivesigner">Vote em 1 toque (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Leia e vote (PeakD)</string>
+    <string name="dhf_vote_btn_later">Talvez mais tarde</string>
+    <string name="dhf_vote_btn_vote_now">Votar agora</string>
+    <string name="dhf_vote_thanks">Obrigado por apoiar a Actifit! 🙏</string>
+    <string name="hive_transactions_lbl">Transações Hive</string>
+    <string name="hive_transactions_error">Não foi possível carregar as transações Hive</string>
+    <string name="hive_transactions_empty">Nenhuma transação financeira encontrada</string>
+    <string name="load_more_lbl">Carregar mais</string>
 </resources>
+
 
