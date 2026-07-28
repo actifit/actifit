@@ -735,4 +735,22 @@
     <string name="profile_companion_picker_title">Ruh hayvanını seç</string>
     <string name="profile_streak_at_risk">⚠️ %2$d günlük serini korumak için bugün %1$s adım kaldı</string>
     <string name="profile_metrics_legend">🚶 %1$s adım · 📏 %2$s · 🔥 %3$s kcal</string>
+    <string name="more_menu_title">Daha Fazla</string>
+    <string name="more_menu_activity_history">Etkinlik Geçmişi</string>
+    <string name="more_menu_upload_video">Video Yükle</string>
+    <string name="more_menu_follow_us">Bizi Takip Edin</string>
+    <string name="more_menu_help_faq">Yardım ve SSS</string>
+    <string name="more_menu_community_chat">Topluluk Sohbeti</string>
+    <string name="dhf_vote_title">Çalışmamızı destekleyin 💪</string>
+    <string name="dhf_vote_message">Teklifimize tek dokunuşla oy vermek, Hive üzerindeki sürekli çalışmamızı desteklemenize yardımcı olur — ve size hiçbir maliyeti yoktur.</string>
+    <string name="dhf_vote_btn_hivesigner">1 dokunuşla oy verin (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Okuyun ve oy verin (PeakD)</string>
+    <string name="dhf_vote_btn_later">Belki sonra</string>
+    <string name="dhf_vote_btn_vote_now">Şimdi oy ver</string>
+    <string name="dhf_vote_thanks">Actifit\'i desteklediğiniz için teşekkürler! 🙏</string>
+    <string name="hive_transactions_lbl">Hive İşlemleri</string>
+    <string name="hive_transactions_error">Hive işlemleri yüklenemedi</string>
+    <string name="hive_transactions_empty">Hiçbir finansal işlem bulunamadı</string>
+    <string name="load_more_lbl">Daha Fazla Yükle</string>
 </resources>
+

@@ -740,5 +740,23 @@
     <string name="profile_companion_picker_title">Wähle dein Krafttier</string>
     <string name="profile_streak_at_risk">⚠️ Noch %1$s Schritte heute, um deine %2$d-Tage-Serie zu erhalten</string>
     <string name="profile_metrics_legend">🚶 %1$s Schritte · 📏 %2$s · 🔥 %3$s kcal</string>
+    <string name="more_menu_title">Mehr</string>
+    <string name="more_menu_activity_history">Aktivitätsverlauf</string>
+    <string name="more_menu_upload_video">Video hochladen</string>
+    <string name="more_menu_follow_us">Folge uns</string>
+    <string name="more_menu_help_faq">Hilfe &amp; FAQ</string>
+    <string name="more_menu_community_chat">Community-Chat</string>
+    <string name="dhf_vote_title">Unterstütze unsere Arbeit 💪</string>
+    <string name="dhf_vote_message">Eine 1-Tap-Abstimmung für unseren Vorschlag hilft, unsere laufende Arbeit auf Hive zu unterstützen — und kostet dich nichts.</string>
+    <string name="dhf_vote_btn_hivesigner">In 1 Tap abstimmen (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Lesen &amp; abstimmen (PeakD)</string>
+    <string name="dhf_vote_btn_later">Vielleicht später</string>
+    <string name="dhf_vote_btn_vote_now">Jetzt abstimmen</string>
+    <string name="dhf_vote_thanks">Danke, dass du Actifit unterstützt! 🙏</string>
+    <string name="hive_transactions_lbl">Hive-Transaktionen</string>
+    <string name="hive_transactions_error">Hive-Transaktionen konnten nicht geladen werden</string>
+    <string name="hive_transactions_empty">Keine finanziellen Transaktionen gefunden</string>
+    <string name="load_more_lbl">Mehr laden</string>
 </resources>
+
 

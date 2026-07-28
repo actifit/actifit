@@ -747,5 +747,23 @@
     <string name="profile_companion_picker_title">اختر حيوانك الروحي</string>
     <string name="profile_streak_at_risk">⚠️ بقيت %1$s خطوة اليوم للحفاظ على سلسلتك المكوّنة من %2$d يوم</string>
     <string name="profile_metrics_legend">🚶 %1$s خطوة · 📏 %2$s · 🔥 %3$s سعرة</string>
+    <string name="more_menu_title">المزيد</string>
+    <string name="more_menu_activity_history">سجل النشاط</string>
+    <string name="more_menu_upload_video">رفع فيديو</string>
+    <string name="more_menu_follow_us">تابعنا</string>
+    <string name="more_menu_help_faq">المساعدة والأسئلة الشائعة</string>
+    <string name="more_menu_community_chat">دردشة المجتمع</string>
+    <string name="dhf_vote_title">ادعم عملنا 💪</string>
+    <string name="dhf_vote_message">تصويت واحد بضغطة واحدة على اقتراحنا يساعد في دعم عملنا المستمر على هايف — ولا يكلفك شيئًا.</string>
+    <string name="dhf_vote_btn_hivesigner">صوّت بضغطة واحدة (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">اقرأ وصوّت (PeakD)</string>
+    <string name="dhf_vote_btn_later">ربما لاحقًا</string>
+    <string name="dhf_vote_btn_vote_now">صوّت الآن</string>
+    <string name="dhf_vote_thanks">شكرًا لدعمك أكتيفت! 🙏</string>
+    <string name="hive_transactions_lbl">معاملات هايف</string>
+    <string name="hive_transactions_error">تعذر تحميل معاملات هايف</string>
+    <string name="hive_transactions_empty">لم يتم العثور على معاملات مالية</string>
+    <string name="load_more_lbl">تحميل المزيد</string>
 </resources>
+
 

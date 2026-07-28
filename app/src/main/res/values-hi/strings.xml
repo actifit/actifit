@@ -736,5 +736,23 @@
     <string name="profile_companion_picker_title">अपना आत्मिक पशु चुनें</string>
     <string name="profile_streak_at_risk">⚠️ अपनी %2$d-दिन की श्रृंखला बनाए रखने के लिए आज %1$s कदम बाकी हैं</string>
     <string name="profile_metrics_legend">🚶 %1$s कदम · 📏 %2$s · 🔥 %3$s कैलोरी</string>
+    <string name="more_menu_title">और अधिक</string>
+    <string name="more_menu_activity_history">गतिविधि इतिहास</string>
+    <string name="more_menu_upload_video">वीडियो अपलोड करें</string>
+    <string name="more_menu_follow_us">हमें फ़ॉलो करें</string>
+    <string name="more_menu_help_faq">सहायता और सामान्य प्रश्न</string>
+    <string name="more_menu_community_chat">समुदाय चैट</string>
+    <string name="dhf_vote_title">हमारे काम का समर्थन करें 💪</string>
+    <string name="dhf_vote_message">हमारे प्रस्ताव पर एक टैप में वोट देने से Hive पर हमारे चल रहे काम को समर्थन मिलता है — और इसका आपको कोई खर्च नहीं आता।</string>
+    <string name="dhf_vote_btn_hivesigner">1 टैप में वोट करें (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">पढ़ें और वोट करें (PeakD)</string>
+    <string name="dhf_vote_btn_later">शायद बाद में</string>
+    <string name="dhf_vote_btn_vote_now">अभी वोट करें</string>
+    <string name="dhf_vote_thanks">Actifit का समर्थन करने के लिए धन्यवाद! 🙏</string>
+    <string name="hive_transactions_lbl">Hive लेनदेन</string>
+    <string name="hive_transactions_error">Hive लेनदेन लोड नहीं हो सके</string>
+    <string name="hive_transactions_empty">कोई वित्तीय लेनदेन नहीं मिला</string>
+    <string name="load_more_lbl">और लोड करें</string>
 </resources>
+
 
