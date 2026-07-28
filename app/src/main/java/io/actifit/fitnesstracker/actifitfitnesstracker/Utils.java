@@ -64,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -85,6 +86,55 @@ import androidx.exifinterface.media.ExifInterface;
     public class Utils {
 
         private static final String TAG = "Utils";
+
+        // --- Measurement-system helpers (distance / pace) ---
+
+        private static final double METERS_PER_MILE = 1609.344;
+
+        /**
+         * Reads the user's active measurement system from settings.
+         * Defaults to metric when unset.
+         *
+         * @return true if the user is on the metric (km) system, false for US/imperial (miles).
+         */
+        public static boolean isMetricSystem(Context context) {
+            SharedPreferences sharedPreferences = context.getSharedPreferences("actifitSets", MODE_PRIVATE);
+            String activeSystem = sharedPreferences.getString("activeSystem",
+                    context.getString(R.string.metric_system_ntt));
+            // anything other than an explicit US selection is treated as metric (matches SettingsActivity default)
+            return !activeSystem.equals(context.getString(R.string.us_system_ntt));
+        }
+
+        /**
+         * Formats a distance (given in meters) using the user's active measurement system.
+         * Metric: "850 m" / "3.24 km". US: "0.53 mi" (short distances also expressed in miles).
+         */
+        public static String formatDistance(Context context, double distanceMeters) {
+            if (isMetricSystem(context)) {
+                if (distanceMeters < 1000) {
+                    return String.format(Locale.getDefault(), "%.0f m", distanceMeters);
+                }
+                return String.format(Locale.getDefault(), "%.2f km", distanceMeters / 1000.0);
+            }
+            double miles = distanceMeters / METERS_PER_MILE;
+            return String.format(Locale.getDefault(), "%.2f mi", miles);
+        }
+
+        /**
+         * Formats average pace using the user's active measurement system.
+         * Metric: "7:07/km". US: "11:27/mi". Returns "--" when there is no meaningful movement.
+         */
+        public static String formatPace(Context context, double distanceMeters, long durationMs) {
+            long durationSec = durationMs / 1000;
+            if (distanceMeters < 10 || durationSec == 0) return "--";
+            boolean metric = isMetricSystem(context);
+            double unitDistance = metric ? distanceMeters / 1000.0 : distanceMeters / METERS_PER_MILE;
+            if (unitDistance <= 0) return "--";
+            double secPerUnit = durationSec / unitDistance;
+            long paceMin = (long) secPerUnit / 60;
+            long paceSec = (long) secPerUnit % 60;
+            return String.format(Locale.getDefault(), "%d:%02d/%s", paceMin, paceSec, metric ? "km" : "mi");
+        }
 
         // --- Your other Utils methods (uploadFile, etc.) ---
 

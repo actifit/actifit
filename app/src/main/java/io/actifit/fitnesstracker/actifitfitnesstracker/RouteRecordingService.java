@@ -110,7 +110,7 @@ public class RouteRecordingService extends Service {
         totalDistanceMeters = 0;
         lastLocation = null;
 
-        startForeground(NOTIFICATION_ID, buildNotification("0.00 km", "00:00"));
+        startForeground(NOTIFICATION_ID, buildNotification(Utils.formatDistance(this, 0), "00:00"));
 
         LocationRequest locationRequest = new LocationRequest.Builder(
                 Priority.PRIORITY_HIGH_ACCURACY, 3000)
@@ -189,7 +189,7 @@ public class RouteRecordingService extends Service {
     }
 
     private void updateNotification(double distanceMeters, long durationMs) {
-        String distStr = String.format(Locale.getDefault(), "%.2f km", distanceMeters / 1000.0);
+        String distStr = Utils.formatDistance(this, distanceMeters);
         long min = TimeUnit.MILLISECONDS.toMinutes(durationMs);
         long sec = TimeUnit.MILLISECONDS.toSeconds(durationMs) % 60;
         String timeStr = String.format(Locale.getDefault(), "%02d:%02d", min, sec);

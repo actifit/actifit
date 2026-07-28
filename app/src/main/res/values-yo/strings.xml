@@ -735,6 +735,6 @@
     <string name="profile_companion_hint">✎ Yí ẹranko padà</string>
     <string name="profile_companion_picker_title">Yan ẹranko ẹ̀mí rẹ</string>
     <string name="profile_streak_at_risk">⚠️ %1$s ìṣísẹ̀ ló kù lónìí láti pa ọ̀wọ́ ọjọ́ %2$d rẹ mọ́</string>
-    <string name="profile_metrics_legend">🚶 %1$s ìṣísẹ̀ · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="profile_metrics_legend">🚶 %1$s ìṣísẹ̀ · 📏 %2$s · 🔥 %3$s kcal</string>
 </resources>
 

@@ -3052,7 +3052,7 @@ public class MainActivity extends BaseActivity {
         View fullContent = findViewById(R.id.route_full_content);
         if (summary == null || tvInfo == null) return;
         if (route != null) {
-            tvInfo.setText(route.getFormattedDistance() + "  •  " + route.getFormattedDuration()
+            tvInfo.setText(route.getFormattedDistance(this) + "  •  " + route.getFormattedDuration()
                     + "  •  " + (route.activityType != null ? route.activityType : ""));
             summary.setVisibility(View.VISIBLE);
             if (fullContent != null) fullContent.setVisibility(View.VISIBLE);

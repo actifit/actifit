@@ -220,9 +220,13 @@ public class ProfileActivity extends BaseActivity {
         auraStepsFrac = steps / (float) DAILY_GOAL;
         auraDistFrac = distKm / DIST_GOAL_KM;
         auraCalFrac = cal / CAL_GOAL;
+        // honor the user's measurement system (metric km / US miles) for the legend distance
+        boolean metric = Utils.isMetricSystem(this);
+        float distDisplay = metric ? distKm : distKm / 1.609344f;
+        String distToken = String.format(Locale.getDefault(), "%.1f %s", distDisplay, metric ? "km" : "mi");
         metricsLegend.setText(getString(R.string.profile_metrics_legend,
                 compact(steps),
-                String.format(Locale.getDefault(), "%.1f", distKm),
+                distToken,
                 String.valueOf(Math.round(cal))));
     }
 

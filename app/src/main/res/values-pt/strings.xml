@@ -735,6 +735,6 @@
     <string name="profile_companion_hint">✎ Mudar animal</string>
     <string name="profile_companion_picker_title">Escolhe o teu animal espiritual</string>
     <string name="profile_streak_at_risk">⚠️ Faltam %1$s passos hoje para manteres a tua sequência de %2$d dias</string>
-    <string name="profile_metrics_legend">🚶 %1$s passos · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="profile_metrics_legend">🚶 %1$s passos · 📏 %2$s · 🔥 %3$s kcal</string>
 </resources>
 

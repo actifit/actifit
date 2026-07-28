@@ -734,6 +734,6 @@
     <string name="profile_companion_hint">✎ Змінити тварину</string>
     <string name="profile_companion_picker_title">Обери свою тварину-духа</string>
     <string name="profile_streak_at_risk">⚠️ Ще %1$s кроків сьогодні, щоб зберегти серію з %2$d днів</string>
-    <string name="profile_metrics_legend">🚶 %1$s кроків · 📏 %2$s км · 🔥 %3$s ккал</string>
+    <string name="profile_metrics_legend">🚶 %1$s кроків · 📏 %2$s · 🔥 %3$s ккал</string>
 </resources>
 

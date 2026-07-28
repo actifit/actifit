@@ -186,9 +186,9 @@ public class RouteMapActivity extends BaseActivity {
         }
 
         tvActivityLabel.setText(route.activityType != null ? route.activityType : "Activity");
-        tvDistance.setText(route.getFormattedDistance());
+        tvDistance.setText(route.getFormattedDistance(this));
         tvDuration.setText(route.getFormattedDuration());
-        tvPace.setText(route.getFormattedPace());
+        tvPace.setText(route.getFormattedPace(this));
 
         tvSteps.setText("--"); // day total ≠ route steps; no per-route step data available
 
@@ -224,15 +224,12 @@ public class RouteMapActivity extends BaseActivity {
     }
 
     private void updateLiveStats(double distanceMeters, long durationMs) {
-        tvDistance.setText(String.format(Locale.getDefault(), "%.2f km", distanceMeters / 1000.0));
+        tvDistance.setText(Utils.formatDistance(this, distanceMeters));
         long min = TimeUnit.MILLISECONDS.toMinutes(durationMs);
         long sec = TimeUnit.MILLISECONDS.toSeconds(durationMs) % 60;
         tvDuration.setText(String.format(Locale.getDefault(), "%d:%02d", min, sec));
         if (distanceMeters > 50) {
-            double secPerKm = (durationMs / 1000.0) / (distanceMeters / 1000.0);
-            long paceMin = (long) secPerKm / 60;
-            long paceSec = (long) secPerKm % 60;
-            tvPace.setText(String.format(Locale.getDefault(), "%d:%02d/km", paceMin, paceSec));
+            tvPace.setText(Utils.formatPace(this, distanceMeters, durationMs));
         }
     }
 
