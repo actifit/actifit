@@ -741,5 +741,17 @@
     <string name="more_menu_follow_us">Слідкуйте за нами</string>
     <string name="more_menu_help_faq">Допомога та поширені запитання</string>
     <string name="more_menu_community_chat">Чат спільноти</string>
+    <string name="dhf_vote_title">Підтримайте нашу роботу 💪</string>
+    <string name="dhf_vote_message">Голосування в один дотик за нашу пропозицію допомагає підтримувати нашу постійну роботу на Hive — і це не коштує вам нічого.</string>
+    <string name="dhf_vote_btn_hivesigner">Проголосувати в 1 дотик (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Прочитати та проголосувати (PeakD)</string>
+    <string name="dhf_vote_btn_later">Можливо пізніше</string>
+    <string name="dhf_vote_btn_vote_now">Голосувати зараз</string>
+    <string name="dhf_vote_thanks">Дякуємо за підтримку Actifit! 🙏</string>
+    <string name="hive_transactions_lbl">Транзакції Hive</string>
+    <string name="hive_transactions_error">Не вдалося завантажити транзакції Hive</string>
+    <string name="hive_transactions_empty">Фінансових транзакцій не знайдено</string>
+    <string name="load_more_lbl">Завантажити більше</string>
 </resources>
+
 

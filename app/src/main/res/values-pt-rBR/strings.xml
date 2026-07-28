@@ -742,6 +742,18 @@
     <string name="more_menu_follow_us">Siga-nos</string>
     <string name="more_menu_help_faq">Ajuda e Perguntas Frequentes</string>
     <string name="more_menu_community_chat">Chat da comunidade</string>
+    <string name="dhf_vote_title">Apoie nosso trabalho 💪</string>
+    <string name="dhf_vote_message">Um voto com um toque na nossa proposta ajuda a apoiar nosso trabalho contínuo na Hive — e não custa nada para você.</string>
+    <string name="dhf_vote_btn_hivesigner">Vote em 1 toque (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Leia e vote (PeakD)</string>
+    <string name="dhf_vote_btn_later">Talvez mais tarde</string>
+    <string name="dhf_vote_btn_vote_now">Votar agora</string>
+    <string name="dhf_vote_thanks">Obrigado por apoiar o Actifit! 🙏</string>
+    <string name="hive_transactions_lbl">Transações Hive</string>
+    <string name="hive_transactions_error">Não foi possível carregar as transações Hive</string>
+    <string name="hive_transactions_empty">Nenhuma transação financeira encontrada</string>
+    <string name="load_more_lbl">Carregar mais</string>
 </resources>
+
 
 

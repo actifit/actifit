@@ -742,5 +742,17 @@
     <string name="more_menu_follow_us">Tẹ̀ lé wa</string>
     <string name="more_menu_help_faq">Ìrànlọ́wọ́ àti Àwọn Ìbéèrè Tí A Sábà Ń Béèrè</string>
     <string name="more_menu_community_chat">Ìjíròrò Àwùjọ</string>
+    <string name="dhf_vote_title">Ṣe àtìlẹyìn iṣẹ́ wa 💪</string>
+    <string name="dhf_vote_message">Ìdìbò kan pẹ̀lú ìfọwọ́kàn kan lórí ìdábàá wa ń ràn wá lọ́wọ́ láti ṣe àtìlẹyìn iṣẹ́ wa tí ń lọ lórí Hive — kò sì ná ọ ohunkóhun.</string>
+    <string name="dhf_vote_btn_hivesigner">Dìbò ní ìfọwọ́kàn 1 (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Ka àti dìbò (PeakD)</string>
+    <string name="dhf_vote_btn_later">Bóyá nígbà mìíràn</string>
+    <string name="dhf_vote_btn_vote_now">Dìbò nísinsìnyí</string>
+    <string name="dhf_vote_thanks">A dúpẹ́ fún àtìlẹyìn Actifit! 🙏</string>
+    <string name="hive_transactions_lbl">Ìṣòwò Hive</string>
+    <string name="hive_transactions_error">A kò lè gbé ìṣòwò Hive wọlé</string>
+    <string name="hive_transactions_empty">A kò rí ìṣòwò owó kankan</string>
+    <string name="load_more_lbl">Gbé sí i wọlé</string>
 </resources>
+
 
