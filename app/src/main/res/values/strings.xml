@@ -731,4 +731,10 @@
     <string name="dhf_vote_btn_later">Maybe later</string>
     <string name="dhf_vote_btn_vote_now">Vote now</string>
     <string name="dhf_vote_thanks">Thanks for supporting Actifit! 🙏</string>
+    <string name="more_menu_title">More</string>
+    <string name="more_menu_activity_history">Activity History</string>
+    <string name="more_menu_upload_video">Upload Video</string>
+    <string name="more_menu_follow_us">Follow Us</string>
+    <string name="more_menu_help_faq">Help &amp; FAQ</string>
+    <string name="more_menu_community_chat">Community Chat</string>
 </resources>

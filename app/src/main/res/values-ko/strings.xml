@@ -736,5 +736,11 @@
     <string name="profile_companion_picker_title">수호 동물 선택</string>
     <string name="profile_streak_at_risk">⚠️ %2$d일 연속 기록을 유지하려면 오늘 %1$s걸음 남았습니다</string>
     <string name="profile_metrics_legend">🚶 %1$s걸음 · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="more_menu_title">더보기</string>
+    <string name="more_menu_activity_history">활동 기록</string>
+    <string name="more_menu_upload_video">동영상 업로드</string>
+    <string name="more_menu_follow_us">팔로우하기</string>
+    <string name="more_menu_help_faq">도움말 및 FAQ</string>
+    <string name="more_menu_community_chat">커뮤니티 채팅</string>
 </resources>
 

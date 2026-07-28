@@ -735,4 +735,10 @@
     <string name="profile_companion_picker_title">选择你的灵兽</string>
     <string name="profile_streak_at_risk">⚠️ 今天还差 %1$s 步即可保持你的 %2$d 天连续记录</string>
     <string name="profile_metrics_legend">🚶 %1$s 步 · 📏 %2$s 公里 · 🔥 %3$s 千卡</string>
+    <string name="more_menu_title">更多</string>
+    <string name="more_menu_activity_history">活动历史</string>
+    <string name="more_menu_upload_video">上传视频</string>
+    <string name="more_menu_follow_us">关注我们</string>
+    <string name="more_menu_help_faq">帮助与常见问题</string>
+    <string name="more_menu_community_chat">社区聊天</string>
 </resources>
