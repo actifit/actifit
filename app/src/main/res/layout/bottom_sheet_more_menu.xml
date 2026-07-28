@@ -25,11 +25,10 @@
         android:paddingEnd="20dp"
         android:paddingTop="4dp"
         android:paddingBottom="12dp"
-        android:text="More"
+        android:text="@string/more_menu_title"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="@color/md_theme_primary"
-        tools:ignore="HardcodedText" />
+        android:textColor="@color/md_theme_primary" />
 
     <!-- Divider -->
     <View
@@ -65,8 +64,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:textSize="15sp"
-            android:text="Activity History"
-            tools:ignore="HardcodedText" />
+            android:text="@string/more_menu_activity_history" />
     </LinearLayout>
 
     <!-- Videos -->
@@ -96,8 +94,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:textSize="15sp"
-            android:text="Upload Video"
-            tools:ignore="HardcodedText" />
+            android:text="@string/more_menu_upload_video" />
     </LinearLayout>
 
     <!-- Socials -->
@@ -127,8 +124,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:textSize="15sp"
-            android:text="Follow Us"
-            tools:ignore="HardcodedText" />
+            android:text="@string/more_menu_follow_us" />
     </LinearLayout>
 
     <!-- Help -->
@@ -158,8 +154,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:textSize="15sp"
-            android:text="Help &amp; FAQ"
-            tools:ignore="HardcodedText" />
+            android:text="@string/more_menu_help_faq" />
     </LinearLayout>
 
     <!-- Chat -->
@@ -189,8 +184,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:textSize="15sp"
-            android:text="Community Chat"
-            tools:ignore="HardcodedText" />
+            android:text="@string/more_menu_community_chat" />
     </LinearLayout>
 
 </LinearLayout>

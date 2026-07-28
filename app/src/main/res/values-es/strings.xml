@@ -739,6 +739,12 @@
     <string name="profile_companion_picker_title">Elige tu animal espiritual</string>
     <string name="profile_streak_at_risk">⚠️ Te faltan %1$s pasos hoy para mantener tu racha de %2$d días</string>
     <string name="profile_metrics_legend">🚶 %1$s pasos · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="more_menu_title">Más</string>
+    <string name="more_menu_activity_history">Historial de actividad</string>
+    <string name="more_menu_upload_video">Subir video</string>
+    <string name="more_menu_follow_us">Síguenos</string>
+    <string name="more_menu_help_faq">Ayuda y preguntas frecuentes</string>
+    <string name="more_menu_community_chat">Chat de la comunidad</string>
     <string name="dhf_vote_title">Apoya nuestro trabajo 💪</string>
     <string name="dhf_vote_message">Un voto con un solo toque en nuestra propuesta ayuda a apoyar nuestro trabajo continuo en Hive — y no te cuesta nada.</string>
     <string name="dhf_vote_btn_hivesigner">Vota en 1 toque (Hivesigner)</string>
