@@ -735,5 +735,17 @@
     <string name="profile_companion_picker_title">Обери свою тварину-духа</string>
     <string name="profile_streak_at_risk">⚠️ Ще %1$s кроків сьогодні, щоб зберегти серію з %2$d днів</string>
     <string name="profile_metrics_legend">🚶 %1$s кроків · 📏 %2$s км · 🔥 %3$s ккал</string>
+    <string name="dhf_vote_title">Підтримайте нашу роботу 💪</string>
+    <string name="dhf_vote_message">Голосування в один дотик за нашу пропозицію допомагає підтримувати нашу постійну роботу на Hive — і це не коштує вам нічого.</string>
+    <string name="dhf_vote_btn_hivesigner">Проголосувати в 1 дотик (Hivesigner)</string>
+    <string name="dhf_vote_btn_peakd">Прочитати та проголосувати (PeakD)</string>
+    <string name="dhf_vote_btn_later">Можливо пізніше</string>
+    <string name="dhf_vote_btn_vote_now">Голосувати зараз</string>
+    <string name="dhf_vote_thanks">Дякуємо за підтримку Actifit! 🙏</string>
+    <string name="hive_transactions_lbl">Транзакції Hive</string>
+    <string name="hive_transactions_error">Не вдалося завантажити транзакції Hive</string>
+    <string name="hive_transactions_empty">Фінансових транзакцій не знайдено</string>
+    <string name="load_more_lbl">Завантажити більше</string>
 </resources>
+
 
