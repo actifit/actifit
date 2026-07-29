@@ -426,8 +426,9 @@ public class WalletActivity extends BaseActivity {
                                                 false);
                                     }
                                 } catch (JSONException e) {
-                                    e.printStackTrace();
-                                    displayNotification(error_notification, null, callerContext, callerActivity, false);
+                                    // server responded but not in the expected shape — log the raw body
+                                    Log.e(MainActivity.TAG, "error claiming rewards - unexpected response body: " + response, e);
+                                    displayNotification(error_notification + " (unexpected response)", null, callerContext, callerActivity, false);
                                 }
 
                                 if (progress != null && progress.isShowing()) {
@@ -439,10 +440,26 @@ public class WalletActivity extends BaseActivity {
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                // hide dialog
-                                // error.printStackTrace();
-                                Log.e(MainActivity.TAG, "error claiming rewards");
-                                displayNotification(error_notification, null, callerContext, callerActivity, false);
+                                // diagnostics: capture HTTP status + server body + auth-token presence so
+                                // field-reported failures are actionable (401 = auth, 5xx = server, etc.)
+                                int httpStatus = (error.networkResponse != null) ? error.networkResponse.statusCode : -1;
+                                String body = "";
+                                if (error.networkResponse != null && error.networkResponse.data != null) {
+                                    try {
+                                        body = new String(error.networkResponse.data, java.nio.charset.StandardCharsets.UTF_8);
+                                    } catch (Exception ignored) {
+                                    }
+                                }
+                                boolean tokenPresent = (accessToken != null && !accessToken.isEmpty());
+                                Log.e(MainActivity.TAG, "error claiming rewards - httpStatus=" + httpStatus
+                                        + " tokenPresent=" + tokenPresent + " body=" + body, error);
+                                // surface a concise, screenshot-able detail to the user for field reports
+                                String detail = (httpStatus != -1) ? " (code " + httpStatus + ")"
+                                        : (!tokenPresent ? " (not authenticated)" : " (no server response)");
+                                displayNotification(error_notification + detail, null, callerContext, callerActivity, false);
+                                if (progress != null && progress.isShowing()) {
+                                    progress.dismiss();
+                                }
                                 claimRewards.clearAnimation();
                             }
                         }) {

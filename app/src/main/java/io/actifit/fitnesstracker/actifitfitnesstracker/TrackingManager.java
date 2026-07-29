@@ -135,6 +135,26 @@ public class TrackingManager {
         }
     }
 
+    /**
+     * Formats a (possibly wrapped) throwable as "SimpleClassName: message" for both logcat and the
+     * user-visible toast, so a field report / screenshot carries the real cause. Unwraps the common
+     * coroutine/future RuntimeException / Completion / Execution wrappers to reach the root cause.
+     */
+    private static String hcErrorDetail(Throwable t) {
+        if (t == null) {
+            return "unknown";
+        }
+        Throwable cause = t;
+        while (cause.getCause() != null && cause.getCause() != cause
+                && (cause instanceof RuntimeException
+                    || cause instanceof java.util.concurrent.CompletionException
+                    || cause instanceof java.util.concurrent.ExecutionException)) {
+            cause = cause.getCause();
+        }
+        String msg = cause.getMessage();
+        return cause.getClass().getSimpleName() + (msg != null ? ": " + msg : "");
+    }
+
     public void checkHealthConnectStatusAndPermissions() {
         if (healthConnectCheckRunning.getAndSet(true)) {
             Log.d(TAG, "Health Connect check is already running.");
@@ -147,9 +167,10 @@ public class TrackingManager {
         if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
             healthConnectManager.hasAllPermissions().whenComplete((hasPermissions, throwable) -> {
                 if (throwable != null) {
-                    Log.e(TAG, "Error checking HC permissions: " + throwable.getMessage(), throwable);
+                    String detail = hcErrorDetail(throwable);
+                    Log.e(TAG, "Error checking HC permissions - " + detail, throwable);
                     ((Activity) context).runOnUiThread(() -> Toast.makeText(context,
-                            "Error accessing Health Connect. Falling back.", Toast.LENGTH_LONG).show());
+                            "Error accessing Health Connect [" + detail + "]. Falling back.", Toast.LENGTH_LONG).show());
                     useDefaultTrackingMethod();
                     healthConnectCheckRunning.set(false);
                     return;
@@ -248,8 +269,9 @@ public class TrackingManager {
         healthConnectManager.readAndPersistStepsData(today, mStepsDBHelper).whenComplete((steps, readThrowable) -> {
             ((Activity) context).runOnUiThread(() -> {
                 if (readThrowable != null) {
-                    Log.e(TAG, "Error reading steps from HC: " + readThrowable.getMessage(), readThrowable);
-                    Toast.makeText(context, "Failed to read data from Health Connect. Falling back.", Toast.LENGTH_LONG).show();
+                    String detail = hcErrorDetail(readThrowable);
+                    Log.e(TAG, "Error reading steps from HC - " + detail, readThrowable);
+                    Toast.makeText(context, "Failed to read data from Health Connect [" + detail + "]. Falling back.", Toast.LENGTH_LONG).show();
                     useDefaultTrackingMethod();
                     return;
                 }
