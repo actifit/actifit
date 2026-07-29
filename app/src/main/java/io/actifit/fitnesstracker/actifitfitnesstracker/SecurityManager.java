@@ -8,11 +8,13 @@ import android.content.pm.Signature;
 import android.content.pm.SigningInfo;
 import android.os.Build;
 import android.telephony.TelephonyManager;
-import android.util.Base64;
 
 import com.scottyab.rootbeer.RootBeer;
 
 import java.security.MessageDigest;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * Single source of truth for the app's integrity checks: app-signature validation,
@@ -82,13 +84,29 @@ public class SecurityManager {
     }
 
     /**
-     * Verifies the running APK is signed with the expected certificate.
+     * Verifies the running APK is signed with one of the expected certificates.
+     *
      * Uses the modern signing-certificates API (available since minSdk 28) and compares the
-     * SHA-1 digest against {@code R.string.sign_key}. Fails closed: returns false if the
-     * signature cannot be read or does not match.
+     * SHA-256 digest of each signer against the allow-list in {@code R.string.sign_key} — a
+     * comma-separated list of SHA-256 hex fingerprints (colons and whitespace are ignored, so
+     * values can be pasted straight from Play Console or {@code keytool}). This normally holds
+     * BOTH the Play app-signing key (what end users' installs are signed with) and the upload
+     * key (what locally built/sideloaded test builds are signed with).
+     *
+     * Fails closed: returns false if the allow-list is empty, the signature cannot be read, or
+     * no signer matches.
      */
     public boolean checkAppSignature() {
-        final String expected = context.getString(R.string.sign_key);
+        Set<String> allowed = new HashSet<>();
+        for (String part : context.getString(R.string.sign_key).split("[,\\s]+")) {
+            String fingerprint = normalizeFingerprint(part);
+            if (!fingerprint.isEmpty()) {
+                allowed.add(fingerprint);
+            }
+        }
+        if (allowed.isEmpty()) {
+            return false;
+        }
         try {
             PackageInfo packageInfo = context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNING_CERTIFICATES);
@@ -103,10 +121,9 @@ public class SecurityManager {
                 return false;
             }
             for (Signature signature : signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
                 md.update(signature.toByteArray());
-                final String currentSignature = Base64.encodeToString(md.digest(), Base64.DEFAULT);
-                if (expected.equals(currentSignature)) {
+                if (allowed.contains(normalizeFingerprint(bytesToHex(md.digest())))) {
                     return true;
                 }
             }
@@ -115,6 +132,22 @@ public class SecurityManager {
             return false;
         }
         return false;
+    }
+
+    /** Reduces a fingerprint to bare uppercase hex so "D6:74:.." and "d674.." compare equal. */
+    private static String normalizeFingerprint(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replaceAll("[^0-9A-Fa-f]", "").toUpperCase(Locale.ROOT);
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
     }
 
     public boolean isEmulator() {
