@@ -739,7 +739,7 @@
     <string name="profile_companion_hint">✎ Tier ändern</string>
     <string name="profile_companion_picker_title">Wähle dein Krafttier</string>
     <string name="profile_streak_at_risk">⚠️ Noch %1$s Schritte heute, um deine %2$d-Tage-Serie zu erhalten</string>
-    <string name="profile_metrics_legend">🚶 %1$s Schritte · 📏 %2$s km · 🔥 %3$s kcal</string>
+    <string name="profile_metrics_legend">🚶 %1$s Schritte · 📏 %2$s · 🔥 %3$s kcal</string>
     <string name="more_menu_title">Mehr</string>
     <string name="more_menu_activity_history">Aktivitätsverlauf</string>
     <string name="more_menu_upload_video">Video hochladen</string>

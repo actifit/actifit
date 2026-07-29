@@ -1,5 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.content.Context;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -29,11 +31,9 @@ public class RouteModel {
         return endTimeMs - startTimeMs;
     }
 
-    public String getFormattedDistance() {
-        if (distanceMeters < 1000) {
-            return String.format(Locale.getDefault(), "%.0f m", distanceMeters);
-        }
-        return String.format(Locale.getDefault(), "%.2f km", distanceMeters / 1000.0);
+    /** Formats distance honoring the user's active measurement system (metric km / US miles). */
+    public String getFormattedDistance(Context context) {
+        return Utils.formatDistance(context, distanceMeters);
     }
 
     public String getFormattedDuration() {
@@ -47,14 +47,8 @@ public class RouteModel {
         return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds);
     }
 
-    /** Returns avg pace as min/km string, e.g. "7:07/km". Returns "" if no movement. */
-    public String getFormattedPace() {
-        long durationSec = TimeUnit.MILLISECONDS.toSeconds(getDurationMs());
-        double distKm = distanceMeters / 1000.0;
-        if (distKm < 0.01 || durationSec == 0) return "--";
-        double secPerKm = durationSec / distKm;
-        long paceMin = (long) secPerKm / 60;
-        long paceSec = (long) secPerKm % 60;
-        return String.format(Locale.getDefault(), "%d:%02d/km", paceMin, paceSec);
+    /** Returns avg pace (min/km or min/mi per the user's setting), e.g. "7:07/km". "--" if no movement. */
+    public String getFormattedPace(Context context) {
+        return Utils.formatPace(context, distanceMeters, getDurationMs());
     }
 }
