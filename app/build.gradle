@@ -39,8 +39,8 @@ android {
         applicationId "io.actifit.fitnesstracker.actifitfitnesstracker"
         minSdkVersion 28
         targetSdkVersion 35
-        versionCode 64
-        versionName "v0.14.0"
+        versionCode 65
+        versionName "v0.14.1"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled true
     }
@@ -55,9 +55,11 @@ android {
                 }
             }
             buildConfigField("String", "GEMINI_API_KEY", "\"${getLocalProperty('gemini.api.key')}\"")
+            buildConfigField("boolean", "ENFORCE_SECURITY", resolveEnforceSecurity("true"))
         }
         debug {
             buildConfigField("String", "GEMINI_API_KEY", "\"${getLocalProperty('gemini.api.key')}\"")
+            buildConfigField("boolean", "ENFORCE_SECURITY", resolveEnforceSecurity("false"))
         }
     }
     buildFeatures{
@@ -80,6 +82,20 @@ def getLocalProperty(String propertyName) {
     }
 
     return properties.getProperty(propertyName)
+}
+
+// Resolves the security-enforcement switch for BuildConfig.ENFORCE_SECURITY.
+// Default follows the build type (release = "true", debug = "false"); a one-off
+// override can be set in local.properties / CI via: enforce.security=true|false
+def resolveEnforceSecurity(String defaultVal) {
+    def override = getLocalProperty('enforce.security')
+    if (override != null) {
+        override = override.trim().toLowerCase()
+        if (override == 'true' || override == 'false') {
+            return override
+        }
+    }
+    return defaultVal
 }
 
 dependencies {

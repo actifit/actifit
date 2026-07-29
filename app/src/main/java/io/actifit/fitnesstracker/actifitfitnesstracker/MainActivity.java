@@ -147,7 +147,6 @@ import com.google.android.ump.UserMessagingPlatform;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.scottyab.rootbeer.RootBeer;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
@@ -431,30 +430,6 @@ public class MainActivity extends BaseActivity {
         return image;
     }
 
-    // security function to detect emulators
-    public static boolean isEmulator() {
-        return Build.FINGERPRINT.contains("generic")
-                || Build.FINGERPRINT.startsWith("unknown")
-                || Build.MODEL.contains("google_sdk")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK built for x86")
-                || Build.MANUFACTURER.contains("Genymotion")
-                || (Build.BRAND.startsWith("generic")
-                && Build.DEVICE.startsWith("generic"))
-                || "google_sdk".equals(Build.PRODUCT)
-                || Build.HARDWARE.contains("goldfish")
-                || Build.HARDWARE.contains("ranchu")
-                || Build.HARDWARE.contains("andy");
-    }
-
-    private static final int VALID = 0;
-
-    private static final int INVALID = 1;
-
-    public int checkAppSignature(Context context) {
-        return securityManager.checkAppSignature() ? 0 : 1;
-    }
-
     // function handles killing the app
     private void killActifit(final String reason) {
         runOnUiThread(new Runnable() {
@@ -481,7 +456,9 @@ public class MainActivity extends BaseActivity {
                  */
 
                 toast.show();
-                finish();
+                // close the entire task, not just this activity, so a failed-integrity device
+                // cannot linger on a partially-initialized screen
+                finishAffinity();
                 /*
                  * System.exit(0);
                  * //kill gracefully after waiting for toast
@@ -505,11 +482,6 @@ public class MainActivity extends BaseActivity {
     protected void askPermissions(String[] permissions) {
         int requestCode = 200;
         requestPermissions(permissions, requestCode);
-    }
-
-    // function handles checking if the SIM card is available
-    public boolean isSimAvailable() {
-        return securityManager.isSimAvailable();
     }
 
     /*
@@ -4095,6 +4067,8 @@ public class MainActivity extends BaseActivity {
     private class PrepareGround extends AsyncTask<Void, Void, Void> {
         String dataTrackingSystem;
         int stepCount = 0;
+        // set when an integrity check fails so onPostExecute skips all dashboard initialization
+        boolean securityKilled = false;
 
         @Override
         protected Void doInBackground(Void... voids) {
@@ -4114,46 +4088,20 @@ public class MainActivity extends BaseActivity {
 
             /*************** security features ********************/
 
-            // check if signature has been tampered with
-
-            if (getString(R.string.sec_check_signature).equals("on")) {
-                if ((getString(R.string.test_mode).equals("off"))
-                        && checkAppSignature(ctx) == MainActivity.INVALID) {
-                    // package signature has been manipulated
-                    Log.d(TAG, ">>>>[Actifit] Package signature has been manipulated");
-                    killActifit(getString(R.string.security_concerns));
+            // Integrity checks (signature, package name, SIM, emulator, root) run only in
+            // enforcing builds — release by default, off for debug — via BuildConfig.ENFORCE_SECURITY
+            // (overridable through enforce.security in local.properties/CI). A failure halts
+            // initialization entirely: we mark the run as killed, stop this background pass, and
+            // onPostExecute() bails out before any dashboard work runs.
+            if (BuildConfig.ENFORCE_SECURITY) {
+                SecurityManager.SecurityResult secResult =
+                        securityManager.runSecurityChecks("io.actifit.fitnesstracker.actifitfitnesstracker");
+                if (!secResult.passed) {
+                    Log.d(TAG, ">>>>[Actifit] Security check failed: " + secResult.logTag);
+                    securityKilled = true;
+                    killActifit(getString(secResult.reasonResId));
+                    return null;
                 }
-
-                // make sure package name has not been manipulated
-                if (!ctx.getPackageName().equals("io.actifit.fitnesstracker.actifitfitnesstracker")) {
-                    // package name has been manipulated
-                    Log.d(TAG, ">>>>[Actifit] Package name has been manipulated");
-                    killActifit(getString(R.string.security_concerns));
-                }
-
-                // let's make sure this is a smart phone device by checking SIM Card
-
-                // Crashlytics.getInstance().crash();
-
-                if (!isSimAvailable()) {
-                    // no valid active sim card detected
-                    Log.d(TAG, ">>>>[Actifit] No valid SIM card detected");
-                    killActifit(getString(R.string.no_valid_sim));
-                }
-
-                // also let's try to detect if this is a known emulator
-                if (isEmulator()) {
-                    Log.d(TAG, ">>>>[Actifit] Emulator detected");
-                    killActifit(getString(R.string.emulator_device));
-                }
-
-                // check if device is rooted
-                RootBeer rootBeer = new RootBeer(ctx);
-                if (getString(R.string.test_mode).equals("off") && rootBeer.isRootedWithoutBusyBoxCheck()) {
-                    Log.d(TAG, ">>>>[Actifit] Device is rooted");
-                    killActifit(getString(R.string.device_rooted));
-                }
-
             }
             // require now for GDPR and ad display
             loadConsentData(false);
@@ -4211,6 +4159,11 @@ public class MainActivity extends BaseActivity {
         @Override
         protected void onPostExecute(Void param) {
             super.onPostExecute(param);
+            // an integrity check failed in doInBackground: the app is being torn down, so skip
+            // all dashboard initialization rather than rendering a screen we're about to close
+            if (securityKilled) {
+                return;
+            }
             final SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",
                     MODE_PRIVATE);
             // display current date

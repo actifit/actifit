@@ -141,7 +141,9 @@ public class RewardManager {
                             Log.d(TAG, loadAdError.toString());
                             rewardedAd = null;
                             isAdLoading = false;
-                            if (context.getString(R.string.sec_check_signature).equals("off")) {
+                            // non-enforcing (debug) builds surface the raw ad-load error to aid
+                            // diagnosis; enforcing (release) builds show a friendly message
+                            if (!BuildConfig.ENFORCE_SECURITY) {
                                 Toast.makeText(context, loadAdError.getMessage(), Toast.LENGTH_SHORT).show();
                             } else {
                                 Toast.makeText(context, context.getString(R.string.err_load_ad), Toast.LENGTH_SHORT).show();
