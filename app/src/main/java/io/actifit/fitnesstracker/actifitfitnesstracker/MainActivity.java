@@ -1140,16 +1140,36 @@ public class MainActivity extends BaseActivity {
                                 trackedActivityCount += parseInt(stepActivityArray.getJSONObject(i).getString("value"));
                             }
 
-                            displayActivityChartFitbit(trackedActivityCount, true);
-                            Calendar mCalendar = Calendar.getInstance();
-
-                            editor.putString("fitbitLastSyncDate",
-                                    new SimpleDateFormat("yyyyMMdd").format(
-                                            mCalendar.getTime()));
+                            String todayStamp = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH)
+                                    .format(Calendar.getInstance().getTime());
+                            editor.putString("fitbitLastSyncDate", todayStamp);
                             editor.putLong("fitbitLastSyncTime", System.currentTimeMillis());
                             // TODO: demo data, replace when go live
                             editor.putInt("fitbitSyncCount", trackedActivityCount);// 6543);//
                             editor.apply();
+
+                            // steps render immediately (distance/calories fill in as estimates until the
+                            // fetch below returns); the extra two Fitbit round-trips run off the main
+                            // thread so they don't block the OAuth-return onCreate.
+                            displayActivityChartFitbit(trackedActivityCount, true);
+
+                            final int fbSteps = trackedActivityCount;
+                            final String fbTargetDate = targetDate;
+                            new Thread(() -> {
+                                // activityCalories (not tracker/calories, which includes BMR) keeps parity
+                                // with Health Connect's active-calories. Distance always arrives in km
+                                // (Accept-Language: metric, pinned in NxFitbitHelper.makeApiRequest), so the
+                                // km->metres conversion is unconditional; -1 stays -1 -> "≈" estimate.
+                                float fbDistRaw = sumFitbitActivityResource(fitbit, "tracker/distance", fbTargetDate);
+                                float fbCal = sumFitbitActivityResource(fitbit, "activityCalories", fbTargetDate);
+                                float fbDistM = (fbDistRaw >= 0) ? fbDistRaw * 1000f : -1f;
+                                SharedPreferences.Editor ed = getSharedPreferences("actifitSets", MODE_PRIVATE).edit();
+                                ed.putFloat("fitbitDistanceM", fbDistM);
+                                ed.putFloat("fitbitCalories", fbCal);
+                                ed.putString("fitbitMetricsDate", todayStamp); // freshness stamp: stale -> estimate
+                                ed.apply();
+                                runOnUiThread(() -> updateFitbitDashboardRings(fbSteps));
+                            }).start();
                         } else {
                             Log.d(MainActivity.TAG, "No auto-tracked activity found for today");
                         }
@@ -2528,9 +2548,32 @@ public class MainActivity extends BaseActivity {
         return df.format(value);
     }
 
+    /**
+     * Sums a Fitbit daily activity time-series resource by its path under "activities/"
+     * (e.g. "tracker/distance", "activityCalories"). Returns the raw summed value (distance in the
+     * account's unit, calories in kcal), or -1 if unavailable so callers fall back to a step-derived
+     * estimate. Note the deliberate asymmetry: an empty/unavailable dataset returns -1 (→ estimate),
+     * whereas a dataset of genuine zeros sums to 0 (shown as a real "0"). Runs on a background thread.
+     */
+    private float sumFitbitActivityResource(NxFitbitHelper fitbit, String resourcePath, String targetDate) {
+        try {
+            JSONObject list = fitbit.getActivityResource(resourcePath, targetDate);
+            JSONArray arr = list.getJSONArray("activities-" + resourcePath.replace("/", "-"));
+            if (arr.length() == 0) return -1f;
+            float sum = 0f;
+            for (int i = 0; i < arr.length(); i++) {
+                sum += Float.parseFloat(arr.getJSONObject(i).getString("value"));
+            }
+            return sum;
+        } catch (Exception e) {
+            Log.e(TAG, "Fitbit " + resourcePath + " fetch failed: " + e.getMessage());
+            return -1f;
+        }
+    }
+
     private void displayActivityChartFitbit(final int stepCount, final boolean animate) {
         currentDisplayedStepCount = stepCount;
-        chartManager.displayActivityChartFitbit(stepCount, animate);
+        chartManager.displayActivityChartFitbit(stepCount, animate); // also renders the Fitbit rings + metrics
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
     }
@@ -2544,7 +2587,7 @@ public class MainActivity extends BaseActivity {
 
     private void displayActivityChart(final int stepCount, final boolean animate) {
         currentDisplayedStepCount = stepCount;
-        chartManager.displayActivityChart(stepCount, animate);
+        chartManager.displayActivityChart(stepCount, animate); // also renders the sensors rings + metrics
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
     }
@@ -2819,8 +2862,40 @@ public class MainActivity extends BaseActivity {
      * Called by TrackingManager once today's HC metrics are read.
      */
     public void updateHcDashboardRings(int steps, float distanceMeters, float kcal) {
-        AuraView rings = findViewById(R.id.dashboard_rings_hc);
-        View materialRing = findViewById(R.id.step_ring_hc);
+        renderDashboardRings(R.id.dashboard_rings_hc, R.id.step_ring_hc, R.id.tv_step_pct_hc,
+                steps, distanceMeters, kcal);
+    }
+
+    /** Sensors/device mode: no real distance/calorie source, so both are step-derived estimates. */
+    public void updateDeviceDashboardRings(int steps) {
+        renderDashboardRings(R.id.dashboard_rings, R.id.step_ring, R.id.tv_step_pct,
+                steps, -1f, -1f);
+    }
+
+    /**
+     * Fitbit mode: distance/calories come from the Fitbit sync (real) when today's values are cached.
+     * A stale cache (not stamped with today's date) falls back to a "≈" estimate rather than showing
+     * yesterday's numbers as today's real data.
+     */
+    public void updateFitbitDashboardRings(int steps) {
+        SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String today = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(Calendar.getInstance().getTime());
+        boolean fresh = today.equals(prefs.getString("fitbitMetricsDate", ""));
+        float dist = fresh ? prefs.getFloat("fitbitDistanceM", -1f) : -1f;
+        float cal = fresh ? prefs.getFloat("fitbitCalories", -1f) : -1f;
+        renderDashboardRings(R.id.dashboard_rings_fitbit, R.id.step_ring_fitbit, R.id.tv_step_pct_fitbit,
+                steps, dist, cal);
+    }
+
+    /**
+     * Renders the multi-metric activity rings (steps/distance/calories) + the distance/calorie
+     * metrics line for any tracking mode. distanceMeters/kcal &lt; 0 mean "no real source" and are
+     * shown as step-derived estimates with a "≈" prefix.
+     */
+    private void renderDashboardRings(int auraViewId, int materialRingId, int metricsTvId,
+                                      int steps, float distanceMeters, float kcal) {
+        AuraView rings = findViewById(auraViewId);
+        View materialRing = findViewById(materialRingId);
         if (rings == null) return;
 
         SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
@@ -2842,17 +2917,17 @@ public class MainActivity extends BaseActivity {
         rings.setVisibility(View.VISIBLE);
         if (materialRing != null) materialRing.setVisibility(View.GONE);
 
-        // surface the extra HC metrics (distance + calories) under the step count, matching the
-        // profile legend; distance honors the user's measurement system (km / mi). Values with no
-        // real HC data source are step-derived estimates and get a "≈" prefix.
-        TextView hcMetrics = findViewById(R.id.tv_step_pct_hc);
-        if (hcMetrics != null) {
+        // surface the extra metrics (distance + calories) under the step count, matching the profile
+        // legend; distance honors the user's measurement system (km / mi). Values with no real data
+        // source are step-derived estimates and get a "≈" prefix.
+        TextView metricsTv = findViewById(metricsTvId);
+        if (metricsTv != null) {
             boolean distEstimated = (distanceMeters < 0);
             boolean calEstimated = (kcal < 0);
             float distForLegend = distEstimated ? distKm * 1000f : distanceMeters;
             String distStr = (distEstimated ? "≈" : "") + Utils.formatDistance(this, distForLegend);
             String calStr = (calEstimated ? "≈" : "") + Math.round(calVal) + " " + getString(R.string.kcal_unit);
-            hcMetrics.setText("📏 " + distStr + "    🔥 " + calStr);
+            metricsTv.setText("📏 " + distStr + "    🔥 " + calStr);
         }
     }
 
