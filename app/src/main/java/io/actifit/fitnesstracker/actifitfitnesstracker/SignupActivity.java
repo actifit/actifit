@@ -336,7 +336,7 @@ public class SignupActivity extends BaseActivity {
         }
 
         pollAttempts++;
-        String url = "https://actifit.io/api/signup_verify"; 
+        String url = "https://api.actifit.io/confirmPayment"; 
 
         JSONObject body = new JSONObject();
         try {
@@ -348,6 +348,7 @@ public class SignupActivity extends BaseActivity {
             body.put("usd_invest", signupCostUsd);
             body.put("memo", generatedMemo);
             body.put("email", emailInput.getText().toString().trim());
+            body.put("referrer", referralInput.getText().toString().trim());
             
             String promo = promoInput.getText().toString().trim();
             if (!promo.isEmpty()) {
