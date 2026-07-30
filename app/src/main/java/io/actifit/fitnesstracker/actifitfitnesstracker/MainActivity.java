@@ -2835,9 +2835,25 @@ public class MainActivity extends BaseActivity {
 
         rings.setShowAnimal(false); // the animated animal already sits in the counter centre
         rings.setCompanion(companion);
+        // opt this AuraView into the centre disc (card colour) so the counter reads cleanly; other
+        // AuraViews (e.g. Profile, on a different surface) never opt in and stay disc-free
+        rings.setCenterFillColor(getColor(R.color.md_theme_cardBackground));
         rings.setActivityRings(steps / 10000f, distKm / 8f, calVal / 500f, level, wilting);
         rings.setVisibility(View.VISIBLE);
         if (materialRing != null) materialRing.setVisibility(View.GONE);
+
+        // surface the extra HC metrics (distance + calories) under the step count, matching the
+        // profile legend; distance honors the user's measurement system (km / mi). Values with no
+        // real HC data source are step-derived estimates and get a "≈" prefix.
+        TextView hcMetrics = findViewById(R.id.tv_step_pct_hc);
+        if (hcMetrics != null) {
+            boolean distEstimated = (distanceMeters < 0);
+            boolean calEstimated = (kcal < 0);
+            float distForLegend = distEstimated ? distKm * 1000f : distanceMeters;
+            String distStr = (distEstimated ? "≈" : "") + Utils.formatDistance(this, distForLegend);
+            String calStr = (calEstimated ? "≈" : "") + Math.round(calVal) + " " + getString(R.string.kcal_unit);
+            hcMetrics.setText("📏 " + distStr + "    🔥 " + calStr);
+        }
     }
 
     /** Renders the companion aura (header ring) and the spirit animal inside the step counter. */
@@ -4248,7 +4264,8 @@ public class MainActivity extends BaseActivity {
             if (notificationsListArray != null && notificationsListArray.length() > 0) {
                 String count = notificationsListArray.length() < 1000 ? notificationsListArray.length() + ""
                         : "999+";
-                notifCount.setText(Html.fromHtml("<sup><small>" + count + "</small></sup>"));
+                // plain centered text (no <sup>, which pushed the number to the top of the badge)
+                notifCount.setText(count);
                 notifCount.setVisibility(View.VISIBLE);
             }
         }, error -> {

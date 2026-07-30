@@ -136,6 +136,14 @@ public class AuraView extends View {
     private final Paint arcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint emojiPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // opaque disc painted behind the centre content of the multi-ring dashboard, so the step count /
+    // labels sit on a clean, high-contrast surface instead of over the arcs+glow
+    private final Paint centerFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // centre-disc colour; opt-in via setCenterFillColor(). TRANSPARENT (default) = no disc, so the
+    // Profile screen's rings (on a different surface) are unaffected.
+    private int centerFillColor = Color.TRANSPARENT;
+    // reused across draws to avoid per-frame allocation
+    private final float[] hsvScratch = new float[3];
     private final RectF arcBounds = new RectF();
 
     // secondary activity-ring colours (outer ring uses the animal's signature colour)
@@ -235,6 +243,31 @@ public class AuraView extends View {
         return Color.HSVToColor(hsv);
     }
 
+    /**
+     * Sets the colour of the opaque centre disc drawn inside the innermost ring (multi-ring mode)
+     * so overlaid centre text reads crisply against the surface it sits on. Default
+     * {@link Color#TRANSPARENT} = no disc; only the dashboard opts in, so Profile's rings (a
+     * different surface) stay clean.
+     */
+    public void setCenterFillColor(int color) {
+        if (centerFillColor != color) {
+            centerFillColor = color;
+            invalidate();
+        }
+    }
+
+    /**
+     * In dark mode, lifts a ring colour to a minimum brightness so dark companion colours
+     * (e.g. Penguin slate) don't vanish against the dark card. No-op in light mode / for
+     * already-bright colours.
+     */
+    private int visibleRingColor(int color, boolean night) {
+        if (!night) return color;
+        Color.colorToHSV(color, hsvScratch);
+        if (hsvScratch[2] < 0.72f) hsvScratch[2] = 0.72f;
+        return Color.HSVToColor(hsvScratch);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -255,6 +288,7 @@ public class AuraView extends View {
         }
 
         int color = auraColor();
+        boolean night = Utils.isDarkModeActive(getContext());
 
         // size everything relative to the view radius so the same aura works at any size
         float R = Math.min(getWidth(), getHeight()) / 2f;
@@ -274,12 +308,21 @@ public class AuraView extends View {
             float glowRadius = Math.min(glowMax, R * (0.06f + 0.03f * level) * (0.6f + 0.8f * breath));
 
             if (inner > 0) {
-                drawRing(canvas, cx, cy, inner, stroke, COLOR_CALORIES, calFraction, false, 0, intensity, breath);
+                drawRing(canvas, cx, cy, inner, stroke, COLOR_CALORIES, calFraction, false, 0, intensity, breath, night);
             }
             if (middle > 0) {
-                drawRing(canvas, cx, cy, middle, stroke, COLOR_DISTANCE, distFraction, false, 0, intensity, breath);
+                drawRing(canvas, cx, cy, middle, stroke, COLOR_DISTANCE, distFraction, false, 0, intensity, breath, night);
             }
-            drawRing(canvas, cx, cy, outer, stroke, color, fillFraction, true, glowRadius, intensity, breath);
+            drawRing(canvas, cx, cy, outer, stroke, color, fillFraction, true, glowRadius, intensity, breath, night);
+
+            // opt-in opaque centre: only drawn when a surface colour has been set (dashboard), filling
+            // the clear zone inside the innermost ring so overlaid counter text reads crisply
+            float discRadius = inner - stroke * 0.5f;
+            if (discRadius > 0 && Color.alpha(centerFillColor) != 0) {
+                centerFillPaint.setStyle(Paint.Style.FILL);
+                centerFillPaint.setColor(centerFillColor);
+                canvas.drawCircle(cx, cy, discRadius, centerFillPaint);
+            }
 
             if (showAnimal) {
                 drawAnimal(canvas, cx, cy, outer, R);
@@ -291,7 +334,7 @@ public class AuraView extends View {
             float radius = (R - glowMax - stroke * 0.5f) * (1f + 0.03f * breath);
             if (radius <= 0) return;
             float glowRadius = Math.min(glowMax, R * (0.09f + 0.035f * level) * (0.6f + 0.8f * breath));
-            drawRing(canvas, cx, cy, radius, stroke, color, fillFraction, true, glowRadius, intensity, breath);
+            drawRing(canvas, cx, cy, radius, stroke, color, fillFraction, true, glowRadius, intensity, breath, night);
 
             if (showAnimal) {
                 drawAnimal(canvas, cx, cy, radius, R);
@@ -305,17 +348,22 @@ public class AuraView extends View {
 
     // draws one ring: faint full track + optional blurred glow + the progress arc
     private void drawRing(Canvas canvas, float cx, float cy, float radius, float stroke, int color,
-                          float fraction, boolean glow, float glowRadius, float intensity, float breath) {
+                          float fraction, boolean glow, float glowRadius, float intensity, float breath,
+                          boolean night) {
         arcBounds.set(cx - radius, cy - radius, cx + radius, cy + radius);
 
-        trackPaint.setColor(color);
-        trackPaint.setAlpha(clampAlpha((int) (55 * intensity)));
+        int arcColor = visibleRingColor(color, night);
+
+        // track groove: coloured in light mode (looks good); a neutral light groove in dark mode so
+        // every ring stays visible regardless of how dark its colour is
+        trackPaint.setColor(night ? 0xFFFFFFFF : color);
+        trackPaint.setAlpha(clampAlpha((int) ((night ? 46 : 55) * intensity)));
         trackPaint.setStrokeWidth(stroke);
         canvas.drawCircle(cx, cy, radius, trackPaint);
 
         float sweep = 360f * fraction;
         if (glow) {
-            glowPaint.setColor(color);
+            glowPaint.setColor(arcColor);
             glowPaint.setStrokeWidth(stroke);
             glowPaint.setAlpha(clampAlpha((int) ((70 + 120 * breath + level * 6) * intensity)));
             glowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, glowRadius), BlurMaskFilter.Blur.NORMAL));
@@ -326,7 +374,7 @@ public class AuraView extends View {
             }
         }
         if (sweep > 0) {
-            arcPaint.setColor(color);
+            arcPaint.setColor(arcColor);
             arcPaint.setAlpha(clampAlpha((int) (255 * intensity)));
             arcPaint.setStrokeWidth(stroke);
             arcPaint.setMaskFilter(null);

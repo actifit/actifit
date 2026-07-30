@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Notification count badge: a rounded "stadium" so it stays a circle for 1-2 digits and
+     grows into a pill for larger counts instead of clipping the number. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <solid android:color="@color/badge_green" />
+
+    <corners android:radius="10dp" />
+</shape>

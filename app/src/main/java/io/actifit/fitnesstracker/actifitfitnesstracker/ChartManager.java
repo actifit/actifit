@@ -203,10 +203,11 @@ public class ChartManager {
             stepRingHc = ((android.app.Activity) context).findViewById(R.id.step_ring_hc);
             android.widget.TextView tvCount = ((android.app.Activity) context).findViewById(R.id.tv_step_count_hc);
             android.widget.TextView tvGoal = ((android.app.Activity) context).findViewById(R.id.tv_step_goal_hc);
-            android.widget.TextView tvPct = ((android.app.Activity) context).findViewById(R.id.tv_step_pct_hc);
             if (stepRingHc == null) return;
 
-            updateRing(stepRingHc, tvCount, tvGoal, tvPct, stepCount, animate);
+            // tv_step_pct_hc is owned by MainActivity.updateHcDashboardRings (the distance/calorie
+            // metrics line) in the multi-ring HC view, so don't overwrite it with "% to goal" here
+            updateRing(stepRingHc, tvCount, tvGoal, null, stepCount, animate);
 
             if (stepCount > 2000) {
                 if (BtnWaves != null && (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted())) {
