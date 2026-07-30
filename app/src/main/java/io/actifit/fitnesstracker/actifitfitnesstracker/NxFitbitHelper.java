@@ -141,6 +141,12 @@ class NxFitbitHelper {
         OAuth20Service serviceCall = getService();
 
         final OAuthRequest activityrequest = new OAuthRequest(Verb.GET, fitBitAPIUrl + endPointUrl);
+        // Pin the response unit system. Fitbit selects units SOLELY from this header — the account's
+        // own distanceUnit profile field is a display preference and does not affect API responses.
+        // "metric" => distance in km, weight in kg. Value is case-sensitive; a typo silently falls back
+        // to metric, which is why call sites normalise to metres regardless.
+        // https://dev.fitbit.com/build/reference/web-api/developer-guide/application-design/
+        activityrequest.addHeader("Accept-Language", "metric");
         serviceCall.signRequest(accessToken, activityrequest);
 
         final Response response;
