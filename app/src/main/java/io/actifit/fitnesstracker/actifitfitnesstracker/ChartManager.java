@@ -145,10 +145,10 @@ public class ChartManager {
             stepRing = ((android.app.Activity) context).findViewById(R.id.step_ring);
             android.widget.TextView tvCount = ((android.app.Activity) context).findViewById(R.id.tv_step_count);
             android.widget.TextView tvGoal = ((android.app.Activity) context).findViewById(R.id.tv_step_goal);
-            android.widget.TextView tvPct = ((android.app.Activity) context).findViewById(R.id.tv_step_pct);
             if (stepRing == null) return;
 
-            updateRing(stepRing, tvCount, tvGoal, tvPct, stepCount, animate);
+            // tv_step_pct owned by MainActivity.updateDeviceDashboardRings (distance/calorie metrics)
+            updateRing(stepRing, tvCount, tvGoal, null, stepCount, animate);
 
             if (stepCount > 2000) {
                 if (BtnWaves != null && (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted())) {
@@ -174,10 +174,10 @@ public class ChartManager {
             stepRingFitbit = ((android.app.Activity) context).findViewById(R.id.step_ring_fitbit);
             android.widget.TextView tvCount = ((android.app.Activity) context).findViewById(R.id.tv_step_count_fitbit);
             android.widget.TextView tvGoal = ((android.app.Activity) context).findViewById(R.id.tv_step_goal_fitbit);
-            android.widget.TextView tvPct = ((android.app.Activity) context).findViewById(R.id.tv_step_pct_fitbit);
             if (stepRingFitbit == null) return;
 
-            updateRing(stepRingFitbit, tvCount, tvGoal, tvPct, stepCount, animate);
+            // tv_step_pct_fitbit owned by MainActivity.updateFitbitDashboardRings (distance/calorie metrics)
+            updateRing(stepRingFitbit, tvCount, tvGoal, null, stepCount, animate);
 
             if (stepCount > 2000) {
                 if (BtnWaves != null && (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted())) {

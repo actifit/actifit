@@ -624,6 +624,14 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
 
+                                <!-- multi-metric activity rings (steps/distance/calories) from Fitbit -->
+                                <io.actifit.fitnesstracker.actifitfitnesstracker.AuraView
+                                    android:id="@+id/dashboard_rings_fitbit"
+                                    android:layout_width="184dp"
+                                    android:layout_height="184dp"
+                                    android:layout_gravity="center"
+                                    android:visibility="gone" />
+
                                 <com.google.android.material.progressindicator.CircularProgressIndicator
                                     android:id="@+id/step_ring_fitbit"
                                     android:layout_width="wrap_content"
@@ -646,17 +654,18 @@
 
                                     <com.airbnb.lottie.LottieAnimationView
                                         android:id="@+id/companion_animal_fitbit"
-                                        android:layout_width="44dp"
-                                        android:layout_height="44dp"
+                                        android:layout_width="34dp"
+                                        android:layout_height="34dp"
                                         app:lottie_autoPlay="true"
                                         app:lottie_loop="true" />
 
+                                    <!-- colour is set at runtime by ChartManager.updateRing (milestone red/green) -->
                                     <TextView
                                         android:id="@+id/tv_step_count_fitbit"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:textColor="@color/actifitRed"
-                                        android:textSize="32sp"
+                                        android:textSize="26sp"
                                         android:textStyle="bold"
                                         android:text="0" />
 
@@ -664,15 +673,20 @@
                                         android:id="@+id/tv_step_goal_fitbit"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:textSize="12sp"
+                                        android:textColor="@color/md_theme_textSecondary"
+                                        android:textSize="11sp"
                                         android:text="/ 10,000 steps" />
 
+                                    <!-- distance + calories from Fitbit; populated in updateFitbitDashboardRings -->
                                     <TextView
                                         android:id="@+id/tv_step_pct_fitbit"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
+                                        android:textColor="@color/md_theme_textSecondary"
                                         android:textSize="10sp"
-                                        android:text="0% to goal" />
+                                        android:textStyle="bold"
+                                        android:textDirection="ltr"
+                                        android:text="" />
                                 </LinearLayout>
                             </FrameLayout>
 
@@ -740,6 +754,15 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
 
+                                <!-- multi-metric activity rings (steps/distance/calories); distance &
+                                     calories are step-derived estimates in sensors mode -->
+                                <io.actifit.fitnesstracker.actifitfitnesstracker.AuraView
+                                    android:id="@+id/dashboard_rings"
+                                    android:layout_width="184dp"
+                                    android:layout_height="184dp"
+                                    android:layout_gravity="center"
+                                    android:visibility="gone" />
+
                                 <com.google.android.material.progressindicator.CircularProgressIndicator
                                     android:id="@+id/step_ring"
                                     android:layout_width="wrap_content"
@@ -762,17 +785,18 @@
 
                                     <com.airbnb.lottie.LottieAnimationView
                                         android:id="@+id/companion_animal"
-                                        android:layout_width="44dp"
-                                        android:layout_height="44dp"
+                                        android:layout_width="34dp"
+                                        android:layout_height="34dp"
                                         app:lottie_autoPlay="true"
                                         app:lottie_loop="true" />
 
+                                    <!-- colour is set at runtime by ChartManager.updateRing (milestone red/green) -->
                                     <TextView
                                         android:id="@+id/tv_step_count"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:textColor="@color/actifitRed"
-                                        android:textSize="32sp"
+                                        android:textSize="26sp"
                                         android:textStyle="bold"
                                         android:text="0" />
 
@@ -780,15 +804,21 @@
                                         android:id="@+id/tv_step_goal"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:textSize="12sp"
+                                        android:textColor="@color/md_theme_textSecondary"
+                                        android:textSize="11sp"
                                         android:text="/ 10,000 steps" />
 
+                                    <!-- distance + calories; populated in updateDeviceDashboardRings.
+                                         textDirection=ltr keeps emoji/number order stable in RTL locales -->
                                     <TextView
                                         android:id="@+id/tv_step_pct"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
+                                        android:textColor="@color/md_theme_textSecondary"
                                         android:textSize="10sp"
-                                        android:text="0% to goal" />
+                                        android:textStyle="bold"
+                                        android:textDirection="ltr"
+                                        android:text="" />
                                 </LinearLayout>
                             </FrameLayout>
 
