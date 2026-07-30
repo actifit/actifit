@@ -2840,12 +2840,16 @@ public class MainActivity extends BaseActivity {
         if (materialRing != null) materialRing.setVisibility(View.GONE);
 
         // surface the extra HC metrics (distance + calories) under the step count, matching the
-        // profile legend; distance honors the user's measurement system (km / mi)
+        // profile legend; distance honors the user's measurement system (km / mi). Values with no
+        // real HC data source are step-derived estimates and get a "≈" prefix.
         TextView hcMetrics = findViewById(R.id.tv_step_pct_hc);
         if (hcMetrics != null) {
-            float distForLegend = (distanceMeters >= 0) ? distanceMeters : distKm * 1000f;
-            hcMetrics.setText("📏 " + Utils.formatDistance(this, distForLegend)
-                    + "    🔥 " + Math.round(calVal) + " kcal");
+            boolean distEstimated = (distanceMeters < 0);
+            boolean calEstimated = (kcal < 0);
+            float distForLegend = distEstimated ? distKm * 1000f : distanceMeters;
+            String distStr = (distEstimated ? "≈" : "") + Utils.formatDistance(this, distForLegend);
+            String calStr = (calEstimated ? "≈" : "") + Math.round(calVal) + " kcal";
+            hcMetrics.setText("📏 " + distStr + "    🔥 " + calStr);
         }
     }
 
