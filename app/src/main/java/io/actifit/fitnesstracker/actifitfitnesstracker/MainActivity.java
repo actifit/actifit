@@ -4261,7 +4261,8 @@ public class MainActivity extends BaseActivity {
             if (notificationsListArray != null && notificationsListArray.length() > 0) {
                 String count = notificationsListArray.length() < 1000 ? notificationsListArray.length() + ""
                         : "999+";
-                notifCount.setText(Html.fromHtml("<sup><small>" + count + "</small></sup>"));
+                // plain centered text (no <sup>, which pushed the number to the top of the badge)
+                notifCount.setText(count);
                 notifCount.setVisibility(View.VISIBLE);
             }
         }, error -> {
