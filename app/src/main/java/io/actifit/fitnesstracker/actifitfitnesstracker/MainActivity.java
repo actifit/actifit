@@ -1140,33 +1140,38 @@ public class MainActivity extends BaseActivity {
                                 trackedActivityCount += parseInt(stepActivityArray.getJSONObject(i).getString("value"));
                             }
 
-                            displayActivityChartFitbit(trackedActivityCount, true);
-                            Calendar mCalendar = Calendar.getInstance();
+                            // also fetch Fitbit's own distance + activity calories for the multi-metric
+                            // rings. activityCalories (not tracker/calories, which includes BMR) keeps
+                            // parity with Health Connect's active-calories. Distance is returned in the
+                            // account's unit, so convert to metres via the profile's distanceUnit.
+                            float fbDistRaw = sumFitbitActivityResource(fitbit, "tracker/distance", targetDate);
+                            float fbCal = sumFitbitActivityResource(fitbit, "activityCalories", targetDate);
+                            float fbDistM = -1f;
+                            if (fbDistRaw >= 0) {
+                                String distUnit = fitbit.getFieldFromProfile("distanceUnit"); // "METRIC"/"en_US" or a sentinel on failure
+                                String u = (distUnit == null) ? "" : distUnit.toUpperCase(java.util.Locale.ROOT);
+                                if (u.contains("US")) {
+                                    fbDistM = fbDistRaw * 1609.344f;      // imperial account -> miles
+                                } else if (u.contains("METRIC")) {
+                                    fbDistM = fbDistRaw * 1000f;          // metric account -> km
+                                }
+                                // else: unknown/failed profile lookup -> leave -1 so distance degrades
+                                // to a "≈" estimate rather than guessing the wrong unit
+                            }
 
-                            editor.putString("fitbitLastSyncDate",
-                                    new SimpleDateFormat("yyyyMMdd").format(
-                                            mCalendar.getTime()));
+                            Calendar mCalendar = Calendar.getInstance();
+                            String todayStamp = new SimpleDateFormat("yyyyMMdd").format(mCalendar.getTime());
+                            editor.putString("fitbitLastSyncDate", todayStamp);
                             editor.putLong("fitbitLastSyncTime", System.currentTimeMillis());
                             // TODO: demo data, replace when go live
                             editor.putInt("fitbitSyncCount", trackedActivityCount);// 6543);//
-                            editor.apply();
-
-                            // also fetch Fitbit's own distance + calories for the multi-metric rings.
-                            // Distance comes back in the account's unit (km/mi), so convert to metres.
-                            float fbDistRaw = sumFitbitTrackerMetric(fitbit, "distance", targetDate);
-                            float fbCal = sumFitbitTrackerMetric(fitbit, "calories", targetDate);
-                            float fbDistM = -1f;
-                            if (fbDistRaw >= 0) {
-                                String distUnit = fitbit.getFieldFromProfile("distanceUnit");
-                                boolean miles = distUnit != null && distUnit.toUpperCase().contains("US");
-                                fbDistM = fbDistRaw * (miles ? 1609.344f : 1000f);
-                            }
                             editor.putFloat("fitbitDistanceM", fbDistM);
                             editor.putFloat("fitbitCalories", fbCal);
+                            editor.putString("fitbitMetricsDate", todayStamp); // freshness stamp: stale -> estimate
                             editor.apply();
-                            final int fbSteps = trackedActivityCount;
-                            final float fbDistFinal = fbDistM, fbCalFinal = fbCal;
-                            runOnUiThread(() -> updateFitbitDashboardRings(fbSteps, fbDistFinal, fbCalFinal));
+
+                            // render after the metrics are cached, so the rings pick up fresh values
+                            displayActivityChartFitbit(trackedActivityCount, true);
                         } else {
                             Log.d(MainActivity.TAG, "No auto-tracked activity found for today");
                         }
@@ -2546,14 +2551,16 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * Sums a Fitbit daily tracker time-series resource ("distance" / "calories"). Returns the raw
-     * summed value (distance in the account's unit, calories in kcal), or -1 if unavailable so
-     * callers fall back to a step-derived estimate. Runs on a background thread.
+     * Sums a Fitbit daily activity time-series resource by its path under "activities/"
+     * (e.g. "tracker/distance", "activityCalories"). Returns the raw summed value (distance in the
+     * account's unit, calories in kcal), or -1 if unavailable so callers fall back to a step-derived
+     * estimate. Note the deliberate asymmetry: an empty/unavailable dataset returns -1 (→ estimate),
+     * whereas a dataset of genuine zeros sums to 0 (shown as a real "0"). Runs on a background thread.
      */
-    private float sumFitbitTrackerMetric(NxFitbitHelper fitbit, String metric, String targetDate) {
+    private float sumFitbitActivityResource(NxFitbitHelper fitbit, String resourcePath, String targetDate) {
         try {
-            JSONObject list = fitbit.getActivityByDate(metric, targetDate);
-            JSONArray arr = list.getJSONArray("activities-tracker-" + metric);
+            JSONObject list = fitbit.getActivityResource(resourcePath, targetDate);
+            JSONArray arr = list.getJSONArray("activities-" + resourcePath.replace("/", "-"));
             if (arr.length() == 0) return -1f;
             float sum = 0f;
             for (int i = 0; i < arr.length(); i++) {
@@ -2561,19 +2568,14 @@ public class MainActivity extends BaseActivity {
             }
             return sum;
         } catch (Exception e) {
-            Log.e(TAG, "Fitbit " + metric + " fetch failed: " + e.getMessage());
+            Log.e(TAG, "Fitbit " + resourcePath + " fetch failed: " + e.getMessage());
             return -1f;
         }
     }
 
     private void displayActivityChartFitbit(final int stepCount, final boolean animate) {
         currentDisplayedStepCount = stepCount;
-        chartManager.displayActivityChartFitbit(stepCount, animate);
-        // multi-ring + metrics using Fitbit's own distance/calorie readings when synced (else estimate)
-        SharedPreferences fbPrefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
-        float fbDist = fbPrefs.getFloat("fitbitDistanceM", -1f);
-        float fbCal = fbPrefs.getFloat("fitbitCalories", -1f);
-        updateFitbitDashboardRings(stepCount, fbDist, fbCal);
+        chartManager.displayActivityChartFitbit(stepCount, animate); // also renders the Fitbit rings + metrics
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
     }
@@ -2587,9 +2589,7 @@ public class MainActivity extends BaseActivity {
 
     private void displayActivityChart(final int stepCount, final boolean animate) {
         currentDisplayedStepCount = stepCount;
-        chartManager.displayActivityChart(stepCount, animate);
-        // sensors mode has no distance/calorie source, so both are step-derived estimates
-        updateDeviceDashboardRings(stepCount);
+        chartManager.displayActivityChart(stepCount, animate); // also renders the sensors rings + metrics
         updateNudgeCard(stepCount);
         if (animate) checkMilestoneCelebration(stepCount);
     }
@@ -2874,10 +2874,19 @@ public class MainActivity extends BaseActivity {
                 steps, -1f, -1f);
     }
 
-    /** Fitbit mode: distance/calories come from the Fitbit sync (real) when available, else -1. */
-    public void updateFitbitDashboardRings(int steps, float distanceMeters, float kcal) {
+    /**
+     * Fitbit mode: distance/calories come from the Fitbit sync (real) when today's values are cached.
+     * A stale cache (not stamped with today's date) falls back to a "≈" estimate rather than showing
+     * yesterday's numbers as today's real data.
+     */
+    public void updateFitbitDashboardRings(int steps) {
+        SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String today = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+        boolean fresh = today.equals(prefs.getString("fitbitMetricsDate", ""));
+        float dist = fresh ? prefs.getFloat("fitbitDistanceM", -1f) : -1f;
+        float cal = fresh ? prefs.getFloat("fitbitCalories", -1f) : -1f;
         renderDashboardRings(R.id.dashboard_rings_fitbit, R.id.step_ring_fitbit, R.id.tv_step_pct_fitbit,
-                steps, distanceMeters, kcal);
+                steps, dist, cal);
     }
 
     /**

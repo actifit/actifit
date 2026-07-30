@@ -149,6 +149,9 @@ public class ChartManager {
 
             // tv_step_pct owned by MainActivity.updateDeviceDashboardRings (distance/calorie metrics)
             updateRing(stepRing, tvCount, tvGoal, null, stepCount, animate);
+            // render the multi-ring dashboard + metrics here (not in MainActivity's wrapper) so every
+            // caller is covered — including TrackingManager.useDefaultTrackingMethod's direct calls
+            if (context instanceof MainActivity) ((MainActivity) context).updateDeviceDashboardRings(stepCount);
 
             if (stepCount > 2000) {
                 if (BtnWaves != null && (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted())) {
@@ -178,6 +181,8 @@ public class ChartManager {
 
             // tv_step_pct_fitbit owned by MainActivity.updateFitbitDashboardRings (distance/calorie metrics)
             updateRing(stepRingFitbit, tvCount, tvGoal, null, stepCount, animate);
+            // render rings + metrics here so TrackingManager's direct calls are covered too
+            if (context instanceof MainActivity) ((MainActivity) context).updateFitbitDashboardRings(stepCount);
 
             if (stepCount > 2000) {
                 if (BtnWaves != null && (BtnWaves.getAnimation() == null || !BtnWaves.getAnimation().hasStarted())) {
