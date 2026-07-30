@@ -199,13 +199,16 @@ public class HealthConnectManager {
                 double steps = (total != null) ? total : 0;
                 double distanceMeters = -1;
                 double kcal = -1;
+                // null aggregate == permission granted but no data source for that metric today;
+                // return -1 (not 0) so callers fall back to a step-derived estimate instead of
+                // showing a misleading "0 km" / "0 kcal"
                 if (hasDistance) {
                     Length len = result.get(DistanceRecord.DISTANCE_TOTAL);
-                    distanceMeters = (len != null) ? len.getMeters() : 0;
+                    distanceMeters = (len != null) ? len.getMeters() : -1;
                 }
                 if (hasCalories) {
                     Energy en = result.get(ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL);
-                    kcal = (en != null) ? en.getKilocalories() : 0;
+                    kcal = (en != null) ? en.getKilocalories() : -1;
                 }
                 return new double[]{steps, distanceMeters, kcal};
             });

@@ -136,6 +136,9 @@ public class AuraView extends View {
     private final Paint arcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint emojiPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // opaque disc painted in the card colour behind the centre content of the multi-ring dashboard,
+    // so the step count / labels sit on a clean, high-contrast surface instead of over the arcs+glow
+    private final Paint centerFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF arcBounds = new RectF();
 
     // secondary activity-ring colours (outer ring uses the animal's signature colour)
@@ -235,6 +238,25 @@ public class AuraView extends View {
         return Color.HSVToColor(hsv);
     }
 
+    private boolean nightMode() {
+        return (getResources().getConfiguration().uiMode
+                & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    /**
+     * In dark mode, lifts a ring colour to a minimum brightness so dark companion colours
+     * (e.g. Penguin slate) don't vanish against the dark card. No-op in light mode / for
+     * already-bright colours.
+     */
+    private int visibleRingColor(int color) {
+        if (!nightMode()) return color;
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        if (hsv[2] < 0.72f) hsv[2] = 0.72f;
+        return Color.HSVToColor(hsv);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -281,6 +303,16 @@ public class AuraView extends View {
             }
             drawRing(canvas, cx, cy, outer, stroke, color, fillFraction, true, glowRadius, intensity, breath);
 
+            // clean opaque centre in the card colour: fills the clear zone inside the innermost ring
+            // (and masks any inward glow bleed) so overlaid counter text reads crisply
+            float discRadius = inner - stroke * 0.5f;
+            if (discRadius > 0) {
+                centerFillPaint.setStyle(Paint.Style.FILL);
+                centerFillPaint.setColor(getContext().getColor(
+                        io.actifit.fitnesstracker.actifitfitnesstracker.R.color.md_theme_cardBackground));
+                canvas.drawCircle(cx, cy, discRadius, centerFillPaint);
+            }
+
             if (showAnimal) {
                 drawAnimal(canvas, cx, cy, outer, R);
             }
@@ -308,14 +340,19 @@ public class AuraView extends View {
                           float fraction, boolean glow, float glowRadius, float intensity, float breath) {
         arcBounds.set(cx - radius, cy - radius, cx + radius, cy + radius);
 
-        trackPaint.setColor(color);
-        trackPaint.setAlpha(clampAlpha((int) (55 * intensity)));
+        boolean night = nightMode();
+        int arcColor = night ? visibleRingColor(color) : color;
+
+        // track groove: coloured in light mode (looks good); a neutral light groove in dark mode so
+        // every ring stays visible regardless of how dark its colour is
+        trackPaint.setColor(night ? 0xFFFFFFFF : color);
+        trackPaint.setAlpha(clampAlpha((int) ((night ? 46 : 55) * intensity)));
         trackPaint.setStrokeWidth(stroke);
         canvas.drawCircle(cx, cy, radius, trackPaint);
 
         float sweep = 360f * fraction;
         if (glow) {
-            glowPaint.setColor(color);
+            glowPaint.setColor(arcColor);
             glowPaint.setStrokeWidth(stroke);
             glowPaint.setAlpha(clampAlpha((int) ((70 + 120 * breath + level * 6) * intensity)));
             glowPaint.setMaskFilter(new BlurMaskFilter(Math.max(1f, glowRadius), BlurMaskFilter.Blur.NORMAL));
@@ -326,7 +363,7 @@ public class AuraView extends View {
             }
         }
         if (sweep > 0) {
-            arcPaint.setColor(color);
+            arcPaint.setColor(arcColor);
             arcPaint.setAlpha(clampAlpha((int) (255 * intensity)));
             arcPaint.setStrokeWidth(stroke);
             arcPaint.setMaskFilter(null);

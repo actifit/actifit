@@ -2838,6 +2838,15 @@ public class MainActivity extends BaseActivity {
         rings.setActivityRings(steps / 10000f, distKm / 8f, calVal / 500f, level, wilting);
         rings.setVisibility(View.VISIBLE);
         if (materialRing != null) materialRing.setVisibility(View.GONE);
+
+        // surface the extra HC metrics (distance + calories) under the step count, matching the
+        // profile legend; distance honors the user's measurement system (km / mi)
+        TextView hcMetrics = findViewById(R.id.tv_step_pct_hc);
+        if (hcMetrics != null) {
+            float distForLegend = (distanceMeters >= 0) ? distanceMeters : distKm * 1000f;
+            hcMetrics.setText("📏 " + Utils.formatDistance(this, distForLegend)
+                    + "    🔥 " + Math.round(calVal) + " kcal");
+        }
     }
 
     /** Renders the companion aura (header ring) and the spirit animal inside the step counter. */

@@ -518,8 +518,8 @@
 
                                     <com.airbnb.lottie.LottieAnimationView
                                         android:id="@+id/companion_animal_hc"
-                                        android:layout_width="44dp"
-                                        android:layout_height="44dp"
+                                        android:layout_width="34dp"
+                                        android:layout_height="34dp"
                                         app:lottie_autoPlay="true"
                                         app:lottie_loop="true" />
 
@@ -527,8 +527,8 @@
                                         android:id="@+id/tv_step_count_hc"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:textColor="@color/actifitRed"
-                                        android:textSize="32sp"
+                                        android:textColor="@color/md_theme_onSurface"
+                                        android:textSize="26sp"
                                         android:textStyle="bold"
                                         android:text="0" />
 
@@ -536,15 +536,18 @@
                                         android:id="@+id/tv_step_goal_hc"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:textSize="12sp"
+                                        android:textColor="@color/md_theme_textSecondary"
+                                        android:textSize="11sp"
                                         android:text="/ 10,000 steps" />
 
+                                    <!-- HC extras (distance + calories); populated in updateHcDashboardRings -->
                                     <TextView
                                         android:id="@+id/tv_step_pct_hc"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
+                                        android:textColor="@color/md_theme_textSecondary"
                                         android:textSize="10sp"
-                                        android:text="0% to goal" />
+                                        android:text="" />
                                 </LinearLayout>
                             </FrameLayout>
 
