@@ -2835,6 +2835,9 @@ public class MainActivity extends BaseActivity {
 
         rings.setShowAnimal(false); // the animated animal already sits in the counter centre
         rings.setCompanion(companion);
+        // opt this AuraView into the centre disc (card colour) so the counter reads cleanly; other
+        // AuraViews (e.g. Profile, on a different surface) never opt in and stay disc-free
+        rings.setCenterFillColor(getColor(R.color.md_theme_cardBackground));
         rings.setActivityRings(steps / 10000f, distKm / 8f, calVal / 500f, level, wilting);
         rings.setVisibility(View.VISIBLE);
         if (materialRing != null) materialRing.setVisibility(View.GONE);
@@ -2848,7 +2851,7 @@ public class MainActivity extends BaseActivity {
             boolean calEstimated = (kcal < 0);
             float distForLegend = distEstimated ? distKm * 1000f : distanceMeters;
             String distStr = (distEstimated ? "≈" : "") + Utils.formatDistance(this, distForLegend);
-            String calStr = (calEstimated ? "≈" : "") + Math.round(calVal) + " kcal";
+            String calStr = (calEstimated ? "≈" : "") + Math.round(calVal) + " " + getString(R.string.kcal_unit);
             hcMetrics.setText("📏 " + distStr + "    🔥 " + calStr);
         }
     }

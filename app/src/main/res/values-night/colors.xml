@@ -6,7 +6,8 @@
     <color name="colorAccent">#FF5252</color>
     <color name="actifitRed">#FF5252</color>
     <color name="actifitGreen">#32CD32</color>
-    <color name="actifitDarkGreen">#008000</color>
+    <color name="actifitDarkGreen">#4CAF50</color><!-- brighter green: #008000 was ~2.4:1 on the dark card -->
+
     <color name="colorWhite">#121212</color>
     <color name="colorBlack">#FFFFFF</color>
 

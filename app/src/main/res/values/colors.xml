@@ -7,6 +7,7 @@
     <color name="actifitRed">#FF112D</color>
     <color name="actifitGreen">#00FF00</color>
     <color name="actifitDarkGreen">#006400</color>
+    <color name="badge_green">#0a660a</color><!-- notification count badge (circle_badge + notif_badge_pill) -->
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
 

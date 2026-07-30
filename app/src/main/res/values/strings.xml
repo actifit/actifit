@@ -506,6 +506,7 @@
     <string name="default_login_img" translatable="false">https://raw.githubusercontent.com/actifit/actifit-landingpage/master/static/img/insta_achive_earn.png</string>
     <string name="ad_not_ready">The rewarded ad wasn\'t ready yet.</string>
     <string name="err_load_ad">error loading ad</string>
+    <string name="kcal_unit">kcal</string>
     <string name="wave_hint_1">Share a quick update...</string>
     <string name="wave_preview">Preview</string>
     <string name="report_text_hint_1">Describe your day\'s activity using original content in as little as a few sentences. The more the merrier!</string>

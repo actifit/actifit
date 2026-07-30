@@ -570,7 +570,7 @@ public class ApiManager {
         JsonArrayRequest transactionRequest = new JsonArrayRequest(Request.Method.GET, notificationsUrl, null, notificationsListArray -> {
             if (notificationsListArray != null && notificationsListArray.length() > 0) {
                 String count = notificationsListArray.length() < 1000 ? notificationsListArray.length() + "" : "999+";
-                notifCount.setText(Html.fromHtml("<sup><small>" + count + "</small></sup>"));
+                notifCount.setText(count); // plain centered text (badge background handles the shape)
                 notifCount.setVisibility(View.VISIBLE);
             }
         }, error -> {});
