@@ -141,11 +141,15 @@
 
                 <TextView
                     android:id="@+id/notif_count"
-                    android:layout_width="@dimen/badge_size"
-                    android:layout_height="@dimen/badge_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/badge_size"
+                    android:minHeight="@dimen/badge_size"
                     android:layout_gravity="top|end"
-                    android:background="@drawable/circle_badge"
+                    android:background="@drawable/notif_badge_pill"
                     android:gravity="center"
+                    android:paddingHorizontal="4dp"
+                    android:paddingVertical="1dp"
                     android:textColor="@color/colorWhite"
                     android:textSize="@dimen/badge_text_size"
                     android:visibility="gone" />
