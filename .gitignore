@@ -28,3 +28,5 @@ local.properties
 /app/release/output-metadata.json
 .vscode/
 .claude/settings.local.json
+
+.idea/
