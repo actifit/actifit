@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="340dp"
+    android:layout_height="480dp"
+    android:layout_gravity="center"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="@dimen/spacing_md">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_ai_sparkle"
+                android:layout_marginEnd="@dimen/spacing_sm" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/ai_popup_title"
+                android:textStyle="bold"
+                android:textColor="@color/md_theme_onSurface"
+                android:textSize="16sp" />
+
+            <ImageButton
+                android:id="@+id/btn_close"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="@color/md_theme_onSurface"
+                android:contentDescription="Close" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chat_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingStart="@dimen/spacing_md"
+            android:paddingEnd="@dimen/spacing_md"
+            android:clipToPadding="false" />
+
+        <ProgressBar
+            android:id="@+id/ai_loading_indicator"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="@dimen/spacing_sm">
+
+            <EditText
+                android:id="@+id/ai_input_text"
+                android:hint="@string/ai_hint_input"
+                android:inputType="textMultiLine"
+                android:maxLines="3"
+                android:background="@drawable/rounded_button_background"
+                android:backgroundTint="@color/md_theme_inputBackground"
+                android:textColor="@color/md_theme_onSurface"
+                android:padding="@dimen/spacing_sm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/spacing_sm" />
+
+            <ImageButton
+                android:id="@+id/btn_query"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/rounded_button_background"
+                android:backgroundTint="@color/md_theme_primary"
+                android:src="@android:drawable/ic_menu_send"
+                app:tint="@color/md_theme_onPrimary"
+                android:contentDescription="Send" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_accept"
+            android:text="@string/ai_accept_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_sm"
+            app:backgroundTint="@color/md_theme_primary"
+            android:textColor="@color/md_theme_onPrimary" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

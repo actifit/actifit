@@ -734,7 +734,7 @@
     <string name="profile_companion_hint">✎ Hayvanı değiştir</string>
     <string name="profile_companion_picker_title">Ruh hayvanını seç</string>
     <string name="profile_streak_at_risk">⚠️ %2$d günlük serini korumak için bugün %1$s adım kaldı</string>
-    <string name="profile_metrics_legend">🚶 %1$s adım · 📏 %2$s · 🔥 %3$s kcal</string>
+    <string name="profile_metrics_legend">🚶 %1$s adım · 📏 %2$s km · 🔥 %3$s kcal</string>
     <string name="more_menu_title">Daha Fazla</string>
     <string name="more_menu_activity_history">Etkinlik Geçmişi</string>
     <string name="more_menu_upload_video">Video Yükle</string>
@@ -752,5 +752,9 @@
     <string name="hive_transactions_error">Hive işlemleri yüklenemedi</string>
     <string name="hive_transactions_empty">Hiçbir finansal işlem bulunamadı</string>
     <string name="load_more_lbl">Daha Fazla Yükle</string>
+    <string name="ai_popup_title">Yapay Zeka Asistanı</string>
+    <string name="ai_hint_input">Ne konuda yardım istersiniz?</string>
+    <string name="ai_accept_button">Kabul Et</string>
+
 </resources>
 

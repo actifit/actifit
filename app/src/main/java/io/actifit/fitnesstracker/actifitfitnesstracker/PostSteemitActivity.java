@@ -3,10 +3,13 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import static org.bitcoinj.core.TransactionBroadcast.random;
 import static java.lang.Integer.parseInt;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.ProgressDialog;
+import java.util.List;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -103,6 +106,10 @@ import kotlin.Unit;
 import kotlinx.coroutines.BuildersKt;
 import kotlinx.coroutines.CoroutineStart;
 import kotlinx.coroutines.Dispatchers;
+import android.widget.ProgressBar;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
 
 public class PostSteemitActivity extends BaseActivity implements View.OnClickListener {
 
@@ -465,7 +472,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             isEditorExpanded = !isEditorExpanded;
             toggleEditorMode(isEditorExpanded);
         });
-
+        Button aiButton = findViewById(R.id.btn_ai_suggest);
+        aiButton.setOnClickListener(v -> showAiPopup());
         healthConnectManager = new HealthConnectManager(this);
         lifecycleCoroutineScope = LifecycleOwnerKt.getLifecycleScope(this);
 
@@ -596,12 +604,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
             @Override
             public void beforeTextChanged(CharSequence s, int start,
-                    int count, int after) {
+                                          int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start,
-                    int before, int count) {
+                                      int before, int count) {
                 if (s.length() != 0) {
                     // mdView.setMDText(steemitPostContent.getText().toString());
                     try {
@@ -894,7 +902,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             // metric slider ranges
             heightSize.setValueTo(250f);
             weightSize.setValueTo(300f);
-            waistSize.setValueTo(200f); thighsSize.setValueTo(200f); chestSize.setValueTo(200f);
+            waistSize.setValueTo(200f);
+            thighsSize.setValueTo(200f);
+            chestSize.setValueTo(200f);
         } else {
             weightSizeUnit.setText(getString(R.string.lb_unit));
             heightSizeUnit.setText(getString(R.string.ft_unit));
@@ -904,7 +914,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             // imperial slider ranges
             heightSize.setValueTo(96f);
             weightSize.setValueTo(660f);
-            waistSize.setValueTo(79f); thighsSize.setValueTo(79f); chestSize.setValueTo(79f);
+            waistSize.setValueTo(79f);
+            thighsSize.setValueTo(79f);
+            chestSize.setValueTo(79f);
         }
         bodyFat.setValueTo(60f);
         // all sliders start at 0 (= not entered)
@@ -937,7 +949,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             boolean nowExpanded = measurementsContent.getVisibility() != View.VISIBLE;
             measurementsContent.setVisibility(nowExpanded ? View.VISIBLE : View.GONE);
             ObjectAnimator.ofFloat(measurementsChevron, "rotation",
-                    measurementsChevron.getRotation(), nowExpanded ? 180f : 0f)
+                            measurementsChevron.getRotation(), nowExpanded ? 180f : 0f)
                     .setDuration(200).start();
             sharedPreferences.edit().putBoolean("measurementsExpanded", nowExpanded).apply();
         });
@@ -956,9 +968,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         });
         steemitPostTags.addTextChangedListener(new TextWatcher() {
             private boolean processing = false;
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void afterTextChanged(Editable s) {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
                 if (processing) return;
                 String text = s.toString();
                 if (!text.contains(",") && !text.contains(" ")) return;
@@ -966,7 +986,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 String[] tokens = text.split("[,\\s]+", -1);
                 boolean endsWithDelimiter = text.length() > 0
                         && (text.charAt(text.length() - 1) == ','
-                            || Character.isWhitespace(text.charAt(text.length() - 1)));
+                        || Character.isWhitespace(text.charAt(text.length() - 1)));
                 String remaining = "";
                 for (int i = 0; i < tokens.length; i++) {
                     String token = tokens[i].trim();
@@ -1100,17 +1120,20 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                             String w = fitbit.getFieldFromProfile("weight");
                             if (!w.isEmpty())
                                 weightSize.setValue(Math.min(Float.parseFloat(w), weightSize.getValueTo()));
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
 
                         // grab and update user height
                         try {
                             String h = fitbit.getFieldFromProfile("height");
                             if (!h.isEmpty())
                                 heightSize.setValue(Math.min(Float.parseFloat(h), heightSize.getValueTo()));
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
                     }
 
-                } catch (JSONException | InterruptedException | ExecutionException | IOException e) {
+                } catch (JSONException | InterruptedException | ExecutionException |
+                         IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1153,7 +1176,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         Log.d(MainActivity.TAG, "No auto-tracked activity found for today");
                     }
 
-                } catch (JSONException | InterruptedException | ExecutionException | IOException e) {
+                } catch (JSONException | InterruptedException | ExecutionException |
+                         IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1219,13 +1243,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     /**
      * function handling the display of popup notification
-     * 
+     *
      * @param notification
      * @param permLink
      */
     void displayNotification(final String notification, final ProgressDialog progress,
-            final Context context, final Activity currentActivity,
-            final String success, final String permLink) {
+                             final Context context, final Activity currentActivity,
+                             final String success, final String permLink) {
         // render result
         currentActivity.runOnUiThread(() -> {
             // hide the progressDialog
@@ -1372,8 +1396,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                 // storing account data for simple reuse. Data is not stored anywhere outside
                 // actifit App.
-                final SharedPreferences[] sharedPreferences = { getSharedPreferences("actifitSets", MODE_PRIVATE) };
-                final SharedPreferences.Editor[] editor = { sharedPreferences[0].edit() };
+                final SharedPreferences[] sharedPreferences = {getSharedPreferences("actifitSets", MODE_PRIVATE)};
+                final SharedPreferences.Editor[] editor = {sharedPreferences[0].edit()};
                 // skip on spaces, upper case, and @ symbols to properly match steem username
                 // patterns
                 editor[0].putString("actifitUser", accountUsername
@@ -1514,7 +1538,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     /*
                      * Date dt = new Date();
                      * Calendar cal = Calendar.getInstance();
-                     * 
+                     *
                      * TimeZone tz = cal.getTimeZone();
                      * tz.getRawOffset();
                      */
@@ -1684,7 +1708,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 }
 
                 // String inputLine;
-                final String[] result = { "" };
+                final String[] result = {""};
                 // use test url only if testing mode is on
                 String urlStr = getString(R.string.test_api_url);
                 // if (getString(R.string.test_mode).equals("off")) {
@@ -1737,14 +1761,14 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                 e.printStackTrace();
                             }
                         }, error -> {
-                            // hide dialog
-                            // progress.hide();
-                            // actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
-                            // notification = getString(R.string.failed_post);
-                            notification = error.getMessage();
-                            displayNotification(notification, progress, context, currentActivity, "", "");
-                            error.printStackTrace();
-                        });
+                    // hide dialog
+                    // progress.hide();
+                    // actifitBalance.setText(getString(R.string.unable_fetch_afit_balance));
+                    // notification = getString(R.string.failed_post);
+                    notification = error.getMessage();
+                    displayNotification(notification, progress, context, currentActivity, "", "");
+                    error.printStackTrace();
+                });
 
                 // make sure sent only once
                 sendPostRequest.setRetryPolicy(new DefaultRetryPolicy(
@@ -1928,8 +1952,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
             AlertDialog.Builder builder = new AlertDialog.Builder(steemit_post_context);
             builder.setMessage(getString(R.string.current_workout_going_charity) + " "
-                    + currentCharityDisplayName + " "
-                    + getString(R.string.current_workout_settings_based))
+                            + currentCharityDisplayName + " "
+                            + getString(R.string.current_workout_settings_based))
                     .setPositiveButton(getString(R.string.yes_button), dialogClickListener)
                     .setNegativeButton(getString(R.string.no_button), dialogClickListener).show();
         } else {
@@ -2120,4 +2144,97 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 });
     }
 
+    private void showAiPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.ai_popup, null);
+        builder.setView(dialogView);
+
+        EditText aiInputText = dialogView.findViewById(R.id.ai_input_text);
+        ImageButton btnQuery = dialogView.findViewById(R.id.btn_query);
+        ProgressBar loadingIndicator = dialogView.findViewById(R.id.ai_loading_indicator);
+        RecyclerView chatRecyclerView = dialogView.findViewById(R.id.chat_recycler_view);
+        Button btnAccept = dialogView.findViewById(R.id.btn_accept);
+        ImageButton btnClose = dialogView.findViewById(R.id.btn_close);
+
+        EditText steemitPostContent = findViewById(R.id.steemit_post_text);
+
+        List<ChatMessage> chatHistory = new ArrayList<>();
+        ChatAdapter chatAdapter = new ChatAdapter(chatHistory);
+        chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        chatRecyclerView.setAdapter(chatAdapter);
+
+        // Pre-fill the input with the existing draft, ready to send as the first message
+        //String existingDraft = steemitPostContent.getText().toString();
+        //if (!existingDraft.isEmpty()) {
+        //    aiInputText.setText(existingDraft);
+        //}
+
+        btnAccept.setEnabled(false);
+        btnAccept.setAlpha(0.5f);
+
+        AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+        dialog.show();
+
+        btnQuery.setOnClickListener(v -> {
+            String userText = aiInputText.getText().toString().trim();
+            if (userText.isEmpty()) {
+                return;
+            }
+
+            chatHistory.add(new ChatMessage(ChatMessage.ROLE_USER, userText));
+            chatAdapter.notifyItemInserted(chatHistory.size() - 1);
+            chatRecyclerView.scrollToPosition(chatHistory.size() - 1);
+            aiInputText.setText("");
+
+            loadingIndicator.setVisibility(View.VISIBLE);
+            btnQuery.setEnabled(false);
+
+            AiService aiService = new AiService();
+            aiService.generateChatResponse(chatHistory, new AiService.TextResponseCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        loadingIndicator.setVisibility(View.GONE);
+                        btnQuery.setEnabled(true);
+                        chatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, result));
+                        chatAdapter.notifyItemInserted(chatHistory.size() - 1);
+                        chatRecyclerView.scrollToPosition(chatHistory.size() - 1);
+                        if (!result.isEmpty()) {
+                            btnAccept.setEnabled(true);
+                            btnAccept.setAlpha(1f);
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        loadingIndicator.setVisibility(View.GONE);
+                        btnQuery.setEnabled(true);
+                        chatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, errorMessage));
+                        chatAdapter.notifyItemInserted(chatHistory.size() - 1);
+                        chatRecyclerView.scrollToPosition(chatHistory.size() - 1);
+                    });
+                }
+            });
+        });
+
+        btnAccept.setOnClickListener(v -> {
+            // Apply the most recent AI reply to the post
+            for (int i = chatHistory.size() - 1; i >= 0; i--) {
+                if (!chatHistory.get(i).isUser()) {
+                    steemitPostContent.setText(chatHistory.get(i).getText());
+                    break;
+                }
+            }
+            dialog.dismiss();
+        });
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+    }
 }

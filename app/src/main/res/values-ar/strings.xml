@@ -746,7 +746,7 @@
     <string name="profile_companion_hint">✎ تغيير الحيوان</string>
     <string name="profile_companion_picker_title">اختر حيوانك الروحي</string>
     <string name="profile_streak_at_risk">⚠️ بقيت %1$s خطوة اليوم للحفاظ على سلسلتك المكوّنة من %2$d يوم</string>
-    <string name="profile_metrics_legend">🚶 %1$s خطوة · 📏 %2$s · 🔥 %3$s سعرة</string>
+    <string name="profile_metrics_legend">🚶 %1$s خطوة · 📏 %2$s كم · 🔥 %3$s سعرة</string>
     <string name="more_menu_title">المزيد</string>
     <string name="more_menu_activity_history">سجل النشاط</string>
     <string name="more_menu_upload_video">رفع فيديو</string>
@@ -764,6 +764,10 @@
     <string name="hive_transactions_error">تعذر تحميل معاملات هايف</string>
     <string name="hive_transactions_empty">لم يتم العثور على معاملات مالية</string>
     <string name="load_more_lbl">تحميل المزيد</string>
+    <string name="ai_popup_title">مساعد الذكاء الاصطناعي</string>
+    <string name="ai_hint_input">بماذا تريد المساعدة؟</string>
+    <string name="ai_accept_button">قبول</string>
 </resources>
+
 
 
