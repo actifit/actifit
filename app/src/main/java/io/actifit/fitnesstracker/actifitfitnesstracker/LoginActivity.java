@@ -345,11 +345,7 @@ public class LoginActivity extends BaseActivity {
         ppHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         TextView createAccountLink = findViewById(R.id.username_create_account_link);
-        // Switch to native signup activity
-        createAccountLink.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
-            startActivity(intent);
-        });
+        createAccountLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         // display content
         View loginContainer = findViewById(R.id.loginContainer);
