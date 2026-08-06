@@ -756,6 +756,8 @@
     <string name="ai_popup_title">AI-assistent</string>
     <string name="ai_hint_input">Waarmee wil je hulp?</string>
     <string name="ai_accept_button">Accepteren</string>
+    <string name="step_goal_format">/ %1$s stappen</string>
+    <string name="step_pct_to_goal_format">%1$d%% tot doel</string>
 
 </resources>
 

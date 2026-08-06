@@ -756,6 +756,8 @@
     <string name="ai_popup_title">AI 어시스턴트</string>
     <string name="ai_hint_input">무엇을 도와드릴까요?</string>
     <string name="ai_accept_button">수락</string>
+    <string name="step_goal_format">/ %1$s 걸음</string>
+    <string name="step_pct_to_goal_format">목표까지 %1$d%%</string>
 
 </resources>
 

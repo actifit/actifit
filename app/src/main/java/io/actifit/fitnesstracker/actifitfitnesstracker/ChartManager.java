@@ -136,8 +136,8 @@ public class ChartManager {
             tvCount.setText(java.text.NumberFormat.getInstance().format(steps));
             tvCount.setTextColor(color);
         }
-        if (tvGoal != null) tvGoal.setText("/ " + java.text.NumberFormat.getInstance().format(DAILY_GOAL) + " steps");
-        if (tvPct != null) tvPct.setText(progress + "% to goal");
+        if (tvGoal != null) tvGoal.setText(context.getString(R.string.step_goal_format, java.text.NumberFormat.getInstance().format(DAILY_GOAL)));
+        if (tvPct != null) tvPct.setText(context.getString(R.string.step_pct_to_goal_format, progress));
     }
 
     public void displayActivityChart(final int stepCount, final boolean animate) {
