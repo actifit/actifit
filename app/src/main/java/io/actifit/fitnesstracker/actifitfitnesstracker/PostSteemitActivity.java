@@ -2144,6 +2144,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 });
     }
 
+    private List<ChatMessage> aiChatHistory = null;
+    private ChatAdapter aiChatAdapter = null;
     private void showAiPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.ai_popup, null);
@@ -2158,20 +2160,26 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         EditText steemitPostContent = findViewById(R.id.steemit_post_text);
 
-        List<ChatMessage> chatHistory = new ArrayList<>();
-        ChatAdapter chatAdapter = new ChatAdapter(chatHistory);
+        if (aiChatHistory == null) {
+            aiChatHistory = new ArrayList<>();
+        }
+        if (aiChatAdapter == null) {
+            aiChatAdapter = new ChatAdapter(aiChatHistory);
+        }
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        chatRecyclerView.setAdapter(chatAdapter);
+        chatRecyclerView.setAdapter(aiChatAdapter);
 
-        // Pre-fill the input with the existing draft, ready to send as the first message
-        //String existingDraft = steemitPostContent.getText().toString();
-        //if (!existingDraft.isEmpty()) {
-        //    aiInputText.setText(existingDraft);
-        //}
 
-        btnAccept.setEnabled(false);
-        btnAccept.setAlpha(0.5f);
+        boolean hasAiResponse = false;
+        for (int i = aiChatHistory.size() - 1; i >= 0; i--) {
+            if (!aiChatHistory.get(i).isUser() && !aiChatHistory.get(i).getText().isEmpty()) {
+                hasAiResponse = true;
+                break;
+            }
+        }
 
+        btnAccept.setEnabled(hasAiResponse);
+        btnAccept.setAlpha(hasAiResponse ? 1f : 0.5f);
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -2184,25 +2192,25 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 return;
             }
 
-            chatHistory.add(new ChatMessage(ChatMessage.ROLE_USER, userText));
-            chatAdapter.notifyItemInserted(chatHistory.size() - 1);
-            chatRecyclerView.scrollToPosition(chatHistory.size() - 1);
+            aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_USER, userText));
+            aiChatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
+            chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
             aiInputText.setText("");
 
             loadingIndicator.setVisibility(View.VISIBLE);
             btnQuery.setEnabled(false);
 
             AiService aiService = new AiService();
-            aiService.generateChatResponse(chatHistory, new AiService.TextResponseCallback() {
+            aiService.generateChatResponse(aiChatHistory, new AiService.TextResponseCallback() {
                 @Override
                 public void onSuccess(String result) {
                     runOnUiThread(() -> {
                         if (isFinishing() || isDestroyed()) return;
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
-                        chatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, result));
-                        chatAdapter.notifyItemInserted(chatHistory.size() - 1);
-                        chatRecyclerView.scrollToPosition(chatHistory.size() - 1);
+                        aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, result));
+                        aiChatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
+                        chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
                         if (!result.isEmpty()) {
                             btnAccept.setEnabled(true);
                             btnAccept.setAlpha(1f);
@@ -2216,9 +2224,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         if (isFinishing() || isDestroyed()) return;
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
-                        chatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, errorMessage));
-                        chatAdapter.notifyItemInserted(chatHistory.size() - 1);
-                        chatRecyclerView.scrollToPosition(chatHistory.size() - 1);
+                        aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, errorMessage));
+                        aiChatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
+                        chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
                     });
                 }
             });
@@ -2226,9 +2234,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         btnAccept.setOnClickListener(v -> {
             // Apply the most recent AI reply to the post
-            for (int i = chatHistory.size() - 1; i >= 0; i--) {
-                if (!chatHistory.get(i).isUser()) {
-                    steemitPostContent.setText(chatHistory.get(i).getText());
+            for (int i = aiChatHistory.size() - 1; i >= 0; i--) {
+                if (!aiChatHistory.get(i).isUser()) {
+                    steemitPostContent.setText(aiChatHistory.get(i).getText());
                     break;
                 }
             }
