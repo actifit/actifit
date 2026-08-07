@@ -759,7 +759,7 @@
     <string name="profile_metrics_legend">🚶 %1$s Schritte · 📏 %2$s km · 🔥 %3$s kcal</string>
     <string name="ai_popup_title">KI-Assistent</string>
     <string name="ai_hint_input">Wobei möchtest du Hilfe?</string>
-    <string name="ai_accept_button">Übernehmen</string>
+    <string name="ai_accept_button">Einfügen</string>
     <string name="step_goal_format">/ %1$s Schritte</string>
     <string name="step_pct_to_goal_format">%1$d%% bis zum Ziel</string>
 </resources>

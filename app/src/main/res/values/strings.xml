@@ -740,7 +740,7 @@
     <string name="more_menu_community_chat">Community Chat</string>
     <string name="ai_popup_title">AI Assistant</string>
     <string name="ai_hint_input">What would you like help with?</string>
-    <string name="ai_accept_button">Accept</string>
+    <string name="ai_accept_button">Insert</string>
     <string name="step_goal_format">/ %1$s steps</string>
     <string name="step_pct_to_goal_format">%1$d%% to goal</string>
 </resources>

@@ -755,7 +755,7 @@
     <string name="load_more_lbl">और लोड करें</string>
     <string name="ai_popup_title">एआई सहायक</string>
     <string name="ai_hint_input">आपको किस चीज़ में मदद चाहिए?</string>
-    <string name="ai_accept_button">स्वीकार करें</string>
+    <string name="ai_accept_button">डालें</string>
     <string name="step_goal_format">/ %1$s कदम</string>
     <string name="step_pct_to_goal_format">%1$d%% लक्ष्य तक</string>
 

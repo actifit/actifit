@@ -755,7 +755,7 @@
     <string name="load_more_lbl">Gbé sí i wọlé</string>
     <string name="ai_popup_title">Olùrànlọ́wọ́ AI</string>
     <string name="ai_hint_input">Kí ni o fẹ́ ìrànlọ́wọ́ pẹ̀lú?</string>
-    <string name="ai_accept_button">Gbà</string>
+    <string name="ai_accept_button">Fi sí i</string>
     <string name="step_goal_format">/ %1$s ìṣísẹ̀</string>
     <string name="step_pct_to_goal_format">%1$d%% sí góòlù</string>
 </resources>

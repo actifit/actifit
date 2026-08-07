@@ -754,7 +754,7 @@
     <string name="load_more_lbl">加载更多</string>
     <string name="ai_popup_title">AI 助手</string>
     <string name="ai_hint_input">您需要什么帮助？</string>
-    <string name="ai_accept_button">接受</string>
+    <string name="ai_accept_button">插入</string>
     <string name="step_goal_format">/ %1$s 步</string>
     <string name="step_pct_to_goal_format">距离目标 %1$d%%</string>
 </resources>

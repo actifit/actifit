@@ -766,7 +766,7 @@
     <string name="load_more_lbl">تحميل المزيد</string>
     <string name="ai_popup_title">مساعد الذكاء الاصطناعي</string>
     <string name="ai_hint_input">بماذا تريد المساعدة؟</string>
-    <string name="ai_accept_button">قبول</string>
+    <string name="ai_accept_button">ادراج</string>
     <string name="step_goal_format">/ %1$s خطوة</string>
     <string name="step_pct_to_goal_format">%1$d%% للوصول إلى الهدف</string>
 </resources>
