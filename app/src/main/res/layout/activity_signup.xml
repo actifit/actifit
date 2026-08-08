@@ -198,6 +198,33 @@
                         android:layout_marginTop="@dimen/spacing_sm"
                         android:textColor="@color/md_theme_textSecondary" />
 
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/currency_toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_hive"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="HIVE"
+                            android:checked="true" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_hbd"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="HBD" />
+
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/promo_input_layout"
                         android:layout_width="match_parent"

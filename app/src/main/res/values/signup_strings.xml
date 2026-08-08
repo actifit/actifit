@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="error_opening_link">Unable to open link.</string>
+    <string name="username_check_required">Please check that this username is available before continuing.</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="error_hive_price">Unable to load a valid HIVE price. Please try again.</string>
+    <string name="error_hbd_price">Unable to load a valid HBD price. Please try again.</string>
+    <string name="error_afit_price">Unable to load the signup AFIT reward. Please try again.</string>
+    <string name="error_signup_pricing">Signup pricing is still loading. Please try again.</string>
+    <string name="error_invalid_promo">Invalid or unavailable promo code.</string>
     <string name="signup_title">Create Actifit Account</string>
     <string name="step_username">Step 1: Choose Username</string>
     <string name="step_email">Step 2: Account Details</string>

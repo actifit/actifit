@@ -5,13 +5,19 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ActivityNotFoundException;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -29,6 +35,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -41,12 +48,24 @@ import org.json.JSONObject;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class SignupActivity extends BaseActivity {
 
     private static final String TAG = "SignupActivity";
     private static final int MAX_POLL_ATTEMPTS = 60; // 5 minutes with 5s delay
+    private static final double SIGNUP_COST_USD = 2.0;
+    private static final double PROMO_HIVE_FALLBACK_USD_PRICE = 0.10;
+    private static final double PROMO_HBD_FALLBACK_USD_PRICE = 1.00;
+    private static final double AFIT_REWARD_LOT_USD = 5.0;
+    private static final int MAX_AFIT_REWARD_PER_LOT = 100;
+    private static final String HIVE_PRICE_URL = "https://api.actifit.io/hivePrice";
+    private static final String HBD_PRICE_URL = "https://api.coingecko.com/api/v3/simple/price?ids=hive_dollar&vs_currencies=usd";
+    private static final String AFIT_PRICE_URL = "https://api2.actifit.io/curAFITPrice";
+    private static final String CONFIRM_PAYMENT_URL = "https://api.actifit.io/confirmPayment";
+    private static final String TERMS_URL = "https://actifit.io/terms-conditions";
+    private static final String PRIVACY_URL = "https://actifit.io/privacy-policy";
 
     private int currentStep = 1;
     private LinearProgressIndicator progressBar;
@@ -57,16 +76,21 @@ public class SignupActivity extends BaseActivity {
     private Button btnNext, btnPrev, btnCheckUsername, btnCopyKeys;
     private MaterialCheckBox cbTos, cbBackedUp;
 
+    private MaterialButtonToggleGroup currencyToggle;
     private HiveRequests hiveRequests;
     private RequestQueue queue;
     private ProgressDialog progress;
 
     private String generatedMasterPassword = "";
     private boolean isUsernameAvailable = false;
+    private String availableUsername = "";
     private String generatedMemo = "";
     private final String paymentRecipient = "actifit.signup";
-    private final double signupCostUsd = 2.0;
-    
+
+    private String selectedCurrency = "HIVE";
+    private double requiredCryptoAmount = 0.0;
+    private boolean liveCurrencyPriceAvailable = false;
+    private int afitReward = -1;
     private Handler pollHandler = new Handler(Looper.getMainLooper());
     private boolean isPolling = false;
     private int pollAttempts = 0;
@@ -98,12 +122,31 @@ public class SignupActivity extends BaseActivity {
         masterPasswordDisplay = findViewById(R.id.master_password_display);
         usernameStatus = findViewById(R.id.username_status);
         verificationDesc = findViewById(R.id.verification_desc);
+        currencyToggle = findViewById(R.id.currency_toggle);
+        currencyToggle.check(R.id.button_hive);
+
+        currencyToggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) {
+                return;
+            }
+
+            if (checkedId == R.id.button_hive) {
+                selectedCurrency = "HIVE";
+            } else if (checkedId == R.id.button_hbd) {
+                selectedCurrency = "HBD";
+            }
+
+            requiredCryptoAmount = 0.0;
+            liveCurrencyPriceAvailable = false;
+            fetchSelectedCurrencyPriceAndUpdateAmount();
+        });
 
         btnNext = findViewById(R.id.btn_next);
         btnPrev = findViewById(R.id.btn_prev);
         btnCheckUsername = findViewById(R.id.btn_check_username);
         btnCopyKeys = findViewById(R.id.btn_copy_keys);
         cbTos = findViewById(R.id.cb_tos);
+        setupTermsLinks();
         cbBackedUp = findViewById(R.id.cb_backed_up);
 
         btnCheckUsername.setOnClickListener(v -> checkUsernameAvailability());
@@ -124,6 +167,15 @@ public class SignupActivity extends BaseActivity {
             }
         });
 
+        usernameInput.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                isUsernameAvailable = false;
+                availableUsername = "";
+                usernameStatus.setVisibility(View.GONE);
+            }
+        });
+
         promoInput.addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -132,6 +184,64 @@ public class SignupActivity extends BaseActivity {
                 }
             }
         });
+    }
+
+    private void setupTermsLinks() {
+        String text = getString(R.string.tos_accept);
+        SpannableString spannable = new SpannableString(text);
+
+        String termsText = getString(R.string.terms_of_service);
+        String privacyText = getString(R.string.privacy_policy);
+
+        int termsStart = text.indexOf(termsText);
+        int termsEnd = termsStart + termsText.length();
+
+        int privacyStart = text.indexOf(privacyText);
+        int privacyEnd = privacyStart + privacyText.length();
+
+        ClickableSpan termsSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                openExternalUrl(TERMS_URL);
+            }
+        };
+
+        ClickableSpan privacySpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                openExternalUrl(PRIVACY_URL);
+            }
+        };
+
+        spannable.setSpan(
+                termsSpan,
+                termsStart,
+                termsEnd,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+
+        spannable.setSpan(
+                privacySpan,
+                privacyStart,
+                privacyEnd,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+
+        cbTos.setText(spannable);
+        cbTos.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void openExternalUrl(String url) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(
+                    this,
+                    R.string.error_opening_link,
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 
     private void handleNextStep() {
@@ -145,16 +255,27 @@ public class SignupActivity extends BaseActivity {
                 usernameInput.setError(getString(R.string.username_invalid));
                 return;
             }
+            if (!isUsernameAvailable || !username.equals(availableUsername)) {
+                showUsernameStatus(
+                        getString(R.string.username_check_required),
+                        Color.RED
+                );
+                return;
+            }
             currentStep = 2;
             updateStepUI();
         } else if (currentStep == 2) {
             String email = emailInput.getText().toString().trim();
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+
+            if (!email.isEmpty() &&
+                    !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+
                 if (emailInputLayout != null) {
                     emailInputLayout.setError(getString(R.string.error_email_invalid));
                 } else {
                     emailInput.setError(getString(R.string.error_email_invalid));
                 }
+
                 return;
             }
             emailInputLayout.setError(null);
@@ -259,6 +380,8 @@ public class SignupActivity extends BaseActivity {
         }
 
         btnCheckUsername.setEnabled(false);
+        isUsernameAvailable = false;
+        availableUsername = "";
         usernameStatus.setVisibility(View.VISIBLE);
         usernameStatus.setText(R.string.loading);
         usernameStatus.setTextColor(Color.GRAY);
@@ -271,17 +394,25 @@ public class SignupActivity extends BaseActivity {
         hiveRequests.processRequest("condenser_api.get_accounts", params)
                 .thenAccept(result -> runOnUiThread(() -> {
                     btnCheckUsername.setEnabled(true);
+                    String currentUsername = usernameInput.getText().toString().trim().toLowerCase(Locale.US);
+                    if (!username.equals(currentUsername)) {
+                        return;
+                    }
                     if (result.length() == 0) {
                         isUsernameAvailable = true;
+                        availableUsername = username;
                         showUsernameStatus(getString(R.string.username_available), Color.parseColor("#4CAF50"));
                     } else {
                         isUsernameAvailable = false;
+                        availableUsername = "";
                         showUsernameStatus(getString(R.string.username_taken), Color.RED);
                     }
                 }))
                 .exceptionally(ex -> {
                     runOnUiThread(() -> {
                         btnCheckUsername.setEnabled(true);
+                        isUsernameAvailable = false;
+                        availableUsername = "";
                         showUsernameStatus(getString(R.string.error_check_availability), Color.RED);
                     });
                     return null;
@@ -295,18 +426,138 @@ public class SignupActivity extends BaseActivity {
     }
 
     private void preparePaymentInfo() {
-        // Generate a unique memo for this signup attempt
-        SecureRandom random = new SecureRandom();
-        byte[] bytes = new byte[8];
-        random.nextBytes(bytes);
-        String encoded = java.util.Base64.getEncoder().encodeToString(bytes);
-        generatedMemo = "signup:" + encoded.substring(0, Math.min(encoded.length(), 10));
+        // Generate a unique memo only once for this signup attempt.
+        if (generatedMemo.isEmpty()) {
+            final String alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            SecureRandom random = new SecureRandom();
+            StringBuilder memo = new StringBuilder("signup:");
 
-        String instructions = "To create your account, please send <b>$" + signupCostUsd + " USD</b> worth of HIVE or HBD to: <br/><br/>" +
-                "Account: <b>" + paymentRecipient + "</b><br/>" +
-                "Memo: <b>" + generatedMemo + "</b><br/><br/>" +
-                "Alternatively, if you have a <b>Promo Code</b>, enter it below to skip the payment.";
-        
+            for (int i = 0; i < 10; i++) {
+                memo.append(alphabet.charAt(random.nextInt(alphabet.length())));
+            }
+
+            generatedMemo = memo.toString();
+        }
+        fetchAfitReward();
+        fetchSelectedCurrencyPriceAndUpdateAmount();
+    }
+
+    private void fetchAfitReward() {
+        afitReward = -1;
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                AFIT_PRICE_URL,
+                null,
+                response -> {
+                    double afitPrice = response.optDouble("unit_price_usd", 0.0);
+                    if (afitPrice <= 0) {
+                        showError(getString(R.string.error_afit_price));
+                        return;
+                    }
+
+                    int lots = Math.max(1, (int) Math.floor(SIGNUP_COST_USD / AFIT_REWARD_LOT_USD));
+                    int rewardCap = MAX_AFIT_REWARD_PER_LOT * lots;
+                    afitReward = (int) Math.floor(Math.min(SIGNUP_COST_USD / afitPrice, rewardCap));
+                },
+                error -> showError(getString(R.string.error_afit_price))
+        );
+        queue.add(request);
+    }
+
+    private void fetchSelectedCurrencyPriceAndUpdateAmount() {
+        requiredCryptoAmount = 0.0;
+        liveCurrencyPriceAvailable = false;
+        if ("HBD".equals(selectedCurrency)) {
+            fetchHbdPriceAndUpdateAmount();
+            return;
+        }
+
+        final String requestedCurrency = selectedCurrency;
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                HIVE_PRICE_URL,
+                null,
+                response -> {
+                    try {
+                        JSONObject hive = response.getJSONObject("hive");
+                        double hiveUsdPrice = hive.getDouble("usd");
+
+                        if (hiveUsdPrice <= 0) {
+                            showError(getString(R.string.error_hive_price));
+                            return;
+                        }
+
+                        if (!requestedCurrency.equals(selectedCurrency)) {
+                            return;
+                        }
+                        requiredCryptoAmount = roundCryptoAmount(SIGNUP_COST_USD / hiveUsdPrice);
+                        liveCurrencyPriceAvailable = true;
+                        updatePaymentInstructions();
+
+                    } catch (JSONException e) {
+                        showError(getString(R.string.error_hive_price));
+                    }
+                },
+                error -> showError(getString(R.string.error_hive_price))
+        );
+
+        queue.add(request);
+    }
+
+    private void fetchHbdPriceAndUpdateAmount() {
+        final String requestedCurrency = selectedCurrency;
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                HBD_PRICE_URL,
+                null,
+                response -> {
+                    try {
+                        double hbdUsdPrice = response.getJSONObject("hive_dollar").getDouble("usd");
+                        if (hbdUsdPrice <= 0) {
+                            showError(getString(R.string.error_hbd_price));
+                            return;
+                        }
+
+                        if (!requestedCurrency.equals(selectedCurrency)) {
+                            return;
+                        }
+                        requiredCryptoAmount = roundCryptoAmount(SIGNUP_COST_USD / hbdUsdPrice);
+                        liveCurrencyPriceAvailable = true;
+                        updatePaymentInstructions();
+                    } catch (JSONException e) {
+                        showError(getString(R.string.error_hbd_price));
+                    }
+                },
+                error -> showError(getString(R.string.error_hbd_price))
+        );
+        queue.add(request);
+    }
+
+    private double roundCryptoAmount(double amount) {
+        return Double.parseDouble(String.format(Locale.US, "%.3f", amount));
+    }
+
+    private double getPromoCryptoAmount() {
+        if (liveCurrencyPriceAvailable && requiredCryptoAmount > 0) {
+            return requiredCryptoAmount;
+        }
+
+        double fallbackUsdPrice = "HBD".equals(selectedCurrency)
+                ? PROMO_HBD_FALLBACK_USD_PRICE
+                : PROMO_HIVE_FALLBACK_USD_PRICE;
+        return roundCryptoAmount(SIGNUP_COST_USD / fallbackUsdPrice);
+    }
+
+    private void updatePaymentInstructions() {
+        String instructions =
+                "To create your account, please send <b>" +
+                        String.format(Locale.US, "%.3f", requiredCryptoAmount) +
+                        " " + selectedCurrency + "</b> to:<br/><br/>" +
+                        "Account: <b>" + paymentRecipient + "</b><br/>" +
+                        "Memo: <b>" + generatedMemo + "</b><br/><br/>" +
+                        "Alternatively, if you have a <b>Promo Code</b>, enter it below to skip the payment.";
+
         verificationDesc.setText(Html.fromHtml(instructions));
     }
 
@@ -329,6 +580,15 @@ public class SignupActivity extends BaseActivity {
     private void pollPayment() {
         if (!isPolling) return;
 
+        String promo = promoInput.getText().toString().trim();
+        boolean isPromoSignup = !promo.isEmpty();
+        if (afitReward < 0
+                || (!isPromoSignup && (!liveCurrencyPriceAvailable || requiredCryptoAmount <= 0))) {
+            stopPaymentPolling();
+            showError(getString(R.string.error_signup_pricing));
+            return;
+        }
+
         if (pollAttempts >= MAX_POLL_ATTEMPTS) {
             stopPaymentPolling();
             showError(getString(R.string.payment_timeout));
@@ -336,49 +596,58 @@ public class SignupActivity extends BaseActivity {
         }
 
         pollAttempts++;
-        String url = "https://api.actifit.io/confirmPayment"; 
-
         JSONObject body = new JSONObject();
         try {
             body.put("new_account", usernameInput.getText().toString().trim().toLowerCase());
             // NOTE: The server currently expects generatedMasterPassword to facilitate account creation.
             // This trust model implies that the backend manages the final account_create transaction.
             body.put("new_pass", generatedMasterPassword);
-            body.put("sent_cur", "HIVE"); 
-            body.put("usd_invest", signupCostUsd);
+            body.put("sent_cur", selectedCurrency);
+            body.put("usd_invest", promo.isEmpty() ? SIGNUP_COST_USD : 0.0);
+            double cryptoAmountForRequest = isPromoSignup
+                    ? getPromoCryptoAmount()
+                    : requiredCryptoAmount;
+            body.put("steem_invest", String.format(Locale.US, "%.3f", cryptoAmountForRequest));
             body.put("memo", generatedMemo);
             body.put("email", emailInput.getText().toString().trim());
             body.put("referrer", referralInput.getText().toString().trim());
-            
-            String promo = promoInput.getText().toString().trim();
+            body.put("afit_reward", afitReward);
+
             if (!promo.isEmpty()) {
                 body.put("promo_code", promo);
             }
-            
-            body.put(getString(R.string.sec_param), getString(R.string.sec_param_val));
+
+            body.put("confirm_payment_token", getString(R.string.sec_param_val));
             body.put("cur_bchain", "HIVE|");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, body,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, CONFIRM_PAYMENT_URL, body,
                 response -> {
-                    try {
-                        if (response.has("success") && response.getBoolean("success")) {
+                    boolean accountCreated =
+                            response.optBoolean("accountCreated", false);
+
+                    if (accountCreated) {
+                        stopPaymentPolling();
+                        currentStep = 4;
+                        updateStepUI();
+                    } else {
+                        if (!promo.isEmpty()) {
                             stopPaymentPolling();
-                            currentStep = 4;
-                            updateStepUI();
+                            showError(getString(R.string.error_invalid_promo));
                         } else {
-                            // If not successful yet, retry after 5 seconds
                             pollHandler.postDelayed(this::pollPayment, 5000);
                         }
-                    } catch (JSONException e) {
-                        pollHandler.postDelayed(this::pollPayment, 5000);
                     }
                 },
                 error -> {
-                    // On timeout or network error, don't give up, just wait and retry
-                    pollHandler.postDelayed(this::pollPayment, 5000);
+                    if (!promoInput.getText().toString().trim().isEmpty()) {
+                        stopPaymentPolling();
+                        handleNetworkError(error);
+                    } else {
+                        pollHandler.postDelayed(this::pollPayment, 5000);
+                    }
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
