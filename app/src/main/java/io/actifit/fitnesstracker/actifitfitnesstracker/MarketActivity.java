@@ -217,8 +217,20 @@ public class MarketActivity extends BaseActivity {
                                 JSONObject nonConsumedEntry = nonConsumedProducts.getJSONObject(ii);
                                 if (nonConsumedEntry.get("gadget").equals(postEntry.id)) {
                                     //match found, let's flag accordingly as bought or active
-                                    if (postEntry.nonConsumedCopy == SingleProductModel.NOCOPY) {
-                                        postEntry.nonConsumedCopy = (nonConsumedEntry.get("status").equals("active") ? SingleProductModel.ACTIVECOPY : SingleProductModel.BOUGHTCOPY);
+                                    boolean isActiveCopy = nonConsumedEntry.get("status").equals("active");
+                                    if (postEntry.nonConsumedCopy == SingleProductModel.NOCOPY
+                                            || (isActiveCopy && postEntry.nonConsumedCopy != SingleProductModel.ACTIVECOPY)) {
+                                        postEntry.nonConsumedCopy = isActiveCopy
+                                                ? SingleProductModel.ACTIVECOPY : SingleProductModel.BOUGHTCOPY;
+                                        postEntry.beneficiary = "";
+                                        if (isActiveCopy && nonConsumedEntry.has("benefic")
+                                                && !nonConsumedEntry.isNull("benefic")) {
+                                            Object beneficiary = nonConsumedEntry.opt("benefic");
+                                            if (beneficiary instanceof String) {
+                                                postEntry.beneficiary = ((String) beneficiary).trim();
+                                            }
+                                        }
+                                        postEntry.remainingBoosts = postEntry.validityVal;
                                         JSONArray postsConsumed = nonConsumedEntry.getJSONArray("posts_consumed");
                                         if (postsConsumed != null && postsConsumed.length() > 0) {
                                             int span = nonConsumedEntry.getInt("span");

@@ -27,6 +27,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
@@ -91,10 +92,19 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
             Button deactivateGadget = convertView.findViewById(R.id.deactivateGadget);
             EditText friendBeneficiary = convertView.findViewById(R.id.friendBeneficiary);
             LinearLayout boughtInfo = convertView.findViewById(R.id.boughtInfo);
+            LinearLayout beneficiaryIdentity = convertView.findViewById(R.id.beneficiaryIdentity);
+            ImageView beneficiaryAvatar = convertView.findViewById(R.id.beneficiaryAvatar);
+            TextView beneficiaryUsername = convertView.findViewById(R.id.beneficiaryUsername);
 
             TextView totalBought = convertView.findViewById(R.id.totalBoughtCount);
             TextView totalConsumed = convertView.findViewById(R.id.totalConsumedCount);
             TextView remainingBoosts = convertView.findViewById(R.id.remainingBoosts);
+
+            if (!postEntry.id.equals(friendBeneficiary.getTag())) {
+                friendBeneficiary.setText("");
+                friendBeneficiary.setTag(postEntry.id);
+            }
+            bindBeneficiaryIdentity(postEntry, beneficiaryIdentity, beneficiaryAvatar, beneficiaryUsername);
 
             // Populate the data into the template view using the data object
 
@@ -662,21 +672,21 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     cstm_params.put("required_posting_auths", required_posting_auths);
                     cstm_params.put("id", "actifit");
                     // cstm_params.put("json", json_op_details);
+                    final String activationBeneficiary = postEntry.isFriendRewarding
+                            ? friendBeneficiary.getText().toString().trim() : "";
+                    if (postEntry.isFriendRewarding && activationBeneficiary.isEmpty()) {
+                        Toast.makeText(getContext(),
+                                getContext().getString(R.string.error_activate_product_benefic), Toast.LENGTH_LONG)
+                                .show();
+                        activateGadget.clearAnimation();
+                        return;
+                    }
                     if (!postEntry.isFriendRewarding) {
                         cstm_params.put("json",
                                 "{\"transaction\": \"activate-gadget\" , \"gadget\": \"" + postEntry.id + "\"}");
                     } else {
-                        String friendBenefic = friendBeneficiary.getText().toString();
-                        if (friendBenefic.equals("")) {
-                            // send out error
-                            Toast.makeText(getContext(),
-                                    getContext().getString(R.string.error_activate_product_benefic), Toast.LENGTH_LONG)
-                                    .show();
-                            activateGadget.clearAnimation();
-                            return;
-                        }
                         cstm_params.put("json", "{\"transaction\": \"activate-gadget\" , \"gadget\": \"" + postEntry.id
-                                + "\" , \"benefic\": \"" + friendBenefic + "\"}");
+                                + "\" , \"benefic\": \"" + activationBeneficiary + "\"}");
                     }
 
                     JSONArray operation = new JSONArray();
@@ -711,7 +721,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
                                         if (postEntry.isFriendRewarding) {
                                             // append friend beneficiary
-                                            buyUrl += "/" + friendBeneficiary.getText().toString();
+                                            buyUrl += "/" + activationBeneficiary;
                                         }
 
                                         // send out transaction
@@ -722,12 +732,15 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                                                     activateGadget.clearAnimation();
                                                     Log.d(MainActivity.TAG, response12.toString());
                                                     //
-                                                    if (!response12.has("error")) {
+                                                    if ("success".equals(response12.optString("status"))) {
                                                         // showActivateButton(postEntry, finalConvertView);
                                                         postEntry.nonConsumedCopy = SingleProductModel.ACTIVECOPY;
+                                                        postEntry.beneficiary = postEntry.isFriendRewarding
+                                                                ? activationBeneficiary : "";
                                                         friendBeneficiary.setVisibility(View.GONE);
                                                         activateGadget.setVisibility(View.GONE);
                                                         deactivateGadget.setVisibility(View.VISIBLE);
+                                                        notifyDataSetChanged();
                                                         // successfully bought product
                                                         Toast.makeText(getContext(),
                                                                 getContext()
@@ -916,17 +929,10 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                                                     deactivateGadget.clearAnimation();
                                                     Log.d(MainActivity.TAG, response13.toString());
                                                     //
-                                                    if (!response13.has("error")) {
-                                                        // showActivateButton(postEntry, finalConvertView);
-                                                        postEntry.nonConsumedCopy = SingleProductModel.BOUGHTCOPY;
-
-                                                        if (postEntry.isFriendRewarding) {
-                                                            friendBeneficiary.setVisibility(View.VISIBLE);
-                                                        } else {
-                                                            friendBeneficiary.setVisibility(View.GONE);
-                                                        }
-                                                        activateGadget.setVisibility(View.VISIBLE);
-                                                        deactivateGadget.setVisibility(View.GONE);
+                                                    if ("success".equals(response13.optString("status"))) {
+                                                        postEntry.beneficiary = "";
+                                                        notifyDataSetChanged();
+                                                        refreshProductStateAfterDeactivation(postEntry);
                                                         // successfully bought product
                                                         Toast.makeText(getContext(),
                                                                 getContext()
@@ -1258,6 +1264,68 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    private void refreshProductStateAfterDeactivation(SingleProductModel product) {
+        String url = Utils.apiUrl(getContext())
+                + getContext().getString(R.string.non_consumed_gadgets_link) + username;
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, response -> {
+            product.nonConsumedCopy = SingleProductModel.BOUGHTCOPY;
+            product.beneficiary = "";
+            product.remainingBoosts = product.validityVal;
+
+            for (int i = 0; i < response.length(); i++) {
+                JSONObject entry = response.optJSONObject(i);
+                if (entry == null || !product.id.equals(entry.optString("gadget"))
+                        || !"active".equals(entry.optString("status"))) {
+                    continue;
+                }
+
+                product.nonConsumedCopy = SingleProductModel.ACTIVECOPY;
+                Object beneficiary = entry.opt("benefic");
+                if (beneficiary instanceof String) {
+                    product.beneficiary = ((String) beneficiary).trim();
+                }
+                JSONArray postsConsumed = entry.optJSONArray("posts_consumed");
+                if (postsConsumed != null) {
+                    product.remainingBoosts -= postsConsumed.length();
+                }
+                break;
+            }
+            notifyDataSetChanged();
+        }, error -> Log.e(MainActivity.TAG, "Error refreshing gadget state after deactivation"));
+        Volley.newRequestQueue(getContext()).add(request);
+    }
+
+    private void bindBeneficiaryIdentity(SingleProductModel product, LinearLayout identity,
+            ImageView avatar, TextView beneficiaryUsername) {
+        Glide.with(getContext()).clear(avatar);
+        identity.setVisibility(View.GONE);
+        beneficiaryUsername.setText("");
+        avatar.setImageResource(R.drawable.default_pic);
+
+        if (product.nonConsumedCopy != SingleProductModel.ACTIVECOPY
+                || product.beneficiary == null || product.beneficiary.trim().isEmpty()) {
+            return;
+        }
+
+        String normalizedUsername = product.beneficiary.trim();
+        while (normalizedUsername.startsWith("@")) {
+            normalizedUsername = normalizedUsername.substring(1);
+        }
+        if (normalizedUsername.isEmpty()) {
+            return;
+        }
+
+        beneficiaryUsername.setText("@" + normalizedUsername);
+        identity.setVisibility(View.VISIBLE);
+        String avatarUrl = getContext().getString(R.string.hive_image_host_url)
+                .replace("USERNAME", normalizedUsername);
+        Glide.with(getContext())
+                .load(avatarUrl)
+                .placeholder(R.drawable.default_pic)
+                .error(R.drawable.default_pic)
+                .into(avatar);
     }
 
 }
