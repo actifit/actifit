@@ -108,6 +108,7 @@ import kotlinx.coroutines.CoroutineStart;
 import kotlinx.coroutines.Dispatchers;
 import android.widget.ProgressBar;
 import android.widget.ImageButton;
+import com.google.android.material.snackbar.Snackbar;
 import android.widget.Spinner;
 import android.widget.ArrayAdapter;
 
@@ -2145,7 +2146,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     }
 
     private List<ChatMessage> aiChatHistory = null;
-    private ChatAdapter aiChatAdapter = null;
     private void showAiPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.ai_popup, null);
@@ -2163,12 +2163,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         if (aiChatHistory == null) {
             aiChatHistory = new ArrayList<>();
         }
-        if (aiChatAdapter == null) {
-            aiChatAdapter = new ChatAdapter(aiChatHistory);
-        }
+        ChatAdapter chatAdapter = new ChatAdapter(aiChatHistory);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        chatRecyclerView.setAdapter(aiChatAdapter);
-
+        chatRecyclerView.setAdapter(chatAdapter);
 
         boolean hasAiResponse = false;
         for (int i = aiChatHistory.size() - 1; i >= 0; i--) {
@@ -2186,14 +2183,19 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
         dialog.show();
 
+        // Holds the last user message so Retry can resend it even though the
+        // input field has already been cleared by the time a failure comes back.
+        final String[] lastUserMessage = {null};
+
         btnQuery.setOnClickListener(v -> {
             String userText = aiInputText.getText().toString().trim();
             if (userText.isEmpty()) {
                 return;
             }
 
+            lastUserMessage[0] = userText;
             aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_USER, userText));
-            aiChatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
+            chatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
             chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
             aiInputText.setText("");
 
@@ -2209,7 +2211,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
                         aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, result));
-                        aiChatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
+                        chatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
                         chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
                         if (!result.isEmpty()) {
                             btnAccept.setEnabled(true);
@@ -2224,19 +2226,37 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         if (isFinishing() || isDestroyed()) return;
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
-                        aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, errorMessage));
-                        aiChatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
-                        chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
+                        // Don't add errors to chat history: keeps a stale error from being
+                        // inserted into the post later, and keeps errors out of what gets
+                        // replayed to the model on subsequent requests.
+                        Snackbar.make(dialogView, errorMessage, Snackbar.LENGTH_LONG)
+                                .setAction(R.string.retry_action, retryView -> {
+                                    if (lastUserMessage[0] != null) {
+                                        aiInputText.setText(lastUserMessage[0]);
+                                        btnQuery.performClick();
+                                    }
+                                })
+                                .show();
                     });
                 }
             });
         });
 
         btnAccept.setOnClickListener(v -> {
-            // Apply the most recent AI reply to the post
+            // Insert the most recent AI reply at the current cursor position
+            // (or at the end if the field was never focused / has no selection).
             for (int i = aiChatHistory.size() - 1; i >= 0; i--) {
                 if (!aiChatHistory.get(i).isUser()) {
-                    steemitPostContent.setText(aiChatHistory.get(i).getText());
+                    String aiText = aiChatHistory.get(i).getText();
+                    Editable editable = steemitPostContent.getText();
+                    int start = steemitPostContent.getSelectionStart();
+                    int end = steemitPostContent.getSelectionEnd();
+                    if (start < 0 || end < 0) {
+                        start = editable.length();
+                        end = editable.length();
+                    }
+                    editable.replace(start, end, aiText);
+                    steemitPostContent.setSelection(start + aiText.length());
                     break;
                 }
             }

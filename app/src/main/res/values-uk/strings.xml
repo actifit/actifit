@@ -757,6 +757,7 @@
     <string name="ai_accept_button">Вставити</string>
     <string name="step_goal_format">/ %1$s кроків</string>
     <string name="step_pct_to_goal_format">%1$d%% до мети</string>
+    <string name="retry_action">Повторити</string>
 </resources>
 
 

@@ -743,4 +743,5 @@
     <string name="ai_accept_button">Insert</string>
     <string name="step_goal_format">/ %1$s steps</string>
     <string name="step_pct_to_goal_format">%1$d%% to goal</string>
+    <string name="retry_action">Retry</string>
 </resources>

@@ -762,6 +762,7 @@
     <string name="ai_accept_button">Einfügen</string>
     <string name="step_goal_format">/ %1$s Schritte</string>
     <string name="step_pct_to_goal_format">%1$d%% bis zum Ziel</string>
+    <string name="retry_action">Wiederholen</string>
 </resources>
 
 

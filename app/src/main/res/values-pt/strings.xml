@@ -758,6 +758,7 @@
     <string name="ai_accept_button">Inserir</string>
     <string name="step_goal_format">/ %1$s passos</string>
     <string name="step_pct_to_goal_format">%1$d%% para a meta</string>
+    <string name="retry_action">Tentar novamente</string>
 
 </resources>
 

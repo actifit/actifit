@@ -758,6 +758,7 @@
     <string name="ai_accept_button">डालें</string>
     <string name="step_goal_format">/ %1$s कदम</string>
     <string name="step_pct_to_goal_format">%1$d%% लक्ष्य तक</string>
+    <string name="retry_action">पुनः प्रयास करें</string>
 
 </resources>
 

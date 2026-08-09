@@ -758,6 +758,7 @@
     <string name="ai_accept_button">Invoegen</string>
     <string name="step_goal_format">/ %1$s stappen</string>
     <string name="step_pct_to_goal_format">%1$d%% tot doel</string>
+    <string name="retry_action">Opnieuw proberen</string>
 
 </resources>
 

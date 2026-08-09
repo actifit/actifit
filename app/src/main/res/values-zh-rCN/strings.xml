@@ -757,6 +757,7 @@
     <string name="ai_accept_button">插入</string>
     <string name="step_goal_format">/ %1$s 步</string>
     <string name="step_pct_to_goal_format">距离目标 %1$d%%</string>
+    <string name="retry_action">重试</string>
 </resources>
 
 

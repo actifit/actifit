@@ -758,6 +758,7 @@
     <string name="ai_accept_button">Fi sí i</string>
     <string name="step_goal_format">/ %1$s ìṣísẹ̀</string>
     <string name="step_pct_to_goal_format">%1$d%% sí góòlù</string>
+    <string name="retry_action">Tún gbiyanjú</string>
 </resources>
 
 

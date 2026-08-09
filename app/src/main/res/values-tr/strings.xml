@@ -757,6 +757,7 @@
     <string name="ai_accept_button">Ekle</string>
     <string name="step_goal_format">/ %1$s adım</string>
     <string name="step_pct_to_goal_format">Hedefe %1$d%%</string>
+    <string name="retry_action">Yeniden dene</string>
 
 </resources>
 
