@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -41,6 +42,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
@@ -100,7 +102,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
             TextView totalConsumed = convertView.findViewById(R.id.totalConsumedCount);
             TextView remainingBoosts = convertView.findViewById(R.id.remainingBoosts);
 
-            if (!postEntry.id.equals(friendBeneficiary.getTag())) {
+            if (!Objects.equals(postEntry.id, friendBeneficiary.getTag())) {
                 friendBeneficiary.setText("");
                 friendBeneficiary.setTag(postEntry.id);
             }
@@ -681,13 +683,20 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                         activateGadget.clearAnimation();
                         return;
                     }
-                    if (!postEntry.isFriendRewarding) {
-                        cstm_params.put("json",
-                                "{\"transaction\": \"activate-gadget\" , \"gadget\": \"" + postEntry.id + "\"}");
-                    } else {
-                        cstm_params.put("json", "{\"transaction\": \"activate-gadget\" , \"gadget\": \"" + postEntry.id
-                                + "\" , \"benefic\": \"" + activationBeneficiary + "\"}");
+                    if (postEntry.isFriendRewarding
+                            && !activationBeneficiary.matches("^[a-z][a-z0-9\\-.]{2,15}$")) {
+                        Toast.makeText(getContext(), getContext().getString(R.string.invalid_username),
+                                Toast.LENGTH_LONG).show();
+                        activateGadget.clearAnimation();
+                        return;
                     }
+                    JSONObject payload = new JSONObject();
+                    payload.put("transaction", "activate-gadget");
+                    payload.put("gadget", postEntry.id);
+                    if (postEntry.isFriendRewarding) {
+                        payload.put("benefic", activationBeneficiary);
+                    }
+                    cstm_params.put("json", payload.toString());
 
                     JSONArray operation = new JSONArray();
                     operation.put(0, op_name);
@@ -1299,9 +1308,14 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
     private void bindBeneficiaryIdentity(SingleProductModel product, LinearLayout identity,
             ImageView avatar, TextView beneficiaryUsername) {
-        Glide.with(getContext()).clear(avatar);
         identity.setVisibility(View.GONE);
         beneficiaryUsername.setText("");
+        if (ctx instanceof Activity
+                && (((Activity) ctx).isFinishing() || ((Activity) ctx).isDestroyed())) {
+            avatar.setImageResource(R.drawable.default_pic);
+            return;
+        }
+        Glide.with(ctx).clear(avatar);
         avatar.setImageResource(R.drawable.default_pic);
 
         if (product.nonConsumedCopy != SingleProductModel.ACTIVECOPY
@@ -1321,7 +1335,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
         identity.setVisibility(View.VISIBLE);
         String avatarUrl = getContext().getString(R.string.hive_image_host_url)
                 .replace("USERNAME", normalizedUsername);
-        Glide.with(getContext())
+        Glide.with(ctx)
                 .load(avatarUrl)
                 .placeholder(R.drawable.default_pic)
                 .error(R.drawable.default_pic)
