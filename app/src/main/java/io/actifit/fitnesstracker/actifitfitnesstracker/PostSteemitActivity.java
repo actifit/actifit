@@ -2185,20 +2185,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         // Holds the last user message so Retry can resend it even though the
         // input field has already been cleared by the time a failure comes back.
-        final String[] lastUserMessage = {null};
+        //final String[] lastUserMessage = {null};
 
-        btnQuery.setOnClickListener(v -> {
-            String userText = aiInputText.getText().toString().trim();
-            if (userText.isEmpty()) {
-                return;
-            }
-
-            lastUserMessage[0] = userText;
-            aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_USER, userText));
-            chatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
-            chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
-            aiInputText.setText("");
-
+        Runnable[] sendRequest = new Runnable[1];
+        sendRequest[0] = () -> {
             loadingIndicator.setVisibility(View.VISIBLE);
             btnQuery.setEnabled(false);
 
@@ -2230,16 +2220,25 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                         // inserted into the post later, and keeps errors out of what gets
                         // replayed to the model on subsequent requests.
                         Snackbar.make(dialogView, errorMessage, Snackbar.LENGTH_LONG)
-                                .setAction(R.string.retry_action, retryView -> {
-                                    if (lastUserMessage[0] != null) {
-                                        aiInputText.setText(lastUserMessage[0]);
-                                        btnQuery.performClick();
-                                    }
-                                })
+                                .setAction(R.string.retry_action, retryView -> sendRequest[0].run())
                                 .show();
                     });
                 }
             });
+        };
+
+        btnQuery.setOnClickListener(v -> {
+            String userText = aiInputText.getText().toString().trim();
+            if (userText.isEmpty()) {
+                return;
+            }
+
+            aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_USER, userText));
+            chatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
+            chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
+            aiInputText.setText("");
+
+            sendRequest[0].run();
         });
 
         btnAccept.setOnClickListener(v -> {
@@ -2254,6 +2253,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     if (start < 0 || end < 0) {
                         start = editable.length();
                         end = editable.length();
+                    } else {
+                        int tempStart = Math.min(start, end);
+                        end = Math.max(start, end);
+                        start = tempStart;
                     }
                     editable.replace(start, end, aiText);
                     steemitPostContent.setSelection(start + aiText.length());

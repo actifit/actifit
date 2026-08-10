@@ -769,7 +769,7 @@
     <string name="ai_accept_button">إدراج</string>
     <string name="step_goal_format">/ %1$s خطوة</string>
     <string name="step_pct_to_goal_format">%1$d%% للوصول إلى الهدف</string>
-    <string name="retry_action">اعادة المحاولة</string>
+    <string name="retry_action">إعادة المحاولة</string>
 </resources>
 
 
