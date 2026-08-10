@@ -749,6 +749,42 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- ─── Card 8b: Daily Step Goal ─── -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                app:cardBackgroundColor="@color/md_theme_cardBackground"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/daily_step_goal_lbl"
+                        android:textColor="@color/actifitRed"
+                        android:textSize="@dimen/text_subtitle"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="@dimen/spacing_sm" />
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="160dp"
+                        android:layout_height="wrap_content"
+                        android:hint="10000"
+                        app:suffixText="@string/steps_suffix"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/dailyStepGoalInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- ─── Card 9: Donate to Charity ─── -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
