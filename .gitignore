@@ -30,3 +30,10 @@ local.properties
 .claude/settings.local.json
 
 .idea/
+
+# Google Play Developer API service-account key (NEVER commit)
+play-publisher.json
+play-publisher*.json
+*play-service-account*.json
+actifit-play-publish-*.json
+*-*.iam.gserviceaccount.com.json
