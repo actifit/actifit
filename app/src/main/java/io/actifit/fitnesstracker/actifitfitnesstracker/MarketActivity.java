@@ -230,6 +230,7 @@ public class MarketActivity extends BaseActivity {
                                                 postEntry.beneficiary = ((String) beneficiary).trim();
                                             }
                                         }
+                                        // Reset the representative copy baseline before recalculating posts consumed.
                                         postEntry.remainingBoosts = postEntry.validityVal;
                                         JSONArray postsConsumed = nonConsumedEntry.getJSONArray("posts_consumed");
                                         if (postsConsumed != null && postsConsumed.length() > 0) {
