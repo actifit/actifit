@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import android.content.SharedPreferences;
 
 /**
  * Manages all chart-related functionality: pie charts for step progress,
@@ -52,7 +53,10 @@ public class ChartManager {
     private CircularProgressIndicator stepRingFitbit;
     private CircularProgressIndicator stepRingHc;
 
-    private static final int DAILY_GOAL = 10000;
+    private int getDailyGoal() {
+        SharedPreferences prefs = context.getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
+        return prefs.getInt("dailyStepGoal", 10000);
+    }
 
     private BarChart dayChart, fullChart;
     private BarData chartBarData, dayBarData;
@@ -120,7 +124,7 @@ public class ChartManager {
                             android.widget.TextView tvGoal, android.widget.TextView tvPct,
                             int stepCount, boolean animate) {
         int steps = Math.max(stepCount, 0);
-        int progress = Math.min((steps * 100) / DAILY_GOAL, 100);
+        int progress = Math.min((steps * 100) / getDailyGoal(), 100);
         int color = steps >= activityMilestoneOne
                 ? ContextCompat.getColor(context, R.color.actifitDarkGreen)
                 : ContextCompat.getColor(context, R.color.actifitRed);
@@ -136,7 +140,7 @@ public class ChartManager {
             tvCount.setText(java.text.NumberFormat.getInstance().format(steps));
             tvCount.setTextColor(color);
         }
-        if (tvGoal != null) tvGoal.setText(context.getString(R.string.step_goal_format, java.text.NumberFormat.getInstance().format(DAILY_GOAL)));
+        if (tvGoal != null) tvGoal.setText(context.getString(R.string.step_goal_format, java.text.NumberFormat.getInstance().format(getDailyGoal())));
         if (tvPct != null) tvPct.setText(context.getString(R.string.step_pct_to_goal_format, progress));
     }
 
