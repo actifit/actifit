@@ -18,7 +18,6 @@ import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
@@ -27,6 +26,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.activity.OnBackPressedCallback;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -53,17 +53,15 @@ import java.util.Map;
 
 public class SignupActivity extends BaseActivity {
 
-    private static final String TAG = "SignupActivity";
-    private static final int MAX_POLL_ATTEMPTS = 60; // 5 minutes with 5s delay
+    private static final long CONFIRM_PAYMENT_DEADLINE_MS = 60_000L;
+    private static final Object SIGNUP_REQUEST_TAG = SignupActivity.class.getName();
     private static final double SIGNUP_COST_USD = 2.0;
-    private static final double PROMO_HIVE_FALLBACK_USD_PRICE = 0.10;
-    private static final double PROMO_HBD_FALLBACK_USD_PRICE = 1.00;
     private static final double AFIT_REWARD_LOT_USD = 5.0;
     private static final int MAX_AFIT_REWARD_PER_LOT = 100;
     private static final String HIVE_PRICE_URL = "https://api.actifit.io/hivePrice";
     private static final String HBD_PRICE_URL = "https://api.coingecko.com/api/v3/simple/price?ids=hive_dollar&vs_currencies=usd";
     private static final String AFIT_PRICE_URL = "https://api2.actifit.io/curAFITPrice";
-    private static final String CONFIRM_PAYMENT_URL = "https://api.actifit.io/confirmPayment";
+    private static final String CONFIRM_PAYMENT_PATH = "app/confirmPayment";
     private static final String TERMS_URL = "https://actifit.io/terms-conditions";
     private static final String PRIVACY_URL = "https://actifit.io/privacy-policy";
 
@@ -91,9 +89,19 @@ public class SignupActivity extends BaseActivity {
     private double requiredCryptoAmount = 0.0;
     private boolean liveCurrencyPriceAvailable = false;
     private int afitReward = -1;
-    private Handler pollHandler = new Handler(Looper.getMainLooper());
-    private boolean isPolling = false;
-    private int pollAttempts = 0;
+    private final Handler confirmDeadlineHandler = new Handler(Looper.getMainLooper());
+    private JsonObjectRequest activeConfirmPaymentRequest;
+    private Runnable confirmPaymentDeadline;
+    private long confirmRequestGeneration = 0;
+    private boolean confirmRequestInFlight = false;
+    private boolean reconciliationInFlight = false;
+    private boolean accountCreationHandled = false;
+    private boolean accountCreationFailed = false;
+    private boolean activityDestroyed = false;
+    private SignupStateStore signupStateStore;
+    private SignupState recoveryState;
+    private boolean isRestoringState = false;
+    private boolean recoveryUnavailable = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -101,10 +109,23 @@ public class SignupActivity extends BaseActivity {
         setContentView(R.layout.activity_signup);
 
         hiveRequests = new HiveRequests(this);
+        hiveRequests.setRequestTag(SIGNUP_REQUEST_TAG);
         queue = Volley.newRequestQueue(this);
+        signupStateStore = new SignupStateStore(this);
 
         initViews();
+        configureBackHandling();
+        if (!restoreRecoverableSignup()) {
+            return;
+        }
         updateStepUI();
+        if (recoveryState != null
+                && SignupState.PHASE_ACCOUNT_CREATION_FAILED.equals(recoveryState.phase)) {
+            showAccountCreationFailedDialog();
+        } else if (recoveryState != null && recoveryState.requestSubmitted
+                && !recoveryState.accountCreated) {
+            reconcileAccountExistence();
+        }
     }
 
     private void initViews() {
@@ -120,13 +141,14 @@ public class SignupActivity extends BaseActivity {
         referralInput = findViewById(R.id.referral_input);
         promoInput = findViewById(R.id.promo_input);
         masterPasswordDisplay = findViewById(R.id.master_password_display);
+        masterPasswordDisplay.setSaveEnabled(false);
         usernameStatus = findViewById(R.id.username_status);
         verificationDesc = findViewById(R.id.verification_desc);
         currencyToggle = findViewById(R.id.currency_toggle);
         currencyToggle.check(R.id.button_hive);
 
         currencyToggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (!isChecked) {
+            if (!isChecked || isRestoringState) {
                 return;
             }
 
@@ -138,6 +160,7 @@ public class SignupActivity extends BaseActivity {
 
             requiredCryptoAmount = 0.0;
             liveCurrencyPriceAvailable = false;
+            persistCurrentRecoveryStateIfPresent();
             fetchSelectedCurrencyPriceAndUpdateAmount();
         });
 
@@ -194,9 +217,13 @@ public class SignupActivity extends BaseActivity {
         String privacyText = getString(R.string.privacy_policy);
 
         int termsStart = text.indexOf(termsText);
-        int termsEnd = termsStart + termsText.length();
-
         int privacyStart = text.indexOf(privacyText);
+
+        if (termsStart < 0 || privacyStart < 0) {
+            cbTos.setText(text);
+            return;
+        }
+        int termsEnd = termsStart + termsText.length();
         int privacyEnd = privacyStart + privacyText.length();
 
         ClickableSpan termsSpan = new ClickableSpan() {
@@ -246,12 +273,12 @@ public class SignupActivity extends BaseActivity {
 
     private void handleNextStep() {
         if (currentStep == 1) {
-            String username = usernameInput.getText().toString().trim().toLowerCase();
+            String username = usernameInput.getText().toString().trim();
             if (username.isEmpty()) {
                 usernameInput.setError(getString(R.string.field_required));
                 return;
             }
-            if (!username.matches("^[a-z][a-z0-9\\-.]{2,15}$")) {
+            if (!isValidHiveAccountName(username)) {
                 usernameInput.setError(getString(R.string.username_invalid));
                 return;
             }
@@ -284,12 +311,19 @@ public class SignupActivity extends BaseActivity {
                 showError(getString(R.string.error_tos_required));
                 return;
             }
-            generateKeys(); 
+            generateKeys();
             preparePaymentInfo();
+            if (!persistRecoveryState(SignupState.PHASE_READY_FOR_PAYMENT, false, false)) {
+                return;
+            }
             currentStep = 3;
             updateStepUI();
         } else if (currentStep == 3) {
-            startPaymentPolling();
+            if (recoveryState != null && recoveryState.requestSubmitted) {
+                reconcileAccountExistence();
+            } else {
+                startConfirmPaymentRequest();
+            }
         } else if (currentStep == 4) {
             // Secure keys step finished, show final success dialog
             showSuccessDialog();
@@ -297,12 +331,49 @@ public class SignupActivity extends BaseActivity {
     }
 
     private void handlePrevStep() {
+        if (currentStep >= 3 || (recoveryState != null && recoveryState.irreversible)) {
+            showLeaveForNowDialog();
+            return;
+        }
         if (currentStep > 1) {
-            if (currentStep == 3) stopPaymentPolling();
             currentStep--;
             updateStepUI();
         } else {
+            cancelBeforeIrreversibleBoundary();
+        }
+    }
+
+    private void configureBackHandling() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (currentStep >= 3 || (recoveryState != null && recoveryState.irreversible)) {
+                    showLeaveForNowDialog();
+                } else {
+                    cancelBeforeIrreversibleBoundary();
+                }
+            }
+        });
+    }
+
+    private void showLeaveForNowDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.signup_recovery_leave_title)
+                .setMessage(R.string.signup_recovery_leave_message)
+                .setPositiveButton(R.string.signup_leave_for_now, (dialog, which) -> {
+                    stopPaymentPolling();
+                    finish();
+                })
+                .setNegativeButton(R.string.signup_continue, null)
+                .show();
+    }
+
+    private void cancelBeforeIrreversibleBoundary() {
+        try {
+            signupStateStore.clear();
             finish();
+        } catch (SignupStateStore.SignupStateStoreException e) {
+            showError(getString(R.string.signup_recovery_cleanup_error));
         }
     }
 
@@ -317,7 +388,7 @@ public class SignupActivity extends BaseActivity {
 
         // Always show "Back" label
         btnPrev.setText(R.string.back_button);
-        
+
         // Hide Back button on final step once account is created to prevent confusion
         if (currentStep == 4) {
             btnPrev.setVisibility(View.GONE);
@@ -327,7 +398,7 @@ public class SignupActivity extends BaseActivity {
 
         if (currentStep == 1) {
             btnNext.setText(R.string.proceed);
-            btnNext.setEnabled(true); 
+            btnNext.setEnabled(true);
         } else if (currentStep == 2) {
             btnNext.setText(R.string.proceed);
             validateStep2();
@@ -354,7 +425,11 @@ public class SignupActivity extends BaseActivity {
     }
 
     private void updateNextButtonStep3() {
-        if (promoInput.getText().toString().trim().length() > 0) {
+        if (accountCreationFailed) {
+            btnNext.setText(R.string.btn_check_signup_status);
+        } else if (recoveryState != null && recoveryState.requestSubmitted) {
+            btnNext.setText(R.string.btn_check_signup_status);
+        } else if (promoInput.getText().toString().trim().length() > 0) {
             btnNext.setText(R.string.btn_claim_promo);
         } else {
             btnNext.setText(R.string.btn_check_payment);
@@ -368,13 +443,13 @@ public class SignupActivity extends BaseActivity {
     }
 
     private void checkUsernameAvailability() {
-        String username = usernameInput.getText().toString().trim().toLowerCase();
+        String username = usernameInput.getText().toString().trim();
         if (username.isEmpty()) {
             usernameInput.setError(getString(R.string.field_required));
             return;
         }
 
-        if (!username.matches("^[a-z][a-z0-9\\-.]{2,15}$")) {
+        if (!isValidHiveAccountName(username)) {
             showUsernameStatus(getString(R.string.username_invalid), Color.RED);
             return;
         }
@@ -393,9 +468,10 @@ public class SignupActivity extends BaseActivity {
 
         hiveRequests.processRequest("condenser_api.get_accounts", params)
                 .thenAccept(result -> runOnUiThread(() -> {
+                    if (!canUpdateUi()) return;
                     btnCheckUsername.setEnabled(true);
-                    String currentUsername = usernameInput.getText().toString().trim().toLowerCase(Locale.US);
-                    if (!username.equals(currentUsername)) {
+                    String currentUsername = usernameInput.getText().toString().trim();
+                    if (!username.equals(currentUsername) || !isValidHiveAccountName(currentUsername)) {
                         return;
                     }
                     if (result.length() == 0) {
@@ -410,6 +486,7 @@ public class SignupActivity extends BaseActivity {
                 }))
                 .exceptionally(ex -> {
                     runOnUiThread(() -> {
+                        if (!canUpdateUi()) return;
                         btnCheckUsername.setEnabled(true);
                         isUsernameAvailable = false;
                         availableUsername = "";
@@ -419,10 +496,130 @@ public class SignupActivity extends BaseActivity {
                 });
     }
 
+    private boolean isValidHiveAccountName(String username) {
+        if (username.length() < 3 || username.length() > 16) {
+            return false;
+        }
+        if (username.startsWith("uid") || username.matches(".*\\d{10}.*")) {
+            return false;
+        }
+        String[] segments = username.split("\\.", -1);
+        for (String segment : segments) {
+            if (segment.length() < 3
+                    || !segment.matches("^[a-z][a-z0-9-]*[a-z0-9]$")
+                    || segment.contains("--")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void showUsernameStatus(String message, int color) {
         usernameStatus.setVisibility(View.VISIBLE);
         usernameStatus.setText(message);
         usernameStatus.setTextColor(color);
+    }
+
+    private boolean restoreRecoverableSignup() {
+        try {
+            SignupState storedState = signupStateStore.load();
+            if (storedState == null) {
+                return true;
+            }
+            applyRecoveryState(storedState, true);
+            return true;
+        } catch (SignupStateStore.SignupStateStoreException e) {
+            recoveryUnavailable = true;
+            btnNext.setEnabled(false);
+            btnPrev.setEnabled(false);
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.signup_recovery_error_title)
+                    .setMessage(R.string.signup_recovery_corrupt_error)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                    .setCancelable(false)
+                    .show();
+            return false;
+        }
+    }
+
+    private void applyRecoveryState(SignupState state, boolean refreshIncompletePricing) {
+        recoveryState = state;
+        isRestoringState = true;
+        try {
+            generatedMasterPassword = state.masterPassword;
+            generatedMemo = state.memo;
+            selectedCurrency = state.selectedCurrency;
+            requiredCryptoAmount = state.requiredCryptoAmount;
+            liveCurrencyPriceAvailable = state.requiredCryptoAmount > 0;
+            afitReward = state.afitReward;
+            currentStep = state.accountCreated ? 4 : 3;
+            accountCreationHandled = state.accountCreated;
+            accountCreationFailed = SignupState.PHASE_ACCOUNT_CREATION_FAILED.equals(state.phase);
+
+            usernameInput.setText(state.username);
+            availableUsername = state.username;
+            isUsernameAvailable = true;
+            emailInput.setText(state.email);
+            referralInput.setText(state.referrer);
+            promoInput.setText(state.promoCode);
+            cbTos.setChecked(true);
+            masterPasswordDisplay.setText(state.masterPassword);
+            currencyToggle.check("HBD".equals(state.selectedCurrency)
+                    ? R.id.button_hbd : R.id.button_hive);
+            updatePaymentInstructions();
+        } finally {
+            isRestoringState = false;
+        }
+
+        if (refreshIncompletePricing && !state.accountCreated) {
+            if (state.afitReward < 0) {
+                fetchAfitReward();
+            }
+            if (state.requiredCryptoAmount <= 0) {
+                fetchSelectedCurrencyPriceAndUpdateAmount();
+            }
+        }
+    }
+
+    private boolean persistRecoveryState(String phase, boolean requestSubmitted,
+            boolean accountCreated) {
+        if (recoveryUnavailable) {
+            return false;
+        }
+        SignupState state = new SignupState(
+                usernameInput.getText().toString().trim().toLowerCase(Locale.US),
+                generatedMasterPassword,
+                generatedMemo,
+                selectedCurrency,
+                requiredCryptoAmount,
+                afitReward,
+                promoInput.getText().toString().trim(),
+                emailInput.getText().toString().trim(),
+                referralInput.getText().toString().trim(),
+                phase,
+                true,
+                requestSubmitted,
+                accountCreated);
+        try {
+            signupStateStore.save(state);
+            recoveryState = state;
+            return true;
+        } catch (SignupStateStore.SignupStateStoreException e) {
+            recoveryUnavailable = true;
+            stopPaymentPolling();
+            btnNext.setEnabled(false);
+            showError(getString(R.string.signup_recovery_save_error));
+            return false;
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (recoveryState != null) {
+            applyRecoveryState(recoveryState, false);
+            updateStepUI();
+        }
     }
 
     private void preparePaymentInfo() {
@@ -449,6 +646,7 @@ public class SignupActivity extends BaseActivity {
                 AFIT_PRICE_URL,
                 null,
                 response -> {
+                    if (!canUpdateUi()) return;
                     double afitPrice = response.optDouble("unit_price_usd", 0.0);
                     if (afitPrice <= 0) {
                         showError(getString(R.string.error_afit_price));
@@ -458,15 +656,20 @@ public class SignupActivity extends BaseActivity {
                     int lots = Math.max(1, (int) Math.floor(SIGNUP_COST_USD / AFIT_REWARD_LOT_USD));
                     int rewardCap = MAX_AFIT_REWARD_PER_LOT * lots;
                     afitReward = (int) Math.floor(Math.min(SIGNUP_COST_USD / afitPrice, rewardCap));
+                    persistCurrentRecoveryStateIfPresent();
                 },
-                error -> showError(getString(R.string.error_afit_price))
+                error -> {
+                    if (canUpdateUi()) showError(getString(R.string.error_afit_price));
+                }
         );
+        request.setTag(SIGNUP_REQUEST_TAG);
         queue.add(request);
     }
 
     private void fetchSelectedCurrencyPriceAndUpdateAmount() {
         requiredCryptoAmount = 0.0;
         liveCurrencyPriceAvailable = false;
+        updatePaymentInstructions();
         if ("HBD".equals(selectedCurrency)) {
             fetchHbdPriceAndUpdateAmount();
             return;
@@ -479,29 +682,29 @@ public class SignupActivity extends BaseActivity {
                 HIVE_PRICE_URL,
                 null,
                 response -> {
+                    if (!canUpdateUi() || !requestedCurrency.equals(selectedCurrency)) return;
                     try {
                         JSONObject hive = response.getJSONObject("hive");
                         double hiveUsdPrice = hive.getDouble("usd");
 
                         if (hiveUsdPrice <= 0) {
-                            showError(getString(R.string.error_hive_price));
+                            handlePriceUnavailable(requestedCurrency, R.string.error_hive_price);
                             return;
                         }
 
-                        if (!requestedCurrency.equals(selectedCurrency)) {
-                            return;
-                        }
                         requiredCryptoAmount = roundCryptoAmount(SIGNUP_COST_USD / hiveUsdPrice);
                         liveCurrencyPriceAvailable = true;
                         updatePaymentInstructions();
+                        persistCurrentRecoveryStateIfPresent();
 
                     } catch (JSONException e) {
-                        showError(getString(R.string.error_hive_price));
+                        handlePriceUnavailable(requestedCurrency, R.string.error_hive_price);
                     }
                 },
-                error -> showError(getString(R.string.error_hive_price))
+                error -> handlePriceUnavailable(requestedCurrency, R.string.error_hive_price)
         );
 
+        request.setTag(SIGNUP_REQUEST_TAG);
         queue.add(request);
     }
 
@@ -512,25 +715,25 @@ public class SignupActivity extends BaseActivity {
                 HBD_PRICE_URL,
                 null,
                 response -> {
+                    if (!canUpdateUi() || !requestedCurrency.equals(selectedCurrency)) return;
                     try {
                         double hbdUsdPrice = response.getJSONObject("hive_dollar").getDouble("usd");
                         if (hbdUsdPrice <= 0) {
-                            showError(getString(R.string.error_hbd_price));
+                            handlePriceUnavailable(requestedCurrency, R.string.error_hbd_price);
                             return;
                         }
 
-                        if (!requestedCurrency.equals(selectedCurrency)) {
-                            return;
-                        }
                         requiredCryptoAmount = roundCryptoAmount(SIGNUP_COST_USD / hbdUsdPrice);
                         liveCurrencyPriceAvailable = true;
                         updatePaymentInstructions();
+                        persistCurrentRecoveryStateIfPresent();
                     } catch (JSONException e) {
-                        showError(getString(R.string.error_hbd_price));
+                        handlePriceUnavailable(requestedCurrency, R.string.error_hbd_price);
                     }
                 },
-                error -> showError(getString(R.string.error_hbd_price))
+                error -> handlePriceUnavailable(requestedCurrency, R.string.error_hbd_price)
         );
+        request.setTag(SIGNUP_REQUEST_TAG);
         queue.add(request);
     }
 
@@ -538,64 +741,69 @@ public class SignupActivity extends BaseActivity {
         return Double.parseDouble(String.format(Locale.US, "%.3f", amount));
     }
 
-    private double getPromoCryptoAmount() {
-        if (liveCurrencyPriceAvailable && requiredCryptoAmount > 0) {
-            return requiredCryptoAmount;
+    private void persistCurrentRecoveryStateIfPresent() {
+        if (recoveryState != null) {
+            persistRecoveryState(recoveryState.phase, recoveryState.requestSubmitted,
+                    recoveryState.accountCreated);
         }
+    }
 
-        double fallbackUsdPrice = "HBD".equals(selectedCurrency)
-                ? PROMO_HBD_FALLBACK_USD_PRICE
-                : PROMO_HIVE_FALLBACK_USD_PRICE;
-        return roundCryptoAmount(SIGNUP_COST_USD / fallbackUsdPrice);
+    private void handlePriceUnavailable(String requestedCurrency, int errorMessage) {
+        if (!canUpdateUi() || !requestedCurrency.equals(selectedCurrency)) return;
+        requiredCryptoAmount = 0.0;
+        liveCurrencyPriceAvailable = false;
+        updatePaymentInstructions();
+        persistCurrentRecoveryStateIfPresent();
+        showError(getString(errorMessage));
     }
 
     private void updatePaymentInstructions() {
-        String instructions =
-                "To create your account, please send <b>" +
-                        String.format(Locale.US, "%.3f", requiredCryptoAmount) +
-                        " " + selectedCurrency + "</b> to:<br/><br/>" +
-                        "Account: <b>" + paymentRecipient + "</b><br/>" +
-                        "Memo: <b>" + generatedMemo + "</b><br/><br/>" +
-                        "Alternatively, if you have a <b>Promo Code</b>, enter it below to skip the payment.";
+        String instructions;
+        if (liveCurrencyPriceAvailable && requiredCryptoAmount > 0) {
+            String amount = String.format(Locale.US, "%.3f", requiredCryptoAmount);
+            instructions = getString(R.string.signup_payment_instructions, amount,
+                    selectedCurrency, paymentRecipient, generatedMemo);
+        } else {
+            instructions = getString(R.string.signup_payment_instructions_price_unavailable,
+                    selectedCurrency, paymentRecipient, generatedMemo);
+        }
 
         verificationDesc.setText(Html.fromHtml(instructions));
     }
 
-    private void startPaymentPolling() {
-        if (isPolling) return;
-        isPolling = true;
-        pollAttempts = 0;
-        String msg = promoInput.getText().toString().trim().length() > 0 ? 
+    private void startConfirmPaymentRequest() {
+        if (confirmRequestInFlight || reconciliationInFlight) return;
+        String msg = promoInput.getText().toString().trim().length() > 0 ?
                 getString(R.string.msg_applying_promo) : getString(R.string.msg_verifying_payment);
         showProgress(msg);
-        pollPayment();
+        submitConfirmPaymentRequest();
     }
 
     private void stopPaymentPolling() {
-        isPolling = false;
-        pollHandler.removeCallbacksAndMessages(null);
+        confirmRequestGeneration++;
+        if (confirmPaymentDeadline != null) {
+            confirmDeadlineHandler.removeCallbacks(confirmPaymentDeadline);
+            confirmPaymentDeadline = null;
+        }
+        if (activeConfirmPaymentRequest != null) {
+            activeConfirmPaymentRequest.cancel();
+            activeConfirmPaymentRequest = null;
+        }
+        confirmRequestInFlight = false;
         hideProgress();
     }
 
-    private void pollPayment() {
-        if (!isPolling) return;
-
+    private void submitConfirmPaymentRequest() {
         String promo = promoInput.getText().toString().trim();
         boolean isPromoSignup = !promo.isEmpty();
         if (afitReward < 0
                 || (!isPromoSignup && (!liveCurrencyPriceAvailable || requiredCryptoAmount <= 0))) {
             stopPaymentPolling();
+            updatePaymentInstructions();
+            if (!isPromoSignup) fetchSelectedCurrencyPriceAndUpdateAmount();
             showError(getString(R.string.error_signup_pricing));
             return;
         }
-
-        if (pollAttempts >= MAX_POLL_ATTEMPTS) {
-            stopPaymentPolling();
-            showError(getString(R.string.payment_timeout));
-            return;
-        }
-
-        pollAttempts++;
         JSONObject body = new JSONObject();
         try {
             body.put("new_account", usernameInput.getText().toString().trim().toLowerCase());
@@ -604,50 +812,70 @@ public class SignupActivity extends BaseActivity {
             body.put("new_pass", generatedMasterPassword);
             body.put("sent_cur", selectedCurrency);
             body.put("usd_invest", promo.isEmpty() ? SIGNUP_COST_USD : 0.0);
-            double cryptoAmountForRequest = isPromoSignup
-                    ? getPromoCryptoAmount()
-                    : requiredCryptoAmount;
+            double cryptoAmountForRequest = isPromoSignup ? 0.0 : requiredCryptoAmount;
             body.put("steem_invest", String.format(Locale.US, "%.3f", cryptoAmountForRequest));
             body.put("memo", generatedMemo);
-            body.put("email", emailInput.getText().toString().trim());
-            body.put("referrer", referralInput.getText().toString().trim());
+            String email = emailInput.getText().toString().trim();
+            if (!email.isEmpty()) {
+                body.put("email", email);
+            }
+            String referrer = referralInput.getText().toString().trim();
+            if (!referrer.isEmpty()) {
+                body.put("referrer", referrer);
+            }
             body.put("afit_reward", afitReward);
 
             if (!promo.isEmpty()) {
                 body.put("promo_code", promo);
             }
 
-            body.put("confirm_payment_token", getString(R.string.sec_param_val));
             body.put("cur_bchain", "HIVE|");
         } catch (JSONException e) {
-            e.printStackTrace();
+            stopPaymentPolling();
+            showError(getString(R.string.signup_error_request));
+            return;
         }
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, CONFIRM_PAYMENT_URL, body,
+        if (!persistRecoveryState(SignupState.PHASE_REQUEST_SUBMITTED, true, false)) {
+            return;
+        }
+        updateStepUI();
+
+        final long requestGeneration = ++confirmRequestGeneration;
+        String confirmPaymentUrl = getString(R.string.live_server) + CONFIRM_PAYMENT_PATH;
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, confirmPaymentUrl, body,
                 response -> {
+                    if (!isCurrentConfirmRequest(requestGeneration)) {
+                        return;
+                    }
                     boolean accountCreated =
                             response.optBoolean("accountCreated", false);
+                    Object paymentReceivedValue = response.opt("paymentReceivedTx");
+                    String paymentReceivedTx = paymentReceivedValue instanceof String
+                            ? ((String) paymentReceivedValue).trim() : "";
 
                     if (accountCreated) {
-                        stopPaymentPolling();
-                        currentStep = 4;
-                        updateStepUI();
+                        completeAccountCreation();
+                    } else if (!paymentReceivedTx.isEmpty()) {
+                        handleAccountCreationFailed(requestGeneration);
                     } else {
-                        if (!promo.isEmpty()) {
-                            stopPaymentPolling();
-                            showError(getString(R.string.error_invalid_promo));
-                        } else {
-                            pollHandler.postDelayed(this::pollPayment, 5000);
-                        }
+                        finishCurrentConfirmRequest(requestGeneration);
+                        showError(getString(R.string.signup_status_unknown));
+                        reconcileAccountExistence();
                     }
                 },
                 error -> {
-                    if (!promoInput.getText().toString().trim().isEmpty()) {
-                        stopPaymentPolling();
-                        handleNetworkError(error);
-                    } else {
-                        pollHandler.postDelayed(this::pollPayment, 5000);
+                    if (!isCurrentConfirmRequest(requestGeneration)) {
+                        return;
                     }
+                    finishCurrentConfirmRequest(requestGeneration);
+                    if (error.networkResponse != null
+                            && error.networkResponse.statusCode == 429) {
+                        showError(getString(R.string.signup_confirmation_rate_limited));
+                        return;
+                    }
+                    showError(getString(R.string.signup_status_unknown));
+                    reconcileAccountExistence();
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -658,14 +886,147 @@ public class SignupActivity extends BaseActivity {
             }
         };
 
-        // FIX: Set timeout to 30 seconds and disable Volley's internal retries 
-        // to prevent overlapping requests
+        // Disable Volley's internal retries; the explicit 60-second deadline owns cancellation.
         request.setRetryPolicy(new DefaultRetryPolicy(
-                30000, 
-                0, 
+                30000,
+                0,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        request.setTag(SIGNUP_REQUEST_TAG);
 
+        activeConfirmPaymentRequest = request;
+        confirmRequestInFlight = true;
+        confirmPaymentDeadline = () -> handleConfirmPaymentDeadline(requestGeneration);
+        confirmDeadlineHandler.postDelayed(confirmPaymentDeadline, CONFIRM_PAYMENT_DEADLINE_MS);
         queue.add(request);
+    }
+
+    private boolean isCurrentConfirmRequest(long requestGeneration) {
+        return !activityDestroyed && confirmRequestInFlight
+                && requestGeneration == confirmRequestGeneration;
+    }
+
+    private void finishCurrentConfirmRequest(long requestGeneration) {
+        if (!isCurrentConfirmRequest(requestGeneration)) {
+            return;
+        }
+        if (confirmPaymentDeadline != null) {
+            confirmDeadlineHandler.removeCallbacks(confirmPaymentDeadline);
+            confirmPaymentDeadline = null;
+        }
+        activeConfirmPaymentRequest = null;
+        confirmRequestInFlight = false;
+        confirmRequestGeneration++;
+        hideProgress();
+    }
+
+    private void handleConfirmPaymentDeadline(long requestGeneration) {
+        if (!isCurrentConfirmRequest(requestGeneration)) {
+            return;
+        }
+        if (activeConfirmPaymentRequest != null) {
+            activeConfirmPaymentRequest.cancel();
+            activeConfirmPaymentRequest = null;
+        }
+        confirmPaymentDeadline = null;
+        confirmRequestInFlight = false;
+        confirmRequestGeneration++;
+        hideProgress();
+        persistRecoveryState(SignupState.PHASE_REQUEST_SUBMITTED, true, false);
+        updateStepUI();
+        showError(getString(R.string.signup_confirmation_deadline_reached));
+        reconcileAccountExistence();
+    }
+
+    private void reconcileAccountExistence() {
+        if (activityDestroyed || reconciliationInFlight || accountCreationHandled) {
+            return;
+        }
+        reconciliationInFlight = true;
+        showProgress(getString(R.string.signup_checking_account_status));
+
+        String username = usernameInput.getText().toString().trim().toLowerCase(Locale.US);
+        JSONArray accounts = new JSONArray();
+        accounts.put(username);
+        JSONArray params = new JSONArray();
+        params.put(accounts);
+
+        hiveRequests.processRequest("condenser_api.get_accounts", params)
+                .thenAccept(result -> runOnUiThread(() -> {
+                    if (activityDestroyed || !reconciliationInFlight) {
+                        return;
+                    }
+                    reconciliationInFlight = false;
+                    hideProgress();
+                    boolean accountExists = false;
+                    for (int i = 0; i < result.length(); i++) {
+                        JSONObject account = result.optJSONObject(i);
+                        if (account != null && username.equals(account.optString("name"))) {
+                            accountExists = true;
+                            break;
+                        }
+                    }
+                    if (accountExists) {
+                        completeAccountCreation();
+                    } else {
+                        updateStepUI();
+                        showError(getString(R.string.signup_account_not_visible_yet));
+                    }
+                }))
+                .exceptionally(error -> {
+                    runOnUiThread(() -> {
+                        if (activityDestroyed || !reconciliationInFlight) {
+                            return;
+                        }
+                        reconciliationInFlight = false;
+                        hideProgress();
+                        updateStepUI();
+                        showError(getString(R.string.signup_status_check_unavailable));
+                    });
+                    return null;
+                });
+    }
+
+    private void completeAccountCreation() {
+        if (activityDestroyed || accountCreationHandled) {
+            return;
+        }
+        stopPaymentPolling();
+        reconciliationInFlight = false;
+        if (!persistRecoveryState(SignupState.PHASE_ACCOUNT_CREATED, true, true)) {
+            return;
+        }
+        accountCreationHandled = true;
+        currentStep = 4;
+        updateStepUI();
+    }
+
+    private void handleAccountCreationFailed(long requestGeneration) {
+        if (!isCurrentConfirmRequest(requestGeneration) || accountCreationHandled
+                || accountCreationFailed) {
+            return;
+        }
+        finishCurrentConfirmRequest(requestGeneration);
+        reconciliationInFlight = false;
+        if (!persistRecoveryState(SignupState.PHASE_ACCOUNT_CREATION_FAILED, true, false)) {
+            return;
+        }
+        accountCreationFailed = true;
+        updateStepUI();
+        showAccountCreationFailedDialog();
+    }
+
+    private void showAccountCreationFailedDialog() {
+        if (activityDestroyed || isFinishing() || isDestroyed()) {
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.signup_account_creation_failed_title)
+                .setMessage(R.string.signup_account_creation_failed_message)
+                .setPositiveButton(R.string.btn_check_signup_status,
+                        (dialog, which) -> reconcileAccountExistence())
+                .setNegativeButton(R.string.signup_leave_for_now,
+                        (dialog, which) -> finish())
+                .show();
     }
 
     private void generateKeys() {
@@ -680,7 +1041,8 @@ public class SignupActivity extends BaseActivity {
 
     private void copyKeysToClipboard() {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Actifit Master Password", generatedMasterPassword);
+        ClipData clip = ClipData.newPlainText(getString(R.string.signup_master_password_clip_label),
+                generatedMasterPassword);
         clipboard.setPrimaryClip(clip);
         Toast.makeText(this, R.string.copy_success, Toast.LENGTH_SHORT).show();
     }
@@ -691,13 +1053,13 @@ public class SignupActivity extends BaseActivity {
             errorMsg += " (Status: " + error.networkResponse.statusCode + ")";
             try {
                 String responseData = new String(error.networkResponse.data, "UTF-8");
-                Log.e(TAG, "Error Response Body: " + responseData);
                 JSONObject errorObj = new JSONObject(responseData);
                 if (errorObj.has("error")) {
                     errorMsg = errorObj.getString("error");
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Failed to parse error body");
+                errorMsg = getString(R.string.error_connection_failed)
+                        + " (Status: " + error.networkResponse.statusCode + ")";
             }
         }
         showError(errorMsg);
@@ -708,25 +1070,34 @@ public class SignupActivity extends BaseActivity {
                 .setTitle(R.string.signup_title)
                 .setMessage(R.string.signup_success)
                 .setPositiveButton(R.string.login_title, (dialog, which) -> {
-                    Intent intent = new Intent(this, LoginActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    finish();
+                    try {
+                        signupStateStore.clear();
+                        recoveryState = null;
+                        generatedMasterPassword = "";
+                        generatedMemo = "";
+                        masterPasswordDisplay.setText("");
+                        Intent intent = new Intent(this, LoginActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                    } catch (SignupStateStore.SignupStateStoreException e) {
+                        showError(getString(R.string.signup_recovery_cleanup_error));
+                    }
                 })
                 .setCancelable(false)
                 .show();
     }
 
     private void showError(String message) {
+        if (!canUpdateUi()) return;
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private void showProgress(String message) {
+        if (!canUpdateUi()) return;
         if (progress == null) {
             progress = new ProgressDialog(this);
-            // Allow canceling to give user a way out as requested
-            progress.setCancelable(true);
-            progress.setOnCancelListener(dialog -> stopPaymentPolling());
+            progress.setCancelable(false);
         }
         progress.setMessage(message);
         progress.show();
@@ -738,8 +1109,17 @@ public class SignupActivity extends BaseActivity {
         }
     }
 
+    private boolean canUpdateUi() {
+        return !activityDestroyed && !isFinishing() && !isDestroyed();
+    }
+
     @Override
     protected void onDestroy() {
+        activityDestroyed = true;
+        reconciliationInFlight = false;
+        confirmDeadlineHandler.removeCallbacksAndMessages(null);
+        if (queue != null) queue.cancelAll(SIGNUP_REQUEST_TAG);
+        if (hiveRequests != null) hiveRequests.cancelRequests(SIGNUP_REQUEST_TAG);
         stopPaymentPolling();
         super.onDestroy();
     }

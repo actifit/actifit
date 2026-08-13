@@ -187,7 +187,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Account Payment"
+                        android:text="@string/signup_account_payment"
                         android:textStyle="bold"
                         android:textColor="@color/md_theme_onSurface" />
 
@@ -212,7 +212,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="HIVE"
+                            android:text="@string/signup_currency_hive"
                             android:checked="true" />
 
                         <com.google.android.material.button.MaterialButton
@@ -221,7 +221,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="HBD" />
+                            android:text="@string/signup_currency_hbd" />
 
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -230,7 +230,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_md"
-                        android:hint="Promo Code (Optional)"
+                        android:hint="@string/promo_hint"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                         <com.google.android.material.textfield.TextInputEditText

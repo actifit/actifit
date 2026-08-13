@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.multidex.BuildConfig;
 
@@ -70,6 +71,7 @@ public class LoginActivity extends BaseActivity {
     Button skipBtn;
     ProgressDialog progress;
     private ActivityResultLauncher<ScanOptions> qrLauncher;
+    private boolean recoveryDialogShown = false;
 
     Context ctx;
 
@@ -179,8 +181,28 @@ public class LoginActivity extends BaseActivity {
             userEntry.requestFocus();
         }
 
-        queryAPI(username, pkey, true);
-
+        SignupStateStore signupStateStore = new SignupStateStore(this);
+        if (signupStateStore.exists()) {
+            initializeItems();
+            showSignupRecoveryDialog();
+        } else {
+            queryAPI(username, pkey, true);
+        }
+    }
+    private void showSignupRecoveryDialog() {
+        if (recoveryDialogShown || isFinishing() || isDestroyed()) {
+            return;
+        }
+        recoveryDialogShown = true;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.signup_resume_title)
+                .setMessage(R.string.signup_resume_message)
+                .setPositiveButton(R.string.signup_resume_action, (dialog, which) -> {
+                    Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                    startActivity(intent);
+                })
+                .setNegativeButton(R.string.signup_not_now, null)
+                .show();
     }
 
     @Override
