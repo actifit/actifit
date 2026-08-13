@@ -2145,7 +2145,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 });
     }
 
-    private List<ChatMessage> aiChatHistory = null;
+    private List<ChatMessage> aiChatHistory = new ArrayList<>();
+
+    private boolean aiRequestInFlight = false;
     private void showAiPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.ai_popup, null);
@@ -2160,9 +2162,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         EditText steemitPostContent = findViewById(R.id.steemit_post_text);
 
-        if (aiChatHistory == null) {
-            aiChatHistory = new ArrayList<>();
-        }
         ChatAdapter chatAdapter = new ChatAdapter(aiChatHistory);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         chatRecyclerView.setAdapter(chatAdapter);
@@ -2183,12 +2182,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
         dialog.show();
 
-        // Holds the last user message so Retry can resend it even though the
-        // input field has already been cleared by the time a failure comes back.
-        //final String[] lastUserMessage = {null};
+        // Tracks whether this specific popup instance is still on screen, so a
+        // response that arrives after the user closed it doesn't touch the now
+        // -detached adapter/RecyclerView (they'd be replaced by fresh ones on
+        // the next open anyway).
+        final boolean[] popupOpen = {true};
+        dialog.setOnDismissListener(d -> popupOpen[0] = false);
 
         Runnable[] sendRequest = new Runnable[1];
         sendRequest[0] = () -> {
+            if (aiRequestInFlight) return;
+            aiRequestInFlight = true;
             loadingIndicator.setVisibility(View.VISIBLE);
             btnQuery.setEnabled(false);
 
@@ -2198,12 +2202,16 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 public void onSuccess(String result) {
                     runOnUiThread(() -> {
                         if (isFinishing() || isDestroyed()) return;
+                        aiRequestInFlight = false;
+                        if (!result.isEmpty()) {
+                            aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, result));
+                        }
+                        if (!popupOpen[0]) return;
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
-                        aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, result));
-                        chatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
-                        chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
                         if (!result.isEmpty()) {
+                            chatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
+                            chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
                             btnAccept.setEnabled(true);
                             btnAccept.setAlpha(1f);
                         }
@@ -2214,14 +2222,33 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 public void onFailure(String errorMessage) {
                     runOnUiThread(() -> {
                         if (isFinishing() || isDestroyed()) return;
+                        aiRequestInFlight = false;
+
+                        if (!popupOpen[0]) {
+                            if (!aiChatHistory.isEmpty() && aiChatHistory.get(aiChatHistory.size() - 1).isUser()) {
+                                aiChatHistory.remove(aiChatHistory.size() - 1);
+                            }
+                            return;
+                        }
+
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
-                        // Don't add errors to chat history: keeps a stale error from being
-                        // inserted into the post later, and keeps errors out of what gets
-                        // replayed to the model on subsequent requests.
-                        Snackbar.make(dialogView, errorMessage, Snackbar.LENGTH_LONG)
-                                .setAction(R.string.retry_action, retryView -> sendRequest[0].run())
-                                .show();
+                        Snackbar snackbar = Snackbar.make(dialogView, errorMessage, Snackbar.LENGTH_LONG)
+                                .setAction(R.string.retry_action, retryView -> sendRequest[0].run());
+                        snackbar.addCallback(new Snackbar.Callback() {
+                            @Override
+                            public void onDismissed(Snackbar transientBottomBar, int event) {
+                                if (event == DISMISS_EVENT_ACTION) return;
+                                if (!aiChatHistory.isEmpty() && aiChatHistory.get(aiChatHistory.size() - 1).isUser()) {
+                                    int removedIndex = aiChatHistory.size() - 1;
+                                    aiChatHistory.remove(removedIndex);
+                                    if (popupOpen[0]) {
+                                        chatAdapter.notifyItemRemoved(removedIndex);
+                                    }
+                                }
+                            }
+                        });
+                        snackbar.show();
                     });
                 }
             });
@@ -2242,10 +2269,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         });
 
         btnAccept.setOnClickListener(v -> {
-            // Insert the most recent AI reply at the current cursor position
-            // (or at the end if the field was never focused / has no selection).
             for (int i = aiChatHistory.size() - 1; i >= 0; i--) {
-                if (!aiChatHistory.get(i).isUser()) {
+                if (!aiChatHistory.get(i).isUser() && !aiChatHistory.get(i).getText().isEmpty()) {
                     String aiText = aiChatHistory.get(i).getText();
                     Editable editable = steemitPostContent.getText();
                     int start = steemitPostContent.getSelectionStart();
