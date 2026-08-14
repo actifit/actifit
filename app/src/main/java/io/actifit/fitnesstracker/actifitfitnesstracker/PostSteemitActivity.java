@@ -2146,7 +2146,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     }
 
     private List<ChatMessage> aiChatHistory = new ArrayList<>();
-
     private boolean aiRequestInFlight = false;
     private void showAiPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -2159,8 +2158,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         RecyclerView chatRecyclerView = dialogView.findViewById(R.id.chat_recycler_view);
         Button btnAccept = dialogView.findViewById(R.id.btn_accept);
         ImageButton btnClose = dialogView.findViewById(R.id.btn_close);
-
-        EditText steemitPostContent = findViewById(R.id.steemit_post_text);
 
         ChatAdapter chatAdapter = new ChatAdapter(aiChatHistory);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -2176,18 +2173,34 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         btnAccept.setEnabled(hasAiResponse);
         btnAccept.setAlpha(hasAiResponse ? 1f : 0.5f);
+
+        // If a request from a previous popup instance is still in flight, reflect
+        // that in this popup's UI immediately rather than looking idle.
+        if (aiRequestInFlight) {
+            loadingIndicator.setVisibility(View.VISIBLE);
+            btnQuery.setEnabled(false);
+        }
+
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
         dialog.show();
 
-        // Tracks whether this specific popup instance is still on screen, so a
-        // response that arrives after the user closed it doesn't touch the now
-        // -detached adapter/RecyclerView (they'd be replaced by fresh ones on
-        // the next open anyway).
-        final boolean[] popupOpen = {true};
-        dialog.setOnDismissListener(d -> popupOpen[0] = false);
+        // Holds the cancellable handle for whatever request is currently running,
+        // so closing the popup can genuinely cancel it rather than merely guard
+        // against touching stale UI.
+        final AiService.CancellableRequest[] activeRequest = {null};
+        dialog.setOnDismissListener(d -> {
+            if (activeRequest[0] != null) {
+                activeRequest[0].cancel();
+                activeRequest[0] = null;
+                aiRequestInFlight = false;
+                if (!aiChatHistory.isEmpty() && aiChatHistory.get(aiChatHistory.size() - 1).isUser()) {
+                    aiChatHistory.remove(aiChatHistory.size() - 1);
+                }
+            }
+        });
 
         Runnable[] sendRequest = new Runnable[1];
         sendRequest[0] = () -> {
@@ -2197,19 +2210,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             btnQuery.setEnabled(false);
 
             AiService aiService = new AiService();
-            aiService.generateChatResponse(aiChatHistory, new AiService.TextResponseCallback() {
+            activeRequest[0] = aiService.generateChatResponse(aiChatHistory, new AiService.TextResponseCallback() {
                 @Override
                 public void onSuccess(String result) {
                     runOnUiThread(() -> {
                         if (isFinishing() || isDestroyed()) return;
                         aiRequestInFlight = false;
-                        if (!result.isEmpty()) {
-                            aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, result));
-                        }
-                        if (!popupOpen[0]) return;
+                        activeRequest[0] = null;
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
                         if (!result.isEmpty()) {
+                            aiChatHistory.add(new ChatMessage(ChatMessage.ROLE_AI, result));
                             chatAdapter.notifyItemInserted(aiChatHistory.size() - 1);
                             chatRecyclerView.scrollToPosition(aiChatHistory.size() - 1);
                             btnAccept.setEnabled(true);
@@ -2223,27 +2234,28 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     runOnUiThread(() -> {
                         if (isFinishing() || isDestroyed()) return;
                         aiRequestInFlight = false;
-
-                        if (!popupOpen[0]) {
-                            if (!aiChatHistory.isEmpty() && aiChatHistory.get(aiChatHistory.size() - 1).isUser()) {
-                                aiChatHistory.remove(aiChatHistory.size() - 1);
-                            }
-                            return;
-                        }
-
+                        activeRequest[0] = null;
                         loadingIndicator.setVisibility(View.GONE);
                         btnQuery.setEnabled(true);
+                        // Don't add errors to chat history: keeps a stale error from being
+                        // inserted into the post later, and keeps errors out of what gets
+                        // replayed to the model on subsequent requests.
+                        final ChatMessage pendingTurn = aiChatHistory.isEmpty() ? null
+                                : aiChatHistory.get(aiChatHistory.size() - 1);
                         Snackbar snackbar = Snackbar.make(dialogView, errorMessage, Snackbar.LENGTH_LONG)
                                 .setAction(R.string.retry_action, retryView -> sendRequest[0].run());
                         snackbar.addCallback(new Snackbar.Callback() {
                             @Override
                             public void onDismissed(Snackbar transientBottomBar, int event) {
-                                if (event == DISMISS_EVENT_ACTION) return;
-                                if (!aiChatHistory.isEmpty() && aiChatHistory.get(aiChatHistory.size() - 1).isUser()) {
-                                    int removedIndex = aiChatHistory.size() - 1;
-                                    aiChatHistory.remove(removedIndex);
-                                    if (popupOpen[0]) {
-                                        chatAdapter.notifyItemRemoved(removedIndex);
+                                if (event == DISMISS_EVENT_ACTION) return; // user tapped Retry
+                                // Dismissed by timeout/swipe without retrying: drop the
+                                // orphaned pending user turn by identity (not position),
+                                // since a new message may already be in flight above it.
+                                if (pendingTurn != null) {
+                                    int idx = aiChatHistory.indexOf(pendingTurn);
+                                    if (idx >= 0) {
+                                        aiChatHistory.remove(idx);
+                                        chatAdapter.notifyItemRemoved(idx);
                                     }
                                 }
                             }
@@ -2255,6 +2267,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         };
 
         btnQuery.setOnClickListener(v -> {
+            if (aiRequestInFlight) return;
             String userText = aiInputText.getText().toString().trim();
             if (userText.isEmpty()) {
                 return;
@@ -2269,6 +2282,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         });
 
         btnAccept.setOnClickListener(v -> {
+            // Insert the most recent AI reply at the current cursor position
+            // (or at the end if the field was never focused / has no selection).
             for (int i = aiChatHistory.size() - 1; i >= 0; i--) {
                 if (!aiChatHistory.get(i).isUser() && !aiChatHistory.get(i).getText().isEmpty()) {
                     String aiText = aiChatHistory.get(i).getText();
