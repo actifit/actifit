@@ -54,8 +54,7 @@ public class ChartManager {
     private CircularProgressIndicator stepRingHc;
 
     private int getDailyGoal() {
-        SharedPreferences prefs = context.getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
-        return prefs.getInt("dailyStepGoal", 10000);
+        return Utils.getDailyStepGoal(context);
     }
 
     private BarChart dayChart, fullChart;

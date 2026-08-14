@@ -100,6 +100,11 @@ import androidx.exifinterface.media.ExifInterface;
          *
          * @return true if the user is on the metric (km) system, false for US/imperial (miles).
          */
+        public static int getDailyStepGoal(Context context) {
+            SharedPreferences prefs = context.getSharedPreferences("actifitSets", MODE_PRIVATE);
+            int goal = prefs.getInt("dailyStepGoal", 10000);
+            return Math.max(1, goal);
+        }
         public static boolean isMetricSystem(Context context) {
             SharedPreferences sharedPreferences = context.getSharedPreferences("actifitSets", MODE_PRIVATE);
             String activeSystem = sharedPreferences.getString("activeSystem",
