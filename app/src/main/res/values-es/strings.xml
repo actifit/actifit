@@ -758,9 +758,10 @@
     <string name="load_more_lbl">Cargar más</string>
     <string name="ai_popup_title">Asistente de IA</string>
     <string name="ai_hint_input">¿En qué te gustaría que te ayudara?</string>
-    <string name="ai_accept_button">Aceptar</string>
+    <string name="ai_accept_button">Insertar</string>
     <string name="step_goal_format">/ %1$s pasos</string>
     <string name="step_pct_to_goal_format">%1$d%% para la meta</string>
+    <string name="retry_action">Reintentar</string>
 </resources>
 
 

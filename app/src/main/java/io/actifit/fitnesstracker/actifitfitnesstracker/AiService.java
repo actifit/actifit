@@ -288,6 +288,10 @@ public class AiService {
         void onFailure(String errorMessage);
     }
 
+    public interface CancellableRequest {
+        void cancel();
+    }
+
     public void generateDashboardInsight(int todaySteps, int streakDays, int avgSteps7d, final TextResponseCallback callback) {
         String prompt = "You are a fitness coach. Give one motivating, personalized fitness insight in exactly 1-2 short sentences. "
                 + "The user has walked " + todaySteps + " steps today, has a " + streakDays
@@ -442,11 +446,20 @@ public class AiService {
         });
     }
 
-    public void generateChatResponse(List<ChatMessage> history, final TextResponseCallback callback) {
-        generateChatResponseWithRetry(history, callback, 0);
+    public CancellableRequest generateChatResponse(List<ChatMessage> history, final TextResponseCallback callback) {
+        final Call[] currentCall = new Call[1];
+        final boolean[] canceled = {false};
+        generateChatResponseWithRetry(history, callback, 0, currentCall, canceled);
+        return () -> {
+            canceled[0] = true;
+            if (currentCall[0] != null) {
+                currentCall[0].cancel();
+            }
+        };
     }
 
-    private void generateChatResponseWithRetry(List<ChatMessage> history, final TextResponseCallback callback, final int attempt) {
+    private void generateChatResponseWithRetry(List<ChatMessage> history, final TextResponseCallback callback, final int attempt, final Call[] currentCall, final boolean[] canceled) {
+        if (canceled[0]) return;
         List<Map<String, Object>> contents = new ArrayList<>();
         for (ChatMessage message : history) {
             Map<String, Object> turn = new HashMap<>();
@@ -454,7 +467,6 @@ public class AiService {
             turn.put("parts", List.of(Map.of("text", message.getText())));
             contents.add(turn);
         }
-
         Map<String, Object> requestBodyMap = new HashMap<>();
         requestBodyMap.put("contents", contents);
         String requestJson = gson.toJson(requestBodyMap);
@@ -464,12 +476,15 @@ public class AiService {
                 .addHeader("x-goog-api-key", API_KEY)
                 .post(requestBody)
                 .build();
-
-        client.newCall(request).enqueue(new Callback() {
+        Call call = client.newCall(request);
+        currentCall[0] = call;
+        call.enqueue(new Callback() {
             @Override public void onFailure(Call call, IOException e) {
+                if (call.isCanceled()) return;
                 callback.onFailure("Network error: " + e.getMessage());
             }
             @Override public void onResponse(Call call, Response response) throws IOException {
+                if (call.isCanceled()) return;
                 String responseBody = response.body().string();
                 if (response.isSuccessful()) {
                     try {
@@ -482,7 +497,10 @@ public class AiService {
                 } else if (response.code() == 503 && attempt < 3) {
                     long delayMs = (attempt + 1) * 1500L;
                     new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
-                            () -> generateChatResponseWithRetry(history, callback, attempt + 1),
+                            () -> {
+                                if (canceled[0]) return;
+                                generateChatResponseWithRetry(history, callback, attempt + 1, currentCall, canceled);
+                            },
                             delayMs
                     );
                 } else {
