@@ -182,11 +182,9 @@ public class LoginActivity extends BaseActivity {
         }
 
         SignupStateStore signupStateStore = new SignupStateStore(this);
+        queryAPI(username, pkey, true);
         if (signupStateStore.exists()) {
-            initializeItems();
             showSignupRecoveryDialog();
-        } else {
-            queryAPI(username, pkey, true);
         }
     }
     private void showSignupRecoveryDialog() {
@@ -202,7 +200,35 @@ public class LoginActivity extends BaseActivity {
                     startActivity(intent);
                 })
                 .setNegativeButton(R.string.signup_not_now, null)
+                .setNeutralButton(R.string.signup_discard_action,
+                        (dialog, which) -> discardSignupRecoveryIfSafe())
                 .show();
+    }
+
+    private void discardSignupRecoveryIfSafe() {
+        SignupStateStore signupStateStore = new SignupStateStore(this);
+        try {
+            SignupState state = signupStateStore.load();
+            if (state == null) {
+                return;
+            }
+            if (state.canSafelyDiscard()) {
+                signupStateStore.clear();
+                Toast.makeText(this, R.string.signup_discarded, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.signup_discard_blocked_title)
+                    .setMessage(R.string.signup_discard_blocked_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+        } catch (SignupStateStore.SignupStateStoreException e) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.signup_recovery_error_title)
+                    .setMessage(R.string.signup_recovery_corrupt_error)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+        }
     }
 
     @Override

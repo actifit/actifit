@@ -77,7 +77,6 @@ final class SignupState {
                 json.getBoolean("accountCreated"));
         if (state.username.isEmpty() || state.masterPassword.isEmpty() || state.memo.isEmpty()
                 || !("HIVE".equals(state.selectedCurrency) || "HBD".equals(state.selectedCurrency))
-                || !state.irreversible
                 || !(PHASE_READY_FOR_PAYMENT.equals(state.phase)
                 || PHASE_REQUEST_SUBMITTED.equals(state.phase)
                 || PHASE_ACCOUNT_CREATED.equals(state.phase)
@@ -89,9 +88,17 @@ final class SignupState {
                 || (PHASE_ACCOUNT_CREATED.equals(state.phase)
                 && (!state.requestSubmitted || !state.accountCreated))
                 || (PHASE_ACCOUNT_CREATION_FAILED.equals(state.phase)
-                && (!state.requestSubmitted || state.accountCreated))) {
+                && (!state.requestSubmitted || state.accountCreated))
+                || (!PHASE_READY_FOR_PAYMENT.equals(state.phase) && !state.irreversible)) {
             throw new JSONException("Invalid signup recovery state");
         }
         return state;
+    }
+
+    boolean canSafelyDiscard() {
+        return PHASE_READY_FOR_PAYMENT.equals(phase)
+                && !irreversible
+                && !requestSubmitted
+                && !accountCreated;
     }
 }

@@ -287,8 +287,10 @@
                             android:id="@+id/master_password_display"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:editable="false"
-                            android:focusable="false" />
+                            android:clickable="false"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:inputType="textPassword" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <Button

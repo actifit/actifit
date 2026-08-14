@@ -2,15 +2,18 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.app.ProgressDialog;
 import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ActivityNotFoundException;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PersistableBundle;
 import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableString;
@@ -19,6 +22,7 @@ import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.TextView;
@@ -106,6 +110,7 @@ public class SignupActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_signup);
 
         hiveRequests = new HiveRequests(this);
@@ -149,6 +154,11 @@ public class SignupActivity extends BaseActivity {
 
         currencyToggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (!isChecked || isRestoringState) {
+                return;
+            }
+
+            if (recoveryState != null && recoveryState.requestSubmitted) {
+                restorePersistedCurrencySelection();
                 return;
             }
 
@@ -385,6 +395,7 @@ public class SignupActivity extends BaseActivity {
         animateTransition(step4Container, currentStep == 4);
 
         progressBar.setProgress(currentStep * 25);
+        updateCurrencyToggleState();
 
         // Always show "Back" label
         btnPrev.setText(R.string.back_button);
@@ -566,6 +577,7 @@ public class SignupActivity extends BaseActivity {
             masterPasswordDisplay.setText(state.masterPassword);
             currencyToggle.check("HBD".equals(state.selectedCurrency)
                     ? R.id.button_hbd : R.id.button_hive);
+            updateCurrencyToggleState();
             updatePaymentInstructions();
         } finally {
             isRestoringState = false;
@@ -748,6 +760,24 @@ public class SignupActivity extends BaseActivity {
         }
     }
 
+    private void updateCurrencyToggleState() {
+        boolean enabled = recoveryState == null || !recoveryState.requestSubmitted;
+        currencyToggle.setEnabled(enabled);
+        findViewById(R.id.button_hive).setEnabled(enabled);
+        findViewById(R.id.button_hbd).setEnabled(enabled);
+    }
+
+    private void restorePersistedCurrencySelection() {
+        isRestoringState = true;
+        try {
+            selectedCurrency = recoveryState.selectedCurrency;
+            currencyToggle.check("HBD".equals(selectedCurrency)
+                    ? R.id.button_hbd : R.id.button_hive);
+        } finally {
+            isRestoringState = false;
+        }
+    }
+
     private void handlePriceUnavailable(String requestedCurrency, int errorMessage) {
         if (!canUpdateUi() || !requestedCurrency.equals(selectedCurrency)) return;
         requiredCryptoAmount = 0.0;
@@ -800,7 +830,10 @@ public class SignupActivity extends BaseActivity {
                 || (!isPromoSignup && (!liveCurrencyPriceAvailable || requiredCryptoAmount <= 0))) {
             stopPaymentPolling();
             updatePaymentInstructions();
-            if (!isPromoSignup) fetchSelectedCurrencyPriceAndUpdateAmount();
+            if (afitReward < 0) fetchAfitReward();
+            if (!isPromoSignup && (!liveCurrencyPriceAvailable || requiredCryptoAmount <= 0)) {
+                fetchSelectedCurrencyPriceAndUpdateAmount();
+            }
             showError(getString(R.string.error_signup_pricing));
             return;
         }
@@ -1043,6 +1076,14 @@ public class SignupActivity extends BaseActivity {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(getString(R.string.signup_master_password_clip_label),
                 generatedMasterPassword);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PersistableBundle extras = clip.getDescription().getExtras();
+            if (extras == null) {
+                extras = new PersistableBundle();
+            }
+            extras.putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true);
+            clip.getDescription().setExtras(extras);
+        }
         clipboard.setPrimaryClip(clip);
         Toast.makeText(this, R.string.copy_success, Toast.LENGTH_SHORT).show();
     }
