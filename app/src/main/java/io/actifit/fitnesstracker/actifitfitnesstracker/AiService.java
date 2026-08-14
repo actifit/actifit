@@ -448,15 +448,18 @@ public class AiService {
 
     public CancellableRequest generateChatResponse(List<ChatMessage> history, final TextResponseCallback callback) {
         final Call[] currentCall = new Call[1];
-        generateChatResponseWithRetry(history, callback, 0, currentCall);
+        final boolean[] canceled = {false};
+        generateChatResponseWithRetry(history, callback, 0, currentCall, canceled);
         return () -> {
+            canceled[0] = true;
             if (currentCall[0] != null) {
                 currentCall[0].cancel();
             }
         };
     }
 
-    private void generateChatResponseWithRetry(List<ChatMessage> history, final TextResponseCallback callback, final int attempt, final Call[] currentCall) {
+    private void generateChatResponseWithRetry(List<ChatMessage> history, final TextResponseCallback callback, final int attempt, final Call[] currentCall, final boolean[] canceled) {
+        if (canceled[0]) return;
         List<Map<String, Object>> contents = new ArrayList<>();
         for (ChatMessage message : history) {
             Map<String, Object> turn = new HashMap<>();
@@ -464,7 +467,6 @@ public class AiService {
             turn.put("parts", List.of(Map.of("text", message.getText())));
             contents.add(turn);
         }
-
         Map<String, Object> requestBodyMap = new HashMap<>();
         requestBodyMap.put("contents", contents);
         String requestJson = gson.toJson(requestBodyMap);
@@ -474,7 +476,6 @@ public class AiService {
                 .addHeader("x-goog-api-key", API_KEY)
                 .post(requestBody)
                 .build();
-
         Call call = client.newCall(request);
         currentCall[0] = call;
         call.enqueue(new Callback() {
@@ -496,7 +497,10 @@ public class AiService {
                 } else if (response.code() == 503 && attempt < 3) {
                     long delayMs = (attempt + 1) * 1500L;
                     new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
-                            () -> generateChatResponseWithRetry(history, callback, attempt + 1, currentCall),
+                            () -> {
+                                if (canceled[0]) return;
+                                generateChatResponseWithRetry(history, callback, attempt + 1, currentCall, canceled);
+                            },
                             delayMs
                     );
                 } else {
