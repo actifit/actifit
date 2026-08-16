@@ -94,7 +94,7 @@ public class SettingsActivity extends BaseActivity {
 
     private String accessToken;
 
-    private EditText activeKey, fundsPassword, voteWeight;
+    private EditText activeKey, fundsPassword, voteWeight, dailyStepGoalInput;
 
     Button qrCodeBtn;
     private ActivityResultLauncher<ScanOptions> qrLauncher;
@@ -131,6 +131,7 @@ public class SettingsActivity extends BaseActivity {
         activeKey = findViewById(R.id.activeKey);
         fundsPassword = findViewById(R.id.fundsPassword);
         voteWeight = findViewById(R.id.votePercent);
+        dailyStepGoalInput = findViewById(R.id.dailyStepGoalInput);
 
         //grab instances of settings components
         final RadioButton metricSysRadioBtn = findViewById(R.id.metric_system);
@@ -188,6 +189,8 @@ public class SettingsActivity extends BaseActivity {
 
         darkModeSwitch.setChecked(isDarkModeEnabled);
         //updateSunMoonIcons(isChecked);
+        int savedStepGoal = sharedPreferences.getInt("dailyStepGoal", 10000);
+        dailyStepGoalInput.setText(String.valueOf(savedStepGoal));
 
         darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // isChecked is the new state of the switch
@@ -788,6 +791,14 @@ public class SettingsActivity extends BaseActivity {
 
             //store active key to use where and if needed
             editor.putString("actvKey",activeKey.getText().toString());
+            try {
+                int stepGoal = Integer.parseInt(dailyStepGoalInput.getText().toString().trim());
+                if (stepGoal > 0) {
+                    editor.putInt("dailyStepGoal", stepGoal);
+                }
+            } catch (NumberFormatException e) {
+                // leave existing/default goal unchanged if input is invalid or empty
+            }
 
             //store funds password to use where and if needed
             editor.putString("fundsPass", fundsPassword.getText().toString());

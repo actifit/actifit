@@ -86,289 +86,300 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.exifinterface.media.ExifInterface;
 
-    public class  Utils {
+public class  Utils {
 
-        private static final String TAG = "Utils";
+    private static final String TAG = "Utils";
 
-        // --- Measurement-system helpers (distance / pace) ---
+    // --- Measurement-system helpers (distance / pace) ---
 
-        private static final double METERS_PER_MILE = 1609.344;
+    private static final double METERS_PER_MILE = 1609.344;
 
-        /**
-         * Reads the user's active measurement system from settings.
-         * Defaults to metric when unset.
-         *
-         * @return true if the user is on the metric (km) system, false for US/imperial (miles).
-         */
-        public static boolean isMetricSystem(Context context) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences("actifitSets", MODE_PRIVATE);
-            String activeSystem = sharedPreferences.getString("activeSystem",
-                    context.getString(R.string.metric_system_ntt));
-            // anything other than an explicit US selection is treated as metric (matches SettingsActivity default)
-            return !activeSystem.equals(context.getString(R.string.us_system_ntt));
-        }
+    /**
+     * Single source of truth for the user's daily step goal.
+     * Falls back to 10,000 if unset, and is guarded against a 0 value
+     * ever reaching the callers that divide by it.
+     */
+    public static int getDailyStepGoal(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("actifitSets", MODE_PRIVATE);
+        int goal = prefs.getInt("dailyStepGoal", 10000);
+        return Math.max(1, goal);
+    }
 
-        /**
-         * Formats a distance (given in meters) using the user's active measurement system.
-         * Metric: "850 m" / "3.24 km". US: "0.53 mi" (short distances also expressed in miles).
-         */
-        public static String formatDistance(Context context, double distanceMeters) {
-            if (isMetricSystem(context)) {
-                if (distanceMeters < 1000) {
-                    return String.format(Locale.getDefault(), "%.0f m", distanceMeters);
-                }
-                return String.format(Locale.getDefault(), "%.2f km", distanceMeters / 1000.0);
+    /**
+     * Reads the user's active measurement system from settings.
+     * Defaults to metric when unset.
+     *
+     * @return true if the user is on the metric (km) system, false for US/imperial (miles).
+     */
+    public static boolean isMetricSystem(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("actifitSets", MODE_PRIVATE);
+        String activeSystem = sharedPreferences.getString("activeSystem",
+                context.getString(R.string.metric_system_ntt));
+        // anything other than an explicit US selection is treated as metric (matches SettingsActivity default)
+        return !activeSystem.equals(context.getString(R.string.us_system_ntt));
+    }
+
+    /**
+     * Formats a distance (given in meters) using the user's active measurement system.
+     * Metric: "850 m" / "3.24 km". US: "0.53 mi" (short distances also expressed in miles).
+     */
+    public static String formatDistance(Context context, double distanceMeters) {
+        if (isMetricSystem(context)) {
+            if (distanceMeters < 1000) {
+                return String.format(Locale.getDefault(), "%.0f m", distanceMeters);
             }
-            double miles = distanceMeters / METERS_PER_MILE;
-            return String.format(Locale.getDefault(), "%.2f mi", miles);
+            return String.format(Locale.getDefault(), "%.2f km", distanceMeters / 1000.0);
         }
+        double miles = distanceMeters / METERS_PER_MILE;
+        return String.format(Locale.getDefault(), "%.2f mi", miles);
+    }
 
-        /**
-         * Formats average pace using the user's active measurement system.
-         * Metric: "7:07/km". US: "11:27/mi". Returns "--" when there is no meaningful movement.
-         */
-        public static String formatPace(Context context, double distanceMeters, long durationMs) {
-            long durationSec = durationMs / 1000;
-            if (distanceMeters < 10 || durationSec == 0) return "--";
-            boolean metric = isMetricSystem(context);
-            double unitDistance = metric ? distanceMeters / 1000.0 : distanceMeters / METERS_PER_MILE;
-            if (unitDistance <= 0) return "--";
-            double secPerUnit = durationSec / unitDistance;
-            long paceMin = (long) secPerUnit / 60;
-            long paceSec = (long) secPerUnit % 60;
-            return String.format(Locale.getDefault(), "%d:%02d/%s", paceMin, paceSec, metric ? "km" : "mi");
-        }
+    /**
+     * Formats average pace using the user's active measurement system.
+     * Metric: "7:07/km". US: "11:27/mi". Returns "--" when there is no meaningful movement.
+     */
+    public static String formatPace(Context context, double distanceMeters, long durationMs) {
+        long durationSec = durationMs / 1000;
+        if (distanceMeters < 10 || durationSec == 0) return "--";
+        boolean metric = isMetricSystem(context);
+        double unitDistance = metric ? distanceMeters / 1000.0 : distanceMeters / METERS_PER_MILE;
+        if (unitDistance <= 0) return "--";
+        double secPerUnit = durationSec / unitDistance;
+        long paceMin = (long) secPerUnit / 60;
+        long paceSec = (long) secPerUnit % 60;
+        return String.format(Locale.getDefault(), "%d:%02d/%s", paceMin, paceSec, metric ? "km" : "mi");
+    }
 
-        // --- Your other Utils methods (uploadFile, etc.) ---
+    // --- Your other Utils methods (uploadFile, etc.) ---
 
-        /**
-         * Creates a temporary file from a bitmap and copies EXIF data from the source URI.
-         * This method must be called on a background thread.
-         *
-         * @param bitmap   The scaled bitmap to compress and save.
-         * @param context  The application context.
-         * @param srcUri   The content URI of the original image source (for EXIF).
-         * @param dstFile  The temporary file to write the bitmap and EXIF data to.
-         * @throws IOException if a file operation fails.
-         */
-        public static void createFile(Bitmap bitmap, Context context, Uri srcUri, File dstFile) throws IOException {
+    /**
+     * Creates a temporary file from a bitmap and copies EXIF data from the source URI.
+     * This method must be called on a background thread.
+     *
+     * @param bitmap   The scaled bitmap to compress and save.
+     * @param context  The application context.
+     * @param srcUri   The content URI of the original image source (for EXIF).
+     * @param dstFile  The temporary file to write the bitmap and EXIF data to.
+     * @throws IOException if a file operation fails.
+     */
+    public static void createFile(Bitmap bitmap, Context context, Uri srcUri, File dstFile) throws IOException {
 
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
-            ExifInterface oldExif = null; // Hold EXIF data from the original source
+        InputStream inputStream = null;
+        OutputStream outputStream = null;
+        ExifInterface oldExif = null; // Hold EXIF data from the original source
 
+        try {
+            // --- Step 1: Read EXIF data from the original source URI ---
+            // Open the source stream
+            inputStream = context.getContentResolver().openInputStream(srcUri);
+            if (inputStream == null) {
+                Log.w(TAG, "createFile: Could not open input stream for URI: " + srcUri);
+                // Decide if this should throw an exception or just return
+                throw new IOException("Could not open input stream for URI: " + srcUri);
+            }
+
+            // Read EXIF from the input stream
+            // Requires AndroidX ExifInterface library and API 24+ for InputStream constructor
             try {
-                // --- Step 1: Read EXIF data from the original source URI ---
-                // Open the source stream
-                inputStream = context.getContentResolver().openInputStream(srcUri);
-                if (inputStream == null) {
-                    Log.w(TAG, "createFile: Could not open input stream for URI: " + srcUri);
-                    // Decide if this should throw an exception or just return
-                    throw new IOException("Could not open input stream for URI: " + srcUri);
-                }
-
-                // Read EXIF from the input stream
-                // Requires AndroidX ExifInterface library and API 24+ for InputStream constructor
-                try {
-                    oldExif = new ExifInterface(inputStream);
-                    Log.d(TAG, "Successfully read EXIF data from source URI.");
-                } catch (IOException e) {
-                    Log.e(TAG, "Failed to read EXIF data from source URI: " + srcUri, e);
-                    // Continue without EXIF if reading fails, or handle as a critical error
-                }
-
-
-            } finally {
-                // --- Close the source input stream immediately after reading EXIF ---
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                        Log.d(TAG, "Closed source input stream.");
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error closing source input stream", e);
-                    }
-                }
+                oldExif = new ExifInterface(inputStream);
+                Log.d(TAG, "Successfully read EXIF data from source URI.");
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to read EXIF data from source URI: " + srcUri, e);
+                // Continue without EXIF if reading fails, or handle as a critical error
             }
 
+
+        } finally {
+            // --- Close the source input stream immediately after reading EXIF ---
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                    Log.d(TAG, "Closed source input stream.");
+                } catch (IOException e) {
+                    Log.e(TAG, "Error closing source input stream", e);
+                }
+            }
+        }
+
+        try {
+            // --- Step 2: Write the compressed bitmap to the destination file ---
+            outputStream = new FileOutputStream(dstFile);
+            // Use a reasonable compression quality, 50 might be too low. Try 80-90.
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream);
+            Log.d(TAG, "Compressed bitmap to destination file: " + dstFile.getAbsolutePath());
+
+        } finally {
+            // --- Close the destination output stream after writing the bitmap ---
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                    Log.d(TAG, "Closed destination output stream.");
+                } catch (IOException e) {
+                    Log.e(TAG, "Error closing destination output stream", e);
+                }
+            }
+        }
+
+        // --- Step 3: Copy EXIF data to the destination file if available ---
+        if (oldExif != null) {
             try {
-                // --- Step 2: Write the compressed bitmap to the destination file ---
-                outputStream = new FileOutputStream(dstFile);
-                // Use a reasonable compression quality, 50 might be too low. Try 80-90.
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream);
-                Log.d(TAG, "Compressed bitmap to destination file: " + dstFile.getAbsolutePath());
+                // Open the destination file *again* with ExifInterface for writing
+                ExifInterface newExif = new ExifInterface(dstFile.getAbsolutePath());
 
-            } finally {
-                // --- Close the destination output stream after writing the bitmap ---
-                if (outputStream != null) {
-                    try {
-                        outputStream.close();
-                        Log.d(TAG, "Closed destination output stream.");
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error closing destination output stream", e);
-                    }
-                }
+                // Use the copyExif helper to transfer attributes
+                copyExifAttributes(oldExif, newExif);
+
+                // Save the attributes to the new file
+                newExif.saveAttributes();
+                Log.d(TAG, "Successfully copied and saved EXIF attributes to destination file.");
+
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to copy or save EXIF data to destination file: " + dstFile.getAbsolutePath(), e);
+                // Log the error but allow the upload to proceed without EXIF if saving fails
             }
-
-            // --- Step 3: Copy EXIF data to the destination file if available ---
-            if (oldExif != null) {
-                try {
-                    // Open the destination file *again* with ExifInterface for writing
-                    ExifInterface newExif = new ExifInterface(dstFile.getAbsolutePath());
-
-                    // Use the copyExif helper to transfer attributes
-                    copyExifAttributes(oldExif, newExif);
-
-                    // Save the attributes to the new file
-                    newExif.saveAttributes();
-                    Log.d(TAG, "Successfully copied and saved EXIF attributes to destination file.");
-
-                } catch (IOException e) {
-                    Log.e(TAG, "Failed to copy or save EXIF data to destination file: " + dstFile.getAbsolutePath(), e);
-                    // Log the error but allow the upload to proceed without EXIF if saving fails
-                }
-            } else {
-                Log.d(TAG, "No source EXIF data to copy or API < 24.");
-            }
-
-            // Note: bitmap.recycle() should be called *after* this method returns
-            // by the code that called createFile (e.g., in processImageForUpload or uploadFile)
-            // as the caller passed the bitmap and knows when its lifecycle ends.
-            // In the previous refactoring of uploadFile, we added recycle there, which is appropriate.
+        } else {
+            Log.d(TAG, "No source EXIF data to copy or API < 24.");
         }
 
-        /**
-         * Copies selected EXIF attributes from a source ExifInterface object to a destination.
-         *
-         * @param oldExif The source ExifInterface (from original file).
-         * @param newExif The destination ExifInterface (for the temporary file).
-         */
-        private static void copyExifAttributes(ExifInterface oldExif, ExifInterface newExif) {
-            String[] attributes = new String[]
-                    {
-                            ExifInterface.TAG_APERTURE_VALUE, // Added common tags
-                            ExifInterface.TAG_ARTIST,
-                            ExifInterface.TAG_BITS_PER_SAMPLE,
-                            ExifInterface.TAG_BRIGHTNESS_VALUE,
-                            ExifInterface.TAG_CAMERA_OWNER_NAME,
-                            ExifInterface.TAG_COLOR_SPACE,
-                            ExifInterface.TAG_COMPONENTS_CONFIGURATION,
-                            ExifInterface.TAG_COMPRESSED_BITS_PER_PIXEL,
-                            ExifInterface.TAG_CONTRAST,
-                            ExifInterface.TAG_CUSTOM_RENDERED,
-                            ExifInterface.TAG_DATETIME, // Original tags
-                            ExifInterface.TAG_DATETIME_DIGITIZED, // Original tags
-                            ExifInterface.TAG_DATETIME_ORIGINAL, // Added
-                            ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION,
-                            ExifInterface.TAG_DIGITAL_ZOOM_RATIO,
-                            ExifInterface.TAG_EXIF_VERSION, // Added
-                            ExifInterface.TAG_EXPOSURE_BIAS_VALUE,
-                            ExifInterface.TAG_EXPOSURE_INDEX,
-                            ExifInterface.TAG_EXPOSURE_MODE,
-                            ExifInterface.TAG_EXPOSURE_TIME, // Original tags
-                            ExifInterface.TAG_FLASH, // Original tags
-                            ExifInterface.TAG_FLASH_ENERGY,
-                            ExifInterface.TAG_FOCAL_LENGTH, // Original tags
-                            ExifInterface.TAG_FOCAL_PLANE_RESOLUTION_UNIT,
-                            ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION,
-                            ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION,
-                            ExifInterface.TAG_GAIN_CONTROL,
-                            ExifInterface.TAG_GPS_ALTITUDE, // Original tags
-                            ExifInterface.TAG_GPS_ALTITUDE_REF, // Original tags
-                            ExifInterface.TAG_GPS_AREA_INFORMATION,
-                            ExifInterface.TAG_GPS_DATESTAMP, // Original tags
-                            ExifInterface.TAG_GPS_DEST_BEARING,
-                            ExifInterface.TAG_GPS_DEST_BEARING_REF,
-                            ExifInterface.TAG_GPS_DEST_DISTANCE,
-                            ExifInterface.TAG_GPS_DEST_DISTANCE_REF,
-                            ExifInterface.TAG_GPS_DEST_LATITUDE,
-                            ExifInterface.TAG_GPS_DEST_LATITUDE_REF,
-                            ExifInterface.TAG_GPS_DEST_LONGITUDE,
-                            ExifInterface.TAG_GPS_DEST_LONGITUDE_REF,
-                            ExifInterface.TAG_GPS_DIFFERENTIAL,
-                            ExifInterface.TAG_GPS_DOP,
-                            ExifInterface.TAG_GPS_IMG_DIRECTION,
-                            ExifInterface.TAG_GPS_IMG_DIRECTION_REF,
-                            ExifInterface.TAG_GPS_LATITUDE, // Original tags
-                            ExifInterface.TAG_GPS_LATITUDE_REF, // Original tags
-                            ExifInterface.TAG_GPS_LONGITUDE, // Original tags
-                            ExifInterface.TAG_GPS_LONGITUDE_REF, // Original tags
-                            ExifInterface.TAG_GPS_MEASURE_MODE,
-                            ExifInterface.TAG_GPS_PROCESSING_METHOD, // Original tags
-                            ExifInterface.TAG_GPS_SATELLITES,
-                            ExifInterface.TAG_GPS_SPEED,
-                            ExifInterface.TAG_GPS_SPEED_REF,
-                            ExifInterface.TAG_GPS_STATUS,
-                            ExifInterface.TAG_GPS_TIMESTAMP, // Original tags
-                            ExifInterface.TAG_GPS_TRACK,
-                            ExifInterface.TAG_GPS_TRACK_REF,
-                            ExifInterface.TAG_GPS_VERSION_ID,
-                            ExifInterface.TAG_IMAGE_DESCRIPTION,
-                            ExifInterface.TAG_IMAGE_UNIQUE_ID,
-                            ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT,
-                            ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
-                            ExifInterface.TAG_LENS_MAKE, // Added
-                            ExifInterface.TAG_LENS_MODEL, // Added
-                            ExifInterface.TAG_LENS_SPECIFICATION,
-                            ExifInterface.TAG_LIGHT_SOURCE,
-                            ExifInterface.TAG_MAKE, // Original tags
-                            ExifInterface.TAG_MAX_APERTURE_VALUE,
-                            ExifInterface.TAG_METERING_MODE,
-                            ExifInterface.TAG_MODEL, // Original tags
-                            ExifInterface.TAG_NEW_SUBFILE_TYPE,
-                            ExifInterface.TAG_OECF,
-                            ExifInterface.TAG_OFFSET_TIME, // Added
-                            ExifInterface.TAG_OFFSET_TIME_DIGITIZED, // Added
-                            ExifInterface.TAG_OFFSET_TIME_ORIGINAL, // Added
-                            ExifInterface.TAG_ORF_ASPECT_FRAME,
-                            ExifInterface.TAG_ORF_PREVIEW_IMAGE_START,
-                            ExifInterface.TAG_ORF_THUMBNAIL_IMAGE,
-                            ExifInterface.TAG_ORIENTATION, // Original tags - IMPORTANT for correct display
-                            ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION,
-                            ExifInterface.TAG_PIXEL_X_DIMENSION,
-                            ExifInterface.TAG_PIXEL_Y_DIMENSION,
-                            ExifInterface.TAG_PLANAR_CONFIGURATION,
-                            ExifInterface.TAG_PRIMARY_CHROMATICITIES,
-                            ExifInterface.TAG_REFERENCE_BLACK_WHITE,
-                            ExifInterface.TAG_RELATED_SOUND_FILE,
-                            ExifInterface.TAG_RESOLUTION_UNIT, // Added
-                            ExifInterface.TAG_ROWS_PER_STRIP,
-                            ExifInterface.TAG_SAMPLES_PER_PIXEL,
-                            ExifInterface.TAG_SATURATION,
-                            ExifInterface.TAG_SCENE_CAPTURE_TYPE,
-                            ExifInterface.TAG_SCENE_TYPE,
-                            ExifInterface.TAG_SENSING_METHOD,
-                            ExifInterface.TAG_SHARPNESS,
-                            ExifInterface.TAG_SHUTTER_SPEED_VALUE,
-                            ExifInterface.TAG_SPATIAL_FREQUENCY_RESPONSE,
-                            ExifInterface.TAG_SPECTRAL_SENSITIVITY,
-                            ExifInterface.TAG_STANDARD_OUTPUT_SENSITIVITY,
-                            ExifInterface.TAG_STRIP_BYTE_COUNTS,
-                            ExifInterface.TAG_STRIP_OFFSETS,
-                            ExifInterface.TAG_SUBSEC_TIME, // Original tags
-                            ExifInterface.TAG_SUBSEC_TIME_DIGITIZED, // Added
-                            ExifInterface.TAG_SUBSEC_TIME_ORIGINAL, // Added
-                            ExifInterface.TAG_SUBJECT_AREA,
-                            ExifInterface.TAG_SUBJECT_DISTANCE,
-                            ExifInterface.TAG_SUBJECT_DISTANCE_RANGE,
-                            ExifInterface.TAG_SUBJECT_LOCATION,
-                            ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH,
-                            ExifInterface.TAG_THUMBNAIL_IMAGE_WIDTH,
-                            ExifInterface.TAG_TRANSFER_FUNCTION,
-                            ExifInterface.TAG_USER_COMMENT,
-                            ExifInterface.TAG_WHITE_BALANCE, // Original tags
-                            ExifInterface.TAG_WHITE_POINT,
-                            ExifInterface.TAG_X_RESOLUTION, // Added
-                            ExifInterface.TAG_Y_RESOLUTION // Added
-                    };
+        // Note: bitmap.recycle() should be called *after* this method returns
+        // by the code that called createFile (e.g., in processImageForUpload or uploadFile)
+        // as the caller passed the bitmap and knows when its lifecycle ends.
+        // In the previous refactoring of uploadFile, we added recycle there, which is appropriate.
+    }
 
-            for (String attribute : attributes) {
-                String value = oldExif.getAttribute(attribute);
-                if (value != null) {
-                    newExif.setAttribute(attribute, value);
-                    // Log.d(TAG, "Copied EXIF attribute: " + attribute + " = " + value); // Optional: Log copied tags
-                }
+    /**
+     * Copies selected EXIF attributes from a source ExifInterface object to a destination.
+     *
+     * @param oldExif The source ExifInterface (from original file).
+     * @param newExif The destination ExifInterface (for the temporary file).
+     */
+    private static void copyExifAttributes(ExifInterface oldExif, ExifInterface newExif) {
+        String[] attributes = new String[]
+                {
+                        ExifInterface.TAG_APERTURE_VALUE, // Added common tags
+                        ExifInterface.TAG_ARTIST,
+                        ExifInterface.TAG_BITS_PER_SAMPLE,
+                        ExifInterface.TAG_BRIGHTNESS_VALUE,
+                        ExifInterface.TAG_CAMERA_OWNER_NAME,
+                        ExifInterface.TAG_COLOR_SPACE,
+                        ExifInterface.TAG_COMPONENTS_CONFIGURATION,
+                        ExifInterface.TAG_COMPRESSED_BITS_PER_PIXEL,
+                        ExifInterface.TAG_CONTRAST,
+                        ExifInterface.TAG_CUSTOM_RENDERED,
+                        ExifInterface.TAG_DATETIME, // Original tags
+                        ExifInterface.TAG_DATETIME_DIGITIZED, // Original tags
+                        ExifInterface.TAG_DATETIME_ORIGINAL, // Added
+                        ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION,
+                        ExifInterface.TAG_DIGITAL_ZOOM_RATIO,
+                        ExifInterface.TAG_EXIF_VERSION, // Added
+                        ExifInterface.TAG_EXPOSURE_BIAS_VALUE,
+                        ExifInterface.TAG_EXPOSURE_INDEX,
+                        ExifInterface.TAG_EXPOSURE_MODE,
+                        ExifInterface.TAG_EXPOSURE_TIME, // Original tags
+                        ExifInterface.TAG_FLASH, // Original tags
+                        ExifInterface.TAG_FLASH_ENERGY,
+                        ExifInterface.TAG_FOCAL_LENGTH, // Original tags
+                        ExifInterface.TAG_FOCAL_PLANE_RESOLUTION_UNIT,
+                        ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION,
+                        ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION,
+                        ExifInterface.TAG_GAIN_CONTROL,
+                        ExifInterface.TAG_GPS_ALTITUDE, // Original tags
+                        ExifInterface.TAG_GPS_ALTITUDE_REF, // Original tags
+                        ExifInterface.TAG_GPS_AREA_INFORMATION,
+                        ExifInterface.TAG_GPS_DATESTAMP, // Original tags
+                        ExifInterface.TAG_GPS_DEST_BEARING,
+                        ExifInterface.TAG_GPS_DEST_BEARING_REF,
+                        ExifInterface.TAG_GPS_DEST_DISTANCE,
+                        ExifInterface.TAG_GPS_DEST_DISTANCE_REF,
+                        ExifInterface.TAG_GPS_DEST_LATITUDE,
+                        ExifInterface.TAG_GPS_DEST_LATITUDE_REF,
+                        ExifInterface.TAG_GPS_DEST_LONGITUDE,
+                        ExifInterface.TAG_GPS_DEST_LONGITUDE_REF,
+                        ExifInterface.TAG_GPS_DIFFERENTIAL,
+                        ExifInterface.TAG_GPS_DOP,
+                        ExifInterface.TAG_GPS_IMG_DIRECTION,
+                        ExifInterface.TAG_GPS_IMG_DIRECTION_REF,
+                        ExifInterface.TAG_GPS_LATITUDE, // Original tags
+                        ExifInterface.TAG_GPS_LATITUDE_REF, // Original tags
+                        ExifInterface.TAG_GPS_LONGITUDE, // Original tags
+                        ExifInterface.TAG_GPS_LONGITUDE_REF, // Original tags
+                        ExifInterface.TAG_GPS_MEASURE_MODE,
+                        ExifInterface.TAG_GPS_PROCESSING_METHOD, // Original tags
+                        ExifInterface.TAG_GPS_SATELLITES,
+                        ExifInterface.TAG_GPS_SPEED,
+                        ExifInterface.TAG_GPS_SPEED_REF,
+                        ExifInterface.TAG_GPS_STATUS,
+                        ExifInterface.TAG_GPS_TIMESTAMP, // Original tags
+                        ExifInterface.TAG_GPS_TRACK,
+                        ExifInterface.TAG_GPS_TRACK_REF,
+                        ExifInterface.TAG_GPS_VERSION_ID,
+                        ExifInterface.TAG_IMAGE_DESCRIPTION,
+                        ExifInterface.TAG_IMAGE_UNIQUE_ID,
+                        ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT,
+                        ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
+                        ExifInterface.TAG_LENS_MAKE, // Added
+                        ExifInterface.TAG_LENS_MODEL, // Added
+                        ExifInterface.TAG_LENS_SPECIFICATION,
+                        ExifInterface.TAG_LIGHT_SOURCE,
+                        ExifInterface.TAG_MAKE, // Original tags
+                        ExifInterface.TAG_MAX_APERTURE_VALUE,
+                        ExifInterface.TAG_METERING_MODE,
+                        ExifInterface.TAG_MODEL, // Original tags
+                        ExifInterface.TAG_NEW_SUBFILE_TYPE,
+                        ExifInterface.TAG_OECF,
+                        ExifInterface.TAG_OFFSET_TIME, // Added
+                        ExifInterface.TAG_OFFSET_TIME_DIGITIZED, // Added
+                        ExifInterface.TAG_OFFSET_TIME_ORIGINAL, // Added
+                        ExifInterface.TAG_ORF_ASPECT_FRAME,
+                        ExifInterface.TAG_ORF_PREVIEW_IMAGE_START,
+                        ExifInterface.TAG_ORF_THUMBNAIL_IMAGE,
+                        ExifInterface.TAG_ORIENTATION, // Original tags - IMPORTANT for correct display
+                        ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION,
+                        ExifInterface.TAG_PIXEL_X_DIMENSION,
+                        ExifInterface.TAG_PIXEL_Y_DIMENSION,
+                        ExifInterface.TAG_PLANAR_CONFIGURATION,
+                        ExifInterface.TAG_PRIMARY_CHROMATICITIES,
+                        ExifInterface.TAG_REFERENCE_BLACK_WHITE,
+                        ExifInterface.TAG_RELATED_SOUND_FILE,
+                        ExifInterface.TAG_RESOLUTION_UNIT, // Added
+                        ExifInterface.TAG_ROWS_PER_STRIP,
+                        ExifInterface.TAG_SAMPLES_PER_PIXEL,
+                        ExifInterface.TAG_SATURATION,
+                        ExifInterface.TAG_SCENE_CAPTURE_TYPE,
+                        ExifInterface.TAG_SCENE_TYPE,
+                        ExifInterface.TAG_SENSING_METHOD,
+                        ExifInterface.TAG_SHARPNESS,
+                        ExifInterface.TAG_SHUTTER_SPEED_VALUE,
+                        ExifInterface.TAG_SPATIAL_FREQUENCY_RESPONSE,
+                        ExifInterface.TAG_SPECTRAL_SENSITIVITY,
+                        ExifInterface.TAG_STANDARD_OUTPUT_SENSITIVITY,
+                        ExifInterface.TAG_STRIP_BYTE_COUNTS,
+                        ExifInterface.TAG_STRIP_OFFSETS,
+                        ExifInterface.TAG_SUBSEC_TIME, // Original tags
+                        ExifInterface.TAG_SUBSEC_TIME_DIGITIZED, // Added
+                        ExifInterface.TAG_SUBSEC_TIME_ORIGINAL, // Added
+                        ExifInterface.TAG_SUBJECT_AREA,
+                        ExifInterface.TAG_SUBJECT_DISTANCE,
+                        ExifInterface.TAG_SUBJECT_DISTANCE_RANGE,
+                        ExifInterface.TAG_SUBJECT_LOCATION,
+                        ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH,
+                        ExifInterface.TAG_THUMBNAIL_IMAGE_WIDTH,
+                        ExifInterface.TAG_TRANSFER_FUNCTION,
+                        ExifInterface.TAG_USER_COMMENT,
+                        ExifInterface.TAG_WHITE_BALANCE, // Original tags
+                        ExifInterface.TAG_WHITE_POINT,
+                        ExifInterface.TAG_X_RESOLUTION, // Added
+                        ExifInterface.TAG_Y_RESOLUTION // Added
+                };
+
+        for (String attribute : attributes) {
+            String value = oldExif.getAttribute(attribute);
+            if (value != null) {
+                newExif.setAttribute(attribute, value);
+                // Log.d(TAG, "Copied EXIF attribute: " + attribute + " = " + value); // Optional: Log copied tags
             }
         }
+    }
 
     public static void uploadFile(Bitmap bitmap, Uri fileUri, EditText textBox,
                                   Context ctx, Activity activity) {
@@ -752,8 +763,8 @@ import androidx.exifinterface.media.ExifInterface;
 
                 String bcastUrl = Utils.apiUrl(ctx)+ctx.getString(R.string.perform_trx_link);
                 bcastUrl += user +
-                            "&operation=[" + URLEncoder.encode(String.valueOf(operation), "UTF-8") + "]" +
-                            "&bchain=HIVE";
+                        "&operation=[" + URLEncoder.encode(String.valueOf(operation), "UTF-8") + "]" +
+                        "&bchain=HIVE";
                 ;
 
 
@@ -882,9 +893,9 @@ import androidx.exifinterface.media.ExifInterface;
 
     //perform calls to API
     public static void queryAPIPost(Context ctx, String user, String actvKey, String op_name,
-                                JSONObject cstm_params,
-                                final ProgressBar taskProgress,
-                                final APIResponseListener listener,
+                                    JSONObject cstm_params,
+                                    final ProgressBar taskProgress,
+                                    final APIResponseListener listener,
                                     Activity activity) {
 
         RequestQueue queue = Volley.newRequestQueue(ctx);
@@ -992,8 +1003,8 @@ import androidx.exifinterface.media.ExifInterface;
     }
 
     static void displayNotification(final String notification, final ProgressDialog progress,
-                             final Context context, final Activity currentActivity,
-                             final Boolean closeScreen){
+                                    final Context context, final Activity currentActivity,
+                                    final Boolean closeScreen){
         //render result
         currentActivity.runOnUiThread(() -> {
             //hide the progressDialog
@@ -1159,7 +1170,7 @@ import androidx.exifinterface.media.ExifInterface;
 
                             // Check if the response contains data
                             if (response != null && response.length() >0){
-                            //if (response.has("data")) {
+                                //if (response.has("data")) {
                                 // set user videos array
                                 JSONArray userVidList = response;//.getJSONArray("data");
                                 parent.setVidsList(userVidList);
@@ -1352,8 +1363,8 @@ import androidx.exifinterface.media.ExifInterface;
 
                                 if (response.has("success")) {
                                     //if (response.getBoolean("status")){
-                                        Toast.makeText(ctx, ctx.getString(R.string.video_deleted_success),
-                                                Toast.LENGTH_LONG).show();
+                                    Toast.makeText(ctx, ctx.getString(R.string.video_deleted_success),
+                                            Toast.LENGTH_LONG).show();
                                     //}
                                 }
                                 // set user videos array
@@ -1467,7 +1478,7 @@ import androidx.exifinterface.media.ExifInterface;
     }
 
     public static void grab3speakCookie(RequestQueue requestQueue, Context ctx,
-                                         String tkn, VideoUploadFragment parent){
+                                        String tkn, VideoUploadFragment parent){
         String loginUrl = ctx.getString(R.string.three_speak_login_url)
                 .replace("_USERNAME_", MainActivity.username)
                 +"&access_token="+tkn;
@@ -1602,7 +1613,7 @@ import androidx.exifinterface.media.ExifInterface;
                         model.getCategory(), // NEW field from JSON
                         model.getForce(),    // NEW field from JSON
                         model.getMechanic()  // NEW field from JSON
-                        ));
+                ));
             }
         } catch (IOException e) {
             Log.e("WorkoutWizardActivity", "Error reading exercises.json", e);
@@ -1611,51 +1622,51 @@ import androidx.exifinterface.media.ExifInterface;
 
         return exercises;
     }
-        public static ExerciseModel findMatchingExercise(String aiExerciseName, Map<String, ExerciseModel> allExercisesMap) {
-            if (allExercisesMap == null || allExercisesMap.isEmpty() || aiExerciseName == null) {
-                return null;
+    public static ExerciseModel findMatchingExercise(String aiExerciseName, Map<String, ExerciseModel> allExercisesMap) {
+        if (allExercisesMap == null || allExercisesMap.isEmpty() || aiExerciseName == null) {
+            return null;
+        }
+
+        String normalizedAIExerciseName = normalizeString(aiExerciseName);
+
+        // 1. Try exact match first
+        for (Map.Entry<String, ExerciseModel> entry : allExercisesMap.entrySet()) {
+            if (normalizeString(entry.getKey()).equals(normalizedAIExerciseName)) {
+                return entry.getValue();
             }
+        }
 
-            String normalizedAIExerciseName = normalizeString(aiExerciseName);
+        // 2. Fall back to word-overlap scoring
+        Set<String> aiWords = new HashSet<>(Arrays.asList(normalizedAIExerciseName.split("\\s+")));
+        aiWords.removeAll(Arrays.asList("the", "a", "an", "with", "of", "and"));
 
-            // 1. Try exact match first
-            for (Map.Entry<String, ExerciseModel> entry : allExercisesMap.entrySet()) {
-                if (normalizeString(entry.getKey()).equals(normalizedAIExerciseName)) {
-                    return entry.getValue();
-                }
-            }
+        ExerciseModel bestMatch = null;
+        int bestScore = 0;
 
-            // 2. Fall back to word-overlap scoring
-            Set<String> aiWords = new HashSet<>(Arrays.asList(normalizedAIExerciseName.split("\\s+")));
-            aiWords.removeAll(Arrays.asList("the", "a", "an", "with", "of", "and"));
+        for (Map.Entry<String, ExerciseModel> entry : allExercisesMap.entrySet()) {
+            String dbName = normalizeString(entry.getKey());
+            Set<String> dbWords = new HashSet<>(Arrays.asList(dbName.split("\\s+")));
+            dbWords.removeAll(Arrays.asList("the", "a", "an", "with", "of", "and"));
 
-            ExerciseModel bestMatch = null;
-            int bestScore = 0;
-
-            for (Map.Entry<String, ExerciseModel> entry : allExercisesMap.entrySet()) {
-                String dbName = normalizeString(entry.getKey());
-                Set<String> dbWords = new HashSet<>(Arrays.asList(dbName.split("\\s+")));
-                dbWords.removeAll(Arrays.asList("the", "a", "an", "with", "of", "and"));
-
-                int score = 0;
-                for (String aiWord : aiWords) {
-                    for (String dbWord : dbWords) {
-                        if (dbWord.equals(aiWord) ||
-                                dbWord.equals(aiWord + "s") ||
-                                aiWord.equals(dbWord + "s")) {
-                            score++;
-                        }
+            int score = 0;
+            for (String aiWord : aiWords) {
+                for (String dbWord : dbWords) {
+                    if (dbWord.equals(aiWord) ||
+                            dbWord.equals(aiWord + "s") ||
+                            aiWord.equals(dbWord + "s")) {
+                        score++;
                     }
                 }
-
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestMatch = entry.getValue();
-                }
             }
 
-            return bestScore > 0 ? bestMatch : null;
+            if (score > bestScore) {
+                bestScore = score;
+                bestMatch = entry.getValue();
+            }
         }
+
+        return bestScore > 0 ? bestMatch : null;
+    }
 
 
     public static  ExerciseModel getExerciseModel(Exercise exercise) {

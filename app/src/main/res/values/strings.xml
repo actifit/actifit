@@ -744,4 +744,6 @@
     <string name="step_goal_format">/ %1$s steps</string>
     <string name="step_pct_to_goal_format">%1$d%% to goal</string>
     <string name="retry_action">Retry</string>
+    <string name="daily_step_goal_lbl">Daily Step Goal</string>
+    <string name="steps_suffix">steps</string>
 </resources>

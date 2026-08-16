@@ -217,7 +217,7 @@ public class ProfileActivity extends BaseActivity {
     private void computeMetrics(int steps, float realDistanceKm, float realKcal) {
         float distKm = (realDistanceKm >= 0) ? realDistanceKm : steps * STRIDE_M / 1000f;
         float cal = (realKcal >= 0) ? realKcal : steps * KCAL_PER_STEP;
-        auraStepsFrac = steps / (float) DAILY_GOAL;
+        auraStepsFrac = steps / (float) Utils.getDailyStepGoal(this);
         auraDistFrac = distKm / DIST_GOAL_KM;
         auraCalFrac = cal / CAL_GOAL;
         // honor the user's measurement system (metric km / US miles) for the legend distance
