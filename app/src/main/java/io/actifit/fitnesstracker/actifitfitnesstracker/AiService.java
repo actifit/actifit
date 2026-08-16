@@ -484,7 +484,10 @@ public class AiService {
                 callback.onFailure("Network error: " + e.getMessage());
             }
             @Override public void onResponse(Call call, Response response) throws IOException {
-                if (call.isCanceled()) return;
+                if (call.isCanceled()) {
+                    response.close();
+                    return;
+                }
                 String responseBody = response.body().string();
                 if (response.isSuccessful()) {
                     try {
