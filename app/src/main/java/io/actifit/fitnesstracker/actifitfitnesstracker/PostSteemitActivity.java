@@ -2251,7 +2251,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                 // Dismissed by timeout/swipe without retrying: drop the
                                 // orphaned pending user turn by identity (not position),
                                 // since a new message may already be in flight above it.
-                                if (pendingTurn != null) {
+                                if (pendingTurn != null && pendingTurn.isUser()) {
                                     int idx = aiChatHistory.indexOf(pendingTurn);
                                     if (idx >= 0) {
                                         aiChatHistory.remove(idx);
