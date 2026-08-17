@@ -609,7 +609,7 @@ public class SignupActivity extends BaseActivity {
                 emailInput.getText().toString().trim(),
                 referralInput.getText().toString().trim(),
                 phase,
-                true,
+                !SignupState.PHASE_READY_FOR_PAYMENT.equals(phase),
                 requestSubmitted,
                 accountCreated);
         try {
