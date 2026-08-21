@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -47,6 +48,9 @@ import java.util.Objects;
 public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
     String username, pkey;
+
+    // Shared across rows so the friends list is fetched once per Market session.
+    private FriendAccountAdapter friendAccountAdapter;
     // JSONArray consumedProducts;
     ArrayList reqtsMet;
     ProgressDialog progress;
@@ -92,7 +96,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
             Button buyHIVE = convertView.findViewById(R.id.buyHIVE);
             Button activateGadget = convertView.findViewById(R.id.activateGadget);
             Button deactivateGadget = convertView.findViewById(R.id.deactivateGadget);
-            EditText friendBeneficiary = convertView.findViewById(R.id.friendBeneficiary);
+            AutoCompleteTextView friendBeneficiary = convertView.findViewById(R.id.friendBeneficiary);
             LinearLayout boughtInfo = convertView.findViewById(R.id.boughtInfo);
             LinearLayout beneficiaryIdentity = convertView.findViewById(R.id.beneficiaryIdentity);
             ImageView beneficiaryAvatar = convertView.findViewById(R.id.beneficiaryAvatar);
@@ -105,6 +109,9 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
             if (!Objects.equals(postEntry.id, friendBeneficiary.getTag())) {
                 friendBeneficiary.setText("");
                 friendBeneficiary.setTag(postEntry.id);
+                // Friends-first (then any Hive account) autocomplete for the "reward a friend" field.
+                friendBeneficiary.setAdapter(getFriendAccountAdapter());
+                friendBeneficiary.setThreshold(1);
             }
             bindBeneficiaryIdentity(postEntry, beneficiaryIdentity, beneficiaryAvatar, beneficiaryUsername);
 
@@ -1304,6 +1311,15 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
             notifyDataSetChanged();
         }, error -> Log.e(MainActivity.TAG, "Error refreshing gadget state after deactivation"));
         Volley.newRequestQueue(getContext()).add(request);
+    }
+
+    // Lazily builds the friends-first (Hive-fallback) autocomplete adapter, shared across rows.
+    private FriendAccountAdapter getFriendAccountAdapter() {
+        if (friendAccountAdapter == null) {
+            friendAccountAdapter = new FriendAccountAdapter(getContext(), Utils.apiUrl(getContext()),
+                    getContext().getString(R.string.hive_default_node), username);
+        }
+        return friendAccountAdapter;
     }
 
     private void bindBeneficiaryIdentity(SingleProductModel product, LinearLayout identity,
