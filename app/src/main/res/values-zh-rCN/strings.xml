@@ -758,6 +758,10 @@
     <string name="step_goal_format">/ %1$s 步</string>
     <string name="step_pct_to_goal_format">距离目标 %1$d%%</string>
     <string name="retry_action">重试</string>
+    <string name="daily_step_goal_note">💡 无论您在此设置的目标是多少，Actifit 奖励都在 5,000 到 10,000 步之间达到最大。</string>
+    <string name="error_step_goal_min">每日最低步数目标为 100 步。</string>
+    <string name="error_step_goal_max">每日最高步数目标为 100,000 步。</string>
+    <string name="error_step_goal_invalid">请输入有效的每日步数目标。</string>
 </resources>
 
 
