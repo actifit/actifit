@@ -759,6 +759,10 @@
     <string name="step_goal_format">/ %1$s ìṣísẹ̀</string>
     <string name="step_pct_to_goal_format">%1$d%% sí góòlù</string>
     <string name="retry_action">Tún gbiyanjú</string>
+    <string name="daily_step_goal_note">💡 Láìka àfojúsùn tí o bá ṣètò níbí sí, àwọn èrè Actifit máa ń ga jù láàrin ìṣísẹ̀ 5,000 sí 10,000.</string>
+    <string name="error_step_goal_min">Àfojúsùn ìṣísẹ̀ ojoojúmọ́ tí ó kéré jù jẹ́ ìṣísẹ̀ 100.</string>
+    <string name="error_step_goal_max">Àfojúsùn ìṣísẹ̀ ojoojúmọ́ tí ó pọ̀ jù jẹ́ ìṣísẹ̀ 100,000.</string>
+    <string name="error_step_goal_invalid">Jọ̀wọ́ tẹ àfojúsùn ìṣísẹ̀ ojoojúmọ́ tí ó tọ́ sí.</string>
 </resources>
 
 

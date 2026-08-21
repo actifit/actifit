@@ -758,6 +758,10 @@
     <string name="step_goal_format">/ %1$s кроків</string>
     <string name="step_pct_to_goal_format">%1$d%% до мети</string>
     <string name="retry_action">Повторити</string>
+    <string name="daily_step_goal_note">💡 Незалежно від встановленої тут мети, винагороди Actifit максимальні між 5 000 та 10 000 кроків.</string>
+    <string name="error_step_goal_min">Мінімальна щоденна мета кроків — 100 кроків.</string>
+    <string name="error_step_goal_max">Максимальна щоденна мета кроків — 100 000 кроків.</string>
+    <string name="error_step_goal_invalid">Будь ласка, введіть дійсну щоденну мету кроків.</string>
 </resources>
 
 

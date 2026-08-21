@@ -782,6 +782,13 @@
                             android:layout_height="wrap_content"
                             android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/daily_step_goal_note"
+                        android:textColor="@color/md_theme_textSecondary"
+                        android:textSize="@dimen/text_body"
+                        android:layout_marginTop="@dimen/spacing_sm" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

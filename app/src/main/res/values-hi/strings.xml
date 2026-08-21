@@ -760,6 +760,10 @@
     <string name="step_pct_to_goal_format">%1$d%% लक्ष्य तक</string>
     <string name="retry_action">पुनः प्रयास करें</string>
 
+    <string name="daily_step_goal_note">💡 आप यहाँ जो भी लक्ष्य सेट करें, Actifit के रिवॉर्ड 5,000 से 10,000 कदमों के बीच सबसे अधिक होते हैं।</string>
+    <string name="error_step_goal_min">न्यूनतम दैनिक कदम लक्ष्य 100 कदम है।</string>
+    <string name="error_step_goal_max">अधिकतम दैनिक कदम लक्ष्य 100,000 कदम है।</string>
+    <string name="error_step_goal_invalid">कृपया एक मान्य दैनिक कदम लक्ष्य दर्ज करें।</string>
 </resources>
 
 
