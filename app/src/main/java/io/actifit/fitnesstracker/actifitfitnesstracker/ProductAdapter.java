@@ -947,7 +947,8 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                                                     //
                                                     if ("success".equals(response13.optString("status"))) {
                                                         postEntry.beneficiary = "";
-                                                        notifyDataSetChanged();
+                                                        // Don't notify here — state (nonConsumedCopy) hasn't changed yet;
+                                                        // refreshProductStateAfterDeactivation() redraws once with the real state.
                                                         refreshProductStateAfterDeactivation(postEntry);
                                                         // successfully bought product
                                                         Toast.makeText(getContext(),
@@ -1309,7 +1310,16 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                 break;
             }
             notifyDataSetChanged();
-        }, error -> Log.e(MainActivity.TAG, "Error refreshing gadget state after deactivation"));
+        }, error -> {
+            Log.e(MainActivity.TAG, "Error refreshing gadget state after deactivation: " + error);
+            // The deactivate already succeeded on-chain; if the refresh GET fails, fall back to the
+            // bought state so the row doesn't keep showing "Deactivate" — which would otherwise let
+            // the user fire a second, redundant deactivate custom_json for an already-off gadget.
+            product.nonConsumedCopy = SingleProductModel.BOUGHTCOPY;
+            product.beneficiary = "";
+            product.remainingBoosts = product.validityVal;
+            notifyDataSetChanged();
+        });
         Volley.newRequestQueue(getContext()).add(request);
     }
 
