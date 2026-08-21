@@ -2913,7 +2913,7 @@ public class MainActivity extends BaseActivity {
         // opt this AuraView into the centre disc (card colour) so the counter reads cleanly; other
         // AuraViews (e.g. Profile, on a different surface) never opt in and stay disc-free
         rings.setCenterFillColor(getColor(R.color.md_theme_cardBackground));
-        rings.setActivityRings(steps / 10000f, distKm / 8f, calVal / 500f, level, wilting);
+        rings.setActivityRings(steps / (float) Utils.getDailyStepGoal(this), distKm / 8f, calVal / 500f, level, wilting);
         rings.setVisibility(View.VISIBLE);
         if (materialRing != null) materialRing.setVisibility(View.GONE);
 
@@ -2943,7 +2943,7 @@ public class MainActivity extends BaseActivity {
         if (headerAura != null) {
             headerAura.setShowAnimal(false); // the animal lives in the step counter, not the header
             headerAura.setCompanion(companion);
-            headerAura.setAura(todaySteps / 10000f, CompanionUtil.levelFromStreak(streak), wilting);
+            headerAura.setAura(todaySteps / (float) Utils.getDailyStepGoal(this), CompanionUtil.levelFromStreak(streak), wilting);
         }
 
         // the animated spirit animal is shown inside the step counter, across all tracking

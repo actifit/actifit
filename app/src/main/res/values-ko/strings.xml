@@ -755,10 +755,15 @@
     <string name="load_more_lbl">더 보기</string>
     <string name="ai_popup_title">AI 어시스턴트</string>
     <string name="ai_hint_input">무엇을 도와드릴까요?</string>
-    <string name="ai_accept_button">수락</string>
+    <string name="ai_accept_button">삽입</string>
     <string name="step_goal_format">/ %1$s 걸음</string>
     <string name="step_pct_to_goal_format">목표까지 %1$d%%</string>
+    <string name="retry_action">재시도</string>
 
+    <string name="daily_step_goal_note">💡 여기서 설정한 목표와 관계없이 Actifit 보상은 5,000~10,000걸음 사이에서 최대가 됩니다.</string>
+    <string name="error_step_goal_min">일일 최소 걸음 목표는 100걸음입니다.</string>
+    <string name="error_step_goal_max">일일 최대 걸음 목표는 100,000걸음입니다.</string>
+    <string name="error_step_goal_invalid">유효한 일일 걸음 목표를 입력하세요.</string>
 </resources>
 
 

@@ -225,7 +225,7 @@ dependencies {
 
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
-    implementation 'androidx.health.connect:connect-client:1.2.0-alpha02'
+    implementation 'androidx.health.connect:connect-client:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.9.4'
     // If you need ViewModelScope in Java, also add:
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4'

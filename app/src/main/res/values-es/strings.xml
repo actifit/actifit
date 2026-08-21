@@ -758,9 +758,14 @@
     <string name="load_more_lbl">Cargar más</string>
     <string name="ai_popup_title">Asistente de IA</string>
     <string name="ai_hint_input">¿En qué te gustaría que te ayudara?</string>
-    <string name="ai_accept_button">Aceptar</string>
+    <string name="ai_accept_button">Insertar</string>
     <string name="step_goal_format">/ %1$s pasos</string>
     <string name="step_pct_to_goal_format">%1$d%% para la meta</string>
+    <string name="retry_action">Reintentar</string>
+    <string name="daily_step_goal_note">💡 Las recompensas de Actifit se maximizan entre 5.000 y 10.000 pasos, independientemente del objetivo que establezcas aquí.</string>
+    <string name="error_step_goal_min">El objetivo diario mínimo de pasos es 100 pasos.</string>
+    <string name="error_step_goal_max">El objetivo diario máximo de pasos es 100.000 pasos.</string>
+    <string name="error_step_goal_invalid">Introduce un objetivo diario de pasos válido.</string>
 </resources>
 
 

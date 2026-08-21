@@ -165,26 +165,7 @@ public class TrackingManager {
         healthConnectStatusView.setVisibility(View.VISIBLE);
 
         if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
-            healthConnectManager.hasAllPermissions().whenComplete((hasPermissions, throwable) -> {
-                if (throwable != null) {
-                    String detail = hcErrorDetail(throwable);
-                    Log.e(TAG, "Error checking HC permissions - " + detail, throwable);
-                    ((Activity) context).runOnUiThread(() -> Toast.makeText(context,
-                            "Error accessing Health Connect [" + detail + "]. Falling back.", Toast.LENGTH_LONG).show());
-                    useDefaultTrackingMethod();
-                    healthConnectCheckRunning.set(false);
-                    return;
-                }
-                if (!hasPermissions) {
-                    Log.d(TAG, "HC permissions not granted. Showing rationale.");
-                    showPermissionsRationaleDialog();
-                } else {
-                    Log.d(TAG, "HC permissions granted. Proceeding.");
-                    healthConnectStatusView.setVisibility(View.GONE);
-                    checkPermissionsAndReadData();
-                    healthConnectCheckRunning.set(false);
-                }
-            });
+            attemptHcPermissionCheck(0);
         } else if (sdkStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
             Log.d(TAG, "HC needs update.");
             showInstallOrUpdateHealthConnectRationale(true);
@@ -194,6 +175,41 @@ public class TrackingManager {
             showInstallOrUpdateHealthConnectRationale(false);
             healthConnectCheckRunning.set(false);
         }
+    }
+
+    // "Binding to service failed" is usually a transient Health Connect provider hiccup: the SDK
+    // reports SDK_AVAILABLE but the cached client's service binding is dead. Recreate the client and
+    // retry with a short backoff before giving up and falling back to device sensors.
+    private static final int HC_MAX_BIND_RETRIES = 2;
+
+    private void attemptHcPermissionCheck(int attempt) {
+        healthConnectManager.hasAllPermissions().whenComplete((hasPermissions, throwable) -> {
+            if (throwable != null) {
+                String detail = hcErrorDetail(throwable);
+                if (attempt < HC_MAX_BIND_RETRIES) {
+                    Log.w(TAG, "HC bind attempt " + (attempt + 1) + " failed [" + detail + "], recreating client and retrying.");
+                    healthConnectManager.recreateClient();
+                    new android.os.Handler(android.os.Looper.getMainLooper())
+                            .postDelayed(() -> attemptHcPermissionCheck(attempt + 1), 800L * (attempt + 1));
+                    return;
+                }
+                Log.e(TAG, "Error checking HC permissions after " + (HC_MAX_BIND_RETRIES + 1) + " attempts - " + detail, throwable);
+                ((Activity) context).runOnUiThread(() -> Toast.makeText(context,
+                        "Health Connect unavailable — using device sensors.", Toast.LENGTH_LONG).show());
+                useDefaultTrackingMethod();
+                healthConnectCheckRunning.set(false);
+                return;
+            }
+            if (!hasPermissions) {
+                Log.d(TAG, "HC permissions not granted. Showing rationale.");
+                showPermissionsRationaleDialog();
+            } else {
+                Log.d(TAG, "HC permissions granted. Proceeding.");
+                healthConnectStatusView.setVisibility(View.GONE);
+                checkPermissionsAndReadData();
+                healthConnectCheckRunning.set(false);
+            }
+        });
     }
 
     private void showPermissionsRationaleDialog() {
@@ -271,7 +287,7 @@ public class TrackingManager {
                 if (readThrowable != null) {
                     String detail = hcErrorDetail(readThrowable);
                     Log.e(TAG, "Error reading steps from HC - " + detail, readThrowable);
-                    Toast.makeText(context, "Failed to read data from Health Connect [" + detail + "]. Falling back.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "Health Connect unavailable — using device sensors.", Toast.LENGTH_LONG).show();
                     useDefaultTrackingMethod();
                     return;
                 }

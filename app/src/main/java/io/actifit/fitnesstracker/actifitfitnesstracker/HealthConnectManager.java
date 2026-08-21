@@ -51,7 +51,7 @@ public class HealthConnectManager {
 
     private static final String TAG = "HealthConnectManager";
     private final Context context;
-    private final HealthConnectClient healthConnectClient;
+    private HealthConnectClient healthConnectClient;
     private final CoroutineScope coroutineScope;
 
     // REQUIRED gate — steps only, so existing users who granted only steps keep working
@@ -91,6 +91,21 @@ public class HealthConnectManager {
         }
         this.healthConnectClient = client;
         this.coroutineScope = CoroutineScopeKt.CoroutineScope(Dispatchers.getDefault().plus(EmptyCoroutineContext.INSTANCE));
+    }
+
+    /**
+     * Recreates the underlying HealthConnectClient. Used to recover from transient
+     * "Binding to service failed" errors, where the provider reports SDK_AVAILABLE but the
+     * cached client's service binding is dead. Safe to call before retrying a bind/permission call.
+     */
+    public void recreateClient() {
+        try {
+            this.healthConnectClient = HealthConnectClient.getOrCreate(context);
+            Log.d(TAG, "HealthConnectClient recreated");
+        } catch (Exception e) {
+            Log.e(TAG, "Error recreating HealthConnectClient: " + e.getMessage());
+            this.healthConnectClient = null;
+        }
     }
 
     public boolean isHealthConnectAvailable() {
