@@ -755,12 +755,10 @@
                         <EditText
                             android:id="@+id/steemit_post_text"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="185dp"
                             android:ems="10"
                             android:gravity="top"
                             android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
-                            android:maxLines="6"
-                            android:minHeight="185dp"
                             android:hint="@string/report_text_hint_1"
                             android:background="@drawable/input_background"
                             android:padding="@dimen/spacing_md"
