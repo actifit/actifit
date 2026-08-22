@@ -25,6 +25,7 @@ public class SingleProductModel implements Comparable<SingleProductModel>{
     public Double priceAFIT;
     public Double priceHIVE;
     public boolean isFriendRewarding = false;
+    public String beneficiary = "";
     public int nonConsumedCopy;
     public int totalBought;
     public int totalConsumed;

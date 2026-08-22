@@ -94,7 +94,13 @@ public class SettingsActivity extends BaseActivity {
 
     private String accessToken;
 
-    private EditText activeKey, fundsPassword, voteWeight;
+    private EditText activeKey, fundsPassword, voteWeight, dailyStepGoalInput;
+
+    // Daily step goal bounds. Actifit rewards are maximized at 5,000-10,000 steps (see the note
+    // in the settings card); these are just sane guardrails so the goal stays usable. Keep the
+    // literals in error_step_goal_min / error_step_goal_max in sync with these values.
+    private static final int MIN_DAILY_STEP_GOAL = 100;
+    private static final int MAX_DAILY_STEP_GOAL = 100000;
 
     Button qrCodeBtn;
     private ActivityResultLauncher<ScanOptions> qrLauncher;
@@ -131,6 +137,7 @@ public class SettingsActivity extends BaseActivity {
         activeKey = findViewById(R.id.activeKey);
         fundsPassword = findViewById(R.id.fundsPassword);
         voteWeight = findViewById(R.id.votePercent);
+        dailyStepGoalInput = findViewById(R.id.dailyStepGoalInput);
 
         //grab instances of settings components
         final RadioButton metricSysRadioBtn = findViewById(R.id.metric_system);
@@ -188,6 +195,8 @@ public class SettingsActivity extends BaseActivity {
 
         darkModeSwitch.setChecked(isDarkModeEnabled);
         //updateSunMoonIcons(isChecked);
+        int savedStepGoal = sharedPreferences.getInt("dailyStepGoal", 10000);
+        dailyStepGoalInput.setText(String.valueOf(savedStepGoal));
 
         darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // isChecked is the new state of the switch
@@ -788,6 +797,24 @@ public class SettingsActivity extends BaseActivity {
 
             //store active key to use where and if needed
             editor.putString("actvKey",activeKey.getText().toString());
+            try {
+                int stepGoal = Integer.parseInt(dailyStepGoalInput.getText().toString().trim());
+                if (stepGoal < MIN_DAILY_STEP_GOAL) {
+                    dailyStepGoalInput.setError(getString(R.string.error_step_goal_min));
+                    Toast.makeText(this, R.string.error_step_goal_min, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (stepGoal > MAX_DAILY_STEP_GOAL) {
+                    dailyStepGoalInput.setError(getString(R.string.error_step_goal_max));
+                    Toast.makeText(this, R.string.error_step_goal_max, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                editor.putInt("dailyStepGoal", stepGoal);
+            } catch (NumberFormatException e) {
+                dailyStepGoalInput.setError(getString(R.string.error_step_goal_invalid));
+                Toast.makeText(this, R.string.error_step_goal_invalid, Toast.LENGTH_LONG).show();
+                return;
+            }
 
             //store funds password to use where and if needed
             editor.putString("fundsPass", fundsPassword.getText().toString());

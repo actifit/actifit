@@ -755,10 +755,15 @@
     <string name="load_more_lbl">Meer laden</string>
     <string name="ai_popup_title">AI-assistent</string>
     <string name="ai_hint_input">Waarmee wil je hulp?</string>
-    <string name="ai_accept_button">Accepteren</string>
+    <string name="ai_accept_button">Invoegen</string>
     <string name="step_goal_format">/ %1$s stappen</string>
     <string name="step_pct_to_goal_format">%1$d%% tot doel</string>
+    <string name="retry_action">Opnieuw proberen</string>
 
+    <string name="daily_step_goal_note">💡 Actifit-beloningen zijn maximaal tussen 5.000 en 10.000 stappen, ongeacht het doel dat je hier instelt.</string>
+    <string name="error_step_goal_min">Het minimale dagelijkse stappendoel is 100 stappen.</string>
+    <string name="error_step_goal_max">Het maximale dagelijkse stappendoel is 100.000 stappen.</string>
+    <string name="error_step_goal_invalid">Voer een geldig dagelijks stappendoel in.</string>
 </resources>
 
 

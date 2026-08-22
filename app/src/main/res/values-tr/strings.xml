@@ -754,9 +754,14 @@
     <string name="load_more_lbl">Daha Fazla Yükle</string>
     <string name="ai_popup_title">Yapay Zeka Asistanı</string>
     <string name="ai_hint_input">Ne konuda yardım istersiniz?</string>
-    <string name="ai_accept_button">Kabul Et</string>
+    <string name="ai_accept_button">Ekle</string>
     <string name="step_goal_format">/ %1$s adım</string>
     <string name="step_pct_to_goal_format">Hedefe %1$d%%</string>
+    <string name="retry_action">Yeniden dene</string>
 
+    <string name="daily_step_goal_note">💡 Actifit ödülleri, burada belirlediğiniz hedeften bağımsız olarak 5.000 ile 10.000 adım arasında en yüksek düzeye ulaşır.</string>
+    <string name="error_step_goal_min">Minimum günlük adım hedefi 100 adımdır.</string>
+    <string name="error_step_goal_max">Maksimum günlük adım hedefi 100.000 adımdır.</string>
+    <string name="error_step_goal_invalid">Lütfen geçerli bir günlük adım hedefi girin.</string>
 </resources>
 
