@@ -954,6 +954,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     .setDuration(200).start();
             sharedPreferences.edit().putBoolean("measurementsExpanded", nowExpanded).apply();
         });
+        // The chevron is a MaterialButton and consumes the touch itself, so it never reaches the
+        // header's listener. Delegate its click to the header so tapping the arrow toggles the
+        // section just like tapping the title.
+        measurementsChevron.setOnClickListener(v -> measurementsHeader.performClick());
 
         // tag chip input — add chip on IME Done or comma
         steemitPostTags.setOnEditorActionListener((v, actionId, event) -> {
