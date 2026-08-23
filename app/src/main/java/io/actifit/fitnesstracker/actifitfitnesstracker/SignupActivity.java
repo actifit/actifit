@@ -73,9 +73,9 @@ public class SignupActivity extends BaseActivity {
     private LinearProgressIndicator progressBar;
     private MaterialCardView step1Container, step2Container, step3Container, step4Container;
     private TextInputLayout emailInputLayout;
-    private TextInputEditText usernameInput, emailInput, referralInput, promoInput, masterPasswordDisplay;
-    private TextView usernameStatus, verificationDesc;
-    private Button btnNext, btnPrev, btnCheckUsername, btnCopyKeys;
+    private TextInputEditText usernameInput, emailInput, referralInput, promoInput, masterPasswordDisplay, postingKeyDisplay;
+    private TextView usernameStatus, verificationDesc, tosText, signupUsernameDisplay;
+    private Button btnNext, btnPrev, btnCheckUsername, btnCopyKeys, btnCopyPostingKey;
     private MaterialCheckBox cbTos, cbBackedUp;
 
     private MaterialButtonToggleGroup currencyToggle;
@@ -178,6 +178,11 @@ public class SignupActivity extends BaseActivity {
         btnPrev = findViewById(R.id.btn_prev);
         btnCheckUsername = findViewById(R.id.btn_check_username);
         btnCopyKeys = findViewById(R.id.btn_copy_keys);
+        postingKeyDisplay = findViewById(R.id.posting_key_display);
+        postingKeyDisplay.setSaveEnabled(false);
+        btnCopyPostingKey = findViewById(R.id.btn_copy_posting_key);
+        tosText = findViewById(R.id.tos_text);
+        signupUsernameDisplay = findViewById(R.id.signup_username_display);
         cbTos = findViewById(R.id.cb_tos);
         setupTermsLinks();
         cbBackedUp = findViewById(R.id.cb_backed_up);
@@ -186,6 +191,7 @@ public class SignupActivity extends BaseActivity {
         btnNext.setOnClickListener(v -> handleNextStep());
         btnPrev.setOnClickListener(v -> handlePrevStep());
         btnCopyKeys.setOnClickListener(v -> copyKeysToClipboard());
+        btnCopyPostingKey.setOnClickListener(v -> copyPostingKeyToClipboard());
 
         cbTos.setOnCheckedChangeListener((buttonView, isChecked) -> validateStep2());
         cbBackedUp.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -230,7 +236,7 @@ public class SignupActivity extends BaseActivity {
         int privacyStart = text.indexOf(privacyText);
 
         if (termsStart < 0 || privacyStart < 0) {
-            cbTos.setText(text);
+            tosText.setText(text);
             return;
         }
         int termsEnd = termsStart + termsText.length();
@@ -264,8 +270,8 @@ public class SignupActivity extends BaseActivity {
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         );
 
-        cbTos.setText(spannable);
-        cbTos.setMovementMethod(LinkMovementMethod.getInstance());
+        tosText.setText(spannable);
+        tosText.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void openExternalUrl(String url) {
@@ -420,6 +426,7 @@ public class SignupActivity extends BaseActivity {
         } else {
             btnNext.setText(R.string.btn_go_to_login);
             btnNext.setEnabled(cbBackedUp.isChecked());
+            populateFinalKeys();
         }
     }
 
@@ -450,8 +457,9 @@ public class SignupActivity extends BaseActivity {
 
     private void validateStep2() {
         if (currentStep != 2) return;
-        boolean isValid = cbTos.isChecked();
-        btnNext.setEnabled(isValid);
+        // Keep Proceed enabled so tapping it without accepting the terms surfaces a clear error
+        // (handleNextStep enforces the TOS check) rather than a silently-disabled button.
+        btnNext.setEnabled(true);
     }
 
     /**
@@ -1095,6 +1103,54 @@ public class SignupActivity extends BaseActivity {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(getString(R.string.signup_master_password_clip_label),
                 generatedMasterPassword);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PersistableBundle extras = clip.getDescription().getExtras();
+            if (extras == null) {
+                extras = new PersistableBundle();
+            }
+            extras.putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true);
+            clip.getDescription().setExtras(extras);
+        }
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(this, R.string.copy_success, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Derives the Hive posting private key (WIF) from the master password exactly as the backend
+     * does (dhive PrivateKey.fromLogin): sha256(username + role + password) -> WIF with the mainnet
+     * 0x80 version byte, uncompressed. This is the key the user logs in to Actifit with.
+     */
+    private String derivePostingKey(String username, String masterPassword) {
+        try {
+            byte[] seed = (username + "posting" + masterPassword)
+                    .getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            byte[] priv = org.bitcoinj.core.Sha256Hash.hash(seed);
+            org.bitcoinj.core.ECKey key = org.bitcoinj.core.ECKey.fromPrivate(priv, false);
+            return key.getPrivateKeyAsWiF(org.bitcoinj.params.MainNetParams.get());
+        } catch (Exception e) {
+            android.util.Log.e(MainActivity.TAG, "posting key derivation failed: " + e.getMessage());
+            return "";
+        }
+    }
+
+    /** Populates the final "save your keys" screen: username, master password and posting key. */
+    private void populateFinalKeys() {
+        String username = usernameInput.getText().toString().trim().toLowerCase(Locale.US);
+        if (signupUsernameDisplay != null) {
+            signupUsernameDisplay.setText(getString(R.string.signup_username_display, username));
+        }
+        if (masterPasswordDisplay != null && masterPasswordDisplay.getText().length() == 0) {
+            masterPasswordDisplay.setText(generatedMasterPassword);
+        }
+        if (postingKeyDisplay != null) {
+            postingKeyDisplay.setText(derivePostingKey(username, generatedMasterPassword));
+        }
+    }
+
+    private void copyPostingKeyToClipboard() {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(getString(R.string.signup_posting_key_clip_label),
+                postingKeyDisplay.getText().toString());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             PersistableBundle extras = clip.getDescription().getExtras();
             if (extras == null) {

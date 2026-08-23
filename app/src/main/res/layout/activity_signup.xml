@@ -157,12 +157,27 @@
                             android:inputType="text" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/cb_tos"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_sm"
-                        android:text="@string/tos_accept" />
+                        android:orientation="horizontal"
+                        android:layout_marginTop="@dimen/spacing_sm">
+
+                        <com.google.android.material.checkbox.MaterialCheckBox
+                            android:id="@+id/cb_tos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            android:id="@+id/tos_text"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="@dimen/spacing_md"
+                            android:paddingTop="@dimen/spacing_sm"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:text="@string/tos_accept" />
+                    </LinearLayout>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -275,6 +290,15 @@
                         android:textColor="@color/actifitRed"
                         android:textStyle="italic" />
 
+                    <TextView
+                        android:id="@+id/signup_username_display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/text_subtitle"
+                        android:textColor="@color/md_theme_onSurface" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/master_password_layout"
                         android:layout_width="match_parent"
@@ -299,6 +323,39 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/copy_master_password" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:text="@string/signup_posting_key_note"
+                        android:textStyle="bold"
+                        android:textColor="@color/actifitRed" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/posting_key_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:hint="@string/signup_posting_key_hint"
+                        app:endIconMode="password_toggle"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/posting_key_display"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clickable="false"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:inputType="textPassword" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <Button
+                        android:id="@+id/btn_copy_posting_key"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/copy_posting_key" />
 
                     <com.google.android.material.checkbox.MaterialCheckBox
                         android:id="@+id/cb_backed_up"
