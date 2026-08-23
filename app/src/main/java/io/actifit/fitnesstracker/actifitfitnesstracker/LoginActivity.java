@@ -217,10 +217,25 @@ public class LoginActivity extends BaseActivity {
                 Toast.makeText(this, R.string.signup_discarded, Toast.LENGTH_SHORT).show();
                 return;
             }
+            // Not "safe" to discard (a payment or account creation may be in progress). Warn
+            // strongly about the consequences, but still let the user discard if they insist —
+            // never trap them in an unwanted signup.
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.signup_discard_blocked_title)
-                    .setMessage(R.string.signup_discard_blocked_message)
-                    .setPositiveButton(android.R.string.ok, null)
+                    .setTitle(R.string.signup_discard_warn_title)
+                    .setMessage(R.string.signup_discard_warn_message)
+                    .setNegativeButton(R.string.signup_not_now, null)
+                    .setPositiveButton(R.string.signup_discard_action, (d, w) -> {
+                        try {
+                            signupStateStore.clear();
+                            Toast.makeText(this, R.string.signup_discarded, Toast.LENGTH_SHORT).show();
+                        } catch (SignupStateStore.SignupStateStoreException ex) {
+                            new AlertDialog.Builder(this)
+                                    .setTitle(R.string.signup_recovery_error_title)
+                                    .setMessage(R.string.signup_recovery_cleanup_error)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show();
+                        }
+                    })
                     .show();
         } catch (SignupStateStore.SignupStateStoreException e) {
             new AlertDialog.Builder(this)

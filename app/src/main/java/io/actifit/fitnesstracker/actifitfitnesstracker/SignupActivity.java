@@ -293,10 +293,10 @@ public class SignupActivity extends BaseActivity {
                 return;
             }
             if (!isUsernameAvailable || !username.equals(availableUsername)) {
-                showUsernameStatus(
-                        getString(R.string.username_check_required),
-                        Color.RED
-                );
+                // Don't just tell the user to check — run the availability check for them and focus
+                // the field, showing the same result as the "Check availability" button.
+                usernameInput.requestFocus();
+                checkUsernameAvailability();
                 return;
             }
             currentStep = 2;
@@ -341,13 +341,16 @@ public class SignupActivity extends BaseActivity {
     }
 
     private void handlePrevStep() {
-        if (currentStep >= 3 || (recoveryState != null && recoveryState.irreversible)) {
-            showLeaveForNowDialog();
-            return;
-        }
+        // Back always steps the wizard back one screen. Only at the first step, where there's
+        // nowhere further back, do we handle leaving: if a payment/account may be in progress we
+        // keep the encrypted credentials (leave-for-now) rather than silently deleting them.
         if (currentStep > 1) {
             currentStep--;
             updateStepUI();
+            return;
+        }
+        if (recoveryState != null && recoveryState.irreversible) {
+            showLeaveForNowDialog();
         } else {
             cancelBeforeIrreversibleBoundary();
         }
@@ -357,11 +360,9 @@ public class SignupActivity extends BaseActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (currentStep >= 3 || (recoveryState != null && recoveryState.irreversible)) {
-                    showLeaveForNowDialog();
-                } else {
-                    cancelBeforeIrreversibleBoundary();
-                }
+                // Mirror the on-screen Back button: step back a screen, or offer leave-for-now
+                // only once we've crossed the irreversible boundary.
+                handlePrevStep();
             }
         });
     }
@@ -451,6 +452,17 @@ public class SignupActivity extends BaseActivity {
         if (currentStep != 2) return;
         boolean isValid = cbTos.isChecked();
         btnNext.setEnabled(isValid);
+    }
+
+    /**
+     * Resets step-3 state back to payment entry (e.g. after an invalid promo). Clears the
+     * submitted/failed flags so the currency toggle re-enables and the primary button reverts
+     * from "Check status" back to "Claim Promo" / "Check payment".
+     */
+    private void resetToPaymentEntry() {
+        accountCreationFailed = false;
+        persistRecoveryState(SignupState.PHASE_READY_FOR_PAYMENT, false, false);
+        updateStepUI();
     }
 
     private void checkUsernameAvailability() {
@@ -891,6 +903,13 @@ public class SignupActivity extends BaseActivity {
                         completeAccountCreation();
                     } else if (!paymentReceivedTx.isEmpty()) {
                         handleAccountCreationFailed(requestGeneration);
+                    } else if (isPromoSignup) {
+                        // A promo signup involves no on-chain payment, so "no account + no tx"
+                        // means the promo was invalid. Reset to payment entry (re-enables the
+                        // currency toggle, reverts the button) and say so plainly.
+                        finishCurrentConfirmRequest(requestGeneration);
+                        resetToPaymentEntry();
+                        showError(getString(R.string.error_invalid_promo));
                     } else {
                         finishCurrentConfirmRequest(requestGeneration);
                         showError(getString(R.string.signup_status_unknown));

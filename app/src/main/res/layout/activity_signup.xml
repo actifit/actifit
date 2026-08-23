@@ -334,6 +334,7 @@
                     android:layout_width="0dp"
                     android:layout_height="@dimen/button_height"
                     android:layout_weight="1"
+                    android:maxLines="1"
                     android:text="@string/proceed"
                     android:enabled="false" />
             </LinearLayout>
