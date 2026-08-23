@@ -7,6 +7,11 @@
 > to make Actifit *exciting enough to talk about*, so existing users get hooked and new
 > users show up.
 
+> **House rule (non-negotiable):** no wagering / betting / games-of-chance-for-money. Competition
+> is skill- and goal-based; challenge rewards come from **sponsor / DHF / Actifit-funded prize
+> pools**, never from pooling participants' own AFIT and redistributing it. This constrains the
+> Arena (§6) — see its reward model.
+
 ---
 
 ## The core shift
@@ -111,12 +116,12 @@ Every idea below is scored for the two things that actually drive growth:
 
 **Reimagined:** the flagship social-competitive mode.
 
-- **Live 1v1 duels** — challenge a friend/rival to a 24h step duel with **AFIT on the line**, a real-time dual progress bar, and trash-talk from your AI coach. 🔥🔥🔥 🪝🪝
+- **Live 1v1 duels** — challenge a friend/rival to a 24h step goal, with a real-time dual progress bar and trash-talk from your AI coach. Winner takes a **sponsor / Actifit-funded** AFIT prize + bragging rights — **no user-staked wager** (house rule). 🔥🔥🔥 🪝🪝
 - **Team raids / boss battles** — a squad pools steps to "defeat a boss" (a collective goal); everyone shares the loot. Collaborative goals pull in *friend groups*, not just individuals. 🔥🔥
 - **City vs City** — recurring geographic tournaments. Whole communities mobilize; local press-worthy. 🔥🔥🔥
 - **Tournaments & brackets** — seasonal knockout events with a leaderboard and prize pool.
 
-**Why it's the marquee:** competition + stakes + social is the single biggest untapped engagement lever, and *no competitor in the move-to-earn space does it well*. This is where Actifit can lead, not follow. (Needs a new backend for duel lifecycle/escrow — scope early.)
+**Why it's the marquee:** competition + prizes + social is the single biggest untapped engagement lever, and *no competitor in the move-to-earn space does it well*. This is where Actifit can lead, not follow. **Reward model:** free/low-friction entry; win on **effort** (skill, not chance); AFIT from **sponsor / DHF / Actifit-funded prize pools**, never user-staked escrow (house rule). (Needs a new backend for the challenge lifecycle + prize-pool payout — scope early. Build it once; web consumes the same engine.)
 
 ---
 
