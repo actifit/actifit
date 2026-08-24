@@ -350,6 +350,10 @@ public class BaseActivity extends AppCompatActivity {
             if (!(this instanceof StepHistoryActivity))
                 startActivity(new Intent(this, StepHistoryActivity.class));
         });
+        sheetView.findViewById(R.id.more_item_body_metrics).setOnClickListener(v -> {
+            sheet.dismiss();
+            startActivity(new Intent(this, BodyMetricsActivity.class));
+        });
         sheetView.findViewById(R.id.more_item_videos).setOnClickListener(v -> {
             sheet.dismiss();
             VideoUploadFragment vd = new VideoUploadFragment(this, LoginActivity.accessToken, this, false);
