@@ -63,6 +63,7 @@ public class HiveRequests {
     public String hiveRPCUrl;
     private Context ctx;
     private RequestQueue queue;
+    private Object requestTag;
     private JSONObject options;
     static String chainId = "beeab0de00000000000000000000000000000000000000000000000000000000";
 
@@ -306,6 +307,16 @@ public class HiveRequests {
         return processRequestWithRetry(method, params, 0);
     }
 
+    public void setRequestTag(Object requestTag) {
+        this.requestTag = requestTag;
+    }
+
+    public void cancelRequests(Object requestTag) {
+        if (requestTag != null) {
+            queue.cancelAll(requestTag);
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.N)
     private CompletableFuture<JSONArray> processRequestWithRetry(String method, Object params, final int retryCount) {
         CompletableFuture<JSONArray> future = new CompletableFuture<>();
@@ -355,6 +366,9 @@ public class HiveRequests {
                     timeoutMs,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            if (requestTag != null) {
+                request.setTag(requestTag);
+            }
 
             queue.add(request);
 

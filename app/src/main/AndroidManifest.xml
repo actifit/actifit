@@ -73,6 +73,11 @@
     android:usesCleartextTraffic="true"
     >
 
+        <activity
+            android:name=".SignupActivity"
+            android:exported="false"
+            android:label="@string/signup_title" />
+
         <activity-alias
             android:name="ViewPermissionUsageActivity"
             android:exported="true"

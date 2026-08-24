@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_opening_link">Unable to open link.</string>
+    <string name="username_check_required">Please check that this username is available before continuing.</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="error_hive_price">Unable to load a valid HIVE price. Please try again.</string>
+    <string name="error_hbd_price">Unable to load a valid HBD price. Please try again.</string>
+    <string name="error_afit_price">Unable to load the signup AFIT reward. Please try again.</string>
+    <string name="error_signup_pricing">Signup pricing is still loading. Please try again.</string>
+    <string name="error_invalid_promo">Invalid or unavailable promo code.</string>
+    <string name="signup_title">Create Actifit Account</string>
+    <string name="step_username">Step 1: Choose Username</string>
+    <string name="step_email">Step 2: Account Details</string>
+    <string name="step_verification">Step 3: Verification</string>
+    <string name="step_keys">Step 4: Secure Your Keys</string>
+
+    <string name="username_hint">Desired Username</string>
+    <string name="username_requirement">3–16 characters. Lowercase letters, numbers, single hyphens, and valid dot-separated segments.</string>
+    <string name="check_availability">Check Availability</string>
+    <string name="username_available">Username is available!</string>
+    <string name="username_taken">Username is already taken.</string>
+    <string name="username_invalid">Invalid username format.</string>
+
+    <string name="email_hint">Recovery Email (Optional)</string>
+    <string name="referral_hint">Referrer (Optional)</string>
+    <string name="promo_hint">Promo Code (Optional)</string>
+    <string name="signup_account_payment">Account Payment</string>
+    <string name="signup_currency_hive" translatable="false">HIVE</string>
+    <string name="signup_currency_hbd" translatable="false">HBD</string>
+    <string name="tos_accept">I agree to the Terms of Service and Privacy Policy</string>
+    <string name="view_tos">View ToS</string>
+
+    <string name="verification_instructions">To create your account, please send &lt;b&gt;$%1$s USD&lt;/b&gt; worth of HIVE or HBD to: &lt;br/&gt;&lt;br/&gt;Account: &lt;b&gt;%2$s&lt;/b&gt;&lt;br/&gt;Memo: &lt;b&gt;%3$s&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Alternatively, if you have a &lt;b&gt;Promo Code&lt;/b&gt;, enter it below to skip the payment.</string>
+    <string name="signup_payment_instructions">To create your account, please send &lt;b&gt;%1$s %2$s&lt;/b&gt; to:&lt;br/&gt;&lt;br/&gt;Account: &lt;b&gt;%3$s&lt;/b&gt;&lt;br/&gt;Memo: &lt;b&gt;%4$s&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Alternatively, if you have a &lt;b&gt;Promo Code&lt;/b&gt;, enter it below to skip the payment.</string>
+    <string name="signup_payment_instructions_price_unavailable">The live %1$s amount is currently unavailable. Do not send payment until the amount loads.&lt;br/&gt;&lt;br/&gt;Account: &lt;b&gt;%2$s&lt;/b&gt;&lt;br/&gt;Memo: &lt;b&gt;%3$s&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Try checking again, or use a valid &lt;b&gt;Promo Code&lt;/b&gt;.</string>
+    <string name="verification_desc">We\'ve sent a verification code to your email. Please enter it below to continue.</string>
+    <string name="verification_code_hint">6-Digit Code</string>
+    <string name="verify_btn">Verify Code</string>
+    <string name="resend_code">Resend Code</string>
+
+    <string name="generate_keys">Generate Keys</string>
+    <string name="backup_warning">IMPORTANT: Write down your Master Password. It allows access to all your keys. Actifit cannot recover it for you!</string>
+    <string name="copy_master_password">Copy Master Password</string>
+    <string name="signup_master_password_clip_label">Actifit Master Password</string>
+    <string name="i_have_backed_up">I have securely saved my keys</string>
+
+    <string name="finish_signup">Create Account</string>
+    <string name="signing_up">Registering account...</string>
+    <string name="signup_success">Account created successfully! Welcome to Actifit.</string>
+    <string name="signup_error">Signup failed. %1$s</string>
+    <string name="signup_error_request">Unable to prepare the signup request. Please try again.</string>
+    <string name="signup_recovery_save_error">Secure signup recovery could not be saved. Signup cannot continue safely.</string>
+    <string name="signup_recovery_cleanup_error">Secure signup recovery could not be removed. Please try again.</string>
+    <string name="signup_recovery_error_title">Signup recovery unavailable</string>
+    <string name="signup_recovery_corrupt_error">An existing signup could not be recovered securely. No new password will be generated. Please close the signup and contact Actifit support.</string>
+    <string name="signup_recovery_leave_title">Leave signup for now?</string>
+    <string name="signup_recovery_leave_message">Your signup may still complete. Your credentials will remain encrypted on this device so you can safely resume later.</string>
+    <string name="signup_leave_for_now">Leave for now</string>
+    <string name="signup_continue">Continue signup</string>
+    <string name="signup_resume_title">Resume signup?</string>
+    <string name="signup_resume_message">A secure interrupted signup is available on this device.</string>
+    <string name="signup_resume_action">Resume signup</string>
+    <string name="signup_not_now">Not now</string>
+    <string name="signup_discard_action">Discard signup</string>
+    <string name="signup_discarded">Signup recovery discarded.</string>
+    <string name="signup_discard_blocked_title">Signup cannot be safely discarded</string>
+    <string name="signup_discard_blocked_message">This signup may already have a payment or account creation in progress. Its encrypted credentials must remain recoverable. Resume the signup to check its status.</string>
+    <string name="signup_discard_warn_title">Discard this signup?</string>
+    <string name="signup_discard_warn_message">This signup may already have a payment or account creation in progress. Discarding permanently deletes its encrypted credentials on this device — if an account was created, you may lose access to it. Discard anyway?</string>
+    <string name="signup_username_display">Account: @%1$s</string>
+    <string name="signup_posting_key_note">Posting Key — THIS is the key you use to log in to Actifit. Save it alongside your Master Password.</string>
+    <string name="signup_posting_key_hint">Posting Private Key</string>
+    <string name="copy_posting_key">Copy Posting Key</string>
+    <string name="signup_posting_key_clip_label">Actifit Posting Key</string>
+    <string name="signup_view_payment_details">View payment details</string>
+    <string name="btn_check_signup_status">Check status</string>
+    <string name="signup_confirmation_deadline_reached">The confirmation request reached its 60-second limit. Your signup status is still unknown, so Actifit is checking Hive without submitting another request.</string>
+    <string name="signup_status_unknown">Your signup status is not known yet. Actifit will check Hive without submitting another confirmation request.</string>
+    <string name="signup_checking_account_status">Checking Hive for your account…</string>
+    <string name="signup_account_not_visible_yet">Your account is not visible on Hive yet. No new confirmation request was sent. You can check again safely.</string>
+    <string name="signup_status_check_unavailable">Hive account status could not be checked. No new confirmation request was sent. Please check again.</string>
+    <string name="signup_confirmation_rate_limited">Too many signup confirmation requests were made. Please wait before checking again. Your signup status is still unknown, and your signup details remain preserved.</string>
+    <string name="signup_account_creation_failed_title">Account creation could not be completed</string>
+    <string name="signup_account_creation_failed_message">Your payment was received, but the account could not be created. Do not send another payment. Your signup details have been preserved.</string>
+
+    <string name="master_password">Master Password</string>
+    <string name="error_tos_required">You must accept the Terms of Service to continue.</string>
+    <string name="error_email_invalid">Please enter a valid email address.</string>
+    <string name="error_verify_failed">Invalid verification code.</string>
+
+    <!-- New strings for SignupActivity refinement -->
+    <string name="btn_go_to_login">Go to Login</string>
+    <string name="btn_check_payment">Check Payment</string>
+    <string name="btn_claim_promo">Claim Promo</string>
+    <string name="msg_verifying_payment">Verifying payment…</string>
+    <string name="msg_applying_promo">Applying Promo Code…</string>
+    <string name="error_check_availability">Error checking availability</string>
+    <string name="error_connection_failed">Connection failed</string>
+    <string name="payment_timeout">Payment verification timed out. Please try again or contact support.</string>
+</resources>

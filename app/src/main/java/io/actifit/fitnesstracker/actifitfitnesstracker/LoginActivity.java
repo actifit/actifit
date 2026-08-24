@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.multidex.BuildConfig;
 
@@ -70,6 +71,7 @@ public class LoginActivity extends BaseActivity {
     Button skipBtn;
     ProgressDialog progress;
     private ActivityResultLauncher<ScanOptions> qrLauncher;
+    private boolean recoveryDialogShown = false;
 
     Context ctx;
 
@@ -179,8 +181,69 @@ public class LoginActivity extends BaseActivity {
             userEntry.requestFocus();
         }
 
+        SignupStateStore signupStateStore = new SignupStateStore(this);
         queryAPI(username, pkey, true);
+        if (signupStateStore.exists()) {
+            showSignupRecoveryDialog();
+        }
+    }
+    private void showSignupRecoveryDialog() {
+        if (recoveryDialogShown || isFinishing() || isDestroyed()) {
+            return;
+        }
+        recoveryDialogShown = true;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.signup_resume_title)
+                .setMessage(R.string.signup_resume_message)
+                .setPositiveButton(R.string.signup_resume_action, (dialog, which) -> {
+                    Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                    startActivity(intent);
+                })
+                .setNegativeButton(R.string.signup_not_now, null)
+                .setNeutralButton(R.string.signup_discard_action,
+                        (dialog, which) -> discardSignupRecoveryIfSafe())
+                .show();
+    }
 
+    private void discardSignupRecoveryIfSafe() {
+        SignupStateStore signupStateStore = new SignupStateStore(this);
+        try {
+            SignupState state = signupStateStore.load();
+            if (state == null) {
+                return;
+            }
+            if (state.canSafelyDiscard()) {
+                signupStateStore.clear();
+                Toast.makeText(this, R.string.signup_discarded, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Not "safe" to discard (a payment or account creation may be in progress). Warn
+            // strongly about the consequences, but still let the user discard if they insist —
+            // never trap them in an unwanted signup.
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.signup_discard_warn_title)
+                    .setMessage(R.string.signup_discard_warn_message)
+                    .setNegativeButton(R.string.signup_not_now, null)
+                    .setPositiveButton(R.string.signup_discard_action, (d, w) -> {
+                        try {
+                            signupStateStore.clear();
+                            Toast.makeText(this, R.string.signup_discarded, Toast.LENGTH_SHORT).show();
+                        } catch (SignupStateStore.SignupStateStoreException ex) {
+                            new AlertDialog.Builder(this)
+                                    .setTitle(R.string.signup_recovery_error_title)
+                                    .setMessage(R.string.signup_recovery_cleanup_error)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show();
+                        }
+                    })
+                    .show();
+        } catch (SignupStateStore.SignupStateStoreException e) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.signup_recovery_error_title)
+                    .setMessage(R.string.signup_recovery_corrupt_error)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+        }
     }
 
     @Override
@@ -345,7 +408,11 @@ public class LoginActivity extends BaseActivity {
         ppHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         TextView createAccountLink = findViewById(R.id.username_create_account_link);
-        createAccountLink.setMovementMethod(LinkMovementMethod.getInstance());
+        // Switch to native signup activity
+        createAccountLink.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
 
         // display content
         View loginContainer = findViewById(R.id.loginContainer);
