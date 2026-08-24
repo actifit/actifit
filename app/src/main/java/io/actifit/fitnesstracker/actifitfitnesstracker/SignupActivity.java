@@ -110,7 +110,8 @@ public class SignupActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        // FLAG_SECURE is applied per-step in updateStepUI() — only the keys screen (step 4) is
+        // screenshot-protected, so the rest of the wizard stays capturable for support/debugging.
         setContentView(R.layout.activity_signup);
 
         hiveRequests = new HiveRequests(this);
@@ -402,6 +403,12 @@ public class SignupActivity extends BaseActivity {
         animateTransition(step4Container, currentStep == 4);
 
         progressBar.setProgress(currentStep * 25);
+        // Screenshot-protect only the keys screen (master password + posting key).
+        if (currentStep == 4) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        }
         updateCurrencyToggleState();
 
         // Always show "Back" label
@@ -474,6 +481,13 @@ public class SignupActivity extends BaseActivity {
     }
 
     private void checkUsernameAvailability() {
+        // Close the soft keyboard so the availability result below the field is visible.
+        android.view.inputmethod.InputMethodManager imm =
+                (android.view.inputmethod.InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null && getCurrentFocus() != null) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+
         String username = usernameInput.getText().toString().trim();
         if (username.isEmpty()) {
             usernameInput.setError(getString(R.string.field_required));
