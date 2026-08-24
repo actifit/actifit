@@ -73,6 +73,7 @@
     <string name="signup_posting_key_hint">Posting Private Key</string>
     <string name="copy_posting_key">Copy Posting Key</string>
     <string name="signup_posting_key_clip_label">Actifit Posting Key</string>
+    <string name="signup_view_payment_details">View payment details</string>
     <string name="btn_check_signup_status">Check status</string>
     <string name="signup_confirmation_deadline_reached">The confirmation request reached its 60-second limit. Your signup status is still unknown, so Actifit is checking Hive without submitting another request.</string>
     <string name="signup_status_unknown">Your signup status is not known yet. Actifit will check Hive without submitting another confirmation request.</string>

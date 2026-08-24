@@ -335,11 +335,11 @@ public class SignupActivity extends BaseActivity {
             currentStep = 3;
             updateStepUI();
         } else if (currentStep == 3) {
-            if (recoveryState != null && recoveryState.requestSubmitted) {
-                reconcileAccountExistence();
-            } else {
-                startConfirmPaymentRequest();
-            }
+            // "Check status" / "Check payment": (re)submit the confirmation so the server re-checks
+            // the on-chain payment and creates the account once it arrives. The server is idempotent
+            // (memo-guarded), so re-submitting after a resume is safe — and necessary, since a plain
+            // existence check can't trigger account creation.
+            startConfirmPaymentRequest();
         } else if (currentStep == 4) {
             // Secure keys step finished, show final success dialog
             showSuccessDialog();
@@ -1213,10 +1213,37 @@ public class SignupActivity extends BaseActivity {
         if (!canUpdateUi()) return;
         if (progress == null) {
             progress = new ProgressDialog(this);
-            progress.setCancelable(false);
+            // Interruptible: the user can dismiss the loader (back button or the button below) to
+            // return to the payment screen and re-read the memo / recipient. Cancelling aborts the
+            // in-flight check; they can re-run "Check status" at any time.
+            progress.setCancelable(true);
+            progress.setCanceledOnTouchOutside(false);
+            progress.setOnCancelListener(d -> onProgressCancelled());
+            progress.setButton(android.content.DialogInterface.BUTTON_NEGATIVE,
+                    getString(R.string.signup_view_payment_details), (d, w) -> d.cancel());
         }
         progress.setMessage(message);
         progress.show();
+    }
+
+    private void onProgressCancelled() {
+        // Abort any in-flight confirmation / reconciliation and return to the payment screen so the
+        // user can review the memo and recipient. A stale late response is ignored via the bumped
+        // request generation.
+        if (activeConfirmPaymentRequest != null) {
+            activeConfirmPaymentRequest.cancel();
+            activeConfirmPaymentRequest = null;
+        }
+        if (confirmPaymentDeadline != null) {
+            confirmDeadlineHandler.removeCallbacks(confirmPaymentDeadline);
+            confirmPaymentDeadline = null;
+        }
+        confirmRequestInFlight = false;
+        reconciliationInFlight = false;
+        confirmRequestGeneration++;
+        if (currentStep == 3) {
+            updateStepUI();
+        }
     }
 
     private void hideProgress() {
