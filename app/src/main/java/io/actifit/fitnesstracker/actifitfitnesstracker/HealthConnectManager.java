@@ -51,7 +51,9 @@ public class HealthConnectManager {
 
     private static final String TAG = "HealthConnectManager";
     private final Context context;
-    private HealthConnectClient healthConnectClient;
+    // volatile: recreated + read from multiple background (coroutine-completion) threads —
+    // recreateClient() and the read retry both write it, the async read lambdas read it.
+    private volatile HealthConnectClient healthConnectClient;
     private final CoroutineScope coroutineScope;
 
     // REQUIRED gate — steps only, so existing users who granted only steps keep working
@@ -304,9 +306,19 @@ public class HealthConnectManager {
                     if (attempt < HC_MAX_READ_RETRIES) {
                         Log.w(TAG, "HC read attempt " + (attempt + 1) + " failed ["
                                 + cause.getClass().getSimpleName() + ": " + cause.getMessage()
-                                + "], recreating client and retrying.");
-                        recreateClient();
-                        return readAndPersistStepsData(day, db, attempt + 1);
+                                + "], recreating client and retrying with backoff.");
+                        // A provider restart/update takes a moment; back off before recreating and
+                        // retrying so the retry can actually re-bind, instead of firing every attempt
+                        // within milliseconds while the provider is still coming back up.
+                        CompletableFuture<Long> delayed = new CompletableFuture<>();
+                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                            recreateClient();
+                            readAndPersistStepsData(day, db, attempt + 1).whenComplete((r, ex2) -> {
+                                if (ex2 != null) delayed.completeExceptionally(ex2);
+                                else delayed.complete(r);
+                            });
+                        }, 800L * (attempt + 1));
+                        return delayed;
                     }
                     Log.e(TAG, "HC read failed after " + (HC_MAX_READ_RETRIES + 1) + " attempts", e);
                     CompletableFuture<Long> failed = new CompletableFuture<>();

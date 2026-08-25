@@ -303,9 +303,16 @@ public class TrackingManager {
             ((Activity) context).runOnUiThread(() -> {
                 if (readThrowable != null) {
                     String detail = hcErrorDetail(readThrowable);
-                    Log.e(TAG, "Error reading steps from HC - " + detail, readThrowable);
-                    Toast.makeText(context, "Health Connect unavailable — using device sensors.", Toast.LENGTH_LONG).show();
-                    useDefaultTrackingMethod();
+                    Log.e(TAG, "Error reading steps from HC after retries - " + detail, readThrowable);
+                    // A persistent read failure while getSdkStatus()==AVAILABLE is almost always a
+                    // transient provider restart/update. Keep Health Connect as the source and show the
+                    // last-known history from the DB (the failed read did NOT overwrite it) rather than
+                    // switching to device sensors — that would abandon the user's chosen source AND, via
+                    // useDefaultTrackingMethod()'s HC branch, kick off a 30-day backfill storm against the
+                    // unhealthy provider. The next sync (once the provider is back) refreshes today.
+                    Toast.makeText(context, "Health Connect is temporarily unavailable — your steps will refresh shortly.", Toast.LENGTH_LONG).show();
+                    chartManager.displayChartDataHC(true);
+                    chartManager.displayDayChartDataHC(true);
                     return;
                 }
                 Log.d(TAG, "Steps from Health Connect: " + steps);
