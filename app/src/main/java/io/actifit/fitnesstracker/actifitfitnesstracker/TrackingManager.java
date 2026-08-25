@@ -155,14 +155,23 @@ public class TrackingManager {
         return cause.getClass().getSimpleName() + (msg != null ? ": " + msg : "");
     }
 
+    // getSdkStatus() can transiently return SDK_UNAVAILABLE while the provider is mid restart/update.
+    // Re-poll a couple of times before concluding it is really unavailable, so a momentary hiccup
+    // doesn't pop the install prompt at a user whose Health Connect is actually fine.
+    private static final int HC_MAX_STATUS_RETRIES = 2;
+
     public void checkHealthConnectStatusAndPermissions() {
         if (healthConnectCheckRunning.getAndSet(true)) {
             Log.d(TAG, "Health Connect check is already running.");
             return;
         }
-        int sdkStatus = HealthConnectClient.getSdkStatus(context);
-        Log.d(TAG, "HC SDK Status: " + sdkStatus);
         healthConnectStatusView.setVisibility(View.VISIBLE);
+        resolveHcSdkStatus(0);
+    }
+
+    private void resolveHcSdkStatus(int attempt) {
+        int sdkStatus = HealthConnectClient.getSdkStatus(context);
+        Log.d(TAG, "HC SDK Status: " + sdkStatus + (attempt > 0 ? " (re-check " + attempt + ")" : ""));
 
         if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
             attemptHcPermissionCheck(0);
@@ -171,7 +180,15 @@ public class TrackingManager {
             showInstallOrUpdateHealthConnectRationale(true);
             healthConnectCheckRunning.set(false);
         } else {
-            Log.d(TAG, "HC SDK unavailable.");
+            // SDK_UNAVAILABLE: retry a couple of times with a short backoff before giving up, in case
+            // the provider is briefly restarting/updating rather than genuinely absent.
+            if (attempt < HC_MAX_STATUS_RETRIES) {
+                Log.w(TAG, "HC SDK unavailable, re-checking (attempt " + (attempt + 1) + ").");
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .postDelayed(() -> resolveHcSdkStatus(attempt + 1), 800L * (attempt + 1));
+                return;
+            }
+            Log.d(TAG, "HC SDK unavailable after " + (HC_MAX_STATUS_RETRIES + 1) + " checks.");
             showInstallOrUpdateHealthConnectRationale(false);
             healthConnectCheckRunning.set(false);
         }
