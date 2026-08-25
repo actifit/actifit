@@ -42,12 +42,14 @@ import java.util.Locale;
  * endpoint — the same measurements the post composer already collects per report.
  * Card #45.
  */
-public class BodyMetricsActivity extends AppCompatActivity {
+public class BodyMetricsActivity extends BaseActivity {
 
     // metric keys
     private static final int WEIGHT = 0, WAIST = 1, CHEST = 2, THIGHS = 3, BODYFAT = 4, HEIGHT = 5;
 
     private LineChart chart;
+    private ChartValueMarker marker;
+    private android.graphics.Typeface faTypeface;
     private ChipGroup metricChips;
     private ProgressBar loading;
     private TextView emptyView, errorView, noMetricView, retryBtn;
@@ -59,7 +61,6 @@ public class BodyMetricsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_body_metrics);
 
-        findViewById(R.id.body_metrics_back).setOnClickListener(v -> finish());
         chart = findViewById(R.id.body_metrics_chart);
         metricChips = findViewById(R.id.body_metrics_chips);
         loading = findViewById(R.id.body_metrics_loading);
@@ -67,6 +68,7 @@ public class BodyMetricsActivity extends AppCompatActivity {
         errorView = findViewById(R.id.body_metrics_error);
         noMetricView = findViewById(R.id.body_metrics_no_metric);
         retryBtn = findViewById(R.id.body_metrics_retry);
+        faTypeface = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.font_awesome_6_solid);
 
         styleChart();
 
@@ -150,12 +152,12 @@ public class BodyMetricsActivity extends AppCompatActivity {
 
     private void buildChips() {
         metricChips.removeAllViews();
-        addChipIfHasData(WEIGHT, getString(R.string.body_metrics_weight));
-        addChipIfHasData(HEIGHT, getString(R.string.body_metrics_height));
-        addChipIfHasData(WAIST, getString(R.string.body_metrics_waist));
-        addChipIfHasData(CHEST, getString(R.string.body_metrics_chest));
-        addChipIfHasData(THIGHS, getString(R.string.body_metrics_thighs));
-        addChipIfHasData(BODYFAT, getString(R.string.body_metrics_bodyfat));
+        addChipIfHasData(WEIGHT);
+        addChipIfHasData(HEIGHT);
+        addChipIfHasData(WAIST);
+        addChipIfHasData(CHEST);
+        addChipIfHasData(THIGHS);
+        addChipIfHasData(BODYFAT);
 
         // select the first available chip (Weight first when present)
         if (metricChips.getChildCount() > 0) {
@@ -165,7 +167,7 @@ public class BodyMetricsActivity extends AppCompatActivity {
         }
     }
 
-    private void addChipIfHasData(int metric, String label) {
+    private void addChipIfHasData(int metric) {
         boolean hasData = false;
         for (BodyMeasurementEntry e : entries) {
             if (valueFor(e, metric) != null) { hasData = true; break; }
@@ -174,10 +176,27 @@ public class BodyMetricsActivity extends AppCompatActivity {
 
         Chip chip = new Chip(this);
         chip.setId(View.generateViewId());
-        chip.setText(label);
+        // Icon (FontAwesome glyph) instead of the word; the word stays as the accessibility label
+        // and is still shown in the chart legend when the metric is selected.
+        chip.setText(metricGlyph(metric));
+        if (faTypeface != null) chip.setTypeface(faTypeface);
+        chip.setTextSize(16f);
+        chip.setContentDescription(metricLabel(metric));
         chip.setCheckable(true);
         chip.setTag(metric);
         metricChips.addView(chip);
+    }
+
+    private String metricGlyph(int metric) {
+        switch (metric) {
+            case WEIGHT:  return ""; // weight-scale
+            case HEIGHT:  return ""; // ruler-vertical
+            case WAIST:   return ""; // ruler-horizontal
+            case CHEST:   return ""; // shirt
+            case THIGHS:  return ""; // person-walking
+            case BODYFAT: return ""; // percent
+            default:      return "?";
+        }
     }
 
     private void renderMetric(int metric) {
@@ -216,8 +235,12 @@ public class BodyMetricsActivity extends AppCompatActivity {
         set.setValueTextSize(9f);
         set.setMode(LineDataSet.Mode.LINEAR);
         set.setHighlightEnabled(true);
-        set.setDrawHighlightIndicators(false);
+        set.setDrawHorizontalHighlightIndicator(false);
+        set.setDrawVerticalHighlightIndicator(true);
+        set.setHighlightLineWidth(1f);
+        set.setHighLightColor(red);
 
+        if (marker != null) marker.setSeries(labels, unit);
         chart.setData(new LineData(set));
 
         XAxis xAxis = chart.getXAxis();
@@ -255,6 +278,12 @@ public class BodyMetricsActivity extends AppCompatActivity {
         Description desc = new Description();
         desc.setText("");
         chart.setDescription(desc);
+
+        // tap any point to see its value
+        chart.setHighlightPerTapEnabled(true);
+        marker = new ChartValueMarker(this);
+        marker.setChartView(chart);
+        chart.setMarker(marker);
     }
 
     private int chartTextColor() {
