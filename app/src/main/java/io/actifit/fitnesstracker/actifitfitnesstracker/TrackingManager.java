@@ -311,6 +311,13 @@ public class TrackingManager {
                     // useDefaultTrackingMethod()'s HC branch, kick off a 30-day backfill storm against the
                     // unhealthy provider. The next sync (once the provider is back) refreshes today.
                     Toast.makeText(context, "Health Connect is temporarily unavailable — your steps will refresh shortly.", Toast.LENGTH_LONG).show();
+                    // hideCharts() above collapsed bar_chart_container + chart_switcher; re-show them
+                    // (mirroring the success path) so the last-known history actually renders instead of
+                    // drawing into a GONE container and leaving the user with a blank chart.
+                    View barChartContainer = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
+                    if (barChartContainer != null) barChartContainer.setVisibility(View.VISIBLE);
+                    View chartSwitcherView = ((android.app.Activity) context).findViewById(R.id.chart_switcher);
+                    if (chartSwitcherView != null) chartSwitcherView.setVisibility(View.VISIBLE);
                     chartManager.displayChartDataHC(true);
                     chartManager.displayDayChartDataHC(true);
                     return;

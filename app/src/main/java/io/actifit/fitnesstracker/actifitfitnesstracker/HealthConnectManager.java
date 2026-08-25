@@ -311,13 +311,19 @@ public class HealthConnectManager {
                         // retrying so the retry can actually re-bind, instead of firing every attempt
                         // within milliseconds while the provider is still coming back up.
                         CompletableFuture<Long> delayed = new CompletableFuture<>();
-                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                        boolean posted = new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                             recreateClient();
                             readAndPersistStepsData(day, db, attempt + 1).whenComplete((r, ex2) -> {
                                 if (ex2 != null) delayed.completeExceptionally(ex2);
                                 else delayed.complete(r);
                             });
                         }, 800L * (attempt + 1));
+                        // if the looper is shutting down the runnable never runs; complete the future so
+                        // a blocking .get() (backfill) can't be stranded forever.
+                        if (!posted) {
+                            delayed.completeExceptionally(
+                                    new IllegalStateException("Could not schedule HC read retry"));
+                        }
                         return delayed;
                     }
                     Log.e(TAG, "HC read failed after " + (HC_MAX_READ_RETRIES + 1) + " attempts", e);
