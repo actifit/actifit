@@ -757,6 +757,7 @@
     <string name="body_metrics_title">Body Metrics</string>
     <string name="body_metrics_subtitle">Your measurement trends over time</string>
     <string name="body_metrics_weight">Weight</string>
+    <string name="body_metrics_height">Height</string>
     <string name="body_metrics_waist">Waist</string>
     <string name="body_metrics_chest">Chest</string>
     <string name="body_metrics_thighs">Thighs</string>

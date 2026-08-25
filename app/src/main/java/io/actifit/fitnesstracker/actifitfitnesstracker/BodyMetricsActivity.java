@@ -45,7 +45,7 @@ import java.util.Locale;
 public class BodyMetricsActivity extends AppCompatActivity {
 
     // metric keys
-    private static final int WEIGHT = 0, WAIST = 1, CHEST = 2, THIGHS = 3, BODYFAT = 4;
+    private static final int WEIGHT = 0, WAIST = 1, CHEST = 2, THIGHS = 3, BODYFAT = 4, HEIGHT = 5;
 
     private LineChart chart;
     private ChipGroup metricChips;
@@ -126,7 +126,7 @@ public class BodyMetricsActivity extends AppCompatActivity {
             e.waist = firstFloat(meta, "waist");
             e.chest = firstFloat(meta, "chest");
             e.thighs = firstFloat(meta, "thighs");
-            e.bodyFat = firstFloat(meta, "bodyFat");
+            e.bodyFat = firstFloat(meta, "bodyfat");
             e.height = firstFloat(meta, "height");
             e.weightUnit = firstString(meta, "weightUnit");
             e.waistUnit = firstString(meta, "waistUnit");
@@ -136,7 +136,7 @@ public class BodyMetricsActivity extends AppCompatActivity {
 
             // keep only reports that carry at least one usable metric + a date
             if (e.date != null && (e.weight != null || e.waist != null || e.chest != null
-                    || e.thighs != null || e.bodyFat != null)) {
+                    || e.thighs != null || e.bodyFat != null || e.height != null)) {
                 entries.add(e);
             }
         }
@@ -151,6 +151,7 @@ public class BodyMetricsActivity extends AppCompatActivity {
     private void buildChips() {
         metricChips.removeAllViews();
         addChipIfHasData(WEIGHT, getString(R.string.body_metrics_weight));
+        addChipIfHasData(HEIGHT, getString(R.string.body_metrics_height));
         addChipIfHasData(WAIST, getString(R.string.body_metrics_waist));
         addChipIfHasData(CHEST, getString(R.string.body_metrics_chest));
         addChipIfHasData(THIGHS, getString(R.string.body_metrics_thighs));
@@ -276,6 +277,7 @@ public class BodyMetricsActivity extends AppCompatActivity {
             case CHEST: return e.chest;
             case THIGHS: return e.thighs;
             case BODYFAT: return e.bodyFat;
+            case HEIGHT: return e.height;
             default: return null;
         }
     }
@@ -286,6 +288,7 @@ public class BodyMetricsActivity extends AppCompatActivity {
             case WAIST: return e.waistUnit;
             case CHEST: return e.chestUnit;
             case THIGHS: return e.thighsUnit;
+            case HEIGHT: return e.heightUnit;
             case BODYFAT: return getString(R.string.body_metrics_bodyfat_unit);
             default: return null;
         }
@@ -297,6 +300,7 @@ public class BodyMetricsActivity extends AppCompatActivity {
             case WAIST: return getString(R.string.body_metrics_waist);
             case CHEST: return getString(R.string.body_metrics_chest);
             case THIGHS: return getString(R.string.body_metrics_thighs);
+            case HEIGHT: return getString(R.string.body_metrics_height);
             case BODYFAT: return getString(R.string.body_metrics_bodyfat);
             default: return "";
         }
