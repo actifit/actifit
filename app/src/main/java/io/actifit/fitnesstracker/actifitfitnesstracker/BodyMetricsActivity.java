@@ -49,10 +49,9 @@ public class BodyMetricsActivity extends BaseActivity {
 
     private LineChart chart;
     private ChartValueMarker marker;
-    private android.graphics.Typeface faTypeface;
     private ChipGroup metricChips;
     private ProgressBar loading;
-    private TextView emptyView, errorView, noMetricView, retryBtn;
+    private TextView emptyView, errorView, noMetricView, retryBtn, metricLabelView;
 
     private final List<BodyMeasurementEntry> entries = new ArrayList<>();
 
@@ -68,7 +67,7 @@ public class BodyMetricsActivity extends BaseActivity {
         errorView = findViewById(R.id.body_metrics_error);
         noMetricView = findViewById(R.id.body_metrics_no_metric);
         retryBtn = findViewById(R.id.body_metrics_retry);
-        faTypeface = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.font_awesome_6_solid);
+        metricLabelView = findViewById(R.id.body_metrics_metric_label);
 
         styleChart();
 
@@ -174,28 +173,42 @@ public class BodyMetricsActivity extends BaseActivity {
         }
         if (!hasData) return;
 
+        float dp = getResources().getDisplayMetrics().density;
         Chip chip = new Chip(this);
         chip.setId(View.generateViewId());
-        // Icon (FontAwesome glyph) instead of the word; the word stays as the accessibility label
-        // and is still shown in the chart legend when the metric is selected.
-        chip.setText(metricGlyph(metric));
-        if (faTypeface != null) chip.setTypeface(faTypeface);
-        chip.setTextSize(16f);
-        chip.setContentDescription(metricLabel(metric));
         chip.setCheckable(true);
+        chip.setCheckedIconVisible(false);
+        chip.setContentDescription(metricLabel(metric));
         chip.setTag(metric);
+
+        // Icon-only chip using the official Actifit measurement icons (already brand-red, so no tint),
+        // centered (no text padding + symmetric chip padding). The word is kept as the accessibility
+        // label and is still shown in the chart legend when the metric is selected.
+        chip.setChipIcon(androidx.core.content.ContextCompat.getDrawable(this, metricIconRes(metric)));
+        chip.setChipIconVisible(true);
+        chip.setChipIconSize(34 * dp);
+        chip.setText("");
+        chip.setChipStrokeWidth(0f);                    // no border — give the icon the room
+        chip.setEnsureMinTouchTargetSize(false);        // don't inflate the chip past its content
+        chip.setTextStartPadding(0f);
+        chip.setTextEndPadding(0f);
+        chip.setIconStartPadding(0f);
+        chip.setIconEndPadding(0f);
+        chip.setChipStartPadding(8 * dp);
+        chip.setChipEndPadding(8 * dp);
+
         metricChips.addView(chip);
     }
 
-    private String metricGlyph(int metric) {
+    private int metricIconRes(int metric) {
         switch (metric) {
-            case WEIGHT:  return ""; // weight-scale
-            case HEIGHT:  return ""; // ruler-vertical
-            case WAIST:   return ""; // ruler-horizontal
-            case CHEST:   return ""; // shirt
-            case THIGHS:  return ""; // person-walking
-            case BODYFAT: return ""; // percent
-            default:      return "?";
+            case WEIGHT:  return R.drawable.ic_meas_weight;
+            case HEIGHT:  return R.drawable.ic_meas_height;
+            case WAIST:   return R.drawable.ic_meas_waist;
+            case CHEST:   return R.drawable.ic_meas_chest;
+            case THIGHS:  return R.drawable.ic_meas_thighs;
+            case BODYFAT: return R.drawable.ic_meas_bodyfat;
+            default:      return R.drawable.ic_meas_weight;
         }
     }
 
@@ -224,6 +237,18 @@ public class BodyMetricsActivity extends BaseActivity {
         chart.setVisibility(View.VISIBLE);
 
         String seriesLabel = metricLabel(metric) + (unit != null && !unit.isEmpty() ? " (" + unit + ")" : "");
+        if (metricLabelView != null) metricLabelView.setText(seriesLabel);
+
+        // Fit the y-axis to this metric's data (with padding) so a tall metric (e.g. height ~180)
+        // isn't squashed against a forced 0 baseline.
+        float dMin = Float.MAX_VALUE, dMax = -Float.MAX_VALUE;
+        for (Entry en : points) { dMin = Math.min(dMin, en.getY()); dMax = Math.max(dMax, en.getY()); }
+        float range = dMax - dMin;
+        float pad = range > 0 ? range * 0.12f : Math.max(Math.abs(dMax) * 0.1f, 1f);
+        YAxis yA = chart.getAxisLeft();
+        yA.setAxisMinimum(Math.max(0f, dMin - pad));
+        yA.setAxisMaximum(dMax + pad);
+
         LineDataSet set = new LineDataSet(points, seriesLabel);
         int red = getResources().getColor(R.color.actifitRed);
         set.setColor(red);
@@ -241,6 +266,8 @@ public class BodyMetricsActivity extends BaseActivity {
         set.setHighLightColor(red);
 
         if (marker != null) marker.setSeries(labels, unit);
+        chart.highlightValues(null);   // drop any marker/highlight carried over from the previous metric
+        chart.fitScreen();             // reset any pan/zoom so every metric renders from the same state
         chart.setData(new LineData(set));
 
         XAxis xAxis = chart.getXAxis();
@@ -250,7 +277,7 @@ public class BodyMetricsActivity extends BaseActivity {
                 return (i >= 0 && i < labels.size()) ? labels.get(i) : "";
             }
         });
-        xAxis.setLabelRotationAngle(labels.size() > 6 ? -45f : 0f);
+        xAxis.setLabelRotationAngle(-45f);   // constant rotation so the bottom offset (and chart height) never changes
         xAxis.setLabelCount(Math.min(labels.size(), 6), false);
 
         chart.animateX(500);
@@ -263,7 +290,8 @@ public class BodyMetricsActivity extends BaseActivity {
         chart.setDrawGridBackground(false);
         chart.setScaleYEnabled(false);
         chart.getAxisRight().setEnabled(false);
-        chart.getLegend().setEnabled(true);
+        chart.getLegend().setEnabled(false);           // shown as a header label instead (was overlapping x-axis)
+        chart.setExtraBottomOffset(6f);
 
         XAxis xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -273,6 +301,9 @@ public class BodyMetricsActivity extends BaseActivity {
 
         YAxis yAxis = chart.getAxisLeft();
         yAxis.setDrawGridLines(true);
+        yAxis.setDrawZeroLine(false);
+        yAxis.setMinWidth(40f);        // fixed y-axis width so the plot area doesn't shift between metrics
+        yAxis.setLabelCount(6, false); // consistent gridlines across metrics
         yAxis.setTextColor(chartTextColor());
 
         Description desc = new Description();

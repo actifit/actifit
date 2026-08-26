@@ -34,6 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none"
+        android:clipToPadding="false"
         android:paddingStart="@dimen/spacing_md"
         android:paddingEnd="@dimen/spacing_md"
         android:paddingTop="@dimen/spacing_sm"
@@ -47,6 +48,17 @@
             app:singleSelection="true"
             app:selectionRequired="true" />
     </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/body_metrics_metric_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:textColor="@color/md_theme_primary"
+        android:textStyle="bold"
+        android:textSize="15sp" />
 
     <!-- Chart + states -->
     <FrameLayout
