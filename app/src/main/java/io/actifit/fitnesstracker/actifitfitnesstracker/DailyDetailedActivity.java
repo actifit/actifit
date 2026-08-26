@@ -48,7 +48,16 @@ public class DailyDetailedActivity extends BaseActivity {
      */
     public void getDataForList(String targetDateString) {
         mStepsDBHelper = new StepsDBHelper(this);
-        mStepCountList = mStepsDBHelper.fetchDateTimeSlotActivity(targetDateString);
+        // Match the day-detail slot data to the active tracking source — Health Connect steps live
+        // in their own detail table, so an HC user otherwise sees an empty day breakdown.
+        android.content.SharedPreferences prefs =
+                getSharedPreferences("actifitSets", android.content.Context.MODE_PRIVATE);
+        String tracking = prefs.getString("dataTrackingSystem", getString(R.string.device_tracking_ntt));
+        if (tracking.equals(getString(R.string.health_connect_tracking_ntt))) {
+            mStepCountList = mStepsDBHelper.fetchHCDateTimeSlotActivity(targetDateString);
+        } else {
+            mStepCountList = mStepsDBHelper.fetchDateTimeSlotActivity(targetDateString);
+        }
     }
 
     private class DailyDetailAsyncTask extends AsyncTask<Void, Void, Void> {
