@@ -107,7 +107,20 @@ public class StepHistoryActivity extends BaseActivity { // Assuming BaseActivity
             StepsDBHelper stepsDBHelper = null;
             try {
                 stepsDBHelper = new StepsDBHelper(activity);
-                stepsList = stepsDBHelper.readStepsEntries();
+                // Read from the table matching the user's active tracking source. Otherwise a
+                // Health Connect / Fitbit user sees an empty history, because their steps live in
+                // dedicated tables (HCStepsSummary / FitbitStepsSummary), not the device-sensor table.
+                android.content.SharedPreferences prefs =
+                        activity.getSharedPreferences("actifitSets", android.content.Context.MODE_PRIVATE);
+                String tracking = prefs.getString("dataTrackingSystem",
+                        activity.getString(R.string.device_tracking_ntt));
+                if (tracking.equals(activity.getString(R.string.health_connect_tracking_ntt))) {
+                    stepsList = stepsDBHelper.readHCStepsEntries();
+                } else if (tracking.equals(activity.getString(R.string.fitbit_tracking_ntt))) {
+                    stepsList = stepsDBHelper.readFitbitStepsEntries();
+                } else {
+                    stepsList = stepsDBHelper.readStepsEntries();
+                }
             } catch (Exception e) {
                 Log.e(MainActivity.TAG, "Error loading steps from DB", e);
                 errorMessage = "Failed to load step history.";
