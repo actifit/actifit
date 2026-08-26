@@ -67,6 +67,36 @@
             android:text="@string/more_menu_activity_history" />
     </LinearLayout>
 
+    <!-- Body Metrics -->
+    <LinearLayout
+        android:id="@+id/more_item_body_metrics"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:textSize="18sp"
+            android:text="&#xf201;" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:textSize="15sp"
+            android:text="@string/more_menu_body_metrics" />
+    </LinearLayout>
+
     <!-- Videos -->
     <LinearLayout
         android:id="@+id/more_item_videos"

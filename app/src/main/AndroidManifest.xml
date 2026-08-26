@@ -198,6 +198,7 @@
     <activity android:name=".SettingsActivity" />
     <activity android:name=".LeaderboardActivity" />
     <activity android:name=".WalletActivity" />
+    <activity android:name=".BodyMetricsActivity" android:exported="false" />
     <activity android:name=".NotificationsActivity" />
     <activity android:name=".DailyDetailedActivity" />
     <activity android:name=".HistoryChartActivity" />

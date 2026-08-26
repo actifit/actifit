@@ -750,4 +750,23 @@
     <string name="error_step_goal_min">Minimum daily step goal is 100 steps.</string>
     <string name="error_step_goal_max">Maximum daily step goal is 100,000 steps.</string>
     <string name="error_step_goal_invalid">Please enter a valid daily step goal.</string>
+
+    <!-- Body-metrics trend charts (card #45) -->
+    <string name="tracked_measurements_url" translatable="false">trackedMeasurements/</string>
+    <string name="more_menu_body_metrics">Body Metrics</string>
+    <string name="body_metrics_title">Body Metrics</string>
+    <string name="body_metrics_subtitle">Your measurement trends over time</string>
+    <string name="body_metrics_weight">Weight</string>
+    <string name="body_metrics_height">Height</string>
+    <string name="body_metrics_waist">Waist</string>
+    <string name="body_metrics_chest">Chest</string>
+    <string name="body_metrics_thighs">Thighs</string>
+    <string name="body_metrics_bodyfat">Body Fat</string>
+    <string name="body_metrics_loading">Loading your measurements…</string>
+    <string name="body_metrics_empty">No body measurements yet. Add them when you create an activity report, and your trends will show up here.</string>
+    <string name="body_metrics_error">Couldn\'t load your measurements. Please check your connection and try again.</string>
+    <string name="body_metrics_no_metric_data">No data recorded for this metric yet.</string>
+    <string name="body_metrics_login_required">Please log in to see your body-metric trends.</string>
+    <string name="body_metrics_retry">Retry</string>
+    <string name="body_metrics_bodyfat_unit" translatable="false">%</string>
 </resources>

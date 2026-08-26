@@ -102,7 +102,8 @@ public class BaseActivity extends AppCompatActivity {
 
         View btnMoreFooter = findViewById(R.id.btn_more_footer);
         if (btnMoreFooter != null) {
-            btnMoreFooter.setSelected(this instanceof StepHistoryActivity);
+            btnMoreFooter.setSelected(this instanceof StepHistoryActivity
+                    || this instanceof BodyMetricsActivity);
         }
     }
 
@@ -349,6 +350,15 @@ public class BaseActivity extends AppCompatActivity {
             sheet.dismiss();
             if (!(this instanceof StepHistoryActivity))
                 startActivity(new Intent(this, StepHistoryActivity.class));
+        });
+        View bodyMetricsItem = sheetView.findViewById(R.id.more_item_body_metrics);
+        if (this instanceof BodyMetricsActivity) {
+            bodyMetricsItem.setBackgroundColor(0x1AFF112D);
+        }
+        bodyMetricsItem.setOnClickListener(v -> {
+            sheet.dismiss();
+            if (!(this instanceof BodyMetricsActivity))
+                startActivity(new Intent(this, BodyMetricsActivity.class));
         });
         sheetView.findViewById(R.id.more_item_videos).setOnClickListener(v -> {
             sheet.dismiss();
