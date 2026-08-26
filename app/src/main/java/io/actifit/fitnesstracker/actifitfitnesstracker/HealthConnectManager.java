@@ -51,7 +51,9 @@ public class HealthConnectManager {
 
     private static final String TAG = "HealthConnectManager";
     private final Context context;
-    private HealthConnectClient healthConnectClient;
+    // volatile: recreated + read from multiple background (coroutine-completion) threads —
+    // recreateClient() and the read retry both write it, the async read lambdas read it.
+    private volatile HealthConnectClient healthConnectClient;
     private final CoroutineScope coroutineScope;
 
     // REQUIRED gate — steps only, so existing users who granted only steps keep working
@@ -276,10 +278,63 @@ public class HealthConnectManager {
     }
 
 
+    private static final int HC_MAX_READ_RETRIES = 2;
+
     public CompletableFuture<Long> readAndPersistStepsData(ZonedDateTime day, StepsDBHelper db) {
+        return readAndPersistStepsData(day, db, 0);
+    }
+
+    // A dead client binding (HC provider restarted/updated mid-session) surfaces as an exception in
+    // the read pipeline, NOT as SDK_UNAVAILABLE — getSdkStatus still says AVAILABLE. Recreate the
+    // client and retry a couple of times so a transient provider hiccup self-heals, instead of
+    // stranding the user at 0 steps until the app process restarts (the "zero all day, fine next
+    // morning" report). On final failure we PROPAGATE the error (never 0) so the caller falls back to
+    // device sensors rather than persisting a misleading zero.
+    private CompletableFuture<Long> readAndPersistStepsData(ZonedDateTime day, StepsDBHelper db, int attempt) {
         if (healthConnectClient == null) {
-            return CompletableFuture.completedFuture(0L);
+            recreateClient();
         }
+        if (healthConnectClient == null) {
+            CompletableFuture<Long> failed = new CompletableFuture<>();
+            failed.completeExceptionally(new IllegalStateException("Health Connect client unavailable"));
+            return failed;
+        }
+        return readStepsOnce(day, db)
+                .thenApply(CompletableFuture::completedFuture)
+                .exceptionally(e -> {
+                    Throwable cause = (e.getCause() != null) ? e.getCause() : e;
+                    if (attempt < HC_MAX_READ_RETRIES) {
+                        Log.w(TAG, "HC read attempt " + (attempt + 1) + " failed ["
+                                + cause.getClass().getSimpleName() + ": " + cause.getMessage()
+                                + "], recreating client and retrying with backoff.");
+                        // A provider restart/update takes a moment; back off before recreating and
+                        // retrying so the retry can actually re-bind, instead of firing every attempt
+                        // within milliseconds while the provider is still coming back up.
+                        CompletableFuture<Long> delayed = new CompletableFuture<>();
+                        boolean posted = new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                            recreateClient();
+                            readAndPersistStepsData(day, db, attempt + 1).whenComplete((r, ex2) -> {
+                                if (ex2 != null) delayed.completeExceptionally(ex2);
+                                else delayed.complete(r);
+                            });
+                        }, 800L * (attempt + 1));
+                        // if the looper is shutting down the runnable never runs; complete the future so
+                        // a blocking .get() (backfill) can't be stranded forever.
+                        if (!posted) {
+                            delayed.completeExceptionally(
+                                    new IllegalStateException("Could not schedule HC read retry"));
+                        }
+                        return delayed;
+                    }
+                    Log.e(TAG, "HC read failed after " + (HC_MAX_READ_RETRIES + 1) + " attempts", e);
+                    CompletableFuture<Long> failed = new CompletableFuture<>();
+                    failed.completeExceptionally(e);
+                    return failed;
+                })
+                .thenCompose(f -> f);
+    }
+
+    private CompletableFuture<Long> readStepsOnce(ZonedDateTime day, StepsDBHelper db) {
         final String dateStr = day.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
         return hasAllPermissions().thenCompose(hasPermissions -> {
@@ -399,9 +454,6 @@ public class HealthConnectManager {
                         + " across " + slotCounts.size() + " slots");
                 return totalSteps;
             });
-        }).exceptionally(e -> {
-            Log.e(TAG, "Error in the readAndPersistStepsData pipeline", e);
-            return 0L;
         });
     }
 

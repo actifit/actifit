@@ -155,14 +155,23 @@ public class TrackingManager {
         return cause.getClass().getSimpleName() + (msg != null ? ": " + msg : "");
     }
 
+    // getSdkStatus() can transiently return SDK_UNAVAILABLE while the provider is mid restart/update.
+    // Re-poll a couple of times before concluding it is really unavailable, so a momentary hiccup
+    // doesn't pop the install prompt at a user whose Health Connect is actually fine.
+    private static final int HC_MAX_STATUS_RETRIES = 2;
+
     public void checkHealthConnectStatusAndPermissions() {
         if (healthConnectCheckRunning.getAndSet(true)) {
             Log.d(TAG, "Health Connect check is already running.");
             return;
         }
-        int sdkStatus = HealthConnectClient.getSdkStatus(context);
-        Log.d(TAG, "HC SDK Status: " + sdkStatus);
         healthConnectStatusView.setVisibility(View.VISIBLE);
+        resolveHcSdkStatus(0);
+    }
+
+    private void resolveHcSdkStatus(int attempt) {
+        int sdkStatus = HealthConnectClient.getSdkStatus(context);
+        Log.d(TAG, "HC SDK Status: " + sdkStatus + (attempt > 0 ? " (re-check " + attempt + ")" : ""));
 
         if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
             attemptHcPermissionCheck(0);
@@ -171,7 +180,15 @@ public class TrackingManager {
             showInstallOrUpdateHealthConnectRationale(true);
             healthConnectCheckRunning.set(false);
         } else {
-            Log.d(TAG, "HC SDK unavailable.");
+            // SDK_UNAVAILABLE: retry a couple of times with a short backoff before giving up, in case
+            // the provider is briefly restarting/updating rather than genuinely absent.
+            if (attempt < HC_MAX_STATUS_RETRIES) {
+                Log.w(TAG, "HC SDK unavailable, re-checking (attempt " + (attempt + 1) + ").");
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .postDelayed(() -> resolveHcSdkStatus(attempt + 1), 800L * (attempt + 1));
+                return;
+            }
+            Log.d(TAG, "HC SDK unavailable after " + (HC_MAX_STATUS_RETRIES + 1) + " checks.");
             showInstallOrUpdateHealthConnectRationale(false);
             healthConnectCheckRunning.set(false);
         }
@@ -286,9 +303,23 @@ public class TrackingManager {
             ((Activity) context).runOnUiThread(() -> {
                 if (readThrowable != null) {
                     String detail = hcErrorDetail(readThrowable);
-                    Log.e(TAG, "Error reading steps from HC - " + detail, readThrowable);
-                    Toast.makeText(context, "Health Connect unavailable — using device sensors.", Toast.LENGTH_LONG).show();
-                    useDefaultTrackingMethod();
+                    Log.e(TAG, "Error reading steps from HC after retries - " + detail, readThrowable);
+                    // A persistent read failure while getSdkStatus()==AVAILABLE is almost always a
+                    // transient provider restart/update. Keep Health Connect as the source and show the
+                    // last-known history from the DB (the failed read did NOT overwrite it) rather than
+                    // switching to device sensors — that would abandon the user's chosen source AND, via
+                    // useDefaultTrackingMethod()'s HC branch, kick off a 30-day backfill storm against the
+                    // unhealthy provider. The next sync (once the provider is back) refreshes today.
+                    Toast.makeText(context, "Health Connect is temporarily unavailable — your steps will refresh shortly.", Toast.LENGTH_LONG).show();
+                    // hideCharts() above collapsed bar_chart_container + chart_switcher; re-show them
+                    // (mirroring the success path) so the last-known history actually renders instead of
+                    // drawing into a GONE container and leaving the user with a blank chart.
+                    View barChartContainer = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
+                    if (barChartContainer != null) barChartContainer.setVisibility(View.VISIBLE);
+                    View chartSwitcherView = ((android.app.Activity) context).findViewById(R.id.chart_switcher);
+                    if (chartSwitcherView != null) chartSwitcherView.setVisibility(View.VISIBLE);
+                    chartManager.displayChartDataHC(true);
+                    chartManager.displayDayChartDataHC(true);
                     return;
                 }
                 Log.d(TAG, "Steps from Health Connect: " + steps);
