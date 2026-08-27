@@ -98,7 +98,7 @@ backend dependency · source doc(s). Duplicates across docs are collapsed into o
 | 📋 | **AFIT Rewards Store / Redemption** | Native store mirroring web `market.vue`: spend AFIT on gadgets/boosters, consultations, ebooks, physical products; prize-ticket cycle. (Existing `MarketActivity` is token trading only.) Also satisfies dashboard gadgets empty-state CTA. | High / Med-High | Ready (`/products`, `/mintProducts`, `/purchaseRealProduct`, `/confirmPayment`, gadget buy/activate family, `/buyAFITHive`, `/downEbook`, ticket endpoints) | backlog 2.4 |
 | 📋 | **Tracked Referral Program** | Native referral screen: personal link/code, referred-accounts list, reward status, free-signup claims. (Current `refer_friend` is a plain share.) | Med / Med | Ready (`/referrals`, `/signups`, `/signupInfo`, `/activeRefReward`, `/myFreeSignupLinks`, `/claimableFreeAccounts`, `/claimFreeSignupAccounts`) | backlog 2.5 |
 | 📋 | **Notification Preferences (per-type opt-in)** | Per-category toggles (friend request/accept, upvote, reward, …) mirroring web `settings.vue`. FCM push already works; no preference UI yet. | Med / Low-Med | Ready (`/notificationTypes`, `/userSettings`, `/activeNotifications`, `/markRead`, `/markAllRead`, `/registerUserNotification`) | backlog 2.6 |
-| 📋 | **Body-Metrics Trend Charts** | Native weight + measurements (chest/waist/thighs/bodyfat) trend charts over time; reuse `ChartManager`. Composer collects them but never charts in-app. **Open Trello #45.** | Med / Low-Med | Ready (`/trackedMeasurements/:user`) | backlog 2.7, tasklist context |
+| ✅ | **Body-Metrics Trend Charts** | Native weight + measurements (height/chest/waist/thighs/bodyfat) trend charts over time; official Actifit measurement icons, tap-a-point value marker, fitted axis. **Shipped** (#95; Trello #45 Done). | Med / Low-Med | Ready (`/trackedMeasurements/:user`) | backlog 2.7, tasklist context |
 | 📋 | **Dark Mode / Theming** | Persisted dark-mode toggle (web parity); saves OLED battery given all-day foreground service. Redesign spec targets Material 3 + Actifit Red. | Med / Med | None | backlog 2.8, mockups |
 
 ### B. Net-new / app-leads (little or no web equivalent)
@@ -181,7 +181,7 @@ Most of this list has shipped. Remaining items carried into prioritization below
 
 | Status | Feature | Notes | Sources |
 |---|---|---|---|
-| 🚧 | **Signup wizard** | Native multi-step onboarding replacing "Create account" hyperlink. #81 implemented → reverted (`6cd8cc3`) → **reworked & reopened as #85 (`0f00dfc`, "REWORK REQUIRED")**. `SignupStateStore` present. Blocked/paired with Trello #51 (server must decide payment sufficiency). | backlog §1, vision §8 |
+| ✅ | **Signup wizard** | Native multi-step onboarding replacing "Create account" hyperlink. #81 → reverted (`6cd8cc3`) → **reworked & merged as #85** (Trello #20 Done); device-verified end-to-end. Remaining hardening in Trello #51 (server must decide payment sufficiency — backend). | backlog §1, vision §8 |
 | ✅ | **Configurable step goal + guardrails + i18n** | See P3-4 above (#89/#91/#86) | backlog 3.10, tasklist P3-4 |
 | ✅ | **Multi-ring dashboard across tracking modes** | Unified rings + Fitbit/HC distance & calories (#82/#83) | tasklist context |
 | ✅ | **Post editor height/clipping + measurements chevron** | #93 | recent fix |
@@ -239,16 +239,24 @@ Which *pending* features need `actifit-bot` / API work vs. are client-only.
 
 ---
 
-## 5. Open Trello items
+## 5. Trello reconciliation (2026-08-27)
 
-Two cards currently open on the Actifit Android board:
+The roadmap ↔ Actifit Android board were reconciled. Current mapping:
 
-- **#45 — Body-metrics trend charts (weight + measurements).** Native trend charts reusing
-  `ChartManager` on `/trackedMeasurements/:user`. See inventory §A. Endpoint ready; pure
-  client build. Status: 📋 Planned.
-- **#51 — Signup: server must decide payment sufficiency (actifit-bot).** Backend gate the
-  signup wizard (🚧 #85) depends on — the server, not the client, must decide whether a
-  free/paid signup is sufficient. Status: 📋 Planned (backend). Blocks final signup-wizard sign-off.
+- **Shipped → Done:** #45 Body-metrics, #20 Signup wizard, #48 AI Assistant, #46 Step goal, #29 HC integration, #35 gadget beneficiary, plus dashboard/UX + i18n/workout cards.
+- **Already tracked (Backlog/To Do):** #43 Friends, #44 Badges, #47 Widget, #51 Signup payment-sufficiency (backend, blocks final signup sign-off).
+- **New Backlog cards created from this roadmap (the previously-untracked 📋 features):**
+  #52 AFIT Rewards Store · #53 Referral Program · #54 Notification Preferences · #55 Dark Mode ·
+  #56 The Arena (Challenges/Duels) · #57 Friends-only feed/leaderboard · #58 GPS Route Polish ·
+  #59 Multi-Activity from HC · #60 Post Scheduling/Drafts · #61 Adaptive Reminders ·
+  #62 Reorderable dashboard cards · #63 AI Morning Briefing · #64 Shareable Flex Cards ·
+  #65 Streak Freeze/Repair.
+- **Still 💡 uncarded (aspirational vision):** the remaining gamification/social mechanics
+  (leagues, quests, rivals, stories, loot drops, Wear OS, water/sleep log, AI coach persona, …).
+  Card individually as they graduate from vision to plan.
+
+Remaining open backend card: **#51 — Signup payment sufficiency** (server, not client, must decide
+whether a free/paid signup is sufficient).
 
 ---
 
