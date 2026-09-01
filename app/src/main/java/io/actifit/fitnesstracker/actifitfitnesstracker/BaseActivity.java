@@ -362,17 +362,22 @@ public class BaseActivity extends AppCompatActivity {
         });
         sheetView.findViewById(R.id.more_item_share).setOnClickListener(v -> {
             sheet.dismiss();
+            Intent i = new Intent(this, ShareAchievementActivity.class);
+            // Only the DB read is failure-prone; don't let it stop the screen from opening.
             try {
                 StepsDBHelper sdb = new StepsDBHelper(this);
-                Intent i = new Intent(this, ShareAchievementActivity.class);
                 i.putExtra("steps", String.valueOf(sdb.fetchTodayStepCount()));
                 i.putExtra("weekly_steps", String.valueOf(sdb.fetchWeeklyStepCount()));
-                i.putExtra("username", MainActivity.username);
-                if (MainActivity.userFullBalance != null)
-                    i.putExtra("afit", String.format(java.util.Locale.getDefault(), "%.2f", MainActivity.userFullBalance));
-                i.putExtra("rank", MainActivity.userRank);
-                startActivity(i);
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                android.util.Log.e("BaseActivity", "share steps read failed", e);
+                i.putExtra("steps", "0");
+            }
+            i.putExtra("username", MainActivity.username);
+            if (MainActivity.userFullBalance != null) {
+                i.putExtra("afit", String.format(java.util.Locale.getDefault(), "%.2f", MainActivity.userFullBalance));
+            }
+            i.putExtra("rank", MainActivity.userRank);
+            startActivity(i);
         });
         sheetView.findViewById(R.id.more_item_videos).setOnClickListener(v -> {
             sheet.dismiss();

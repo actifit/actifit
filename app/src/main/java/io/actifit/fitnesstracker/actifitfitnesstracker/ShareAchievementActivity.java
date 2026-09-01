@@ -196,6 +196,7 @@ public class ShareAchievementActivity extends BaseActivity {
             FileOutputStream stream = new FileOutputStream(imageFile);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             stream.close();
+            bitmap.recycle();
 
             Uri contentUri = FileProvider.getUriForFile(this, "io.actifit.fileprovider", imageFile);
             if (contentUri != null) {

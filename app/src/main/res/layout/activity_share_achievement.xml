@@ -1,96 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorWhite"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Share Your Success!"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:textColor="@color/actifitRed"/>
-
-    <!-- Lightweight segmented toggle (no Material theme dependency; styled in code) -->
-    <LinearLayout
-        android:id="@+id/period_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/period_today"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="120dp"
-            android:gravity="center"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:text="@string/share_period_today"
-            android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true" />
-
-        <TextView
-            android:id="@+id/period_week"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="120dp"
-            android:gravity="center"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:text="@string/share_period_week"
-            android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/card_preview_wrapper"
+    <!-- Scrollable content so a taller card never pushes the Share button off-screen -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="8dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
-        <FrameLayout
-            android:id="@+id/card_preview_container"
-            android:layout_width="350dp"
-            android:layout_height="350dp"
-            android:elevation="8dp"
-            android:background="@android:color/transparent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <!-- We will include the template here -->
-            <include layout="@layout/achievement_card_template" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Share Your Success!"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:textColor="@color/actifitRed" />
 
-        </FrameLayout>
-    </LinearLayout>
+            <!-- Lightweight segmented toggle (no Material theme dependency; styled in code) -->
+            <LinearLayout
+                android:id="@+id/period_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="This card will be shared as an image to your social media."
-        android:textAlignment="center"
-        android:layout_marginTop="20dp"
-        android:textColor="#666666"
-        android:textSize="14sp"/>
+                <TextView
+                    android:id="@+id/period_today"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="120dp"
+                    android:gravity="center"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:text="@string/share_period_today"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <TextView
+                    android:id="@+id/period_week"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="120dp"
+                    android:gravity="center"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:text="@string/share_period_week"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/card_preview_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <!-- wrap_content height: the card sizes to its content and is captured in full -->
+                <FrameLayout
+                    android:id="@+id/card_preview_container"
+                    android:layout_width="350dp"
+                    android:layout_height="wrap_content"
+                    android:elevation="8dp"
+                    android:background="@android:color/transparent">
+
+                    <include layout="@layout/achievement_card_template" />
+
+                </FrameLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="This card will be shared as an image to your social media."
+                android:textAlignment="center"
+                android:layout_marginTop="16dp"
+                android:textColor="#666666"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <Button
         android:id="@+id/share_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/button_background"
         android:text="SHARE ACHIEVEMENT"
         android:textColor="@color/colorWhite"
@@ -101,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        android:visibility="gone"/>
+        android:layout_marginTop="12dp"
+        android:visibility="gone" />
 
 </LinearLayout>

@@ -470,7 +470,7 @@ public class StepsDBHelper extends SQLiteOpenHelper {
             total = 0;
         }
         Calendar cal = Calendar.getInstance();
-        SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
         //walk back the previous 6 days and add any recorded counts
         for (int i = 1; i < 7; i++) {
             cal.add(Calendar.DATE, -1);
