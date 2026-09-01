@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Background Image with Aspect Ratio Preservation -->
+    <!-- Background Image -->
     <ImageView
         android:id="@+id/card_background"
         android:layout_width="match_parent"
@@ -23,22 +23,22 @@
         android:layout_alignBottom="@id/content_layer"
         android:background="#B3000000" />
 
-    <RelativeLayout
+    <!-- Content flows top-to-bottom so nothing overlaps regardless of value size -->
+    <LinearLayout
         android:id="@+id/content_layer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="350dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:padding="20dp">
 
         <!-- Top Row: User Info (Left) and Logo (Right) -->
         <LinearLayout
-            android:id="@+id/user_info_section"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true">
+            android:gravity="center_vertical">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/user_profile_pic_card"
@@ -46,37 +46,35 @@
                 android:layout_height="35dp"
                 android:src="@drawable/actifit_logo"
                 app:civ_border_width="1dp"
-                app:civ_border_color="@color/colorWhite"
-                />
+                app:civ_border_color="@color/colorWhite" />
 
             <TextView
                 android:id="@+id/user_handle_card"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:layout_marginStart="8dp"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="@USERNAME"
                 android:textColor="@color/colorWhite"
                 android:textSize="14sp"
                 android:textStyle="bold" />
-        </LinearLayout>
 
-        <ImageView
-            android:id="@+id/actifit_logo_header"
-            android:layout_width="80dp"
-            android:layout_height="30dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/actifit_logo"
-            android:scaleType="fitCenter"
-            android:tint="@color/colorWhite"/>
+            <ImageView
+                android:id="@+id/actifit_logo_header"
+                android:layout_width="80dp"
+                android:layout_height="30dp"
+                android:src="@drawable/actifit_logo"
+                android:scaleType="fitCenter"
+                android:tint="@color/colorWhite" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/achievement_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/user_info_section"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="14dp"
             android:text="DAILY ACHIEVEMENT"
             android:textColor="@color/actifitRed"
             android:textSize="18sp"
@@ -84,106 +82,98 @@
             android:shadowColor="#000000"
             android:shadowDx="1"
             android:shadowDy="1"
-            android:shadowRadius="2"/>
+            android:shadowRadius="2" />
 
-        <!-- Main Stats Section - Anchored below title to prevent overlap -->
-        <LinearLayout
+        <!-- Hero number: fixed-height box so auto-size works reliably (wrap_content collapses it) -->
+        <TextView
+            android:id="@+id/step_count_value"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/achievement_title"
-            android:layout_marginTop="25dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="8dp"
             android:gravity="center"
-            android:orientation="vertical">
+            android:maxLines="1"
+            android:text="12,450"
+            android:textColor="@color/colorWhite"
+            android:textStyle="bold"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="28sp"
+            android:autoSizeMaxTextSize="60sp"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4" />
+
+        <TextView
+            android:id="@+id/step_count_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="STEPS TODAY"
+            android:textColor="#CCCCCC"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1" />
+
+        <!-- AFIT balance pill -->
+        <LinearLayout
+            android:id="@+id/rewards_pill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/counter_background"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/afit_logo"
+                android:layout_marginEnd="6dp" />
 
             <TextView
-                android:id="@+id/step_count_value"
+                android:id="@+id/afit_value_card"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="12,450"
+                android:text="0 AFIT"
                 android:textColor="@color/colorWhite"
-                android:textSize="64sp"
-                android:textStyle="bold"
-                android:shadowColor="#000000"
-                android:shadowDx="2"
-                android:shadowDy="2"
-                android:shadowRadius="4"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="STEPS TRACKED"
-                android:textColor="#CCCCCC"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.1" />
-
-            <!-- Rewards Highlight -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/counter_background"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/afit_logo"
-                    android:layout_marginEnd="4dp"/>
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/hive"
-                    android:layout_marginEnd="8dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="REWARDS PENDING"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="80dp"
-                android:layout_height="2dp"
-                android:layout_marginVertical="12dp"
-                android:background="@color/actifitRed" />
-
-            <!-- Slogan -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="It pays to be fit!"
-                android:textColor="@color/colorWhite"
-                android:textSize="18sp"
-                android:textStyle="italic|bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="actifit.io"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/actifitRed"
-                android:textSize="16sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
-        <!-- Footer Info -->
+        <View
+            android:layout_width="80dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/actifitRed" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="It pays to be fit!"
+            android:textColor="@color/colorWhite"
+            android:textSize="18sp"
+            android:textStyle="italic|bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="actifit.io"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/actifitRed"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- Footer: rank (left) + date (right) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:orientation="horizontal"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:gravity="center_vertical">
 
             <TextView
@@ -191,6 +181,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="Rank: 75/100"
                 android:textColor="@color/colorWhite"
                 android:textSize="14sp"
@@ -203,9 +195,9 @@
                 android:text="March 07, 2026"
                 android:textColor="#DDDDDD"
                 android:textSize="12sp"
-                android:layout_marginStart="10dp"/>
-
+                android:layout_marginStart="10dp" />
         </LinearLayout>
-    </RelativeLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

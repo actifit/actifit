@@ -458,6 +458,30 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         return fetchStepCountByDate(todaysDateString);
     }
 
+    /**
+     * Sums the trailing 7 days of steps (today + previous 6). Mode-aware via
+     * fetchTodayStepCount / fetchStepCountByDate; days with no record (-1) count as 0.
+     * @return total steps over the last 7 days
+     */
+    public int fetchWeeklyStepCount()
+    {
+        int total = fetchTodayStepCount();
+        if (total < 0) {
+            total = 0;
+        }
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat formatToDB = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+        //walk back the previous 6 days and add any recorded counts
+        for (int i = 1; i < 7; i++) {
+            cal.add(Calendar.DATE, -1);
+            int dayCount = fetchStepCountByDate(formatToDB.format(cal.getTime()));
+            if (dayCount > 0) {
+                total += dayCount;
+            }
+        }
+        return total;
+    }
+
     public String getTodayProperFormat(){
         //generate format for today
         Date todaysDate = new Date();
