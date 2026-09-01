@@ -2077,6 +2077,7 @@ public class MainActivity extends BaseActivity {
             // Pass current stats
             int steps = mStepsDBHelper.fetchTodayStepCount();
             shareIntent.putExtra("steps", String.valueOf(steps));
+            shareIntent.putExtra("weekly_steps", String.valueOf(mStepsDBHelper.fetchWeeklyStepCount()));
             shareIntent.putExtra("username", MainActivity.username);
             shareIntent.putExtra("afit", String.format(Locale.getDefault(), "%.2f", userFullBalance));
             shareIntent.putExtra("rank", userRank);

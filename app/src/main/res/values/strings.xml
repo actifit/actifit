@@ -754,6 +754,13 @@
     <!-- Body-metrics trend charts (card #45) -->
     <string name="tracked_measurements_url" translatable="false">trackedMeasurements/</string>
     <string name="more_menu_body_metrics">Body Metrics</string>
+    <string name="more_menu_share_progress">Share Progress</string>
+    <string name="share_period_today">Today</string>
+    <string name="share_period_week">This Week</string>
+    <string name="share_steps_today">STEPS TODAY</string>
+    <string name="share_steps_week">STEPS THIS WEEK</string>
+    <string name="share_title_daily">DAILY ACHIEVEMENT</string>
+    <string name="share_title_weekly">WEEKLY ACHIEVEMENT</string>
     <string name="body_metrics_title">Body Metrics</string>
     <string name="body_metrics_subtitle">Your measurement trends over time</string>
     <string name="body_metrics_weight">Weight</string>

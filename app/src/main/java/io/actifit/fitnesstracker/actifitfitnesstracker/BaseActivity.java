@@ -360,6 +360,20 @@ public class BaseActivity extends AppCompatActivity {
             if (!(this instanceof BodyMetricsActivity))
                 startActivity(new Intent(this, BodyMetricsActivity.class));
         });
+        sheetView.findViewById(R.id.more_item_share).setOnClickListener(v -> {
+            sheet.dismiss();
+            try {
+                StepsDBHelper sdb = new StepsDBHelper(this);
+                Intent i = new Intent(this, ShareAchievementActivity.class);
+                i.putExtra("steps", String.valueOf(sdb.fetchTodayStepCount()));
+                i.putExtra("weekly_steps", String.valueOf(sdb.fetchWeeklyStepCount()));
+                i.putExtra("username", MainActivity.username);
+                if (MainActivity.userFullBalance != null)
+                    i.putExtra("afit", String.format(java.util.Locale.getDefault(), "%.2f", MainActivity.userFullBalance));
+                i.putExtra("rank", MainActivity.userRank);
+                startActivity(i);
+            } catch (Exception ignored) {}
+        });
         sheetView.findViewById(R.id.more_item_videos).setOnClickListener(v -> {
             sheet.dismiss();
             VideoUploadFragment vd = new VideoUploadFragment(this, LoginActivity.accessToken, this, false);

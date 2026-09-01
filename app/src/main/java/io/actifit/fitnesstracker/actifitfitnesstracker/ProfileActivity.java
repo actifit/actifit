@@ -493,10 +493,17 @@ public class ProfileActivity extends BaseActivity {
     // ── helpers ──────────────────────────────────────────────────────────────────
 
     private void shareCard() {
+        // Only reachable on the self profile (share button is gated by isSelf), so local
+        // weekly steps + the logged-in AFIT balance are correct — pass them for parity with
+        // the dashboard share (enables the Today / This Week toggle here too).
         Intent intent = new Intent(this, ShareAchievementActivity.class);
         intent.putExtra("steps", String.valueOf(shareSteps));
+        intent.putExtra("weekly_steps", String.valueOf(new StepsDBHelper(this).fetchWeeklyStepCount()));
         intent.putExtra("rank", shareRank);
         intent.putExtra("username", username);
+        if (MainActivity.userFullBalance != null) {
+            intent.putExtra("afit", String.format(Locale.getDefault(), "%.2f", MainActivity.userFullBalance));
+        }
         startActivity(intent);
     }
 
