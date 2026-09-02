@@ -145,6 +145,8 @@ public class ProfileActivity extends BaseActivity {
             View.OnClickListener pick = v -> showCompanionPicker();
             auraView.setOnClickListener(pick);
             companionHint.setOnClickListener(pick);
+        } else {
+            setupFriendButton();
         }
 
         updateAura();
@@ -505,6 +507,88 @@ public class ProfileActivity extends BaseActivity {
             intent.putExtra("afit", String.format(Locale.getDefault(), "%.2f", MainActivity.userFullBalance));
         }
         startActivity(intent);
+    }
+
+    // ── Friend action button (other users only) ──────────────────────────────────
+
+    private void setupFriendButton() {
+        final Button friendBtn = findViewById(R.id.btn_friend_action);
+        final String me = prefs.getString("actifitUser", "");
+        if (me.isEmpty() || username.equalsIgnoreCase(me)) return;
+        friendBtn.setVisibility(View.VISIBLE);
+        friendBtn.setEnabled(false);
+        friendBtn.setText(R.string.friends_action_loading);
+        refreshFriendState(friendBtn, me);
+    }
+
+    private void refreshFriendState(final Button friendBtn, final String me) {
+        friendBtn.setEnabled(false);
+        final boolean[] done = {false, false};
+        final boolean[] flags = {false, false, false}; // isFriend, sent, received
+        final Runnable apply = () -> {
+            if (done[0] && done[1]) applyFriendState(friendBtn, me, flags[0], flags[1], flags[2]);
+        };
+        queue.add(new com.android.volley.toolbox.JsonArrayRequest(com.android.volley.Request.Method.GET,
+                Utils.apiUrl(this) + "userFriends/" + me, null,
+                arr -> {
+                    for (int i = 0; i < arr.length(); i++) {
+                        try {
+                            if (username.equalsIgnoreCase(arr.getJSONObject(i).optString("friend"))) { flags[0] = true; break; }
+                        } catch (Exception ignored) {}
+                    }
+                    done[0] = true; apply.run();
+                }, err -> { done[0] = true; apply.run(); }));
+        queue.add(new com.android.volley.toolbox.JsonObjectRequest(com.android.volley.Request.Method.GET,
+                Utils.apiUrl(this) + "userFriendRequests/" + me, null,
+                obj -> {
+                    org.json.JSONArray sent = obj.optJSONArray("sent_pending");
+                    if (sent != null) for (int i = 0; i < sent.length(); i++) {
+                        try { if (username.equalsIgnoreCase(sent.getJSONObject(i).optString("target"))) { flags[1] = true; break; } } catch (Exception ignored) {}
+                    }
+                    org.json.JSONArray rec = obj.optJSONArray("received_pending");
+                    if (rec != null) for (int i = 0; i < rec.length(); i++) {
+                        try { if (username.equalsIgnoreCase(rec.getJSONObject(i).optString("initiator"))) { flags[2] = true; break; } } catch (Exception ignored) {}
+                    }
+                    done[1] = true; apply.run();
+                }, err -> { done[1] = true; apply.run(); }));
+    }
+
+    private void applyFriendState(final Button friendBtn, final String me,
+                                  boolean isFriend, boolean sent, boolean received) {
+        friendBtn.setEnabled(true);
+        final FriendsApi.Callback cb = (success, message) -> {
+            android.widget.Toast.makeText(this,
+                    getString(success ? R.string.friends_action_done : R.string.friends_action_failed),
+                    android.widget.Toast.LENGTH_SHORT).show();
+            refreshFriendState(friendBtn, me);
+        };
+        // Mirror the list rows' per-state colour: green to accept, muted grey for
+        // pending/already-friends, primary red only for the "Add Friend" call to action.
+        if (isFriend) {
+            friendBtn.setText(R.string.profile_friend_friends);
+            tintFriendButton(friendBtn, R.color.md_theme_textSecondary);
+            friendBtn.setOnClickListener(v -> new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.friends_confirm_unfriend, username))
+                    .setPositiveButton(R.string.friends_action_unfriend, (d, w) -> { friendBtn.setEnabled(false); FriendsApi.unfriend(this, this, me, username, cb); })
+                    .setNegativeButton(R.string.close_button, null).show());
+        } else if (received) {
+            friendBtn.setText(R.string.profile_friend_accept);
+            tintFriendButton(friendBtn, R.color.actifitDarkGreen);
+            friendBtn.setOnClickListener(v -> { friendBtn.setEnabled(false); FriendsApi.acceptFriend(this, this, me, username, cb); });
+        } else if (sent) {
+            friendBtn.setText(R.string.profile_friend_pending);
+            tintFriendButton(friendBtn, R.color.md_theme_textSecondary);
+            friendBtn.setOnClickListener(v -> { friendBtn.setEnabled(false); FriendsApi.cancelRequest(this, this, me, username, cb); });
+        } else {
+            friendBtn.setText(R.string.profile_friend_add);
+            tintFriendButton(friendBtn, R.color.md_theme_primary);
+            friendBtn.setOnClickListener(v -> { friendBtn.setEnabled(false); FriendsApi.addFriend(this, this, me, username, cb); });
+        }
+    }
+
+    private void tintFriendButton(Button friendBtn, int colorRes) {
+        friendBtn.setBackgroundTintList(
+                android.content.res.ColorStateList.valueOf(getResources().getColor(colorRes)));
     }
 
     private void openUrl(String url) {
