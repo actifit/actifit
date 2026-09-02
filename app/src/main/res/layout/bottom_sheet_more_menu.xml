@@ -67,6 +67,53 @@
             android:text="@string/more_menu_activity_history" />
     </LinearLayout>
 
+    <!-- Friends -->
+    <LinearLayout
+        android:id="@+id/more_item_friends"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:textSize="18sp"
+            android:text="&#xf0c0;" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:textSize="15sp"
+            android:text="@string/more_menu_friends" />
+
+        <TextView
+            android:id="@+id/more_item_friends_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:minWidth="20dp"
+            android:gravity="center"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorWhite"
+            android:background="@drawable/badge_circle_bg"
+            android:visibility="gone" />
+    </LinearLayout>
+
     <!-- Body Metrics -->
     <LinearLayout
         android:id="@+id/more_item_body_metrics"

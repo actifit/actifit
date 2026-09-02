@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/spacing_md"
+    android:paddingEnd="@dimen/spacing_md"
+    android:paddingTop="@dimen/spacing_sm"
+    android:paddingBottom="@dimen/spacing_sm"
+    android:gravity="center_vertical"
+    android:id="@+id/friend_row_container">
+
+    <!-- Section header (shown only for HEADER rows) -->
+    <TextView
+        android:id="@+id/friend_section_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/spacing_sm"
+        android:paddingBottom="@dimen/spacing_xs"
+        android:textStyle="bold"
+        android:textSize="@dimen/text_body"
+        android:textColor="@color/actifitRed"
+        android:visibility="gone" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/friend_avatar"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:src="@drawable/default_pic"
+        app:civ_border_width="0dp" />
+
+    <TextView
+        android:id="@+id/friend_handle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="@dimen/spacing_md"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+    <!-- Action button (Add / Accept / Cancel / Unfriend) -->
+    <Button
+        android:id="@+id/friend_action_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="96dp"
+        android:minHeight="48dp"
+        android:paddingStart="@dimen/spacing_md"
+        android:paddingEnd="@dimen/spacing_md"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:textSize="13sp"
+        android:textColor="@color/colorWhite"
+        android:backgroundTint="@color/md_theme_primary" />
+
+    <ProgressBar
+        android:id="@+id/friend_action_progress"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:visibility="gone" />
+
+</LinearLayout>

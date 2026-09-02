@@ -103,7 +103,8 @@ public class BaseActivity extends AppCompatActivity {
         View btnMoreFooter = findViewById(R.id.btn_more_footer);
         if (btnMoreFooter != null) {
             btnMoreFooter.setSelected(this instanceof StepHistoryActivity
-                    || this instanceof BodyMetricsActivity);
+                    || this instanceof BodyMetricsActivity
+                    || this instanceof FriendsActivity);
         }
     }
 
@@ -360,6 +361,16 @@ public class BaseActivity extends AppCompatActivity {
             if (!(this instanceof BodyMetricsActivity))
                 startActivity(new Intent(this, BodyMetricsActivity.class));
         });
+        View friendsItem = sheetView.findViewById(R.id.more_item_friends);
+        if (this instanceof FriendsActivity) {
+            friendsItem.setBackgroundColor(0x1AFF112D);
+        }
+        friendsItem.setOnClickListener(v -> {
+            sheet.dismiss();
+            if (!(this instanceof FriendsActivity))
+                startActivity(new Intent(this, FriendsActivity.class));
+        });
+        loadFriendsBadge((TextView) sheetView.findViewById(R.id.more_item_friends_badge));
         sheetView.findViewById(R.id.more_item_share).setOnClickListener(v -> {
             sheet.dismiss();
             Intent i = new Intent(this, ShareAchievementActivity.class);
@@ -422,6 +433,32 @@ public class BaseActivity extends AppCompatActivity {
         sheet.show();
     }
 
+    /** Fills the more-menu Friends badge with the count of pending received friend requests. */
+    private void loadFriendsBadge(final TextView badge) {
+        if (badge == null) return;
+        String user = getSharedPreferences("actifitSets", MODE_PRIVATE).getString("actifitUser", "");
+        if (user.isEmpty()) return;
+        try {
+            com.android.volley.RequestQueue queue = com.android.volley.toolbox.Volley.newRequestQueue(this);
+            String url = Utils.apiUrl(this) + "userFriendRequests/" + user;
+            com.android.volley.toolbox.JsonObjectRequest req = new com.android.volley.toolbox.JsonObjectRequest(
+                    com.android.volley.Request.Method.GET, url, null,
+                    response -> {
+                        org.json.JSONArray rec = response.optJSONArray("received_pending");
+                        int c = (rec != null) ? rec.length() : 0;
+                        if (c > 0) {
+                            badge.setText(String.valueOf(c));
+                            badge.setContentDescription(
+                                    getResources().getQuantityString(R.plurals.friends_pending_badge_desc, c, c));
+                            badge.setVisibility(View.VISIBLE);
+                        } else {
+                            badge.setVisibility(View.GONE);
+                        }
+                    },
+                    error -> {});
+            queue.add(req);
+        } catch (Exception ignored) {}
+    }
 
     public void storeNotifDate(Date date, String dateStr){
         SharedPreferences shPrefs = getSharedPreferences("actifitSets",MODE_PRIVATE);

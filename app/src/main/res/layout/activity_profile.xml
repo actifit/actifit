@@ -271,6 +271,18 @@
                 android:backgroundTint="@color/md_theme_primary"
                 android:visibility="gone" />
 
+            <!-- Friend action button (other users only; state set at runtime) -->
+            <Button
+                android:id="@+id/btn_friend_action"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_md"
+                android:layout_marginEnd="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:textColor="@color/colorWhite"
+                android:backgroundTint="@color/md_theme_primary"
+                android:visibility="gone" />
+
             <!-- Recent activity -->
             <TextView
                 android:layout_width="match_parent"

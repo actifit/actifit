@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/md_theme_background">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md"
+        android:gravity="center_vertical"
+        android:background="@color/md_theme_surface">
+
+        <TextView
+            android:id="@+id/friends_back_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:text="&#xf060;"
+            android:textColor="@color/md_theme_primary"
+            android:textSize="20sp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/back_button"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/friends_title"
+            android:textColor="@color/md_theme_primary"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_separator" />
+
+    <!-- Search a handle to view their profile and add them -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_margin="@dimen/spacing_md"
+        android:paddingStart="@dimen/spacing_md"
+        android:paddingEnd="@dimen/spacing_xs"
+        android:background="@drawable/input_background">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:text="&#xf002;"
+            android:textColor="@color/md_theme_textSecondary"
+            android:textSize="15sp"
+            android:importantForAccessibility="no" />
+
+        <AutoCompleteTextView
+            android:id="@+id/friends_search_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:background="@null"
+            android:hint="@string/friends_search_hint"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:maxLines="1"
+            android:completionThreshold="2"
+            android:textSize="@dimen/text_body"
+            android:textColor="@color/md_theme_onSurface"
+            android:textColorHint="@color/md_theme_textSecondary" />
+
+        <TextView
+            android:id="@+id/friends_search_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/friends_search_go"
+            android:textStyle="bold"
+            android:textColor="@color/actifitRed"
+            android:padding="@dimen/spacing_sm"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- Segmented toggle: Friends | Requests (selected segment styled in code) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_marginEnd="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginBottom="@dimen/spacing_sm"
+        android:padding="4dp"
+        android:background="@drawable/segmented_track">
+
+        <TextView
+            android:id="@+id/friends_tab_friends"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:minHeight="40dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:textStyle="bold"
+            android:text="@string/friends_tab_friends"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/friends_tab_requests"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:minHeight="40dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:textStyle="bold"
+            android:text="@string/friends_tab_requests"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_separator" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/friends_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:dividerHeight="1dp"
+            android:divider="@color/md_theme_separator" />
+
+        <TextView
+            android:id="@+id/friends_empty_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/md_theme_textSecondary"
+            android:textSize="@dimen/text_subtitle"
+            android:padding="@dimen/spacing_lg"
+            android:gravity="center"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/friends_progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_centerInParent="true" />
+
+        </RelativeLayout>
+
+    </FrameLayout>
+
+    <include
+        android:id="@+id/bottom_menu_container"
+        layout="@layout/footer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
