@@ -590,6 +590,12 @@ public class ProfileActivity extends BaseActivity {
         scroll.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    protected void onDestroy() {
+        if (queue != null) queue.cancelAll(req -> true);   // don't deliver onto a dead activity
+        super.onDestroy();
+    }
+
     private void refreshFriendState(final Button friendBtn, final String me) {
         friendBtn.setEnabled(false);
         final boolean[] done = {false, false};
