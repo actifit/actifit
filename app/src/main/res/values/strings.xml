@@ -786,6 +786,7 @@
     <string name="friends_empty_requests">No pending friend requests.</string>
     <string name="friends_empty_suggested">No suggestions right now. Try searching for a username above!</string>
     <string name="friends_stats_loading">Loading details…</string>
+    <string name="friends_loading_more">Loading more…</string>
     <string name="friends_stat_afit">%1$s AFIT</string>
     <plurals name="friends_stat_reports">
         <item quantity="one">%1$s report</item>

@@ -42,6 +42,7 @@ public class FriendsActivity extends BaseActivity {
     private ListView listView;
     private TextView tabFriends, tabRequests, tabSuggested, emptyState;
     private View progress;
+    private View loadMoreFooter;
 
     private final ArrayList<FriendModel> friendsData = new ArrayList<>();
     private final ArrayList<FriendModel> requestsData = new ArrayList<>();
@@ -107,6 +108,10 @@ public class FriendsActivity extends BaseActivity {
             return false;
         });
 
+        // "Loading more…" footer for the Suggested tab (added before setAdapter as ListView requires).
+        loadMoreFooter = getLayoutInflater().inflate(R.layout.friends_load_more, listView, false);
+        listView.addFooterView(loadMoreFooter, null, false);
+
         adapter = new FriendEntryAdapter(this, current, this::onAction);
         listView.setAdapter(adapter);
 
@@ -155,6 +160,7 @@ public class FriendsActivity extends BaseActivity {
             if (dataLoaded) loadSuggestions();   // else finishLoad() triggers it
         }
         refreshProgress();
+        refreshLoadMoreFooter();
         render();
     }
 
@@ -168,6 +174,14 @@ public class FriendsActivity extends BaseActivity {
     private void refreshProgress() {
         boolean loading = (currentTab == TAB_SUGGESTED) ? suggestLoading : friendsLoading;
         progress.setVisibility(loading ? View.VISIBLE : View.GONE);
+    }
+
+    /** The bottom "Loading more…" footer shows only while paging the Suggested tab. */
+    private void refreshLoadMoreFooter() {
+        if (loadMoreFooter != null) {
+            loadMoreFooter.setVisibility(
+                    currentTab == TAB_SUGGESTED && suggestLoadingMore ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void render() {
@@ -542,6 +556,7 @@ public class FriendsActivity extends BaseActivity {
         if (!suggestedLoaded || suggestLoadingMore || suggestNoMore
                 || hiveCursorAuthor == null || hiveCursorPermlink == null) return;
         suggestLoadingMore = true;
+        refreshLoadMoreFooter();
         final int gen = suggestGeneration;
         final java.util.HashSet<String> exclude = buildExcludeSet();
         final java.util.HashSet<String> myFriends = new java.util.HashSet<>();
@@ -554,7 +569,7 @@ public class FriendsActivity extends BaseActivity {
         // Superseded by a newer load — don't touch suggestLoadingMore, it belongs to that load now.
         if (gen != suggestGeneration) return;
         String[] nodes = hiveNodes();
-        if (nodeIdx >= nodes.length) { suggestLoadingMore = false; return; }   // give up quietly
+        if (nodeIdx >= nodes.length) { suggestLoadingMore = false; refreshLoadMoreFooter(); return; }   // give up quietly
         org.json.JSONObject body = new org.json.JSONObject();
         try {
             body.put("jsonrpc", "2.0");
@@ -591,6 +606,7 @@ public class FriendsActivity extends BaseActivity {
                     // A page that yields no new candidates (or ran out) means we've reached the end.
                     if (fresh.isEmpty() || result.length() < 2) suggestNoMore = true;
                     suggestLoadingMore = false;
+                    refreshLoadMoreFooter();
                     if (currentTab == TAB_SUGGESTED) render();
                     for (FriendModel s : fresh) enrichSuggestion(gen, s, myFriends);
                 },

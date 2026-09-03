@@ -147,6 +147,7 @@ public class ProfileActivity extends BaseActivity {
             companionHint.setOnClickListener(pick);
         } else {
             setupFriendButton();
+            loadMutualFriends();
         }
 
         updateAura();
@@ -519,6 +520,74 @@ public class ProfileActivity extends BaseActivity {
         friendBtn.setEnabled(false);
         friendBtn.setText(R.string.friends_action_loading);
         refreshFriendState(friendBtn, me);
+    }
+
+    /** Show the friends this profile shares with the logged-in viewer (count + tappable avatars). */
+    private void loadMutualFriends() {
+        final String me = prefs.getString("actifitUser", "");
+        if (me.isEmpty() || username.equalsIgnoreCase(me)) return;
+        final java.util.HashSet<String> mine = new java.util.HashSet<>();
+        final org.json.JSONArray[] theirs = {null};
+        final boolean[] done = {false, false};
+        queue.add(new com.android.volley.toolbox.JsonArrayRequest(com.android.volley.Request.Method.GET,
+                Utils.apiUrl(this) + "userFriends/" + me, null,
+                arr -> {
+                    for (int i = 0; i < arr.length(); i++) {
+                        try {
+                            String f = arr.getJSONObject(i).optString("friend");
+                            if (f != null && !f.isEmpty()) mine.add(f);
+                        } catch (Exception ignored) {}
+                    }
+                    done[0] = true; combineMutual(done, mine, theirs);
+                },
+                err -> { done[0] = true; combineMutual(done, mine, theirs); }));
+        queue.add(new com.android.volley.toolbox.JsonArrayRequest(com.android.volley.Request.Method.GET,
+                Utils.apiUrl(this) + "userFriends/" + username, null,
+                arr -> { theirs[0] = arr; done[1] = true; combineMutual(done, mine, theirs); },
+                err -> { theirs[0] = new org.json.JSONArray(); done[1] = true; combineMutual(done, mine, theirs); }));
+    }
+
+    private void combineMutual(boolean[] done, java.util.HashSet<String> mine, org.json.JSONArray[] theirs) {
+        if (!(done[0] && done[1])) return;
+        java.util.ArrayList<String> mutual = new java.util.ArrayList<>();
+        if (theirs[0] != null) {
+            for (int i = 0; i < theirs[0].length(); i++) {
+                try {
+                    String f = theirs[0].getJSONObject(i).optString("friend");
+                    if (f != null && !f.isEmpty() && mine.contains(f) && !mutual.contains(f)) mutual.add(f);
+                } catch (Exception ignored) {}
+            }
+        }
+        renderMutualFriends(mutual);
+    }
+
+    private void renderMutualFriends(java.util.List<String> mutual) {
+        if (mutual.isEmpty() || isFinishing() || isDestroyed()) return;
+        TextView header = findViewById(R.id.mutual_friends_header);
+        android.widget.HorizontalScrollView scroll = findViewById(R.id.mutual_friends_scroll);
+        android.widget.LinearLayout container = findViewById(R.id.mutual_friends_container);
+        container.removeAllViews();
+        String imgTpl = getString(R.string.hive_image_host_url);
+        for (final String u : mutual) {
+            View chip = getLayoutInflater().inflate(R.layout.profile_mutual_chip, container, false);
+            android.widget.ImageView av = chip.findViewById(R.id.mutual_avatar);
+            TextView h = chip.findViewById(R.id.mutual_handle);
+            h.setText("@" + u);
+            com.bumptech.glide.Glide.with(this)
+                    .load(imgTpl.replace("USERNAME", u))
+                    .placeholder(R.drawable.default_pic)
+                    .error(R.drawable.default_pic)
+                    .into(av);
+            chip.setOnClickListener(v -> {
+                Intent i = new Intent(this, ProfileActivity.class);
+                i.putExtra(EXTRA_USERNAME, u);
+                startActivity(i);
+            });
+            container.addView(chip);
+        }
+        header.setText(getResources().getQuantityString(R.plurals.friends_stat_mutual, mutual.size(), mutual.size()));
+        header.setVisibility(View.VISIBLE);
+        scroll.setVisibility(View.VISIBLE);
     }
 
     private void refreshFriendState(final Button friendBtn, final String me) {
