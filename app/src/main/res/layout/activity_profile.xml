@@ -283,6 +283,37 @@
                 android:backgroundTint="@color/md_theme_primary"
                 android:visibility="gone" />
 
+            <!-- Mutual friends (other users only, logged in; shown at runtime when any exist) -->
+            <TextView
+                android:id="@+id/mutual_friends_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="@dimen/text_subtitle"
+                android:textColor="@color/md_theme_onSurface"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:paddingTop="@dimen/spacing_lg"
+                android:paddingBottom="@dimen/spacing_sm"
+                android:visibility="gone" />
+
+            <HorizontalScrollView
+                android:id="@+id/mutual_friends_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/mutual_friends_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+
+            </HorizontalScrollView>
+
             <!-- Recent activity -->
             <TextView
                 android:layout_width="match_parent"

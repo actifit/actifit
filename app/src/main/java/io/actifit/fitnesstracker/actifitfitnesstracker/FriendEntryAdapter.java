@@ -46,10 +46,14 @@ public class FriendEntryAdapter extends ArrayAdapter<FriendModel> {
         TextView header = convertView.findViewById(R.id.friend_section_header);
         ImageView avatar = convertView.findViewById(R.id.friend_avatar);
         TextView handle = convertView.findViewById(R.id.friend_handle);
+        TextView stats = convertView.findViewById(R.id.friend_stats);
+        TextView statsMutual = convertView.findViewById(R.id.friend_stats_mutual);
         Button action = convertView.findViewById(R.id.friend_action_btn);
         ProgressBar progress = convertView.findViewById(R.id.friend_action_progress);
 
         progress.setVisibility(View.GONE);
+        stats.setVisibility(View.GONE);
+        statsMutual.setVisibility(View.GONE);
 
         if (m == null) {
             return convertView;
@@ -73,6 +77,23 @@ public class FriendEntryAdapter extends ArrayAdapter<FriendModel> {
 
         handle.setText("@" + m.username);
         avatar.setContentDescription(getContext().getString(R.string.friends_avatar_desc, m.username));
+
+        // SUGGESTED rows carry an activity/mutual subtitle that fills in once enrichment lands.
+        if (m.type == FriendModel.Type.SUGGESTED) {
+            stats.setVisibility(View.VISIBLE);
+            if (!m.enriched) {
+                stats.setText(R.string.friends_stats_loading);   // placeholder reserves line 1
+            } else {
+                String line1 = buildPrimaryStats(m);
+                stats.setText(line1 != null ? line1 : "");
+            }
+            // Mutual friends get their own line so they can never be truncated by line 1.
+            if (m.enriched && m.mutualCount != null && m.mutualCount > 0) {
+                statsMutual.setText(getContext().getResources().getQuantityString(
+                        R.plurals.friends_stat_mutual, m.mutualCount, m.mutualCount));
+                statsMutual.setVisibility(View.VISIBLE);
+            }
+        }
         Glide.with(getContext())
                 .load(hiveImgTpl.replace("USERNAME", m.username))
                 .placeholder(R.drawable.default_pic)
@@ -90,6 +111,10 @@ public class FriendEntryAdapter extends ArrayAdapter<FriendModel> {
                 labelRes = R.string.friends_action_cancel;
                 tint = R.color.md_theme_textSecondary;
                 break;
+            case SUGGESTED:
+                labelRes = R.string.friends_action_add;
+                tint = R.color.md_theme_primary;
+                break;
             case FRIEND:
             default:
                 labelRes = R.string.friends_action_unfriend;
@@ -97,6 +122,7 @@ public class FriendEntryAdapter extends ArrayAdapter<FriendModel> {
                 break;
         }
         action.setText(labelRes);
+        action.setContentDescription(getContext().getString(labelRes) + " @" + m.username);
         action.setBackgroundTintList(
                 android.content.res.ColorStateList.valueOf(getContext().getResources().getColor(tint)));
 
@@ -118,5 +144,36 @@ public class FriendEntryAdapter extends ArrayAdapter<FriendModel> {
         convertView.setOnClickListener(openProfile);
 
         return convertView;
+    }
+
+    /**
+     * Line 1 of a suggestion: "1.3K reports · 20K AFIT". Built only from parts that actually
+     * loaded, so a failed enrichment fetch (field left null) is omitted rather than shown as a
+     * misleading "0" — and a genuine zero (fetch returned 0) is shown honestly.
+     */
+    private String buildPrimaryStats(FriendModel m) {
+        java.util.ArrayList<String> top = new java.util.ArrayList<>();
+        if (m.activityCount != null) {
+            top.add(getContext().getResources().getQuantityString(
+                    R.plurals.friends_stat_reports, m.activityCount, compact(m.activityCount)));
+        }
+        if (m.afit != null && !m.afit.isEmpty()) {
+            top.add(getContext().getString(R.string.friends_stat_afit, m.afit));
+        }
+        return top.isEmpty() ? null : android.text.TextUtils.join(" · ", top);
+    }
+
+    /** Compact large numbers: 1303 → "1.3K", 44573 → "45K", 2_100_000 → "2.1M". */
+    public static String compact(long n) {
+        if (n < 1000) return String.valueOf(n);
+        String[] units = {"K", "M", "B"};
+        double val = n;
+        int u = -1;
+        while (val >= 1000 && u < units.length - 1) { val /= 1000; u++; }
+        // One decimal only below 10 (1.3K); 10+ rounds to a whole number (45K, 90K).
+        String num = (val >= 10 || val == Math.floor(val))
+                ? String.valueOf(Math.round(val))
+                : String.format(java.util.Locale.US, "%.1f", val);
+        return num + units[u];
     }
 }

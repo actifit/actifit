@@ -41,16 +41,25 @@ public class FriendAccountAdapter extends ArrayAdapter<String> implements Filter
     private static final int TIMEOUT_MS = 4000;
 
     private final String apiBase;      // Utils.apiUrl(ctx)
-    private final String hiveNode;     // e.g. https://hiveapi.actifit.io
+    private final List<String> hiveNodes; // tried in order until one answers
     private final String currentUser;
 
     private final List<String> suggestions = new ArrayList<>();
     private volatile List<String> friends = null; // lazily loaded + cached
 
     public FriendAccountAdapter(@NonNull Context ctx, String apiBase, String hiveNode, String currentUser) {
+        this(ctx, apiBase, hiveNode == null || hiveNode.isEmpty()
+                ? new String[0] : new String[]{hiveNode}, currentUser);
+    }
+
+    /** Multi-node variant: falls back through {@code hiveNodes} if the first is unreachable. */
+    public FriendAccountAdapter(@NonNull Context ctx, String apiBase, String[] hiveNodes, String currentUser) {
         super(ctx, android.R.layout.simple_dropdown_item_1line);
         this.apiBase = apiBase;
-        this.hiveNode = hiveNode;
+        this.hiveNodes = new ArrayList<>();
+        if (hiveNodes != null) {
+            for (String n : hiveNodes) if (n != null && !n.isEmpty()) this.hiveNodes.add(n);
+        }
         this.currentUser = currentUser == null ? "" : currentUser.toLowerCase(Locale.ROOT);
     }
 
@@ -147,26 +156,28 @@ public class FriendAccountAdapter extends ArrayAdapter<String> implements Filter
 
     private List<String> lookupHiveAccounts(String prefix, int limit) {
         List<String> list = new ArrayList<>();
-        if (hiveNode == null || hiveNode.isEmpty()) {
-            return list;
-        }
-        try {
-            String payload = "{\"jsonrpc\":\"2.0\",\"method\":\"condenser_api.lookup_accounts\",\"params\":[\""
-                    + prefix + "\"," + limit + "],\"id\":1}";
-            String resp = httpPost(hiveNode, payload);
-            if (resp != null) {
-                JSONArray arr = new JSONObject(resp).optJSONArray("result");
-                if (arr != null) {
-                    for (int i = 0; i < arr.length(); i++) {
-                        String n = arr.optString(i, "");
-                        if (!n.isEmpty()) {
-                            list.add(n);
+        String payload = "{\"jsonrpc\":\"2.0\",\"method\":\"condenser_api.lookup_accounts\",\"params\":[\""
+                + prefix + "\"," + limit + "],\"id\":1}";
+        // Try each node in turn; stop at the first that ANSWERS (a valid `result` array), even
+        // if empty — an empty match is a real answer, not a failure, so we don't hit every node.
+        for (String node : hiveNodes) {
+            try {
+                String resp = httpPost(node, payload);
+                if (resp != null) {
+                    JSONArray arr = new JSONObject(resp).optJSONArray("result");
+                    if (arr != null) {
+                        for (int i = 0; i < arr.length(); i++) {
+                            String n = arr.optString(i, "");
+                            if (!n.isEmpty()) {
+                                list.add(n);
+                            }
                         }
+                        return list;   // node answered — done, empty or not
                     }
                 }
+            } catch (Exception e) {
+                Log.w(TAG, "hive lookup failed on " + node + ": " + e.getMessage());
             }
-        } catch (Exception e) {
-            Log.w(TAG, "hive lookup failed: " + e.getMessage());
         }
         return list;
     }

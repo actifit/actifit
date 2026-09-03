@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/friends_load_more_footer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:paddingTop="@dimen/spacing_md"
+    android:paddingBottom="@dimen/spacing_md"
+    android:visibility="gone">
+
+    <ProgressBar
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="@dimen/spacing_sm" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/friends_loading_more"
+        android:textSize="@dimen/text_subtitle"
+        android:textColor="@color/md_theme_textSecondary" />
+
+</LinearLayout>

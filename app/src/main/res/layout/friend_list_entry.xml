@@ -30,23 +30,52 @@
         android:src="@drawable/default_pic"
         app:civ_border_width="0dp" />
 
-    <TextView
-        android:id="@+id/friend_handle"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="@dimen/spacing_md"
-        android:textSize="@dimen/text_body"
-        android:textStyle="bold"
-        android:ellipsize="end"
-        android:maxLines="1" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/friend_handle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_body"
+            android:textStyle="bold"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <!-- Suggestion stats line 1 (reports · AFIT); SUGGESTED rows only -->
+        <TextView
+            android:id="@+id/friend_stats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/md_theme_textSecondary"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:visibility="gone" />
+
+        <!-- Suggestion stats line 2 (mutual friends) on its own line so it never truncates -->
+        <TextView
+            android:id="@+id/friend_stats_mutual"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/md_theme_textSecondary"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
     <!-- Action button (Add / Accept / Cancel / Unfriend) -->
     <Button
         android:id="@+id/friend_action_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="96dp"
+        android:minWidth="80dp"
         android:minHeight="48dp"
         android:paddingStart="@dimen/spacing_md"
         android:paddingEnd="@dimen/spacing_md"

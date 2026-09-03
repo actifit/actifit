@@ -90,6 +90,18 @@ public class NotificationEntryAdapter extends ArrayAdapter<NotificationModel> {
             // mark as read
             Utils.markNotifRead(ctx, activity, MainActivity.username, notifEntry._id);
 
+            // Friend-management notifications deep-link into the native Friends screen
+            // instead of opening the web CustomTab.
+            if ("friendship_request".equals(notifEntry.type)
+                    || "friendship_acceptance".equals(notifEntry.type)) {
+                Intent friendsIntent = new Intent(ctx, FriendsActivity.class);
+                friendsIntent.putExtra(FriendsActivity.EXTRA_INITIAL_TAB,
+                        "friendship_request".equals(notifEntry.type)
+                                ? FriendsActivity.TAB_REQUESTS : FriendsActivity.TAB_FRIENDS);
+                ctx.startActivity(friendsIntent);
+                return;
+            }
+
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
             builder.setToolbarColor(ctx.getResources().getColor(R.color.actifitRed));

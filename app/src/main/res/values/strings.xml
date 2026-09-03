@@ -765,9 +765,11 @@
     <string name="friends_title">Friends</string>
     <string name="friends_tab_friends">Friends</string>
     <string name="friends_tab_requests">Requests</string>
+    <string name="friends_tab_suggested">Suggested</string>
     <string name="friends_received">RECEIVED</string>
     <string name="friends_sent">SENT</string>
     <string name="friends_action_accept">Accept</string>
+    <string name="friends_action_add">Add</string>
     <string name="friends_action_cancel">Cancel</string>
     <string name="friends_action_unfriend">Unfriend</string>
     <string name="friends_action_loading">…</string>
@@ -782,8 +784,21 @@
     </plurals>
     <string name="friends_empty_friends">You don\'t have any friends yet. Search a username above, or open an Actifitter\'s profile and send a request!</string>
     <string name="friends_empty_requests">No pending friend requests.</string>
+    <string name="friends_empty_suggested">No suggestions right now. Try searching for a username above!</string>
+    <string name="friends_stats_loading">Loading details…</string>
+    <string name="friends_loading_more">Loading more…</string>
+    <string name="friends_stat_afit">%1$s AFIT</string>
+    <plurals name="friends_stat_reports">
+        <item quantity="one">%1$s report</item>
+        <item quantity="other">%1$s reports</item>
+    </plurals>
+    <plurals name="friends_stat_mutual">
+        <item quantity="one">%1$d mutual friend</item>
+        <item quantity="other">%1$d mutual friends</item>
+    </plurals>
     <string name="friends_confirm_unfriend">Remove @%1$s from your friends?</string>
     <string name="friends_action_done">Done</string>
+    <string name="friends_request_sent">Friend request sent</string>
     <string name="friends_action_failed">Something went wrong, please try again</string>
     <string name="friends_error_login">Please log in to manage friends</string>
     <string name="profile_friend_add">Add Friend</string>
