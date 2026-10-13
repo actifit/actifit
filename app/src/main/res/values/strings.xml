@@ -904,4 +904,24 @@
     <string name="arena_prize_daily">Earn AFIT for every goal you reach.</string>
     <string name="arena_prize_event">Earn AFIT and event rewards.</string>
     <string name="arena_prize_default">Earn AFIT for taking part.</string>
+    <string name="arena_home_rank">Rank #%1$d · %2$s</string>
+    <string name="arena_home_no_score">No score yet — post today\'s report to get on the board.</string>
+    <string name="arena_home_join_title">Join a challenge</string>
+    <plurals name="arena_home_open">
+        <item quantity="one">%d challenge is open — free to join, earn AFIT for staying active.</item>
+        <item quantity="other">%d challenges are open — free to join, earn AFIT for staying active.</item>
+    </plurals>
+    <string name="arena_my_rank">You are #%1$d · %2$s</string>
+    <string name="arena_my_gap">%1$s behind #%2$d</string>
+    <string name="arena_my_leading">You are in the lead.</string>
+    <string name="arena_my_unranked">You are not on the board yet.</string>
+    <string name="arena_today_steps">Today on this phone: %1$s steps. They only count once you post your report.</string>
+    <string name="arena_today_goal">Today on this phone: %1$s of %2$s steps. They only count once you post your report.</string>
+    <string name="arena_report_counts">This report counts toward your Arena challenges once it is verified.</string>
+    <plurals name="arena_badges_header">
+        <item quantity="one">Arena badge (%d)</item>
+        <item quantity="other">Arena badges (%d)</item>
+    </plurals>
+    <string name="arena_badge_row">%1$s — %2$s</string>
+    <string name="arena_badge_row_community">%1$s — %2$s · Community</string>
 </resources>

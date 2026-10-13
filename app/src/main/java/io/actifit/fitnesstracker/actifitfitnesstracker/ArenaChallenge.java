@@ -46,6 +46,30 @@ public class ArenaChallenge {
         }
     }
 
+    /** A badge a user earned, from `arena/badges/:user`. */
+    public static class Badge {
+        public String name = "";
+        public String challengeTitle = "";
+        // A badge name is free text chosen by a challenge creator; only official ones are unmarked.
+        public boolean official = false;
+    }
+
+    public static List<Badge> badgesFromJson(JSONObject doc) {
+        List<Badge> out = new ArrayList<>();
+        JSONArray arr = doc == null ? null : doc.optJSONArray("badges");
+        if (arr == null) return out;
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject bo = arr.optJSONObject(i);
+            if (bo == null) continue;
+            Badge b = new Badge();
+            b.name = str(bo, "badge");
+            b.challengeTitle = str(bo, "title");
+            b.official = "official".equals(str(bo, "origin_tier"));
+            if (!b.name.isEmpty()) out.add(b);
+        }
+        return out;
+    }
+
     /** One row of the materialized standings board. */
     public static class StandingRow {
         public String entity = "";

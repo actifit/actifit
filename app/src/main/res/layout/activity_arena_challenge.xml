@@ -384,6 +384,22 @@
                     android:textSize="12sp"
                     android:visibility="gone" />
 
+                <!-- The viewer's own position and the gap to the next rank -->
+                <TextView
+                    android:id="@+id/arena_my_standing"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:layout_marginEnd="@dimen/spacing_md"
+                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:padding="12dp"
+                    android:lineSpacingMultiplier="1.2"
+                    android:textColor="@color/md_theme_onSurface"
+                    android:textSize="@dimen/text_body"
+                    android:textStyle="bold"
+                    android:background="@drawable/profile_stat_tile"
+                    android:visibility="gone" />
+
                 <LinearLayout
                     android:id="@+id/arena_standings_container"
                     android:layout_width="match_parent"
