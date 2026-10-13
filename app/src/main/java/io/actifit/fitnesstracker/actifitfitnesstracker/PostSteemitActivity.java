@@ -1277,7 +1277,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 // flag a successful post so MainActivity can prompt for the DHF vote on return
                 context.getSharedPreferences("actifitSets", Context.MODE_PRIVATE)
                         .edit().putBoolean("dhfJustPosted", true).apply();
-                if (ArenaHomeCard.inChallenge()) {
+                if (ArenaHomeCard.inChallenge(context.getSharedPreferences("actifitSets", Context.MODE_PRIVATE)
+                        .getString("actifitUser", ""))) {
                     builder1.setMessage(notification + "\n\n" + getString(R.string.arena_report_counts));
                 }
                 builder1.setIcon(getResources().getDrawable(R.drawable.success_icon));

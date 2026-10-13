@@ -245,10 +245,10 @@ public class ArenaChallengeActivity extends BaseActivity {
         // Stored BEFORE sending: if the user leaves mid-request the op may still land, and
         // the next visit must not offer the same action again.
         ArenaPendingStore.put(this, me, id, leaving ? ArenaLogic.OP_LEAVE : ArenaLogic.OP_JOIN);
+        ArenaHomeCard.invalidate();   // membership is changing; the dashboard card must refetch
         renderAction();
         ArenaApi.ActionCallback done = success -> {
             acting = false;
-            ArenaHomeCard.invalidate();   // membership changed; the dashboard card must refetch
             if (!success) {
                 ArenaPendingStore.clear(this, me, id);
                 statusRes = R.string.arena_action_failed;
@@ -312,13 +312,13 @@ public class ArenaChallengeActivity extends BaseActivity {
             ArenaChallenge.StandingRow r = standings.get(i);
             if (!r.entity.equals(me)) continue;
             text = getString(R.string.arena_my_rank, r.rank, formatNumber(r.score)) + "\n";
-            if (i == 0) {
-                text += getString(R.string.arena_my_leading);
-            } else {
-                ArenaChallenge.StandingRow ahead = standings.get(i - 1);
-                text += getString(R.string.arena_my_gap,
-                        formatNumber(Math.max(0, ahead.score - r.score)), ahead.rank);
+            // The row above may be tied with me; the gap is to the nearest better rank.
+            ArenaChallenge.StandingRow ahead = null;
+            for (int j = i - 1; j >= 0 && ahead == null; j--) {
+                if (standings.get(j).rank < r.rank) ahead = standings.get(j);
             }
+            text += ahead == null ? getString(R.string.arena_my_leading)
+                    : getString(R.string.arena_my_gap, formatNumber(Math.max(0, ahead.score - r.score)), ahead.rank);
             break;
         }
         out.setText(text);
@@ -327,9 +327,12 @@ public class ArenaChallengeActivity extends BaseActivity {
 
     /** Today's steps on this phone, so a participant sees what is waiting on a report. */
     private String todayText(ArenaChallenge c) {
+        // Steps say nothing about a distance-scored challenge.
+        if ("distance".equals(c.metric)) return getString(R.string.arena_report_note);
         int steps;
         try {
-            steps = new StepsDBHelper(this).fetchTodayStepCount();
+            // -1 when nothing has been recorded today
+            steps = Math.max(0, new StepsDBHelper(this).fetchTodayStepCount());
         } catch (Exception e) {
             return getString(R.string.arena_report_note);
         }
