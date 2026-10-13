@@ -50,7 +50,7 @@ public class ArenaChallenge {
     public static class StandingRow {
         public String entity = "";
         public int rank = 0;
-        public long score = 0;
+        public double score = 0;   // distance-scored challenges are fractional
     }
 
     public static ArenaChallenge fromJson(JSONObject o) {
@@ -135,7 +135,7 @@ public class ArenaChallenge {
             StandingRow r = new StandingRow();
             r.entity = str(ro, "entity");
             r.rank = ro.optInt("rank", i + 1);
-            r.score = ro.optLong("score", 0);
+            r.score = ro.optDouble("score", 0);
             if (!r.entity.isEmpty()) rows.add(r);
         }
         return rows;

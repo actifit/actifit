@@ -40,6 +40,8 @@ public class ArenaChallengeActivity extends BaseActivity {
     private long standingsAtMs = -1;
     private boolean acting = false;
     private int statusRes = 0;
+    // Bumped per load(); an older response arriving late must not overwrite a newer one.
+    private int loadGeneration = 0;
 
     private View scroll, progress, actionBar;
     private TextView message, actionStatus;
@@ -77,7 +79,13 @@ public class ArenaChallengeActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        if (arenaQueue != null) arenaQueue.cancelAll(req -> true);
+        actionButton.removeCallbacks(reload);
+        if (arenaQueue != null) {
+            // A join/leave still in flight is NOT cancelled server-side; its optimistic
+            // state was stored before sending, so the next visit still reflects it.
+            arenaQueue.cancelAll(req -> true);
+            arenaQueue.stop();
+        }
         super.onDestroy();
     }
 
@@ -86,7 +94,9 @@ public class ArenaChallengeActivity extends BaseActivity {
             progress.setVisibility(View.VISIBLE);
             message.setVisibility(View.GONE);
         }
+        final int gen = ++loadGeneration;
         ArenaApi.getChallenge(this, arenaQueue, challengeId, me, (detail, notFound) -> {
+            if (gen != loadGeneration) return;
             progress.setVisibility(View.GONE);
             if (detail == null) {
                 // Keep showing what we have if only a refresh failed.
@@ -96,10 +106,19 @@ public class ArenaChallengeActivity extends BaseActivity {
                 return;
             }
             challenge = detail;
+            // The "couldn't confirm" note belongs to one load; a failed-action note stays
+            // until the next tap.
+            if (statusRes == R.string.arena_pending_expired) statusRes = 0;
             noteExpiredPending();
             render();
         });
         ArenaApi.getStandings(this, arenaQueue, challengeId, (rows, computedAtMs) -> {
+            if (gen != loadGeneration) return;
+            if (rows == null) {
+                // Failed refresh: keep the board we have rather than claim there is none.
+                if (standings != null) return;
+                rows = new java.util.ArrayList<>();
+            }
             standings = rows;
             standingsAtMs = computedAtMs;
             if (challenge != null) renderStandings();
@@ -213,8 +232,7 @@ public class ArenaChallengeActivity extends BaseActivity {
 
     private void onActionClicked() {
         if (challenge == null || acting) return;
-        if (me == null || me.isEmpty() || LoginActivity.accessToken == null
-                || LoginActivity.accessToken.isEmpty()) {
+        if (me == null || me.isEmpty()) {
             startActivity(new Intent(this, LoginActivity.class));
             return;
         }
@@ -223,27 +241,29 @@ public class ArenaChallengeActivity extends BaseActivity {
         final String id = challenge.id;
         acting = true;
         statusRes = 0;
+        // Stored BEFORE sending: if the user leaves mid-request the op may still land, and
+        // the next visit must not offer the same action again.
+        ArenaPendingStore.put(this, me, id, leaving ? ArenaLogic.OP_LEAVE : ArenaLogic.OP_JOIN);
         renderAction();
         ArenaApi.ActionCallback done = success -> {
             acting = false;
-            if (success) {
-                ArenaPendingStore.put(this, me, id, leaving ? ArenaLogic.OP_LEAVE : ArenaLogic.OP_JOIN);
-                // The backend indexes the op within a few blocks; look again so the
-                // screen settles on its own instead of waiting for the user to come back.
-                actionButton.postDelayed(this::reloadIfAlive, 10000);
-                actionButton.postDelayed(this::reloadIfAlive, 30000);
-            } else {
+            if (!success) {
+                ArenaPendingStore.clear(this, me, id);
                 statusRes = R.string.arena_action_failed;
             }
+            // The backend indexes the op within a few blocks; look again so the screen
+            // settles on its own. Also after a failure — a timed-out request may have landed.
+            actionButton.postDelayed(reload, 10000);
+            actionButton.postDelayed(reload, 30000);
             renderAction();
         };
         if (leaving) ArenaApi.leave(this, arenaQueue, me, id, done);
         else ArenaApi.join(this, arenaQueue, me, id, done);
     }
 
-    private void reloadIfAlive() {
+    private final Runnable reload = () -> {
         if (!isFinishing() && !isDestroyed() && !acting) load();
-    }
+    };
 
     private void renderStandings() {
         LinearLayout container = findViewById(R.id.arena_standings_container);

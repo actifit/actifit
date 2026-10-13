@@ -20,10 +20,14 @@ import java.util.List;
 /** Challenge cards for the Arena home list. Also hosts the display helpers the detail screen shares. */
 public class ArenaCardAdapter extends ArrayAdapter<ArenaChallenge> {
 
-    private final String me;
+    private String me;
 
     public ArenaCardAdapter(Context ctx, ArrayList<ArenaChallenge> items, String me) {
         super(ctx, 0, items);
+        this.me = me;
+    }
+
+    public void setUser(String me) {
         this.me = me;
     }
 

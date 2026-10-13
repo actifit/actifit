@@ -49,7 +49,7 @@ public final class ArenaApi {
     }
 
     public interface StandingsCallback {
-        /** Never null: no board yet (or a failed fetch) is an empty list. */
+        /** @param rows empty when no board exists yet; null when the fetch failed */
         void onResult(List<ArenaChallenge.StandingRow> rows, long computedAtMs);
     }
 
@@ -112,7 +112,7 @@ public final class ArenaApi {
                     }
                     cb.onResult(rows, computedAt);
                 },
-                error -> cb.onResult(new ArrayList<>(), -1));
+                error -> cb.onResult(null, -1));
         addRead(queue, req);
     }
 
@@ -126,9 +126,17 @@ public final class ArenaApi {
 
     private static void broadcast(Context ctx, RequestQueue queue, String me, String op,
                                   String challengeId, ActionCallback cb) {
-        if (me == null || me.isEmpty() || challengeId == null || challengeId.isEmpty()
-                || LoginActivity.accessToken == null || LoginActivity.accessToken.isEmpty()) {
+        if (me == null || me.isEmpty() || challengeId == null || challengeId.isEmpty()) {
             cb.onDone(false);
+            return;
+        }
+        if (LoginActivity.accessToken == null || LoginActivity.accessToken.isEmpty()) {
+            // The token is a static filled at app start; it is empty if that login call
+            // failed or the process was restored straight into this screen. Fetch it once.
+            refreshToken(ctx, queue, me, ok -> {
+                if (ok) broadcast(ctx, queue, me, op, challengeId, cb);
+                else cb.onDone(false);
+            });
             return;
         }
         try {
@@ -172,6 +180,35 @@ public final class ArenaApi {
             req.setRetryPolicy(new DefaultRetryPolicy(BROADCAST_TIMEOUT_MS, 0, 1f));
             req.setShouldCache(false);
             queue.add(req);
+        } catch (Exception e) {
+            cb.onDone(false);
+        }
+    }
+
+    /** Re-authenticates with the stored posting key, as SocialActivity/MarketActivity do. */
+    private static void refreshToken(Context ctx, RequestQueue queue, String me, ActionCallback cb) {
+        String pkey = ctx.getSharedPreferences("actifitSets", Context.MODE_PRIVATE).getString("actifitPst", "");
+        if (pkey.isEmpty()) {
+            cb.onDone(false);
+            return;
+        }
+        try {
+            JSONObject login = new JSONObject();
+            login.put(ctx.getString(R.string.username_param), me);
+            login.put(ctx.getString(R.string.pkey_param), pkey);
+            login.put(ctx.getString(R.string.bchain_param), "HIVE");
+            login.put(ctx.getString(R.string.keeploggedin_param), false);
+            login.put(ctx.getString(R.string.login_source), ctx.getString(R.string.android) + BuildConfig.VERSION_NAME);
+            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,
+                    Utils.apiUrl(ctx) + ctx.getString(R.string.login_auth), login,
+                    response -> {
+                        String token = response.has("success")
+                                ? response.optString(ctx.getString(R.string.login_token), "") : "";
+                        if (!token.isEmpty()) LoginActivity.accessToken = token;
+                        cb.onDone(!token.isEmpty());
+                    },
+                    error -> cb.onDone(false));
+            addRead(queue, req);
         } catch (Exception e) {
             cb.onDone(false);
         }

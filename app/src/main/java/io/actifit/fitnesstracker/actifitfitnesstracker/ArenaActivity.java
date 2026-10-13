@@ -43,7 +43,7 @@ public class ArenaActivity extends BaseActivity {
     // Bumped on every reload; a response from a superseded load is ignored.
     private int generation = 0;
     private boolean runningLoading = false, runningFailed = false, runningLoaded = false;
-    private boolean mineLoading = false, mineLoaded = false;
+    private boolean mineLoading = false, mineLoaded = false, mineFailed = false;
     private boolean resultsLoading = false, resultsLoaded = false, resultsFailed = false;
     private boolean refreshQueued = false;
 
@@ -77,6 +77,7 @@ public class ArenaActivity extends BaseActivity {
         emptyState.setOnClickListener(v -> {
             if (currentTab == TAB_RESULTS && resultsFailed) loadResults();
             else if (runningFailed) loadRunning();
+            else if (currentTab == TAB_MINE && mineFailed) loadMinePast();
         });
 
         selectTab(TAB_OPEN);
@@ -85,13 +86,19 @@ public class ArenaActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Re-read the user: they may have logged in from a challenge screen.
+        me = getSharedPreferences("actifitSets", MODE_PRIVATE).getString("actifitUser", "");
+        adapter.setUser(me);
         // Also the first load. Coming back from a challenge, membership may have changed.
         loadRunning();
     }
 
     @Override
     protected void onDestroy() {
-        if (arenaQueue != null) arenaQueue.cancelAll(req -> true);
+        if (arenaQueue != null) {
+            arenaQueue.cancelAll(req -> true);
+            arenaQueue.stop();
+        }
         super.onDestroy();
     }
 
@@ -124,18 +131,20 @@ public class ArenaActivity extends BaseActivity {
 
         final List<ArenaChallenge> merged = new ArrayList<>();
         final int[] pending = {2};
-        final boolean[] anyOk = {false};
+        // Both halves must succeed: swapping in only the open or only the active list
+        // would make the other half's challenges silently vanish.
+        final boolean[] allOk = {true};
         ArenaApi.ListCallback onPart = list -> {
             if (gen != generation) return;
-            if (list != null) {
-                anyOk[0] = true;
-                merged.addAll(list);
-            }
+            if (list != null) merged.addAll(list);
+            else allOk[0] = false;
             if (--pending[0] > 0) return;
             runningLoading = false;
-            runningFailed = !anyOk[0];
-            runningLoaded = anyOk[0];
-            if (anyOk[0]) {
+            // A failed refresh keeps the list already on screen; it is only an error state
+            // when there is nothing to show.
+            runningFailed = !allOk[0] && !runningLoaded;
+            if (allOk[0]) {
+                runningLoaded = true;
                 // Soonest to close first — that is the one worth acting on now.
                 Collections.sort(merged, (a, b) -> Long.compare(a.endMs, b.endMs));
                 // Keep what the last detail calls told us until the fresh ones land, so
@@ -183,16 +192,22 @@ public class ArenaActivity extends BaseActivity {
         }
         final int gen = generation;
         mineLoading = true;
+        mineFailed = false;
         render();
         ArenaApi.listChallenges(this, arenaQueue, "settled", me, list -> {
+            mineLoading = false;
             if (gen != generation) {
-                mineLoading = false;
+                // Superseded by a reload that skipped Mine because this call was in flight.
+                if (currentTab == TAB_MINE) loadMinePast();
+                else render();
                 return;
             }
-            mineLoading = false;
-            mineLoaded = true;
-            minePast.clear();
-            if (list != null) {
+            if (list == null) {
+                // Keep whatever was already loaded; a network error is not "nothing joined".
+                mineFailed = true;
+            } else {
+                mineLoaded = true;
+                minePast.clear();
                 sortNewestFirst(list);
                 minePast.addAll(list.subList(0, Math.min(list.size(), MAX_RESULTS)));
             }
@@ -246,8 +261,13 @@ public class ArenaActivity extends BaseActivity {
                 if (ArenaCardAdapter.isJoined(this, me, c)) current.add(c);
             }
             current.addAll(minePast);
-            loading = (runningLoading && !runningLoaded) || mineLoading;
-            failed = runningFailed;
+            // Membership comes from the per-card detail calls, so until those land an
+            // empty Mine list means "not known yet", not "nothing joined".
+            boolean membershipPending = false;
+            for (ArenaChallenge c : running) membershipPending |= c.participantCount < 0;
+            loading = (runningLoading && !runningLoaded) || mineLoading
+                    || (membershipPending && me != null && !me.isEmpty());
+            failed = runningFailed || mineFailed;
             emptyText = (me == null || me.isEmpty())
                     ? R.string.arena_empty_mine_login : R.string.arena_empty_mine;
         } else {
