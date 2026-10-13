@@ -1004,7 +1004,6 @@ public class MainActivity extends BaseActivity {
         thirdPartyTracking = findViewById(R.id.third_party_active);
         healthConnectTracking = findViewById(R.id.health_connect_active);
 
-        View BtnLeaderboard = findViewById(R.id.btn_view_leaderboard);
         TextView BtnWallet = findViewById(R.id.btn_view_wallet);
         TextView BtnViewNotifications = findViewById(R.id.btn_view_notifications);
         LinearLayout BtnWalletAltContainer = findViewById(R.id.wallet_alt_container);
@@ -2035,17 +2034,7 @@ public class MainActivity extends BaseActivity {
 
         });
 
-        // handle activity to move over to the Leaderboard screen
-        BtnLeaderboard.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-
-                Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
-                MainActivity.this.startActivity(intent);
-
-            }
-        });
+        // The footer's Arena button (which replaced Leaderboard) is wired in BaseActivity.
 
         BtnWalletAltContainer.setOnClickListener(arg0 -> BtnWallet.performClick());
 

@@ -80,9 +80,10 @@ public class BaseActivity extends AppCompatActivity {
             btnHome.setSelected(this instanceof MainActivity);
         }
 
-        View btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
-        if (btnLeaderboard != null) {
-            btnLeaderboard.setSelected(this instanceof LeaderboardActivity);
+        View btnArena = findViewById(R.id.btn_view_arena);
+        if (btnArena != null) {
+            btnArena.setSelected(this instanceof ArenaActivity
+                    || this instanceof ArenaChallengeActivity);
         }
 
         View btnMarket = findViewById(R.id.btn_view_market);
@@ -104,7 +105,8 @@ public class BaseActivity extends AppCompatActivity {
         if (btnMoreFooter != null) {
             btnMoreFooter.setSelected(this instanceof StepHistoryActivity
                     || this instanceof BodyMetricsActivity
-                    || this instanceof FriendsActivity);
+                    || this instanceof FriendsActivity
+                    || this instanceof LeaderboardActivity);
         }
     }
 
@@ -131,7 +133,7 @@ public class BaseActivity extends AppCompatActivity {
         View btnHome = findViewById(R.id.btn_home);
         TextView btnSocials = findViewById(R.id.btn_socials);
         TextView btnChat = findViewById(R.id.btn_chat);
-        View btnLeaderboard = findViewById(R.id.btn_view_leaderboard);
+        View btnArena = findViewById(R.id.btn_view_arena);
         TextView btnVideo = findViewById(R.id.btn_video);
         TextView btnHelp = findViewById(R.id.btn_help);
         View btnMarket = findViewById(R.id.btn_view_market);
@@ -284,13 +286,14 @@ public class BaseActivity extends AppCompatActivity {
             // Log.w(TAG, "BtnMarket view not found...");
         }
 
-        if (btnLeaderboard != null) {
-            btnLeaderboard.setOnClickListener(arg0 -> {
-                if (!(this instanceof LeaderboardActivity)) {
-                    Intent intent = new Intent(this, LeaderboardActivity.class);
+        if (btnArena != null) {
+            btnArena.setOnClickListener(arg0 -> {
+                if (!(this instanceof ArenaActivity)) {
+                    Intent intent = new Intent(this, ArenaActivity.class);
+                    // From a challenge, return to the existing Arena home rather than stacking a second one.
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
                 }
-                //}
             });
         } else {
             // Log.w(TAG, "BtnMarket view not found...");
@@ -371,6 +374,15 @@ public class BaseActivity extends AppCompatActivity {
                 startActivity(new Intent(this, FriendsActivity.class));
         });
         loadFriendsBadge((TextView) sheetView.findViewById(R.id.more_item_friends_badge));
+        View leaderboardItem = sheetView.findViewById(R.id.more_item_leaderboard);
+        if (this instanceof LeaderboardActivity) {
+            leaderboardItem.setBackgroundColor(0x1AFF112D);
+        }
+        leaderboardItem.setOnClickListener(v -> {
+            sheet.dismiss();
+            if (!(this instanceof LeaderboardActivity))
+                startActivity(new Intent(this, LeaderboardActivity.class));
+        });
         sheetView.findViewById(R.id.more_item_share).setOnClickListener(v -> {
             sheet.dismiss();
             Intent i = new Intent(this, ShareAchievementActivity.class);

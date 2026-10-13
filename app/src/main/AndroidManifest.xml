@@ -200,6 +200,8 @@
     <activity android:name=".WalletActivity" />
     <activity android:name=".BodyMetricsActivity" android:exported="false" />
     <activity android:name=".FriendsActivity" android:exported="false" />
+    <activity android:name=".ArenaActivity" android:exported="false" />
+    <activity android:name=".ArenaChallengeActivity" android:exported="false" />
     <activity android:name=".NotificationsActivity" />
     <activity android:name=".DailyDetailedActivity" />
     <activity android:name=".HistoryChartActivity" />

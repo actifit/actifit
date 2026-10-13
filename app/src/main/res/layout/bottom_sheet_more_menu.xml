@@ -114,6 +114,36 @@
             android:visibility="gone" />
     </LinearLayout>
 
+    <!-- Daily Leaderboard (moved here when the Arena took its footer slot) -->
+    <LinearLayout
+        android:id="@+id/more_item_leaderboard"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:textColor="@color/actifitRed"
+            android:textSize="18sp"
+            android:text="&#xf0cb;" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:textSize="15sp"
+            android:text="@string/more_menu_leaderboard" />
+    </LinearLayout>
+
     <!-- Body Metrics -->
     <LinearLayout
         android:id="@+id/more_item_body_metrics"

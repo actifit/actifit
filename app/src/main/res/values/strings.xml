@@ -820,4 +820,88 @@
     <string name="body_metrics_login_required">Please log in to see your body-metric trends.</string>
     <string name="body_metrics_retry">Retry</string>
     <string name="body_metrics_bodyfat_unit" translatable="false">%</string>
+
+    <!-- The Arena (challenge engine). Wording follows the web Arena_* strings. Prize copy must
+         never use wagering language (bet, wager, stake, odds, jackpot, entry fee). -->
+    <string name="arena_title">The Arena</string>
+    <string name="footer_arena">Arena</string>
+    <string name="more_menu_leaderboard">Daily Leaderboard</string>
+    <string name="arena_subtitle">Fitness challenges, leagues and seasons — earn rewards for staying active.</string>
+    <string name="arena_tab_open">Open</string>
+    <string name="arena_tab_mine">Mine</string>
+    <string name="arena_tab_results">Results</string>
+    <string name="arena_empty_open">No open challenges right now. Check back soon.</string>
+    <string name="arena_empty_mine">You haven\'t joined a challenge yet. Pick one from Open.</string>
+    <string name="arena_empty_mine_login">Log in to see your challenges.</string>
+    <string name="arena_empty_results">No finished challenges yet.</string>
+    <string name="arena_load_error">Couldn\'t load the Arena. Tap to try again.</string>
+    <string name="arena_not_found">Challenge not found.</string>
+    <string name="arena_join">Join Challenge</string>
+    <string name="arena_leave">Leave</string>
+    <string name="arena_joined">You are in!</string>
+    <string name="arena_joined_short">Joined</string>
+    <string name="arena_login_to_join">Log in to join this challenge</string>
+    <string name="arena_working">Sending…</string>
+    <string name="arena_join_pending">Recording on-chain — it may take a minute to appear on the board.</string>
+    <string name="arena_leave_pending">Leaving — it may take a minute to update.</string>
+    <string name="arena_action_failed">Something went wrong. Please try again.</string>
+    <string name="arena_pending_expired">We couldn\'t confirm your last request. Please try again.</string>
+    <string name="arena_closed">This challenge has ended.</string>
+    <string name="arena_ends_in_days">Ends in %1$dd %2$dh</string>
+    <string name="arena_ends_in_hours">Ends in %1$dh %2$dm</string>
+    <string name="arena_ends_in_minutes">Ends in %1$dm</string>
+    <string name="arena_ended">Ended</string>
+    <string name="arena_ended_on">Ended %1$s</string>
+    <plurals name="arena_participants">
+        <item quantity="one">%d joined</item>
+        <item quantity="other">%d joined</item>
+    </plurals>
+    <plurals name="arena_duration_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="arena_duration_weeks">
+        <item quantity="one">%d week</item>
+        <item quantity="other">%d weeks</item>
+    </plurals>
+    <plurals name="arena_duration_months">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <string name="arena_length">Length</string>
+    <string name="arena_starts">Starts</string>
+    <string name="arena_ends">Ends</string>
+    <string name="arena_scored_by">Scored by</string>
+    <string name="arena_metric_activity">Total activity</string>
+    <string name="arena_metric_goal">Daily goal hits</string>
+    <string name="arena_metric_goal_target">Daily goal hits (%1$s)</string>
+    <string name="arena_metric_steps">Step count</string>
+    <string name="arena_metric_distance">Distance</string>
+    <string name="arena_how_it_works">How it works</string>
+    <string name="arena_prizes">Prizes</string>
+    <string name="arena_badge_award">Winners earn the badge:</string>
+    <string name="arena_fair_play">Rewards are earned AFIT and collectible badges — free to enter, decided by verified activity, never pay-to-win.</string>
+    <string name="arena_report_note">Only posted reports count. Post your daily report so today\'s activity scores here.</string>
+    <string name="arena_standings">Standings</string>
+    <string name="arena_no_standings">No standings yet — join and be the first on the board.</string>
+    <string name="arena_standings_updated">Updated %1$s</string>
+    <string name="arena_rank_format">#%1$d</string>
+    <string name="arena_reward_afit">+%1$s AFIT</string>
+    <string name="arena_your_result">You finished #%1$d</string>
+    <string name="arena_your_result_afit">You finished #%1$d · %2$s AFIT earned</string>
+    <string name="arena_recurrence_league">League</string>
+    <string name="arena_recurrence_daily">Daily</string>
+    <string name="arena_recurrence_event">Event</string>
+    <string name="arena_tagline_league">Compete on the leaderboard and climb the table.</string>
+    <string name="arena_tagline_daily">Hit the daily goal and keep your streak going.</string>
+    <string name="arena_tagline_event">A limited-time event — join before it ends.</string>
+    <string name="arena_tagline_default">Join the challenge and stay active.</string>
+    <string name="arena_how_league">Your verified activity is ranked against everyone else in the league.</string>
+    <string name="arena_how_daily">Reach the target each day to clear the challenge.</string>
+    <string name="arena_how_event">A special event with its own goal and window. Take part before it closes.</string>
+    <string name="arena_how_default">Take part by logging your activity before the challenge window closes.</string>
+    <string name="arena_prize_league">Earn AFIT based on where you finish.</string>
+    <string name="arena_prize_daily">Earn AFIT for every goal you reach.</string>
+    <string name="arena_prize_event">Earn AFIT and event rewards.</string>
+    <string name="arena_prize_default">Earn AFIT for taking part.</string>
 </resources>

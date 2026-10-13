@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/md_theme_background">
+
+    <!-- Header bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md"
+        android:gravity="center_vertical"
+        android:background="@color/md_theme_surface">
+
+        <TextView
+            android:id="@+id/arena_back_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:gravity="center"
+            android:fontFamily="@font/font_awesome_6_solid"
+            android:text="&#xf060;"
+            android:textColor="@color/md_theme_primary"
+            android:textSize="20sp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/back_button"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/arena_title"
+            android:textColor="@color/md_theme_primary"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/md_theme_separator" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/arena_detail_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/spacing_lg">
+
+                <!-- Hero -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="190dp">
+
+                    <ImageView
+                        android:id="@+id/arena_hero_art"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:background="@color/md_theme_separator"
+                        android:importantForAccessibility="no" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|start"
+                        android:layout_margin="@dimen/spacing_md"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/arena_chip_recurrence"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:background="@drawable/arena_chip_bg" />
+
+                        <TextView
+                            android:id="@+id/arena_chip_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_sm"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:textColor="@color/md_theme_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:background="@drawable/arena_chip_bg" />
+
+                    </LinearLayout>
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/arena_detail_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_md"
+                    android:textColor="@color/md_theme_onSurface"
+                    android:textSize="@dimen/text_headline"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/arena_detail_tagline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_xs"
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_subtitle" />
+
+                <TextView
+                    android:id="@+id/arena_detail_participants"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_xs"
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body" />
+
+                <!-- The viewer's own outcome on a settled challenge -->
+                <TextView
+                    android:id="@+id/arena_your_result"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:layout_marginEnd="@dimen/spacing_md"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:padding="@dimen/spacing_md"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="@dimen/text_subtitle"
+                    android:textStyle="bold"
+                    android:background="@drawable/arena_chip_joined_bg"
+                    android:visibility="gone" />
+
+                <!-- Key facts -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="@dimen/spacing_md"
+                    android:baselineAligned="false">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_margin="@dimen/spacing_xs"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/profile_stat_tile">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/arena_length"
+                            android:textColor="@color/md_theme_textSecondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/arena_fact_length"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="@dimen/text_body"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_margin="@dimen/spacing_xs"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/profile_stat_tile">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/arena_scored_by"
+                            android:textColor="@color/md_theme_textSecondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/arena_fact_scored_by"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="@dimen/text_body"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:baselineAligned="false">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_margin="@dimen/spacing_xs"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/profile_stat_tile">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/arena_starts"
+                            android:textColor="@color/md_theme_textSecondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/arena_fact_starts"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="@dimen/text_body"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_margin="@dimen/spacing_xs"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/profile_stat_tile">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/arena_ends"
+                            android:textColor="@color/md_theme_textSecondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/arena_fact_ends"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="@dimen/text_body"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- How it works -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/arena_how_it_works"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/text_subtitle"
+                    android:textColor="@color/md_theme_onSurface"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_lg"
+                    android:paddingBottom="@dimen/spacing_sm" />
+
+                <TextView
+                    android:id="@+id/arena_detail_how"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:lineSpacingMultiplier="1.2"
+                    android:textColor="@color/md_theme_onSurface"
+                    android:textSize="@dimen/text_body" />
+
+                <TextView
+                    android:id="@+id/arena_report_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_sm"
+                    android:text="@string/arena_report_note"
+                    android:textColor="@color/md_theme_primary"
+                    android:textSize="@dimen/text_body"
+                    android:textStyle="bold" />
+
+                <!-- Prizes -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/arena_prizes"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/text_subtitle"
+                    android:textColor="@color/md_theme_onSurface"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_lg"
+                    android:paddingBottom="@dimen/spacing_sm" />
+
+                <TextView
+                    android:id="@+id/arena_detail_prizes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:lineSpacingMultiplier="1.2"
+                    android:textColor="@color/md_theme_onSurface"
+                    android:textSize="@dimen/text_body" />
+
+                <TextView
+                    android:id="@+id/arena_detail_badges"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_sm"
+                    android:textColor="@color/md_theme_onSurface"
+                    android:textSize="@dimen/text_body"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_sm"
+                    android:text="@string/arena_fair_play"
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="12sp" />
+
+                <!-- Standings -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/arena_standings"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/text_subtitle"
+                    android:textColor="@color/md_theme_onSurface"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingTop="@dimen/spacing_lg" />
+
+                <TextView
+                    android:id="@+id/arena_standings_updated"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:paddingBottom="@dimen/spacing_sm"
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/arena_standings_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:paddingEnd="@dimen/spacing_sm" />
+
+                <TextView
+                    android:id="@+id/arena_standings_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/spacing_md"
+                    android:text="@string/arena_no_standings"
+                    android:textColor="@color/md_theme_textSecondary"
+                    android:textSize="@dimen/text_body"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <TextView
+            android:id="@+id/arena_detail_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:minHeight="48dp"
+            android:gravity="center"
+            android:padding="@dimen/spacing_lg"
+            android:textColor="@color/md_theme_textSecondary"
+            android:textSize="@dimen/text_subtitle"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/arena_detail_progress"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
+    <!-- Join / Leave -->
+    <LinearLayout
+        android:id="@+id/arena_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/spacing_md"
+        android:paddingEnd="@dimen/spacing_md"
+        android:paddingTop="@dimen/spacing_sm"
+        android:paddingBottom="@dimen/spacing_sm"
+        android:background="@color/md_theme_surface"
+        android:elevation="8dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/arena_action_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/spacing_xs"
+            android:gravity="center"
+            android:textColor="@color/md_theme_onSurface"
+            android:textSize="@dimen/text_body"
+            android:accessibilityLiveRegion="polite"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/arena_action_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:textColor="@color/colorWhite"
+            android:backgroundTint="@color/md_theme_primary" />
+
+    </LinearLayout>
+
+    <include
+        android:id="@+id/bottom_menu_container"
+        layout="@layout/footer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
