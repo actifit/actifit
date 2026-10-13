@@ -762,6 +762,29 @@
     <string name="error_step_goal_min">每日最低步数目标为 100 步。</string>
     <string name="error_step_goal_max">每日最高步数目标为 100,000 步。</string>
     <string name="error_step_goal_invalid">请输入有效的每日步数目标。</string>
+    <!-- The Arena: ported from the web's Arena_* translations -->
+    <string name="arena_title">竞技场</string>
+    <string name="arena_empty_open">目前没有进行中的挑战——请稍后再来。</string>
+    <string name="arena_length">时长</string>
+    <string name="arena_starts">开始</string>
+    <string name="arena_ends">结束</string>
+    <string name="arena_scored_by">计分方式</string>
+    <string name="arena_how_it_works">玩法说明</string>
+    <string name="arena_prizes">奖品</string>
+    <string name="arena_standings">排行榜</string>
+    <string name="arena_no_standings">暂无排名——加入并成为榜单第一人。</string>
+    <string name="arena_fair_play">奖励是赚取的 AFIT 和可收藏徽章 — 免费参加，结果由已验证的活动决定，绝非付费获胜。</string>
+    <string name="arena_not_found">未找到挑战。</string>
+    <string name="arena_join">加入挑战</string>
+    <string name="arena_leave">退出</string>
+    <string name="arena_joined">你已加入！</string>
+    <string name="arena_login_to_join">登录以加入此挑战</string>
+    <string name="arena_badge_award">获胜者可获得徽章：</string>
+    <string name="arena_action_failed">出了点问题，请重试。</string>
+    <string name="arena_metric_activity">活动总量</string>
+    <string name="arena_metric_steps">步数</string>
+    <string name="arena_metric_distance">距离</string>
+    <string name="arena_metric_goal">达成每日目标次数</string>
 </resources>
 
 
