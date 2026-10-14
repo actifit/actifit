@@ -314,6 +314,29 @@
 
             </HorizontalScrollView>
 
+            <!-- Arena badges (shown at runtime when the user has earned any) -->
+            <TextView
+                android:id="@+id/arena_badges_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="@dimen/text_subtitle"
+                android:textColor="@color/md_theme_onSurface"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:paddingTop="@dimen/spacing_lg"
+                android:paddingBottom="@dimen/spacing_sm"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/arena_badges_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:visibility="gone" />
+
             <!-- Recent activity -->
             <TextView
                 android:layout_width="match_parent"

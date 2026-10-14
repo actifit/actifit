@@ -764,6 +764,29 @@
     <string name="error_step_goal_min">A meta diária mínima de passos é 100 passos.</string>
     <string name="error_step_goal_max">A meta diária máxima de passos é 100.000 passos.</string>
     <string name="error_step_goal_invalid">Introduza uma meta diária de passos válida.</string>
+    <!-- The Arena: ported from the web's Arena_* translations -->
+    <string name="arena_title">A Arena</string>
+    <string name="arena_empty_open">Sem desafios ativos de momento — volta em breve.</string>
+    <string name="arena_length">Duração</string>
+    <string name="arena_starts">Começa</string>
+    <string name="arena_ends">Termina</string>
+    <string name="arena_scored_by">Pontuado por</string>
+    <string name="arena_how_it_works">Como funciona</string>
+    <string name="arena_prizes">Prémios</string>
+    <string name="arena_standings">Classificação</string>
+    <string name="arena_no_standings">Ainda sem classificação — junta-te e sê o primeiro na tabela.</string>
+    <string name="arena_fair_play">As recompensas são AFIT ganhos e emblemas colecionáveis — entrada gratuita, decidido pela atividade verificada, nunca pagar para ganhar.</string>
+    <string name="arena_not_found">Desafio não encontrado.</string>
+    <string name="arena_join">Entrar no desafio</string>
+    <string name="arena_leave">Sair</string>
+    <string name="arena_joined">Estás dentro!</string>
+    <string name="arena_login_to_join">Inicia sessão para entrar neste desafio</string>
+    <string name="arena_badge_award">Os vencedores recebem o emblema:</string>
+    <string name="arena_action_failed">Algo correu mal. Tenta novamente.</string>
+    <string name="arena_metric_activity">Atividade total</string>
+    <string name="arena_metric_steps">Número de passos</string>
+    <string name="arena_metric_distance">Distância</string>
+    <string name="arena_metric_goal">Metas diárias alcançadas</string>
 </resources>
 
 

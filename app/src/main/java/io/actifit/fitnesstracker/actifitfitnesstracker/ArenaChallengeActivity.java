@@ -173,8 +173,9 @@ public class ArenaChallengeActivity extends BaseActivity {
             badges.setVisibility(View.VISIBLE);
         }
         // The reminder only helps while there is still something to score.
-        findViewById(R.id.arena_report_note).setVisibility(
-                ArenaLogic.isJoinable(c.state) ? View.VISIBLE : View.GONE);
+        TextView note = findViewById(R.id.arena_report_note);
+        note.setVisibility(ArenaLogic.isJoinable(c.state) ? View.VISIBLE : View.GONE);
+        note.setText(ArenaCardAdapter.isJoined(this, me, c) ? todayText(c) : getString(R.string.arena_report_note));
 
         renderOwnResult();
         renderAction();
@@ -244,6 +245,7 @@ public class ArenaChallengeActivity extends BaseActivity {
         // Stored BEFORE sending: if the user leaves mid-request the op may still land, and
         // the next visit must not offer the same action again.
         ArenaPendingStore.put(this, me, id, leaving ? ArenaLogic.OP_LEAVE : ArenaLogic.OP_JOIN);
+        ArenaHomeCard.invalidate();   // membership is changing; the dashboard card must refetch
         renderAction();
         ArenaApi.ActionCallback done = success -> {
             acting = false;
@@ -271,6 +273,7 @@ public class ArenaChallengeActivity extends BaseActivity {
         TextView updated = findViewById(R.id.arena_standings_updated);
         container.removeAllViews();
         if (standings == null) return;   // still loading
+        renderMyStanding();
 
         if (standings.isEmpty()) {
             empty.setVisibility(View.VISIBLE);
@@ -295,6 +298,47 @@ public class ArenaChallengeActivity extends BaseActivity {
             if (isMe) mineShown = true;
             container.addView(buildRow(container, r, isMe, avatarTpl));
         }
+    }
+
+    /** "You are #3 · 12,400 / 2,100 behind #2" for a participant while the challenge runs. */
+    private void renderMyStanding() {
+        TextView out = findViewById(R.id.arena_my_standing);
+        if (!ArenaLogic.isJoinable(challenge.state) || !ArenaCardAdapter.isJoined(this, me, challenge)) {
+            out.setVisibility(View.GONE);
+            return;
+        }
+        String text = getString(R.string.arena_my_unranked);
+        for (int i = 0; i < standings.size(); i++) {
+            ArenaChallenge.StandingRow r = standings.get(i);
+            if (!r.entity.equals(me)) continue;
+            text = getString(R.string.arena_my_rank, r.rank, formatNumber(r.score)) + "\n";
+            // The row above may be tied with me; the gap is to the nearest better rank.
+            ArenaChallenge.StandingRow ahead = null;
+            for (int j = i - 1; j >= 0 && ahead == null; j--) {
+                if (standings.get(j).rank < r.rank) ahead = standings.get(j);
+            }
+            text += ahead == null ? getString(R.string.arena_my_leading)
+                    : getString(R.string.arena_my_gap, formatNumber(Math.max(0, ahead.score - r.score)), ahead.rank);
+            break;
+        }
+        out.setText(text);
+        out.setVisibility(View.VISIBLE);
+    }
+
+    /** Today's steps on this phone, so a participant sees what is waiting on a report. */
+    private String todayText(ArenaChallenge c) {
+        // Steps say nothing about a distance-scored challenge.
+        if ("distance".equals(c.metric)) return getString(R.string.arena_report_note);
+        int steps;
+        try {
+            // -1 when nothing has been recorded today
+            steps = Math.max(0, new StepsDBHelper(this).fetchTodayStepCount());
+        } catch (Exception e) {
+            return getString(R.string.arena_report_note);
+        }
+        return "goal_hit".equals(c.metric) && c.threshold > 0
+                ? getString(R.string.arena_today_goal, formatNumber(steps), formatNumber(c.threshold))
+                : getString(R.string.arena_today_steps, formatNumber(steps));
     }
 
     private View buildRow(LinearLayout parent, ArenaChallenge.StandingRow r, boolean isMe, String avatarTpl) {

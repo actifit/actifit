@@ -763,5 +763,28 @@
     <string name="error_step_goal_min">Minimum günlük adım hedefi 100 adımdır.</string>
     <string name="error_step_goal_max">Maksimum günlük adım hedefi 100.000 adımdır.</string>
     <string name="error_step_goal_invalid">Lütfen geçerli bir günlük adım hedefi girin.</string>
+    <!-- The Arena: ported from the web's Arena_* translations -->
+    <string name="arena_title">Arena</string>
+    <string name="arena_empty_open">Şu anda aktif meydan okuma yok — yakında tekrar bak.</string>
+    <string name="arena_length">Süre</string>
+    <string name="arena_starts">Başlıyor</string>
+    <string name="arena_ends">Bitiş</string>
+    <string name="arena_scored_by">Puanlama ölçütü</string>
+    <string name="arena_how_it_works">Nasıl çalışır</string>
+    <string name="arena_prizes">Ödüller</string>
+    <string name="arena_standings">Sıralama</string>
+    <string name="arena_no_standings">Henüz sıralama yok — katıl ve tabloda ilk sen ol.</string>
+    <string name="arena_fair_play">Ödüller kazanılmış AFIT ve koleksiyonluk rozetlerdir — katılım ücretsiz, sonuç doğrulanmış aktiviteyle belirlenir, asla parayla kazanma yoktur.</string>
+    <string name="arena_not_found">Meydan okuma bulunamadı.</string>
+    <string name="arena_join">Meydan okumaya katıl</string>
+    <string name="arena_leave">Ayrıl</string>
+    <string name="arena_joined">Katıldın!</string>
+    <string name="arena_login_to_join">Bu meydan okumaya katılmak için giriş yap</string>
+    <string name="arena_badge_award">Kazananlar şu rozeti alır:</string>
+    <string name="arena_action_failed">Bir şeyler ters gitti. Lütfen tekrar deneyin.</string>
+    <string name="arena_metric_activity">Toplam aktivite</string>
+    <string name="arena_metric_steps">Adım sayısı</string>
+    <string name="arena_metric_distance">Mesafe</string>
+    <string name="arena_metric_goal">Tutulan günlük hedefler</string>
 </resources>
 

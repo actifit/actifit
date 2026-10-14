@@ -774,6 +774,29 @@
     <string name="error_step_goal_min">الحد الأدنى للهدف اليومي للخطوات هو 100 خطوة.</string>
     <string name="error_step_goal_max">الحد الأقصى للهدف اليومي للخطوات هو 100,000 خطوة.</string>
     <string name="error_step_goal_invalid">الرجاء إدخال هدف يومي صالح للخطوات.</string>
+    <!-- The Arena: ported from the web's Arena_* translations -->
+    <string name="arena_title">الساحة</string>
+    <string name="arena_empty_open">لا توجد تحديات نشطة حاليًا — عد قريبًا.</string>
+    <string name="arena_length">المدة</string>
+    <string name="arena_starts">يبدأ</string>
+    <string name="arena_ends">ينتهي</string>
+    <string name="arena_scored_by">يُحتسب حسب</string>
+    <string name="arena_how_it_works">كيف يعمل</string>
+    <string name="arena_prizes">الجوائز</string>
+    <string name="arena_standings">الترتيب</string>
+    <string name="arena_no_standings">لا يوجد ترتيب بعد — انضم وكن الأول على اللوحة.</string>
+    <string name="arena_fair_play">المكافآت هي AFIT وشارات قابلة للجمع تُكتسب بالجهد — المشاركة مجانية، والنتيجة تُحدَّد بالنشاط المُوثَّق، وليست دفعًا مقابل الفوز.</string>
+    <string name="arena_not_found">لم يتم العثور على التحدي.</string>
+    <string name="arena_join">انضم إلى التحدي</string>
+    <string name="arena_leave">مغادرة</string>
+    <string name="arena_joined">أنت مشارك!</string>
+    <string name="arena_login_to_join">سجّل الدخول للانضمام إلى هذا التحدي</string>
+    <string name="arena_badge_award">الفائزون يحصلون على الشارة:</string>
+    <string name="arena_action_failed">حدث خطأ ما. يرجى المحاولة مرة أخرى.</string>
+    <string name="arena_metric_activity">إجمالي النشاط</string>
+    <string name="arena_metric_steps">عدد الخطوات</string>
+    <string name="arena_metric_distance">المسافة</string>
+    <string name="arena_metric_goal">مرات تحقيق الهدف اليومي</string>
 </resources>
 
 

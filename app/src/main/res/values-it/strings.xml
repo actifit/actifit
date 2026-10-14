@@ -764,5 +764,28 @@
     <string name="error_step_goal_min">L\'obiettivo giornaliero minimo di passi è 100 passi.</string>
     <string name="error_step_goal_max">L\'obiettivo giornaliero massimo di passi è 100.000 passi.</string>
     <string name="error_step_goal_invalid">Inserisci un obiettivo giornaliero di passi valido.</string>
+    <!-- The Arena: ported from the web's Arena_* translations -->
+    <string name="arena_title">L\'Arena</string>
+    <string name="arena_empty_open">Nessuna sfida attiva al momento: torna presto.</string>
+    <string name="arena_length">Durata</string>
+    <string name="arena_starts">Inizia</string>
+    <string name="arena_ends">Termina</string>
+    <string name="arena_scored_by">Punteggio in base a</string>
+    <string name="arena_how_it_works">Come funziona</string>
+    <string name="arena_prizes">Premi</string>
+    <string name="arena_standings">Classifica</string>
+    <string name="arena_no_standings">Ancora nessuna classifica — partecipa e sii il primo in classifica.</string>
+    <string name="arena_fair_play">I premi sono AFIT guadagnati e badge da collezione — partecipazione gratuita, decisa dall\'attività verificata, mai pay-to-win.</string>
+    <string name="arena_not_found">Sfida non trovata.</string>
+    <string name="arena_join">Partecipa alla sfida</string>
+    <string name="arena_leave">Abbandona</string>
+    <string name="arena_joined">Sei dentro!</string>
+    <string name="arena_login_to_join">Accedi per partecipare a questa sfida</string>
+    <string name="arena_badge_award">I vincitori ottengono il badge:</string>
+    <string name="arena_action_failed">Qualcosa è andato storto. Riprova.</string>
+    <string name="arena_metric_activity">Attività totale</string>
+    <string name="arena_metric_steps">Numero di passi</string>
+    <string name="arena_metric_distance">Distanza</string>
+    <string name="arena_metric_goal">Obiettivi giornalieri raggiunti</string>
 </resources>
 

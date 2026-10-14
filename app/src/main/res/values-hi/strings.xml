@@ -764,6 +764,29 @@
     <string name="error_step_goal_min">न्यूनतम दैनिक कदम लक्ष्य 100 कदम है।</string>
     <string name="error_step_goal_max">अधिकतम दैनिक कदम लक्ष्य 100,000 कदम है।</string>
     <string name="error_step_goal_invalid">कृपया एक मान्य दैनिक कदम लक्ष्य दर्ज करें।</string>
+    <!-- The Arena: ported from the web's Arena_* translations -->
+    <string name="arena_title">द एरिना</string>
+    <string name="arena_empty_open">अभी कोई सक्रिय चुनौती नहीं — जल्द ही फिर देखें।</string>
+    <string name="arena_length">अवधि</string>
+    <string name="arena_starts">शुरू</string>
+    <string name="arena_ends">समाप्त</string>
+    <string name="arena_scored_by">स्कोर का आधार</string>
+    <string name="arena_how_it_works">यह कैसे काम करता है</string>
+    <string name="arena_prizes">पुरस्कार</string>
+    <string name="arena_standings">स्टैंडिंग</string>
+    <string name="arena_no_standings">अभी कोई स्टैंडिंग नहीं — शामिल हों और बोर्ड पर पहले बनें।</string>
+    <string name="arena_fair_play">पुरस्कार अर्जित AFIT और संग्रहणीय बैज हैं — प्रवेश मुफ़्त, नतीजा सत्यापित गतिविधि से तय, जीतने के लिए भुगतान कभी नहीं।</string>
+    <string name="arena_not_found">चुनौती नहीं मिली।</string>
+    <string name="arena_join">चैलेंज में शामिल हों</string>
+    <string name="arena_leave">छोड़ें</string>
+    <string name="arena_joined">आप शामिल हैं!</string>
+    <string name="arena_login_to_join">इस चैलेंज में शामिल होने के लिए लॉग इन करें</string>
+    <string name="arena_badge_award">विजेताओं को यह बैज मिलता है:</string>
+    <string name="arena_action_failed">कुछ गलत हो गया। कृपया पुनः प्रयास करें।</string>
+    <string name="arena_metric_activity">कुल गतिविधि</string>
+    <string name="arena_metric_steps">कदमों की संख्या</string>
+    <string name="arena_metric_distance">दूरी</string>
+    <string name="arena_metric_goal">दैनिक लक्ष्य पूरे किए</string>
 </resources>
 
 

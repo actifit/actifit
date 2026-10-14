@@ -149,6 +149,7 @@ public class ProfileActivity extends BaseActivity {
             setupFriendButton();
             loadMutualFriends();
         }
+        loadArenaBadges();
 
         updateAura();
         fetchRank();
@@ -520,6 +521,30 @@ public class ProfileActivity extends BaseActivity {
         friendBtn.setEnabled(false);
         friendBtn.setText(R.string.friends_action_loading);
         refreshFriendState(friendBtn, me);
+    }
+
+    /** Badges this user earned in Arena challenges; the section stays hidden when there are none. */
+    private void loadArenaBadges() {
+        if (username == null || username.isEmpty()) return;
+        ArenaApi.getBadges(this, queue, username, (badges, total) -> {
+            if (badges.isEmpty() || isFinishing() || isDestroyed()) return;
+            TextView header = findViewById(R.id.arena_badges_header);
+            android.widget.LinearLayout container = findViewById(R.id.arena_badges_container);
+            container.removeAllViews();
+            for (ArenaChallenge.Badge b : badges) {
+                TextView row = new TextView(this);
+                // Fall back to the badge name so a missing title never leaves a dangling dash.
+                String title = b.challengeTitle.isEmpty() ? b.name : b.challengeTitle;
+                row.setText("\uD83C\uDFC5  " + getString(b.official ? R.string.arena_badge_row
+                        : R.string.arena_badge_row_community, b.name, title));
+                row.setTextColor(getResources().getColor(R.color.md_theme_onSurface));
+                row.setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.spacing_sm));
+                container.addView(row);
+            }
+            header.setText(getResources().getQuantityString(R.plurals.arena_badges_header, total, total));
+            header.setVisibility(View.VISIBLE);
+            container.setVisibility(View.VISIBLE);
+        });
     }
 
     /** Show the friends this profile shares with the logged-in viewer (count + tappable avatars). */

@@ -762,6 +762,29 @@
     <string name="error_step_goal_min">Мінімальна щоденна мета кроків — 100 кроків.</string>
     <string name="error_step_goal_max">Максимальна щоденна мета кроків — 100 000 кроків.</string>
     <string name="error_step_goal_invalid">Будь ласка, введіть дійсну щоденну мету кроків.</string>
+    <!-- The Arena: ported from the web's Arena_* translations -->
+    <string name="arena_title">Арена</string>
+    <string name="arena_empty_open">Наразі немає активних викликів — завітайте згодом.</string>
+    <string name="arena_length">Тривалість</string>
+    <string name="arena_starts">Починається</string>
+    <string name="arena_ends">Завершується</string>
+    <string name="arena_scored_by">Оцінюється за</string>
+    <string name="arena_how_it_works">Як це працює</string>
+    <string name="arena_prizes">Призи</string>
+    <string name="arena_standings">Турнірна таблиця</string>
+    <string name="arena_no_standings">Поки що немає результатів — приєднуйтесь і станьте першим у таблиці.</string>
+    <string name="arena_fair_play">Нагороди — це зароблені AFIT і колекційні значки — участь безкоштовна, результат визначає підтверджена активність, жодного pay-to-win.</string>
+    <string name="arena_not_found">Виклик не знайдено.</string>
+    <string name="arena_join">Приєднатися</string>
+    <string name="arena_leave">Вийти</string>
+    <string name="arena_joined">Ви в грі!</string>
+    <string name="arena_login_to_join">Увійдіть, щоб приєднатися до цього виклику</string>
+    <string name="arena_badge_award">Переможці отримують значок:</string>
+    <string name="arena_action_failed">Щось пішло не так. Спробуйте ще раз.</string>
+    <string name="arena_metric_activity">Загальна активність</string>
+    <string name="arena_metric_steps">Кількість кроків</string>
+    <string name="arena_metric_distance">Дистанція</string>
+    <string name="arena_metric_goal">Виконані денні цілі</string>
 </resources>
 
 

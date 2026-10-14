@@ -53,6 +53,11 @@ public final class ArenaApi {
         void onResult(List<ArenaChallenge.StandingRow> rows, long computedAtMs);
     }
 
+    public interface BadgesCallback {
+        /** @param total every badge earned; {@code badges} is the newest page of them */
+        void onResult(List<ArenaChallenge.Badge> badges, int total);
+    }
+
     public interface ActionCallback {
         void onDone(boolean success);
     }
@@ -113,6 +118,18 @@ public final class ArenaApi {
                     cb.onResult(rows, computedAt);
                 },
                 error -> cb.onResult(null, -1));
+        addRead(queue, req);
+    }
+
+    /** Badges a user has earned in public challenges; empty on failure. */
+    public static void getBadges(Context ctx, RequestQueue queue, String user, BadgesCallback cb) {
+        String url = Utils.apiUrl(ctx) + "arena/badges/" + enc(user) + "?limit=20";
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, url, null,
+                response -> {
+                    List<ArenaChallenge.Badge> badges = ArenaChallenge.badgesFromJson(response);
+                    cb.onResult(badges, Math.max(response.optInt("count", 0), badges.size()));
+                },
+                error -> cb.onResult(new ArrayList<>(), 0));
         addRead(queue, req);
     }
 

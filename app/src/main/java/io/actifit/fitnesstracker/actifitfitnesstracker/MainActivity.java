@@ -3882,6 +3882,9 @@ public class MainActivity extends BaseActivity {
 
         Log.d(TAG, "[Actifit] - onResume Main");
 
+        ArenaHomeCard.refresh(this,
+                getSharedPreferences("actifitSets", MODE_PRIVATE).getString("actifitUser", ""));
+
         new Thread(() -> {
 
             final boolean hcActivated = isHealthConnectPermActivated(); // isHealthConnectEnabledInSettings() &&
