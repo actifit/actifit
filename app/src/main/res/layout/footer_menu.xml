@@ -115,9 +115,9 @@
             android:duplicateParentState="true" />
     </LinearLayout>
 
-    <!-- Leaderboard -->
+    <!-- Arena (the daily leaderboard now lives under More) -->
     <LinearLayout
-        android:id="@+id/btn_view_leaderboard"
+        android:id="@+id/btn_view_arena"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -143,7 +143,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/footer_leaders"
+            android:text="@string/footer_arena"
             android:textSize="10sp"
             android:textColor="@color/footer_menu_text_color"
             android:paddingTop="2dp"
