@@ -787,6 +787,121 @@
     <string name="arena_metric_steps">कदमों की संख्या</string>
     <string name="arena_metric_distance">दूरी</string>
     <string name="arena_metric_goal">दैनिक लक्ष्य पूरे किए</string>
+    <!-- Friends + Arena -->
+    <string name="more_menu_friends">दोस्त</string>
+    <string name="friends_title">दोस्त</string>
+    <string name="friends_tab_friends">दोस्त</string>
+    <string name="friends_tab_requests">अनुरोध</string>
+    <string name="friends_tab_suggested">सुझाए गए</string>
+    <string name="friends_received">प्राप्त</string>
+    <string name="friends_sent">भेजे गए</string>
+    <string name="friends_action_accept">स्वीकारें</string>
+    <string name="friends_action_add">जोड़ें</string>
+    <string name="friends_action_cancel">रद्द करें</string>
+    <string name="friends_action_unfriend">हटाएँ</string>
+    <string name="friends_search_hint">जोड़ने के लिए यूज़रनेम खोजें…</string>
+    <string name="friends_search_go">खोजें</string>
+    <string name="friends_search_invalid">एक मान्य Actifit यूज़रनेम दर्ज करें</string>
+    <string name="friends_search_self">यह आप हैं!</string>
+    <string name="friends_avatar_desc">\@%1$s की प्रोफ़ाइल फ़ोटो</string>
+    <string name="friends_empty_friends">अभी आपके कोई दोस्त नहीं हैं। ऊपर कोई यूज़रनेम खोजें, या किसी Actifitter की प्रोफ़ाइल खोलकर अनुरोध भेजें!</string>
+    <string name="friends_empty_requests">कोई लंबित मित्रता अनुरोध नहीं।</string>
+    <string name="friends_empty_suggested">अभी कोई सुझाव नहीं। ऊपर कोई यूज़रनेम खोजकर देखें!</string>
+    <string name="friends_stats_loading">विवरण लोड हो रहे हैं…</string>
+    <string name="friends_loading_more">और लोड हो रहा है…</string>
+    <string name="friends_confirm_unfriend">\@%1$s को अपने दोस्तों से हटाएँ?</string>
+    <string name="friends_action_done">हो गया</string>
+    <string name="friends_request_sent">मित्रता अनुरोध भेजा गया</string>
+    <string name="friends_action_failed">कुछ गलत हो गया, कृपया फिर से कोशिश करें</string>
+    <string name="friends_error_login">दोस्तों को प्रबंधित करने के लिए कृपया लॉग इन करें</string>
+    <string name="footer_arena">एरीना</string>
+    <string name="more_menu_leaderboard">दैनिक लीडरबोर्ड</string>
+    <string name="arena_subtitle">फ़िटनेस चुनौतियाँ, लीग और सीज़न — सक्रिय रहने पर इनाम कमाएँ।</string>
+    <string name="arena_tab_open">खुली</string>
+    <string name="arena_tab_mine">मेरी</string>
+    <string name="arena_tab_results">परिणाम</string>
+    <string name="arena_empty_mine">आपने अभी कोई चुनौती नहीं जॉइन की है। खुली में से कोई चुनें।</string>
+    <string name="arena_empty_mine_login">अपनी चुनौतियाँ देखने के लिए लॉग इन करें।</string>
+    <string name="arena_empty_results">अभी कोई पूरी हुई चुनौती नहीं।</string>
+    <string name="arena_load_error">एरीना लोड नहीं हो सका। फिर से कोशिश करने के लिए टैप करें।</string>
+    <string name="arena_joined_short">जॉइन किया</string>
+    <string name="arena_working">भेजा जा रहा है…</string>
+    <string name="arena_join_pending">ऑन-चेन दर्ज हो रहा है — बोर्ड पर दिखने में एक मिनट लग सकता है।</string>
+    <string name="arena_leave_pending">छोड़ा जा रहा है — अपडेट होने में एक मिनट लग सकता है।</string>
+    <string name="arena_pending_expired">हम आपके पिछले अनुरोध की पुष्टि नहीं कर सके। कृपया फिर से कोशिश करें।</string>
+    <string name="arena_closed">यह चुनौती समाप्त हो गई है।</string>
+    <string name="arena_ends_in_days">%1$d दि %2$d घं में समाप्त</string>
+    <string name="arena_ends_in_hours">%1$d घं %2$d मि में समाप्त</string>
+    <string name="arena_ends_in_minutes">%1$d मि में समाप्त</string>
+    <string name="arena_ended">समाप्त</string>
+    <string name="arena_ended_on">%1$s को समाप्त</string>
+    <string name="arena_metric_goal_target">दैनिक लक्ष्य पूरे (%1$s)</string>
+    <string name="arena_report_note">केवल पोस्ट की गई रिपोर्ट गिनी जाती हैं। अपनी दैनिक रिपोर्ट पोस्ट करें ताकि आज की गतिविधि यहाँ गिनी जाए।</string>
+    <string name="arena_standings_updated">अपडेट किया गया %1$s</string>
+    <string name="arena_your_result">आप #%1$d पर रहे</string>
+    <string name="arena_your_result_afit">#%1$d स्थान · %2$s AFIT कमाए</string>
+    <string name="arena_recurrence_league">लीग</string>
+    <string name="arena_recurrence_daily">दैनिक</string>
+    <string name="arena_recurrence_event">इवेंट</string>
+    <string name="arena_tagline_league">लीडरबोर्ड पर मुकाबला करें और ऊपर चढ़ें।</string>
+    <string name="arena_tagline_daily">दैनिक लक्ष्य पूरा करें और अपनी स्ट्रीक बनाए रखें।</string>
+    <string name="arena_tagline_event">सीमित समय का इवेंट — खत्म होने से पहले जॉइन करें।</string>
+    <string name="arena_tagline_default">चुनौती जॉइन करें और सक्रिय रहें।</string>
+    <string name="arena_how_league">आपकी सत्यापित गतिविधि की तुलना लीग के बाकी सभी से की जाती है।</string>
+    <string name="arena_how_daily">चुनौती पूरी करने के लिए हर दिन लक्ष्य तक पहुँचें।</string>
+    <string name="arena_how_event">अपने लक्ष्य और समय-सीमा वाला एक खास इवेंट। बंद होने से पहले भाग लें।</string>
+    <string name="arena_how_default">चुनौती की समय-सीमा खत्म होने से पहले अपनी गतिविधि दर्ज करके भाग लें।</string>
+    <string name="arena_prize_league">अपने अंतिम स्थान के आधार पर AFIT कमाएँ।</string>
+    <string name="arena_prize_daily">हर पूरे लक्ष्य पर AFIT कमाएँ।</string>
+    <string name="arena_prize_event">AFIT और इवेंट इनाम कमाएँ।</string>
+    <string name="arena_prize_default">भाग लेने पर AFIT कमाएँ।</string>
+    <string name="arena_home_rank">रैंक #%1$d · %2$s</string>
+    <string name="arena_home_no_score">अभी कोई स्कोर नहीं — बोर्ड पर आने के लिए आज की रिपोर्ट पोस्ट करें।</string>
+    <string name="arena_home_join_title">कोई चुनौती जॉइन करें</string>
+    <string name="arena_my_rank">आप #%1$d पर हैं · %2$s</string>
+    <string name="arena_my_gap">#%2$d से %1$s पीछे</string>
+    <string name="arena_my_leading">आप सबसे आगे हैं।</string>
+    <string name="arena_my_unranked">आप अभी बोर्ड पर नहीं हैं।</string>
+    <string name="arena_today_steps">आज इस फ़ोन पर: %1$s कदम। ये तभी गिने जाएँगे जब आप अपनी रिपोर्ट पोस्ट करेंगे।</string>
+    <string name="arena_today_goal">आज इस फ़ोन पर: %2$s में से %1$s कदम। ये तभी गिने जाएँगे जब आप अपनी रिपोर्ट पोस्ट करेंगे।</string>
+    <string name="arena_report_counts">सत्यापित होने के बाद यह रिपोर्ट आपकी एरीना चुनौतियों में गिनी जाएगी।</string>
+    <string name="arena_badge_row_community">%1$s — %2$s · कम्युनिटी</string>
+    <plurals name="friends_pending_badge_desc">
+        <item quantity="one">%1$d लंबित मित्रता अनुरोध</item>
+        <item quantity="other">%1$d लंबित मित्रता अनुरोध</item>
+    </plurals>
+    <plurals name="friends_stat_reports">
+        <item quantity="one">%1$s रिपोर्ट</item>
+        <item quantity="other">%1$s रिपोर्ट</item>
+    </plurals>
+    <plurals name="friends_stat_mutual">
+        <item quantity="one">%1$d साझा दोस्त</item>
+        <item quantity="other">%1$d साझा दोस्त</item>
+    </plurals>
+    <plurals name="arena_participants">
+        <item quantity="one">%d शामिल</item>
+        <item quantity="other">%d शामिल</item>
+    </plurals>
+    <plurals name="arena_duration_days">
+        <item quantity="one">%d दिन</item>
+        <item quantity="other">%d दिन</item>
+    </plurals>
+    <plurals name="arena_duration_weeks">
+        <item quantity="one">%d सप्ताह</item>
+        <item quantity="other">%d सप्ताह</item>
+    </plurals>
+    <plurals name="arena_duration_months">
+        <item quantity="one">%d महीना</item>
+        <item quantity="other">%d महीने</item>
+    </plurals>
+    <plurals name="arena_home_open">
+        <item quantity="one">%d चुनौती खुली है — मुफ़्त, सक्रिय रहने पर AFIT कमाएँ।</item>
+        <item quantity="other">%d चुनौतियाँ खुली हैं — मुफ़्त, सक्रिय रहने पर AFIT कमाएँ।</item>
+    </plurals>
+    <plurals name="arena_badges_header">
+        <item quantity="one">एरीना बैज (%d)</item>
+        <item quantity="other">एरीना बैज (%d)</item>
+    </plurals>
 </resources>
 
 

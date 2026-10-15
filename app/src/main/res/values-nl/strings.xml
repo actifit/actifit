@@ -764,6 +764,143 @@
     <string name="error_step_goal_min">Het minimale dagelijkse stappendoel is 100 stappen.</string>
     <string name="error_step_goal_max">Het maximale dagelijkse stappendoel is 100.000 stappen.</string>
     <string name="error_step_goal_invalid">Voer een geldig dagelijks stappendoel in.</string>
+    <!-- Friends + Arena -->
+    <string name="more_menu_friends">Vrienden</string>
+    <string name="friends_title">Vrienden</string>
+    <string name="friends_tab_friends">Vrienden</string>
+    <string name="friends_tab_requests">Verzoeken</string>
+    <string name="friends_tab_suggested">Voorgesteld</string>
+    <string name="friends_received">ONTVANGEN</string>
+    <string name="friends_sent">VERSTUURD</string>
+    <string name="friends_action_accept">Accepteren</string>
+    <string name="friends_action_add">Toevoegen</string>
+    <string name="friends_action_cancel">Annuleren</string>
+    <string name="friends_action_unfriend">Verwijderen</string>
+    <string name="friends_search_hint">Zoek een gebruikersnaam om toe te voegen…</string>
+    <string name="friends_search_go">Zoek</string>
+    <string name="friends_search_invalid">Voer een geldige Actifit-gebruikersnaam in</string>
+    <string name="friends_search_self">Dat ben jij!</string>
+    <string name="friends_avatar_desc">Profielfoto van @%1$s</string>
+    <string name="friends_empty_friends">Je hebt nog geen vrienden. Zoek hierboven een gebruikersnaam, of open het profiel van een Actifitter en stuur een verzoek!</string>
+    <string name="friends_empty_requests">Geen openstaande vriendschapsverzoeken.</string>
+    <string name="friends_empty_suggested">Nu geen suggesties. Zoek hierboven een gebruikersnaam!</string>
+    <string name="friends_stats_loading">Details laden…</string>
+    <string name="friends_loading_more">Meer laden…</string>
+    <string name="friends_confirm_unfriend">\@%1$s uit je vrienden verwijderen?</string>
+    <string name="friends_action_done">Klaar</string>
+    <string name="friends_request_sent">Vriendschapsverzoek verstuurd</string>
+    <string name="friends_action_failed">Er ging iets mis, probeer het opnieuw</string>
+    <string name="friends_error_login">Log in om je vrienden te beheren</string>
+    <string name="arena_title">De Arena</string>
+    <string name="footer_arena">Arena</string>
+    <string name="more_menu_leaderboard">Dagranglijst</string>
+    <string name="arena_subtitle">Fitnessuitdagingen, competities en seizoenen: verdien beloningen door actief te blijven.</string>
+    <string name="arena_tab_open">Open</string>
+    <string name="arena_tab_mine">Mijn</string>
+    <string name="arena_tab_results">Uitslagen</string>
+    <string name="arena_empty_open">Er zijn nu geen open uitdagingen. Kom snel terug.</string>
+    <string name="arena_empty_mine">Je doet nog niet mee aan een uitdaging. Kies er een onder Open.</string>
+    <string name="arena_empty_mine_login">Log in om je uitdagingen te zien.</string>
+    <string name="arena_empty_results">Nog geen afgeronde uitdagingen.</string>
+    <string name="arena_load_error">De Arena kon niet worden geladen. Tik om het opnieuw te proberen.</string>
+    <string name="arena_not_found">Uitdaging niet gevonden.</string>
+    <string name="arena_join">Doe mee</string>
+    <string name="arena_leave">Verlaten</string>
+    <string name="arena_joined">Je doet mee!</string>
+    <string name="arena_joined_short">Doet mee</string>
+    <string name="arena_login_to_join">Log in om mee te doen aan deze uitdaging</string>
+    <string name="arena_working">Versturen…</string>
+    <string name="arena_join_pending">Wordt on-chain vastgelegd: het kan een minuut duren voordat het op het bord staat.</string>
+    <string name="arena_leave_pending">Bezig met verlaten: bijwerken kan een minuut duren.</string>
+    <string name="arena_action_failed">Er ging iets mis. Probeer het opnieuw.</string>
+    <string name="arena_pending_expired">We konden je laatste verzoek niet bevestigen. Probeer het opnieuw.</string>
+    <string name="arena_closed">Deze uitdaging is afgelopen.</string>
+    <string name="arena_ends_in_days">Eindigt over %1$d d %2$d u</string>
+    <string name="arena_ends_in_hours">Eindigt over %1$d u %2$d min</string>
+    <string name="arena_ends_in_minutes">Eindigt over %1$d min</string>
+    <string name="arena_ended">Afgelopen</string>
+    <string name="arena_ended_on">Afgelopen op %1$s</string>
+    <string name="arena_length">Duur</string>
+    <string name="arena_starts">Start</string>
+    <string name="arena_ends">Eindigt</string>
+    <string name="arena_scored_by">Gescoord op</string>
+    <string name="arena_metric_activity">Totale activiteit</string>
+    <string name="arena_metric_goal">Dagdoelen behaald</string>
+    <string name="arena_metric_goal_target">Dagdoelen behaald (%1$s)</string>
+    <string name="arena_metric_steps">Aantal stappen</string>
+    <string name="arena_metric_distance">Afstand</string>
+    <string name="arena_how_it_works">Hoe het werkt</string>
+    <string name="arena_prizes">Prijzen</string>
+    <string name="arena_badge_award">Winnaars verdienen de badge:</string>
+    <string name="arena_fair_play">Beloningen zijn verdiende AFIT en verzamelbare badges: gratis deelname, beslist door geverifieerde activiteit, nooit pay-to-win.</string>
+    <string name="arena_report_note">Alleen geplaatste verslagen tellen. Plaats je dagverslag zodat je activiteit van vandaag hier meetelt.</string>
+    <string name="arena_standings">Stand</string>
+    <string name="arena_no_standings">Nog geen stand: doe mee en sta als eerste op het bord.</string>
+    <string name="arena_standings_updated">Bijgewerkt %1$s</string>
+    <string name="arena_your_result">Je eindigde als %1$de</string>
+    <string name="arena_your_result_afit">%1$de plaats · %2$s AFIT verdiend</string>
+    <string name="arena_recurrence_league">Competitie</string>
+    <string name="arena_recurrence_daily">Dagelijks</string>
+    <string name="arena_recurrence_event">Evenement</string>
+    <string name="arena_tagline_league">Strijd mee op de ranglijst en klim omhoog.</string>
+    <string name="arena_tagline_daily">Haal het dagdoel en houd je reeks vast.</string>
+    <string name="arena_tagline_event">Een evenement voor beperkte tijd: doe mee voordat het afloopt.</string>
+    <string name="arena_tagline_default">Doe mee aan de uitdaging en blijf actief.</string>
+    <string name="arena_how_league">Je geverifieerde activiteit wordt vergeleken met die van iedereen in de competitie.</string>
+    <string name="arena_how_daily">Haal elke dag het doel om de uitdaging te voltooien.</string>
+    <string name="arena_how_event">Een speciaal evenement met een eigen doel en periode. Doe mee voordat het sluit.</string>
+    <string name="arena_how_default">Doe mee door je activiteit vast te leggen voordat de uitdaging sluit.</string>
+    <string name="arena_prize_league">Verdien AFIT op basis van je eindpositie.</string>
+    <string name="arena_prize_daily">Verdien AFIT voor elk behaald doel.</string>
+    <string name="arena_prize_event">Verdien AFIT en evenementbeloningen.</string>
+    <string name="arena_prize_default">Verdien AFIT door mee te doen.</string>
+    <string name="arena_home_rank">Plaats %1$d · %2$s</string>
+    <string name="arena_home_no_score">Nog geen score: plaats het verslag van vandaag om op het bord te komen.</string>
+    <string name="arena_home_join_title">Doe mee aan een uitdaging</string>
+    <string name="arena_my_rank">Je staat op plaats %1$d · %2$s</string>
+    <string name="arena_my_gap">%1$s achter plaats %2$d</string>
+    <string name="arena_my_leading">Je staat bovenaan.</string>
+    <string name="arena_my_unranked">Je staat nog niet op het bord.</string>
+    <string name="arena_today_steps">Vandaag op deze telefoon: %1$s stappen. Ze tellen pas mee als je je verslag plaatst.</string>
+    <string name="arena_today_goal">Vandaag op deze telefoon: %1$s van %2$s stappen. Ze tellen pas mee als je je verslag plaatst.</string>
+    <string name="arena_report_counts">Dit verslag telt mee voor je Arena-uitdagingen zodra het is geverifieerd.</string>
+    <string name="arena_badge_row_community">%1$s — %2$s · Community</string>
+    <plurals name="friends_pending_badge_desc">
+        <item quantity="one">%1$d openstaand vriendschapsverzoek</item>
+        <item quantity="other">%1$d openstaande vriendschapsverzoeken</item>
+    </plurals>
+    <plurals name="friends_stat_reports">
+        <item quantity="one">%1$s verslag</item>
+        <item quantity="other">%1$s verslagen</item>
+    </plurals>
+    <plurals name="friends_stat_mutual">
+        <item quantity="one">%1$d gemeenschappelijke vriend</item>
+        <item quantity="other">%1$d gemeenschappelijke vrienden</item>
+    </plurals>
+    <plurals name="arena_participants">
+        <item quantity="one">%d doet mee</item>
+        <item quantity="other">%d doen mee</item>
+    </plurals>
+    <plurals name="arena_duration_days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagen</item>
+    </plurals>
+    <plurals name="arena_duration_weeks">
+        <item quantity="one">%d week</item>
+        <item quantity="other">%d weken</item>
+    </plurals>
+    <plurals name="arena_duration_months">
+        <item quantity="one">%d maand</item>
+        <item quantity="other">%d maanden</item>
+    </plurals>
+    <plurals name="arena_home_open">
+        <item quantity="one">%d uitdaging staat open: gratis, verdien AFIT door actief te blijven.</item>
+        <item quantity="other">%d uitdagingen staan open: gratis, verdien AFIT door actief te blijven.</item>
+    </plurals>
+    <plurals name="arena_badges_header">
+        <item quantity="one">Arena-badge (%d)</item>
+        <item quantity="other">Arena-badges (%d)</item>
+    </plurals>
 </resources>
 
 

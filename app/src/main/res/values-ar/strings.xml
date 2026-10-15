@@ -797,6 +797,121 @@
     <string name="arena_metric_steps">عدد الخطوات</string>
     <string name="arena_metric_distance">المسافة</string>
     <string name="arena_metric_goal">مرات تحقيق الهدف اليومي</string>
+    <!-- Friends + Arena -->
+    <string name="more_menu_friends">الأصدقاء</string>
+    <string name="friends_title">الأصدقاء</string>
+    <string name="friends_tab_friends">الأصدقاء</string>
+    <string name="friends_tab_requests">الطلبات</string>
+    <string name="friends_tab_suggested">مقترحون</string>
+    <string name="friends_received">المستلمة</string>
+    <string name="friends_sent">المرسلة</string>
+    <string name="friends_action_accept">قبول</string>
+    <string name="friends_action_add">إضافة</string>
+    <string name="friends_action_cancel">إلغاء</string>
+    <string name="friends_action_unfriend">إزالة</string>
+    <string name="friends_search_hint">ابحث عن اسم مستخدم لإضافته…</string>
+    <string name="friends_search_go">بحث</string>
+    <string name="friends_search_invalid">أدخل اسم مستخدم صالحًا في Actifit</string>
+    <string name="friends_search_self">هذا أنت!</string>
+    <string name="friends_avatar_desc">صورة الملف الشخصي لـ @%1$s</string>
+    <string name="friends_empty_friends">ليس لديك أصدقاء بعد. ابحث عن اسم مستخدم في الأعلى، أو افتح الملف الشخصي لأحد مستخدمي Actifit وأرسل طلبًا!</string>
+    <string name="friends_empty_requests">لا توجد طلبات صداقة معلقة.</string>
+    <string name="friends_empty_suggested">لا توجد اقتراحات حاليًا. جرّب البحث عن اسم مستخدم في الأعلى!</string>
+    <string name="friends_stats_loading">جارٍ تحميل التفاصيل…</string>
+    <string name="friends_loading_more">جارٍ تحميل المزيد…</string>
+    <string name="friends_confirm_unfriend">إزالة @%1$s من أصدقائك؟</string>
+    <string name="friends_action_done">تم</string>
+    <string name="friends_request_sent">تم إرسال طلب الصداقة</string>
+    <string name="friends_action_failed">حدث خطأ ما، يرجى المحاولة مرة أخرى</string>
+    <string name="friends_error_login">يرجى تسجيل الدخول لإدارة الأصدقاء</string>
+    <string name="footer_arena">الساحة</string>
+    <string name="more_menu_leaderboard">لوحة الصدارة اليومية</string>
+    <string name="arena_subtitle">تحديات لياقة ودوريات ومواسم — اربح مكافآت على بقائك نشيطًا.</string>
+    <string name="arena_tab_open">مفتوحة</string>
+    <string name="arena_tab_mine">تحدياتي</string>
+    <string name="arena_tab_results">النتائج</string>
+    <string name="arena_empty_mine">لم تنضم إلى أي تحدٍّ بعد. اختر واحدًا من المفتوحة.</string>
+    <string name="arena_empty_mine_login">سجّل الدخول لرؤية تحدياتك.</string>
+    <string name="arena_empty_results">لا توجد تحديات منتهية بعد.</string>
+    <string name="arena_load_error">تعذّر تحميل الساحة. انقر للمحاولة مرة أخرى.</string>
+    <string name="arena_joined_short">منضم</string>
+    <string name="arena_working">جارٍ الإرسال…</string>
+    <string name="arena_join_pending">جارٍ التسجيل على السلسلة — قد يستغرق ظهوره في اللوحة دقيقة.</string>
+    <string name="arena_leave_pending">جارٍ المغادرة — قد يستغرق التحديث دقيقة.</string>
+    <string name="arena_pending_expired">تعذّر تأكيد طلبك الأخير. يرجى المحاولة مرة أخرى.</string>
+    <string name="arena_closed">انتهى هذا التحدي.</string>
+    <string name="arena_ends_in_days">ينتهي خلال %1$d ي %2$d س</string>
+    <string name="arena_ends_in_hours">ينتهي خلال %1$d س %2$d د</string>
+    <string name="arena_ends_in_minutes">ينتهي خلال %1$d د</string>
+    <string name="arena_ended">انتهى</string>
+    <string name="arena_ended_on">انتهى في %1$s</string>
+    <string name="arena_metric_goal_target">مرات تحقيق الهدف اليومي (%1$s)</string>
+    <string name="arena_report_note">تُحتسب التقارير المنشورة فقط. انشر تقريرك اليومي لتُحتسب نشاطات اليوم هنا.</string>
+    <string name="arena_standings_updated">حُدّث %1$s</string>
+    <string name="arena_your_result">أنهيت في المركز %1$d</string>
+    <string name="arena_your_result_afit">المركز %1$d · ربحت %2$s AFIT</string>
+    <string name="arena_recurrence_league">دوري</string>
+    <string name="arena_recurrence_daily">يومي</string>
+    <string name="arena_recurrence_event">حدث</string>
+    <string name="arena_tagline_league">نافس في لوحة الصدارة وتسلّق الترتيب.</string>
+    <string name="arena_tagline_daily">حقّق الهدف اليومي وحافظ على سلسلتك.</string>
+    <string name="arena_tagline_event">حدث لفترة محدودة — انضم قبل أن ينتهي.</string>
+    <string name="arena_tagline_default">انضم إلى التحدي وابقَ نشيطًا.</string>
+    <string name="arena_how_league">يُقارن نشاطك الموثّق بنشاط جميع المشاركين في الدوري.</string>
+    <string name="arena_how_daily">حقّق الهدف كل يوم لتجتاز التحدي.</string>
+    <string name="arena_how_event">حدث خاص بهدفه وفترته الخاصة. شارك قبل أن يُغلق.</string>
+    <string name="arena_how_default">شارك بتسجيل نشاطك قبل انتهاء فترة التحدي.</string>
+    <string name="arena_prize_league">اربح AFIT حسب مركزك النهائي.</string>
+    <string name="arena_prize_daily">اربح AFIT عن كل هدف تحققه.</string>
+    <string name="arena_prize_event">اربح AFIT ومكافآت الحدث.</string>
+    <string name="arena_prize_default">اربح AFIT مقابل المشاركة.</string>
+    <string name="arena_home_rank">المركز %1$d · %2$s</string>
+    <string name="arena_home_no_score">لا توجد نقاط بعد — انشر تقرير اليوم لتظهر في اللوحة.</string>
+    <string name="arena_home_join_title">انضم إلى تحدٍّ</string>
+    <string name="arena_my_rank">أنت في المركز %1$d · %2$s</string>
+    <string name="arena_my_gap">متأخر بـ %1$s عن المركز %2$d</string>
+    <string name="arena_my_leading">أنت في الصدارة.</string>
+    <string name="arena_my_unranked">لست في اللوحة بعد.</string>
+    <string name="arena_today_steps">اليوم على هذا الهاتف: %1$s خطوة. لا تُحتسب إلا بعد نشر تقريرك.</string>
+    <string name="arena_today_goal">اليوم على هذا الهاتف: %1$s من %2$s خطوة. لا تُحتسب إلا بعد نشر تقريرك.</string>
+    <string name="arena_report_counts">يُحتسب هذا التقرير في تحديات الساحة الخاصة بك بعد التحقق منه.</string>
+    <string name="arena_badge_row_community">%1$s — %2$s · المجتمع</string>
+    <plurals name="friends_pending_badge_desc">
+        <item quantity="one">%1$d طلب صداقة معلق</item>
+        <item quantity="other">%1$d طلبات صداقة معلقة</item>
+    </plurals>
+    <plurals name="friends_stat_reports">
+        <item quantity="one">%1$s تقرير</item>
+        <item quantity="other">%1$s تقارير</item>
+    </plurals>
+    <plurals name="friends_stat_mutual">
+        <item quantity="one">%1$d صديق مشترك</item>
+        <item quantity="other">%1$d أصدقاء مشتركون</item>
+    </plurals>
+    <plurals name="arena_participants">
+        <item quantity="one">%d منضم</item>
+        <item quantity="other">%d منضمون</item>
+    </plurals>
+    <plurals name="arena_duration_days">
+        <item quantity="one">%d يوم</item>
+        <item quantity="other">%d أيام</item>
+    </plurals>
+    <plurals name="arena_duration_weeks">
+        <item quantity="one">%d أسبوع</item>
+        <item quantity="other">%d أسابيع</item>
+    </plurals>
+    <plurals name="arena_duration_months">
+        <item quantity="one">%d شهر</item>
+        <item quantity="other">%d أشهر</item>
+    </plurals>
+    <plurals name="arena_home_open">
+        <item quantity="one">%d تحدٍّ مفتوح — مجاني، اربح AFIT على بقائك نشيطًا.</item>
+        <item quantity="other">%d تحديات مفتوحة — مجانية، اربح AFIT على بقائك نشيطًا.</item>
+    </plurals>
+    <plurals name="arena_badges_header">
+        <item quantity="one">شارة الساحة (%d)</item>
+        <item quantity="other">شارات الساحة (%d)</item>
+    </plurals>
 </resources>
 
 

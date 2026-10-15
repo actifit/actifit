@@ -785,6 +785,112 @@
     <string name="arena_metric_steps">步数</string>
     <string name="arena_metric_distance">距离</string>
     <string name="arena_metric_goal">达成每日目标次数</string>
+    <!-- Friends + Arena -->
+    <string name="more_menu_friends">好友</string>
+    <string name="friends_title">好友</string>
+    <string name="friends_tab_friends">好友</string>
+    <string name="friends_tab_requests">请求</string>
+    <string name="friends_tab_suggested">推荐</string>
+    <string name="friends_received">收到的</string>
+    <string name="friends_sent">发出的</string>
+    <string name="friends_action_accept">接受</string>
+    <string name="friends_action_add">添加</string>
+    <string name="friends_action_cancel">取消</string>
+    <string name="friends_action_unfriend">删除好友</string>
+    <string name="friends_search_hint">搜索用户名以添加…</string>
+    <string name="friends_search_go">搜索</string>
+    <string name="friends_search_invalid">请输入有效的 Actifit 用户名</string>
+    <string name="friends_search_self">这就是你！</string>
+    <string name="friends_avatar_desc">\@%1$s 的头像</string>
+    <string name="friends_empty_friends">你还没有好友。在上方搜索用户名，或打开某位 Actifitter 的主页发送请求！</string>
+    <string name="friends_empty_requests">没有待处理的好友请求。</string>
+    <string name="friends_empty_suggested">暂时没有推荐。试试在上方搜索用户名！</string>
+    <string name="friends_stats_loading">正在加载详情…</string>
+    <string name="friends_loading_more">正在加载更多…</string>
+    <string name="friends_confirm_unfriend">将 @%1$s 从好友中删除？</string>
+    <string name="friends_action_done">完成</string>
+    <string name="friends_request_sent">好友请求已发送</string>
+    <string name="friends_action_failed">出了点问题，请重试</string>
+    <string name="friends_error_login">请登录以管理好友</string>
+    <string name="footer_arena">竞技场</string>
+    <string name="more_menu_leaderboard">每日排行榜</string>
+    <string name="arena_subtitle">健身挑战、联赛和赛季——保持活跃即可赢取奖励。</string>
+    <string name="arena_tab_open">进行中</string>
+    <string name="arena_tab_mine">我的</string>
+    <string name="arena_tab_results">结果</string>
+    <string name="arena_empty_mine">你还没有加入任何挑战。在“进行中”里选一个吧。</string>
+    <string name="arena_empty_mine_login">登录后查看你的挑战。</string>
+    <string name="arena_empty_results">还没有已结束的挑战。</string>
+    <string name="arena_load_error">无法加载竞技场。点按重试。</string>
+    <string name="arena_joined_short">已加入</string>
+    <string name="arena_working">正在发送…</string>
+    <string name="arena_join_pending">正在上链记录——可能需要一分钟才会出现在榜单上。</string>
+    <string name="arena_leave_pending">正在退出——更新可能需要一分钟。</string>
+    <string name="arena_pending_expired">我们无法确认你的上一次请求。请重试。</string>
+    <string name="arena_closed">此挑战已结束。</string>
+    <string name="arena_ends_in_days">%1$d天%2$d小时后结束</string>
+    <string name="arena_ends_in_hours">%1$d小时%2$d分钟后结束</string>
+    <string name="arena_ends_in_minutes">%1$d分钟后结束</string>
+    <string name="arena_ended">已结束</string>
+    <string name="arena_ended_on">于 %1$s 结束</string>
+    <string name="arena_metric_goal_target">达成每日目标次数（%1$s）</string>
+    <string name="arena_report_note">只有已发布的报告才计分。发布今天的报告，今天的活动才会计入这里。</string>
+    <string name="arena_standings_updated">更新于 %1$s</string>
+    <string name="arena_your_result">你获得第 %1$d 名</string>
+    <string name="arena_your_result_afit">第 %1$d 名 · 获得 %2$s AFIT</string>
+    <string name="arena_recurrence_league">联赛</string>
+    <string name="arena_recurrence_daily">每日</string>
+    <string name="arena_recurrence_event">活动</string>
+    <string name="arena_tagline_league">在排行榜上竞争，不断攀升名次。</string>
+    <string name="arena_tagline_daily">完成每日目标，保持连续记录。</string>
+    <string name="arena_tagline_event">限时活动——在结束前加入。</string>
+    <string name="arena_tagline_default">加入挑战，保持活跃。</string>
+    <string name="arena_how_league">你经过验证的活动会与联赛中的其他所有人进行排名。</string>
+    <string name="arena_how_daily">每天达成目标即可完成挑战。</string>
+    <string name="arena_how_event">一项有独立目标和时间段的特别活动。在关闭前参与。</string>
+    <string name="arena_how_default">在挑战时间段结束前记录你的活动即可参与。</string>
+    <string name="arena_prize_league">根据最终名次赢取 AFIT。</string>
+    <string name="arena_prize_daily">每达成一个目标即可赢取 AFIT。</string>
+    <string name="arena_prize_event">赢取 AFIT 和活动奖励。</string>
+    <string name="arena_prize_default">参与即可赢取 AFIT。</string>
+    <string name="arena_home_rank">第 %1$d 名 · %2$s</string>
+    <string name="arena_home_no_score">还没有分数——发布今天的报告即可上榜。</string>
+    <string name="arena_home_join_title">加入一项挑战</string>
+    <string name="arena_my_rank">你排第 %1$d 名 · %2$s</string>
+    <string name="arena_my_gap">落后第 %2$d 名 %1$s</string>
+    <string name="arena_my_leading">你目前领先。</string>
+    <string name="arena_my_unranked">你还没有上榜。</string>
+    <string name="arena_today_steps">今天这部手机记录：%1$s 步。发布报告后才会计分。</string>
+    <string name="arena_today_goal">今天这部手机记录：%1$s / %2$s 步。发布报告后才会计分。</string>
+    <string name="arena_report_counts">此报告经验证后将计入你的竞技场挑战。</string>
+    <string name="arena_badge_row_community">%1$s — %2$s · 社区</string>
+    <plurals name="friends_pending_badge_desc">
+        <item quantity="other">%1$d 个待处理的好友请求</item>
+    </plurals>
+    <plurals name="friends_stat_reports">
+        <item quantity="other">%1$s 份报告</item>
+    </plurals>
+    <plurals name="friends_stat_mutual">
+        <item quantity="other">%1$d 位共同好友</item>
+    </plurals>
+    <plurals name="arena_participants">
+        <item quantity="other">%d 人已加入</item>
+    </plurals>
+    <plurals name="arena_duration_days">
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <plurals name="arena_duration_weeks">
+        <item quantity="other">%d 周</item>
+    </plurals>
+    <plurals name="arena_duration_months">
+        <item quantity="other">%d 个月</item>
+    </plurals>
+    <plurals name="arena_home_open">
+        <item quantity="other">%d 项挑战进行中——免费参加，保持活跃即可赢取 AFIT。</item>
+    </plurals>
+    <plurals name="arena_badges_header">
+        <item quantity="other">竞技场徽章（%d）</item>
+    </plurals>
 </resources>
 
 
