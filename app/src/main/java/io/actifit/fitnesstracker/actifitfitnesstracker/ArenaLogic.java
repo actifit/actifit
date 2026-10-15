@@ -124,6 +124,26 @@ public final class ArenaLogic {
         return serverJoined ? Membership.JOINED : Membership.NOT_JOINED;
     }
 
+    private static final java.util.regex.Pattern CHALLENGE_URL = java.util.regex.Pattern.compile(
+            "^https?://(?:www\\.)?actifit\\.io/arena/([^/?#]+)/?(?:[?#].*)?$");
+
+    /**
+     * The challenge id in an Arena link (https://actifit.io/arena/<id>), as sent in Arena
+     * notifications; null for any other URL, including the create page.
+     */
+    public static String challengeIdFromUrl(String url) {
+        if (url == null) return null;
+        java.util.regex.Matcher m = CHALLENGE_URL.matcher(url.trim());
+        if (!m.matches()) return null;
+        String id;
+        try {
+            id = java.net.URLDecoder.decode(m.group(1), "UTF-8");
+        } catch (Exception e) {
+            return null;
+        }
+        return (id.isEmpty() || "create".equals(id)) ? null : id;
+    }
+
     /** Machine enum → readable label ("league_fixture" → "league fixture"). */
     public static String humanize(String s) {
         return s == null ? "" : s.replace('_', ' ');

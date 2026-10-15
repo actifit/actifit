@@ -2254,6 +2254,17 @@ public class MainActivity extends BaseActivity {
             // Call your NotificationActivity here..
             if (getIntent().getExtras().containsKey("url")) {
                 String targetUrl = getIntent().getExtras().get("url").toString();
+                // Consume it: a recreated MainActivity (rotation, dark-mode switch, process
+                // restore) must not open the notification's target again.
+                getIntent().removeExtra("url");
+                // Arena notifications link to a challenge: open the native screen.
+                String arenaId = ArenaLogic.challengeIdFromUrl(targetUrl);
+                if (arenaId != null) {
+                    Intent arenaIntent = new Intent(this, ArenaChallengeActivity.class);
+                    arenaIntent.putExtra(ArenaChallengeActivity.EXTRA_CHALLENGE_ID, arenaId);
+                    startActivity(arenaIntent);
+                    return;
+                }
                 /*
                  * Intent intent = new Intent(this, MainActivity.class);
                  * intent.setData(Uri.parse(targetUrl));
