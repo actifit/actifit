@@ -102,6 +102,25 @@ public class ArenaLogicTest {
     }
 
     @Test
+    public void challengeIdIsReadFromArenaLinks() {
+        assertEquals("def_weekly_step_league",
+                ArenaLogic.challengeIdFromUrl("https://actifit.io/arena/def_weekly_step_league"));
+        // rolled-over ids arrive percent-encoded
+        assertEquals("def_daily_focus@2026-10-13",
+                ArenaLogic.challengeIdFromUrl("https://actifit.io/arena/def_daily_focus%402026-10-13"));
+        assertEquals("ch_x", ArenaLogic.challengeIdFromUrl("https://www.actifit.io/arena/ch_x/?ref=push"));
+    }
+
+    @Test
+    public void nonChallengeLinksAreIgnored() {
+        assertNull(ArenaLogic.challengeIdFromUrl("https://actifit.io/arena"));
+        assertNull(ArenaLogic.challengeIdFromUrl("https://actifit.io/arena/create"));
+        assertNull(ArenaLogic.challengeIdFromUrl("https://actifit.io/mcfarhat/wallet"));
+        assertNull(ArenaLogic.challengeIdFromUrl("https://evil.example/arena/ch_x"));
+        assertNull(ArenaLogic.challengeIdFromUrl(null));
+    }
+
+    @Test
     public void catalogKindCoversKnownTypesAndDefaultsTheRest() {
         assertEquals(ArenaLogic.KIND_LEAGUE, ArenaLogic.catalogKind("league_fixture"));
         assertEquals(ArenaLogic.KIND_DAILY, ArenaLogic.catalogKind("daily_focus"));

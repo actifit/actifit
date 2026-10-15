@@ -2254,6 +2254,14 @@ public class MainActivity extends BaseActivity {
             // Call your NotificationActivity here..
             if (getIntent().getExtras().containsKey("url")) {
                 String targetUrl = getIntent().getExtras().get("url").toString();
+                // Arena notifications link to a challenge: open the native screen.
+                String arenaId = ArenaLogic.challengeIdFromUrl(targetUrl);
+                if (arenaId != null) {
+                    Intent arenaIntent = new Intent(this, ArenaChallengeActivity.class);
+                    arenaIntent.putExtra(ArenaChallengeActivity.EXTRA_CHALLENGE_ID, arenaId);
+                    startActivity(arenaIntent);
+                    return;
+                }
                 /*
                  * Intent intent = new Intent(this, MainActivity.class);
                  * intent.setData(Uri.parse(targetUrl));

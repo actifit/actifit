@@ -102,6 +102,15 @@ public class NotificationEntryAdapter extends ArrayAdapter<NotificationModel> {
                 return;
             }
 
+            // Arena notifications (results, closing-soon) open the native challenge screen.
+            String arenaId = ArenaLogic.challengeIdFromUrl(notifEntry.url);
+            if (arenaId != null) {
+                Intent arenaIntent = new Intent(ctx, ArenaChallengeActivity.class);
+                arenaIntent.putExtra(ArenaChallengeActivity.EXTRA_CHALLENGE_ID, arenaId);
+                ctx.startActivity(arenaIntent);
+                return;
+            }
+
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 
             builder.setToolbarColor(ctx.getResources().getColor(R.color.actifitRed));
