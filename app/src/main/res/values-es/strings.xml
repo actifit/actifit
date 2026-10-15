@@ -789,6 +789,121 @@
     <string name="arena_metric_steps">Número de pasos</string>
     <string name="arena_metric_distance">Distancia</string>
     <string name="arena_metric_goal">Objetivos diarios alcanzados</string>
+    <!-- Friends + Arena -->
+    <string name="more_menu_friends">Amigos</string>
+    <string name="friends_title">Amigos</string>
+    <string name="friends_tab_friends">Amigos</string>
+    <string name="friends_tab_requests">Solicitudes</string>
+    <string name="friends_tab_suggested">Sugeridos</string>
+    <string name="friends_received">RECIBIDAS</string>
+    <string name="friends_sent">ENVIADAS</string>
+    <string name="friends_action_accept">Aceptar</string>
+    <string name="friends_action_add">Añadir</string>
+    <string name="friends_action_cancel">Cancelar</string>
+    <string name="friends_action_unfriend">Eliminar</string>
+    <string name="friends_search_hint">Busca un usuario para añadirlo…</string>
+    <string name="friends_search_go">Ir</string>
+    <string name="friends_search_invalid">Introduce un nombre de usuario de Actifit válido</string>
+    <string name="friends_search_self">¡Ese eres tú!</string>
+    <string name="friends_avatar_desc">Foto de perfil de @%1$s</string>
+    <string name="friends_empty_friends">Aún no tienes amigos. Busca un usuario arriba o abre el perfil de un Actifitter y envíale una solicitud.</string>
+    <string name="friends_empty_requests">No hay solicitudes de amistad pendientes.</string>
+    <string name="friends_empty_suggested">No hay sugerencias por ahora. ¡Prueba a buscar un usuario arriba!</string>
+    <string name="friends_stats_loading">Cargando detalles…</string>
+    <string name="friends_loading_more">Cargando más…</string>
+    <string name="friends_confirm_unfriend">¿Eliminar a @%1$s de tus amigos?</string>
+    <string name="friends_action_done">Hecho</string>
+    <string name="friends_request_sent">Solicitud de amistad enviada</string>
+    <string name="friends_action_failed">Algo salió mal, inténtalo de nuevo</string>
+    <string name="friends_error_login">Inicia sesión para gestionar tus amigos</string>
+    <string name="footer_arena">Arena</string>
+    <string name="more_menu_leaderboard">Clasificación diaria</string>
+    <string name="arena_subtitle">Retos de fitness, ligas y temporadas: gana recompensas por mantenerte activo.</string>
+    <string name="arena_tab_open">Abiertos</string>
+    <string name="arena_tab_mine">Míos</string>
+    <string name="arena_tab_results">Resultados</string>
+    <string name="arena_empty_mine">Aún no te has unido a ningún reto. Elige uno en Abiertos.</string>
+    <string name="arena_empty_mine_login">Inicia sesión para ver tus retos.</string>
+    <string name="arena_empty_results">Aún no hay retos terminados.</string>
+    <string name="arena_load_error">No se pudo cargar la Arena. Toca para reintentar.</string>
+    <string name="arena_joined_short">Inscrito</string>
+    <string name="arena_working">Enviando…</string>
+    <string name="arena_join_pending">Registrando en la cadena: puede tardar un minuto en aparecer en la tabla.</string>
+    <string name="arena_leave_pending">Saliendo: puede tardar un minuto en actualizarse.</string>
+    <string name="arena_pending_expired">No pudimos confirmar tu última solicitud. Inténtalo de nuevo.</string>
+    <string name="arena_closed">Este reto ha terminado.</string>
+    <string name="arena_ends_in_days">Termina en %1$d d %2$d h</string>
+    <string name="arena_ends_in_hours">Termina en %1$d h %2$d min</string>
+    <string name="arena_ends_in_minutes">Termina en %1$d min</string>
+    <string name="arena_ended">Terminado</string>
+    <string name="arena_ended_on">Terminó el %1$s</string>
+    <string name="arena_metric_goal_target">Metas diarias cumplidas (%1$s)</string>
+    <string name="arena_report_note">Solo cuentan los reportes publicados. Publica tu reporte diario para que la actividad de hoy sume aquí.</string>
+    <string name="arena_standings_updated">Actualizado %1$s</string>
+    <string name="arena_your_result">Terminaste en el puesto %1$d</string>
+    <string name="arena_your_result_afit">Puesto %1$d · %2$s AFIT ganados</string>
+    <string name="arena_recurrence_league">Liga</string>
+    <string name="arena_recurrence_daily">Diario</string>
+    <string name="arena_recurrence_event">Evento</string>
+    <string name="arena_tagline_league">Compite en la clasificación y sube en la tabla.</string>
+    <string name="arena_tagline_daily">Cumple la meta diaria y mantén tu racha.</string>
+    <string name="arena_tagline_event">Un evento por tiempo limitado: únete antes de que termine.</string>
+    <string name="arena_tagline_default">Únete al reto y mantente activo.</string>
+    <string name="arena_how_league">Tu actividad verificada se compara con la de todos los demás en la liga.</string>
+    <string name="arena_how_daily">Alcanza el objetivo cada día para superar el reto.</string>
+    <string name="arena_how_event">Un evento especial con su propia meta y periodo. Participa antes de que cierre.</string>
+    <string name="arena_how_default">Participa registrando tu actividad antes de que cierre el periodo del reto.</string>
+    <string name="arena_prize_league">Gana AFIT según tu posición final.</string>
+    <string name="arena_prize_daily">Gana AFIT por cada meta que alcances.</string>
+    <string name="arena_prize_event">Gana AFIT y recompensas del evento.</string>
+    <string name="arena_prize_default">Gana AFIT por participar.</string>
+    <string name="arena_home_rank">Puesto %1$d · %2$s</string>
+    <string name="arena_home_no_score">Aún sin puntuación: publica el reporte de hoy para entrar en la tabla.</string>
+    <string name="arena_home_join_title">Únete a un reto</string>
+    <string name="arena_my_rank">Vas en el puesto %1$d · %2$s</string>
+    <string name="arena_my_gap">A %1$s del puesto %2$d</string>
+    <string name="arena_my_leading">Vas en cabeza.</string>
+    <string name="arena_my_unranked">Aún no estás en la tabla.</string>
+    <string name="arena_today_steps">Hoy en este teléfono: %1$s pasos. Solo cuentan cuando publicas tu reporte.</string>
+    <string name="arena_today_goal">Hoy en este teléfono: %1$s de %2$s pasos. Solo cuentan cuando publicas tu reporte.</string>
+    <string name="arena_report_counts">Este reporte contará para tus retos de la Arena una vez verificado.</string>
+    <string name="arena_badge_row_community">%1$s — %2$s · Comunidad</string>
+    <plurals name="friends_pending_badge_desc">
+        <item quantity="one">%1$d solicitud de amistad pendiente</item>
+        <item quantity="other">%1$d solicitudes de amistad pendientes</item>
+    </plurals>
+    <plurals name="friends_stat_reports">
+        <item quantity="one">%1$s reporte</item>
+        <item quantity="other">%1$s reportes</item>
+    </plurals>
+    <plurals name="friends_stat_mutual">
+        <item quantity="one">%1$d amigo en común</item>
+        <item quantity="other">%1$d amigos en común</item>
+    </plurals>
+    <plurals name="arena_participants">
+        <item quantity="one">%d inscrito</item>
+        <item quantity="other">%d inscritos</item>
+    </plurals>
+    <plurals name="arena_duration_days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="arena_duration_weeks">
+        <item quantity="one">%d semana</item>
+        <item quantity="other">%d semanas</item>
+    </plurals>
+    <plurals name="arena_duration_months">
+        <item quantity="one">%d mes</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
+    <plurals name="arena_home_open">
+        <item quantity="one">%d reto abierto: gratis, gana AFIT por mantenerte activo.</item>
+        <item quantity="other">%d retos abiertos: gratis, gana AFIT por mantenerte activo.</item>
+    </plurals>
+    <plurals name="arena_badges_header">
+        <item quantity="one">Insignia de la Arena (%d)</item>
+        <item quantity="other">Insignias de la Arena (%d)</item>
+    </plurals>
 </resources>
 
 

@@ -785,6 +785,139 @@
     <string name="arena_metric_steps">Кількість кроків</string>
     <string name="arena_metric_distance">Дистанція</string>
     <string name="arena_metric_goal">Виконані денні цілі</string>
+    <!-- Friends + Arena -->
+    <string name="more_menu_friends">Друзі</string>
+    <string name="friends_title">Друзі</string>
+    <string name="friends_tab_friends">Друзі</string>
+    <string name="friends_tab_requests">Запити</string>
+    <string name="friends_tab_suggested">Рекомендовані</string>
+    <string name="friends_received">ОТРИМАНІ</string>
+    <string name="friends_sent">НАДІСЛАНІ</string>
+    <string name="friends_action_accept">Прийняти</string>
+    <string name="friends_action_add">Додати</string>
+    <string name="friends_action_cancel">Скасувати</string>
+    <string name="friends_action_unfriend">Видалити</string>
+    <string name="friends_search_hint">Знайдіть ім’я користувача, щоб додати…</string>
+    <string name="friends_search_go">Знайти</string>
+    <string name="friends_search_invalid">Введіть дійсне ім’я користувача Actifit</string>
+    <string name="friends_search_self">Це ви!</string>
+    <string name="friends_avatar_desc">Фото профілю @%1$s</string>
+    <string name="friends_empty_friends">У вас ще немає друзів. Знайдіть ім’я користувача вгорі або відкрийте профіль Actifitter і надішліть запит!</string>
+    <string name="friends_empty_requests">Немає запитів на дружбу в очікуванні.</string>
+    <string name="friends_empty_suggested">Зараз немає рекомендацій. Спробуйте знайти ім’я користувача вгорі!</string>
+    <string name="friends_stats_loading">Завантаження подробиць…</string>
+    <string name="friends_loading_more">Завантаження ще…</string>
+    <string name="friends_confirm_unfriend">Видалити @%1$s із друзів?</string>
+    <string name="friends_action_done">Готово</string>
+    <string name="friends_request_sent">Запит на дружбу надіслано</string>
+    <string name="friends_action_failed">Щось пішло не так, спробуйте ще раз</string>
+    <string name="friends_error_login">Увійдіть, щоб керувати друзями</string>
+    <string name="footer_arena">Арена</string>
+    <string name="more_menu_leaderboard">Щоденний рейтинг</string>
+    <string name="arena_subtitle">Фітнес-челенджі, ліги та сезони — отримуйте нагороди за активність.</string>
+    <string name="arena_tab_open">Відкриті</string>
+    <string name="arena_tab_mine">Мої</string>
+    <string name="arena_tab_results">Результати</string>
+    <string name="arena_empty_mine">Ви ще не приєдналися до жодного челенджу. Виберіть один у розділі «Відкриті».</string>
+    <string name="arena_empty_mine_login">Увійдіть, щоб побачити свої челенджі.</string>
+    <string name="arena_empty_results">Ще немає завершених челенджів.</string>
+    <string name="arena_load_error">Не вдалося завантажити Арену. Торкніться, щоб повторити.</string>
+    <string name="arena_joined_short">Ви берете участь</string>
+    <string name="arena_working">Надсилання…</string>
+    <string name="arena_join_pending">Записується в блокчейн — може знадобитися хвилина, щоб з’явитися в таблиці.</string>
+    <string name="arena_leave_pending">Вихід — оновлення може зайняти хвилину.</string>
+    <string name="arena_pending_expired">Не вдалося підтвердити ваш останній запит. Спробуйте ще раз.</string>
+    <string name="arena_closed">Цей челендж завершено.</string>
+    <string name="arena_ends_in_days">Закінчується через %1$d д %2$d год</string>
+    <string name="arena_ends_in_hours">Закінчується через %1$d год %2$d хв</string>
+    <string name="arena_ends_in_minutes">Закінчується через %1$d хв</string>
+    <string name="arena_ended">Завершено</string>
+    <string name="arena_ended_on">Завершено %1$s</string>
+    <string name="arena_metric_goal_target">Досягнуті щоденні цілі (%1$s)</string>
+    <string name="arena_report_note">Зараховуються лише опубліковані звіти. Опублікуйте щоденний звіт, щоб сьогоднішня активність зарахувалася тут.</string>
+    <string name="arena_standings_updated">Оновлено %1$s</string>
+    <string name="arena_your_result">Ви фінішували на %1$d місці</string>
+    <string name="arena_your_result_afit">%1$d місце · зароблено %2$s AFIT</string>
+    <string name="arena_recurrence_league">Ліга</string>
+    <string name="arena_recurrence_daily">Щодня</string>
+    <string name="arena_recurrence_event">Подія</string>
+    <string name="arena_tagline_league">Змагайтеся в рейтингу й піднімайтеся в таблиці.</string>
+    <string name="arena_tagline_daily">Досягайте щоденної цілі та зберігайте серію.</string>
+    <string name="arena_tagline_event">Подія на обмежений час — приєднуйтеся, поки вона триває.</string>
+    <string name="arena_tagline_default">Приєднуйтеся до челенджу й залишайтеся активними.</string>
+    <string name="arena_how_league">Вашу підтверджену активність порівнюють з усіма іншими учасниками ліги.</string>
+    <string name="arena_how_daily">Досягайте цілі щодня, щоб пройти челендж.</string>
+    <string name="arena_how_event">Особлива подія з власною ціллю та періодом. Беріть участь, поки вона не закрилася.</string>
+    <string name="arena_how_default">Беріть участь, записуючи активність до завершення періоду челенджу.</string>
+    <string name="arena_prize_league">Отримуйте AFIT залежно від місця у фіналі.</string>
+    <string name="arena_prize_daily">Отримуйте AFIT за кожну досягнуту ціль.</string>
+    <string name="arena_prize_event">Отримуйте AFIT і нагороди події.</string>
+    <string name="arena_prize_default">Отримуйте AFIT за участь.</string>
+    <string name="arena_home_rank">Місце %1$d · %2$s</string>
+    <string name="arena_home_no_score">Ще немає балів — опублікуйте сьогоднішній звіт, щоб потрапити в таблицю.</string>
+    <string name="arena_home_join_title">Приєднайтеся до челенджу</string>
+    <string name="arena_my_rank">Ви на %1$d місці · %2$s</string>
+    <string name="arena_my_gap">%1$s позаду %2$d місця</string>
+    <string name="arena_my_leading">Ви лідируєте.</string>
+    <string name="arena_my_unranked">Вас ще немає в таблиці.</string>
+    <string name="arena_today_steps">Сьогодні на цьому телефоні: %1$s кроків. Вони зарахуються лише після публікації звіту.</string>
+    <string name="arena_today_goal">Сьогодні на цьому телефоні: %1$s із %2$s кроків. Вони зарахуються лише після публікації звіту.</string>
+    <string name="arena_report_counts">Цей звіт зарахується до ваших челенджів на Арені після перевірки.</string>
+    <string name="arena_badge_row_community">%1$s — %2$s · Спільнота</string>
+    <plurals name="friends_pending_badge_desc">
+        <item quantity="one">%1$d запит на дружбу в очікуванні</item>
+        <item quantity="few">%1$d запити на дружбу в очікуванні</item>
+        <item quantity="many">%1$d запитів на дружбу в очікуванні</item>
+        <item quantity="other">%1$d запиту на дружбу в очікуванні</item>
+    </plurals>
+    <plurals name="friends_stat_reports">
+        <item quantity="one">%1$s звіт</item>
+        <item quantity="few">%1$s звіти</item>
+        <item quantity="many">%1$s звітів</item>
+        <item quantity="other">%1$s звіту</item>
+    </plurals>
+    <plurals name="friends_stat_mutual">
+        <item quantity="one">%1$d спільний друг</item>
+        <item quantity="few">%1$d спільні друзі</item>
+        <item quantity="many">%1$d спільних друзів</item>
+        <item quantity="other">%1$d спільного друга</item>
+    </plurals>
+    <plurals name="arena_participants">
+        <item quantity="one">%d учасник</item>
+        <item quantity="few">%d учасники</item>
+        <item quantity="many">%d учасників</item>
+        <item quantity="other">%d учасника</item>
+    </plurals>
+    <plurals name="arena_duration_days">
+        <item quantity="one">%d день</item>
+        <item quantity="few">%d дні</item>
+        <item quantity="many">%d днів</item>
+        <item quantity="other">%d дня</item>
+    </plurals>
+    <plurals name="arena_duration_weeks">
+        <item quantity="one">%d тиждень</item>
+        <item quantity="few">%d тижні</item>
+        <item quantity="many">%d тижнів</item>
+        <item quantity="other">%d тижня</item>
+    </plurals>
+    <plurals name="arena_duration_months">
+        <item quantity="one">%d місяць</item>
+        <item quantity="few">%d місяці</item>
+        <item quantity="many">%d місяців</item>
+        <item quantity="other">%d місяця</item>
+    </plurals>
+    <plurals name="arena_home_open">
+        <item quantity="one">Відкрито %d челендж — безкоштовно, отримуйте AFIT за активність.</item>
+        <item quantity="few">Відкрито %d челенджі — безкоштовно, отримуйте AFIT за активність.</item>
+        <item quantity="many">Відкрито %d челенджів — безкоштовно, отримуйте AFIT за активність.</item>
+        <item quantity="other">Відкрито %d челенджу — безкоштовно, отримуйте AFIT за активність.</item>
+    </plurals>
+    <plurals name="arena_badges_header">
+        <item quantity="one">Значки Арени (%d)</item>
+        <item quantity="few">Значки Арени (%d)</item>
+        <item quantity="many">Значки Арени (%d)</item>
+        <item quantity="other">Значки Арени (%d)</item>
+    </plurals>
 </resources>
 
 

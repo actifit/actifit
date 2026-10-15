@@ -786,5 +786,120 @@
     <string name="arena_metric_steps">Adım sayısı</string>
     <string name="arena_metric_distance">Mesafe</string>
     <string name="arena_metric_goal">Tutulan günlük hedefler</string>
+    <!-- Friends + Arena -->
+    <string name="more_menu_friends">Arkadaşlar</string>
+    <string name="friends_title">Arkadaşlar</string>
+    <string name="friends_tab_friends">Arkadaşlar</string>
+    <string name="friends_tab_requests">İstekler</string>
+    <string name="friends_tab_suggested">Önerilen</string>
+    <string name="friends_received">GELEN</string>
+    <string name="friends_sent">GÖNDERİLEN</string>
+    <string name="friends_action_accept">Kabul et</string>
+    <string name="friends_action_add">Ekle</string>
+    <string name="friends_action_cancel">İptal</string>
+    <string name="friends_action_unfriend">Çıkar</string>
+    <string name="friends_search_hint">Eklemek için kullanıcı adı ara…</string>
+    <string name="friends_search_go">Ara</string>
+    <string name="friends_search_invalid">Geçerli bir Actifit kullanıcı adı gir</string>
+    <string name="friends_search_self">Bu sensin!</string>
+    <string name="friends_avatar_desc">\@%1$s profil fotoğrafı</string>
+    <string name="friends_empty_friends">Henüz arkadaşın yok. Yukarıdan bir kullanıcı adı ara ya da bir Actifitter\'ın profilini açıp istek gönder!</string>
+    <string name="friends_empty_requests">Bekleyen arkadaşlık isteği yok.</string>
+    <string name="friends_empty_suggested">Şu an öneri yok. Yukarıdan bir kullanıcı adı aramayı dene!</string>
+    <string name="friends_stats_loading">Ayrıntılar yükleniyor…</string>
+    <string name="friends_loading_more">Daha fazlası yükleniyor…</string>
+    <string name="friends_confirm_unfriend">\@%1$s arkadaşlarından çıkarılsın mı?</string>
+    <string name="friends_action_done">Tamam</string>
+    <string name="friends_request_sent">Arkadaşlık isteği gönderildi</string>
+    <string name="friends_action_failed">Bir şeyler ters gitti, lütfen tekrar dene</string>
+    <string name="friends_error_login">Arkadaşlarını yönetmek için lütfen giriş yap</string>
+    <string name="footer_arena">Arena</string>
+    <string name="more_menu_leaderboard">Günlük Sıralama</string>
+    <string name="arena_subtitle">Fitness meydan okumaları, ligler ve sezonlar — aktif kaldıkça ödül kazan.</string>
+    <string name="arena_tab_open">Açık</string>
+    <string name="arena_tab_mine">Benimkiler</string>
+    <string name="arena_tab_results">Sonuçlar</string>
+    <string name="arena_empty_mine">Henüz bir meydan okumaya katılmadın. Açık sekmesinden birini seç.</string>
+    <string name="arena_empty_mine_login">Meydan okumalarını görmek için giriş yap.</string>
+    <string name="arena_empty_results">Henüz tamamlanmış meydan okuma yok.</string>
+    <string name="arena_load_error">Arena yüklenemedi. Tekrar denemek için dokun.</string>
+    <string name="arena_joined_short">Katıldın</string>
+    <string name="arena_working">Gönderiliyor…</string>
+    <string name="arena_join_pending">Zincire kaydediliyor — tabloda görünmesi bir dakika sürebilir.</string>
+    <string name="arena_leave_pending">Ayrılınıyor — güncellenmesi bir dakika sürebilir.</string>
+    <string name="arena_pending_expired">Son isteğini doğrulayamadık. Lütfen tekrar dene.</string>
+    <string name="arena_closed">Bu meydan okuma sona erdi.</string>
+    <string name="arena_ends_in_days">%1$d g %2$d sa sonra bitiyor</string>
+    <string name="arena_ends_in_hours">%1$d sa %2$d dk sonra bitiyor</string>
+    <string name="arena_ends_in_minutes">%1$d dk sonra bitiyor</string>
+    <string name="arena_ended">Bitti</string>
+    <string name="arena_ended_on">%1$s tarihinde bitti</string>
+    <string name="arena_metric_goal_target">Ulaşılan günlük hedefler (%1$s)</string>
+    <string name="arena_report_note">Yalnızca paylaşılan raporlar sayılır. Bugünkü aktiviten burada sayılsın diye günlük raporunu paylaş.</string>
+    <string name="arena_standings_updated">Güncellendi: %1$s</string>
+    <string name="arena_your_result">%1$d. sırada bitirdin</string>
+    <string name="arena_your_result_afit">%1$d. sıra · %2$s AFIT kazanıldı</string>
+    <string name="arena_recurrence_league">Lig</string>
+    <string name="arena_recurrence_daily">Günlük</string>
+    <string name="arena_recurrence_event">Etkinlik</string>
+    <string name="arena_tagline_league">Sıralamada yarış ve tabloda yüksel.</string>
+    <string name="arena_tagline_daily">Günlük hedefe ulaş ve serini sürdür.</string>
+    <string name="arena_tagline_event">Sınırlı süreli bir etkinlik — bitmeden katıl.</string>
+    <string name="arena_tagline_default">Meydan okumaya katıl ve aktif kal.</string>
+    <string name="arena_how_league">Doğrulanmış aktiviten ligdeki herkesle karşılaştırılır.</string>
+    <string name="arena_how_daily">Meydan okumayı tamamlamak için her gün hedefe ulaş.</string>
+    <string name="arena_how_event">Kendi hedefi ve süresi olan özel bir etkinlik. Kapanmadan katıl.</string>
+    <string name="arena_how_default">Meydan okuma süresi bitmeden aktiviteni kaydederek katıl.</string>
+    <string name="arena_prize_league">Bitirdiğin sıraya göre AFIT kazan.</string>
+    <string name="arena_prize_daily">Ulaştığın her hedef için AFIT kazan.</string>
+    <string name="arena_prize_event">AFIT ve etkinlik ödülleri kazan.</string>
+    <string name="arena_prize_default">Katıldığın için AFIT kazan.</string>
+    <string name="arena_home_rank">%1$d. sıra · %2$s</string>
+    <string name="arena_home_no_score">Henüz puan yok — tabloya girmek için bugünkü raporunu paylaş.</string>
+    <string name="arena_home_join_title">Bir meydan okumaya katıl</string>
+    <string name="arena_my_rank">%1$d. sıradasın · %2$s</string>
+    <string name="arena_my_gap">%2$d. sıranın %1$s gerisinde</string>
+    <string name="arena_my_leading">Liderliktesin.</string>
+    <string name="arena_my_unranked">Henüz tabloda değilsin.</string>
+    <string name="arena_today_steps">Bugün bu telefonda: %1$s adım. Ancak raporunu paylaştığında sayılır.</string>
+    <string name="arena_today_goal">Bugün bu telefonda: %2$s adımın %1$s kadarı. Ancak raporunu paylaştığında sayılır.</string>
+    <string name="arena_report_counts">Bu rapor doğrulandığında Arena meydan okumalarında sayılacak.</string>
+    <string name="arena_badge_row_community">%1$s — %2$s · Topluluk</string>
+    <plurals name="friends_pending_badge_desc">
+        <item quantity="one">%1$d bekleyen arkadaşlık isteği</item>
+        <item quantity="other">%1$d bekleyen arkadaşlık isteği</item>
+    </plurals>
+    <plurals name="friends_stat_reports">
+        <item quantity="one">%1$s rapor</item>
+        <item quantity="other">%1$s rapor</item>
+    </plurals>
+    <plurals name="friends_stat_mutual">
+        <item quantity="one">%1$d ortak arkadaş</item>
+        <item quantity="other">%1$d ortak arkadaş</item>
+    </plurals>
+    <plurals name="arena_participants">
+        <item quantity="one">%d katılımcı</item>
+        <item quantity="other">%d katılımcı</item>
+    </plurals>
+    <plurals name="arena_duration_days">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
+    <plurals name="arena_duration_weeks">
+        <item quantity="one">%d hafta</item>
+        <item quantity="other">%d hafta</item>
+    </plurals>
+    <plurals name="arena_duration_months">
+        <item quantity="one">%d ay</item>
+        <item quantity="other">%d ay</item>
+    </plurals>
+    <plurals name="arena_home_open">
+        <item quantity="one">%d meydan okuma açık — ücretsiz, aktif kaldıkça AFIT kazan.</item>
+        <item quantity="other">%d meydan okuma açık — ücretsiz, aktif kaldıkça AFIT kazan.</item>
+    </plurals>
+    <plurals name="arena_badges_header">
+        <item quantity="one">Arena rozeti (%d)</item>
+        <item quantity="other">Arena rozetleri (%d)</item>
+    </plurals>
 </resources>
 

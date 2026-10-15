@@ -764,6 +764,134 @@
     <string name="error_step_goal_min">일일 최소 걸음 목표는 100걸음입니다.</string>
     <string name="error_step_goal_max">일일 최대 걸음 목표는 100,000걸음입니다.</string>
     <string name="error_step_goal_invalid">유효한 일일 걸음 목표를 입력하세요.</string>
+    <!-- Friends + Arena -->
+    <string name="more_menu_friends">친구</string>
+    <string name="friends_title">친구</string>
+    <string name="friends_tab_friends">친구</string>
+    <string name="friends_tab_requests">요청</string>
+    <string name="friends_tab_suggested">추천</string>
+    <string name="friends_received">받은 요청</string>
+    <string name="friends_sent">보낸 요청</string>
+    <string name="friends_action_accept">수락</string>
+    <string name="friends_action_add">추가</string>
+    <string name="friends_action_cancel">취소</string>
+    <string name="friends_action_unfriend">친구 삭제</string>
+    <string name="friends_search_hint">추가할 사용자 이름 검색…</string>
+    <string name="friends_search_go">검색</string>
+    <string name="friends_search_invalid">올바른 Actifit 사용자 이름을 입력하세요</string>
+    <string name="friends_search_self">본인입니다!</string>
+    <string name="friends_avatar_desc">\@%1$s 프로필 사진</string>
+    <string name="friends_empty_friends">아직 친구가 없습니다. 위에서 사용자 이름을 검색하거나 Actifitter의 프로필을 열어 요청을 보내 보세요!</string>
+    <string name="friends_empty_requests">대기 중인 친구 요청이 없습니다.</string>
+    <string name="friends_empty_suggested">지금은 추천이 없습니다. 위에서 사용자 이름을 검색해 보세요!</string>
+    <string name="friends_stats_loading">세부 정보 불러오는 중…</string>
+    <string name="friends_loading_more">더 불러오는 중…</string>
+    <string name="friends_confirm_unfriend">\@%1$s님을 친구에서 삭제할까요?</string>
+    <string name="friends_action_done">완료</string>
+    <string name="friends_request_sent">친구 요청을 보냈습니다</string>
+    <string name="friends_action_failed">문제가 발생했습니다. 다시 시도해 주세요</string>
+    <string name="friends_error_login">친구를 관리하려면 로그인하세요</string>
+    <string name="arena_title">아레나</string>
+    <string name="footer_arena">아레나</string>
+    <string name="more_menu_leaderboard">일일 순위표</string>
+    <string name="arena_subtitle">피트니스 챌린지, 리그, 시즌 — 꾸준히 활동하고 보상을 받으세요.</string>
+    <string name="arena_tab_open">진행 중</string>
+    <string name="arena_tab_mine">내 챌린지</string>
+    <string name="arena_tab_results">결과</string>
+    <string name="arena_empty_open">지금은 진행 중인 챌린지가 없습니다. 곧 다시 확인해 주세요.</string>
+    <string name="arena_empty_mine">아직 참여한 챌린지가 없습니다. 진행 중에서 하나를 골라 보세요.</string>
+    <string name="arena_empty_mine_login">내 챌린지를 보려면 로그인하세요.</string>
+    <string name="arena_empty_results">아직 종료된 챌린지가 없습니다.</string>
+    <string name="arena_load_error">아레나를 불러오지 못했습니다. 탭하여 다시 시도하세요.</string>
+    <string name="arena_not_found">챌린지를 찾을 수 없습니다.</string>
+    <string name="arena_join">챌린지 참여</string>
+    <string name="arena_leave">나가기</string>
+    <string name="arena_joined">참여 중입니다!</string>
+    <string name="arena_joined_short">참여 중</string>
+    <string name="arena_login_to_join">이 챌린지에 참여하려면 로그인하세요</string>
+    <string name="arena_working">전송 중…</string>
+    <string name="arena_join_pending">체인에 기록 중 — 순위표에 표시되기까지 1분 정도 걸릴 수 있습니다.</string>
+    <string name="arena_leave_pending">나가는 중 — 반영되기까지 1분 정도 걸릴 수 있습니다.</string>
+    <string name="arena_action_failed">문제가 발생했습니다. 다시 시도해 주세요.</string>
+    <string name="arena_pending_expired">마지막 요청을 확인하지 못했습니다. 다시 시도해 주세요.</string>
+    <string name="arena_closed">이 챌린지는 종료되었습니다.</string>
+    <string name="arena_ends_in_days">%1$d일 %2$d시간 후 종료</string>
+    <string name="arena_ends_in_hours">%1$d시간 %2$d분 후 종료</string>
+    <string name="arena_ends_in_minutes">%1$d분 후 종료</string>
+    <string name="arena_ended">종료됨</string>
+    <string name="arena_ended_on">%1$s 종료</string>
+    <string name="arena_length">기간</string>
+    <string name="arena_starts">시작</string>
+    <string name="arena_ends">종료</string>
+    <string name="arena_scored_by">점수 기준</string>
+    <string name="arena_metric_activity">총 활동량</string>
+    <string name="arena_metric_goal">일일 목표 달성 횟수</string>
+    <string name="arena_metric_goal_target">일일 목표 달성 횟수 (%1$s)</string>
+    <string name="arena_metric_steps">걸음 수</string>
+    <string name="arena_metric_distance">거리</string>
+    <string name="arena_how_it_works">참여 방법</string>
+    <string name="arena_prizes">상품</string>
+    <string name="arena_badge_award">우승자 획득 배지:</string>
+    <string name="arena_fair_play">보상은 획득한 AFIT와 수집용 배지입니다 — 무료 참가, 검증된 활동으로 결정되며 절대 돈으로 이길 수 없습니다.</string>
+    <string name="arena_report_note">게시된 리포트만 집계됩니다. 오늘의 활동이 여기에 반영되도록 일일 리포트를 게시하세요.</string>
+    <string name="arena_standings">순위</string>
+    <string name="arena_no_standings">아직 순위가 없습니다 — 참여해서 첫 번째로 이름을 올리세요.</string>
+    <string name="arena_standings_updated">%1$s 업데이트됨</string>
+    <string name="arena_your_result">%1$d위로 마쳤습니다</string>
+    <string name="arena_your_result_afit">%1$d위 · %2$s AFIT 획득</string>
+    <string name="arena_recurrence_league">리그</string>
+    <string name="arena_recurrence_daily">매일</string>
+    <string name="arena_recurrence_event">이벤트</string>
+    <string name="arena_tagline_league">순위표에서 경쟁하며 순위를 올리세요.</string>
+    <string name="arena_tagline_daily">일일 목표를 달성하고 연속 기록을 이어 가세요.</string>
+    <string name="arena_tagline_event">기간 한정 이벤트 — 끝나기 전에 참여하세요.</string>
+    <string name="arena_tagline_default">챌린지에 참여하고 활동을 이어 가세요.</string>
+    <string name="arena_how_league">검증된 활동이 리그의 다른 모든 참가자와 비교되어 순위가 매겨집니다.</string>
+    <string name="arena_how_daily">매일 목표에 도달하면 챌린지를 완료합니다.</string>
+    <string name="arena_how_event">고유한 목표와 기간이 있는 특별 이벤트입니다. 마감 전에 참여하세요.</string>
+    <string name="arena_how_default">챌린지 기간이 끝나기 전에 활동을 기록하여 참여하세요.</string>
+    <string name="arena_prize_league">최종 순위에 따라 AFIT를 받습니다.</string>
+    <string name="arena_prize_daily">목표를 달성할 때마다 AFIT를 받습니다.</string>
+    <string name="arena_prize_event">AFIT와 이벤트 보상을 받습니다.</string>
+    <string name="arena_prize_default">참여하면 AFIT를 받습니다.</string>
+    <string name="arena_home_rank">%1$d위 · %2$s</string>
+    <string name="arena_home_no_score">아직 점수가 없습니다 — 오늘의 리포트를 게시하고 순위표에 오르세요.</string>
+    <string name="arena_home_join_title">챌린지에 참여하세요</string>
+    <string name="arena_my_rank">현재 %1$d위 · %2$s</string>
+    <string name="arena_my_gap">%2$d위와 %1$s 차이</string>
+    <string name="arena_my_leading">1위를 달리고 있습니다.</string>
+    <string name="arena_my_unranked">아직 순위표에 없습니다.</string>
+    <string name="arena_today_steps">오늘 이 휴대폰 기록: %1$s걸음. 리포트를 게시해야 집계됩니다.</string>
+    <string name="arena_today_goal">오늘 이 휴대폰 기록: %2$s걸음 중 %1$s걸음. 리포트를 게시해야 집계됩니다.</string>
+    <string name="arena_report_counts">이 리포트는 검증되면 아레나 챌린지에 반영됩니다.</string>
+    <string name="arena_badge_row_community">%1$s — %2$s · 커뮤니티</string>
+    <plurals name="friends_pending_badge_desc">
+        <item quantity="other">대기 중인 친구 요청 %1$d개</item>
+    </plurals>
+    <plurals name="friends_stat_reports">
+        <item quantity="other">리포트 %1$s개</item>
+    </plurals>
+    <plurals name="friends_stat_mutual">
+        <item quantity="other">함께 아는 친구 %1$d명</item>
+    </plurals>
+    <plurals name="arena_participants">
+        <item quantity="other">%d명 참여</item>
+    </plurals>
+    <plurals name="arena_duration_days">
+        <item quantity="other">%d일</item>
+    </plurals>
+    <plurals name="arena_duration_weeks">
+        <item quantity="other">%d주</item>
+    </plurals>
+    <plurals name="arena_duration_months">
+        <item quantity="other">%d개월</item>
+    </plurals>
+    <plurals name="arena_home_open">
+        <item quantity="other">진행 중인 챌린지 %d개 — 무료 참여, 활동하면 AFIT를 받으세요.</item>
+    </plurals>
+    <plurals name="arena_badges_header">
+        <item quantity="other">아레나 배지 (%d)</item>
+    </plurals>
 </resources>
 
 
