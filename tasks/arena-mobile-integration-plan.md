@@ -1,6 +1,8 @@
 # The Arena on mobile — integration plan (Android first, iOS to follow)
 
-**Status:** approved 2026-10-13. Phase 1 is built on branch `feat/arena-phase1`; phases 2 to 4 are not started.
+**Status (2026-10-17):** phases 1–3 are merged to Android `develop` (PRs #103, #104, #106) and not yet
+released; the backend for phase 3 is live (actifit-bot #131/#132, deployed 2026-10-15). Phase 4 (create
+wizard) is deferred. iOS: phases 1–2 and Friends done in the iOS session, phase 3 handed over.
 **Tracks:** Trello "Mobile 1 - Android" card #56 (The Arena), roadmap item 9 in `feature-roadmap.md`.
 **Readers:** whoever builds the Android screens, and the iOS session that ports them. Sections 1–4
 are platform-neutral; section 5 is Android-specific; section 6 is the iOS handover.
@@ -252,7 +254,7 @@ Success is a response containing `success` with `trx.tx.ref_block_num` set.
 
 Each phase is one PR to `develop`, reviewed before merge, tested on a device.
 
-**Phase 1 — Browse and join.** The web's `/arena` and `/arena/:id` at parity.
+**Phase 1 — Browse and join.** ✅ Merged (#103). The web's `/arena` and `/arena/:id` at parity.
 - `ArenaApi` reads, models, `ArenaLogic`, `ArenaPendingStore`.
 - `ArenaActivity` with the three groups; `ArenaChallengeActivity` with hero, facts, copy, prizes,
   offered badges, standings, Join / Leave.
@@ -262,7 +264,7 @@ Each phase is one PR to `develop`, reviewed before merge, tested on a device.
 - Done when: a logged-in user can join a live challenge from the phone, sees "Joined" immediately
   and still sees it after restarting the app, and the participant row appears on the web.
 
-**Phase 2 — Make it a phone feature.** Section 4.2.
+**Phase 2 — Make it a phone feature.** ✅ Merged (#104). Section 4.2.
 - Home dashboard card; pinned "your row" with the gap; today's-steps line; Daily Focus ring;
   countdowns; post-report hook in `PostSteemitActivity`'s success path.
 - Results view for settled challenges with the viewer's own outcome.
@@ -270,7 +272,10 @@ Each phase is one PR to `develop`, reviewed before merge, tested on a device.
 - Done when: a user who posts a report is told it counted, and can see where they stand without
   opening the detail screen.
 
-**Phase 3 — Notifications and deep links.** Depends on backend work (section 7.2).
+**Phase 3 — Notifications and deep links.** ✅ Notifications merged (#106); App Links not done. Backend
+work in section 7.2 is live. As built: tapping an Arena push or inbox entry opens the native challenge
+screen for `https://actifit.io/arena/<id>` (`ArenaLogic.challengeIdFromUrl`); App Links for links opened
+from other apps still need an `assetlinks.json` on actifit.io.
 - Before the backend work lands: on app open, read `arena/events/:user` and surface unseen
   `results_settled` events as an in-app result card.
 - After: handle Arena push types in `ActifitFirebaseMessagingService` and route them to
@@ -280,7 +285,7 @@ Each phase is one PR to `develop`, reviewed before merge, tested on a device.
   opens the native screen.
 - A "Share challenge" action that shares the web URL.
 
-**Phase 4 — Create a challenge.** The web wizard, natively.
+**Phase 4 — Create a challenge.** ⏸ Deferred by the owner. The web wizard, natively.
 - Three steps: details (title, type, metric, rule, window, entry) → reward → review.
 - Start with the badge-only reward (`origin_tier: "friendly"`, `rewards.badges`, `badge_rule`),
   which any user may create.
@@ -323,7 +328,13 @@ None of it blocks phases 1 and 2.
 newest-first sort (by `window.end`), and allow `state=open,active` in one call. Without it the
 *Results* group downloads an ever-growing array.
 
-### 7.2 Push notifications (needed by phase 3)
+### 7.2 Push notifications (needed by phase 3) — ✅ DONE (actifit-bot #131/#132, live 2026-10-15)
+
+As built: `arena_results` (rewarded finishers, once, at settlement) and `arena_closing` (once per user and
+challenge: 2+ day challenges, last 12h, not posted today), both via `utils.sendNotification` under the
+`arena` category; `/notificationTypes/` lists it so settings show an Arena switch. Daily and squad
+challenges are excluded, and only official public challenges are named in the text. `challenge_opening`
+was not built. The original ask follows.
 
 Today the engine writes only `results_settled` to the `arena_events` collection, and nothing sends
 a push or writes to the notifications inbox the apps already show. Needed:
@@ -353,4 +364,4 @@ a push or writes to the notifications inbox the apps already show. Needed:
    under More. A home dashboard card is also wanted (phase 2).
 2. **Scope of the first release.** Phases 1 and 2 ship together as one release.
 3. **Create wizard.** Deferred to a later phase.
-4. **Backend items in section 7.** Open: not yet assigned or scheduled.
+4. **Backend items in section 7.** 7.2 done (2026-10-15). 7.1 (list paging) and 7.3 still open; the app caps Results at 30.
