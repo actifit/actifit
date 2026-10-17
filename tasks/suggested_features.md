@@ -2,6 +2,10 @@
 
 This document outlines high-value features designed to boost user retention, improve UX polish, and scale the Actifit ecosystem.
 
+> **House rule (non-negotiable):** no wagering / betting / games-of-chance-for-money. Competitive
+> features (e.g. Step Duels) are **skill/goal-based** and rewarded from **sponsor / DHF /
+> Actifit-funded prize pools** — never by pooling participants' own AFIT.
+
 ## 1. Strategic Summary
 To move from a niche utility to a mainstream fitness companion, Actifit must transition from **reactive logging** to **proactive engagement**. By leveraging existing AI capabilities and background tracking, we can provide immediate value to users before they even submit a report.
 
@@ -36,7 +40,7 @@ To move from a niche utility to a mainstream fitness companion, Actifit must tra
 *   **Goal:** Demystify the "Move-to-Earn" economy for new users and provide immediate motivation.
 
 ### Phase 4: Social "Step Duels" (P2P)
-*   **Description:** Allow users to challenge friends or random users to a 24-hour step duel. Users can "wager" a small amount of AFIT.
+*   **Description:** Allow users to challenge friends or random users to a 24-hour step duel for a **sponsor / Actifit-funded AFIT prize** + bragging rights. **No user-staked wager** — competition is skill/goal-based and rewards come from a funded prize pool (house rule: no gambling). Build the challenge/duel lifecycle on the backend once; the web app consumes the same engine.
 *   **Goal:** Transform the social feed from a passive reading experience into an active, competitive community.
 
 ### Phase 5: Smart Post Drafts (AI Assistant)
