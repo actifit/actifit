@@ -901,5 +901,9 @@
         <item quantity="one">Arena rozeti (%d)</item>
         <item quantity="other">Arena rozetleri (%d)</item>
     </plurals>
+    <string name="arena_featured_label">Yakında bitiyor</string>
+    <string name="arena_featured_join">Katılım ücretsiz. Süre dolmadan katıl.</string>
+    <string name="arena_featured_joined">Katıldın. Sayılması için bugünkü raporunu paylaş.</string>
+    <string name="arena_ends_in_clock">%1$s sonra bitiyor</string>
 </resources>
 

@@ -905,6 +905,10 @@
         <item quantity="one">Arena-Abzeichen (%d)</item>
         <item quantity="other">Arena-Abzeichen (%d)</item>
     </plurals>
+    <string name="arena_featured_label">Endet bald</string>
+    <string name="arena_featured_join">Kostenlos dabei sein. Steig ein, bevor die Zeit abläuft.</string>
+    <string name="arena_featured_joined">Du bist dabei. Veröffentliche deinen heutigen Bericht, damit er zählt.</string>
+    <string name="arena_ends_in_clock">Endet in %1$s</string>
 </resources>
 
 

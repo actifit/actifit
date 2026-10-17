@@ -28,6 +28,8 @@ import java.util.List;
 public class ArenaChallengeActivity extends BaseActivity {
 
     public static final String EXTRA_CHALLENGE_ID = "challenge_id";
+    /** Set by the Arena list. Without it (dashboard card, notification) Back opens the Arena. */
+    public static final String EXTRA_FROM_ARENA = "from_arena";
 
     // The board is capped on screen; the viewer's own row is appended if it falls below.
     private static final int MAX_STANDING_ROWS = 50;
@@ -58,7 +60,13 @@ public class ArenaChallengeActivity extends BaseActivity {
         actionBar = findViewById(R.id.arena_action_bar);
         actionStatus = findViewById(R.id.arena_action_status);
         actionButton = findViewById(R.id.arena_action_button);
-        findViewById(R.id.arena_back_button).setOnClickListener(v -> finish());
+        findViewById(R.id.arena_back_button).setOnClickListener(v -> goBack());
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                goBack();
+            }
+        });
         message.setOnClickListener(v -> load());
         actionButton.setOnClickListener(v -> onActionClicked());
 
@@ -75,10 +83,48 @@ public class ArenaChallengeActivity extends BaseActivity {
         // Re-read the user each time: they may have just come back from logging in.
         me = getSharedPreferences("actifitSets", MODE_PRIVATE).getString("actifitUser", "");
         if (challengeId != null && !challengeId.isEmpty()) load();
+        clock.removeCallbacks(tickClock);
+        clock.post(tickClock);
     }
 
     @Override
+    protected void onPause() {
+        clock.removeCallbacks(tickClock);
+        super.onPause();
+    }
+
+    /**
+     * Opened from somewhere other than the Arena list (dashboard card, notification), Back
+     * still leads to the Arena rather than straight out to the dashboard.
+     */
+    private void goBack() {
+        if (!getIntent().getBooleanExtra(EXTRA_FROM_ARENA, false)) {
+            Intent i = new Intent(this, ArenaActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(i);
+        }
+        finish();
+    }
+
+    // The "Ends in …" chip counts down live while the challenge is still running.
+    private final android.os.Handler clock = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable tickClock = new Runnable() {
+        @Override
+        public void run() {
+            if (challenge != null) {
+                TextView chip = findViewById(R.id.arena_chip_time);
+                String left = ArenaLogic.isJoinable(challenge.state)
+                        ? ArenaCardAdapter.countdownText(ArenaChallengeActivity.this, challenge.endMs) : "";
+                chip.setText(left.isEmpty() ? ArenaCardAdapter.timeText(ArenaChallengeActivity.this, challenge)
+                        : getString(R.string.arena_ends_in_clock, left));
+            }
+            clock.postDelayed(this, 1000);
+        }
+    };
+
+    @Override
     protected void onDestroy() {
+        clock.removeCallbacks(tickClock);
         actionButton.removeCallbacks(reload);
         if (arenaQueue != null) {
             // A join/leave still in flight is NOT cancelled server-side; its optimistic

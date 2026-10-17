@@ -912,6 +912,10 @@
         <item quantity="one">شارة الساحة (%d)</item>
         <item quantity="other">شارات الساحة (%d)</item>
     </plurals>
+    <string name="arena_featured_label">ينتهي قريبًا</string>
+    <string name="arena_featured_join">الانضمام مجاني. انضم قبل نفاد الوقت.</string>
+    <string name="arena_featured_joined">أنت مشارك. انشر تقرير اليوم ليُحتسب.</string>
+    <string name="arena_ends_in_clock">ينتهي خلال %1$s</string>
 </resources>
 
 

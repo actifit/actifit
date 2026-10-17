@@ -918,6 +918,10 @@
         <item quantity="many">Значки Арени (%d)</item>
         <item quantity="other">Значки Арени (%d)</item>
     </plurals>
+    <string name="arena_featured_label">Скоро завершиться</string>
+    <string name="arena_featured_join">Участь безкоштовна. Приєднуйтеся, поки є час.</string>
+    <string name="arena_featured_joined">Ви берете участь. Опублікуйте сьогоднішній звіт, щоб він зарахувався.</string>
+    <string name="arena_ends_in_clock">Закінчується через %1$s</string>
 </resources>
 
 

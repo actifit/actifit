@@ -47,6 +47,31 @@ public class ArenaActivity extends BaseActivity {
     private boolean resultsLoading = false, resultsLoaded = false, resultsFailed = false;
     private boolean refreshQueued = false;
 
+    // "Ending soon" banner: ticks every second while the screen is visible.
+    private View featured;
+    private TextView featuredTitle, featuredSub, featuredCountdown;
+    private ArenaChallenge featuredChallenge;
+    private int tickCount = 0;
+    private final android.os.Handler ticker = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable tick = new Runnable() {
+        @Override
+        public void run() {
+            tickCount++;
+            if (featuredChallenge != null) {
+                if (ArenaLogic.hasEnded(featuredChallenge.endMs, System.currentTimeMillis())) {
+                    // It just closed: the list (and the next one to feature) has changed.
+                    featuredChallenge = null;
+                    loadRunning();
+                } else {
+                    featuredCountdown.setText(ArenaCardAdapter.countdownText(ArenaActivity.this, featuredChallenge.endMs));
+                }
+            }
+            // The cards show "Ends in 5d 3h": refresh them once a minute.
+            if (tickCount % 60 == 0) adapter.notifyDataSetChanged();
+            ticker.postDelayed(this, 1000);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +93,19 @@ public class ArenaActivity extends BaseActivity {
             if (position < 0 || position >= current.size()) return;
             Intent i = new Intent(this, ArenaChallengeActivity.class);
             i.putExtra(ArenaChallengeActivity.EXTRA_CHALLENGE_ID, current.get(position).id);
+            i.putExtra(ArenaChallengeActivity.EXTRA_FROM_ARENA, true);
+            startActivity(i);
+        });
+
+        featured = findViewById(R.id.arena_featured);
+        featuredTitle = findViewById(R.id.arena_featured_title);
+        featuredSub = findViewById(R.id.arena_featured_sub);
+        featuredCountdown = findViewById(R.id.arena_featured_countdown);
+        featured.setOnClickListener(v -> {
+            if (featuredChallenge == null) return;
+            Intent i = new Intent(this, ArenaChallengeActivity.class);
+            i.putExtra(ArenaChallengeActivity.EXTRA_CHALLENGE_ID, featuredChallenge.id);
+            i.putExtra(ArenaChallengeActivity.EXTRA_FROM_ARENA, true);
             startActivity(i);
         });
 
@@ -91,10 +129,20 @@ public class ArenaActivity extends BaseActivity {
         adapter.setUser(me);
         // Also the first load. Coming back from a challenge, membership may have changed.
         loadRunning();
+        ticker.removeCallbacks(tick);
+        ticker.post(tick);
+    }
+
+    @Override
+    protected void onPause() {
+        // No point ticking a countdown nobody can see.
+        ticker.removeCallbacks(tick);
+        super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+        ticker.removeCallbacks(tick);
         if (arenaQueue != null) {
             arenaQueue.cancelAll(req -> true);
             arenaQueue.stop();
@@ -277,6 +325,7 @@ public class ArenaActivity extends BaseActivity {
             emptyText = R.string.arena_empty_results;
         }
         adapter.notifyDataSetChanged();
+        renderFeatured();
 
         boolean showSpinner = loading && current.isEmpty();
         progress.setVisibility(showSpinner ? View.VISIBLE : View.GONE);
@@ -286,5 +335,34 @@ public class ArenaActivity extends BaseActivity {
         } else {
             emptyState.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * The open challenge closing next — preferring one the user hasn't joined, since the
+     * point is to get them in — with a live countdown. Open tab only.
+     */
+    private void renderFeatured() {
+        ArenaChallenge pick = null, joinedPick = null;
+        long now = System.currentTimeMillis();
+        if (currentTab == TAB_OPEN) {
+            for (ArenaChallenge c : running) {   // already sorted soonest-closing first
+                if (!ArenaLogic.isJoinable(c.state) || c.endMs < 0 || ArenaLogic.hasEnded(c.endMs, now)) continue;
+                if (!ArenaCardAdapter.isJoined(this, me, c)) { pick = c; break; }
+                if (joinedPick == null) joinedPick = c;
+            }
+        }
+        boolean joined = pick == null && joinedPick != null;
+        if (pick == null) pick = joinedPick;
+        featuredChallenge = pick;
+        if (pick == null) {
+            featured.setVisibility(View.GONE);
+            return;
+        }
+        featuredTitle.setText(pick.title);
+        featuredSub.setText(joined ? R.string.arena_featured_joined : R.string.arena_featured_join);
+        featuredCountdown.setText(ArenaCardAdapter.countdownText(this, pick.endMs));
+        featured.setContentDescription(pick.title + ", " + getString(R.string.arena_ends_in_clock,
+                ArenaCardAdapter.countdownText(this, pick.endMs)));
+        featured.setVisibility(View.VISIBLE);
     }
 }

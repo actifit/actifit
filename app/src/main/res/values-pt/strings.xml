@@ -902,6 +902,10 @@
         <item quantity="one">Insígnia da Arena (%d)</item>
         <item quantity="other">Insígnias da Arena (%d)</item>
     </plurals>
+    <string name="arena_featured_label">A terminar</string>
+    <string name="arena_featured_join">Grátis. Entre antes que o tempo acabe.</string>
+    <string name="arena_featured_joined">Já está a participar. Publique o relatório de hoje para que conte.</string>
+    <string name="arena_ends_in_clock">Termina em %1$s</string>
 </resources>
 
 

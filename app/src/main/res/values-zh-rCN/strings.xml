@@ -891,6 +891,10 @@
     <plurals name="arena_badges_header">
         <item quantity="other">竞技场徽章（%d）</item>
     </plurals>
+    <string name="arena_featured_label">即将结束</string>
+    <string name="arena_featured_join">免费参加，抓紧时间加入。</string>
+    <string name="arena_featured_joined">你已加入。发布今天的报告才会计分。</string>
+    <string name="arena_ends_in_clock">%1$s 后结束</string>
 </resources>
 
 
