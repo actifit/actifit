@@ -906,6 +906,7 @@
     <string name="arena_featured_join">जॉइन करना मुफ़्त है। समय खत्म होने से पहले शामिल हों।</string>
     <string name="arena_featured_joined">आप शामिल हैं। आज की रिपोर्ट पोस्ट करें ताकि वह गिनी जाए।</string>
     <string name="arena_ends_in_clock">%1$s में समाप्त</string>
+    <string name="arena_countdown_days">%1$d दि %2$02d:%3$02d:%4$02d</string>
 </resources>
 
 

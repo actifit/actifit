@@ -916,6 +916,7 @@
     <string name="arena_featured_join">الانضمام مجاني. انضم قبل نفاد الوقت.</string>
     <string name="arena_featured_joined">أنت مشارك. انشر تقرير اليوم ليُحتسب.</string>
     <string name="arena_ends_in_clock">ينتهي خلال %1$s</string>
+    <string name="arena_countdown_days">%1$d ي %2$02d:%3$02d:%4$02d</string>
 </resources>
 
 

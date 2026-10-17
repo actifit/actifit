@@ -114,8 +114,9 @@ public class ArenaCardAdapter extends ArrayAdapter<ArenaChallenge> {
 
     /** Live countdown, e.g. "2d 04:12:09" or "04:12:09"; empty once closed or unknown. */
     public static String countdownText(Context ctx, long endMs) {
-        if (endMs < 0 || ArenaLogic.hasEnded(endMs, System.currentTimeMillis())) return "";
-        int[] t = ArenaLogic.countdown(endMs, System.currentTimeMillis());
+        long now = System.currentTimeMillis();
+        if (endMs < 0 || ArenaLogic.hasEnded(endMs, now)) return "";
+        int[] t = ArenaLogic.countdown(endMs, now);
         return t[0] > 0 ? ctx.getString(R.string.arena_countdown_days, t[0], t[1], t[2], t[3])
                 : ctx.getString(R.string.arena_countdown_clock, t[1], t[2], t[3]);
     }

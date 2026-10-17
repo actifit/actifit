@@ -102,17 +102,29 @@ public class ArenaChallengeActivity extends BaseActivity {
             Intent i = new Intent(this, ArenaActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(i);
+            finish();
+            // It is a step back for the user, so animate it like one.
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            return;
         }
         finish();
     }
 
     // The "Ends in …" chip counts down live while the challenge is still running.
     private final android.os.Handler clock = new android.os.Handler(android.os.Looper.getMainLooper());
+    private TextView timeChip;
+    private boolean endedRendered = false;
     private final Runnable tickClock = new Runnable() {
         @Override
         public void run() {
             if (challenge != null) {
-                TextView chip = findViewById(R.id.arena_chip_time);
+                if (timeChip == null) timeChip = findViewById(R.id.arena_chip_time);
+                TextView chip = timeChip;
+                // The moment the window closes, drop the Join/Leave button too.
+                if (!endedRendered && ArenaLogic.hasEnded(challenge.endMs, System.currentTimeMillis())) {
+                    endedRendered = true;
+                    renderAction();
+                }
                 String left = ArenaLogic.isJoinable(challenge.state)
                         ? ArenaCardAdapter.countdownText(ArenaChallengeActivity.this, challenge.endMs) : "";
                 chip.setText(left.isEmpty() ? ArenaCardAdapter.timeText(ArenaChallengeActivity.this, challenge)

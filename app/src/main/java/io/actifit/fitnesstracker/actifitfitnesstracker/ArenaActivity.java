@@ -344,6 +344,15 @@ public class ArenaActivity extends BaseActivity {
     private void renderFeatured() {
         ArenaChallenge pick = null, joinedPick = null;
         long now = System.currentTimeMillis();
+        // Membership comes from the per-card detail calls; until they land we can't tell a
+        // joined challenge from an open invitation, so don't feature one and then swap it.
+        boolean membershipPending = false;
+        for (ArenaChallenge c : running) membershipPending |= c.participantCount < 0;
+        if (membershipPending && me != null && !me.isEmpty()) {
+            featuredChallenge = null;
+            featured.setVisibility(View.GONE);
+            return;
+        }
         if (currentTab == TAB_OPEN) {
             for (ArenaChallenge c : running) {   // already sorted soonest-closing first
                 if (!ArenaLogic.isJoinable(c.state) || c.endMs < 0 || ArenaLogic.hasEnded(c.endMs, now)) continue;
@@ -361,8 +370,6 @@ public class ArenaActivity extends BaseActivity {
         featuredTitle.setText(pick.title);
         featuredSub.setText(joined ? R.string.arena_featured_joined : R.string.arena_featured_join);
         featuredCountdown.setText(ArenaCardAdapter.countdownText(this, pick.endMs));
-        featured.setContentDescription(pick.title + ", " + getString(R.string.arena_ends_in_clock,
-                ArenaCardAdapter.countdownText(this, pick.endMs)));
         featured.setVisibility(View.VISIBLE);
     }
 }
