@@ -901,6 +901,10 @@
         <item quantity="one">Arena-badge (%d)</item>
         <item quantity="other">Arena-badges (%d)</item>
     </plurals>
+    <string name="arena_featured_label">Eindigt binnenkort</string>
+    <string name="arena_featured_join">Gratis meedoen. Doe mee voordat de tijd om is.</string>
+    <string name="arena_featured_joined">Je doet mee. Plaats het verslag van vandaag zodat het meetelt.</string>
+    <string name="arena_ends_in_clock">Eindigt over %1$s</string>
 </resources>
 
 

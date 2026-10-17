@@ -95,6 +95,14 @@ public final class ArenaLogic {
         return new int[]{(int) (minutes / 1440), (int) ((minutes % 1440) / 60), (int) (minutes % 60)};
     }
 
+    /** Time left as {days, hours, minutes, seconds} for a live countdown; zeros once closed. */
+    public static int[] countdown(long endMs, long nowMs) {
+        long left = endMs - nowMs;
+        if (endMs < 0 || left <= 0) return new int[]{0, 0, 0, 0};
+        long s = left / 1000L;
+        return new int[]{(int) (s / 86400), (int) ((s % 86400) / 3600), (int) ((s % 3600) / 60), (int) (s % 60)};
+    }
+
     public static boolean hasEnded(long endMs, long nowMs) {
         return endMs >= 0 && nowMs >= endMs;
     }

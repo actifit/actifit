@@ -902,5 +902,10 @@
         <item quantity="one">Badge dell\'Arena (%d)</item>
         <item quantity="other">Badge dell\'Arena (%d)</item>
     </plurals>
+    <string name="arena_featured_label">Sta per finire</string>
+    <string name="arena_featured_join">Partecipazione gratuita. Entra prima che scada il tempo.</string>
+    <string name="arena_featured_joined">Partecipi già. Pubblica il report di oggi perché conti.</string>
+    <string name="arena_ends_in_clock">Termina tra %1$s</string>
+    <string name="arena_countdown_days">%1$d g %2$02d:%3$02d:%4$02d</string>
 </resources>
 

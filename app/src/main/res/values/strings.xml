@@ -924,4 +924,10 @@
     </plurals>
     <string name="arena_badge_row">%1$s — %2$s</string>
     <string name="arena_badge_row_community">%1$s — %2$s · Community</string>
+    <string name="arena_featured_label">Ending soon</string>
+    <string name="arena_featured_join">Free to join. Get in before the clock runs out.</string>
+    <string name="arena_featured_joined">You\'re in. Post today\'s report so it counts.</string>
+    <string name="arena_countdown_days">%1$dd %2$02d:%3$02d:%4$02d</string>
+    <string name="arena_countdown_clock" translatable="false">%1$02d:%2$02d:%3$02d</string>
+    <string name="arena_ends_in_clock">Ends in %1$s</string>
 </resources>

@@ -67,6 +67,15 @@ public class ArenaLogicTest {
     }
 
     @Test
+    public void countdownBreaksDownToSecondsAndClampsAtZero() {
+        long end = NOW + 2 * DAY + 4 * 3600000L + 12 * 60000L + 9000L;
+        assertArrayEquals(new int[]{2, 4, 12, 9}, ArenaLogic.countdown(end, NOW));
+        assertArrayEquals(new int[]{0, 0, 0, 59}, ArenaLogic.countdown(NOW + 59_999, NOW));
+        assertArrayEquals(new int[]{0, 0, 0, 0}, ArenaLogic.countdown(NOW, NOW));
+        assertArrayEquals(new int[]{0, 0, 0, 0}, ArenaLogic.countdown(-1, NOW));
+    }
+
+    @Test
     public void membershipFollowsTheServerWhenNothingIsPending() {
         assertEquals(ArenaLogic.Membership.JOINED, ArenaLogic.membership(true, null, 0, NOW));
         assertEquals(ArenaLogic.Membership.NOT_JOINED, ArenaLogic.membership(false, null, 0, NOW));

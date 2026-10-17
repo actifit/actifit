@@ -904,6 +904,10 @@
         <item quantity="one">Insignia de la Arena (%d)</item>
         <item quantity="other">Insignias de la Arena (%d)</item>
     </plurals>
+    <string name="arena_featured_label">Termina pronto</string>
+    <string name="arena_featured_join">Gratis. Únete antes de que se acabe el tiempo.</string>
+    <string name="arena_featured_joined">Ya participas. Publica el reporte de hoy para que cuente.</string>
+    <string name="arena_ends_in_clock">Termina en %1$s</string>
 </resources>
 
 

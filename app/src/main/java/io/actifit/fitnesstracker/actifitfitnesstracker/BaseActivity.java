@@ -293,6 +293,9 @@ public class BaseActivity extends AppCompatActivity {
                     // From a challenge, return to the existing Arena home rather than stacking a second one.
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
+                    // A challenge opened from the dashboard has no Arena below it; leaving it
+                    // in the stack would make Back go Arena -> challenge -> Arena again.
+                    if (this instanceof ArenaChallengeActivity) finish();
                 }
             });
         } else {

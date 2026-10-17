@@ -892,6 +892,11 @@
     <plurals name="arena_badges_header">
         <item quantity="other">아레나 배지 (%d)</item>
     </plurals>
+    <string name="arena_featured_label">곧 종료</string>
+    <string name="arena_featured_join">무료로 참여하세요. 시간이 끝나기 전에 들어오세요.</string>
+    <string name="arena_featured_joined">참여 중입니다. 오늘 리포트를 게시해야 집계됩니다.</string>
+    <string name="arena_ends_in_clock">%1$s 후 종료</string>
+    <string name="arena_countdown_days">%1$d일 %2$02d:%3$02d:%4$02d</string>
 </resources>
 
 
