@@ -840,6 +840,9 @@ public class  Utils {
             op = HiveOpsJson.fromJson(op_name, cstm_params);
         } catch (Exception e) {
             Log.e(MainActivity.TAG, "cannot build " + op_name + ": " + e.getMessage());
+            if (activity != null) activity.runOnUiThread(() -> {
+                if (taskProgress != null) taskProgress.setVisibility(View.GONE);
+            });
             if (listener != null) listener.onResponse(false);
             return;
         }

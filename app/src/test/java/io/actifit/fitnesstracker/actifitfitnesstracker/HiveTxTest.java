@@ -113,6 +113,35 @@ public class HiveTxTest {
         }
     }
 
+    @Test
+    public void controlCharactersAreDroppedFromBothForms() {
+        HiveTx.Transfer clean = new HiveTx.Transfer("a", "b", "1.000 HIVE", "hi");
+        HiveTx.Transfer dirty = new HiveTx.Transfer("a", "b", "1.000 HIVE", "h\u0001i\u000b");
+        assertEquals(HiveTx.toHex(tx(clean).serialize()), HiveTx.toHex(tx(dirty).serialize()));
+        assertEquals(clean.toJson(), dirty.toJson());
+        // tab / newline / CR are kept (they round-trip through the node)
+        assertEquals("\"a\\tb\\nc\"", HiveTx.jsonString("a\tb\nc"));
+    }
+
+    @Test
+    public void nonAsciiDigitsAreRejected() {
+        try {
+            tx(new HiveTx.Transfer("a", "b", "١.٠٠٠ HIVE", "")).serialize();
+            fail("Arabic-Indic digits must not reach the chain");
+        } catch (IllegalArgumentException expected) {
+            // ok
+        }
+    }
+
+    @Test
+    public void onlyADecimalCommaIsNormalized() {
+        assertEquals("1.000 HIVE", HiveOpsJson.asset("1,000 HIVE"));
+        assertEquals("12.345678 VESTS", HiveOpsJson.asset("12,345678 VESTS"));
+        assertEquals("1,23 HIVE", HiveOpsJson.asset("1,23 HIVE"));      // not 3 decimals: left to be rejected
+        assertEquals("1,000,000 HIVE", HiveOpsJson.asset("1,000,000 HIVE")); // grouping: left to be rejected
+        assertEquals("2.500 HBD", HiveOpsJson.asset("2.500 HBD"));
+    }
+
     /** A real transaction @actifit broadcast on 2026-09-23 (block 110164368). */
     private static HiveTx.Transaction realActifitTx() {
         String json = "{\"op\":\"challenge_create\",\"v\":1,\"id\":\"def_weekly_step_league\",\"type\":\"league_fixture\","

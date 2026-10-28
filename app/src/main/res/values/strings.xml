@@ -940,7 +940,13 @@
     <string name="signing_error_rc">Your account is out of Resource Credits right now. Try again later.</string>
     <string name="signing_error_funds">Your account doesn\'t have enough HIVE for this.</string>
     <string name="signing_error_generic">The Hive network rejected this transaction. Please try again.</string>
-    <string name="gadget_confirm_unknown">Your transaction reached the chain (%1$s) but its result isn\'t confirmed yet. Don\'t repeat it; check your gadgets again in a few minutes.</string>
+    <string name="gadget_confirm_unknown">Your transaction reached the chain (%1$s) but its result isn\'t confirmed yet. Tap the same button again later to re-check it; it won\'t be signed twice.</string>
+    <string name="gadget_action_in_progress">This gadget is still being processed. Please wait.</string>
+    <string name="gadget_already_processed">This transaction (%1$s) was already processed. Refresh your gadgets to see the result.</string>
+    <string name="gadget_hive_unconfirmed">Your HIVE payment is on chain (%1$s) but the purchase isn\'t confirmed yet. Don\'t pay again: the app will re-check it when you reopen the market, or tap Buy again to retry the confirmation.</string>
+    <string name="gadget_hive_confirm_title">Buy with HIVE</string>
+    <string name="gadget_hive_confirm_msg">Pay %1$s to buy %2$s? This is a transfer signed with your active key.</string>
+    <string name="gadget_hive_confirm_pay">Pay</string>
     <string name="gadget_buy_insufficient_afit">You don\'t have enough AFIT for this gadget. You were not charged.</string>
     <string name="gadget_buy_busy">Another AFIT action is in progress. Wait a moment and try again; you were not charged.</string>
     <string name="gadget_buy_unavailable">This gadget can\'t be bought right now. You were not charged.</string>

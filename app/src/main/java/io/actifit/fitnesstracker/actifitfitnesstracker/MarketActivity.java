@@ -41,6 +41,14 @@ public class MarketActivity extends BaseActivity {
             queue = Volley.newRequestQueue(this);
         }
         loadBalance(queue);
+        // A purchase paid on chain whose confirm never got through: confirm it now.
+        if (MainActivity.username != null && !MainActivity.username.isEmpty()) {
+            GadgetApi.resumePending(this, MainActivity.username, (ok, msg) -> {
+                if (isFinishing() || isDestroyed()) return;
+                loadBalance(queue);
+                if (afitPrice != null) proceedLoading();
+            });
+        }
     }
 
     private void loadBalance(RequestQueue queue){

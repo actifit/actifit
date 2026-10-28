@@ -18,22 +18,21 @@ final class HiveOpsJson {
     static HiveTx.Op fromJson(String opName, JSONObject p) {
         switch (opName) {
             case "vote":
-                return new HiveTx.Vote(p.optString("voter"), p.optString("author"), p.optString("permlink"),
-                        p.optInt("weight"));
+                // A missing weight must not silently become 0 (which is an unvote).
+                if (!p.has("weight")) throw new IllegalArgumentException("vote without weight");
+                return new HiveTx.Vote(s(p, "voter"), s(p, "author"), s(p, "permlink"), p.optInt("weight"));
             case "comment":
-                return new HiveTx.Comment(p.optString("parent_author"), p.optString("parent_permlink"),
-                        p.optString("author"), p.optString("permlink"), p.optString("title"),
-                        String.valueOf(p.opt("body") == null ? "" : p.opt("body")), p.optString("json_metadata"));
+                return new HiveTx.Comment(s(p, "parent_author"), s(p, "parent_permlink"), s(p, "author"),
+                        s(p, "permlink"), s(p, "title"), s(p, "body"), s(p, "json_metadata"));
             case "transfer":
-                return new HiveTx.Transfer(p.optString("from"), p.optString("to"), asset(p.optString("amount")),
-                        p.optString("memo"));
+                return new HiveTx.Transfer(s(p, "from"), s(p, "to"), asset(s(p, "amount")), s(p, "memo"));
             case "transfer_to_vesting":
-                return new HiveTx.TransferToVesting(p.optString("from"), p.optString("to"), asset(p.optString("amount")));
+                return new HiveTx.TransferToVesting(s(p, "from"), s(p, "to"), asset(s(p, "amount")));
             case "withdraw_vesting":
-                return new HiveTx.WithdrawVesting(p.optString("account"), asset(p.optString("vesting_shares")));
+                return new HiveTx.WithdrawVesting(s(p, "account"), asset(s(p, "vesting_shares")));
             case "custom_json":
                 return new HiveTx.CustomJson(strings(p.opt("required_auths")), strings(p.opt("required_posting_auths")),
-                        p.optString("id"), p.optString("json"));
+                        s(p, "id"), s(p, "json"));
             default:
                 throw new IllegalArgumentException("unsupported operation: " + opName);
         }
@@ -49,8 +48,21 @@ final class HiveOpsJson {
         int space = s.indexOf(' ');
         if (space < 0) return s;
         String num = s.substring(0, space);
-        if (num.indexOf('.') < 0 && num.indexOf(',') == num.lastIndexOf(',')) num = num.replace(',', '.');
+        int comma = num.indexOf(',');
+        // Only a single comma followed by exactly 3 or 6 digits (the asset precisions) is a
+        // decimal separator; "1,23" or "1,000,000" stay as they are and are then rejected rather than misread.
+        int decimals = num.length() - comma - 1;
+        boolean decimalComma = num.indexOf('.') < 0 && comma > 0 && comma == num.lastIndexOf(',')
+                && (decimals == 3 || (decimals == 6 && s.endsWith(" VESTS")));
+        if (decimalComma) num = num.replace(',', '.');
         return num + s.substring(space);
+    }
+
+    /** A JSON field as text; absent or JSON null becomes "" (optString would give "null"). */
+    private static String s(JSONObject p, String key) {
+        if (!p.has(key) || p.isNull(key)) return "";
+        Object v = p.opt(key);
+        return v == null ? "" : String.valueOf(v);
     }
 
     private static List<String> strings(Object o) {

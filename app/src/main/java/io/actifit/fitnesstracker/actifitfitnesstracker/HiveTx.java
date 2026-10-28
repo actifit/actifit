@@ -404,7 +404,8 @@ public final class HiveTx {
     /**
      * 65-byte compact recoverable signature that hived accepts: low-S, and "fc canonical"
      * (neither r nor s may have its top bit set or be zero-padded). A fresh random nonce
-     * is drawn until the result is canonical — about 1 in 4 attempts qualify.
+     * is drawn until the result is canonical — about half the attempts qualify (low-S
+     * already clears s's top bit; r's is a coin flip).
      */
     static byte[] signCanonical(byte[] digest, BigInteger priv) {
         ECKey key = ECKey.fromPrivate(priv, true);
@@ -467,8 +468,25 @@ public final class HiveTx {
         for (int i = 0; i < 4; i++) out.write((int) ((v >>> (8 * i)) & 0xFF));
     }
 
+    /**
+     * Control characters other than tab/newline/CR don't survive the node's JSON path
+     * byte-for-byte (\u0001 arrives as "u0001"), so what the node re-serializes would
+     * differ from what we signed. Both the binary and the JSON forms drop them.
+     */
+    static String clean(String s) {
+        if (s == null) return "";
+        StringBuilder b = null;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            boolean drop = c < 0x20 && c != '\t' && c != '\n' && c != '\r';
+            if (drop && b == null) b = new StringBuilder(s.substring(0, i));
+            else if (!drop && b != null) b.append(c);
+        }
+        return b == null ? s : b.toString();
+    }
+
     static void writeString(ByteArrayOutputStream out, String s) {
-        byte[] b = s.getBytes(StandardCharsets.UTF_8);
+        byte[] b = clean(s).getBytes(StandardCharsets.UTF_8);
         writeVarint(out, b.length);
         out.write(b, 0, b.length);
     }
@@ -483,8 +501,11 @@ public final class HiveTx {
         String[] parts = asset.trim().split(" ");
         if (parts.length != 2) throw new IllegalArgumentException("asset: " + asset);
         String num = parts[0];
+        // ASCII digits only: Arabic/Persian locales format numbers with other digits, which
+        // must never reach the chain (BigInteger would quietly accept some of them).
+        if (!num.matches("[0-9]+\\.[0-9]+")) throw new IllegalArgumentException("asset: " + asset);
         int dot = num.indexOf('.');
-        int precision = dot < 0 ? 0 : num.length() - dot - 1;
+        int precision = num.length() - dot - 1;
         String symbol;
         int expected;
         if ("HIVE".equals(parts[1])) { symbol = "STEEM"; expected = 3; }
@@ -527,7 +548,8 @@ public final class HiveTx {
         }
     }
 
-    static String jsonString(String s) {
+    static String jsonString(String raw) {
+        String s = clean(raw);
         StringBuilder b = new StringBuilder("\"");
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);

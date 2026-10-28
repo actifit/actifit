@@ -64,7 +64,7 @@ public class SingleProductModel implements Comparable<SingleProductModel>{
 
             this.priceAFIT = Double.parseDouble(this.grabPrice("AFIT", true));
             if (afitPrice != null && afitPrice.has("afitHiveLastPrice")) {
-                this.priceHIVE = Double.parseDouble(String.format("%.3f", this.priceAFIT * afitPrice.getDouble("afitHiveLastPrice")));
+                this.priceHIVE = Double.parseDouble(String.format(java.util.Locale.US, "%.3f", this.priceAFIT * afitPrice.getDouble("afitHiveLastPrice")));
             }
 
             this.specialevent = jsonObject.has("specialevent") ? jsonObject.getBoolean("specialevent"):false;

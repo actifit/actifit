@@ -48,6 +48,20 @@ public class GadgetTest {
     }
 
     @Test
+    public void onlyAnExplicitSuccessCounts() {
+        assertEquals(GadgetReply.Kind.OK, GadgetReply.classify(false, "", "Success", null, ""));
+        assertEquals(GadgetReply.Kind.FAILED, GadgetReply.classify(false, "", "", null, ""));       // {}
+        assertEquals(GadgetReply.Kind.FAILED, GadgetReply.classify(false, "", "failed", null, ""));
+    }
+
+    @Test
+    public void alreadyProcessedIsRecognised() {
+        assertEquals(true, GadgetReply.alreadyProcessed("trx already exists"));
+        assertEquals(true, GadgetReply.alreadyProcessed("Transaction already verified"));
+        assertEquals(false, GadgetReply.alreadyProcessed("Product not found"));
+    }
+
+    @Test
     public void statusErrorIsAFailureEvenWithoutAnErrorField() {
         // what the routes answer when on-chain verification fails
         assertEquals(GadgetReply.Kind.FAILED, GadgetReply.classify(false, "", "error", null, ""));

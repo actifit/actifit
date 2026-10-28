@@ -1,6 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,8 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -284,18 +283,18 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                 }
             }
 
-            // if (!reqtMet){
-            if (!postEntry.allReqtsMet) {
-                buyAFIT.setEnabled(false);
-                buyAFIT.setAlpha(0.4f);
-                buyHIVE.setEnabled(false);
-                buyHIVE.setAlpha(0.4f);
-            } else {
-                buyAFIT.setEnabled(true);
-                buyAFIT.setAlpha(1.0f);
-                buyHIVE.setEnabled(true);
-                buyHIVE.setAlpha(1.0f);
-            }
+            // Buttons stay off while an action for this gadget is running (also after the
+            // row is recycled), so one tap can't turn into two purchases.
+            final boolean busy = GadgetApi.isBusy(MainActivity.username, postEntry.id);
+            final boolean canBuy = postEntry.allReqtsMet && !busy;
+            buyAFIT.setEnabled(canBuy);
+            buyAFIT.setAlpha(canBuy ? 1.0f : 0.4f);
+            buyHIVE.setEnabled(canBuy);
+            buyHIVE.setAlpha(canBuy ? 1.0f : 0.4f);
+            activateGadget.setEnabled(!busy);
+            activateGadget.setAlpha(busy ? 0.4f : 1.0f);
+            deactivateGadget.setEnabled(!busy);
+            deactivateGadget.setAlpha(busy ? 0.4f : 1.0f);
 
             if (postEntry.nonConsumedCopy == SingleProductModel.BOUGHTCOPY) {
                 buyAFIT.setVisibility(View.GONE);
@@ -381,13 +380,6 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
             buyAFIT.setText(Html.fromHtml(btnTitle));
 
-            ScaleAnimation scaler;
-            scaler = new ScaleAnimation(1f, 0.8f, 1f, 0.8f, Animation.RELATIVE_TO_SELF, 0.5f,
-                    Animation.RELATIVE_TO_SELF, 0.5f);
-            scaler.setDuration(500);
-            scaler.setRepeatMode(Animation.REVERSE);
-            scaler.setRepeatCount(Animation.INFINITE);
-
             // handle click on username
 
             // View finalConvertView = convertView;
@@ -406,28 +398,18 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     return;
                 }
 
-                buyAFIT.startAnimation(scaler);
-                buyAFIT.setEnabled(false);
                 // Signed on this phone with the posting key, then confirmed from the chain.
                 GadgetApi.buyWithAfit(getContext(), MainActivity.username, postEntry.id, (ok, message) -> {
-                    buyAFIT.clearAnimation();
-                    buyAFIT.setEnabled(true);
                     if (ok) {
-                        if (postEntry.isFriendRewarding) {
-                            // also show friend beneficiary to direct rewards over
-                            friendBeneficiary.setVisibility(View.VISIBLE);
-                        }
-                        buyAFIT.setVisibility(View.GONE);
-                        buyHIVE.setVisibility(View.GONE);
-                        deactivateGadget.setVisibility(View.GONE);
-                        activateGadget.setVisibility(View.VISIBLE);
-                        Toast.makeText(getContext(),
-                                getContext().getString(R.string.success_buy_product) + " " + postEntry.name,
-                                Toast.LENGTH_LONG).show();
+                        postEntry.nonConsumedCopy = SingleProductModel.BOUGHTCOPY;
+                        MarketActivity.afitBalance -= postEntry.priceAFIT;
+                        toast(getContext().getString(R.string.success_buy_product) + " " + postEntry.name);
                     } else {
-                        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                        toast(message);
                     }
+                    notifyDataSetChanged();
                 });
+                notifyDataSetChanged(); // greys the buttons while it runs
             });
 
             // activate gadget functionality
@@ -454,26 +436,18 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     return;
                 }
 
-                activateGadget.startAnimation(scaler);
-                activateGadget.setEnabled(false);
                 GadgetApi.activate(getContext(), MainActivity.username, postEntry.id,
                         postEntry.isFriendRewarding ? activationBeneficiary : null, (ok, message) -> {
-                            activateGadget.clearAnimation();
-                            activateGadget.setEnabled(true);
                             if (ok) {
                                 postEntry.nonConsumedCopy = SingleProductModel.ACTIVECOPY;
                                 postEntry.beneficiary = postEntry.isFriendRewarding ? activationBeneficiary : "";
-                                friendBeneficiary.setVisibility(View.GONE);
-                                activateGadget.setVisibility(View.GONE);
-                                deactivateGadget.setVisibility(View.VISIBLE);
-                                notifyDataSetChanged();
-                                Toast.makeText(getContext(),
-                                        getContext().getString(R.string.success_activate_product) + " " + postEntry.name,
-                                        Toast.LENGTH_LONG).show();
+                                toast(getContext().getString(R.string.success_activate_product) + " " + postEntry.name);
                             } else {
-                                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                                toast(message);
                             }
+                            notifyDataSetChanged();
                         });
+                notifyDataSetChanged();
             });
 
             // deactivate gadget functionality
@@ -485,23 +459,18 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     return;
                 }
 
-                deactivateGadget.startAnimation(scaler);
-                deactivateGadget.setEnabled(false);
                 GadgetApi.deactivate(getContext(), MainActivity.username, postEntry.id, (ok, message) -> {
-                    deactivateGadget.clearAnimation();
-                    deactivateGadget.setEnabled(true);
                     if (ok) {
                         postEntry.beneficiary = "";
-                        // Don't notify here: state (nonConsumedCopy) hasn't changed yet;
                         // refreshProductStateAfterDeactivation() redraws once with the real state.
                         refreshProductStateAfterDeactivation(postEntry);
-                        Toast.makeText(getContext(),
-                                getContext().getString(R.string.success_deactivate_product) + " " + postEntry.name,
-                                Toast.LENGTH_LONG).show();
+                        toast(getContext().getString(R.string.success_deactivate_product) + " " + postEntry.name);
                     } else {
-                        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                        toast(message);
+                        notifyDataSetChanged();
                     }
                 });
+                notifyDataSetChanged();
             });
 
             // Buy with HIVE
@@ -520,35 +489,41 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                             Toast.LENGTH_LONG).show();
                     return;
                 }
-                if (postEntry.priceHIVE == null || !(postEntry.priceHIVE > 0)) {
-                    Toast.makeText(getContext(),
-                            getContext().getString(R.string.error_buy_product) + " " + postEntry.name,
-                            Toast.LENGTH_LONG).show();
+                final GadgetApi.Callback onBought = (ok, message) -> {
+                    if (ok) {
+                        postEntry.nonConsumedCopy = SingleProductModel.BOUGHTCOPY;
+                        toast(getContext().getString(R.string.success_buy_product) + " " + postEntry.name);
+                    } else {
+                        toast(message);
+                    }
+                    notifyDataSetChanged();
+                };
+
+                // Already paid but not confirmed: confirm that payment, never pay twice.
+                if (GadgetApi.hasUnconfirmedHivePayment(getContext(), MainActivity.username, postEntry.id)) {
+                    GadgetApi.buyWithHive(getContext(), MainActivity.username, postEntry.id, null, onBought);
+                    notifyDataSetChanged();
                     return;
                 }
 
-                buyHIVE.startAnimation(scaler);
+                // Price it now from the confirming server and show the exact amount before paying.
                 buyHIVE.setEnabled(false);
-                GadgetApi.buyWithHive(getContext(), MainActivity.username, postEntry.id, postEntry.priceHIVE,
-                        (ok, message) -> {
-                            buyHIVE.clearAnimation();
-                            buyHIVE.setEnabled(true);
-                            if (ok) {
-                                if (postEntry.isFriendRewarding) {
-                                    // also show friend beneficiary to direct rewards over
-                                    friendBeneficiary.setVisibility(View.VISIBLE);
-                                }
-                                buyAFIT.setVisibility(View.GONE);
-                                buyHIVE.setVisibility(View.GONE);
-                                deactivateGadget.setVisibility(View.GONE);
-                                activateGadget.setVisibility(View.VISIBLE);
-                                Toast.makeText(getContext(),
-                                        getContext().getString(R.string.success_buy_product) + " " + postEntry.name,
-                                        Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                            }
-                        });
+                GadgetApi.quoteHive(getContext(), postEntry.priceAFIT, (quote, error) -> {
+                    buyHIVE.setEnabled(true);
+                    if (quote == null) {
+                        toast(error);
+                        return;
+                    }
+                    new AlertDialog.Builder(ctx)
+                            .setTitle(R.string.gadget_hive_confirm_title)
+                            .setMessage(getContext().getString(R.string.gadget_hive_confirm_msg, quote.amount, postEntry.name))
+                            .setPositiveButton(R.string.gadget_hive_confirm_pay, (d, w) -> {
+                                GadgetApi.buyWithHive(getContext(), MainActivity.username, postEntry.id, quote, onBought);
+                                notifyDataSetChanged();
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                });
             });
 
         } catch (Exception exp) {
@@ -557,6 +532,12 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    private void toast(String message) {
+        if (message != null && !message.isEmpty()) {
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void refreshProductStateAfterDeactivation(SingleProductModel product) {

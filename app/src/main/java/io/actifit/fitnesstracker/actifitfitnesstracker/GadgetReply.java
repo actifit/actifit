@@ -44,13 +44,24 @@ public final class GadgetReply {
      */
     public static Kind classify(boolean hasError, String error, String status, Boolean success, String code) {
         if (code != null && GATE_CODES.contains(code)) return Kind.GATE;
-        boolean failed = hasError || "error".equals(status) || Boolean.FALSE.equals(success);
-        if (!failed) return Kind.OK;
+        // Allowlist: every gadget route answers {status:'Success'} or {status:'success'} when
+        // it worked. Anything else — including an empty object — is not a success.
+        boolean ok = !hasError && ("success".equalsIgnoreCase(status)
+                || ((status == null || status.isEmpty()) && Boolean.TRUE.equals(success)));
+        if (ok) return Kind.OK;
         String e = error == null ? "" : error;
         if (INSUFFICIENT.matcher(e).find()) return Kind.INSUFFICIENT_AFIT;
         if (BUSY.matcher(e).find()) return Kind.BUSY;
         if (UNAVAILABLE.matcher(e).find()) return Kind.UNAVAILABLE;
         if (Boolean.FALSE.equals(success) && !hasError && !"error".equals(status)) return Kind.SESSION;
         return Kind.FAILED;
+    }
+
+    private static final Pattern ALREADY = Pattern.compile("trx already exists|Transaction already verified",
+            Pattern.CASE_INSENSITIVE);
+
+    /** The server has already used this transaction id and won't process it again. */
+    public static boolean alreadyProcessed(String error) {
+        return error != null && ALREADY.matcher(error).find();
     }
 }

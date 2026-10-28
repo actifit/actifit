@@ -23,8 +23,9 @@ import okhttp3.Response;
  * Signs a transaction on the device with the user's own key and broadcasts it straight to
  * a Hive node, falling back through the app's node list.
  *
- * The key never leaves the phone. The result carries the transaction id, which the
- * backend's *Keychain routes then use to confirm the operation from the chain.
+ * Signing happens here; the signed transaction (never the key) goes to the node. The result
+ * carries the transaction id, which the backend's *Keychain routes then use to confirm the
+ * operation from the chain.
  */
 public final class HiveBroadcaster {
 
@@ -33,12 +34,36 @@ public final class HiveBroadcaster {
     /** Seconds until the signed transaction expires (hived allows up to 3600). */
     private static final int EXPIRATION_SEC = 120;
 
-    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
+    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+
+    /**
+     * A signed transaction whose broadcast could not be confirmed (every node failed at the
+     * network level). A retry of the SAME operations re-sends this exact transaction instead
+     * of signing a new one: if the first attempt actually landed, the chain refuses the
+     * duplicate and we report success — so a lost reply can never turn into a second payment.
+     */
+    private static final class Pending {
+        final String txJson;
+        final String txId;
+        final int refBlockNum;
+        final String opsJson;
+        final long reuseUntilMs;
+
+        Pending(String txJson, String txId, int refBlockNum, String opsJson, long reuseUntilMs) {
+            this.txJson = txJson;
+            this.txId = txId;
+            this.refBlockNum = refBlockNum;
+            this.opsJson = opsJson;
+            this.reuseUntilMs = reuseUntilMs;
+        }
+    }
+
+    private static final java.util.Map<String, Pending> PENDING = new java.util.concurrent.ConcurrentHashMap<>();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private static final OkHttpClient HTTP = new OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(20, TimeUnit.SECONDS)
+            .connectTimeout(8, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
             .build();
 
     public static final class Result {
@@ -149,6 +174,22 @@ public final class HiveBroadcaster {
             return fail(ctx.getString(R.string.signing_error_bad_key));
         }
 
+        final String opsJson = new HiveTx.Transaction(0, 0, 0, ops).operationsJson();
+        final String key = role.name() + "|" + opsJson;
+        Pending pending = PENDING.get(key);
+        if (pending != null) {
+            if (System.currentTimeMillis() < pending.reuseUntilMs) {
+                // A previous attempt at exactly this action may already be on chain: re-send it.
+                return send(ctx, key, pending, nodes, role);
+            }
+            // Too close to expiry to re-send. If it landed, that is the answer; never sign twice.
+            if (onChain(pending.txId, nodes)) {
+                PENDING.remove(key);
+                return new Result(true, pending.txId, pending.refBlockNum, pending.opsJson, null);
+            }
+            PENDING.remove(key);
+        }
+
         // 1. A recent block to anchor the transaction (TaPoS) and the chain's clock.
         JSONObject dgp = null;
         for (String node : nodes) {
@@ -174,25 +215,47 @@ public final class HiveBroadcaster {
             return fail(ctx.getString(R.string.signing_error_generic));
         }
 
-        // 3. Broadcast. Re-sending the SAME signed transaction to another node is safe:
-        //    the chain rejects a duplicate id, so it can never land twice.
-        String body = "[" + tx.toJson() + "]";
+        // Remember it until shortly before it expires, in case every node fails below.
+        Pending p = new Pending(tx.toJson(), tx.txId(), tx.refBlockNum, tx.operationsJson(),
+                System.currentTimeMillis() + (EXPIRATION_SEC - 20) * 1000L);
+        PENDING.put(key, p);
+        return send(ctx, key, p, nodes, role);
+    }
+
+    /** 3. Broadcast. Re-sending the SAME signed transaction is safe: the chain refuses a duplicate id. */
+    private static Result send(Context ctx, String key, Pending p, List<String> nodes, KeyRole role) {
+        String body = "[" + p.txJson + "]";
+        boolean networkTrouble = false;
         for (String node : nodes) {
             JSONObject res;
             try {
                 res = call(node, "condenser_api.broadcast_transaction", body);
             } catch (Exception e) {
+                networkTrouble = true;
                 continue; // network trouble on this node: try the next one
             }
-            if (!res.has("error")) return new Result(true, tx.txId(), tx.refBlockNum, tx.operationsJson(), null);
+            if (!res.has("error")) {
+                PENDING.remove(key);
+                return new Result(true, p.txId, p.refBlockNum, p.opsJson, null);
+            }
             String msg = res.optJSONObject("error") != null
                     ? res.optJSONObject("error").optString("message", "") : res.optString("error", "");
             if (msg.toLowerCase(java.util.Locale.US).contains("duplicate")) {
-                return new Result(true, tx.txId(), tx.refBlockNum, tx.operationsJson(), null); // already on chain
+                PENDING.remove(key);
+                return new Result(true, p.txId, p.refBlockNum, p.opsJson, null); // already on chain
             }
-            // The chain refused it (key, resource credits, balance…): another node won't differ.
+            // An earlier node may have accepted it before its reply was lost; then this refusal
+            // (e.g. expired / TaPoS) says nothing about whether it landed. Ask the chain.
+            if (networkTrouble && onChain(p.txId, nodes)) {
+                PENDING.remove(key);
+                return new Result(true, p.txId, p.refBlockNum, p.opsJson, null);
+            }
+            // The chain refused it (key, resource credits, balance…): another node won't differ,
+            // and it never landed, so the next attempt may sign afresh.
+            PENDING.remove(key);
             return fail(chainErrorText(ctx, msg, role));
         }
+        // Every node failed at the network level: keep the signed tx so a retry re-sends it.
         return fail(ctx.getString(R.string.signing_error_network));
     }
 
@@ -226,6 +289,23 @@ public final class HiveBroadcaster {
         }
     }
 
+    /** True if a node knows this transaction id (it was included in a block). */
+    private static boolean onChain(String txId, List<String> nodes) {
+        for (String node : nodes) {
+            try {
+                JSONObject res = call(node, "condenser_api.get_transaction", "[" + HiveTx.jsonString(txId) + "]");
+                if (res.has("result") && !res.isNull("result")) return true;
+                // an error is "unknown transaction" or a node without that API: ask the next one
+            } catch (Exception ignored) {
+                // next node
+            }
+        }
+        return false;
+    }
+
+    /** At most this many nodes per attempt, so a dead network fails in seconds, not minutes. */
+    private static final int MAX_NODES = 4;
+
     /** The app's default node first, then its fallbacks, without repeats. */
     private static List<String> nodes(Context ctx) {
         LinkedHashSet<String> set = new LinkedHashSet<>();
@@ -233,7 +313,8 @@ public final class HiveBroadcaster {
         for (String n : ctx.getResources().getStringArray(R.array.hive_rpc_nodes)) {
             if (n != null && !n.trim().isEmpty()) set.add(n.trim());
         }
-        return new ArrayList<>(set);
+        List<String> all = new ArrayList<>(set);
+        return all.size() > MAX_NODES ? new ArrayList<>(all.subList(0, MAX_NODES)) : all;
     }
 
     /** Small helper so callers don't have to reach for org.json to build an ops list. */
