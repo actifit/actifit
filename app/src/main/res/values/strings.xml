@@ -930,4 +930,20 @@
     <string name="arena_countdown_days">%1$dd %2$02d:%3$02d:%4$02d</string>
     <string name="arena_countdown_clock" translatable="false">%1$02d:%2$02d:%3$02d</string>
     <string name="arena_ends_in_clock">Ends in %1$s</string>
+    <!-- On-device signing (since the server no longer signs for the app) -->
+    <string name="signing_error_no_posting_key">Your posting key isn\'t saved on this phone. Log out and log in again to add it.</string>
+    <string name="signing_error_no_active_key">This needs your active key. Add it under Settings first.</string>
+    <string name="signing_error_bad_key">The key saved on this phone isn\'t a valid Hive private key. Update it under Settings.</string>
+    <string name="signing_error_network">Couldn\'t reach the Hive network. Check your connection and try again.</string>
+    <string name="signing_error_wrong_posting_key">Your account\'s posting key has changed. Log out and log in again with the new key.</string>
+    <string name="signing_error_wrong_active_key">The active key saved in Settings doesn\'t match your account. Update it and try again.</string>
+    <string name="signing_error_rc">Your account is out of Resource Credits right now. Try again later.</string>
+    <string name="signing_error_funds">Your account doesn\'t have enough HIVE for this.</string>
+    <string name="signing_error_generic">The Hive network rejected this transaction. Please try again.</string>
+    <string name="gadget_confirm_unknown">Your transaction reached the chain (%1$s) but its result isn\'t confirmed yet. Don\'t repeat it; check your gadgets again in a few minutes.</string>
+    <string name="gadget_buy_insufficient_afit">You don\'t have enough AFIT for this gadget. You were not charged.</string>
+    <string name="gadget_buy_busy">Another AFIT action is in progress. Wait a moment and try again; you were not charged.</string>
+    <string name="gadget_buy_unavailable">This gadget can\'t be bought right now. You were not charged.</string>
+    <string name="gadget_session_expired">Your session has expired. Log out and log in again, then retry.</string>
+    <string name="error_performing_operation">Something went wrong. Refresh your balance and gadgets before trying again.</string>
 </resources>

@@ -9,23 +9,17 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Friend write-actions against the Actifit backend.
+ * Friend write-actions.
  *
- * Each action is TWO server-signed steps, reusing the app's existing auth (the login
- * access token as `x-acti-token: Bearer`) — no on-device key handling:
- *   1. Broadcast a posting-auth `custom_json` (id "actifit", {transaction, target}) via
- *      performTrx. The server signs+broadcasts AND auto-stores the tx in `verified_tx`,
- *      returning {trx:{tx:{id, ref_block_num}}}.
- *   2. Call the friend endpoint (addFriend/acceptFriend/cancelFriendRequest/dropFriendship)
- *      with the resulting block + trxId, which the backend verifies against `verified_tx`.
+ * Each action is two steps:
+ *   1. Sign a posting-auth `custom_json` (id "actifit", {transaction, target}) on this phone
+ *      and broadcast it straight to Hive ({@link HiveBroadcaster}). The backend no longer
+ *      signs for the app.
+ *   2. Call the friend endpoint's *HiveKeychain variant with the transaction id and the
+ *      exact signed operation; the backend finds it on the chain and checks it matches.
  */
 public class FriendsApi {
 
@@ -33,108 +27,74 @@ public class FriendsApi {
         void onDone(boolean success, String message);
     }
 
+    // The confirm route polls the chain for up to 150 s before answering.
+    private static final int CONFIRM_TIMEOUT_MS = 175000;
+
     public static void addFriend(Context ctx, Activity act, String me, String target, Callback cb) {
-        doFriendAction(ctx, act, me, target, "add-friend-request", "addFriend", cb);
+        doFriendAction(ctx, act, me, target, "add-friend-request", "addFriendHiveKeychain", cb);
     }
 
     public static void acceptFriend(Context ctx, Activity act, String me, String target, Callback cb) {
-        doFriendAction(ctx, act, me, target, "accept-friendship", "acceptFriend", cb);
+        doFriendAction(ctx, act, me, target, "accept-friendship", "acceptFriendHiveKeychain", cb);
     }
 
     public static void cancelRequest(Context ctx, Activity act, String me, String target, Callback cb) {
-        doFriendAction(ctx, act, me, target, "cancel-friend-request", "cancelFriendRequest", cb);
+        doFriendAction(ctx, act, me, target, "cancel-friend-request", "cancelFriendRequestHiveKeychain", cb);
     }
 
     public static void unfriend(Context ctx, Activity act, String me, String target, Callback cb) {
-        doFriendAction(ctx, act, me, target, "cancel-friendship", "dropFriendship", cb);
+        doFriendAction(ctx, act, me, target, "cancel-friendship", "dropFriendshipHiveKeychain", cb);
+    }
+
+    /** The signed operation's json — the same shape the app has always sent. */
+    static String friendJson(String txName, String target) {
+        return "{\"transaction\":" + HiveTx.jsonString(txName) + ",\"target\":" + HiveTx.jsonString(target) + "}";
     }
 
     private static void doFriendAction(Context ctx, Activity act, String me, String target,
                                        String txName, String endpoint, Callback cb) {
-        if (me == null || me.isEmpty() || target == null || target.isEmpty()
-                || LoginActivity.accessToken == null || LoginActivity.accessToken.isEmpty()) {
+        if (me == null || me.isEmpty() || target == null || target.isEmpty()) {
             finish(act, cb, false, ctx.getString(R.string.friends_error_login));
             return;
         }
-        try {
-            // custom_json op: [ "custom_json", { required_posting_auths:[me], id:"actifit", json:"{...}" } ]
-            JSONArray posting = new JSONArray();
-            posting.put(me);
-            JSONObject inner = new JSONObject();
-            inner.put("transaction", txName);
-            inner.put("target", target);
-            JSONObject cj = new JSONObject();
-            cj.put("required_auths", new JSONArray());
-            cj.put("required_posting_auths", posting);
-            cj.put("id", "actifit");
-            cj.put("json", inner.toString());
-            JSONArray operation = new JSONArray();
-            operation.put(0, "custom_json");
-            operation.put(1, cj);
-
-            String bcastUrl = Utils.apiUrl(ctx) + ctx.getString(R.string.perform_trx_link)
-                    + me + "&operation=[" + URLEncoder.encode(operation.toString(), "UTF-8") + "]&bchain=HIVE";
-
-            final RequestQueue queue = Volley.newRequestQueue(ctx);
-            JsonObjectRequest bcastReq = new JsonObjectRequest(Request.Method.GET, bcastUrl, null,
-                    response -> {
-                        try {
-                            if (response.has("success")) {
-                                JSONObject tx = response.getJSONObject("trx").getJSONObject("tx");
-                                String trxId = tx.getString("id");
-                                // The backend verifies the friend op by tx_id (looked up in
-                                // verified_tx, which performTrx auto-populates); ref_block_num is
-                                // passed only to satisfy the route signature and is not used.
-                                long block = tx.optLong("ref_block_num", 0);
-                                // Broadcast already landed on-chain — from here we only retry the
-                                // index step, never re-broadcast, to avoid duplicate custom_json ops.
-                                indexFriendAction(ctx, act, queue, me, target, block, trxId, endpoint, cb, 2);
-                            } else {
-                                finish(act, cb, false, null);
-                            }
-                        } catch (Exception e) {
-                            finish(act, cb, false, null);
-                        }
-                    },
-                    error -> finish(act, cb, false, null)) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> h = new HashMap<>();
-                    h.put("Content-Type", "application/json");
-                    h.put(ctx.getString(R.string.validation_header),
-                            ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
-                    return h;
-                }
-            };
-            bcastReq.setRetryPolicy(new DefaultRetryPolicy(MainActivity.connectTimeout,
-                    MainActivity.connectMaxRetries, MainActivity.connectSubsequentRetryDelay));
-            queue.add(bcastReq);
-        } catch (Exception e) {
-            finish(act, cb, false, null);
-        }
+        HiveTx.Op op = HiveTx.CustomJson.posting(me, "actifit", friendJson(txName, target));
+        HiveBroadcaster.broadcast(ctx, HiveBroadcaster.ops(op), HiveBroadcaster.KeyRole.POSTING, result -> {
+            if (!result.ok) {
+                finish(act, cb, false, result.error);
+                return;
+            }
+            String url = Utils.apiUrl(ctx) + endpoint + "/" + enc(me) + "/" + enc(target) + "/"
+                    + result.refBlockNum + "/" + enc(result.txId) + "/HIVE?operation=" + enc(result.operationsJson);
+            confirm(ctx, act, Volley.newRequestQueue(ctx), url, cb, 2);
+        });
     }
 
-    private static void indexFriendAction(Context ctx, Activity act, RequestQueue queue, String me,
-                                          String target, long block, String trxId, String endpoint,
-                                          Callback cb, int attemptsLeft) {
-        String url = Utils.apiUrl(ctx) + endpoint + "/" + me + "/" + target + "/" + block + "/" + trxId + "/HIVE";
-        JsonObjectRequest idxReq = new JsonObjectRequest(Request.Method.GET, url, null,
+    private static void confirm(Context ctx, Activity act, RequestQueue queue, String url, Callback cb, int attemptsLeft) {
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     boolean ok = "success".equals(response.optString("status"));
                     finish(act, cb, ok, response.optString("message", null));
                 },
                 error -> {
-                    // The op is already on-chain and stored in verified_tx, so a failed index call
-                    // is safe to re-attempt with the SAME trxId — no duplicate broadcast.
+                    // The op is already on chain, so only ever retry this confirm call — with
+                    // the SAME transaction id (the server refuses an id it has processed).
                     if (attemptsLeft > 1) {
-                        indexFriendAction(ctx, act, queue, me, target, block, trxId, endpoint, cb, attemptsLeft - 1);
+                        confirm(ctx, act, queue, url, cb, attemptsLeft - 1);
                     } else {
                         finish(act, cb, false, null);
                     }
                 });
-        idxReq.setRetryPolicy(new DefaultRetryPolicy(MainActivity.connectTimeout,
-                MainActivity.connectMaxRetries, MainActivity.connectSubsequentRetryDelay));
-        queue.add(idxReq);
+        req.setRetryPolicy(new DefaultRetryPolicy(CONFIRM_TIMEOUT_MS, 0, 1f));
+        req.setShouldCache(false);
+        queue.add(req);
+    }
+
+    private static String enc(String s) {
+        try {
+            return URLEncoder.encode(s == null ? "" : s, "UTF-8").replace("+", "%20");
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private static void finish(Activity act, Callback cb, boolean ok, String msg) {

@@ -14,9 +14,8 @@ import org.json.JSONObject;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
 
 /**
  * The Arena (challenge engine) backend.
@@ -36,7 +35,6 @@ public final class ArenaApi {
 
     private static final String ARENA_JSON_ID = "actifit_arena";
     private static final int READ_TIMEOUT_MS = 15000;
-    private static final int BROADCAST_TIMEOUT_MS = 30000;
 
     public interface ListCallback {
         /** @param challenges null when the request failed */
@@ -147,88 +145,18 @@ public final class ArenaApi {
             cb.onDone(false);
             return;
         }
-        if (LoginActivity.accessToken == null || LoginActivity.accessToken.isEmpty()) {
-            // The token is a static filled at app start; it is empty if that login call
-            // failed or the process was restored straight into this screen. Fetch it once.
-            refreshToken(ctx, queue, me, ok -> {
-                if (ok) broadcast(ctx, queue, me, op, challengeId, cb);
-                else cb.onDone(false);
-            });
-            return;
-        }
-        try {
-            JSONObject body = new JSONObject();
-            body.put("op", op);
-            body.put("v", 1);
-            body.put("challenge_id", challengeId);
-
-            JSONArray posting = new JSONArray();
-            posting.put(me);
-            JSONObject cj = new JSONObject();
-            cj.put("required_auths", new JSONArray());
-            cj.put("required_posting_auths", posting);
-            cj.put("id", ARENA_JSON_ID);
-            cj.put("json", body.toString());
-            JSONArray operation = new JSONArray();
-            operation.put(0, "custom_json");
-            operation.put(1, cj);
-
-            String url = Utils.apiUrl(ctx) + ctx.getString(R.string.perform_trx_link)
-                    + me + "&operation=[" + URLEncoder.encode(operation.toString(), "UTF-8") + "]&bchain=HIVE";
-
-            JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, url, null,
-                    response -> {
-                        JSONObject trx = response.optJSONObject("trx");
-                        JSONObject tx = trx == null ? null : trx.optJSONObject("tx");
-                        cb.onDone(response.has("success") && tx != null && tx.has("ref_block_num"));
-                    },
-                    error -> cb.onDone(false)) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> h = new HashMap<>();
-                    h.put("Content-Type", "application/json");
-                    h.put(ctx.getString(R.string.validation_header),
-                            ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
-                    return h;
-                }
-            };
-            // This GET signs and broadcasts — an automatic retry after a slow response
-            // would put a second op on chain, so it gets a long timeout and NO retries.
-            req.setRetryPolicy(new DefaultRetryPolicy(BROADCAST_TIMEOUT_MS, 0, 1f));
-            req.setShouldCache(false);
-            queue.add(req);
-        } catch (Exception e) {
-            cb.onDone(false);
-        }
-    }
-
-    /** Re-authenticates with the stored posting key, as SocialActivity/MarketActivity do. */
-    private static void refreshToken(Context ctx, RequestQueue queue, String me, ActionCallback cb) {
-        String pkey = ctx.getSharedPreferences("actifitSets", Context.MODE_PRIVATE).getString("actifitPst", "");
-        if (pkey.isEmpty()) {
-            cb.onDone(false);
-            return;
-        }
-        try {
-            JSONObject login = new JSONObject();
-            login.put(ctx.getString(R.string.username_param), me);
-            login.put(ctx.getString(R.string.pkey_param), pkey);
-            login.put(ctx.getString(R.string.bchain_param), "HIVE");
-            login.put(ctx.getString(R.string.keeploggedin_param), false);
-            login.put(ctx.getString(R.string.login_source), ctx.getString(R.string.android) + BuildConfig.VERSION_NAME);
-            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,
-                    Utils.apiUrl(ctx) + ctx.getString(R.string.login_auth), login,
-                    response -> {
-                        String token = response.has("success")
-                                ? response.optString(ctx.getString(R.string.login_token), "") : "";
-                        if (!token.isEmpty()) LoginActivity.accessToken = token;
-                        cb.onDone(!token.isEmpty());
-                    },
-                    error -> cb.onDone(false));
-            addRead(queue, req);
-        } catch (Exception e) {
-            cb.onDone(false);
-        }
+        // Signed on this phone with the posting key and broadcast straight to Hive: the
+        // backend no longer signs for the app. No confirm call is needed — the Arena tailer
+        // indexes the op from the chain.
+        String json = "{\"op\":" + HiveTx.jsonString(op) + ",\"v\":1,\"challenge_id\":"
+                + HiveTx.jsonString(challengeId) + "}";
+        HiveBroadcaster.broadcast(ctx, HiveBroadcaster.ops(HiveTx.CustomJson.posting(me, ARENA_JSON_ID, json)),
+                HiveBroadcaster.KeyRole.POSTING, result -> {
+                    if (!result.ok && result.error != null) {
+                        android.widget.Toast.makeText(ctx, result.error, android.widget.Toast.LENGTH_LONG).show();
+                    }
+                    cb.onDone(result.ok);
+                });
     }
 
     private static void addRead(RequestQueue queue, Request<?> req) {

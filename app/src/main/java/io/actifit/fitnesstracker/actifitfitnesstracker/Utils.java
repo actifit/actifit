@@ -740,97 +740,18 @@ public class  Utils {
     }
 
     //perform calls to API
+    /**
+     * Signs (op_name, cstm_params) on this phone with the posting key and broadcasts it to
+     * Hive. The server no longer signs for the app (/performTrx was removed).
+     */
     public static void queryAPI(Context ctx, String user, String op_name,
                                 JSONObject cstm_params,
                                 final ProgressBar taskProgress,
                                 final APIResponseListener listener,
                                 final Activity activity) {
-
-        RequestQueue queue = Volley.newRequestQueue(ctx);
-
-        if (user.equals("") || op_name.equals("") || cstm_params == null) {
-
-            Log.e(MainActivity.TAG, "missing params");
-            activity.runOnUiThread(() -> {
-                taskProgress.setVisibility(View.GONE);
-            });
-        } else {
-            try {
-
-                JSONArray operation = new JSONArray();
-                operation.put(0, op_name);
-                operation.put(1, cstm_params);
-
-                String bcastUrl = Utils.apiUrl(ctx)+ctx.getString(R.string.perform_trx_link);
-                bcastUrl += user +
-                        "&operation=[" + URLEncoder.encode(String.valueOf(operation), "UTF-8") + "]" +
-                        "&bchain=HIVE";
-                ;
-
-
-                //send out transaction
-                JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
-                        bcastUrl, null,
-                        response -> activity.runOnUiThread(() -> {
-                            taskProgress.setVisibility(View.GONE);
-                            Log.d(MainActivity.TAG, response.toString());
-
-                            //
-                            if (response.has("success")) {
-                                //successfully wrote to chain gadget purchase
-                                try {
-                                    JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
-
-
-                                    if (listener != null) {
-                                        listener.onResponse(true);
-                                    }
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                Log.d(MainActivity.TAG, "Error querying blockchain");
-                                if (listener != null) {
-                                    listener.onResponse(false);
-                                }
-                                //progress.dismiss();
-                                //deactivateGadget.clearAnimation();
-                                //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
-                            }
-                        }),
-                        error -> {
-                            // error
-                            if (listener != null) {
-                                listener.onResponse(false);
-                            }
-                            //progress.dismiss();
-                            //deactivateGadget.clearAnimation();
-                            //Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product), Toast.LENGTH_LONG).show();
-                        }) {
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        final Map<String, String> params = new HashMap<>();
-                        params.put("Content-Type", "application/json");
-                        params.put(ctx.getString(R.string.validation_header), ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
-                        return params;
-                    }
-                };
-
-                //to enable waiting for longer time with extra retry
-                transRequest.setRetryPolicy(new DefaultRetryPolicy(
-                        MainActivity.connectTimeout,
-                        MainActivity.connectMaxRetries,
-                        MainActivity.connectSubsequentRetryDelay));
-
-                queue.add(transRequest);
-            } catch (Exception excep) {
-                excep.printStackTrace();
-            }
-
-        }
+        signAndBroadcast(ctx, user, op_name, cstm_params, HiveBroadcaster.KeyRole.POSTING, null,
+                taskProgress, listener, activity);
     }
-
 
     //marks a notification as read
     public static void markNotifRead(Context ctx, Activity activity, String user, String notifId){
@@ -892,98 +813,43 @@ public class  Utils {
     }
 
     //perform calls to API
+    /** As {@link #queryAPI}, signed with the active key (transfers, staking, Hive-Engine). */
     public static void queryAPIPost(Context ctx, String user, String actvKey, String op_name,
                                     JSONObject cstm_params,
                                     final ProgressBar taskProgress,
                                     final APIResponseListener listener,
                                     Activity activity) {
+        signAndBroadcast(ctx, user, op_name, cstm_params, HiveBroadcaster.KeyRole.ACTIVE, actvKey,
+                taskProgress, listener, activity);
+    }
 
-        RequestQueue queue = Volley.newRequestQueue(ctx);
-
-        if (user.equals("") || op_name.equals("") || cstm_params == null) {
-
+    private static void signAndBroadcast(Context ctx, String user, String op_name, JSONObject cstm_params,
+                                         HiveBroadcaster.KeyRole role, String explicitKey,
+                                         final ProgressBar taskProgress, final APIResponseListener listener,
+                                         final Activity activity) {
+        if (user == null || user.equals("") || op_name == null || op_name.equals("") || cstm_params == null) {
             Log.e(MainActivity.TAG, "missing params");
-            activity.runOnUiThread(() -> {
-                taskProgress.setVisibility(View.GONE);
+            if (activity != null) activity.runOnUiThread(() -> {
+                if (taskProgress != null) taskProgress.setVisibility(View.GONE);
             });
-        } else {
-            try {
-
-
-                String bcastUrl = Utils.apiUrl(ctx)+ctx.getString(R.string.perform_trx_post_link);
-                bcastUrl += user +
-                        "&bchain=HIVE";
-                ;
-
-                JSONArray operation = new JSONArray();
-                operation.put(0, op_name);
-                operation.put(1, cstm_params);
-
-                JSONArray op_array = new JSONArray();
-                op_array.put(operation);
-
-                //sending post data
-                JSONObject body = new JSONObject();
-
-                body.put("operation", op_array.toString());
-                body.put("active", actvKey);
-
-
-                //send out transaction
-                JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.POST,
-                        bcastUrl, body,
-                        response ->  activity.runOnUiThread(() -> {
-                            taskProgress.setVisibility(View.GONE);
-                            Log.d(MainActivity.TAG, response.toString());
-
-                            //
-                            if (response.has("success")) {
-                                //successfully wrote to chain gadget purchase
-                                try {
-                                    JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
-
-
-                                    if (listener != null) {
-                                        listener.onResponse(true);
-                                    }
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                Log.d(MainActivity.TAG, "Error querying blockchain");
-                                if (listener != null) {
-                                    listener.onResponse(false);
-                                }
-                            }
-                        }),
-                        error -> {
-                            // error
-                            if (listener != null) {
-                                listener.onResponse(false);
-                            }
-                        }) {
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        final Map<String, String> params = new HashMap<>();
-                        params.put("Content-Type", "application/json");
-                        params.put(ctx.getString(R.string.validation_header), ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
-                        return params;
-                    }
-                };
-
-                //to enable waiting for longer time with extra retry
-                transRequest.setRetryPolicy(new DefaultRetryPolicy(
-                        MainActivity.connectTimeout,
-                        MainActivity.connectMaxRetries,
-                        MainActivity.connectSubsequentRetryDelay));
-
-                queue.add(transRequest);
-            } catch (Exception excep) {
-                excep.printStackTrace();
-            }
-
+            if (listener != null) listener.onResponse(false);
+            return;
         }
+        HiveTx.Op op;
+        try {
+            op = HiveOpsJson.fromJson(op_name, cstm_params);
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "cannot build " + op_name + ": " + e.getMessage());
+            if (listener != null) listener.onResponse(false);
+            return;
+        }
+        HiveBroadcaster.broadcast(ctx, HiveBroadcaster.ops(op), role, explicitKey, result -> {
+            if (!result.ok && result.error != null && activity != null && !activity.isFinishing()) {
+                // The dialogs show a generic failure; this says why (e.g. the key changed).
+                Toast.makeText(activity, result.error, Toast.LENGTH_LONG).show();
+            }
+            if (listener != null) listener.onResponse(result.ok);
+        });
     }
 
     //to handle multiple successive calls
