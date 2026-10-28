@@ -90,7 +90,9 @@ public final class GadgetApi {
                 return;
             }
             final String url = Utils.apiUrl(app) + pathFormat.replace("{tx}", enc(result.txId))
-                    + "?operation=" + enc(result.operationsJson);
+                    // The routes read the chain from ?bchain= while the verifier uses the path one:
+                    // send both, identical.
+                    + "?bchain=HIVE&operation=" + enc(result.operationsJson);
             EXECUTOR.execute(() -> {
                 String message = confirm(app, url, result.txId);
                 MAIN.post(() -> cb.onDone(message == null, message));

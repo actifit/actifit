@@ -90,6 +90,54 @@ public final class HiveBroadcaster {
         });
     }
 
+    /**
+     * Claims the account's pending rewards: reads the exact pending balances from the chain
+     * (the claim must not exceed them) and signs a claim_reward_balance with the posting key.
+     * Result.ok with a null txId means there was nothing to claim.
+     */
+    public static void claimRewards(Context ctx, String account, Callback cb) {
+        final Context app = ctx.getApplicationContext();
+        final String wif = storedKey(app, KeyRole.POSTING);
+        final List<String> nodes = nodes(app);
+        EXECUTOR.execute(() -> {
+            Result r;
+            JSONObject acc = null;
+            for (String node : nodes) {
+                try {
+                    JSONObject res = call(node, "condenser_api.get_accounts", "[[" + HiveTx.jsonString(account) + "]]");
+                    if (res.has("result") && res.getJSONArray("result").length() > 0) {
+                        acc = res.getJSONArray("result").getJSONObject(0);
+                        break;
+                    }
+                } catch (Exception ignored) {
+                    // next node
+                }
+            }
+            if (acc == null) {
+                r = fail(app.getString(R.string.signing_error_network));
+            } else {
+                String hive = acc.optString("reward_hive_balance", "0.000 HIVE");
+                String hbd = acc.optString("reward_hbd_balance", "0.000 HBD");
+                String vests = acc.optString("reward_vesting_balance", "0.000000 VESTS");
+                if (isZero(hive) && isZero(hbd) && isZero(vests)) {
+                    r = new Result(true, null, 0, null, null);
+                } else {
+                    r = run(app, ops(new HiveTx.ClaimRewardBalance(account, hive, hbd, vests)), wif, KeyRole.POSTING, nodes);
+                }
+            }
+            final Result fr = r;
+            MAIN.post(() -> cb.onResult(fr));
+        });
+    }
+
+    private static boolean isZero(String asset) {
+        try {
+            return new java.math.BigDecimal(asset.trim().split(" ")[0]).signum() == 0;
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
     private static Result run(Context ctx, List<HiveTx.Op> ops, String wif, KeyRole role, List<String> nodes) {
         if (wif == null || wif.trim().isEmpty()) {
             return fail(ctx.getString(role == KeyRole.ACTIVE

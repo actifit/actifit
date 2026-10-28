@@ -91,6 +91,13 @@ public class HiveTxTest {
     }
 
     @Test
+    public void claimRewardBalance() {
+        assertHived("39309e5abaa9c0e3e16a0127086d63666172686174000000000000000003535445454d00007b0000000000000003534244"
+                        + "000000003501b9020000000006564553545300000000",
+                new HiveTx.ClaimRewardBalance("mcfarhat", "0.000 HIVE", "0.123 HBD", "45.678901 VESTS"));
+    }
+
+    @Test
     public void wrongPrecisionIsRejectedBeforeSigning() {
         try {
             tx(new HiveTx.Transfer("a", "b", "1.5 HIVE", "")).serialize();

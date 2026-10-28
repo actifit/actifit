@@ -64,7 +64,7 @@ public class FriendsApi {
                 return;
             }
             String url = Utils.apiUrl(ctx) + endpoint + "/" + enc(me) + "/" + enc(target) + "/"
-                    + result.refBlockNum + "/" + enc(result.txId) + "/HIVE?operation=" + enc(result.operationsJson);
+                    + result.refBlockNum + "/" + enc(result.txId) + "/HIVE?bchain=HIVE&operation=" + enc(result.operationsJson);
             confirm(ctx, act, Volley.newRequestQueue(ctx), url, cb, 2);
         });
     }

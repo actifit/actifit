@@ -235,6 +235,37 @@ public final class HiveTx {
         }
     }
 
+    /** Claim pending author/curation rewards (posting authority). */
+    public static final class ClaimRewardBalance implements Op {
+        public final String account;
+        public final String rewardHive;   // "0.000 HIVE"
+        public final String rewardHbd;    // "0.000 HBD"
+        public final String rewardVests;  // "0.000000 VESTS"
+
+        public ClaimRewardBalance(String account, String rewardHive, String rewardHbd, String rewardVests) {
+            this.account = account;
+            this.rewardHive = rewardHive;
+            this.rewardHbd = rewardHbd;
+            this.rewardVests = rewardVests;
+        }
+
+        @Override
+        public void write(ByteArrayOutputStream out) {
+            writeVarint(out, 39);
+            writeString(out, account);
+            writeAsset(out, rewardHive);
+            writeAsset(out, rewardHbd);
+            writeAsset(out, rewardVests);
+        }
+
+        @Override
+        public String toJson() {
+            return "[\"claim_reward_balance\",{\"account\":" + jsonString(account) + ",\"reward_hive\":"
+                    + jsonString(rewardHive) + ",\"reward_hbd\":" + jsonString(rewardHbd) + ",\"reward_vests\":"
+                    + jsonString(rewardVests) + "}]";
+        }
+    }
+
     /** "12.3 HIVE" → chain asset string with exactly 3 decimals; rejects anything else. */
     public static String formatAmount(double value, String symbol) {
         if (!("HIVE".equals(symbol) || "HBD".equals(symbol))) throw new IllegalArgumentException("symbol");

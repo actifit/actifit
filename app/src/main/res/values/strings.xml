@@ -946,4 +946,5 @@
     <string name="gadget_buy_unavailable">This gadget can\'t be bought right now. You were not charged.</string>
     <string name="gadget_session_expired">Your session has expired. Log out and log in again, then retry.</string>
     <string name="error_performing_operation">Something went wrong. Refresh your balance and gadgets before trying again.</string>
+    <string name="rewards_nothing_to_claim">There are no pending rewards to claim.</string>
 </resources>
