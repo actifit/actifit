@@ -12,7 +12,6 @@ import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -31,13 +30,16 @@ import okhttp3.Response;
  * checks its operations match the ?operation= we send, and ties it to the gadget.
  *
  * Money safety:
- *  - A broadcast action is remembered (per user, gadget and action) until the backend has
- *    confirmed it. Tapping again, or reopening the Market, RE-CONFIRMS that same
- *    transaction instead of signing a new one — so a lost reply or a killed app can never
- *    turn into a second payment. The server accepts a transaction for 7 hours and refuses
- *    to process one twice.
- *  - Paying in HIVE moves funds BEFORE the confirm, so its failures are never worded as
- *    "you were not charged"; they name the transaction id instead.
+ *  - The signed transaction is saved (per user, gadget and action) BEFORE it is sent, and
+ *    kept until the backend confirms it. Tapping again, or reopening the Market, settles
+ *    that same transaction — re-sends it, checks the chain, or re-confirms it — instead of
+ *    signing a new one, so a lost reply or a killed app can never become a second payment.
+ *  - While any purchase of a gadget is unresolved, every buy button of that gadget settles
+ *    it rather than starting another purchase.
+ *  - Paying in HIVE moves funds BEFORE the confirm. The backend answers a bare
+ *    {status:'error'} for every confirm failure (including "this tx was already used"), so a
+ *    HIVE payment is only forgotten on an explicit success; until then the user is shown the
+ *    transaction id and told not to pay again.
  *  - Only one action per gadget at a time.
  */
 public final class GadgetApi {
@@ -97,12 +99,20 @@ public final class GadgetApi {
         return IN_FLIGHT.contains(user + "|" + gadgetId);
     }
 
+    /**
+     * True when a purchase of this gadget (AFIT or HIVE) is signed but not yet confirmed:
+     * a buy tap should settle it (buyWithHive with a null quote) instead of quoting again.
+     */
+    public static boolean hasUnresolvedPurchase(Context ctx, String user, String gadgetId) {
+        return unresolvedBuyKey(ctx.getApplicationContext(), user, gadgetId) != null;
+    }
+
     // ---------------------------------------------------------------- actions
 
     public static void buyWithAfit(Context ctx, String user, String gadgetId, Callback cb) {
         String base = Utils.apiUrl(ctx);
         start(ctx, ACT_BUY, user, gadgetId, GadgetOps.buy(user, gadgetId), HiveBroadcaster.KeyRole.POSTING,
-                base + "buyGadgetKeychain/" + enc(user) + "/" + enc(gadgetId) + "/{tx}/HIVE", false, cb);
+                base + "buyGadgetKeychain/" + enc(user) + "/" + enc(gadgetId) + "/{tx}/HIVE", cb);
     }
 
     /**
@@ -132,18 +142,8 @@ public final class GadgetApi {
     }
 
     /**
-     * True when an earlier HIVE payment for this gadget is on chain but not yet confirmed:
-     * the card should re-confirm it (buyWithHive with a null quote) instead of quoting again.
-     */
-    public static boolean hasUnconfirmedHivePayment(Context ctx, String user, String gadgetId) {
-        Pending p = Pending.parse(prefs(ctx.getApplicationContext())
-                .getString(ACT_BUY_HIVE + "|" + user + "|" + gadgetId, null));
-        return p != null && System.currentTimeMillis() - p.createdMs < PENDING_MAX_AGE_MS;
-    }
-
-    /**
      * Pays the quoted amount in HIVE (active key), then confirms with the same server.
-     * quote null: only re-confirm an earlier payment (see hasUnconfirmedHivePayment).
+     * quote null: only settle an unresolved purchase (see hasUnresolvedPurchase).
      */
     public static void buyWithHive(Context ctx, String user, String gadgetId, HiveQuote quote, Callback cb) {
         start(ctx, ACT_BUY_HIVE, user, gadgetId,
@@ -152,7 +152,7 @@ public final class GadgetApi {
                 HiveBroadcaster.KeyRole.ACTIVE,
                 quote == null ? null
                         : quote.apiBase + "buyGadgetHiveKeychain/" + enc(user) + "/" + enc(gadgetId) + "/{tx}/HIVE",
-                true, cb);
+                cb);
     }
 
     /** benefic: the friend receiving the boost, or null. */
@@ -162,37 +162,37 @@ public final class GadgetApi {
         // uses the multi route with one id, so do the same until then.
         start(ctx, ACT_ACTIVATE, user, gadgetId, GadgetOps.activate(user, gadgetId, b),
                 HiveBroadcaster.KeyRole.POSTING, Utils.apiUrl(ctx) + "activateMultiGadgetKeychain/" + enc(user)
-                        + "/" + enc(gadgetId) + "/{tx}/HIVE/" + enc(b), false, cb);
+                        + "/" + enc(gadgetId) + "/{tx}/HIVE/" + enc(b), cb);
     }
 
     public static void deactivate(Context ctx, String user, String gadgetId, Callback cb) {
         start(ctx, ACT_DEACTIVATE, user, gadgetId, GadgetOps.deactivate(user, gadgetId),
                 HiveBroadcaster.KeyRole.POSTING, Utils.apiUrl(ctx) + "deactivateGadgetKeychain/" + enc(user)
-                        + "/" + enc(gadgetId) + "/{tx}/HIVE", false, cb);
+                        + "/" + enc(gadgetId) + "/{tx}/HIVE", cb);
     }
 
     /**
-     * Re-confirms every remembered, still-valid action for this user (e.g. a HIVE payment
-     * whose confirm never got through because the app was closed). onConfirmed runs on the
-     * main thread once per action that went through, so the caller can refresh.
+     * Settles every remembered action for this user (e.g. a HIVE payment whose confirm never
+     * got through because the app was closed). cb runs on the main thread once per action
+     * that ended: ok when it went through, else with a message worth showing (may be null).
      */
-    public static void resumePending(Context ctx, String user, Callback onConfirmed) {
+    public static void resumePending(Context ctx, String user, Callback cb) {
         final Context app = ctx.getApplicationContext();
         for (Map.Entry<String, ?> e : prefs(app).getAll().entrySet()) {
             final String key = e.getKey();
             final String[] parts = key.split("\\|", 3);
             if (parts.length != 3 || !parts[1].equals(user)) continue;
-            final Pending p = Pending.parse(String.valueOf(e.getValue()));
-            if (p == null || System.currentTimeMillis() - p.createdMs > PENDING_MAX_AGE_MS) {
-                prefs(app).edit().remove(key).apply();
-                continue;
-            }
             final String lock = user + "|" + parts[2];
             if (!IN_FLIGHT.add(lock)) continue;
             EXECUTOR.execute(() -> {
-                String msg = confirmAndSettle(app, key, p, ACT_BUY_HIVE.equals(parts[0]), true);
-                IN_FLIGHT.remove(lock);
-                if (msg == null) MAIN.post(() -> onConfirmed.onDone(true, null));
+                String msg;
+                try {
+                    msg = settle(app, key, Pending.parse(String.valueOf(e.getValue())));
+                } finally {
+                    IN_FLIGHT.remove(lock);
+                }
+                final String m = msg;
+                MAIN.post(() -> cb.onDone(m == null, m));
             });
         }
     }
@@ -200,59 +200,93 @@ public final class GadgetApi {
     // ---------------------------------------------------------------- plumbing
 
     private static void start(Context ctx, String action, String user, String gadgetId, HiveTx.Op op,
-                              HiveBroadcaster.KeyRole role, String urlTemplate, boolean paidOnChain, Callback cb) {
+                              HiveBroadcaster.KeyRole role, String urlTemplate, Callback cb) {
         final Context app = ctx.getApplicationContext();
         final String lock = user + "|" + gadgetId;
         if (!IN_FLIGHT.add(lock)) {
             cb.onDone(false, app.getString(R.string.gadget_action_in_progress));
             return;
         }
-        final Callback done = (ok, msg) -> {
-            IN_FLIGHT.remove(lock);
-            cb.onDone(ok, msg);
-        };
-        final String key = action + "|" + user + "|" + gadgetId;
-
-        // An earlier attempt at this exact action is already on chain: confirm it, don't pay again.
-        final Pending earlier = Pending.parse(prefs(app).getString(key, null));
-        if (earlier != null && System.currentTimeMillis() - earlier.createdMs < PENDING_MAX_AGE_MS) {
-            EXECUTOR.execute(() -> {
-                String msg = confirmAndSettle(app, key, earlier, paidOnChain, true);
-                MAIN.post(() -> done.onDone(msg == null, msg));
-            });
-            return;
-        }
-        prefs(app).edit().remove(key).apply();
-        if (op == null) { // a re-confirm whose payment record is gone: nothing to re-send
-            done.onDone(false, app.getString(R.string.error_performing_operation));
-            return;
-        }
-
-        List<HiveTx.Op> ops = HiveBroadcaster.ops(op);
-        HiveBroadcaster.broadcast(app, ops, role, result -> {
-            if (!result.ok) {
-                done.onDone(false, result.error);
-                return;
+        final boolean isBuy = ACT_BUY.equals(action) || ACT_BUY_HIVE.equals(action);
+        EXECUTOR.execute(() -> {
+            String msg;
+            try {
+                // An earlier attempt is unresolved: settle THAT one, don't start another.
+                // For a buy, either currency's purchase counts, so the other button can't buy twice.
+                String key = isBuy ? unresolvedBuyKey(app, user, gadgetId) : action + "|" + user + "|" + gadgetId;
+                Pending earlier = key == null ? null : Pending.parse(prefs(app).getString(key, null));
+                if (earlier != null) {
+                    msg = settle(app, key, earlier);
+                } else if (op == null) {
+                    msg = app.getString(R.string.error_performing_operation); // nothing left to settle
+                } else {
+                    msg = signSendConfirm(app, action + "|" + user + "|" + gadgetId, op, role, urlTemplate);
+                }
+            } catch (Exception e) {
+                msg = app.getString(R.string.error_performing_operation);
+            } finally {
+                IN_FLIGHT.remove(lock);
             }
-            // Remember it BEFORE confirming: if the app dies now, the next visit confirms it.
-            final Pending p = new Pending(result.txId, result.operationsJson, urlTemplate, System.currentTimeMillis());
-            prefs(app).edit().putString(key, p.serialize()).commit();
-            EXECUTOR.execute(() -> {
-                String msg = confirmAndSettle(app, key, p, paidOnChain, false);
-                MAIN.post(() -> done.onDone(msg == null, msg));
-            });
+            final String m = msg;
+            MAIN.post(() -> cb.onDone(m == null, m));
         });
+    }
+
+    /** Fresh action. Blocking; returns null on success, else a user-facing message. */
+    private static String signSendConfirm(Context app, String key, HiveTx.Op op, HiveBroadcaster.KeyRole role,
+                                          String urlTemplate) {
+        final long now = System.currentTimeMillis();
+        HiveBroadcaster.Result r = HiveBroadcaster.signAndSend(app, HiveBroadcaster.ops(op), role, null, signed ->
+                // Saved BEFORE sending: if the reply is lost or the app dies, it is settled later.
+                prefs(app).edit().putString(key, new Pending(signed, urlTemplate, now, false).serialize()).commit());
+        if (!r.ok) {
+            if (!r.ambiguous) forget(app, key); // it never reached the chain: nothing to settle
+            return r.error;
+        }
+        Pending p = Pending.parse(prefs(app).getString(key, null));
+        if (p == null) return app.getString(R.string.error_performing_operation);
+        p = p.markSent();
+        prefs(app).edit().putString(key, p.serialize()).commit();
+        return confirmAndSettle(app, key, p, false);
+    }
+
+    /** An unresolved action from an earlier attempt. Blocking. */
+    private static String settle(Context app, String key, Pending p) {
+        boolean hive = key.startsWith(ACT_BUY_HIVE + "|");
+        if (p == null) {
+            forget(app, key);
+            return null;
+        }
+        if (System.currentTimeMillis() - p.createdMs > PENDING_MAX_AGE_MS) {
+            // Past the server's window: it can no longer confirm this. Never drop a HIVE
+            // payment silently — the user needs the id to ask support.
+            forget(app, key);
+            return hive && p.sent ? app.getString(R.string.gadget_hive_expired, p.signed.txId) : null;
+        }
+        if (!p.sent) {
+            HiveBroadcaster.Result r = HiveBroadcaster.resend(app, p.signed,
+                    hive ? HiveBroadcaster.KeyRole.ACTIVE : HiveBroadcaster.KeyRole.POSTING);
+            if (!r.ok) {
+                if (r.ambiguous) return app.getString(R.string.gadget_still_checking, p.signed.txId);
+                forget(app, key); // it never landed: nothing was paid
+                return app.getString(R.string.gadget_previous_not_landed);
+            }
+            p = p.markSent();
+            prefs(app).edit().putString(key, p.serialize()).commit();
+        }
+        return confirmAndSettle(app, key, p, true);
     }
 
     /**
      * Confirms a broadcast action and decides whether to keep remembering it.
      * @return null on success, else a user-facing message. Runs off the main thread.
      */
-    private static String confirmAndSettle(Context ctx, String key, Pending p, boolean paidOnChain, boolean resumed) {
-        String url = p.urlTemplate.replace("{tx}", enc(p.txId))
+    private static String confirmAndSettle(Context ctx, String key, Pending p, boolean resumed) {
+        final boolean paidOnChain = key.startsWith(ACT_BUY_HIVE + "|");
+        String url = p.urlTemplate.replace("{tx}", enc(p.signed.txId))
                 // The routes read the chain from ?bchain= while the verifier uses the path
                 // one: send both, identical.
-                + "?bchain=HIVE&operation=" + enc(p.opsJson);
+                + "?bchain=HIVE&operation=" + enc(p.signed.opsJson);
         JSONObject reply = null;
         boolean retried = false;
         // One retry, only when no JSON came back at all (dropped connection, a proxy's HTML
@@ -266,7 +300,11 @@ public final class GadgetApi {
                 // maybe retry
             }
         }
-        if (reply == null) return unconfirmed(ctx, p, paidOnChain); // keep: confirm again later
+        if (reply == null) {
+            // keep: confirm again later
+            return ctx.getString(paidOnChain ? R.string.gadget_hive_unconfirmed : R.string.gadget_confirm_unknown,
+                    p.signed.txId);
+        }
 
         Object err = reply.opt("error");
         boolean hasError = err != null && err != JSONObject.NULL && !Boolean.FALSE.equals(err);
@@ -279,17 +317,19 @@ public final class GadgetApi {
             forget(ctx, key);
             return null;
         }
+        if (paidOnChain) {
+            // The HIVE has moved whatever the server said. Its failure reply can't tell "already
+            // bought with this payment" from "failed after taking it", so keep the payment on
+            // record (until the server's window closes) and never let the user pay again.
+            if (kind == GadgetReply.Kind.GATE) return gateMessage(ctx, reply);
+            return ctx.getString(resumed || retried ? R.string.gadget_hive_needs_support
+                    : R.string.gadget_hive_unconfirmed, p.signed.txId);
+        }
         if (GadgetReply.alreadyProcessed(errText) || ((resumed || retried) && kind == GadgetReply.Kind.FAILED)) {
             // The server has already used this transaction (most likely an earlier attempt of
             // ours went through). It won't process it again, so stop retrying it.
             forget(ctx, key);
-            return ctx.getString(R.string.gadget_already_processed, p.txId);
-        }
-        if (paidOnChain) {
-            // The HIVE has moved whatever the server said: never say "not charged". Keep the
-            // transaction so tapping again (or reopening the Market) re-confirms it.
-            if (kind == GadgetReply.Kind.GATE) return gateMessage(ctx, reply);
-            return ctx.getString(R.string.gadget_hive_unconfirmed, p.txId);
+            return ctx.getString(R.string.gadget_already_processed, p.signed.txId);
         }
         // AFIT is only charged when the confirm succeeds; none of these charged anything.
         forget(ctx, key);
@@ -303,8 +343,13 @@ public final class GadgetApi {
         }
     }
 
-    private static String unconfirmed(Context ctx, Pending p, boolean paidOnChain) {
-        return ctx.getString(paidOnChain ? R.string.gadget_hive_unconfirmed : R.string.gadget_confirm_unknown, p.txId);
+    /** The stored key of an unresolved purchase of this gadget (HIVE first), or null. */
+    private static String unresolvedBuyKey(Context app, String user, String gadgetId) {
+        for (String action : new String[]{ACT_BUY_HIVE, ACT_BUY}) {
+            String key = action + "|" + user + "|" + gadgetId;
+            if (prefs(app).contains(key)) return key;
+        }
+        return null;
     }
 
     private static String gateMessage(Context ctx, JSONObject reply) {
@@ -313,31 +358,36 @@ public final class GadgetApi {
     }
 
     private static void forget(Context ctx, String key) {
-        prefs(ctx).edit().remove(key).apply();
+        prefs(ctx).edit().remove(key).commit();
     }
 
     private static SharedPreferences prefs(Context ctx) {
         return ctx.getSharedPreferences("gadgetPending", Context.MODE_PRIVATE);
     }
 
-    /** A broadcast action awaiting its confirm. */
+    /** A signed action awaiting its confirm. sent: a node has accepted it. */
     static final class Pending {
-        final String txId;
-        final String opsJson;
+        final HiveBroadcaster.Signed signed;
         final String urlTemplate;
         final long createdMs;
+        final boolean sent;
 
-        Pending(String txId, String opsJson, String urlTemplate, long createdMs) {
-            this.txId = txId;
-            this.opsJson = opsJson;
+        Pending(HiveBroadcaster.Signed signed, String urlTemplate, long createdMs, boolean sent) {
+            this.signed = signed;
             this.urlTemplate = urlTemplate;
             this.createdMs = createdMs;
+            this.sent = sent;
+        }
+
+        Pending markSent() {
+            return new Pending(signed, urlTemplate, createdMs, true);
         }
 
         String serialize() {
             try {
-                return new JSONObject().put("tx", txId).put("ops", opsJson).put("url", urlTemplate)
-                        .put("at", createdMs).toString();
+                return new JSONObject().put("tx", signed.txId).put("txJson", signed.txJson)
+                        .put("ref", signed.refBlockNum).put("ops", signed.opsJson).put("exp", signed.expiresAtMs)
+                        .put("url", urlTemplate).put("at", createdMs).put("sent", sent).toString();
             } catch (Exception e) {
                 return "";
             }
@@ -347,7 +397,9 @@ public final class GadgetApi {
             if (s == null || s.isEmpty()) return null;
             try {
                 JSONObject o = new JSONObject(s);
-                return new Pending(o.getString("tx"), o.getString("ops"), o.getString("url"), o.getLong("at"));
+                return new Pending(new HiveBroadcaster.Signed(o.getString("txJson"), o.getString("tx"),
+                        o.getInt("ref"), o.getString("ops"), o.getLong("exp")),
+                        o.getString("url"), o.getLong("at"), o.getBoolean("sent"));
             } catch (Exception e) {
                 return null;
             }

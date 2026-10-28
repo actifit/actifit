@@ -944,6 +944,10 @@
     <string name="gadget_action_in_progress">This gadget is still being processed. Please wait.</string>
     <string name="gadget_already_processed">This transaction (%1$s) was already processed. Refresh your gadgets to see the result.</string>
     <string name="gadget_hive_unconfirmed">Your HIVE payment is on chain (%1$s) but the purchase isn\'t confirmed yet. Don\'t pay again: the app will re-check it when you reopen the market, or tap Buy again to retry the confirmation.</string>
+    <string name="gadget_hive_needs_support">Your HIVE payment (%1$s) is on chain but the server didn\'t confirm the purchase. If the gadget now shows as bought, you\'re all set. Otherwise don\'t pay again: contact Actifit support with this transaction id.</string>
+    <string name="gadget_hive_expired">An earlier HIVE payment (%1$s) could not be confirmed in time. If you don\'t own that gadget, contact Actifit support with this transaction id.</string>
+    <string name="gadget_still_checking">Still checking whether your earlier transaction (%1$s) reached the chain. Please try again in a couple of minutes.</string>
+    <string name="gadget_previous_not_landed">Your earlier attempt never reached the chain, so nothing was charged. Tap again to retry.</string>
     <string name="gadget_hive_confirm_title">Buy with HIVE</string>
     <string name="gadget_hive_confirm_msg">Pay %1$s to buy %2$s? This is a transfer signed with your active key.</string>
     <string name="gadget_hive_confirm_pay">Pay</string>

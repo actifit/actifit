@@ -50,6 +50,8 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
     // Shared across rows so the friends list is fetched once per Market session.
     private FriendAccountAdapter friendAccountAdapter;
+    /** Gadgets with a HIVE quote or Pay dialog open: their buttons stay off meanwhile. */
+    private final java.util.Set<String> quoting = new java.util.HashSet<>();
     // JSONArray consumedProducts;
     ArrayList reqtsMet;
     ProgressDialog progress;
@@ -285,7 +287,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
             // Buttons stay off while an action for this gadget is running (also after the
             // row is recycled), so one tap can't turn into two purchases.
-            final boolean busy = GadgetApi.isBusy(MainActivity.username, postEntry.id);
+            final boolean busy = GadgetApi.isBusy(MainActivity.username, postEntry.id) || quoting.contains(postEntry.id);
             final boolean canBuy = postEntry.allReqtsMet && !busy;
             buyAFIT.setEnabled(canBuy);
             buyAFIT.setAlpha(canBuy ? 1.0f : 0.4f);
@@ -499,30 +501,44 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     notifyDataSetChanged();
                 };
 
-                // Already paid but not confirmed: confirm that payment, never pay twice.
-                if (GadgetApi.hasUnconfirmedHivePayment(getContext(), MainActivity.username, postEntry.id)) {
+                // An earlier purchase (either currency) is unresolved: settle it, never pay twice.
+                if (GadgetApi.hasUnresolvedPurchase(getContext(), MainActivity.username, postEntry.id)) {
                     GadgetApi.buyWithHive(getContext(), MainActivity.username, postEntry.id, null, onBought);
                     notifyDataSetChanged();
                     return;
                 }
+                if (!quoting.add(postEntry.id)) return; // a quote or a Pay dialog is already up
 
                 // Price it now from the confirming server and show the exact amount before paying.
-                buyHIVE.setEnabled(false);
+                notifyDataSetChanged();
                 GadgetApi.quoteHive(getContext(), postEntry.priceAFIT, (quote, error) -> {
-                    buyHIVE.setEnabled(true);
-                    if (quote == null) {
+                    if (quote == null || !(ctx instanceof Activity)
+                            || ((Activity) ctx).isFinishing() || ((Activity) ctx).isDestroyed()) {
+                        quoting.remove(postEntry.id);
+                        notifyDataSetChanged();
                         toast(error);
                         return;
                     }
-                    new AlertDialog.Builder(ctx)
+                    AlertDialog dialog = new AlertDialog.Builder(ctx)
                             .setTitle(R.string.gadget_hive_confirm_title)
                             .setMessage(getContext().getString(R.string.gadget_hive_confirm_msg, quote.amount, postEntry.name))
                             .setPositiveButton(R.string.gadget_hive_confirm_pay, (d, w) -> {
+                                // Things may have changed while the dialog was up.
+                                if (postEntry.nonConsumedCopy == SingleProductModel.BOUGHTCOPY
+                                        || postEntry.nonConsumedCopy == SingleProductModel.ACTIVECOPY
+                                        || GadgetApi.isBusy(MainActivity.username, postEntry.id)
+                                        || GadgetApi.hasUnresolvedPurchase(getContext(), MainActivity.username, postEntry.id)) {
+                                    return;
+                                }
                                 GadgetApi.buyWithHive(getContext(), MainActivity.username, postEntry.id, quote, onBought);
-                                notifyDataSetChanged();
                             })
                             .setNegativeButton(android.R.string.cancel, null)
-                            .show();
+                            .create();
+                    dialog.setOnDismissListener(d -> {
+                        quoting.remove(postEntry.id);
+                        notifyDataSetChanged();
+                    });
+                    dialog.show();
                 });
             });
 
