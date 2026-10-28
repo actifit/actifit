@@ -387,22 +387,30 @@ public final class HiveBroadcaster {
             }
         }
         // get_transaction can lag (it is served from account history), so absence is proved
-        // from the blocks themselves.
+        // from the blocks themselves — and only from irreversible ones, so a node on a minority
+        // fork can't "prove" a transaction absent that is on the main chain.
+        if (s.startBlock <= 0) return TxStatus.UNKNOWN;
         for (String node : nodes) {
             try {
+                long lib = call(node, "condenser_api.get_dynamic_global_properties", "[]")
+                        .getJSONObject("result").getLong("last_irreversible_block_num");
                 JSONObject res = call(node, "block_api.get_block_range",
                         "{\"starting_block_num\":" + (s.startBlock + 1) + ",\"count\":" + SCAN_BLOCKS + "}");
                 JSONArray blocks = res.getJSONObject("result").getJSONArray("blocks");
-                boolean pastExpiry = false;
                 for (int i = 0; i < blocks.length(); i++) {
                     JSONObject b = blocks.getJSONObject(i);
                     JSONArray ids = b.getJSONArray("transaction_ids");
                     for (int j = 0; j < ids.length(); j++) {
                         if (s.txId.equals(ids.getString(j))) return TxStatus.FOUND;
                     }
-                    if (HiveTx.parseIsoSeconds(b.getString("timestamp")) > s.expirationSec) pastExpiry = true;
+                    if (HiveTx.parseIsoSeconds(b.getString("timestamp")) > s.expirationSec) {
+                        // Every block that could hold it has been read; the proof stands once
+                        // this one is irreversible.
+                        if (s.startBlock + 1 + i <= lib) return TxStatus.NOT_FOUND;
+                        break;
+                    }
                 }
-                return pastExpiry ? TxStatus.NOT_FOUND : TxStatus.UNKNOWN;
+                // This node can't settle it (behind, or not yet irreversible): try the next one.
             } catch (Exception ignored) {
                 // next node
             }

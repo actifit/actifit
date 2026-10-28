@@ -221,6 +221,9 @@ public final class GadgetApi {
                 }
                 if (earlier != null) {
                     msg = settle(app, key, earlier);
+                } else if (key != null && isHiveBuy(key)) {
+                    // A HIVE payment record we can't read: report it once, and don't pay on this tap.
+                    msg = dropUnreadable(app, key);
                 } else if (op == null) {
                     msg = app.getString(R.string.error_performing_operation); // nothing left to settle
                 } else {
@@ -239,10 +242,11 @@ public final class GadgetApi {
     /** Fresh action. Blocking; returns null on success, else a user-facing message. */
     private static String signSendConfirm(Context app, String key, HiveTx.Op op, HiveBroadcaster.KeyRole role,
                                           String urlTemplate) {
-        final long now = System.currentTimeMillis();
         HiveBroadcaster.Result r = HiveBroadcaster.signAndSend(app, HiveBroadcaster.ops(op), role, null, signed ->
                 // Saved BEFORE sending: if the reply is lost or the app dies, it is settled later.
-                prefs(app).edit().putString(key, new Pending(signed, urlTemplate, now, false).serialize()).commit());
+                // Its age counts from signing (a reused tx keeps its original age).
+                prefs(app).edit().putString(key, new Pending(signed, urlTemplate,
+                        signed.expiresAtMs - 120_000L, false).serialize()).commit());
         if (!r.ok) {
             if (!r.ambiguous) {
                 forget(app, key); // it never reached the chain: nothing to settle
@@ -262,7 +266,8 @@ public final class GadgetApi {
     private static String settle(Context app, String key, Pending p) {
         boolean hive = isHiveBuy(key);
         if (p == null) {
-            forget(app, key);
+            if (hive) return dropUnreadable(app, key);
+            prefs(app).edit().remove(key).commit();
             return null;
         }
         if (expired(p)) {
@@ -371,6 +376,18 @@ public final class GadgetApi {
         prefs(ctx).edit().remove(key).commit();
     }
 
+    /** Drops a record that can't be read; for a HIVE payment, returns its id for support. */
+    private static String dropUnreadable(Context app, String key) {
+        String txId = "?";
+        try {
+            txId = new JSONObject(prefs(app).getString(key, "{}")).optString("tx", "?");
+        } catch (Exception ignored) {
+            // keep "?"
+        }
+        prefs(app).edit().remove(key).commit();
+        return app.getString(R.string.gadget_hive_needs_support, txId);
+    }
+
     private static boolean isHiveBuy(String key) {
         return key.startsWith(ACT_BUY_HIVE + "|");
     }
@@ -391,7 +408,11 @@ public final class GadgetApi {
         if (isBusy(user, gadgetId)) return;
         Context app = ctx.getApplicationContext();
         String key;
-        while ((key = unresolvedBuyKey(app, user, gadgetId)) != null) forget(app, key);
+        while ((key = unresolvedBuyKey(app, user, gadgetId)) != null) {
+            Pending p = Pending.parse(prefs(app).getString(key, null));
+            if (p != null) HiveBroadcaster.forget(roleOf(key), p.signed.opsJson);
+            prefs(app).edit().remove(key).apply(); // called while drawing the list: no disk wait
+        }
     }
 
     private static SharedPreferences prefs(Context ctx) {
@@ -432,8 +453,9 @@ public final class GadgetApi {
             try {
                 JSONObject o = new JSONObject(s);
                 return new Pending(new HiveBroadcaster.Signed(o.getString("txJson"), o.getString("tx"),
-                        o.getInt("ref"), o.getString("ops"), o.getLong("exp"), o.getLong("blk"),
-                        o.getLong("expSec")),
+                        o.getInt("ref"), o.getString("ops"), o.getLong("exp"),
+                        // older records lack these: the absence proof then answers "can't tell"
+                        o.optLong("blk", -1), o.optLong("expSec", o.getLong("exp") / 1000)),
                         o.getString("url"), o.getLong("at"), o.getBoolean("sent"));
             } catch (Exception e) {
                 return null;
