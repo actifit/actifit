@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -38,8 +39,11 @@ public final class HiveBroadcaster {
 
     /** Seconds until the signed transaction expires (hived allows up to 3600). */
     private static final int EXPIRATION_SEC = 120;
-    /** After expiry, wait a few blocks before trusting "unknown transaction". */
-    private static final long SETTLE_MS = 12_000;
+    /** An unresolved transaction is reused for a retry of the same action only this long after
+     *  it expired; later, the same operations are a new intent (e.g. vote, unvote, vote again). */
+    private static final long REUSE_WINDOW_MS = 10 * 60 * 1000L;
+    /** Blocks scanned after signing to prove a transaction is NOT on chain (120 s = 40 blocks). */
+    private static final int SCAN_BLOCKS = 50;
     /** At most this many nodes per attempt, so a dead network fails in seconds, not minutes. */
     private static final int MAX_NODES = 4;
 
@@ -57,15 +61,22 @@ public final class HiveBroadcaster {
         public final String txId;
         public final int refBlockNum;
         public final String opsJson;
-        /** Device time at which the transaction expires. */
+        /** Device time at which the transaction expires (only decides re-send vs. check). */
         public final long expiresAtMs;
+        /** Head block when signed: the transaction can only be in a later block. */
+        public final long startBlock;
+        /** Chain expiration (unix seconds): the proof of absence compares block times to it. */
+        public final long expirationSec;
 
-        public Signed(String txJson, String txId, int refBlockNum, String opsJson, long expiresAtMs) {
+        public Signed(String txJson, String txId, int refBlockNum, String opsJson, long expiresAtMs,
+                      long startBlock, long expirationSec) {
             this.txJson = txJson;
             this.txId = txId;
             this.refBlockNum = refBlockNum;
             this.opsJson = opsJson;
             this.expiresAtMs = expiresAtMs;
+            this.startBlock = startBlock;
+            this.expirationSec = expirationSec;
         }
     }
 
@@ -151,6 +162,11 @@ public final class HiveBroadcaster {
         return settleExpired(app, null, s, nodes);
     }
 
+    /** Drops the in-memory record of an action the caller has settled. */
+    static void forget(KeyRole role, String opsJson) {
+        if (opsJson != null) PENDING.remove(role.name() + "|" + opsJson);
+    }
+
     /**
      * Claims the account's pending rewards: reads the exact pending balances from the chain
      * (the claim must not exceed them) and signs a claim_reward_balance with the posting key.
@@ -215,7 +231,12 @@ public final class HiveBroadcaster {
         final String opsJson = new HiveTx.Transaction(0, 0, 0, ops).operationsJson();
         final String key = role.name() + "|" + opsJson;
         Signed pending = PENDING.get(key);
+        if (pending != null && System.currentTimeMillis() > pending.expiresAtMs + REUSE_WINDOW_MS) {
+            PENDING.remove(key); // long settled one way or the other: this is a new action
+            pending = null;
+        }
         if (pending != null) {
+            if (listener != null) listener.onSigned(pending); // the caller stores what it settles
             if (System.currentTimeMillis() < pending.expiresAtMs) {
                 // A previous attempt at exactly this action may already be on chain: re-send it.
                 return send(ctx, key, pending, nodes, role, false);
@@ -242,16 +263,19 @@ public final class HiveBroadcaster {
 
         // 2. Sign on the device.
         HiveTx.Transaction tx;
+        long headBlock;
+        long expirationSec;
         try {
-            tx = HiveTx.Transaction.forHeadBlock(dgp.getLong("head_block_number"), dgp.getString("head_block_id"),
-                    HiveTx.parseIsoSeconds(dgp.getString("time")) + EXPIRATION_SEC, ops);
+            headBlock = dgp.getLong("head_block_number");
+            expirationSec = HiveTx.parseIsoSeconds(dgp.getString("time")) + EXPIRATION_SEC;
+            tx = HiveTx.Transaction.forHeadBlock(headBlock, dgp.getString("head_block_id"), expirationSec, ops);
             tx.sign(wif);
         } catch (Exception e) {
             return fail(ctx.getString(R.string.signing_error_generic));
         }
 
         Signed s = new Signed(tx.toJson(), tx.txId(), tx.refBlockNum, tx.operationsJson(),
-                System.currentTimeMillis() + EXPIRATION_SEC * 1000L);
+                System.currentTimeMillis() + EXPIRATION_SEC * 1000L, headBlock, expirationSec);
         PENDING.put(key, s);
         if (listener != null) listener.onSigned(s);
         return send(ctx, key, s, nodes, role, true);
@@ -301,7 +325,7 @@ public final class HiveBroadcaster {
 
     /** After expiry: did it get in? Re-signing is only allowed on a clear "not found". */
     private static Result settleExpired(Context ctx, String key, Signed s, List<String> nodes) {
-        TxStatus st = System.currentTimeMillis() < s.expiresAtMs + SETTLE_MS ? TxStatus.UNKNOWN : lookup(s.txId, nodes);
+        TxStatus st = lookup(s, nodes);
         if (st == TxStatus.FOUND) return landed(key, s);
         if (st == TxStatus.NOT_FOUND) {
             forgetPending(key);
@@ -349,24 +373,41 @@ public final class HiveBroadcaster {
     }
 
     /**
-     * FOUND if a node has it; NOT_FOUND only when two nodes (or every node, if fewer) answer
-     * "unknown transaction"; UNKNOWN otherwise (network trouble, a node without the API).
+     * FOUND if a node has it. NOT_FOUND only with proof: every block from signing until past
+     * the transaction's expiration (by chain time) was read and none holds it. UNKNOWN
+     * otherwise — the chain hasn't reached the expiration yet, or no node could be read.
      */
-    static TxStatus lookup(String txId, List<String> nodes) {
-        int unknown = 0;
+    static TxStatus lookup(Signed s, List<String> nodes) {
         for (String node : nodes) {
             try {
-                JSONObject res = call(node, "condenser_api.get_transaction", "[" + HiveTx.jsonString(txId) + "]");
+                JSONObject res = call(node, "condenser_api.get_transaction", "[" + HiveTx.jsonString(s.txId) + "]");
                 if (res.has("result") && !res.isNull("result")) return TxStatus.FOUND;
-                JSONObject err = res.optJSONObject("error");
-                if (err != null && err.optString("message", "").toLowerCase(Locale.US).contains("unknown transaction")) {
-                    unknown++;
-                }
             } catch (Exception ignored) {
                 // next node
             }
         }
-        return unknown >= Math.min(2, nodes.size()) ? TxStatus.NOT_FOUND : TxStatus.UNKNOWN;
+        // get_transaction can lag (it is served from account history), so absence is proved
+        // from the blocks themselves.
+        for (String node : nodes) {
+            try {
+                JSONObject res = call(node, "block_api.get_block_range",
+                        "{\"starting_block_num\":" + (s.startBlock + 1) + ",\"count\":" + SCAN_BLOCKS + "}");
+                JSONArray blocks = res.getJSONObject("result").getJSONArray("blocks");
+                boolean pastExpiry = false;
+                for (int i = 0; i < blocks.length(); i++) {
+                    JSONObject b = blocks.getJSONObject(i);
+                    JSONArray ids = b.getJSONArray("transaction_ids");
+                    for (int j = 0; j < ids.length(); j++) {
+                        if (s.txId.equals(ids.getString(j))) return TxStatus.FOUND;
+                    }
+                    if (HiveTx.parseIsoSeconds(b.getString("timestamp")) > s.expirationSec) pastExpiry = true;
+                }
+                return pastExpiry ? TxStatus.NOT_FOUND : TxStatus.UNKNOWN;
+            } catch (Exception ignored) {
+                // next node
+            }
+        }
+        return TxStatus.UNKNOWN;
     }
 
     private static Result fail(String message) {

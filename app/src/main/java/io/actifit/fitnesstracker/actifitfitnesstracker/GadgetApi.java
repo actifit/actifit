@@ -215,6 +215,10 @@ public final class GadgetApi {
                 // For a buy, either currency's purchase counts, so the other button can't buy twice.
                 String key = isBuy ? unresolvedBuyKey(app, user, gadgetId) : action + "|" + user + "|" + gadgetId;
                 Pending earlier = key == null ? null : Pending.parse(prefs(app).getString(key, null));
+                if (earlier != null && expired(earlier) && !isHiveBuy(key)) {
+                    forget(app, key); // nothing was charged and the server won't take it any more
+                    earlier = null;
+                }
                 if (earlier != null) {
                     msg = settle(app, key, earlier);
                 } else if (op == null) {
@@ -240,8 +244,12 @@ public final class GadgetApi {
                 // Saved BEFORE sending: if the reply is lost or the app dies, it is settled later.
                 prefs(app).edit().putString(key, new Pending(signed, urlTemplate, now, false).serialize()).commit());
         if (!r.ok) {
-            if (!r.ambiguous) forget(app, key); // it never reached the chain: nothing to settle
-            return r.error;
+            if (!r.ambiguous) {
+                forget(app, key); // it never reached the chain: nothing to settle
+                return r.error;
+            }
+            Pending kept = Pending.parse(prefs(app).getString(key, null));
+            return kept == null ? r.error : app.getString(R.string.gadget_still_checking, kept.signed.txId);
         }
         Pending p = Pending.parse(prefs(app).getString(key, null));
         if (p == null) return app.getString(R.string.error_performing_operation);
@@ -252,20 +260,20 @@ public final class GadgetApi {
 
     /** An unresolved action from an earlier attempt. Blocking. */
     private static String settle(Context app, String key, Pending p) {
-        boolean hive = key.startsWith(ACT_BUY_HIVE + "|");
+        boolean hive = isHiveBuy(key);
         if (p == null) {
             forget(app, key);
             return null;
         }
-        if (System.currentTimeMillis() - p.createdMs > PENDING_MAX_AGE_MS) {
+        if (expired(p)) {
             // Past the server's window: it can no longer confirm this. Never drop a HIVE
-            // payment silently — the user needs the id to ask support.
+            // payment silently (even one never seen accepted — it may have landed): the user
+            // needs the id to ask support.
             forget(app, key);
-            return hive && p.sent ? app.getString(R.string.gadget_hive_expired, p.signed.txId) : null;
+            return hive ? app.getString(R.string.gadget_hive_expired, p.signed.txId) : null;
         }
         if (!p.sent) {
-            HiveBroadcaster.Result r = HiveBroadcaster.resend(app, p.signed,
-                    hive ? HiveBroadcaster.KeyRole.ACTIVE : HiveBroadcaster.KeyRole.POSTING);
+            HiveBroadcaster.Result r = HiveBroadcaster.resend(app, p.signed, roleOf(key));
             if (!r.ok) {
                 if (r.ambiguous) return app.getString(R.string.gadget_still_checking, p.signed.txId);
                 forget(app, key); // it never landed: nothing was paid
@@ -282,7 +290,7 @@ public final class GadgetApi {
      * @return null on success, else a user-facing message. Runs off the main thread.
      */
     private static String confirmAndSettle(Context ctx, String key, Pending p, boolean resumed) {
-        final boolean paidOnChain = key.startsWith(ACT_BUY_HIVE + "|");
+        final boolean paidOnChain = isHiveBuy(key);
         String url = p.urlTemplate.replace("{tx}", enc(p.signed.txId))
                 // The routes read the chain from ?bchain= while the verifier uses the path
                 // one: send both, identical.
@@ -358,7 +366,32 @@ public final class GadgetApi {
     }
 
     private static void forget(Context ctx, String key) {
+        Pending p = Pending.parse(prefs(ctx).getString(key, null));
+        if (p != null) HiveBroadcaster.forget(roleOf(key), p.signed.opsJson);
         prefs(ctx).edit().remove(key).commit();
+    }
+
+    private static boolean isHiveBuy(String key) {
+        return key.startsWith(ACT_BUY_HIVE + "|");
+    }
+
+    private static HiveBroadcaster.KeyRole roleOf(String key) {
+        return isHiveBuy(key) ? HiveBroadcaster.KeyRole.ACTIVE : HiveBroadcaster.KeyRole.POSTING;
+    }
+
+    private static boolean expired(Pending p) {
+        return System.currentTimeMillis() - p.createdMs > PENDING_MAX_AGE_MS;
+    }
+
+    /**
+     * The Market shows this gadget as owned, so any purchase of it still on record has gone
+     * through (the buy buttons are hidden while a copy is owned): stop re-confirming it.
+     */
+    public static void clearSettledPurchase(Context ctx, String user, String gadgetId) {
+        if (isBusy(user, gadgetId)) return;
+        Context app = ctx.getApplicationContext();
+        String key;
+        while ((key = unresolvedBuyKey(app, user, gadgetId)) != null) forget(app, key);
     }
 
     private static SharedPreferences prefs(Context ctx) {
@@ -387,6 +420,7 @@ public final class GadgetApi {
             try {
                 return new JSONObject().put("tx", signed.txId).put("txJson", signed.txJson)
                         .put("ref", signed.refBlockNum).put("ops", signed.opsJson).put("exp", signed.expiresAtMs)
+                        .put("blk", signed.startBlock).put("expSec", signed.expirationSec)
                         .put("url", urlTemplate).put("at", createdMs).put("sent", sent).toString();
             } catch (Exception e) {
                 return "";
@@ -398,7 +432,8 @@ public final class GadgetApi {
             try {
                 JSONObject o = new JSONObject(s);
                 return new Pending(new HiveBroadcaster.Signed(o.getString("txJson"), o.getString("tx"),
-                        o.getInt("ref"), o.getString("ops"), o.getLong("exp")),
+                        o.getInt("ref"), o.getString("ops"), o.getLong("exp"), o.getLong("blk"),
+                        o.getLong("expSec")),
                         o.getString("url"), o.getLong("at"), o.getBoolean("sent"));
             } catch (Exception e) {
                 return null;

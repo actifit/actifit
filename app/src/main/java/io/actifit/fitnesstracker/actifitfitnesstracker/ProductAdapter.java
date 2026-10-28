@@ -287,6 +287,11 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
             // Buttons stay off while an action for this gadget is running (also after the
             // row is recycled), so one tap can't turn into two purchases.
+            if (postEntry.nonConsumedCopy == SingleProductModel.BOUGHTCOPY
+                    || postEntry.nonConsumedCopy == SingleProductModel.ACTIVECOPY) {
+                // Owned, so a purchase still on record went through: stop re-confirming it.
+                GadgetApi.clearSettledPurchase(getContext(), MainActivity.username, postEntry.id);
+            }
             final boolean busy = GadgetApi.isBusy(MainActivity.username, postEntry.id) || quoting.contains(postEntry.id);
             final boolean canBuy = postEntry.allReqtsMet && !busy;
             buyAFIT.setEnabled(canBuy);
@@ -528,6 +533,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                                         || postEntry.nonConsumedCopy == SingleProductModel.ACTIVECOPY
                                         || GadgetApi.isBusy(MainActivity.username, postEntry.id)
                                         || GadgetApi.hasUnresolvedPurchase(getContext(), MainActivity.username, postEntry.id)) {
+                                    toast(getContext().getString(R.string.gadget_action_in_progress));
                                     return;
                                 }
                                 GadgetApi.buyWithHive(getContext(), MainActivity.username, postEntry.id, quote, onBought);

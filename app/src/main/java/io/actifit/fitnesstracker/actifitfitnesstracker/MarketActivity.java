@@ -50,9 +50,8 @@ public class MarketActivity extends BaseActivity {
                 if (ok) {
                     loadBalance(queue);
                     if (afitPrice != null) proceedLoading();
-                } else if (productAdapter != null) {
-                    productAdapter.notifyDataSetChanged(); // re-enable the card
                 }
+                if (productAdapter != null) productAdapter.notifyDataSetChanged(); // re-enable the card
             });
             if (productAdapter != null) productAdapter.notifyDataSetChanged(); // grey cards being settled
         }
