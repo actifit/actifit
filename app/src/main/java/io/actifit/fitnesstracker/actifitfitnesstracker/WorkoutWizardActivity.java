@@ -140,7 +140,7 @@ public class WorkoutWizardActivity extends BaseActivity
         browseExercisesIconTextView = findViewById(R.id.browseExercisesIconTextView);
 
         sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
-        hasPaidForGeneration = sharedPreferences.getBoolean(KEY_HAS_PAID, false);
+        hasPaidForGeneration = sharedPreferences.getBoolean(KEY_HAS_PAID, false) || GadgetApi.workoutPaid(this, username);
         updateGenerateButtonText();
 
         exercisesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -183,7 +183,8 @@ public class WorkoutWizardActivity extends BaseActivity
             }
             workoutNameEditText.setError(null);
 
-            if (hasPaidForGeneration) {
+            // Read fresh: a payment started from an earlier screen may have finished since.
+            if (sharedPreferences.getBoolean(KEY_HAS_PAID, false) || GadgetApi.workoutPaid(this, username)) {
                 Log.d(TAG, getString(R.string.log_pending_paid_attempt_retry) + workoutName);
                 processWorkoutGeneration(workoutName);
             } else if (GadgetApi.hasPendingWorkout(this, username)) {
@@ -229,6 +230,12 @@ public class WorkoutWizardActivity extends BaseActivity
 
     /** Signs the fee on the device; the backend charges the AFIT once it finds it on chain. */
     private void performAfitsDeduction(String workoutName) {
+        if (LoginActivity.accessToken == null || LoginActivity.accessToken.isEmpty()) {
+            // The fee route needs the session: don't sign a payment it would refuse.
+            Toast.makeText(this, R.string.gadget_session_expired, Toast.LENGTH_LONG).show();
+            hideLoading();
+            return;
+        }
         GadgetApi.payWorkout(this, username, (ok, msg) -> {
             if (ok) setPaidState(true); // saved even if the screen is gone: the next Generate won't charge again
             if (isFinishing() || isDestroyed()) return;
@@ -298,6 +305,7 @@ public class WorkoutWizardActivity extends BaseActivity
             Log.d(TAG, "Saved state to SharedPreferences: hasPaidForGeneration=true");
         } else {
             editor.remove(KEY_HAS_PAID);
+            GadgetApi.clearWorkoutPaid(this, username); // the paid-for workout is generated
             Log.d(TAG, "Cleared 'hasPaidForGeneration' state from SharedPreferences.");
         }
         editor.apply();

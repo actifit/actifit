@@ -74,6 +74,8 @@ public final class GadgetApi {
     static final String ACT_WORKOUT = "workout";
     /** Stands in for the gadget id in the workout fee's record and lock. */
     private static final String WORKOUT_ID = "workout";
+    /** Per-user flag: a workout fee went through and its workout isn't generated yet. */
+    private static final String WORKOUT_PAID = "workoutpaid";
 
     /** Head-room over the quoted rate, so a price refresh on the server between quote and
      *  confirm can't make an honest payment fall short. */
@@ -186,6 +188,16 @@ public final class GadgetApi {
         return prefs(ctx.getApplicationContext()).contains(ACT_WORKOUT + "|" + user + "|" + WORKOUT_ID);
     }
 
+    /** The fee is paid but its workout isn't generated yet: generate without paying. */
+    public static boolean workoutPaid(Context ctx, String user) {
+        return prefs(ctx.getApplicationContext()).getBoolean(WORKOUT_PAID + "|" + user, false);
+    }
+
+    /** Call once the paid-for workout has been generated. */
+    public static void clearWorkoutPaid(Context ctx, String user) {
+        prefs(ctx.getApplicationContext()).edit().remove(WORKOUT_PAID + "|" + user).commit();
+    }
+
     /**
      * Settles every remembered gadget action for this user (e.g. a HIVE payment whose confirm never
      * got through because the app was closed). cb runs on the main thread once per action
@@ -231,7 +243,8 @@ public final class GadgetApi {
                 // For a buy, either currency's purchase counts, so the other button can't buy twice.
                 String key = isBuy ? unresolvedBuyKey(app, user, gadgetId) : action + "|" + user + "|" + gadgetId;
                 Pending earlier = key == null ? null : Pending.parse(prefs(app).getString(key, null));
-                if (earlier != null && expired(earlier) && !isHiveBuy(key)) {
+                // (A workout fee is never re-paid this way: settle() still checks the old one.)
+                if (earlier != null && expired(earlier) && !isHiveBuy(key) && !isWorkout(key)) {
                     forget(app, key); // nothing was charged and the server won't take it any more
                     earlier = null;
                 }
@@ -286,7 +299,7 @@ public final class GadgetApi {
             prefs(app).edit().remove(key).commit();
             return null;
         }
-        if (expired(p)) {
+        if (expired(p) && !isWorkout(key)) {
             // Past the server's window: it can no longer confirm this. Never drop a HIVE
             // payment silently (even one never seen accepted — it may have landed): the user
             // needs the id to ask support.
@@ -312,7 +325,7 @@ public final class GadgetApi {
      */
     private static String confirmAndSettle(Context ctx, String key, Pending p, boolean resumed) {
         final boolean paidOnChain = isHiveBuy(key);
-        final boolean workout = key.startsWith(ACT_WORKOUT + "|");
+        final boolean workout = isWorkout(key);
         String url = p.urlTemplate.replace("{tx}", enc(p.signed.txId))
                 // The routes read the chain from ?bchain= while the verifier uses the path
                 // one: send both, identical.
@@ -348,7 +361,7 @@ public final class GadgetApi {
                 reply.optString("code", ""));
 
         if (kind == GadgetReply.Kind.OK) {
-            forget(ctx, key);
+            if (workout) forgetAsPaid(ctx, key); else forget(ctx, key);
             return null;
         }
         if (paidOnChain) {
@@ -362,18 +375,26 @@ public final class GadgetApi {
         if (GadgetReply.alreadyProcessed(errText) || ((resumed || retried) && kind == GadgetReply.Kind.FAILED)) {
             // The server has already used this transaction (most likely an earlier attempt of
             // ours went through). It won't process it again, so stop retrying it.
-            forget(ctx, key);
             // For the workout fee that means it was paid: let the wizard generate the workout.
-            if (workout) return null;
+            if (workout) {
+                forgetAsPaid(ctx, key);
+                return null;
+            }
+            forget(ctx, key);
             return ctx.getString(R.string.gadget_already_processed, p.signed.txId);
         }
         // AFIT is only charged when the confirm succeeds; none of these charged anything.
-        forget(ctx, key);
+        // A workout fee refused before the server looked at it (session, gate, busy) is kept,
+        // so the next try confirms this same transaction instead of paying again.
+        boolean refusedUpFront = kind == GadgetReply.Kind.SESSION || kind == GadgetReply.Kind.GATE
+                || kind == GadgetReply.Kind.BUSY;
+        if (!(workout && refusedUpFront)) forget(ctx, key);
         switch (kind) {
             case GATE: return gateMessage(ctx, reply);
             case INSUFFICIENT_AFIT: return ctx.getString(R.string.gadget_buy_insufficient_afit);
             case BUSY: return ctx.getString(R.string.gadget_buy_busy);
             case UNAVAILABLE: return ctx.getString(workout ? R.string.workout_fee_unavailable
+                    : key.startsWith(ACT_ACTIVATE + "|") ? R.string.gadget_activate_unavailable
                     : R.string.gadget_buy_unavailable);
             case SESSION: return ctx.getString(R.string.gadget_session_expired);
             default: return ctx.getString(R.string.error_performing_operation);
@@ -410,6 +431,17 @@ public final class GadgetApi {
         }
         prefs(app).edit().remove(key).commit();
         return app.getString(R.string.gadget_hive_needs_support, txId);
+    }
+
+    /** Forgets a workout fee that went through, in the same write that marks it paid. */
+    private static void forgetAsPaid(Context ctx, String key) {
+        Pending p = Pending.parse(prefs(ctx).getString(key, null));
+        if (p != null) HiveBroadcaster.forget(roleOf(key), p.signed.opsJson);
+        prefs(ctx).edit().remove(key).putBoolean(WORKOUT_PAID + "|" + key.split("\\|", 3)[1], true).commit();
+    }
+
+    private static boolean isWorkout(String key) {
+        return key.startsWith(ACT_WORKOUT + "|");
     }
 
     private static boolean isHiveBuy(String key) {

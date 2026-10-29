@@ -907,6 +907,8 @@ public class MainActivity extends BaseActivity {
 
         // check if user had unsubscribed from notifications
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
+        // The funds password is retired and must be treated as leaked: don't keep it on the phone.
+        if (sharedPreferences.contains("fundsPass")) sharedPreferences.edit().remove("fundsPass").apply();
         boolean currentNotifStatus = (sharedPreferences.getBoolean(getString(R.string.notification_status), true));
 
         // clear all preferences for testing purposes

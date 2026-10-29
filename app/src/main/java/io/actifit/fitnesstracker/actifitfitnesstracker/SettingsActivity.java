@@ -323,8 +323,6 @@ public class SettingsActivity extends BaseActivity {
         final String username = sharedPreferences.getString("actifitUser","");
 
         activeKey.setText(sharedPreferences.getString("actvKey", ""));
-        // The funds password is retired (and must be treated as leaked): don't keep it on the phone.
-        sharedPreferences.edit().remove("fundsPass").apply();
 
         //display whether user has elected not to get main screen earnings notification
         showPendingRewardsCheckbox.setChecked( !(sharedPreferences.getBoolean(getString(R.string.donotshowrewards),true)));
