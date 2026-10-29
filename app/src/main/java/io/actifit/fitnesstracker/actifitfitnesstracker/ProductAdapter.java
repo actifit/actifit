@@ -1,6 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,8 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -51,6 +50,8 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
     // Shared across rows so the friends list is fetched once per Market session.
     private FriendAccountAdapter friendAccountAdapter;
+    /** Gadgets with a HIVE quote or Pay dialog open: their buttons stay off meanwhile. */
+    private final java.util.Set<String> quoting = new java.util.HashSet<>();
     // JSONArray consumedProducts;
     ArrayList reqtsMet;
     ProgressDialog progress;
@@ -128,113 +129,104 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
             // boolean reqtMet = true;
 
+            // Rows are re-used on every redraw: always start from an empty list.
+            requirements.removeAllViews();
+
             if (postEntry.requirements != null && postEntry.requirements.length() > 0) {
 
-                // cleanup first
-                requirements.removeAllViews();
+                for (int j = 0; j < postEntry.requirements.length(); j++) {
+                    JSONObject reqEntry = postEntry.requirements.getJSONObject(j);
 
-                if (postEntry.requirements.length() < 1) {
-                    TextView reqLine = new TextView(getContext());
-                    reqLine.setText(Html.fromHtml(reqsText));
-                    // reqLine.setTextColor(colorChoice);
-                    reqLine.setPadding(0, 0, 0, 5);
+                    reqsText = "";
 
-                    requirements.addView(reqLine);
-                } else {
-                    for (int j = 0; j < postEntry.requirements.length(); j++) {
-                        JSONObject reqEntry = postEntry.requirements.getJSONObject(j);
+                    int colorChoice = colorSuccess;
 
-                        reqsText = "";
+                    // process requirement
+                    if (reqEntry.has("item")) {
+                        if (reqEntry.getBoolean("reqtMet")) {
+                            reqsText += checkMark;
+                        } else {
+                            reqsText += xMark;
+                            colorChoice = colorFail;
+                            // reqtMet = false;
+                        }
+                        // reqsText += getContext().getString(R.string.user_rank_reqt).replace("_VAL_",
+                        // postEntry.level+"");
+                        if (reqEntry.getString("item").equals("User Rank")) {
+                            /*
+                             * if (Double.parseDouble(MainActivity.userRank) >=
+                             * Integer.parseInt(reqEntry.getString("level"))) {
+                             * reqsText += checkMark;
+                             * } else {
+                             * reqsText += xMark;
+                             * colorChoice = colorFail;
+                             * reqtMet = false;
+                             * }
+                             */
+                            reqsText += getContext().getString(R.string.user_rank_reqt_short).replace("_VAL_",
+                                    reqEntry.getString("level")) + "<br/>";
+                        } else if (reqEntry.has("AFIT")) {
+                            /*
+                             * if (MainActivity.userFullBalance >=
+                             * Integer.parseInt(reqEntry.getString("count"))) {
+                             * reqsText += checkMark;
+                             * } else {
+                             * reqsText += xMark;
+                             * colorChoice = colorFail;
+                             * reqtMet = false;
+                             * }
+                             */
+                            reqsText += getContext().getString(R.string.user_afit_balance).replace("_VAL_",
+                                    reqEntry.getString("count")) + "<br/>";
+                        } else {
+                            // check if requirement is met
+                            /*
+                             * int consumed_count = 0;
+                             * int consumed_target = Integer.parseInt(reqEntry.getString("count"));
+                             * for (int k = 0; k < consumedProducts.length(); k++) {
+                             * // Retrieve each JSON object within the JSON array
+                             * JSONObject jsonObject = consumedProducts.getJSONObject(k);
+                             * //validate this is a matching consumed gadget
+                             * if (reqEntry.getString("item").equals(jsonObject.getString("gadget_name"))
+                             * && reqEntry.getString("level").equals(jsonObject.getString("gadget_level")))
+                             * {
+                             * consumed_count += 1;
+                             * }
+                             * }
+                             * if (consumed_count >= consumed_target) {
+                             * reqsText += checkMark;
+                             * } else {
+                             * reqsText += xMark;
+                             * colorChoice = colorFail;
+                             * reqtMet = false;
+                             * }
+                             */
 
-                        int colorChoice = colorSuccess;
-
-                        // process requirement
-                        if (reqEntry.has("item")) {
-                            if (reqEntry.getBoolean("reqtMet")) {
-                                reqsText += checkMark;
-                            } else {
-                                reqsText += xMark;
-                                colorChoice = colorFail;
-                                // reqtMet = false;
-                            }
-                            // reqsText += getContext().getString(R.string.user_rank_reqt).replace("_VAL_",
-                            // postEntry.level+"");
-                            if (reqEntry.getString("item").equals("User Rank")) {
-                                /*
-                                 * if (Double.parseDouble(MainActivity.userRank) >=
-                                 * Integer.parseInt(reqEntry.getString("level"))) {
-                                 * reqsText += checkMark;
-                                 * } else {
-                                 * reqsText += xMark;
-                                 * colorChoice = colorFail;
-                                 * reqtMet = false;
-                                 * }
-                                 */
-                                reqsText += getContext().getString(R.string.user_rank_reqt_short).replace("_VAL_",
-                                        reqEntry.getString("level")) + "<br/>";
-                            } else if (reqEntry.has("AFIT")) {
-                                /*
-                                 * if (MainActivity.userFullBalance >=
-                                 * Integer.parseInt(reqEntry.getString("count"))) {
-                                 * reqsText += checkMark;
-                                 * } else {
-                                 * reqsText += xMark;
-                                 * colorChoice = colorFail;
-                                 * reqtMet = false;
-                                 * }
-                                 */
-                                reqsText += getContext().getString(R.string.user_afit_balance).replace("_VAL_",
-                                        reqEntry.getString("count")) + "<br/>";
-                            } else {
-                                // check if requirement is met
-                                /*
-                                 * int consumed_count = 0;
-                                 * int consumed_target = Integer.parseInt(reqEntry.getString("count"));
-                                 * for (int k = 0; k < consumedProducts.length(); k++) {
-                                 * // Retrieve each JSON object within the JSON array
-                                 * JSONObject jsonObject = consumedProducts.getJSONObject(k);
-                                 * //validate this is a matching consumed gadget
-                                 * if (reqEntry.getString("item").equals(jsonObject.getString("gadget_name"))
-                                 * && reqEntry.getString("level").equals(jsonObject.getString("gadget_level")))
-                                 * {
-                                 * consumed_count += 1;
-                                 * }
-                                 * }
-                                 * if (consumed_count >= consumed_target) {
-                                 * reqsText += checkMark;
-                                 * } else {
-                                 * reqsText += xMark;
-                                 * colorChoice = colorFail;
-                                 * reqtMet = false;
-                                 * }
-                                 */
-
-                                reqsText += getContext().getString(R.string.at_Least_consumed_reqt)
-                                        .replace("_AMOUNT_", reqEntry.getString("count"))
-                                        .replace("_ITEM_",
-                                                reqEntry.getString("item") + " - L" + reqEntry.getString("level"))
-                                        + "<br/>";
-
-                            }
-                            if (!reqsText.equals("")) {
-                                TextView reqLine = new TextView(getContext());
-                                reqLine.setText(Html.fromHtml(reqsText));
-                                reqLine.setTextColor(colorChoice);
-                                reqLine.setPadding(0, 0, 0, 5);
-                                requirements.addView(reqLine);
-                            }
-                            // reqLine.setHeight(10);
-                            // reqLine.setWidth();
+                            reqsText += getContext().getString(R.string.at_Least_consumed_reqt)
+                                    .replace("_AMOUNT_", reqEntry.getString("count"))
+                                    .replace("_ITEM_",
+                                            reqEntry.getString("item") + " - L" + reqEntry.getString("level"))
+                                    + "<br/>";
 
                         }
+                        if (!reqsText.equals("")) {
+                            TextView reqLine = new TextView(getContext());
+                            reqLine.setText(Html.fromHtml(reqsText));
+                            reqLine.setTextColor(colorChoice);
+                            reqLine.setPadding(0, 0, 0, 5);
+                            requirements.addView(reqLine);
+                        }
+                        // reqLine.setHeight(10);
+                        // reqLine.setWidth();
+
                     }
                 }
-            } else {
+            }
+            // Entries without an "item" add no row; never leave the field blank.
+            if (requirements.getChildCount() == 0) {
                 TextView reqLine = new TextView(getContext());
-                reqLine.setText(Html.fromHtml(reqsText));
-                // reqLine.setTextColor(colorChoice);
+                reqLine.setText(getContext().getString(R.string.none));
                 reqLine.setPadding(0, 0, 0, 5);
-
                 requirements.addView(reqLine);
             }
 
@@ -284,18 +276,23 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                 }
             }
 
-            // if (!reqtMet){
-            if (!postEntry.allReqtsMet) {
-                buyAFIT.setEnabled(false);
-                buyAFIT.setAlpha(0.4f);
-                buyHIVE.setEnabled(false);
-                buyHIVE.setAlpha(0.4f);
-            } else {
-                buyAFIT.setEnabled(true);
-                buyAFIT.setAlpha(1.0f);
-                buyHIVE.setEnabled(true);
-                buyHIVE.setAlpha(1.0f);
+            // Buttons stay off while an action for this gadget is running (also after the
+            // row is recycled), so one tap can't turn into two purchases.
+            if (postEntry.nonConsumedCopy == SingleProductModel.BOUGHTCOPY
+                    || postEntry.nonConsumedCopy == SingleProductModel.ACTIVECOPY) {
+                // Owned, so a purchase still on record went through: stop re-confirming it.
+                GadgetApi.clearSettledPurchase(getContext(), MainActivity.username, postEntry.id);
             }
+            final boolean busy = GadgetApi.isBusy(MainActivity.username, postEntry.id) || quoting.contains(postEntry.id);
+            final boolean canBuy = postEntry.allReqtsMet && !busy;
+            buyAFIT.setEnabled(canBuy);
+            buyAFIT.setAlpha(canBuy ? 1.0f : 0.4f);
+            buyHIVE.setEnabled(canBuy);
+            buyHIVE.setAlpha(canBuy ? 1.0f : 0.4f);
+            activateGadget.setEnabled(!busy);
+            activateGadget.setAlpha(busy ? 0.4f : 1.0f);
+            deactivateGadget.setEnabled(!busy);
+            deactivateGadget.setAlpha(busy ? 0.4f : 1.0f);
 
             if (postEntry.nonConsumedCopy == SingleProductModel.BOUGHTCOPY) {
                 buyAFIT.setVisibility(View.GONE);
@@ -381,13 +378,6 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
             buyAFIT.setText(Html.fromHtml(btnTitle));
 
-            ScaleAnimation scaler;
-            scaler = new ScaleAnimation(1f, 0.8f, 1f, 0.8f, Animation.RELATIVE_TO_SELF, 0.5f,
-                    Animation.RELATIVE_TO_SELF, 0.5f);
-            scaler.setDuration(500);
-            scaler.setRepeatMode(Animation.REVERSE);
-            scaler.setRepeatCount(Animation.INFINITE);
-
             // handle click on username
 
             // View finalConvertView = convertView;
@@ -406,195 +396,18 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     return;
                 }
 
-                buyAFIT.startAnimation(scaler);
-                // buyAFIT.animate().scaleX(0.5f).scaleY(0.5f).setDuration(3000).;
-                // buyAFIT.animate().scaleXBy(1).setDuration(3000); //.startAnimation();
-
-                // progress.setMessage(getContext().getString(R.string.processingBuyGadget));
-                // progress.show();
-
-                RequestQueue queue = Volley.newRequestQueue(getContext());
-
-                // first make sure if user is properly logged in as we need to connect to server
-                if (LoginActivity.accessToken.isEmpty()) {
-
-                    // authorize user login based on credentials if user is already verified
-                    if (!pkey.isEmpty()) {
-                        String loginAuthUrl = Utils.apiUrl(getContext()) + getContext().getString(R.string.login_auth);
-
-                        JSONObject loginSettings = new JSONObject();
-                        try {
-                            loginSettings.put(getContext().getString(R.string.username_param), MainActivity.username);
-                            loginSettings.put(getContext().getString(R.string.pkey_param), pkey);
-                            loginSettings.put(getContext().getString(R.string.bchain_param), "HIVE");// default always
-                                                                                                     // HIVE
-                            loginSettings.put(getContext().getString(R.string.keeploggedin_param), false);// TODO make
-                                                                                                          // dynamic
-                            loginSettings.put(getContext().getString(R.string.login_source),
-                                    getContext().getString(R.string.android) + BuildConfig.VERSION_NAME);
-                        } catch (JSONException e) {
-                            // Log.e(MainActivity.TAG, e.getMessage());
-                        }
-
-                        // grab auth token for logged in user
-                        JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST,
-                                loginAuthUrl, loginSettings,
-                                response -> {
-                                    // store token for reuse when saving settings
-                                    try {
-                                        if (response.has("success")) {
-                                            Log.d(MainActivity.TAG, response.toString());
-                                            LoginActivity.accessToken = response
-                                                    .getString(getContext().getString(R.string.login_token));
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                },
-                                error -> {
-                                    // error
-                                    Log.e(MainActivity.TAG, "Login error");
-                                });
-
-                        queue.add(loginRequest);
-
+                // Signed on this phone with the posting key, then confirmed from the chain.
+                GadgetApi.buyWithAfit(getContext(), MainActivity.username, postEntry.id, (ok, message) -> {
+                    if (ok) {
+                        markBought(postEntry);
+                        MarketActivity.afitBalance -= postEntry.priceAFIT;
+                        toast(getContext().getString(R.string.success_buy_product) + " " + postEntry.name);
+                    } else {
+                        toast(message);
                     }
-
-                }
-
-                // prepare query and broadcast to bchain
-
-                // param 1
-                String op_name = "custom_json";
-
-                // param 2
-                JSONObject cstm_params = new JSONObject();
-                try {
-
-                    JSONArray required_auths = new JSONArray();
-
-                    JSONArray required_posting_auths = new JSONArray();
-                    required_posting_auths.put(MainActivity.username);
-
-                    // cstm_params.put("required_auths", "[]");
-                    cstm_params.put("required_auths", required_auths);
-                    cstm_params.put("required_posting_auths", required_posting_auths);
-                    cstm_params.put("id", "actifit");
-                    // cstm_params.put("json", json_op_details);
-                    cstm_params.put("json", "{\"transaction\": \"buy-gadget\" , \"gadget\": \"" + postEntry.id + "\"}");
-
-                    JSONArray operation = new JSONArray();
-                    operation.put(0, op_name);
-                    operation.put(1, cstm_params);
-
-                    String bcastUrl = Utils.apiUrl(getContext()) + getContext().getString(R.string.perform_trx_link) +
-                            MainActivity.username +
-                            "&operation=[" + operation + "]" +
-                            "&bchain=HIVE";// hardcoded for now
-                    ;
-
-                    // send out transaction
-                    JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
-                            bcastUrl, null,
-                            response -> {
-
-                                Log.d(MainActivity.TAG, response.toString());
-                                //
-                                if (response.has("success")) {
-                                    // successfully wrote to chain gadget purchase
-                                    try {
-                                        JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
-
-                                        String buyUrl = Utils.apiUrl(getContext())
-                                                + getContext().getString(R.string.buy_gadget_link) +
-                                                MainActivity.username + "/" +
-                                                postEntry.id + "/" +
-                                                bcastRes.get("ref_block_num") + "/" +
-                                                bcastRes.get("id") + "/" +
-                                                "HIVE";
-
-                                        // send out transaction
-                                        JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
-                                                buyUrl, null,
-                                                response1 -> {
-                                                    // progress.dismiss();
-                                                    buyAFIT.clearAnimation();
-                                                    Log.d(MainActivity.TAG, response1.toString());
-                                                    //
-                                                    if (!response1.has("error")) {
-                                                        // showActivateButton(postEntry, finalConvertView);
-
-                                                        if (postEntry.isFriendRewarding) {
-                                                            // also show friend beneficiary to direct rewards over
-                                                            friendBeneficiary.setVisibility(View.VISIBLE);
-                                                        }
-                                                        buyAFIT.setVisibility(View.GONE);
-                                                        buyHIVE.setVisibility(View.GONE);
-                                                        deactivateGadget.setVisibility(View.GONE);
-                                                        activateGadget.setVisibility(View.VISIBLE);
-                                                        // successfully bought product
-                                                        Toast.makeText(getContext(),
-                                                                getContext().getString(R.string.success_buy_product)
-                                                                        + " " + postEntry.name,
-                                                                Toast.LENGTH_LONG).show();
-                                                    } else {
-                                                        Toast.makeText(getContext(),
-                                                                getContext().getString(R.string.error_buy_product) + " "
-                                                                        + postEntry.name,
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                },
-                                                error -> {
-                                                    // error
-                                                    Log.d(MainActivity.TAG, "Error querying blockchain");
-                                                    // progress.dismiss();
-                                                    buyAFIT.clearAnimation();
-                                                    Toast.makeText(getContext(),
-                                                            getContext().getString(R.string.error_buy_product) + " "
-                                                                    + postEntry.name,
-                                                            Toast.LENGTH_LONG).show();
-                                                });
-
-                                        queue.add(buyRequest);
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    // progress.dismiss();
-                                    buyAFIT.clearAnimation();
-                                    Toast.makeText(getContext(),
-                                            getContext().getString(R.string.error_buy_product) + " " + postEntry.name,
-                                            Toast.LENGTH_LONG).show();
-                                }
-
-                            },
-                            error -> {
-                                // error
-                                Log.d(MainActivity.TAG, "Error querying blockchain");
-                                // progress.dismiss();
-                                buyAFIT.clearAnimation();
-                                Toast.makeText(getContext(),
-                                        getContext().getString(R.string.error_buy_product) + " " + postEntry.name,
-                                        Toast.LENGTH_LONG).show();
-                            }) {
-
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            final Map<String, String> params = new HashMap<>();
-                            params.put("Content-Type", "application/json");
-                            params.put(getContext().getString(R.string.validation_header),
-                                    getContext().getString(R.string.validation_pre_data) + " "
-                                            + LoginActivity.accessToken);
-                            return params;
-                        }
-                    };
-
-                    queue.add(transRequest);
-                } catch (Exception excep) {
-                    excep.printStackTrace();
-                }
-
+                    notifyDataSetChanged();
+                });
+                notifyDataSetChanged(); // greys the buttons while it runs
             });
 
             // activate gadget functionality
@@ -606,218 +419,33 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     return;
                 }
 
-                activateGadget.startAnimation(scaler);
-                // buyAFIT.animate().scaleX(0.5f).scaleY(0.5f).setDuration(3000).;
-                // buyAFIT.animate().scaleXBy(1).setDuration(3000); //.startAnimation();
-
-                // progress.setMessage(getContext().getString(R.string.processingBuyGadget));
-                // progress.show();
-
-                RequestQueue queue = Volley.newRequestQueue(getContext());
-
-                // first make sure if user is properly logged in as we need to connect to server
-                if (LoginActivity.accessToken.isEmpty()) {
-
-                    // authorize user login based on credentials if user is already verified
-                    if (!pkey.isEmpty()) {
-                        String loginAuthUrl = Utils.apiUrl(getContext()) + getContext().getString(R.string.login_auth);
-
-                        JSONObject loginSettings = new JSONObject();
-                        try {
-                            loginSettings.put(getContext().getString(R.string.username_param), MainActivity.username);
-                            loginSettings.put(getContext().getString(R.string.pkey_param), pkey);
-                            loginSettings.put(getContext().getString(R.string.bchain_param), "HIVE");// default always
-                                                                                                     // HIVE
-                            loginSettings.put(getContext().getString(R.string.keeploggedin_param), false);// TODO make
-                                                                                                          // dynamic
-                            loginSettings.put(getContext().getString(R.string.login_source),
-                                    getContext().getString(R.string.android) + BuildConfig.VERSION_NAME);
-                        } catch (JSONException e) {
-                            // Log.e(MainActivity.TAG, e.getMessage());
-                        }
-
-                        // grab auth token for logged in user
-                        JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST,
-                                loginAuthUrl, loginSettings,
-                                response -> {
-                                    // store token for reuse when saving settings
-                                    try {
-                                        if (response.has("success")) {
-                                            Log.d(MainActivity.TAG, response.toString());
-                                            LoginActivity.accessToken = response
-                                                    .getString(getContext().getString(R.string.login_token));
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                },
-                                error -> {
-                                    // error
-                                    Log.e(MainActivity.TAG, "Login error");
-                                });
-
-                        queue.add(loginRequest);
-
-                    }
-
+                final String activationBeneficiary = postEntry.isFriendRewarding
+                        ? friendBeneficiary.getText().toString().replace("@", "").trim() : "";
+                if (postEntry.isFriendRewarding && activationBeneficiary.isEmpty()) {
+                    Toast.makeText(getContext(),
+                            getContext().getString(R.string.error_activate_product_benefic), Toast.LENGTH_LONG)
+                            .show();
+                    return;
+                }
+                if (postEntry.isFriendRewarding
+                        && !activationBeneficiary.matches("^[a-z][a-z0-9\\-.]{2,15}$")) {
+                    Toast.makeText(getContext(), getContext().getString(R.string.invalid_username),
+                            Toast.LENGTH_LONG).show();
+                    return;
                 }
 
-                // prepare query and broadcast to bchain
-
-                // param 1
-                String op_name = "custom_json";
-
-                // param 2
-                JSONObject cstm_params = new JSONObject();
-                try {
-
-                    JSONArray required_auths = new JSONArray();
-
-                    JSONArray required_posting_auths = new JSONArray();
-                    required_posting_auths.put(MainActivity.username);
-
-                    // cstm_params.put("required_auths", "[]");
-                    cstm_params.put("required_auths", required_auths);
-                    cstm_params.put("required_posting_auths", required_posting_auths);
-                    cstm_params.put("id", "actifit");
-                    // cstm_params.put("json", json_op_details);
-                    final String activationBeneficiary = postEntry.isFriendRewarding
-                            ? friendBeneficiary.getText().toString().trim() : "";
-                    if (postEntry.isFriendRewarding && activationBeneficiary.isEmpty()) {
-                        Toast.makeText(getContext(),
-                                getContext().getString(R.string.error_activate_product_benefic), Toast.LENGTH_LONG)
-                                .show();
-                        activateGadget.clearAnimation();
-                        return;
-                    }
-                    if (postEntry.isFriendRewarding
-                            && !activationBeneficiary.matches("^[a-z][a-z0-9\\-.]{2,15}$")) {
-                        Toast.makeText(getContext(), getContext().getString(R.string.invalid_username),
-                                Toast.LENGTH_LONG).show();
-                        activateGadget.clearAnimation();
-                        return;
-                    }
-                    JSONObject payload = new JSONObject();
-                    payload.put("transaction", "activate-gadget");
-                    payload.put("gadget", postEntry.id);
-                    if (postEntry.isFriendRewarding) {
-                        payload.put("benefic", activationBeneficiary);
-                    }
-                    cstm_params.put("json", payload.toString());
-
-                    JSONArray operation = new JSONArray();
-                    operation.put(0, op_name);
-                    operation.put(1, cstm_params);
-
-                    String bcastUrl = Utils.apiUrl(getContext()) + getContext().getString(R.string.perform_trx_link) +
-                            MainActivity.username +
-                            "&operation=[" + operation + "]" +
-                            "&bchain=HIVE";// hardcoded for now
-                    ;
-
-                    // send out transaction
-                    JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
-                            bcastUrl, null,
-                            response -> {
-
-                                Log.d(MainActivity.TAG, response.toString());
-                                //
-                                if (response.has("success")) {
-                                    // successfully wrote to chain gadget purchase
-                                    try {
-                                        JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
-
-                                        String buyUrl = Utils.apiUrl(getContext())
-                                                + getContext().getString(R.string.activate_gadget_link) +
-                                                MainActivity.username + "/" +
-                                                postEntry.id + "/" +
-                                                bcastRes.get("ref_block_num") + "/" +
-                                                bcastRes.get("id") + "/" +
-                                                "HIVE";
-
-                                        if (postEntry.isFriendRewarding) {
-                                            // append friend beneficiary
-                                            buyUrl += "/" + activationBeneficiary;
-                                        }
-
-                                        // send out transaction
-                                        JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
-                                                buyUrl, null,
-                                                response12 -> {
-                                                    // progress.dismiss();
-                                                    activateGadget.clearAnimation();
-                                                    Log.d(MainActivity.TAG, response12.toString());
-                                                    //
-                                                    if ("success".equals(response12.optString("status"))) {
-                                                        // showActivateButton(postEntry, finalConvertView);
-                                                        postEntry.nonConsumedCopy = SingleProductModel.ACTIVECOPY;
-                                                        postEntry.beneficiary = postEntry.isFriendRewarding
-                                                                ? activationBeneficiary : "";
-                                                        friendBeneficiary.setVisibility(View.GONE);
-                                                        activateGadget.setVisibility(View.GONE);
-                                                        deactivateGadget.setVisibility(View.VISIBLE);
-                                                        notifyDataSetChanged();
-                                                        // successfully bought product
-                                                        Toast.makeText(getContext(),
-                                                                getContext()
-                                                                        .getString(R.string.success_activate_product)
-                                                                        + " " + postEntry.name,
-                                                                Toast.LENGTH_LONG).show();
-                                                    } else {
-                                                        Toast.makeText(getContext(),
-                                                                getContext().getString(R.string.error_activate_product),
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                },
-                                                error -> {
-                                                    // error
-                                                    Log.d(MainActivity.TAG, "Error querying blockchain");
-                                                    // progress.dismiss();
-                                                    activateGadget.clearAnimation();
-                                                    Toast.makeText(getContext(),
-                                                            getContext().getString(R.string.error_activate_product),
-                                                            Toast.LENGTH_LONG).show();
-                                                });
-
-                                        queue.add(buyRequest);
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    // progress.dismiss();
-                                    activateGadget.clearAnimation();
-                                    Toast.makeText(getContext(),
-                                            getContext().getString(R.string.error_activate_product), Toast.LENGTH_LONG)
-                                            .show();
-                                }
-
-                            },
-                            error -> {
-                                // error
-                                Log.d(MainActivity.TAG, "Error querying blockchain");
-                                // progress.dismiss();
-                                activateGadget.clearAnimation();
-                                Toast.makeText(getContext(), getContext().getString(R.string.error_activate_product),
-                                        Toast.LENGTH_LONG).show();
-                            }) {
-
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            final Map<String, String> params = new HashMap<>();
-                            params.put("Content-Type", "application/json");
-                            params.put(getContext().getString(R.string.validation_header),
-                                    getContext().getString(R.string.validation_pre_data) + " "
-                                            + LoginActivity.accessToken);
-                            return params;
-                        }
-                    };
-
-                    queue.add(transRequest);
-                } catch (Exception excep) {
-                    excep.printStackTrace();
-                }
-
+                GadgetApi.activate(getContext(), MainActivity.username, postEntry.id,
+                        postEntry.isFriendRewarding ? activationBeneficiary : null, (ok, message) -> {
+                            if (ok) {
+                                postEntry.nonConsumedCopy = SingleProductModel.ACTIVECOPY;
+                                postEntry.beneficiary = postEntry.isFriendRewarding ? activationBeneficiary : "";
+                                toast(getContext().getString(R.string.success_activate_product) + " " + postEntry.name);
+                            } else {
+                                toast(message);
+                            }
+                            notifyDataSetChanged();
+                        });
+                notifyDataSetChanged();
             });
 
             // deactivate gadget functionality
@@ -829,189 +457,18 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     return;
                 }
 
-                deactivateGadget.startAnimation(scaler);
-                // buyAFIT.animate().scaleX(0.5f).scaleY(0.5f).setDuration(3000).;
-                // buyAFIT.animate().scaleXBy(1).setDuration(3000); //.startAnimation();
-
-                // progress.setMessage(getContext().getString(R.string.processingBuyGadget));
-                // progress.show();
-
-                RequestQueue queue = Volley.newRequestQueue(getContext());
-
-                // first make sure if user is properly logged in as we need to connect to server
-                if (LoginActivity.accessToken.isEmpty()) {
-
-                    // authorize user login based on credentials if user is already verified
-                    if (!pkey.isEmpty()) {
-                        String loginAuthUrl = Utils.apiUrl(getContext()) + getContext().getString(R.string.login_auth);
-
-                        JSONObject loginSettings = new JSONObject();
-                        try {
-                            loginSettings.put(getContext().getString(R.string.username_param), MainActivity.username);
-                            loginSettings.put(getContext().getString(R.string.pkey_param), pkey);
-                            loginSettings.put(getContext().getString(R.string.bchain_param), "HIVE");// default always
-                                                                                                     // HIVE
-                            loginSettings.put(getContext().getString(R.string.keeploggedin_param), false);// TODO make
-                                                                                                          // dynamic
-                            loginSettings.put(getContext().getString(R.string.login_source),
-                                    getContext().getString(R.string.android) + BuildConfig.VERSION_NAME);
-                        } catch (JSONException e) {
-                            // Log.e(MainActivity.TAG, e.getMessage());
-                        }
-
-                        // grab auth token for logged in user
-                        JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST,
-                                loginAuthUrl, loginSettings,
-                                response -> {
-                                    // store token for reuse when saving settings
-                                    try {
-                                        if (response.has("success")) {
-                                            Log.d(MainActivity.TAG, response.toString());
-                                            LoginActivity.accessToken = response
-                                                    .getString(getContext().getString(R.string.login_token));
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                },
-                                error -> {
-                                    // error
-                                    Log.e(MainActivity.TAG, "Login error");
-                                });
-
-                        queue.add(loginRequest);
-
+                GadgetApi.deactivate(getContext(), MainActivity.username, postEntry.id, (ok, message) -> {
+                    if (ok) {
+                        postEntry.beneficiary = "";
+                        // refreshProductStateAfterDeactivation() redraws once with the real state.
+                        refreshProductStateAfterDeactivation(postEntry);
+                        toast(getContext().getString(R.string.success_deactivate_product) + " " + postEntry.name);
+                    } else {
+                        toast(message);
+                        notifyDataSetChanged();
                     }
-
-                }
-
-                // prepare query and broadcast to bchain
-
-                // param 1
-                String op_name = "custom_json";
-
-                // param 2
-                JSONObject cstm_params = new JSONObject();
-                try {
-
-                    JSONArray required_auths = new JSONArray();
-
-                    JSONArray required_posting_auths = new JSONArray();
-                    required_posting_auths.put(MainActivity.username);
-
-                    // cstm_params.put("required_auths", "[]");
-                    cstm_params.put("required_auths", required_auths);
-                    cstm_params.put("required_posting_auths", required_posting_auths);
-                    cstm_params.put("id", "actifit");
-                    // cstm_params.put("json", json_op_details);
-                    cstm_params.put("json",
-                            "{\"transaction\": \"deactivate-gadget\" , \"gadget\": \"" + postEntry.id + "\"}");
-
-                    JSONArray operation = new JSONArray();
-                    operation.put(0, op_name);
-                    operation.put(1, cstm_params);
-
-                    String bcastUrl = Utils.apiUrl(getContext()) + getContext().getString(R.string.perform_trx_link) +
-                            MainActivity.username +
-                            "&operation=[" + operation + "]" +
-                            "&bchain=HIVE";// hardcoded for now
-                    ;
-
-                    // send out transaction
-                    JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
-                            bcastUrl, null,
-                            response -> {
-
-                                Log.d(MainActivity.TAG, response.toString());
-                                //
-                                if (response.has("success")) {
-                                    // successfully wrote to chain gadget purchase
-                                    try {
-                                        JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
-
-                                        String buyUrl = Utils.apiUrl(getContext())
-                                                + getContext().getString(R.string.deactivate_gadget_link) +
-                                                MainActivity.username + "/" +
-                                                postEntry.id + "/" +
-                                                bcastRes.get("ref_block_num") + "/" +
-                                                bcastRes.get("id") + "/" +
-                                                "HIVE";
-
-                                        // send out transaction
-                                        JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
-                                                buyUrl, null,
-                                                response13 -> {
-                                                    // progress.dismiss();
-                                                    deactivateGadget.clearAnimation();
-                                                    Log.d(MainActivity.TAG, response13.toString());
-                                                    //
-                                                    if ("success".equals(response13.optString("status"))) {
-                                                        postEntry.beneficiary = "";
-                                                        // Don't notify here — state (nonConsumedCopy) hasn't changed yet;
-                                                        // refreshProductStateAfterDeactivation() redraws once with the real state.
-                                                        refreshProductStateAfterDeactivation(postEntry);
-                                                        // successfully bought product
-                                                        Toast.makeText(getContext(),
-                                                                getContext()
-                                                                        .getString(R.string.success_deactivate_product)
-                                                                        + " " + postEntry.name,
-                                                                Toast.LENGTH_LONG).show();
-                                                    } else {
-                                                        Toast.makeText(getContext(),
-                                                                getContext()
-                                                                        .getString(R.string.error_deactivate_product),
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                },
-                                                error -> {
-                                                    // error
-                                                    Log.d(MainActivity.TAG, "Error querying blockchain");
-                                                    // progress.dismiss();
-                                                    deactivateGadget.clearAnimation();
-                                                    Toast.makeText(getContext(),
-                                                            getContext().getString(R.string.error_deactivate_product),
-                                                            Toast.LENGTH_LONG).show();
-                                                });
-
-                                        queue.add(buyRequest);
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    // progress.dismiss();
-                                    deactivateGadget.clearAnimation();
-                                    Toast.makeText(getContext(),
-                                            getContext().getString(R.string.error_deactivate_product),
-                                            Toast.LENGTH_LONG).show();
-                                }
-
-                            },
-                            error -> {
-                                // error
-                                Log.d(MainActivity.TAG, "Error querying blockchain");
-                                // progress.dismiss();
-                                deactivateGadget.clearAnimation();
-                                Toast.makeText(getContext(), getContext().getString(R.string.error_deactivate_product),
-                                        Toast.LENGTH_LONG).show();
-                            }) {
-
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            final Map<String, String> params = new HashMap<>();
-                            params.put("Content-Type", "application/json");
-                            params.put(getContext().getString(R.string.validation_header),
-                                    getContext().getString(R.string.validation_pre_data) + " "
-                                            + LoginActivity.accessToken);
-                            return params;
-                        }
-                    };
-
-                    queue.add(transRequest);
-                } catch (Exception excep) {
-                    excep.printStackTrace();
-                }
-
+                });
+                notifyDataSetChanged();
             });
 
             // Buy with HIVE
@@ -1024,255 +481,62 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                     return;
                 }
 
-                // make sure user has his active key set prior to moving ahead
-                SharedPreferences sharedPreferences = getContext().getSharedPreferences("actifitSets",
-                        Context.MODE_PRIVATE);
-                final String actvKey = sharedPreferences.getString("actvKey", "");
-
-                if (actvKey.isEmpty()) {
-                    // cannot proceed, prompt user to set his active key under settings
+                // A HIVE payment is a transfer, which needs the active key (set under Settings).
+                if (HiveBroadcaster.storedKey(getContext(), HiveBroadcaster.KeyRole.ACTIVE).isEmpty()) {
                     Toast.makeText(getContext(), getContext().getString(R.string.unableBuyGadgetHive),
                             Toast.LENGTH_LONG).show();
                     return;
                 }
-
-                buyHIVE.startAnimation(scaler);
-
-                RequestQueue queue = Volley.newRequestQueue(getContext());
-
-                // first make sure if user is properly logged in as we need to connect to server
-                if (LoginActivity.accessToken.isEmpty()) {
-
-                    // authorize user login based on credentials if user is already verified
-                    if (!pkey.isEmpty()) {
-                        String loginAuthUrl = Utils.apiUrl(getContext()) + getContext().getString(R.string.login_auth);
-
-                        JSONObject loginSettings = new JSONObject();
-                        try {
-                            loginSettings.put(getContext().getString(R.string.username_param), MainActivity.username);
-                            loginSettings.put(getContext().getString(R.string.pkey_param), pkey);
-                            loginSettings.put(getContext().getString(R.string.bchain_param), "HIVE");// default always
-                                                                                                     // HIVE
-                            loginSettings.put(getContext().getString(R.string.keeploggedin_param), false);// TODO make
-                                                                                                          // dynamic
-                            loginSettings.put(getContext().getString(R.string.login_source),
-                                    getContext().getString(R.string.android) + BuildConfig.VERSION_NAME);
-                        } catch (JSONException e) {
-                            // Log.e(MainActivity.TAG, e.getMessage());
-                        }
-
-                        // grab auth token for logged in user
-                        JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST,
-                                loginAuthUrl, loginSettings,
-                                response -> {
-                                    // store token for reuse when saving settings
-                                    try {
-                                        if (response.has("success")) {
-                                            Log.d(MainActivity.TAG, response.toString());
-                                            LoginActivity.accessToken = response
-                                                    .getString(getContext().getString(R.string.login_token));
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                },
-                                error -> {
-                                    // error
-                                    Log.e(MainActivity.TAG, "Login error");
-                                });
-
-                        queue.add(loginRequest);
-
+                final GadgetApi.Callback onBought = (ok, message) -> {
+                    if (ok) {
+                        markBought(postEntry);
+                        toast(getContext().getString(R.string.success_buy_product) + " " + postEntry.name);
+                    } else {
+                        toast(message);
                     }
+                    notifyDataSetChanged();
+                };
 
+                // An earlier purchase (either currency) is unresolved: settle it, never pay twice.
+                if (GadgetApi.hasUnresolvedPurchase(getContext(), MainActivity.username, postEntry.id)) {
+                    GadgetApi.buyWithHive(getContext(), MainActivity.username, postEntry.id, null, onBought);
+                    notifyDataSetChanged();
+                    return;
                 }
+                if (!quoting.add(postEntry.id)) return; // a quote or a Pay dialog is already up
 
-                // prepare query and broadcast to bchain
-
-                // param 1
-                String op_name = "transfer";
-
-                // param 2
-                JSONObject cstm_params = new JSONObject();
-                try {
-
-                    // cstm_params.put("required_auths", "[]");
-                    cstm_params.put("from", MainActivity.username);
-                    cstm_params.put("to", getContext().getString(R.string.actifit_market));
-                    cstm_params.put("amount", postEntry.priceHIVE + " HIVE");
-                    // cstm_params.put("json", json_op_details);
-                    cstm_params.put("memo", "buy-gadget:" + postEntry.id);
-
-                    JSONArray operation = new JSONArray();
-                    operation.put(0, op_name);
-                    operation.put(1, cstm_params);
-
-                    JSONArray op_array = new JSONArray();
-                    op_array.put(operation);
-
-                    String bcastUrl = Utils.apiUrl(getContext())
-                            + getContext().getString(R.string.perform_trx_post_link) +
-                            MainActivity.username +
-                            "&bchain=HIVE";// hardcoded for now
-                    ;
-
-                    // sending post data
-                    JSONObject body = new JSONObject();
-
-                    body.put("operation", op_array.toString());
-                    body.put("active", actvKey);
-
-                    // send out transaction
-                    JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.POST,
-                            bcastUrl, body,
-                            response -> {
-
-                                Log.d(MainActivity.TAG, response.toString());
-                                //
-                                if (response.has("success")) {
-                                    // successfully wrote to chain gadget purchase
-                                    try {
-                                        JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
-
-                                        String buyUrl = Utils.apiUrl(getContext())
-                                                + getContext().getString(R.string.buy_gadget_hive_link) +
-                                                MainActivity.username + "/" +
-                                                postEntry.id + "/" +
-                                                bcastRes.get("ref_block_num") + "/" +
-                                                bcastRes.get("id") + "/" +
-                                                "HIVE";
-
-                                        // send out transaction
-                                        JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
-                                                buyUrl, null,
-                                                response14 -> {
-                                                    // progress.dismiss();
-                                                    buyHIVE.clearAnimation();
-                                                    Log.d(MainActivity.TAG, response14.toString());
-                                                    //
-                                                    if (!response14.has("error")) {
-                                                        // successfully bought product
-                                                        // showActivateButton(postEntry, finalConvertView);
-                                                        if (postEntry.isFriendRewarding) {
-                                                            // also show friend beneficiary to direct rewards over
-                                                            friendBeneficiary.setVisibility(View.VISIBLE);
-                                                        }
-                                                        buyAFIT.setVisibility(View.GONE);
-                                                        buyHIVE.setVisibility(View.GONE);
-                                                        deactivateGadget.setVisibility(View.GONE);
-                                                        activateGadget.setVisibility(View.VISIBLE);
-
-                                                        Toast.makeText(getContext(),
-                                                                getContext().getString(R.string.success_buy_product)
-                                                                        + " " + postEntry.name,
-                                                                Toast.LENGTH_LONG).show();
-                                                    } else {
-                                                        Toast.makeText(getContext(),
-                                                                getContext().getString(R.string.error_buy_product) + " "
-                                                                        + postEntry.name,
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                },
-                                                error -> {
-                                                    // error
-                                                    // progress.dismiss();
-                                                    buyHIVE.clearAnimation();
-                                                    Log.d(MainActivity.TAG, "Error querying blockchain");
-                                                    Toast.makeText(getContext(),
-                                                            getContext().getString(R.string.error_buy_product) + " "
-                                                                    + postEntry.name,
-                                                            Toast.LENGTH_LONG).show();
-                                                });
-
-                                        queue.add(buyRequest);
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                        // progress.dismiss();
-                                        buyHIVE.clearAnimation();
-                                        Toast.makeText(getContext(), getContext().getString(R.string.error_buy_product)
-                                                + " " + postEntry.name, Toast.LENGTH_LONG).show();
-                                    }
-                                } else {
-                                    // progress.dismiss();
-                                    buyHIVE.clearAnimation();
-                                    Toast.makeText(getContext(),
-                                            getContext().getString(R.string.error_buy_product) + " " + postEntry.name,
-                                            Toast.LENGTH_LONG).show();
+                // Price it now from the confirming server and show the exact amount before paying.
+                notifyDataSetChanged();
+                GadgetApi.quoteHive(getContext(), postEntry.priceAFIT, (quote, error) -> {
+                    if (quote == null || !(ctx instanceof Activity)
+                            || ((Activity) ctx).isFinishing() || ((Activity) ctx).isDestroyed()) {
+                        quoting.remove(postEntry.id);
+                        notifyDataSetChanged();
+                        toast(error);
+                        return;
+                    }
+                    AlertDialog dialog = new AlertDialog.Builder(ctx)
+                            .setTitle(R.string.gadget_hive_confirm_title)
+                            .setMessage(getContext().getString(R.string.gadget_hive_confirm_msg, quote.amount, postEntry.name))
+                            .setPositiveButton(R.string.gadget_hive_confirm_pay, (d, w) -> {
+                                // Things may have changed while the dialog was up.
+                                if (postEntry.nonConsumedCopy == SingleProductModel.BOUGHTCOPY
+                                        || postEntry.nonConsumedCopy == SingleProductModel.ACTIVECOPY
+                                        || GadgetApi.isBusy(MainActivity.username, postEntry.id)
+                                        || GadgetApi.hasUnresolvedPurchase(getContext(), MainActivity.username, postEntry.id)) {
+                                    toast(getContext().getString(R.string.gadget_action_in_progress));
+                                    return;
                                 }
-
-                            },
-                            error -> {
-                                // error
-                                Log.d(MainActivity.TAG, "Error querying blockchain");
-                                // progress.dismiss();
-                                buyHIVE.clearAnimation();
-                                Toast.makeText(getContext(),
-                                        getContext().getString(R.string.error_buy_product) + " " + postEntry.name,
-                                        Toast.LENGTH_LONG).show();
-                            }) {
-
-                        @Override
-                        public Map<String, String> getHeaders() {
-                            final Map<String, String> params = new HashMap<>();
-                            params.put("Content-Type", "application/json");
-                            params.put(getContext().getString(R.string.validation_header),
-                                    getContext().getString(R.string.validation_pre_data) + " "
-                                            + LoginActivity.accessToken);
-                            return params;
-                        }
-
-                        /*
-                         * @Override
-                         * public Map getParams() {
-                         * Map params = new HashMap();
-                         * 
-                         * params.put("operation", operation.toString());
-                         * params.put("active", actvKey);
-                         * 
-                         * return params;
-                         * }
-                         */
-                        /*
-                         * @Override
-                         * public byte[] getBody() {
-                         * //public byte[] getBody() throws AuthFailureError {
-                         * // Map<String, String> params = getParams();
-                         * Map<String, String> params = new HashMap<String, String>();
-                         * params.put("operation", operation.toString());
-                         * params.put("active", actvKey);
-                         * if (params != null && params.size() > 0) {
-                         * 
-                         * return encodeParameters(params, getParamsEncoding());
-                         * 
-                         * }
-                         * return null;
-                         * 
-                         * }
-                         */
-
-                        private byte[] encodeParameters(Map<String, String> params, String paramsEncoding) {
-                            StringBuilder encodedParams = new StringBuilder();
-                            try {
-                                for (Map.Entry<String, String> entry : params.entrySet()) {
-                                    encodedParams.append(URLEncoder.encode(entry.getKey(), paramsEncoding));
-                                    encodedParams.append('=');
-                                    encodedParams.append(URLEncoder.encode(entry.getValue(), paramsEncoding));
-                                    encodedParams.append('&');
-                                }
-                                return encodedParams.toString().getBytes(paramsEncoding);
-                            } catch (UnsupportedEncodingException uee) {
-                                throw new RuntimeException("Encoding not supported: " + paramsEncoding, uee);
-                            }
-                        }
-
-                    };
-
-                    queue.add(transRequest);
-                } catch (Exception excep) {
-                    excep.printStackTrace();
-                }
-
+                                GadgetApi.buyWithHive(getContext(), MainActivity.username, postEntry.id, quote, onBought);
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .create();
+                    dialog.setOnDismissListener(d -> {
+                        quoting.remove(postEntry.id);
+                        notifyDataSetChanged();
+                    });
+                    dialog.show();
+                });
             });
 
         } catch (Exception exp) {
@@ -1281,6 +545,19 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    /** Shows a new copy the way the next Market load would: one more bought, full boosts. */
+    private static void markBought(SingleProductModel product) {
+        product.nonConsumedCopy = SingleProductModel.BOUGHTCOPY;
+        product.totalBought += 1;
+        product.remainingBoosts = product.validityVal;
+    }
+
+    private void toast(String message) {
+        if (message != null && !message.isEmpty()) {
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void refreshProductStateAfterDeactivation(SingleProductModel product) {

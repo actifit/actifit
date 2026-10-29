@@ -25,15 +25,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -149,7 +140,7 @@ public class WorkoutWizardActivity extends BaseActivity
         browseExercisesIconTextView = findViewById(R.id.browseExercisesIconTextView);
 
         sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
-        hasPaidForGeneration = sharedPreferences.getBoolean(KEY_HAS_PAID, false);
+        hasPaidForGeneration = sharedPreferences.getBoolean(KEY_HAS_PAID, false) || GadgetApi.workoutPaid(this, username);
         updateGenerateButtonText();
 
         exercisesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -192,9 +183,13 @@ public class WorkoutWizardActivity extends BaseActivity
             }
             workoutNameEditText.setError(null);
 
-            if (hasPaidForGeneration) {
+            // Read fresh: a payment started from an earlier screen may have finished since.
+            if (sharedPreferences.getBoolean(KEY_HAS_PAID, false) || GadgetApi.workoutPaid(this, username)) {
                 Log.d(TAG, getString(R.string.log_pending_paid_attempt_retry) + workoutName);
                 processWorkoutGeneration(workoutName);
+            } else if (GadgetApi.hasPendingWorkout(this, username)) {
+                // An earlier payment's result is unknown: settle it, never pay a second time.
+                processWorkoutTrx(workoutName);
             } else {
                 grabBalanceAndProceed(workoutName);
             }
@@ -233,103 +228,27 @@ public class WorkoutWizardActivity extends BaseActivity
         callGeminiApi(workoutName, workoutRequest);
     }
 
+    /** Signs the fee on the device; the backend charges the AFIT once it finds it on chain. */
     private void performAfitsDeduction(String workoutName) {
-        Context ctx = getApplicationContext();
-        RequestQueue queue = Volley.newRequestQueue(ctx);
-
-        try {
-            String op_name = "custom_json";
-            JSONObject cstm_params = new JSONObject();
-            JSONArray required_auths = new JSONArray();
-            JSONArray required_posting_auths = new JSONArray();
-            required_posting_auths.put(username);
-            cstm_params.put("required_auths", required_auths);
-            cstm_params.put("required_posting_auths", required_posting_auths);
-            cstm_params.put("id", "actifit");
-            cstm_params.put("json", "{\"transaction\": \"generate-workout-wizard\"}");
-            JSONArray operation = new JSONArray();
-            operation.put(0, op_name);
-            operation.put(1, cstm_params);
-
-            String bcastUrl = (getString(R.string.test_mode).equals("on") ?
-                    getString(R.string.test_server) : Utils.apiUrl(ctx)) +
-                    ctx.getString(R.string.perform_trx_link) +
-                    username +
-                    "&operation=[" + operation + "]" +
-                    "&bchain=HIVE";
-
-            Log.d(TAG, bcastUrl);
-
-            JsonObjectRequest transRequest = new JsonObjectRequest(Request.Method.GET,
-                    bcastUrl, null,
-                    response -> {
-                        if (response.optBoolean("success", false)) {
-                            try {
-                                JSONObject bcastRes = response.getJSONObject("trx").getJSONObject("tx");
-                                String buyUrl = (getString(R.string.test_mode).equals("on") ?
-                                        getString(R.string.test_server) : Utils.apiUrl(ctx)) +
-                                        ctx.getString(R.string.generate_workout_link) +
-                                        username + "/" +
-                                        bcastRes.get("ref_block_num") + "/" +
-                                        bcastRes.get("id") + "/" +
-                                        "HIVE" +
-                                        "/?user=" + username;
-
-                                JsonObjectRequest buyRequest = new JsonObjectRequest(Request.Method.GET,
-                                        buyUrl, null,
-                                        response1 -> {
-                                            if (!response1.has("error") && (response1.optBoolean("success", false) || response1.optString("status", "").equalsIgnoreCase("success"))) {
-                                                Log.d(TAG, getString(R.string.log_payment_successful_saving_state));
-                                                setPaidState(true);
-                                                processWorkoutGeneration(workoutName);
-                                            } else {
-                                                Log.e(TAG, getString(R.string.error_payment_confirmation_step) + response1.toString());
-                                                Toast.makeText(WorkoutWizardActivity.this, getString(R.string.error_transaction), Toast.LENGTH_LONG).show();
-                                                hideLoading();
-                                            }
-                                        },
-                                        error -> {
-                                            Log.e(TAG, getString(R.string.error_payment_network_confirmation_step) + error.toString());
-                                            Toast.makeText(WorkoutWizardActivity.this, getString(R.string.error_transaction), Toast.LENGTH_LONG).show();
-                                            hideLoading();
-                                        }) {
-                                    @Override
-                                    public Map<String, String> getHeaders() {
-                                        final Map<String, String> params = new HashMap<>();
-                                        params.put("Content-Type", "application/json");
-                                        params.put(ctx.getString(R.string.validation_header), ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
-                                        return params;
-                                    }
-                                };
-                                queue.add(buyRequest);
-                            } catch (JSONException e) {
-                                Log.e(TAG, getString(R.string.log_json_exception_payment_broadcast) + e.getMessage());
-                                hideLoading();
-                            }
-                        } else {
-                            Log.e(TAG, getString(R.string.error_payment_broadcast_step) + response.toString());
-                            Toast.makeText(WorkoutWizardActivity.this, getString(R.string.error_transaction), Toast.LENGTH_LONG).show();
-                            hideLoading();
-                        }
-                    },
-                    error -> {
-                        Log.d(TAG, getString(R.string.error_payment_network_broadcast_step) + error.toString());
-                        Toast.makeText(WorkoutWizardActivity.this, getString(R.string.error_transaction), Toast.LENGTH_LONG).show();
-                        hideLoading();
-                    }) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    final Map<String, String> params = new HashMap<>();
-                    params.put("Content-Type", "application/json");
-                    params.put(ctx.getString(R.string.validation_header), ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken);
-                    return params;
-                }
-            };
-            queue.add(transRequest);
-        } catch (Exception excep) {
-            Log.e(TAG, getString(R.string.log_exception_setting_up_payment) + excep.getMessage());
+        if (LoginActivity.accessToken == null || LoginActivity.accessToken.isEmpty()) {
+            // The fee route needs the session: don't sign a payment it would refuse.
+            Toast.makeText(this, R.string.gadget_session_expired, Toast.LENGTH_LONG).show();
             hideLoading();
+            return;
         }
+        GadgetApi.payWorkout(this, username, (ok, msg) -> {
+            if (ok) setPaidState(true); // saved even if the screen is gone: the next Generate won't charge again
+            if (isFinishing() || isDestroyed()) return;
+            if (ok) {
+                Log.d(TAG, getString(R.string.log_payment_successful_saving_state));
+                processWorkoutGeneration(workoutName);
+            } else {
+                Log.e(TAG, getString(R.string.error_payment_confirmation_step) + msg);
+                Toast.makeText(WorkoutWizardActivity.this, msg != null ? msg : getString(R.string.error_transaction),
+                        Toast.LENGTH_LONG).show();
+                hideLoading();
+            }
+        });
     }
 
     private void callGeminiApi(String workoutName, WorkoutRequest request) {
@@ -386,6 +305,7 @@ public class WorkoutWizardActivity extends BaseActivity
             Log.d(TAG, "Saved state to SharedPreferences: hasPaidForGeneration=true");
         } else {
             editor.remove(KEY_HAS_PAID);
+            GadgetApi.clearWorkoutPaid(this, username); // the paid-for workout is generated
             Log.d(TAG, "Cleared 'hasPaidForGeneration' state from SharedPreferences.");
         }
         editor.apply();

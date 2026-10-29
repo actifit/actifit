@@ -202,7 +202,8 @@ public class StakeTokenModalDialogFragment extends DialogFragment {
                     String op_name = "transfer_to_vesting";
                     cstm_params.put("from", MainActivity.username);
                     cstm_params.put("to", recipientVal);
-                    DecimalFormat decimalFormatUp = new DecimalFormat("0.000");// precision 3
+                    DecimalFormat decimalFormatUp = new DecimalFormat("0.000",
+                            java.text.DecimalFormatSymbols.getInstance(java.util.Locale.US));// precision 3
                     cstm_params.put("amount", decimalFormatUp.format(amountVal) + " HIVE");
 
                     // power down
@@ -216,7 +217,8 @@ public class StakeTokenModalDialogFragment extends DialogFragment {
                                 Double.parseDouble(amountVal + ""));
                         System.out.println(">>>>> vests:" + vests);
                         // if (1==1) return;
-                        DecimalFormat decimalFormat2 = new DecimalFormat("0.000000");// precision 6
+                        DecimalFormat decimalFormat2 = new DecimalFormat("0.000000",
+                                java.text.DecimalFormatSymbols.getInstance(java.util.Locale.US));// precision 6
                         cstm_params.put("vesting_shares", decimalFormat2.format(vests) + " VESTS");
 
                     }
@@ -243,14 +245,18 @@ public class StakeTokenModalDialogFragment extends DialogFragment {
                         cstm_params.put("required_posting_auths", required_posting_auths);
                         cstm_params.put("id", getString(R.string.hive_engine_custom_param_network));
                         // cstm_params.put("json", json_op_details);
-                        cstm_params.put("json",
-                                "{\"contractName\": \"tokens\" , " +
-                                        "\"contractAction\": \"" + action + "\" , " +
-                                        "\"contractPayload\": {" +
-                                        "\"symbol\": \"" + symbol + "\", " +
-                                        "\"to\": \"" + recipientVal + "\"," +
-                                        "\"quantity\": \"" + String.format("%.3f", amountVal) + "\"," +
-                                        "\"memo\": \"" + memoVal + "\"}}");
+                        // Built with JSONObject so a quote or backslash in the memo or
+                        // recipient can't break (or inject into) the operation.
+                        JSONObject hePayload = new JSONObject();
+                        hePayload.put("symbol", symbol);
+                        hePayload.put("to", recipientVal);
+                        hePayload.put("quantity", String.format(java.util.Locale.US, "%.3f", amountVal));
+                        hePayload.put("memo", memoVal);
+                        JSONObject heJson = new JSONObject();
+                        heJson.put("contractName", "tokens");
+                        heJson.put("contractAction", action);
+                        heJson.put("contractPayload", hePayload);
+                        cstm_params.put("json", heJson.toString());
                     }
 
                     System.out.println(">>>>>>>>>>>>>>custom_params:" + cstm_params.toString());

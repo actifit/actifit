@@ -370,13 +370,9 @@ public class WalletActivity extends BaseActivity {
             // handles sending AFIT tokens
             sendAFIT = findViewById(R.id.btn_send_afit);
 
-            sendAFIT.setOnClickListener(arg0 -> {
-
-                SendAFITModalDialogFragment dialogFragment = SendAFITModalDialogFragment.newInstance(afitBal);
-                FragmentManager fmgr = getSupportFragmentManager();
-                dialogFragment.show(fmgr, "send_afit_modal");
-
-            });
+            // Sending AFIT is switched off on the server (it relied on the retired funds password).
+            sendAFIT.setOnClickListener(arg0 ->
+                    Toast.makeText(callerContext, R.string.afit_send_unavailable, Toast.LENGTH_LONG).show());
 
             claimRewards = findViewById(R.id.btn_claim_pending_rewards);
 
@@ -388,93 +384,24 @@ public class WalletActivity extends BaseActivity {
 
                 claimRewards.startAnimation(rotate);
 
-                RequestQueue queue1 = Volley.newRequestQueue(callerContext);
-
-                // fetch blurt price
-                String claimRewardsUrl = Utils.apiUrl(this) + getString(R.string.claim_rewards_url) + username;
                 final String success_notification = getString(R.string.rewards_claimed_successfully);
-                final String error_notification = getString(R.string.rewards_claim_error);
-
-                // Process claim rewards request
-                JsonObjectRequest claimRewardsReq = new JsonObjectRequest(Request.Method.GET, claimRewardsUrl, null,
-                        new Response.Listener<JSONObject>() {
-                            JSONObject hiveClaim;
-
-                            @Override
-                            public void onResponse(JSONObject response) {
-
-                                // Display the result
-                                try {
-                                    // hive is main claim indicator
-                                    hiveClaim = response.getJSONObject("hive");
-                                    if (hiveClaim.has("success")) {
-                                        displayNotification(success_notification, null, callerContext, callerActivity,
-                                                false);
-
-                                        // update all balances after 5 seconds
-                                        new android.os.Handler().postDelayed(
-                                                new Runnable() {
-                                                    public void run() {
-                                                        loadAccountBalance(username, callerActivity, callerContext);
-                                                    }
-                                                }, 5000);
-                                    } else if (!hiveClaim.getString("error").equals("")) {
-                                        displayNotification(hiveClaim.getString("error"), null, callerContext,
-                                                callerActivity, false);
-                                    } else {
-                                        displayNotification(error_notification, null, callerContext, callerActivity,
-                                                false);
-                                    }
-                                } catch (JSONException e) {
-                                    // server responded but not in the expected shape — log the raw body
-                                    Log.e(MainActivity.TAG, "error claiming rewards - unexpected response body: " + response, e);
-                                    displayNotification(error_notification + " (unexpected response)", null, callerContext, callerActivity, false);
-                                }
-
-                                if (progress != null && progress.isShowing()) {
-                                    progress.dismiss();
-                                }
-                                claimRewards.clearAnimation();
-                            }
-                        }, new Response.ErrorListener() {
-
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // diagnostics: capture HTTP status + server body + auth-token presence so
-                                // field-reported failures are actionable (401 = auth, 5xx = server, etc.)
-                                int httpStatus = (error.networkResponse != null) ? error.networkResponse.statusCode : -1;
-                                String body = "";
-                                if (error.networkResponse != null && error.networkResponse.data != null) {
-                                    try {
-                                        body = new String(error.networkResponse.data, java.nio.charset.StandardCharsets.UTF_8);
-                                    } catch (Exception ignored) {
-                                    }
-                                }
-                                boolean tokenPresent = (accessToken != null && !accessToken.isEmpty());
-                                Log.e(MainActivity.TAG, "error claiming rewards - httpStatus=" + httpStatus
-                                        + " tokenPresent=" + tokenPresent + " body=" + body, error);
-                                // surface a concise, screenshot-able detail to the user for field reports
-                                String detail = (httpStatus != -1) ? " (code " + httpStatus + ")"
-                                        : (!tokenPresent ? " (not authenticated)" : " (no server response)");
-                                displayNotification(error_notification + detail, null, callerContext, callerActivity, false);
-                                if (progress != null && progress.isShowing()) {
-                                    progress.dismiss();
-                                }
-                                claimRewards.clearAnimation();
-                            }
-                        }) {
-
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        final Map<String, String> params = new HashMap<>();
-                        params.put("Content-Type", "application/json");
-                        params.put(getString(R.string.validation_header),
-                                getString(R.string.validation_pre_data) + " " + accessToken);
-                        return params;
+                // Signed on this phone with the posting key (the server's claimRewards is gone).
+                HiveBroadcaster.claimRewards(callerContext, username, result -> {
+                    if (progress != null && progress.isShowing()) {
+                        progress.dismiss();
                     }
-                };
-
-                queue1.add(claimRewardsReq);
+                    claimRewards.clearAnimation();
+                    if (result.ok && result.txId == null) {
+                        displayNotification(getString(R.string.rewards_nothing_to_claim), null, callerContext,
+                                callerActivity, false);
+                    } else if (result.ok) {
+                        displayNotification(success_notification, null, callerContext, callerActivity, false);
+                        new android.os.Handler().postDelayed(
+                                () -> loadAccountBalance(username, callerActivity, callerContext), 5000);
+                    } else {
+                        displayNotification(result.error, null, callerContext, callerActivity, false);
+                    }
+                });
 
             });
 

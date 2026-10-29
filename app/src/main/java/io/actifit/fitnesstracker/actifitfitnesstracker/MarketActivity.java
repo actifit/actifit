@@ -3,6 +3,7 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 import android.util.Log;
 import android.widget.ListView;
 
@@ -41,6 +42,19 @@ public class MarketActivity extends BaseActivity {
             queue = Volley.newRequestQueue(this);
         }
         loadBalance(queue);
+        // An action signed earlier whose confirm never got through (e.g. a HIVE payment): settle it now.
+        if (MainActivity.username != null && !MainActivity.username.isEmpty()) {
+            GadgetApi.resumePending(this, MainActivity.username, (ok, msg) -> {
+                if (isFinishing() || isDestroyed()) return;
+                if (msg != null) Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+                if (ok) {
+                    loadBalance(queue);
+                    if (afitPrice != null) proceedLoading();
+                }
+                if (productAdapter != null) productAdapter.notifyDataSetChanged(); // re-enable the card
+            });
+            if (productAdapter != null) productAdapter.notifyDataSetChanged(); // grey cards being settled
+        }
     }
 
     private void loadBalance(RequestQueue queue){
