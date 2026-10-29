@@ -94,7 +94,7 @@ public class SettingsActivity extends BaseActivity {
 
     private String accessToken;
 
-    private EditText activeKey, fundsPassword, voteWeight, dailyStepGoalInput;
+    private EditText activeKey, voteWeight, dailyStepGoalInput;
 
     // Daily step goal bounds. Actifit rewards are maximized at 5,000-10,000 steps (see the note
     // in the settings card); these are just sane guardrails so the goal stays usable. Keep the
@@ -135,7 +135,6 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.activity_settings);
 
         activeKey = findViewById(R.id.activeKey);
-        fundsPassword = findViewById(R.id.fundsPassword);
         voteWeight = findViewById(R.id.votePercent);
         dailyStepGoalInput = findViewById(R.id.dailyStepGoalInput);
 
@@ -324,7 +323,8 @@ public class SettingsActivity extends BaseActivity {
         final String username = sharedPreferences.getString("actifitUser","");
 
         activeKey.setText(sharedPreferences.getString("actvKey", ""));
-        fundsPassword.setText(sharedPreferences.getString("fundsPass", ""));
+        // The funds password is retired (and must be treated as leaked): don't keep it on the phone.
+        sharedPreferences.edit().remove("fundsPass").apply();
 
         //display whether user has elected not to get main screen earnings notification
         showPendingRewardsCheckbox.setChecked( !(sharedPreferences.getBoolean(getString(R.string.donotshowrewards),true)));
@@ -815,9 +815,6 @@ public class SettingsActivity extends BaseActivity {
                 Toast.makeText(this, R.string.error_step_goal_invalid, Toast.LENGTH_LONG).show();
                 return;
             }
-
-            //store funds password to use where and if needed
-            editor.putString("fundsPass", fundsPassword.getText().toString());
 
             //store vote weight percentage
 

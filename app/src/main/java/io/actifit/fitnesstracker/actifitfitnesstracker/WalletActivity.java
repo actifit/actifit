@@ -370,13 +370,9 @@ public class WalletActivity extends BaseActivity {
             // handles sending AFIT tokens
             sendAFIT = findViewById(R.id.btn_send_afit);
 
-            sendAFIT.setOnClickListener(arg0 -> {
-
-                SendAFITModalDialogFragment dialogFragment = SendAFITModalDialogFragment.newInstance(afitBal);
-                FragmentManager fmgr = getSupportFragmentManager();
-                dialogFragment.show(fmgr, "send_afit_modal");
-
-            });
+            // Sending AFIT is switched off on the server (it relied on the retired funds password).
+            sendAFIT.setOnClickListener(arg0 ->
+                    Toast.makeText(callerContext, R.string.afit_send_unavailable, Toast.LENGTH_LONG).show());
 
             claimRewards = findViewById(R.id.btn_claim_pending_rewards);
 

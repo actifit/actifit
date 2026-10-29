@@ -504,30 +504,6 @@
                         android:text="&#xf029;"
                         android:layout_marginBottom="@dimen/spacing_sm" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/fundsPassword"
-                        android:textColor="@color/md_theme_onSurface"
-                        android:textSize="@dimen/text_body"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="@dimen/spacing_xs" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/fundsPassword"
-                        app:endIconMode="password_toggle"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/fundsPassword"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textPassword" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
