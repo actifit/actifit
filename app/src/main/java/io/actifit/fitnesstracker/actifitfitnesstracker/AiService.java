@@ -60,7 +60,7 @@ public class AiService {
                 String responseBodyString = response.body().string(); // Read body ONCE
                 if (response.isSuccessful()) {
                     try {
-                        android.util.Log.d("AiService", "Success Response Body: " + responseBodyString);
+                        if (BuildConfig.DEBUG) android.util.Log.d("AiService", "Success Response Body: " + responseBodyString); // holds health data
 
                         //String responseBody = response.body().string();
                         AiResponse aiResponse = parseAiResponse(responseBodyString);
@@ -72,7 +72,7 @@ public class AiService {
                 } else {
                     // Log the error response details!
                     String errorMessage = "Response failed: " + response.message() + " (" + response.code() + ")";
-                    android.util.Log.e("AiService", errorMessage + " Body: " + responseBodyString); // <-- LOG ERROR BODY
+                    android.util.Log.e("AiService", errorMessage + (BuildConfig.DEBUG ? " Body: " + responseBodyString : ""));
                     callback.onFailure("Response failed: " + response.message() + " " + response.code());
                 }
 
@@ -94,7 +94,7 @@ public class AiService {
         requestBodyMap.put("contents", contents);
 
         String requestJson = gson.toJson(requestBodyMap);
-        android.util.Log.d("AiService", "Request JSON: " + requestJson); // <-- ADD THIS LOG
+        if (BuildConfig.DEBUG) android.util.Log.d("AiService", "Request JSON: " + requestJson); // holds health data
         return RequestBody.create(
                 requestJson,
                 MediaType.parse("application/json; charset=utf-8")
