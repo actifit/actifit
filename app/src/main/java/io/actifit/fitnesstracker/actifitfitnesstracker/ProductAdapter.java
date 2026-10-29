@@ -399,7 +399,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                 // Signed on this phone with the posting key, then confirmed from the chain.
                 GadgetApi.buyWithAfit(getContext(), MainActivity.username, postEntry.id, (ok, message) -> {
                     if (ok) {
-                        postEntry.nonConsumedCopy = SingleProductModel.BOUGHTCOPY;
+                        markBought(postEntry);
                         MarketActivity.afitBalance -= postEntry.priceAFIT;
                         toast(getContext().getString(R.string.success_buy_product) + " " + postEntry.name);
                     } else {
@@ -489,7 +489,7 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
                 }
                 final GadgetApi.Callback onBought = (ok, message) -> {
                     if (ok) {
-                        postEntry.nonConsumedCopy = SingleProductModel.BOUGHTCOPY;
+                        markBought(postEntry);
                         toast(getContext().getString(R.string.success_buy_product) + " " + postEntry.name);
                     } else {
                         toast(message);
@@ -545,6 +545,13 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    /** Shows a new copy the way the next Market load would: one more bought, full boosts. */
+    private static void markBought(SingleProductModel product) {
+        product.nonConsumedCopy = SingleProductModel.BOUGHTCOPY;
+        product.totalBought += 1;
+        product.remainingBoosts = product.validityVal;
     }
 
     private void toast(String message) {
