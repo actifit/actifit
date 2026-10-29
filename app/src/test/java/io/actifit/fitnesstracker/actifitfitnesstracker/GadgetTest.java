@@ -89,4 +89,23 @@ public class GadgetTest {
         assertEquals(GadgetReply.Kind.FAILED, GadgetReply.classify(true, "Error performing buy action", "", null, ""));
         assertEquals(GadgetReply.Kind.FAILED, GadgetReply.classify(true, "trx already exists", "", null, ""));
     }
+
+    @Test
+    public void workoutFeeMatchesWhatTheBackendVerifies() {
+        // utils.verifyWorkoutTransaction: posting auth = user, json.transaction = generate-workout-wizard
+        assertEquals("[[\"custom_json\",{\"required_auths\":[],\"required_posting_auths\":[\"alice\"],\"id\":\"actifit\","
+                        + "\"json\":\"{\\\"transaction\\\": \\\"generate-workout-wizard\\\"}\"}]]",
+                opsJson(GadgetOps.generateWorkout("alice")));
+    }
+
+    @Test
+    public void workoutFeeRepliesAreRead() {
+        // performBuyWorkout's replies
+        assertEquals(GadgetReply.Kind.OK, GadgetReply.classify(false, "", "Success", null, ""));
+        assertEquals(GadgetReply.Kind.INSUFFICIENT_AFIT, GadgetReply.classify(true,
+                "Account does not have enough AFIT funds", "", null, ""));
+        assertEquals(GadgetReply.Kind.UNAVAILABLE, GadgetReply.classify(true,
+                "Workout generation is temporarily unavailable", "", null, ""));
+        assertEquals(GadgetReply.Kind.FAILED, GadgetReply.classify(true, "error verifying trx", "", null, ""));
+    }
 }

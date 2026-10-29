@@ -23,7 +23,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Gadget buy / activate / deactivate.
+ * Gadget buy / activate / deactivate, and the AI workout fee (same rules as an AFIT buy).
  *
  * Each action is signed and broadcast on the device ({@link HiveBroadcaster}), then
  * confirmed by the backend's *Keychain route, which finds the transaction on the chain,
@@ -71,6 +71,9 @@ public final class GadgetApi {
     static final String ACT_BUY_HIVE = "buyhive";
     static final String ACT_ACTIVATE = "activate";
     static final String ACT_DEACTIVATE = "deactivate";
+    static final String ACT_WORKOUT = "workout";
+    /** Stands in for the gadget id in the workout fee's record and lock. */
+    private static final String WORKOUT_ID = "workout";
 
     /** Head-room over the quoted rate, so a price refresh on the server between quote and
      *  confirm can't make an honest payment fall short. */
@@ -158,10 +161,8 @@ public final class GadgetApi {
     /** benefic: the friend receiving the boost, or null. */
     public static void activate(Context ctx, String user, String gadgetId, String benefic, Callback cb) {
         String b = benefic == null ? "" : benefic.replace("@", "").trim();
-        // The single-gadget *Keychain activate route arrives with actifit-bot #162; the web
-        // uses the multi route with one id, so do the same until then.
         start(ctx, ACT_ACTIVATE, user, gadgetId, GadgetOps.activate(user, gadgetId, b),
-                HiveBroadcaster.KeyRole.POSTING, Utils.apiUrl(ctx) + "activateMultiGadgetKeychain/" + enc(user)
+                HiveBroadcaster.KeyRole.POSTING, Utils.apiUrl(ctx) + "activateGadgetKeychain/" + enc(user)
                         + "/" + enc(gadgetId) + "/{tx}/HIVE/" + enc(b), cb);
     }
 
@@ -172,7 +173,21 @@ public final class GadgetApi {
     }
 
     /**
-     * Settles every remembered action for this user (e.g. a HIVE payment whose confirm never
+     * Pays the AI workout fee. ok means paid: also when the server had already taken this
+     * payment on an earlier attempt whose reply was lost. Check the AFIT balance first.
+     */
+    public static void payWorkout(Context ctx, String user, Callback cb) {
+        start(ctx, ACT_WORKOUT, user, WORKOUT_ID, GadgetOps.generateWorkout(user), HiveBroadcaster.KeyRole.POSTING,
+                Utils.apiUrl(ctx) + "generateWorkoutKeychain/" + enc(user) + "/{tx}/HIVE", cb);
+    }
+
+    /** A workout fee is signed but not confirmed: payWorkout settles it rather than paying again. */
+    public static boolean hasPendingWorkout(Context ctx, String user) {
+        return prefs(ctx.getApplicationContext()).contains(ACT_WORKOUT + "|" + user + "|" + WORKOUT_ID);
+    }
+
+    /**
+     * Settles every remembered gadget action for this user (e.g. a HIVE payment whose confirm never
      * got through because the app was closed). cb runs on the main thread once per action
      * that ended: ok when it went through, else with a message worth showing (may be null).
      */
@@ -181,7 +196,8 @@ public final class GadgetApi {
         for (Map.Entry<String, ?> e : prefs(app).getAll().entrySet()) {
             final String key = e.getKey();
             final String[] parts = key.split("\\|", 3);
-            if (parts.length != 3 || !parts[1].equals(user)) continue;
+            // The workout fee is settled from the wizard, which then generates the workout.
+            if (parts.length != 3 || !parts[1].equals(user) || parts[0].equals(ACT_WORKOUT)) continue;
             final String lock = user + "|" + parts[2];
             if (!IN_FLIGHT.add(lock)) continue;
             EXECUTOR.execute(() -> {
@@ -296,6 +312,7 @@ public final class GadgetApi {
      */
     private static String confirmAndSettle(Context ctx, String key, Pending p, boolean resumed) {
         final boolean paidOnChain = isHiveBuy(key);
+        final boolean workout = key.startsWith(ACT_WORKOUT + "|");
         String url = p.urlTemplate.replace("{tx}", enc(p.signed.txId))
                 // The routes read the chain from ?bchain= while the verifier uses the path
                 // one: send both, identical.
@@ -306,7 +323,11 @@ public final class GadgetApi {
         // timeout page). Safe: the server refuses to process the same transaction twice.
         for (int attempt = 0; attempt < 2 && reply == null; attempt++) {
             retried = attempt > 0;
-            Request req = new Request.Builder().url(url).get().build();
+            // The session token: the workout route requires it, the gadget routes ignore it.
+            Request req = new Request.Builder().url(url).get()
+                    .header(ctx.getString(R.string.validation_header),
+                            ctx.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken)
+                    .build();
             try (Response resp = CONFIRM_HTTP.newCall(req).execute()) {
                 if (resp.body() != null) reply = new JSONObject(resp.body().string());
             } catch (Exception ignored) {
@@ -342,6 +363,8 @@ public final class GadgetApi {
             // The server has already used this transaction (most likely an earlier attempt of
             // ours went through). It won't process it again, so stop retrying it.
             forget(ctx, key);
+            // For the workout fee that means it was paid: let the wizard generate the workout.
+            if (workout) return null;
             return ctx.getString(R.string.gadget_already_processed, p.signed.txId);
         }
         // AFIT is only charged when the confirm succeeds; none of these charged anything.
@@ -350,7 +373,8 @@ public final class GadgetApi {
             case GATE: return gateMessage(ctx, reply);
             case INSUFFICIENT_AFIT: return ctx.getString(R.string.gadget_buy_insufficient_afit);
             case BUSY: return ctx.getString(R.string.gadget_buy_busy);
-            case UNAVAILABLE: return ctx.getString(R.string.gadget_buy_unavailable);
+            case UNAVAILABLE: return ctx.getString(workout ? R.string.workout_fee_unavailable
+                    : R.string.gadget_buy_unavailable);
             case SESSION: return ctx.getString(R.string.gadget_session_expired);
             default: return ctx.getString(R.string.error_performing_operation);
         }

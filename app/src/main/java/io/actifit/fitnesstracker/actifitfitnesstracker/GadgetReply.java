@@ -32,7 +32,7 @@ public final class GadgetReply {
     private static final Pattern BUSY = Pattern.compile("AFIT transaction for this account is being processed",
             Pattern.CASE_INSENSITIVE);
     private static final Pattern UNAVAILABLE = Pattern.compile(
-            "^(Product not found|Product is not an in-game gadget|Product cannot be bought|Product price is not valid)",
+            "^(Product not found|Product is not an in-game gadget|Product cannot be bought|Product price is not valid|Workout generation is temporarily unavailable)",
             Pattern.CASE_INSENSITIVE);
 
     /**

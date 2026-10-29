@@ -951,7 +951,9 @@
     <string name="gadget_hive_confirm_title">Buy with HIVE</string>
     <string name="gadget_hive_confirm_msg">Pay %1$s to buy %2$s? This is a transfer signed with your active key.</string>
     <string name="gadget_hive_confirm_pay">Pay</string>
-    <string name="gadget_buy_insufficient_afit">You don\'t have enough AFIT for this gadget. You were not charged.</string>
+    <string name="gadget_buy_insufficient_afit">You don\'t have enough AFIT for this. You were not charged.</string>
+    <string name="afit_send_unavailable">Sending AFIT from the app is temporarily unavailable while we upgrade its security.</string>
+    <string name="workout_fee_unavailable">Workout generation is temporarily unavailable. You were not charged.</string>
     <string name="gadget_buy_busy">Another AFIT action is in progress. Wait a moment and try again; you were not charged.</string>
     <string name="gadget_buy_unavailable">This gadget can\'t be bought right now. You were not charged.</string>
     <string name="gadget_session_expired">Your session has expired. Log out and log in again, then retry.</string>

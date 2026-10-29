@@ -27,6 +27,11 @@ public final class GadgetOps {
                 "{\"transaction\": \"deactivate-gadget\" , \"gadget\": \"" + gadgetId + "\"}");
     }
 
+    /** The AI workout fee (the backend charges the AFIT once it finds this on chain). */
+    public static HiveTx.Op generateWorkout(String user) {
+        return HiveTx.CustomJson.posting(user, "actifit", "{\"transaction\": \"generate-workout-wizard\"}");
+    }
+
     /** amount: e.g. "12.346 HIVE" (see HiveTx.formatAmount). */
     public static HiveTx.Op buyWithHive(String user, String market, String gadgetId, String amount) {
         return new HiveTx.Transfer(user, market, amount, "buy-gadget:" + gadgetId);
