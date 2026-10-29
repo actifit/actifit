@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 class NetworkClient {
     private static final  OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS) // a full workout plan can take ~45s+
             .build();
     public static OkHttpClient getInstance(){
         return okHttpClient;
@@ -26,12 +26,16 @@ public class AiService {
 
 
     private static final String API_KEY = BuildConfig.GEMINI_API_KEY;
-    //private static final String API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
+    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"; // gemini-flash-latest hung past 90s in testing (2026-10-29)
     //private final OkHttpClient client = new OkHttpClient();
     private final OkHttpClient client = NetworkClient.getInstance(); // use singleton client
 
     private final Gson gson = new GsonBuilder().create();
+
+    /** Every Gemini call must carry the API key; without it Google answers 403 "unregistered callers". */
+    private static Request geminiRequest(RequestBody body) {
+        return new Request.Builder().url(API_URL).addHeader("x-goog-api-key", API_KEY).post(body).build();
+    }
 
 
     public interface ResponseCallback {
@@ -42,10 +46,7 @@ public class AiService {
     public void generateWorkoutPlan(WorkoutRequest workoutRequest, final ResponseCallback callback) {
         RequestBody requestBody = createRequestBody(workoutRequest);
 
-        Request request = new Request.Builder()
-                .url(API_URL)
-                .post(requestBody)
-                .build();
+        Request request = geminiRequest(requestBody);
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -305,7 +306,7 @@ public class AiService {
         requestBodyMap.put("contents", contents);
         String requestJson = gson.toJson(requestBodyMap);
         RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
-        Request request = new Request.Builder().url(API_URL).post(requestBody).build();
+        Request request = geminiRequest(requestBody);
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -338,10 +339,7 @@ public class AiService {
         requestBodyMap.put("contents", contents);
         String requestJson = gson.toJson(requestBodyMap);
         RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
-        Request request = new Request.Builder()
-                .url(API_URL)
-                .post(requestBody)
-                .build();
+        Request request = geminiRequest(requestBody);
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -413,11 +411,7 @@ public class AiService {
         requestBodyMap.put("contents", contents);
         String requestJson = gson.toJson(requestBodyMap);
         RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
-        Request request = new Request.Builder()
-                .url(API_URL)
-                .addHeader("x-goog-api-key", API_KEY)
-                .post(requestBody)
-                .build();
+        Request request = geminiRequest(requestBody);
 
         client.newCall(request).enqueue(new Callback() {
             @Override public void onFailure(Call call, IOException e) {
@@ -471,11 +465,7 @@ public class AiService {
         requestBodyMap.put("contents", contents);
         String requestJson = gson.toJson(requestBodyMap);
         RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
-        Request request = new Request.Builder()
-                .url(API_URL)
-                .addHeader("x-goog-api-key", API_KEY)
-                .post(requestBody)
-                .build();
+        Request request = geminiRequest(requestBody);
         Call call = client.newCall(request);
         currentCall[0] = call;
         call.enqueue(new Callback() {
