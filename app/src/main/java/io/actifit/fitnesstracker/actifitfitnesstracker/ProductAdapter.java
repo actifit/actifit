@@ -129,113 +129,104 @@ public class ProductAdapter extends ArrayAdapter<SingleProductModel> {
 
             // boolean reqtMet = true;
 
+            // Rows are re-used on every redraw: always start from an empty list.
+            requirements.removeAllViews();
+
             if (postEntry.requirements != null && postEntry.requirements.length() > 0) {
 
-                // cleanup first
-                requirements.removeAllViews();
+                for (int j = 0; j < postEntry.requirements.length(); j++) {
+                    JSONObject reqEntry = postEntry.requirements.getJSONObject(j);
 
-                if (postEntry.requirements.length() < 1) {
-                    TextView reqLine = new TextView(getContext());
-                    reqLine.setText(Html.fromHtml(reqsText));
-                    // reqLine.setTextColor(colorChoice);
-                    reqLine.setPadding(0, 0, 0, 5);
+                    reqsText = "";
 
-                    requirements.addView(reqLine);
-                } else {
-                    for (int j = 0; j < postEntry.requirements.length(); j++) {
-                        JSONObject reqEntry = postEntry.requirements.getJSONObject(j);
+                    int colorChoice = colorSuccess;
 
-                        reqsText = "";
+                    // process requirement
+                    if (reqEntry.has("item")) {
+                        if (reqEntry.getBoolean("reqtMet")) {
+                            reqsText += checkMark;
+                        } else {
+                            reqsText += xMark;
+                            colorChoice = colorFail;
+                            // reqtMet = false;
+                        }
+                        // reqsText += getContext().getString(R.string.user_rank_reqt).replace("_VAL_",
+                        // postEntry.level+"");
+                        if (reqEntry.getString("item").equals("User Rank")) {
+                            /*
+                             * if (Double.parseDouble(MainActivity.userRank) >=
+                             * Integer.parseInt(reqEntry.getString("level"))) {
+                             * reqsText += checkMark;
+                             * } else {
+                             * reqsText += xMark;
+                             * colorChoice = colorFail;
+                             * reqtMet = false;
+                             * }
+                             */
+                            reqsText += getContext().getString(R.string.user_rank_reqt_short).replace("_VAL_",
+                                    reqEntry.getString("level")) + "<br/>";
+                        } else if (reqEntry.has("AFIT")) {
+                            /*
+                             * if (MainActivity.userFullBalance >=
+                             * Integer.parseInt(reqEntry.getString("count"))) {
+                             * reqsText += checkMark;
+                             * } else {
+                             * reqsText += xMark;
+                             * colorChoice = colorFail;
+                             * reqtMet = false;
+                             * }
+                             */
+                            reqsText += getContext().getString(R.string.user_afit_balance).replace("_VAL_",
+                                    reqEntry.getString("count")) + "<br/>";
+                        } else {
+                            // check if requirement is met
+                            /*
+                             * int consumed_count = 0;
+                             * int consumed_target = Integer.parseInt(reqEntry.getString("count"));
+                             * for (int k = 0; k < consumedProducts.length(); k++) {
+                             * // Retrieve each JSON object within the JSON array
+                             * JSONObject jsonObject = consumedProducts.getJSONObject(k);
+                             * //validate this is a matching consumed gadget
+                             * if (reqEntry.getString("item").equals(jsonObject.getString("gadget_name"))
+                             * && reqEntry.getString("level").equals(jsonObject.getString("gadget_level")))
+                             * {
+                             * consumed_count += 1;
+                             * }
+                             * }
+                             * if (consumed_count >= consumed_target) {
+                             * reqsText += checkMark;
+                             * } else {
+                             * reqsText += xMark;
+                             * colorChoice = colorFail;
+                             * reqtMet = false;
+                             * }
+                             */
 
-                        int colorChoice = colorSuccess;
-
-                        // process requirement
-                        if (reqEntry.has("item")) {
-                            if (reqEntry.getBoolean("reqtMet")) {
-                                reqsText += checkMark;
-                            } else {
-                                reqsText += xMark;
-                                colorChoice = colorFail;
-                                // reqtMet = false;
-                            }
-                            // reqsText += getContext().getString(R.string.user_rank_reqt).replace("_VAL_",
-                            // postEntry.level+"");
-                            if (reqEntry.getString("item").equals("User Rank")) {
-                                /*
-                                 * if (Double.parseDouble(MainActivity.userRank) >=
-                                 * Integer.parseInt(reqEntry.getString("level"))) {
-                                 * reqsText += checkMark;
-                                 * } else {
-                                 * reqsText += xMark;
-                                 * colorChoice = colorFail;
-                                 * reqtMet = false;
-                                 * }
-                                 */
-                                reqsText += getContext().getString(R.string.user_rank_reqt_short).replace("_VAL_",
-                                        reqEntry.getString("level")) + "<br/>";
-                            } else if (reqEntry.has("AFIT")) {
-                                /*
-                                 * if (MainActivity.userFullBalance >=
-                                 * Integer.parseInt(reqEntry.getString("count"))) {
-                                 * reqsText += checkMark;
-                                 * } else {
-                                 * reqsText += xMark;
-                                 * colorChoice = colorFail;
-                                 * reqtMet = false;
-                                 * }
-                                 */
-                                reqsText += getContext().getString(R.string.user_afit_balance).replace("_VAL_",
-                                        reqEntry.getString("count")) + "<br/>";
-                            } else {
-                                // check if requirement is met
-                                /*
-                                 * int consumed_count = 0;
-                                 * int consumed_target = Integer.parseInt(reqEntry.getString("count"));
-                                 * for (int k = 0; k < consumedProducts.length(); k++) {
-                                 * // Retrieve each JSON object within the JSON array
-                                 * JSONObject jsonObject = consumedProducts.getJSONObject(k);
-                                 * //validate this is a matching consumed gadget
-                                 * if (reqEntry.getString("item").equals(jsonObject.getString("gadget_name"))
-                                 * && reqEntry.getString("level").equals(jsonObject.getString("gadget_level")))
-                                 * {
-                                 * consumed_count += 1;
-                                 * }
-                                 * }
-                                 * if (consumed_count >= consumed_target) {
-                                 * reqsText += checkMark;
-                                 * } else {
-                                 * reqsText += xMark;
-                                 * colorChoice = colorFail;
-                                 * reqtMet = false;
-                                 * }
-                                 */
-
-                                reqsText += getContext().getString(R.string.at_Least_consumed_reqt)
-                                        .replace("_AMOUNT_", reqEntry.getString("count"))
-                                        .replace("_ITEM_",
-                                                reqEntry.getString("item") + " - L" + reqEntry.getString("level"))
-                                        + "<br/>";
-
-                            }
-                            if (!reqsText.equals("")) {
-                                TextView reqLine = new TextView(getContext());
-                                reqLine.setText(Html.fromHtml(reqsText));
-                                reqLine.setTextColor(colorChoice);
-                                reqLine.setPadding(0, 0, 0, 5);
-                                requirements.addView(reqLine);
-                            }
-                            // reqLine.setHeight(10);
-                            // reqLine.setWidth();
+                            reqsText += getContext().getString(R.string.at_Least_consumed_reqt)
+                                    .replace("_AMOUNT_", reqEntry.getString("count"))
+                                    .replace("_ITEM_",
+                                            reqEntry.getString("item") + " - L" + reqEntry.getString("level"))
+                                    + "<br/>";
 
                         }
+                        if (!reqsText.equals("")) {
+                            TextView reqLine = new TextView(getContext());
+                            reqLine.setText(Html.fromHtml(reqsText));
+                            reqLine.setTextColor(colorChoice);
+                            reqLine.setPadding(0, 0, 0, 5);
+                            requirements.addView(reqLine);
+                        }
+                        // reqLine.setHeight(10);
+                        // reqLine.setWidth();
+
                     }
                 }
-            } else {
+            }
+            // Entries without an "item" add no row; never leave the field blank.
+            if (requirements.getChildCount() == 0) {
                 TextView reqLine = new TextView(getContext());
-                reqLine.setText(Html.fromHtml(reqsText));
-                // reqLine.setTextColor(colorChoice);
+                reqLine.setText(getContext().getString(R.string.none));
                 reqLine.setPadding(0, 0, 0, 5);
-
                 requirements.addView(reqLine);
             }
 
