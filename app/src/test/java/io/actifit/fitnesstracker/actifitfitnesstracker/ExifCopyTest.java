@@ -40,7 +40,8 @@ public class ExifCopyTest {
         String[] identifying = {
                 ExifInterface.TAG_ARTIST, ExifInterface.TAG_CAMERA_OWNER_NAME, ExifInterface.TAG_IMAGE_DESCRIPTION,
                 ExifInterface.TAG_IMAGE_UNIQUE_ID, ExifInterface.TAG_RELATED_SOUND_FILE, ExifInterface.TAG_USER_COMMENT,
-                ExifInterface.TAG_BODY_SERIAL_NUMBER, ExifInterface.TAG_LENS_SERIAL_NUMBER, ExifInterface.TAG_COPYRIGHT};
+                ExifInterface.TAG_BODY_SERIAL_NUMBER, ExifInterface.TAG_LENS_SERIAL_NUMBER, ExifInterface.TAG_COPYRIGHT,
+                ExifInterface.TAG_OFFSET_TIME, ExifInterface.TAG_OFFSET_TIME_DIGITIZED, ExifInterface.TAG_OFFSET_TIME_ORIGINAL};
         for (String tag : identifying) assertFalse(tag, Arrays.asList(ExifCopy.PICTURE_TAGS).contains(tag));
     }
 }
