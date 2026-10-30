@@ -12,6 +12,8 @@ import java.io.IOException;
  * layout (thumbnail offset/length, strip offsets, sample format, raw-camera previews)
  * would point at bytes that do not exist in the new file; libexif then treats the
  * directory as corrupt, drops Orientation, and image proxies show the photo sideways.
+ * GPS tags are never copied: uploads are public, and a photo taken at home would publish
+ * the home location.
  * Pixel dimensions are written from the bitmap, since some callers downscale it; subject
  * area/location are not copied because their coordinates would no longer match.
  */
@@ -45,36 +47,6 @@ final class ExifCopy {
             ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION,
             ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION,
             ExifInterface.TAG_GAIN_CONTROL,
-            ExifInterface.TAG_GPS_ALTITUDE,
-            ExifInterface.TAG_GPS_ALTITUDE_REF,
-            ExifInterface.TAG_GPS_AREA_INFORMATION,
-            ExifInterface.TAG_GPS_DATESTAMP,
-            ExifInterface.TAG_GPS_DEST_BEARING,
-            ExifInterface.TAG_GPS_DEST_BEARING_REF,
-            ExifInterface.TAG_GPS_DEST_DISTANCE,
-            ExifInterface.TAG_GPS_DEST_DISTANCE_REF,
-            ExifInterface.TAG_GPS_DEST_LATITUDE,
-            ExifInterface.TAG_GPS_DEST_LATITUDE_REF,
-            ExifInterface.TAG_GPS_DEST_LONGITUDE,
-            ExifInterface.TAG_GPS_DEST_LONGITUDE_REF,
-            ExifInterface.TAG_GPS_DIFFERENTIAL,
-            ExifInterface.TAG_GPS_DOP,
-            ExifInterface.TAG_GPS_IMG_DIRECTION,
-            ExifInterface.TAG_GPS_IMG_DIRECTION_REF,
-            ExifInterface.TAG_GPS_LATITUDE,
-            ExifInterface.TAG_GPS_LATITUDE_REF,
-            ExifInterface.TAG_GPS_LONGITUDE,
-            ExifInterface.TAG_GPS_LONGITUDE_REF,
-            ExifInterface.TAG_GPS_MEASURE_MODE,
-            ExifInterface.TAG_GPS_PROCESSING_METHOD,
-            ExifInterface.TAG_GPS_SATELLITES,
-            ExifInterface.TAG_GPS_SPEED,
-            ExifInterface.TAG_GPS_SPEED_REF,
-            ExifInterface.TAG_GPS_STATUS,
-            ExifInterface.TAG_GPS_TIMESTAMP,
-            ExifInterface.TAG_GPS_TRACK,
-            ExifInterface.TAG_GPS_TRACK_REF,
-            ExifInterface.TAG_GPS_VERSION_ID,
             ExifInterface.TAG_IMAGE_DESCRIPTION,
             ExifInterface.TAG_IMAGE_UNIQUE_ID,
             ExifInterface.TAG_LENS_MAKE,

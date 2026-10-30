@@ -29,4 +29,8 @@ public class ExifCopyTest {
     public void orientationIsStillCopied() {
         assertTrue(Arrays.asList(ExifCopy.PICTURE_TAGS).contains(ExifInterface.TAG_ORIENTATION));
     }
+    @Test
+    public void locationIsNeverCopied() {
+        for (String copied : ExifCopy.PICTURE_TAGS) assertFalse(copied, copied.startsWith("GPS"));
+    }
 }
