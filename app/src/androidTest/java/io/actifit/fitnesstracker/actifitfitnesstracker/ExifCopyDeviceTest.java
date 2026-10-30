@@ -58,6 +58,7 @@ public class ExifCopyDeviceTest {
     @Test
     public void copyingTheCamerasThumbnailPointerIsWhatBrokeUploads() throws IOException {
         // the old tag list copied these two; this proves the check above catches it
+        // (relies on AndroidX ExifInterface 1.4.1 accepting these tags; delete it if a newer version refuses them)
         ExifInterface src = cameraExif();
         File dst = copyOfFixture("reencoded_plain.jpg");
         ExifInterface out = new ExifInterface(dst.getAbsolutePath());

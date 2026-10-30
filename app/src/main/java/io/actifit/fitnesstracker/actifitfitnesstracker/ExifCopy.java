@@ -12,7 +12,8 @@ import java.io.IOException;
  * layout (thumbnail offset/length, strip offsets, sample format, raw-camera previews)
  * would point at bytes that do not exist in the new file; libexif then treats the
  * directory as corrupt, drops Orientation, and image proxies show the photo sideways.
- * Pixel dimensions are written from the bitmap, since some callers downscale it.
+ * Pixel dimensions are written from the bitmap, since some callers downscale it; subject
+ * area/location are not copied because their coordinates would no longer match.
  */
 final class ExifCopy {
 
@@ -105,10 +106,8 @@ final class ExifCopy {
             ExifInterface.TAG_SUBSEC_TIME,
             ExifInterface.TAG_SUBSEC_TIME_DIGITIZED,
             ExifInterface.TAG_SUBSEC_TIME_ORIGINAL,
-            ExifInterface.TAG_SUBJECT_AREA,
             ExifInterface.TAG_SUBJECT_DISTANCE,
             ExifInterface.TAG_SUBJECT_DISTANCE_RANGE,
-            ExifInterface.TAG_SUBJECT_LOCATION,
             ExifInterface.TAG_TRANSFER_FUNCTION,
             ExifInterface.TAG_USER_COMMENT,
             ExifInterface.TAG_WHITE_BALANCE,

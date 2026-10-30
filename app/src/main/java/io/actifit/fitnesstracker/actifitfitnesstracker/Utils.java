@@ -226,7 +226,7 @@ public class  Utils {
                 ExifCopy.write(oldExif, dstFile, bitmap.getWidth(), bitmap.getHeight());
                 Log.d(TAG, "Successfully copied and saved EXIF attributes to destination file.");
 
-            } catch (IOException e) {
+            } catch (Exception e) { // odd camera values can throw unchecked; upload without EXIF
                 Log.e(TAG, "Failed to copy or save EXIF data to destination file: " + dstFile.getAbsolutePath(), e);
                 // Log the error but allow the upload to proceed without EXIF if saving fails
             }
@@ -315,13 +315,8 @@ public class  Utils {
 
             // Prepare the file to be uploaded - THIS NEEDS TO BE ON A BACKGROUND THREAD
             // Read the created temporary file
-            String mimeType = ctx.getContentResolver().getType(fileUri);
-            if (mimeType == null) {
-                // Fallback if getContentResolver().getType() returns null
-                mimeType = "image/*"; // Or a more specific default like "image/jpeg"
-                Log.w(TAG, "Could not determine MIME type for URI, using default: " + mimeType);
-            }
-            RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
+            // createFile always re-encodes to JPEG, whatever the source was (HEIC, PNG...)
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
             MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile); // "image" should match server's expected field name
             String token = ctx.getString(R.string.media_upload_key); // Replace with your token
 
