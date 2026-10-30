@@ -15,7 +15,7 @@ import java.io.IOException;
  * GPS tags are never copied: uploads are public, and a photo taken at home would publish
  * the home location.
  * Free-text and identifying fields (artist, owner, description, comment, unique ID,
- * sound file name) are not copied either.
+ * sound file name) are not copied either, nor the timezone offset (it hints at the region).
  * Pixel dimensions are written from the bitmap, since some callers downscale it; subject
  * area/location are not copied because their coordinates would no longer match.
  */
@@ -56,9 +56,6 @@ final class ExifCopy {
             ExifInterface.TAG_METERING_MODE,
             ExifInterface.TAG_MODEL,
             ExifInterface.TAG_OECF,
-            ExifInterface.TAG_OFFSET_TIME,
-            ExifInterface.TAG_OFFSET_TIME_DIGITIZED,
-            ExifInterface.TAG_OFFSET_TIME_ORIGINAL,
             ExifInterface.TAG_ORIENTATION,
             ExifInterface.TAG_PRIMARY_CHROMATICITIES,
             ExifInterface.TAG_REFERENCE_BLACK_WHITE,
