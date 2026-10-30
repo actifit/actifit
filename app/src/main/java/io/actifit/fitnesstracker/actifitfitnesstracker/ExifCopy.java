@@ -14,6 +14,8 @@ import java.io.IOException;
  * directory as corrupt, drops Orientation, and image proxies show the photo sideways.
  * GPS tags are never copied: uploads are public, and a photo taken at home would publish
  * the home location.
+ * Free-text and identifying fields (artist, owner, description, comment, unique ID,
+ * sound file name) are not copied either.
  * Pixel dimensions are written from the bitmap, since some callers downscale it; subject
  * area/location are not copied because their coordinates would no longer match.
  */
@@ -23,9 +25,7 @@ final class ExifCopy {
 
     static final String[] PICTURE_TAGS = {
             ExifInterface.TAG_APERTURE_VALUE,
-            ExifInterface.TAG_ARTIST,
             ExifInterface.TAG_BRIGHTNESS_VALUE,
-            ExifInterface.TAG_CAMERA_OWNER_NAME,
             ExifInterface.TAG_COLOR_SPACE,
             ExifInterface.TAG_COMPONENTS_CONFIGURATION,
             ExifInterface.TAG_CONTRAST,
@@ -47,8 +47,6 @@ final class ExifCopy {
             ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION,
             ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION,
             ExifInterface.TAG_GAIN_CONTROL,
-            ExifInterface.TAG_IMAGE_DESCRIPTION,
-            ExifInterface.TAG_IMAGE_UNIQUE_ID,
             ExifInterface.TAG_LENS_MAKE,
             ExifInterface.TAG_LENS_MODEL,
             ExifInterface.TAG_LENS_SPECIFICATION,
@@ -64,7 +62,6 @@ final class ExifCopy {
             ExifInterface.TAG_ORIENTATION,
             ExifInterface.TAG_PRIMARY_CHROMATICITIES,
             ExifInterface.TAG_REFERENCE_BLACK_WHITE,
-            ExifInterface.TAG_RELATED_SOUND_FILE,
             ExifInterface.TAG_RESOLUTION_UNIT,
             ExifInterface.TAG_SATURATION,
             ExifInterface.TAG_SCENE_CAPTURE_TYPE,
@@ -81,7 +78,6 @@ final class ExifCopy {
             ExifInterface.TAG_SUBJECT_DISTANCE,
             ExifInterface.TAG_SUBJECT_DISTANCE_RANGE,
             ExifInterface.TAG_TRANSFER_FUNCTION,
-            ExifInterface.TAG_USER_COMMENT,
             ExifInterface.TAG_WHITE_BALANCE,
             ExifInterface.TAG_WHITE_POINT,
             ExifInterface.TAG_X_RESOLUTION,
