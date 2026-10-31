@@ -183,7 +183,7 @@ public class LoginActivity extends BaseActivity {
 
         SignupStateStore signupStateStore = new SignupStateStore(this);
         queryAPI(username, pkey, true);
-        if (signupStateStore.exists()) {
+        if (SignupActivity.ENABLED && signupStateStore.exists()) {
             showSignupRecoveryDialog();
         }
     }
@@ -408,11 +408,14 @@ public class LoginActivity extends BaseActivity {
         ppHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         TextView createAccountLink = findViewById(R.id.username_create_account_link);
-        // Switch to native signup activity
-        createAccountLink.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
-            startActivity(intent);
-        });
+        if (SignupActivity.ENABLED) {
+            createAccountLink.setOnClickListener(v -> {
+                Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                startActivity(intent);
+            });
+        } else {
+            createAccountLink.setMovementMethod(LinkMovementMethod.getInstance());
+        }
 
         // display content
         View loginContainer = findViewById(R.id.loginContainer);

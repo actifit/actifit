@@ -57,6 +57,9 @@ import java.util.Map;
 
 public class SignupActivity extends BaseActivity {
 
+    /** Off until the server signup route is back; "Create an account" opens the website instead. */
+    static final boolean ENABLED = false;
+
     private static final long CONFIRM_PAYMENT_DEADLINE_MS = 60_000L;
     private static final Object SIGNUP_REQUEST_TAG = SignupActivity.class.getName();
     private static final double SIGNUP_COST_USD = 2.0;
