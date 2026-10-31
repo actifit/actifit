@@ -41,8 +41,8 @@ android {
         applicationId "io.actifit.fitnesstracker.actifitfitnesstracker"
         minSdkVersion 28
         targetSdkVersion 36
-        versionCode 68
-        versionName "v0.14.3"
+        versionCode 69
+        versionName "v0.15.0"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled true
     }
