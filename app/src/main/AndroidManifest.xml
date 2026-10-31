@@ -59,6 +59,7 @@
         android:required="false" />
 
     <application
+    android:enableOnBackInvokedCallback="false"
     android:allowBackup="true"
     android:extractNativeLibs="true"
         android:icon="@mipmap/actifit_launcher"

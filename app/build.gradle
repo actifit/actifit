@@ -40,7 +40,7 @@ android {
     defaultConfig {
         applicationId "io.actifit.fitnesstracker.actifitfitnesstracker"
         minSdkVersion 28
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode 68
         versionName "v0.14.3"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
