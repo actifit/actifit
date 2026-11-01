@@ -29,7 +29,7 @@ public class DhfVotePromptManager {
     private static final String TAG = "DhfVotePrompt";
 
     // --- Config (hardcoded for now; move to Firebase Remote Config later) ---------------
-    public static final int     PROPOSAL_ID         = 360;
+    public static final int     PROPOSAL_ID         = 391; // Hdev team DHF proposal #3 (360 ended 2026-11-01)
     private static final boolean ENABLED            = true;
     private static final long   CHECK_TTL_MS        = 24L * 60 * 60 * 1000;     // re-check vote status daily
     private static final long   PROMPT_COOLDOWN_MS  = 3L * 24 * 60 * 60 * 1000; // min gap between prompts
@@ -40,9 +40,10 @@ public class DhfVotePromptManager {
 
     private static final String PREFS = "actifitSets";
     private static final String K_VOTED        = "dhfVoted_" + PROPOSAL_ID;
-    private static final String K_CHECKED_AT   = "dhfVotedCheckedAt";
+    // per proposal: a new proposal is a new ask, re-checked at once and with its own dismissal cap
+    private static final String K_CHECKED_AT   = "dhfVotedCheckedAt_" + PROPOSAL_ID;
     private static final String K_LAST_SHOWN   = "dhfPromptLastShownAt";
-    private static final String K_DISMISS_CNT  = "dhfPromptDismissCount";
+    private static final String K_DISMISS_CNT  = "dhfPromptDismissCount_" + PROPOSAL_ID;
     private static final String K_AFTERPOST_LAST_SHOWN = "dhfAfterPostLastShownAt";
     private static final String K_HAS_POSTED   = "dhfHasPosted";
     private static final String K_WEB_PENDING  = "dhfWebVotePending";
