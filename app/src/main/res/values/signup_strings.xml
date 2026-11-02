@@ -103,4 +103,14 @@
     <string name="signup_server_busy">The signup server is busy. Your details are saved: tap Check status again in a minute.</string>
     <string name="signup_underpaid_title">Payment too small</string>
     <string name="signup_underpaid_message">The payment received is less than %1$s %2$s. Payments are not added together: send the full amount with the same memo to create your account. Actifit support will refund the smaller payment.</string>
+    <string name="signup_memo_change_title">Already sent the payment?</string>
+    <string name="signup_memo_change_message">If you already sent %1$s %2$s with memo %3$s, do not change anything: tap Check Payment instead. Changing these details gives a new memo, and a payment with the old memo can only be refunded by Actifit support.</string>
+    <string name="signup_memo_change_confirm">Change anyway</string>
+    <string name="signup_memo_change_keep">Keep my details</string>
+    <string name="signup_failed_username_taken">This username was taken by someone else before your account could be created. If you sent a payment, do not send another one: Actifit support will refund it. You can start over with a different username.</string>
+    <string name="signup_start_over">Start over</string>
+    <string name="signup_start_over_title">Start a new signup?</string>
+    <string name="signup_start_over_message">This removes the saved signup and its master password from this device. Any payment you sent for it is still refunded by Actifit support.</string>
+    <string name="signup_older_version_title">Signup from an older version</string>
+    <string name="signup_older_version_message">This signup was started with an older version of Actifit (memo %1$s) and can no longer be completed. If you sent a payment with that memo, do not send it again: contact Actifit support for a refund. You can start a new signup.</string>
 </resources>

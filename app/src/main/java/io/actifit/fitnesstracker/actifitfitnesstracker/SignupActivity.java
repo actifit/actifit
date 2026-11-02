@@ -85,7 +85,8 @@ public class SignupActivity extends BaseActivity {
     private boolean isUsernameAvailable = false;
     private String availableUsername = "";
     // The memo and everything it was quoted for. The server recomputes the memo from the submitted
-    // fields, so a submit always sends exactly these values, never the live inputs.
+    // fields, so a submit always sends quotedDetails, never the live inputs.
+    private SignupDetails quotedDetails = null;
     private String generatedMemo = "";
     private String selectedCurrency = "HIVE";
     private String quotedPromo = "";
@@ -93,6 +94,8 @@ public class SignupActivity extends BaseActivity {
     private double requiredCryptoAmount = 0.0;
     private int afitReward = -1;
     private boolean quoteInFlight = false;
+    private long quoteGeneration = 0;
+    private JsonObjectRequest activeQuoteRequest;
     /** What the last submit said, so a deadline can say why the account is not there yet. */
     private SignupOutcome.Kind lastSubmitKind = null;
 
@@ -105,6 +108,8 @@ public class SignupActivity extends BaseActivity {
     private boolean reconciliationInFlight = false;
     private boolean accountCreationHandled = false;
     private boolean accountCreationFailed = false;
+    /** Why the server ended this signup, when it said so in this session. */
+    private String failureReason = "";
     private boolean activityDestroyed = false;
     private SignupStateStore signupStateStore;
     private SignupState recoveryState;
@@ -129,7 +134,10 @@ public class SignupActivity extends BaseActivity {
             return;
         }
         updateStepUI();
-        if (recoveryState != null
+        if (recoveryState != null && !recoveryState.accountCreated
+                && !SignupOutcome.isServerMemo(recoveryState.memo)) {
+            showOlderVersionSignupDialog(recoveryState.memo);
+        } else if (recoveryState != null
                 && SignupState.PHASE_ACCOUNT_CREATION_FAILED.equals(recoveryState.phase)) {
             showAccountCreationFailedDialog();
         } else if (recoveryState != null && recoveryState.requestSubmitted
@@ -170,6 +178,7 @@ public class SignupActivity extends BaseActivity {
             if (currency.equals(selectedCurrency)) return;
             // the memo covers the currency: switching needs a new quote, kept only if it succeeds
             requestQuote(currency, "", this::persistCurrentRecoveryStateIfPresent);
+            restorePersistedCurrencySelection();
         });
 
         btnNext = findViewById(R.id.btn_next);
@@ -619,6 +628,8 @@ public class SignupActivity extends BaseActivity {
             generatedMemo = state.memo;
             selectedCurrency = state.selectedCurrency;
             quotedPromo = state.promoCode;
+            quotedDetails = new SignupDetails(state.username, state.email, state.referrer,
+                    state.selectedCurrency, state.promoCode);
             signupAccount = state.signupAccount;
             requiredCryptoAmount = state.requiredCryptoAmount;
             afitReward = state.afitReward;
@@ -642,12 +653,15 @@ public class SignupActivity extends BaseActivity {
             isRestoringState = false;
         }
 
-        // A signup saved by an older version carries a memo the server never issued; quote again
-        // so the payment details shown are ones the server will match.
-        if (refreshIncompletePricing && !state.accountCreated && !state.requestSubmitted
-                && (!SignupOutcome.isServerMemo(state.memo)
-                || (state.promoCode.isEmpty() && state.requiredCryptoAmount <= 0))) {
-            requestQuote(state.selectedCurrency, state.promoCode, this::persistCurrentRecoveryStateIfPresent);
+        // (a memo from an older app version is handled by showOlderVersionSignupDialog)
+        if (refreshIncompletePricing && !state.accountCreated && state.promoCode.isEmpty()
+                && SignupOutcome.isServerMemo(state.memo)) {
+            if (state.requestSubmitted) {
+                // the price may have moved since: refresh the amount, keeping the memo
+                refreshLockedAmount(() -> { });
+            } else if (state.requiredCryptoAmount <= 0) {
+                requestQuote(state.selectedCurrency, "", this::persistCurrentRecoveryStateIfPresent);
+            }
         }
     }
 
@@ -656,16 +670,17 @@ public class SignupActivity extends BaseActivity {
         if (recoveryUnavailable) {
             return false;
         }
+        SignupDetails d = quotedDetails != null ? quotedDetails : liveDetails(selectedCurrency, quotedPromo);
         SignupState state = new SignupState(
-                usernameInput.getText().toString().trim().toLowerCase(Locale.US),
+                d.username,
                 generatedMasterPassword,
                 generatedMemo,
                 selectedCurrency,
                 requiredCryptoAmount,
                 afitReward,
                 quotedPromo,
-                emailInput.getText().toString().trim(),
-                referralInput.getText().toString().trim().toLowerCase(Locale.US),
+                d.email,
+                d.referrer,
                 phase,
                 !SignupState.PHASE_READY_FOR_PAYMENT.equals(phase),
                 requestSubmitted,
@@ -732,26 +747,27 @@ public class SignupActivity extends BaseActivity {
         verificationDesc.setText(Html.fromHtml(instructions));
     }
 
+    private SignupDetails liveDetails(String currency, String promo) {
+        return new SignupDetails(usernameInput.getText().toString(), emailInput.getText().toString(),
+                referralInput.getText().toString(), currency, promo);
+    }
+
     /**
      * The request both signup routes take. Only the four PUBLIC keys are sent; the master
      * password and private keys never leave the device.
      */
-    private JSONObject signupBody(String currency, String promo, @Nullable String memo)
-            throws JSONException {
-        String username = usernameInput.getText().toString().trim().toLowerCase(Locale.US);
+    private JSONObject signupBody(SignupDetails d, @Nullable String memo) throws JSONException {
         JSONObject keys = new JSONObject();
-        for (Map.Entry<String, String> k : SignupKeys.publicKeys(username, generatedMasterPassword).entrySet()) {
+        for (Map.Entry<String, String> k : SignupKeys.publicKeys(d.username, generatedMasterPassword).entrySet()) {
             keys.put(k.getKey(), k.getValue());
         }
         JSONObject body = new JSONObject();
-        body.put("new_account", username);
+        body.put("new_account", d.username);
         body.put("keys", keys);
-        body.put("sent_cur", currency);
-        String email = emailInput.getText().toString().trim();
-        if (!email.isEmpty()) body.put("email", email);
-        String referrer = referralInput.getText().toString().trim().toLowerCase(Locale.US);
-        if (!referrer.isEmpty()) body.put("referrer", referrer);
-        if (!promo.isEmpty()) body.put("promo_code", promo);
+        body.put("sent_cur", d.currency);
+        if (!d.email.isEmpty()) body.put("email", d.email);
+        if (!d.referrer.isEmpty()) body.put("referrer", d.referrer);
+        if (!d.promo.isEmpty()) body.put("promo_code", d.promo);
         if (memo != null) body.put("memo", memo);
         return body;
     }
@@ -795,36 +811,103 @@ public class SignupActivity extends BaseActivity {
 
     /**
      * Asks the server for the memo (and, for a paid signup, the amount and payment account) for
-     * the current details with this currency and promo code. Only a successful quote changes the
-     * stored memo; `onQuoted` then runs.
+     * the current details with this currency and promo code. Only a successful quote for details
+     * still on screen changes the stored memo; `onQuoted` then runs.
      */
     private void requestQuote(String currency, String promo, Runnable onQuoted) {
         if (quoteInFlight || activityDestroyed) return;
-        JSONObject body;
-        try {
-            body = signupBody(currency, promo, null);
-        } catch (JSONException e) {
-            showError(getString(R.string.signup_error_request));
+        SignupDetails details = liveDetails(currency, promo);
+        if (paidMemoShown() && !details.sameMemoAs(quotedDetails)) {
+            // the user may already have paid the memo on screen: changing details makes a new one
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.signup_memo_change_title)
+                    .setMessage(getString(R.string.signup_memo_change_message,
+                            String.format(Locale.US, "%.3f", requiredCryptoAmount), selectedCurrency, generatedMemo))
+                    .setPositiveButton(R.string.signup_memo_change_confirm, (dlg, w) -> sendQuote(details, onQuoted, false))
+                    .setNegativeButton(R.string.signup_memo_change_keep, (dlg, w) -> restoreQuotedInputs())
+                    .setOnCancelListener(dlg -> restoreQuotedInputs())
+                    .show();
             return;
         }
+        sendQuote(details, onQuoted, false);
+    }
+
+    /** A paid memo with its amount is on screen, so a payment may already be on its way. */
+    private boolean paidMemoShown() {
+        return quotedDetails != null && quotedPromo.isEmpty() && requiredCryptoAmount > 0
+                && SignupOutcome.isServerMemo(generatedMemo);
+    }
+
+    /** Puts the quoted details back in the inputs and returns to the payment step. */
+    private void restoreQuotedInputs() {
+        if (quotedDetails == null) return;
+        usernameInput.setText(quotedDetails.username);
+        availableUsername = quotedDetails.username;
+        isUsernameAvailable = true;
+        emailInput.setText(quotedDetails.email);
+        referralInput.setText(quotedDetails.referrer);
+        promoInput.setText(quotedDetails.promo);
+        restorePersistedCurrencySelection();
+        if (recoveryState != null) {
+            currentStep = 3;
+            updateStepUI();
+        }
+    }
+
+    /**
+     * Re-quotes the saved details of a submitted signup to refresh the amount (the price moves;
+     * the memo does not). Changes nothing unless the server returns the same memo. `after` always
+     * runs.
+     */
+    private void refreshLockedAmount(Runnable after) {
+        if (quotedDetails == null || quoteInFlight || activityDestroyed) {
+            after.run();
+            return;
+        }
+        sendQuote(quotedDetails, after, true);
+    }
+
+    private void sendQuote(SignupDetails details, Runnable onQuoted, boolean refreshOnly) {
+        if (quoteInFlight || activityDestroyed) return;
+        JSONObject body;
+        try {
+            body = signupBody(details, null);
+        } catch (JSONException e) {
+            if (refreshOnly) onQuoted.run(); else showError(getString(R.string.signup_error_request));
+            return;
+        }
+        final long generation = ++quoteGeneration;
         quoteInFlight = true;
         showProgress(getString(R.string.signup_preparing_payment));
-        postSignup(QUOTE_PATH, body, reply -> {
-            if (!canUpdateUi()) return;
+        activeQuoteRequest = postSignup(QUOTE_PATH, body, reply -> {
+            if (generation != quoteGeneration || !canUpdateUi()) return; // cancelled or replaced
             quoteInFlight = false;
+            activeQuoteRequest = null;
             hideProgress();
             SignupOutcome.Kind kind = SignupOutcome.ofQuote(reply == null ? null : reply.optString("reason", null));
-            if (kind == SignupOutcome.Kind.QUOTED && SignupOutcome.isServerMemo(reply.optString("memo"))) {
-                double amount = 0.0;
-                JSONObject amounts = reply.optJSONObject("amounts");
-                if (amounts != null) amount = Double.parseDouble(amounts.optString(currency, "0"));
-                if (promo.isEmpty() && !(amount > 0)) {
+            String memo = reply == null ? "" : reply.optString("memo");
+            double amount = kind == SignupOutcome.Kind.QUOTED ? quotedAmount(reply, details.currency) : 0.0;
+            if (refreshOnly) {
+                if (kind == SignupOutcome.Kind.QUOTED && memo.equals(generatedMemo) && amount > 0) {
+                    requiredCryptoAmount = amount;
+                    updatePaymentInstructions();
+                    persistCurrentRecoveryStateIfPresent();
+                }
+                onQuoted.run();
+                return;
+            }
+            if (kind == SignupOutcome.Kind.QUOTED && SignupOutcome.isServerMemo(memo)) {
+                if (!details.sameEntries(liveDetails(details.currency, details.promo))) {
+                    return; // the user changed the details meanwhile: this memo is for old ones
+                }
+                if (details.promo.isEmpty() && !(amount > 0)) {
                     onQuoteFailed(getString(R.string.signup_quote_failed));
                     return;
                 }
-                generatedMemo = reply.optString("memo");
-                selectedCurrency = currency;
-                quotedPromo = promo;
+                quotedDetails = details;
+                generatedMemo = memo;
+                selectedCurrency = details.currency;
+                quotedPromo = details.promo;
                 requiredCryptoAmount = amount;
                 afitReward = reply.optInt("afit_reward", 0);
                 signupAccount = reply.optString("signup_account", SignupState.DEFAULT_SIGNUP_ACCOUNT);
@@ -852,6 +935,17 @@ public class SignupActivity extends BaseActivity {
         });
     }
 
+    /** The quoted amount in this currency, or 0 when missing or malformed. */
+    private static double quotedAmount(JSONObject reply, String currency) {
+        JSONObject amounts = reply.optJSONObject("amounts");
+        if (amounts == null) return 0.0;
+        try {
+            return Double.parseDouble(amounts.optString(currency, "0"));
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
+
     private void onQuoteFailed(String message) {
         restorePersistedCurrencySelection();
         showError(message);
@@ -859,7 +953,7 @@ public class SignupActivity extends BaseActivity {
 
     private void startConfirmPaymentRequest() {
         if (confirmRequestInFlight || reconciliationInFlight || quoteInFlight) return;
-        if (!SignupOutcome.isServerMemo(generatedMemo)) {
+        if (!SignupOutcome.isServerMemo(generatedMemo) || quotedDetails == null) {
             showError(getString(R.string.signup_quote_failed));
             return;
         }
@@ -904,7 +998,7 @@ public class SignupActivity extends BaseActivity {
         nextSubmitAttempt = null;
         JSONObject body;
         try {
-            body = signupBody(selectedCurrency, quotedPromo, generatedMemo);
+            body = signupBody(quotedDetails, generatedMemo);
         } catch (JSONException e) {
             finishCurrentConfirmRequest(requestGeneration);
             showError(getString(R.string.signup_error_request));
@@ -937,7 +1031,8 @@ public class SignupActivity extends BaseActivity {
                     break;
                 case UNDERPAID:
                     finishCurrentConfirmRequest(requestGeneration);
-                    showUnderpaidDialog();
+                    // the price may have moved since the quote: show the current amount
+                    refreshLockedAmount(this::showUnderpaidDialog);
                     break;
                 case PROMO_INVALID:
                     finishCurrentConfirmRequest(requestGeneration);
@@ -945,7 +1040,7 @@ public class SignupActivity extends BaseActivity {
                     showError(getString(R.string.error_invalid_promo));
                     break;
                 case FAILED:
-                    handleAccountCreationFailed(requestGeneration);
+                    handleAccountCreationFailed(requestGeneration, reply.optString("reason", ""));
                     break;
                 case RATE_LIMITED:
                     finishCurrentConfirmRequest(requestGeneration);
@@ -1076,11 +1171,12 @@ public class SignupActivity extends BaseActivity {
         updateStepUI();
     }
 
-    private void handleAccountCreationFailed(long requestGeneration) {
+    private void handleAccountCreationFailed(long requestGeneration, String reason) {
         if (!isCurrentConfirmRequest(requestGeneration) || accountCreationHandled) {
             return;
         }
         finishCurrentConfirmRequest(requestGeneration);
+        failureReason = reason;
         if (accountCreationFailed) {
             // asked again after a final failure: same answer
             showAccountCreationFailedDialog();
@@ -1101,12 +1197,50 @@ public class SignupActivity extends BaseActivity {
         }
         new AlertDialog.Builder(this)
                 .setTitle(R.string.signup_account_creation_failed_title)
-                .setMessage(R.string.signup_account_creation_failed_message)
+                .setMessage("username_taken".equals(failureReason)
+                        ? R.string.signup_failed_username_taken : R.string.signup_account_creation_failed_message)
                 .setPositiveButton(R.string.btn_check_signup_status,
                         (dialog, which) -> reconcileAccountExistence())
                 .setNegativeButton(R.string.signup_leave_for_now,
                         (dialog, which) -> finish())
+                .setNeutralButton(R.string.signup_start_over, (dialog, which) -> confirmStartOver())
                 .show();
+    }
+
+    /** A signup saved by an older app version: its memo is not one the server can match. */
+    private void showOlderVersionSignupDialog(String oldMemo) {
+        if (!canUpdateUi()) return;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.signup_older_version_title)
+                .setMessage(getString(R.string.signup_older_version_message, oldMemo))
+                .setPositiveButton(R.string.signup_start_over, (dialog, which) -> startOver())
+                .setNegativeButton(R.string.signup_leave_for_now, (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+    }
+
+    private void confirmStartOver() {
+        if (!canUpdateUi()) return;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.signup_start_over_title)
+                .setMessage(R.string.signup_start_over_message)
+                .setPositiveButton(R.string.signup_start_over, (dialog, which) -> startOver())
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> showAccountCreationFailedDialog())
+                .show();
+    }
+
+    /** Forgets this signup on the device and opens a fresh wizard. */
+    private void startOver() {
+        try {
+            stopPaymentPolling();
+            signupStateStore.clear();
+            recoveryState = null;
+            generatedMasterPassword = "";
+            startActivity(new Intent(this, SignupActivity.class));
+            finish();
+        } catch (SignupStateStore.SignupStateStoreException e) {
+            showError(getString(R.string.signup_recovery_cleanup_error));
+        }
     }
 
     private void generateKeys() {
@@ -1222,6 +1356,14 @@ public class SignupActivity extends BaseActivity {
         confirmRequestInFlight = false;
         reconciliationInFlight = false;
         confirmRequestGeneration++;
+        if (quoteInFlight) {
+            // a late quote reply must not apply to details the user may change next
+            quoteGeneration++;
+            quoteInFlight = false;
+            if (activeQuoteRequest != null) activeQuoteRequest.cancel();
+            activeQuoteRequest = null;
+            restorePersistedCurrencySelection();
+        }
         if (currentStep == 3) {
             updateStepUI();
         }
