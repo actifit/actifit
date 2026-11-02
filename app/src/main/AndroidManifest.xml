@@ -4,10 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Permissions for Health Connect -->
+    <!-- Steps only: Play rejected v0.15.1 for distance/calories (minimum scope). The rings
+         estimate distance/kcal from steps instead. -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
-    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <!--<uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
-    <!--<uses-permission android:name="android.permission.health.READ_HEART_RATE" />-->
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />-->
 
     <!--
      <uses-permission android:name="android.permission.health.WRITE_STEPS" />

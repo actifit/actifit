@@ -69,15 +69,10 @@ public class HealthConnectManager {
     public static final String PERM_CALORIES =
             HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(ActiveCaloriesBurnedRecord.class));
 
-    // what we ASK for on setup: steps + the optional metrics. The gate above still only needs
-    // steps, so granting a subset never breaks Health Connect mode.
-    public final Set<String> requestPermissions = Collections.unmodifiableSet(
-            Stream.of(
-                    HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(StepsRecord.class)),
-                    PERM_DISTANCE,
-                    PERM_CALORIES
-            ).collect(Collectors.toSet())
-    );
+    // what we ASK for on setup: steps only. Distance/calories are not in the manifest (Play
+    // minimum-scope policy), so readTodayMetrics sees them as not granted and the rings use
+    // step-based estimates.
+    public final Set<String> requestPermissions = permissions;
 
     public HealthConnectClient getHealthConnectClient() {
         return healthConnectClient;
