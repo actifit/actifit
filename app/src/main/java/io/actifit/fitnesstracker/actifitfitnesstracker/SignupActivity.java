@@ -146,7 +146,7 @@ public class SignupActivity extends BaseActivity {
                 olderVersionCheckPending = true;
                 reconcileAccountExistence();
             } else {
-                showOlderVersionSignupDialog(recoveryState.memo);
+                showOlderVersionSignupDialog(recoveryState.memo, false);
             }
         } else if (recoveryState != null
                 && SignupState.PHASE_ACCOUNT_CREATION_FAILED.equals(recoveryState.phase)) {
@@ -395,7 +395,8 @@ public class SignupActivity extends BaseActivity {
             // the memo may already have been paid from a wallet: don't drop it without asking
             new AlertDialog.Builder(this)
                     .setTitle(R.string.signup_memo_change_title)
-                    .setMessage(getString(R.string.signup_leave_paid_memo_message,
+                    .setMessage(getString(recoveryState != null
+                            ? R.string.signup_leave_paid_memo_message : R.string.signup_leave_unsaved_memo_message,
                             String.format(Locale.US, "%.3f", requiredCryptoAmount), selectedCurrency, generatedMemo))
                     .setPositiveButton(R.string.signup_leave_for_now, (dialog, which) -> finish())
                     .setNeutralButton(R.string.signup_discard_action, (dialog, which) -> cancelBeforeIrreversibleBoundary())
@@ -995,6 +996,10 @@ public class SignupActivity extends BaseActivity {
     }
 
     private void startConfirmPaymentRequest() {
+        if (refreshInFlight()) {
+            showError(getString(R.string.signup_refreshing_amount));
+            return;
+        }
         if (confirmRequestInFlight || reconciliationInFlight || quoteInFlight) return;
         if (!SignupOutcome.isServerMemo(generatedMemo) || quotedDetails == null) {
             showError(getString(R.string.signup_quote_failed));
@@ -1184,7 +1189,7 @@ public class SignupActivity extends BaseActivity {
                     if (accountExists) {
                         completeAccountCreation();
                     } else if (olderVersion) {
-                        showOlderVersionSignupDialog(generatedMemo);
+                        showOlderVersionSignupDialog(generatedMemo, false);
                     } else {
                         updateStepUI();
                         showError(getString(R.string.signup_account_not_visible_yet));
@@ -1203,7 +1208,7 @@ public class SignupActivity extends BaseActivity {
                         showError(getString(R.string.signup_status_check_unavailable));
                         if (olderVersionCheckPending) {
                             olderVersionCheckPending = false;
-                            showOlderVersionSignupDialog(generatedMemo);
+                            showOlderVersionSignupDialog(generatedMemo, true);
                         }
                     });
                     return null;
@@ -1231,7 +1236,8 @@ public class SignupActivity extends BaseActivity {
         finishCurrentConfirmRequest(requestGeneration);
         failureReason = reason == null ? "" : reason;
         if (accountCreationFailed) {
-            // asked again after a final failure: same answer
+            // asked again after a final failure: same answer (keep the reason it gave)
+            persistCurrentRecoveryStateIfPresent();
             showAccountCreationFailedDialog();
             return;
         }
@@ -1262,16 +1268,23 @@ public class SignupActivity extends BaseActivity {
     }
 
     /** A signup saved by an older app version: its memo is not one the server can match. */
-    private void showOlderVersionSignupDialog(String oldMemo) {
+    private void showOlderVersionSignupDialog(String oldMemo, boolean accountStatusUnknown) {
         if (!canUpdateUi()) return;
-        new AlertDialog.Builder(this)
+        AlertDialog.Builder b = new AlertDialog.Builder(this)
                 .setTitle(R.string.signup_older_version_title)
-                .setMessage(getString(R.string.signup_older_version_message, oldMemo))
-                .setPositiveButton(R.string.signup_start_over,
-                        (dialog, which) -> confirmStartOver(() -> showOlderVersionSignupDialog(oldMemo)))
+                .setMessage(getString(accountStatusUnknown
+                        ? R.string.signup_older_version_unknown_message : R.string.signup_older_version_message, oldMemo))
+                .setPositiveButton(R.string.signup_start_over, (dialog, which) ->
+                        confirmStartOver(() -> showOlderVersionSignupDialog(oldMemo, accountStatusUnknown)))
                 .setNegativeButton(R.string.signup_leave_for_now, (dialog, which) -> finish())
-                .setCancelable(false)
-                .show();
+                .setCancelable(false);
+        if (accountStatusUnknown && recoveryState != null && recoveryState.requestSubmitted) {
+            b.setNeutralButton(R.string.btn_check_signup_status, (dialog, which) -> {
+                olderVersionCheckPending = true;
+                reconcileAccountExistence();
+            });
+        }
+        b.show();
     }
 
     /** Start over wipes the only copy of the master password, so it asks first and offers a copy. */
@@ -1418,6 +1431,10 @@ public class SignupActivity extends BaseActivity {
         confirmRequestInFlight = false;
         reconciliationInFlight = false;
         confirmRequestGeneration++;
+        if (olderVersionCheckPending) {
+            olderVersionCheckPending = false;
+            showOlderVersionSignupDialog(generatedMemo, true);
+        }
         if (quoteInFlight && !refreshInFlight()) {
             // a late quote reply must not apply to details the user may change next
             quoteGeneration++;

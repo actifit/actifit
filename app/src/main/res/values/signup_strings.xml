@@ -114,4 +114,7 @@
     <string name="signup_older_version_title">Signup from an older version</string>
     <string name="signup_older_version_message">This signup was started with an older version of Actifit (memo %1$s) and can no longer be completed. If you sent a payment with that memo, do not send it again: contact Actifit support for a refund. You can start a new signup.</string>
     <string name="signup_leave_paid_memo_message">If you already sent %1$s %2$s with memo %3$s, choose Leave for now: your signup stays saved on this device so you can finish it. Discard only if you have not paid.</string>
+    <string name="signup_older_version_unknown_message">This signup was started with an older version of Actifit (memo %1$s). Its account could not be checked right now: tap Check status to try again. If the account was never created and you sent a payment with that memo, contact Actifit support for a refund.</string>
+    <string name="signup_refreshing_amount">Updating the payment amount. Please tap again in a moment.</string>
+    <string name="signup_leave_unsaved_memo_message">If you already sent %1$s %2$s with memo %3$s, this signup could not be saved on this device: note the memo and contact Actifit support before leaving.</string>
 </resources>
