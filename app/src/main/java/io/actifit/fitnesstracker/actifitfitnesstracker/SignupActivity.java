@@ -95,6 +95,7 @@ public class SignupActivity extends BaseActivity {
     private int afitReward = -1;
     private boolean quoteInFlight = false;
     private long quoteGeneration = 0;
+    private boolean refreshQuoteInFlight = false;
     private JsonObjectRequest activeQuoteRequest;
     /** What the last submit said, so a deadline can say why the account is not there yet. */
     private SignupOutcome.Kind lastSubmitKind = null;
@@ -110,6 +111,10 @@ public class SignupActivity extends BaseActivity {
     private boolean accountCreationFailed = false;
     /** Why the server ended this signup, when it said so in this session. */
     private String failureReason = "";
+    /** An older-version signup waiting for the chain check before its dialog is shown. */
+    private boolean olderVersionCheckPending = false;
+    private long lastAmountRefreshAt = 0;
+    private static final long AMOUNT_REFRESH_INTERVAL_MS = 5 * 60_000L;
     private boolean activityDestroyed = false;
     private SignupStateStore signupStateStore;
     private SignupState recoveryState;
@@ -136,7 +141,13 @@ public class SignupActivity extends BaseActivity {
         updateStepUI();
         if (recoveryState != null && !recoveryState.accountCreated
                 && !SignupOutcome.isServerMemo(recoveryState.memo)) {
-            showOlderVersionSignupDialog(recoveryState.memo);
+            if (recoveryState.requestSubmitted) {
+                // the old server may have created it: keep the keys if so
+                olderVersionCheckPending = true;
+                reconcileAccountExistence();
+            } else {
+                showOlderVersionSignupDialog(recoveryState.memo);
+            }
         } else if (recoveryState != null
                 && SignupState.PHASE_ACCOUNT_CREATION_FAILED.equals(recoveryState.phase)) {
             showAccountCreationFailedDialog();
@@ -177,7 +188,7 @@ public class SignupActivity extends BaseActivity {
             }
             if (currency.equals(selectedCurrency)) return;
             // the memo covers the currency: switching needs a new quote, kept only if it succeeds
-            requestQuote(currency, "", this::persistCurrentRecoveryStateIfPresent);
+            requestQuote(currency, quotedPromo, this::persistCurrentRecoveryStateIfPresent);
             restorePersistedCurrencySelection();
         });
 
@@ -380,6 +391,16 @@ public class SignupActivity extends BaseActivity {
         }
         if (recoveryState != null && recoveryState.irreversible) {
             showLeaveForNowDialog();
+        } else if (paidMemoShown()) {
+            // the memo may already have been paid from a wallet: don't drop it without asking
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.signup_memo_change_title)
+                    .setMessage(getString(R.string.signup_leave_paid_memo_message,
+                            String.format(Locale.US, "%.3f", requiredCryptoAmount), selectedCurrency, generatedMemo))
+                    .setPositiveButton(R.string.signup_leave_for_now, (dialog, which) -> finish())
+                    .setNeutralButton(R.string.signup_discard_action, (dialog, which) -> cancelBeforeIrreversibleBoundary())
+                    .setNegativeButton(R.string.signup_continue, null)
+                    .show();
         } else {
             cancelBeforeIrreversibleBoundary();
         }
@@ -628,6 +649,7 @@ public class SignupActivity extends BaseActivity {
             generatedMemo = state.memo;
             selectedCurrency = state.selectedCurrency;
             quotedPromo = state.promoCode;
+            failureReason = state.failureReason;
             quotedDetails = new SignupDetails(state.username, state.email, state.referrer,
                     state.selectedCurrency, state.promoCode);
             signupAccount = state.signupAccount;
@@ -656,10 +678,8 @@ public class SignupActivity extends BaseActivity {
         // (a memo from an older app version is handled by showOlderVersionSignupDialog)
         if (refreshIncompletePricing && !state.accountCreated && state.promoCode.isEmpty()
                 && SignupOutcome.isServerMemo(state.memo)) {
-            if (state.requestSubmitted) {
-                // the price may have moved since: refresh the amount, keeping the memo
-                refreshLockedAmount(() -> { });
-            } else if (state.requiredCryptoAmount <= 0) {
+            // a submitted signup refreshes its amount after the chain check (refreshLockedAmountIfDue)
+            if (!state.requestSubmitted && state.requiredCryptoAmount <= 0) {
                 requestQuote(state.selectedCurrency, "", this::persistCurrentRecoveryStateIfPresent);
             }
         }
@@ -685,7 +705,8 @@ public class SignupActivity extends BaseActivity {
                 !SignupState.PHASE_READY_FOR_PAYMENT.equals(phase),
                 requestSubmitted,
                 accountCreated,
-                signupAccount);
+                signupAccount,
+                failureReason);
         try {
             signupStateStore.save(state);
             recoveryState = state;
@@ -745,6 +766,11 @@ public class SignupActivity extends BaseActivity {
                     selectedCurrency);
         }
         verificationDesc.setText(Html.fromHtml(instructions));
+    }
+
+    /** The username the keys were made for. */
+    private String signupUsername() {
+        return quotedDetails != null ? quotedDetails.username : liveDetails("", "").username;
     }
 
     private SignupDetails liveDetails(String currency, String promo) {
@@ -867,6 +893,21 @@ public class SignupActivity extends BaseActivity {
         sendQuote(quotedDetails, after, true);
     }
 
+    private boolean refreshInFlight() {
+        return quoteInFlight && refreshQuoteInFlight;
+    }
+
+    /** Refreshes a submitted signup's amount at most every few minutes (after a chain check, on return). */
+    private void refreshLockedAmountIfDue() {
+        if (!isLocked() || accountCreationHandled || accountCreationFailed || !quotedPromo.isEmpty()
+                || !SignupOutcome.isServerMemo(generatedMemo)
+                || confirmRequestInFlight || reconciliationInFlight || quoteInFlight
+                || System.currentTimeMillis() - lastAmountRefreshAt < AMOUNT_REFRESH_INTERVAL_MS) {
+            return;
+        }
+        refreshLockedAmount(() -> { });
+    }
+
     private void sendQuote(SignupDetails details, Runnable onQuoted, boolean refreshOnly) {
         if (quoteInFlight || activityDestroyed) return;
         JSONObject body;
@@ -878,12 +919,14 @@ public class SignupActivity extends BaseActivity {
         }
         final long generation = ++quoteGeneration;
         quoteInFlight = true;
-        showProgress(getString(R.string.signup_preparing_payment));
+        refreshQuoteInFlight = refreshOnly;
+        if (refreshOnly) lastAmountRefreshAt = System.currentTimeMillis();
+        else showProgress(getString(R.string.signup_preparing_payment));
         activeQuoteRequest = postSignup(QUOTE_PATH, body, reply -> {
             if (generation != quoteGeneration || !canUpdateUi()) return; // cancelled or replaced
             quoteInFlight = false;
             activeQuoteRequest = null;
-            hideProgress();
+            if (!refreshOnly) hideProgress();
             SignupOutcome.Kind kind = SignupOutcome.ofQuote(reply == null ? null : reply.optString("reason", null));
             String memo = reply == null ? "" : reply.optString("memo");
             double amount = kind == SignupOutcome.Kind.QUOTED ? quotedAmount(reply, details.currency) : 0.0;
@@ -1115,7 +1158,7 @@ public class SignupActivity extends BaseActivity {
         reconciliationInFlight = true;
         showProgress(getString(R.string.signup_checking_account_status));
 
-        String username = usernameInput.getText().toString().trim().toLowerCase(Locale.US);
+        String username = signupUsername();
         JSONArray accounts = new JSONArray();
         accounts.put(username);
         JSONArray params = new JSONArray();
@@ -1136,11 +1179,17 @@ public class SignupActivity extends BaseActivity {
                             break;
                         }
                     }
+                    boolean olderVersion = olderVersionCheckPending;
+                    olderVersionCheckPending = false;
                     if (accountExists) {
                         completeAccountCreation();
+                    } else if (olderVersion) {
+                        showOlderVersionSignupDialog(generatedMemo);
                     } else {
                         updateStepUI();
                         showError(getString(R.string.signup_account_not_visible_yet));
+                        // the price may have moved since the quote: refresh the amount
+                        refreshLockedAmountIfDue();
                     }
                 }))
                 .exceptionally(error -> {
@@ -1152,13 +1201,17 @@ public class SignupActivity extends BaseActivity {
                         hideProgress();
                         updateStepUI();
                         showError(getString(R.string.signup_status_check_unavailable));
+                        if (olderVersionCheckPending) {
+                            olderVersionCheckPending = false;
+                            showOlderVersionSignupDialog(generatedMemo);
+                        }
                     });
                     return null;
                 });
     }
 
     private void completeAccountCreation() {
-        if (activityDestroyed || accountCreationHandled) {
+        if (!canUpdateUi() || accountCreationHandled) {
             return;
         }
         stopPaymentPolling();
@@ -1176,7 +1229,7 @@ public class SignupActivity extends BaseActivity {
             return;
         }
         finishCurrentConfirmRequest(requestGeneration);
-        failureReason = reason;
+        failureReason = reason == null ? "" : reason;
         if (accountCreationFailed) {
             // asked again after a final failure: same answer
             showAccountCreationFailedDialog();
@@ -1203,7 +1256,8 @@ public class SignupActivity extends BaseActivity {
                         (dialog, which) -> reconcileAccountExistence())
                 .setNegativeButton(R.string.signup_leave_for_now,
                         (dialog, which) -> finish())
-                .setNeutralButton(R.string.signup_start_over, (dialog, which) -> confirmStartOver())
+                .setNeutralButton(R.string.signup_start_over,
+                        (dialog, which) -> confirmStartOver(this::showAccountCreationFailedDialog))
                 .show();
     }
 
@@ -1213,19 +1267,26 @@ public class SignupActivity extends BaseActivity {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.signup_older_version_title)
                 .setMessage(getString(R.string.signup_older_version_message, oldMemo))
-                .setPositiveButton(R.string.signup_start_over, (dialog, which) -> startOver())
+                .setPositiveButton(R.string.signup_start_over,
+                        (dialog, which) -> confirmStartOver(() -> showOlderVersionSignupDialog(oldMemo)))
                 .setNegativeButton(R.string.signup_leave_for_now, (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
     }
 
-    private void confirmStartOver() {
+    /** Start over wipes the only copy of the master password, so it asks first and offers a copy. */
+    private void confirmStartOver(Runnable onCancel) {
         if (!canUpdateUi()) return;
         new AlertDialog.Builder(this)
                 .setTitle(R.string.signup_start_over_title)
                 .setMessage(R.string.signup_start_over_message)
                 .setPositiveButton(R.string.signup_start_over, (dialog, which) -> startOver())
-                .setNegativeButton(android.R.string.cancel, (dialog, which) -> showAccountCreationFailedDialog())
+                .setNeutralButton(R.string.copy_master_password, (dialog, which) -> {
+                    copyKeysToClipboard();
+                    confirmStartOver(onCancel);
+                })
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> onCancel.run())
+                .setCancelable(false)
                 .show();
     }
 
@@ -1233,6 +1294,7 @@ public class SignupActivity extends BaseActivity {
     private void startOver() {
         try {
             stopPaymentPolling();
+            reconciliationInFlight = false; // a late chain reply must not save the old signup back
             signupStateStore.clear();
             recoveryState = null;
             generatedMasterPassword = "";
@@ -1271,7 +1333,7 @@ public class SignupActivity extends BaseActivity {
 
     /** Populates the final "save your keys" screen: username, master password and posting key. */
     private void populateFinalKeys() {
-        String username = usernameInput.getText().toString().trim().toLowerCase(Locale.US);
+        String username = signupUsername();
         if (signupUsernameDisplay != null) {
             signupUsernameDisplay.setText(getString(R.string.signup_username_display, username));
         }
@@ -1356,7 +1418,7 @@ public class SignupActivity extends BaseActivity {
         confirmRequestInFlight = false;
         reconciliationInFlight = false;
         confirmRequestGeneration++;
-        if (quoteInFlight) {
+        if (quoteInFlight && !refreshInFlight()) {
             // a late quote reply must not apply to details the user may change next
             quoteGeneration++;
             quoteInFlight = false;
@@ -1377,6 +1439,12 @@ public class SignupActivity extends BaseActivity {
 
     private boolean canUpdateUi() {
         return !activityDestroyed && !isFinishing() && !isDestroyed();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshLockedAmountIfDue();
     }
 
     @Override

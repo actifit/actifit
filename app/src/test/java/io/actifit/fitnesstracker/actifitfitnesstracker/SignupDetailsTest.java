@@ -42,9 +42,10 @@ public class SignupDetailsTest {
     public void signupStateKeepsThePaymentAccount() throws Exception {
         SignupState s = new SignupState("newguy", "P5pw", "signup:0123456789abcdef01234567", "HBD",
                 2.0, 50, "", "a@b.co", "friend", SignupState.PHASE_REQUEST_SUBMITTED,
-                true, true, false, "actifit.pay");
+                true, true, false, "actifit.pay", "username_taken");
         SignupState back = SignupState.fromJson(new JSONObject(s.toJson().toString()));
         assertEquals("actifit.pay", back.signupAccount);
+        assertEquals("username_taken", back.failureReason);
         assertEquals("signup:0123456789abcdef01234567", back.memo);
         assertEquals("HBD", back.selectedCurrency);
         assertEquals("friend", back.referrer);
@@ -60,6 +61,7 @@ public class SignupDetailsTest {
                 .put("requestSubmitted", false).put("accountCreated", false);
         SignupState s = SignupState.fromJson(old);
         assertEquals(SignupState.DEFAULT_SIGNUP_ACCOUNT, s.signupAccount);
+        assertEquals("", s.failureReason);
         assertFalse(SignupOutcome.isServerMemo(s.memo));
     }
 }

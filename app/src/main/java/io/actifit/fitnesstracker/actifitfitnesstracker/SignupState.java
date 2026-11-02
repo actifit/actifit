@@ -24,13 +24,16 @@ final class SignupState {
     final boolean accountCreated;
     /** The account the payment goes to, as the signup quote named it. */
     final String signupAccount;
+    /** The server's reason when the signup ended without an account ("" otherwise). */
+    final String failureReason;
 
     static final String DEFAULT_SIGNUP_ACCOUNT = "actifit.signup";
 
     SignupState(String username, String masterPassword, String memo, String selectedCurrency,
             double requiredCryptoAmount, int afitReward, String promoCode, String email,
             String referrer, String phase, boolean irreversible, boolean requestSubmitted,
-            boolean accountCreated, String signupAccount) {
+            boolean accountCreated, String signupAccount, String failureReason) {
+        this.failureReason = failureReason == null ? "" : failureReason;
         this.signupAccount = signupAccount == null || signupAccount.isEmpty()
                 ? DEFAULT_SIGNUP_ACCOUNT : signupAccount;
         this.username = username;
@@ -64,6 +67,7 @@ final class SignupState {
         json.put("requestSubmitted", requestSubmitted);
         json.put("accountCreated", accountCreated);
         json.put("signupAccount", signupAccount);
+        json.put("failureReason", failureReason);
         return json;
     }
 
@@ -82,7 +86,8 @@ final class SignupState {
                 json.getBoolean("irreversible"),
                 json.getBoolean("requestSubmitted"),
                 json.getBoolean("accountCreated"),
-                json.optString("signupAccount", DEFAULT_SIGNUP_ACCOUNT));
+                json.optString("signupAccount", DEFAULT_SIGNUP_ACCOUNT),
+                json.optString("failureReason", ""));
         if (state.username.isEmpty() || state.masterPassword.isEmpty() || state.memo.isEmpty()
                 || !("HIVE".equals(state.selectedCurrency) || "HBD".equals(state.selectedCurrency))
                 || !(PHASE_READY_FOR_PAYMENT.equals(state.phase)

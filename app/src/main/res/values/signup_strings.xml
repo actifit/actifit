@@ -113,4 +113,5 @@
     <string name="signup_start_over_message">This removes the saved signup and its master password from this device. Any payment you sent for it is still refunded by Actifit support.</string>
     <string name="signup_older_version_title">Signup from an older version</string>
     <string name="signup_older_version_message">This signup was started with an older version of Actifit (memo %1$s) and can no longer be completed. If you sent a payment with that memo, do not send it again: contact Actifit support for a refund. You can start a new signup.</string>
+    <string name="signup_leave_paid_memo_message">If you already sent %1$s %2$s with memo %3$s, choose Leave for now: your signup stays saved on this device so you can finish it. Discard only if you have not paid.</string>
 </resources>
