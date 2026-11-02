@@ -1086,6 +1086,8 @@ public class SignupActivity extends BaseActivity {
                     finishCurrentConfirmRequest(requestGeneration);
                     resetToPaymentEntry();
                     showError(getString(R.string.error_invalid_promo));
+                    // the memo on screen was for that code: show the paid details again
+                    requestQuote(selectedCurrency, "", this::persistCurrentRecoveryStateIfPresent);
                     break;
                 case FAILED:
                     handleAccountCreationFailed(requestGeneration, reply.optString("reason", ""));
