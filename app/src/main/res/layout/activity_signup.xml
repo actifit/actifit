@@ -213,6 +213,107 @@
                         android:layout_marginTop="@dimen/spacing_sm"
                         android:textColor="@color/md_theme_textSecondary" />
 
+                    <!-- copy, don't retype: a typo in the account or memo loses the payment -->
+                    <LinearLayout
+                        android:id="@+id/payment_copy_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="72dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/signup_copy_amount"
+                                android:textColor="@color/md_theme_textSecondary" />
+
+                            <TextView
+                                android:id="@+id/payment_amount_value"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textIsSelectable="true"
+                                android:textStyle="bold"
+                                android:textColor="@color/md_theme_onSurface" />
+
+                            <ImageButton
+                                android:id="@+id/btn_copy_amount"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/signup_copy_desc"
+                                android:src="@drawable/ic_content_copy" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="72dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/signup_copy_account"
+                                android:textColor="@color/md_theme_textSecondary" />
+
+                            <TextView
+                                android:id="@+id/payment_account_value"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textIsSelectable="true"
+                                android:textStyle="bold"
+                                android:textColor="@color/md_theme_onSurface" />
+
+                            <ImageButton
+                                android:id="@+id/btn_copy_account"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/signup_copy_desc"
+                                android:src="@drawable/ic_content_copy" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="72dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/signup_copy_memo"
+                                android:textColor="@color/md_theme_textSecondary" />
+
+                            <TextView
+                                android:id="@+id/payment_memo_value"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textIsSelectable="true"
+                                android:textStyle="bold"
+                                android:fontFamily="monospace"
+                                android:textColor="@color/md_theme_onSurface" />
+
+                            <ImageButton
+                                android:id="@+id/btn_copy_memo"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/signup_copy_desc"
+                                android:src="@drawable/ic_content_copy" />
+                        </LinearLayout>
+                    </LinearLayout>
+
                     <com.google.android.material.button.MaterialButtonToggleGroup
                         android:id="@+id/currency_toggle"
                         android:layout_width="match_parent"

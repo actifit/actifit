@@ -112,6 +112,16 @@ final class SignupState {
         return PHASE_READY_FOR_PAYMENT.equals(phase)
                 && !irreversible
                 && !requestSubmitted
-                && !accountCreated;
+                && !accountCreated
+                && !mayHaveBeenPaid();
+    }
+
+    /**
+     * A payment memo and amount were shown, so the user may have paid from a wallet before the
+     * app submitted anything. Older versions always showed their own memo, and saved the typed
+     * promo and a 0 amount after a failed price fetch, so their saves always count as paid.
+     */
+    boolean mayHaveBeenPaid() {
+        return !SignupOutcome.isServerMemo(memo) || (promoCode.isEmpty() && requiredCryptoAmount > 0);
     }
 }

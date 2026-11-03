@@ -28,7 +28,7 @@
     <string name="view_tos">View ToS</string>
 
     <string name="verification_instructions">To create your account, please send &lt;b&gt;$%1$s USD&lt;/b&gt; worth of HIVE or HBD to: &lt;br/&gt;&lt;br/&gt;Account: &lt;b&gt;%2$s&lt;/b&gt;&lt;br/&gt;Memo: &lt;b&gt;%3$s&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Alternatively, if you have a &lt;b&gt;Promo Code&lt;/b&gt;, enter it below to skip the payment.</string>
-    <string name="signup_payment_instructions">To create your account, please send &lt;b&gt;%1$s %2$s&lt;/b&gt; to:&lt;br/&gt;&lt;br/&gt;Account: &lt;b&gt;%3$s&lt;/b&gt;&lt;br/&gt;Memo: &lt;b&gt;%4$s&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Alternatively, if you have a &lt;b&gt;Promo Code&lt;/b&gt;, enter it below to skip the payment.</string>
+    <string name="signup_payment_instructions">To create your account, send this payment from your Hive wallet. Tap the copy icon next to each value instead of typing it: a typo can lose the payment.&lt;br/&gt;&lt;br/&gt;Have a &lt;b&gt;Promo Code&lt;/b&gt;? Enter it below to skip the payment.</string>
     <string name="signup_payment_instructions_price_unavailable">The %1$s amount could not be loaded. Do not send a payment yet. Tap Check Payment to try again, or use a valid &lt;b&gt;Promo Code&lt;/b&gt;.</string>
     <string name="verification_desc">We\'ve sent a verification code to your email. Please enter it below to continue.</string>
     <string name="verification_code_hint">6-Digit Code</string>
@@ -49,7 +49,7 @@
     <string name="signup_recovery_save_error">Secure signup recovery could not be saved. Signup cannot continue safely.</string>
     <string name="signup_recovery_cleanup_error">Secure signup recovery could not be removed. Please try again.</string>
     <string name="signup_recovery_error_title">Signup recovery unavailable</string>
-    <string name="signup_recovery_corrupt_error">An existing signup could not be recovered securely. No new password will be generated. Please close the signup and contact Actifit support.</string>
+    <string name="signup_recovery_corrupt_error">An earlier signup saved on this device can\'t be read, so it can\'t be resumed. If you already paid for it, contact Actifit support before discarding it. Discard it to start a new signup.</string>
     <string name="signup_recovery_leave_title">Leave signup for now?</string>
     <string name="signup_recovery_leave_message">Your signup may still complete. Your credentials will remain encrypted on this device so you can safely resume later.</string>
     <string name="signup_leave_for_now">Leave for now</string>
@@ -96,6 +96,13 @@
     <string name="signup_promo_instructions">Your promo code covers the account. No payment is needed: tap &lt;b&gt;Claim Promo&lt;/b&gt; to create it.</string>
     <string name="signup_preparing_payment">Preparing your payment details…</string>
     <string name="signup_quote_failed">The signup price could not be loaded. Please try again.</string>
+    <string name="signup_copy_account">Account</string>
+    <string name="signup_copy_memo">Memo</string>
+    <string name="signup_copy_amount">Amount</string>
+    <string name="signup_copy_desc">Copy</string>
+    <string name="signup_copied">%1$s copied: paste it in your wallet</string>
+    <string name="signup_copied_amount">%1$s copied: send it as %2$s</string>
+    <string name="signup_paused_new">New signups are paused right now. Please try again later.</string>
     <string name="signup_paused">New signups are paused right now. Please try again later. If you already paid, your account will still be created: check again later.</string>
     <string name="signup_rate_limited">Too many attempts from your network. Please wait a while and try again.</string>
     <string name="signup_invalid_referrer">That referrer account does not exist. Check the name or leave it empty.</string>

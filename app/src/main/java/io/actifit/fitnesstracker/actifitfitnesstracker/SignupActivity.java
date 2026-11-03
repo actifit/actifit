@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -202,6 +203,15 @@ public class SignupActivity extends BaseActivity {
         postingKeyDisplay = findViewById(R.id.posting_key_display);
         postingKeyDisplay.setSaveEnabled(false);
         btnCopyPostingKey = findViewById(R.id.btn_copy_posting_key);
+        findViewById(R.id.btn_copy_account).setOnClickListener(v -> copyPaymentDetail(signupAccount,
+                getString(R.string.signup_copied, getString(R.string.signup_copy_account))));
+        findViewById(R.id.btn_copy_memo).setOnClickListener(v -> copyPaymentDetail(generatedMemo,
+                getString(R.string.signup_copied, getString(R.string.signup_copy_memo))));
+        findViewById(R.id.btn_copy_amount).setOnClickListener(v -> {
+            String amount = String.format(Locale.US, "%.3f", requiredCryptoAmount);
+            // the wallet's amount field has no currency: name it so HIVE and HBD aren't mixed up
+            copyPaymentDetail(amount, getString(R.string.signup_copied_amount, amount, selectedCurrency));
+        });
         tosText = findViewById(R.id.tos_text);
         signupUsernameDisplay = findViewById(R.id.signup_username_display);
         cbTos = findViewById(R.id.cb_tos);
@@ -635,14 +645,36 @@ public class SignupActivity extends BaseActivity {
             recoveryUnavailable = true;
             btnNext.setEnabled(false);
             btnPrev.setEnabled(false);
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.signup_recovery_error_title)
-                    .setMessage(R.string.signup_recovery_corrupt_error)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
-                    .setCancelable(false)
-                    .show();
+            showUnreadableSignupDialog(this, this::finish);
             return false;
         }
+    }
+
+    /**
+     * The saved signup can't be decrypted (e.g. its Keystore key is gone), so it can never be
+     * resumed. Let the user delete it, or the in-app signup stays blocked behind it for good.
+     * {@code onClose} (may be null) runs once the dialog is dismissed either way.
+     */
+    static void showUnreadableSignupDialog(Activity activity, Runnable onClose) {
+        new AlertDialog.Builder(activity)
+                .setTitle(R.string.signup_recovery_error_title)
+                .setMessage(R.string.signup_recovery_corrupt_error)
+                .setNegativeButton(R.string.signup_not_now, (d, w) -> {
+                    if (onClose != null) onClose.run();
+                })
+                .setPositiveButton(R.string.signup_discard_action, (d, w) -> {
+                    SignupStateStore store = new SignupStateStore(activity);
+                    try {
+                        store.clear();
+                    } catch (SignupStateStore.SignupStateStoreException ignored) {
+                        // the file may be gone even if its key could not be removed
+                    }
+                    Toast.makeText(activity, store.exists() ? R.string.signup_recovery_cleanup_error
+                            : R.string.signup_discarded, Toast.LENGTH_LONG).show();
+                    if (onClose != null) onClose.run();
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private void applyRecoveryState(SignupState state, boolean refreshIncompletePricing) {
@@ -759,12 +791,17 @@ public class SignupActivity extends BaseActivity {
 
     private void updatePaymentInstructions() {
         String instructions;
+        boolean payable = quotedPromo.isEmpty() && SignupOutcome.isServerMemo(generatedMemo)
+                && requiredCryptoAmount > 0;
+        findViewById(R.id.payment_copy_row).setVisibility(payable ? View.VISIBLE : View.GONE);
         if (!quotedPromo.isEmpty()) {
             instructions = getString(R.string.signup_promo_instructions);
-        } else if (SignupOutcome.isServerMemo(generatedMemo) && requiredCryptoAmount > 0) {
-            String amount = String.format(Locale.US, "%.3f", requiredCryptoAmount);
-            instructions = getString(R.string.signup_payment_instructions, amount,
-                    selectedCurrency, signupAccount, generatedMemo);
+        } else if (payable) {
+            instructions = getString(R.string.signup_payment_instructions);
+            ((TextView) findViewById(R.id.payment_amount_value)).setText(
+                    String.format(Locale.US, "%.3f", requiredCryptoAmount) + " " + selectedCurrency);
+            ((TextView) findViewById(R.id.payment_account_value)).setText(signupAccount);
+            ((TextView) findViewById(R.id.payment_memo_value)).setText(generatedMemo);
         } else {
             instructions = getString(R.string.signup_payment_instructions_price_unavailable,
                     selectedCurrency);
@@ -847,7 +884,9 @@ public class SignupActivity extends BaseActivity {
     private void requestQuote(String currency, String promo, Runnable onQuoted) {
         if (quoteInFlight || activityDestroyed) return;
         SignupDetails details = liveDetails(currency, promo);
-        if (paidMemoShown() && !details.sameMemoAs(quotedDetails)) {
+        // Switching to a promo code means no payment, so don't ask about one. If the old memo was
+        // paid anyway, the signup watcher reports that payment for a refund.
+        if (paidMemoShown() && details.promo.isEmpty() && !details.sameMemoAs(quotedDetails)) {
             // the user may already have paid the memo on screen: changing details makes a new one
             new AlertDialog.Builder(this)
                     .setTitle(R.string.signup_memo_change_title)
@@ -976,7 +1015,10 @@ public class SignupActivity extends BaseActivity {
                 case INVALID_REFERRER: onQuoteFailed(getString(R.string.signup_invalid_referrer)); break;
                 case INVALID_EMAIL: onQuoteFailed(getString(R.string.error_email_invalid)); break;
                 case RATE_LIMITED: onQuoteFailed(getString(R.string.signup_rate_limited)); break;
-                case DISABLED: onQuoteFailed(getString(R.string.signup_paused)); break;
+                case DISABLED:
+                    // with a paid memo on screen the user may already have paid: keep that line
+                    onQuoteFailed(getString(paidMemoShown() ? R.string.signup_paused : R.string.signup_paused_new));
+                    break;
                 default: onQuoteFailed(getString(R.string.signup_quote_failed)); break;
             }
         });
@@ -1088,6 +1130,8 @@ public class SignupActivity extends BaseActivity {
                 case PROMO_INVALID:
                     finishCurrentConfirmRequest(requestGeneration);
                     resetToPaymentEntry();
+                    // clear it, or the next tap quotes the same rejected code again
+                    promoInput.setText("");
                     showError(getString(R.string.error_invalid_promo));
                     // the memo on screen was for that code: show the paid details again
                     requestQuote(selectedCurrency, "", this::persistCurrentRecoveryStateIfPresent);
@@ -1347,6 +1391,15 @@ public class SignupActivity extends BaseActivity {
         }
         clipboard.setPrimaryClip(clip);
         Toast.makeText(this, R.string.copy_success, Toast.LENGTH_SHORT).show();
+    }
+
+    private void copyPaymentDetail(String value, String toast) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.signup_account_payment), value));
+        // Android 13+ shows its own "Copied" confirmation; a toast as well would double it
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            Toast.makeText(this, toast, Toast.LENGTH_LONG).show();
+        }
     }
 
     /** Populates the final "save your keys" screen: username, master password and posting key. */
