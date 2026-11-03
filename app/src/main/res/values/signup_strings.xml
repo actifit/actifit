@@ -96,6 +96,11 @@
     <string name="signup_promo_instructions">Your promo code covers the account. No payment is needed: tap &lt;b&gt;Claim Promo&lt;/b&gt; to create it.</string>
     <string name="signup_preparing_payment">Preparing your payment details…</string>
     <string name="signup_quote_failed">The signup price could not be loaded. Please try again.</string>
+    <string name="signup_copy_account">Account</string>
+    <string name="signup_copy_memo">Memo</string>
+    <string name="signup_copy_amount">Amount</string>
+    <string name="signup_copied">%1$s copied: paste it in your wallet</string>
+    <string name="signup_copied_amount">%1$s copied: send it as %2$s</string>
     <string name="signup_paused_new">New signups are paused right now. Please try again later.</string>
     <string name="signup_paused">New signups are paused right now. Please try again later. If you already paid, your account will still be created: check again later.</string>
     <string name="signup_rate_limited">Too many attempts from your network. Please wait a while and try again.</string>

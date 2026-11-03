@@ -213,6 +213,44 @@
                         android:layout_marginTop="@dimen/spacing_sm"
                         android:textColor="@color/md_theme_textSecondary" />
 
+                    <!-- copy, don't retype: a typo in the account or memo loses the payment -->
+                    <LinearLayout
+                        android:id="@+id/payment_copy_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <Button
+                            android:id="@+id/btn_copy_account"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:text="@string/signup_copy_account" />
+
+                        <Button
+                            android:id="@+id/btn_copy_memo"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:text="@string/signup_copy_memo" />
+
+                        <Button
+                            android:id="@+id/btn_copy_amount"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:text="@string/signup_copy_amount" />
+                    </LinearLayout>
+
                     <com.google.android.material.button.MaterialButtonToggleGroup
                         android:id="@+id/currency_toggle"
                         android:layout_width="match_parent"

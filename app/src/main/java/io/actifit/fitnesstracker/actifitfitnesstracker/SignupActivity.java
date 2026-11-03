@@ -203,6 +203,15 @@ public class SignupActivity extends BaseActivity {
         postingKeyDisplay = findViewById(R.id.posting_key_display);
         postingKeyDisplay.setSaveEnabled(false);
         btnCopyPostingKey = findViewById(R.id.btn_copy_posting_key);
+        findViewById(R.id.btn_copy_account).setOnClickListener(v -> copyPaymentDetail(signupAccount,
+                getString(R.string.signup_copied, getString(R.string.signup_copy_account))));
+        findViewById(R.id.btn_copy_memo).setOnClickListener(v -> copyPaymentDetail(generatedMemo,
+                getString(R.string.signup_copied, getString(R.string.signup_copy_memo))));
+        findViewById(R.id.btn_copy_amount).setOnClickListener(v -> {
+            String amount = String.format(Locale.US, "%.3f", requiredCryptoAmount);
+            // the wallet's amount field has no currency: name it so HIVE and HBD aren't mixed up
+            copyPaymentDetail(amount, getString(R.string.signup_copied_amount, amount, selectedCurrency));
+        });
         tosText = findViewById(R.id.tos_text);
         signupUsernameDisplay = findViewById(R.id.signup_username_display);
         cbTos = findViewById(R.id.cb_tos);
@@ -782,9 +791,12 @@ public class SignupActivity extends BaseActivity {
 
     private void updatePaymentInstructions() {
         String instructions;
+        boolean payable = quotedPromo.isEmpty() && SignupOutcome.isServerMemo(generatedMemo)
+                && requiredCryptoAmount > 0;
+        findViewById(R.id.payment_copy_row).setVisibility(payable ? View.VISIBLE : View.GONE);
         if (!quotedPromo.isEmpty()) {
             instructions = getString(R.string.signup_promo_instructions);
-        } else if (SignupOutcome.isServerMemo(generatedMemo) && requiredCryptoAmount > 0) {
+        } else if (payable) {
             String amount = String.format(Locale.US, "%.3f", requiredCryptoAmount);
             instructions = getString(R.string.signup_payment_instructions, amount,
                     selectedCurrency, signupAccount, generatedMemo);
@@ -870,7 +882,9 @@ public class SignupActivity extends BaseActivity {
     private void requestQuote(String currency, String promo, Runnable onQuoted) {
         if (quoteInFlight || activityDestroyed) return;
         SignupDetails details = liveDetails(currency, promo);
-        if (paidMemoShown() && !details.sameMemoAs(quotedDetails)) {
+        // Switching to a promo code means no payment, so don't ask about one. If the old memo was
+        // paid anyway, the signup watcher reports that payment for a refund.
+        if (paidMemoShown() && details.promo.isEmpty() && !details.sameMemoAs(quotedDetails)) {
             // the user may already have paid the memo on screen: changing details makes a new one
             new AlertDialog.Builder(this)
                     .setTitle(R.string.signup_memo_change_title)
@@ -1114,6 +1128,8 @@ public class SignupActivity extends BaseActivity {
                 case PROMO_INVALID:
                     finishCurrentConfirmRequest(requestGeneration);
                     resetToPaymentEntry();
+                    // clear it, or the next tap quotes the same rejected code again
+                    promoInput.setText("");
                     showError(getString(R.string.error_invalid_promo));
                     // the memo on screen was for that code: show the paid details again
                     requestQuote(selectedCurrency, "", this::persistCurrentRecoveryStateIfPresent);
@@ -1373,6 +1389,12 @@ public class SignupActivity extends BaseActivity {
         }
         clipboard.setPrimaryClip(clip);
         Toast.makeText(this, R.string.copy_success, Toast.LENGTH_SHORT).show();
+    }
+
+    private void copyPaymentDetail(String value, String toast) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.signup_account_payment), value));
+        Toast.makeText(this, toast, Toast.LENGTH_LONG).show();
     }
 
     /** Populates the final "save your keys" screen: username, master password and posting key. */
