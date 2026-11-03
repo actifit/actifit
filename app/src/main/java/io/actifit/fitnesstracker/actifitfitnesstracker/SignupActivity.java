@@ -797,9 +797,11 @@ public class SignupActivity extends BaseActivity {
         if (!quotedPromo.isEmpty()) {
             instructions = getString(R.string.signup_promo_instructions);
         } else if (payable) {
-            String amount = String.format(Locale.US, "%.3f", requiredCryptoAmount);
-            instructions = getString(R.string.signup_payment_instructions, amount,
-                    selectedCurrency, signupAccount, generatedMemo);
+            instructions = getString(R.string.signup_payment_instructions);
+            ((TextView) findViewById(R.id.payment_amount_value)).setText(
+                    String.format(Locale.US, "%.3f", requiredCryptoAmount) + " " + selectedCurrency);
+            ((TextView) findViewById(R.id.payment_account_value)).setText(signupAccount);
+            ((TextView) findViewById(R.id.payment_memo_value)).setText(generatedMemo);
         } else {
             instructions = getString(R.string.signup_payment_instructions_price_unavailable,
                     selectedCurrency);
@@ -1394,7 +1396,10 @@ public class SignupActivity extends BaseActivity {
     private void copyPaymentDetail(String value, String toast) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.signup_account_payment), value));
-        Toast.makeText(this, toast, Toast.LENGTH_LONG).show();
+        // Android 13+ shows its own "Copied" confirmation; a toast as well would double it
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            Toast.makeText(this, toast, Toast.LENGTH_LONG).show();
+        }
     }
 
     /** Populates the final "save your keys" screen: username, master password and posting key. */
