@@ -56,8 +56,11 @@ import java.util.Map;
 
 public class SignupActivity extends BaseActivity {
 
-    /** Off until the server signup route is back; "Create an account" opens the website instead. */
-    static final boolean ENABLED = false;
+    /**
+     * When false, "Create an account" opens the website instead. Server-side signup is switched
+     * separately (settings doc signup_with_keys); while that is off this screen says "paused".
+     */
+    static final boolean ENABLED = true;
 
     /** How long one "Check payment" tap keeps asking the server before handing back to the user. */
     private static final long CONFIRM_PAYMENT_DEADLINE_MS = 60_000L;
