@@ -238,11 +238,7 @@ public class LoginActivity extends BaseActivity {
                     })
                     .show();
         } catch (SignupStateStore.SignupStateStoreException e) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.signup_recovery_error_title)
-                    .setMessage(R.string.signup_recovery_corrupt_error)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show();
+            SignupActivity.showUnreadableSignupDialog(this, null);
         }
     }
 

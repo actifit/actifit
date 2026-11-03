@@ -64,4 +64,24 @@ public class SignupDetailsTest {
         assertEquals("", s.failureReason);
         assertFalse(SignupOutcome.isServerMemo(s.memo));
     }
+
+    private static SignupState readyState(String memo, double amount, String promo) {
+        return new SignupState("newguy", "P5pw", memo, "HIVE", amount, 40, promo, "", "",
+                SignupState.PHASE_READY_FOR_PAYMENT, false, false, false, "actifit.signup", "");
+    }
+
+    @Test
+    public void aShownPaymentMemoIsNeverDiscardedWithoutAWarning() {
+        // the user may have paid from a wallet before the app submitted anything
+        assertFalse(readyState("signup:0123456789abcdef01234567", 7.5, "").canSafelyDiscard());
+        assertFalse(readyState("signup:ABCDEFGHJK", 7.5, "").canSafelyDiscard()); // older version
+        // older versions saved the typed promo, and 0 after a failed price fetch
+        assertFalse(readyState("signup:ABCDEFGHJK", 0, "TYPO").canSafelyDiscard());
+    }
+
+    @Test
+    public void aPromoSignupNotYetSubmittedCanBeDiscarded() {
+        assertTrue(readyState("signup:0123456789abcdef01234567", 0, "CODE1").canSafelyDiscard());
+        assertTrue(readyState("signup:0123456789abcdef01234567", 7.5, "CODE1").canSafelyDiscard());
+    }
 }

@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -635,14 +636,36 @@ public class SignupActivity extends BaseActivity {
             recoveryUnavailable = true;
             btnNext.setEnabled(false);
             btnPrev.setEnabled(false);
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.signup_recovery_error_title)
-                    .setMessage(R.string.signup_recovery_corrupt_error)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
-                    .setCancelable(false)
-                    .show();
+            showUnreadableSignupDialog(this, this::finish);
             return false;
         }
+    }
+
+    /**
+     * The saved signup can't be decrypted (e.g. its Keystore key is gone), so it can never be
+     * resumed. Let the user delete it, or the in-app signup stays blocked behind it for good.
+     * {@code onClose} (may be null) runs once the dialog is dismissed either way.
+     */
+    static void showUnreadableSignupDialog(Activity activity, Runnable onClose) {
+        new AlertDialog.Builder(activity)
+                .setTitle(R.string.signup_recovery_error_title)
+                .setMessage(R.string.signup_recovery_corrupt_error)
+                .setNegativeButton(R.string.signup_not_now, (d, w) -> {
+                    if (onClose != null) onClose.run();
+                })
+                .setPositiveButton(R.string.signup_discard_action, (d, w) -> {
+                    SignupStateStore store = new SignupStateStore(activity);
+                    try {
+                        store.clear();
+                    } catch (SignupStateStore.SignupStateStoreException ignored) {
+                        // the file may be gone even if its key could not be removed
+                    }
+                    Toast.makeText(activity, store.exists() ? R.string.signup_recovery_cleanup_error
+                            : R.string.signup_discarded, Toast.LENGTH_LONG).show();
+                    if (onClose != null) onClose.run();
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private void applyRecoveryState(SignupState state, boolean refreshIncompletePricing) {
@@ -976,7 +999,10 @@ public class SignupActivity extends BaseActivity {
                 case INVALID_REFERRER: onQuoteFailed(getString(R.string.signup_invalid_referrer)); break;
                 case INVALID_EMAIL: onQuoteFailed(getString(R.string.error_email_invalid)); break;
                 case RATE_LIMITED: onQuoteFailed(getString(R.string.signup_rate_limited)); break;
-                case DISABLED: onQuoteFailed(getString(R.string.signup_paused)); break;
+                case DISABLED:
+                    // with a paid memo on screen the user may already have paid: keep that line
+                    onQuoteFailed(getString(paidMemoShown() ? R.string.signup_paused : R.string.signup_paused_new));
+                    break;
                 default: onQuoteFailed(getString(R.string.signup_quote_failed)); break;
             }
         });

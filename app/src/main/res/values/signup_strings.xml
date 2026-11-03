@@ -49,7 +49,7 @@
     <string name="signup_recovery_save_error">Secure signup recovery could not be saved. Signup cannot continue safely.</string>
     <string name="signup_recovery_cleanup_error">Secure signup recovery could not be removed. Please try again.</string>
     <string name="signup_recovery_error_title">Signup recovery unavailable</string>
-    <string name="signup_recovery_corrupt_error">An existing signup could not be recovered securely. No new password will be generated. Please close the signup and contact Actifit support.</string>
+    <string name="signup_recovery_corrupt_error">An earlier signup saved on this device can\'t be read, so it can\'t be resumed. If you already paid for it, contact Actifit support before discarding it. Discard it to start a new signup.</string>
     <string name="signup_recovery_leave_title">Leave signup for now?</string>
     <string name="signup_recovery_leave_message">Your signup may still complete. Your credentials will remain encrypted on this device so you can safely resume later.</string>
     <string name="signup_leave_for_now">Leave for now</string>
@@ -96,6 +96,7 @@
     <string name="signup_promo_instructions">Your promo code covers the account. No payment is needed: tap &lt;b&gt;Claim Promo&lt;/b&gt; to create it.</string>
     <string name="signup_preparing_payment">Preparing your payment details…</string>
     <string name="signup_quote_failed">The signup price could not be loaded. Please try again.</string>
+    <string name="signup_paused_new">New signups are paused right now. Please try again later.</string>
     <string name="signup_paused">New signups are paused right now. Please try again later. If you already paid, your account will still be created: check again later.</string>
     <string name="signup_rate_limited">Too many attempts from your network. Please wait a while and try again.</string>
     <string name="signup_invalid_referrer">That referrer account does not exist. Check the name or leave it empty.</string>
