@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.app.Activity;
 import android.content.Context;
 
 import androidx.appcompat.app.AlertDialog;
@@ -11,17 +12,24 @@ import androidx.appcompat.app.AlertDialog;
  */
 final class FitbitRetired {
 
-    // show the dashboard reminder once per app launch, not on every resume
+    // show the dashboard reminder once per app launch, not every time the dashboard reloads
     static boolean shownThisLaunch = false;
 
     private FitbitRetired() {}
 
-    static void show(Context ctx, Runnable onSwitch) {
+    /** @return false when the dialog could not be shown (activity already going away) */
+    static boolean show(Context ctx, int positiveLabel, Runnable onPositive) {
+        // callers include async callbacks; a dialog on a dead window throws BadTokenException
+        if (ctx instanceof Activity
+                && (((Activity) ctx).isFinishing() || ((Activity) ctx).isDestroyed())) {
+            return false;
+        }
         new AlertDialog.Builder(ctx)
                 .setTitle(R.string.fitbit_retired_title)
                 .setMessage(R.string.fitbit_retired_msg)
-                .setPositiveButton(R.string.fitbit_retired_switch, (d, w) -> onSwitch.run())
+                .setPositiveButton(positiveLabel, (d, w) -> onPositive.run())
                 .setNegativeButton(R.string.fitbit_retired_later, null)
                 .show();
+        return true;
     }
 }

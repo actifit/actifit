@@ -1060,7 +1060,7 @@ public class MainActivity extends BaseActivity {
             fitbitSync.setTooltipText(getString(R.string.sync_steps));
         }
         // the Fitbit login no longer works (legacy API retired); guide the user to Health Connect
-        fitbitSync.setOnClickListener(view -> FitbitRetired.show(ctx,
+        fitbitSync.setOnClickListener(view -> FitbitRetired.show(ctx, R.string.fitbit_retired_switch,
                 () -> findViewById(R.id.switchSettingsFitbit).performClick()));
 
         TextView healthConnectSync = findViewById(R.id.sync_health_connect);
@@ -4286,8 +4286,8 @@ public class MainActivity extends BaseActivity {
                 fullChart.setVisibility(View.VISIBLE);
                 new DisplayFitbitHistoryChartAsyncTask(true).execute(true);
                 if (!FitbitRetired.shownThisLaunch) {
-                    FitbitRetired.shownThisLaunch = true;
-                    FitbitRetired.show(ctx, () -> findViewById(R.id.switchSettingsFitbit).performClick());
+                    FitbitRetired.shownThisLaunch = FitbitRetired.show(ctx, R.string.fitbit_retired_switch,
+                            () -> findViewById(R.id.switchSettingsFitbit).performClick());
                 }
             } else if (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt))) {
                 hideCharts();

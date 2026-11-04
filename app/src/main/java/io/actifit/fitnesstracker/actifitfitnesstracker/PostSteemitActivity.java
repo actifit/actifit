@@ -1085,7 +1085,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             builder.setItems(items, (dialog, item) -> {
                 if (items[item].equals(getString(R.string.fitbit_sync_option))) {
                     // the Fitbit login no longer works (legacy API retired); offer Health Connect
-                    FitbitRetired.show(steemit_post_context, this::checkHealthConnectAndFetchSteps);
+                    FitbitRetired.show(steemit_post_context, R.string.fitbit_retired_sync_hc,
+                            this::checkHealthConnectAndFetchSteps);
                 } else if (items[item].equals(getString(R.string.health_connect_sync_option))) {
                     // initiate health connect sync
                     checkHealthConnectAndFetchSteps();

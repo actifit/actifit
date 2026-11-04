@@ -693,8 +693,9 @@ public class SettingsActivity extends BaseActivity {
         if (!fitbitBtn.isChecked()) {
             fitbitBtn.setVisibility(View.GONE);
         }
-        fitbitBtn.setOnClickListener(v ->
-                FitbitRetired.show(this, () -> healthConnectBtn.setChecked(true)));
+        // positive only ticks the radio; like every other choice here it applies on Save
+        fitbitBtn.setOnClickListener(v -> FitbitRetired.show(this, R.string.fitbit_retired_choose_hc,
+                () -> healthConnectBtn.setChecked(true)));
 
         RadioGroup trackingModeRadiogroup = findViewById(R.id.tracking_mode_radiogroup);
 
