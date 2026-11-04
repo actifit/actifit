@@ -1059,12 +1059,9 @@ public class MainActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             fitbitSync.setTooltipText(getString(R.string.sync_steps));
         }
-        fitbitSync.setOnClickListener(view -> {
-            Thread thread = new Thread(() -> {
-                NxFitbitHelper.sendUserToAuthorisation(ctx, false);
-            });
-            thread.start();
-        });
+        // the Fitbit login no longer works (legacy API retired); guide the user to Health Connect
+        fitbitSync.setOnClickListener(view -> FitbitRetired.show(ctx, R.string.fitbit_retired_switch,
+                () -> findViewById(R.id.switchSettingsFitbit).performClick()));
 
         TextView healthConnectSync = findViewById(R.id.sync_health_connect);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -2222,29 +2219,10 @@ public class MainActivity extends BaseActivity {
         });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            BtnSwitchSettings.setTooltipText("Switch to Fitbit mode");
+            BtnSwitchSettings.setTooltipText("Switch to Health Connect mode");
         }
-        BtnSwitchSettings.setOnClickListener(arg0 -> {
-            if (username == null || username.isEmpty()) {
-                Toast.makeText(ctx, getString(R.string.username_missing), Toast.LENGTH_LONG).show();
-            } else {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                // Switch to Fitbit
-                hideCharts();
-                chartSwitcher.setVisibility(View.GONE);
-                thirdPartyTracking.setVisibility(View.VISIBLE);
-                editor.putString("dataTrackingSystem", getString(R.string.fitbit_tracking_ntt));
-                editor.commit();
-                int steps = mStepsDBHelper.fetchTodayStepCount();
-                displayActivityChartFitbit(steps, true);
-                findViewById(R.id.bar_chart_container).setVisibility(View.VISIBLE);
-                dayChart.setVisibility(View.GONE);
-                fullChart.setVisibility(View.VISIBLE);
-                chartManager.displayChartDataFitbit(true);
-                refreshSecondaryCards();
-            }
-        });
+        // Fitbit mode is retired, so the mode cycle is now phone sensors <-> Health Connect
+        BtnSwitchSettings.setOnClickListener(arg0 -> BtnSwitchSettingsFitbit.performClick());
 
         checkBatteryOptimization(false);
 
@@ -4307,6 +4285,10 @@ public class MainActivity extends BaseActivity {
                 dayChart.setVisibility(View.GONE);
                 fullChart.setVisibility(View.VISIBLE);
                 new DisplayFitbitHistoryChartAsyncTask(true).execute(true);
+                if (!FitbitRetired.shownThisLaunch) {
+                    FitbitRetired.shownThisLaunch = FitbitRetired.show(ctx, R.string.fitbit_retired_switch,
+                            () -> findViewById(R.id.switchSettingsFitbit).performClick());
+                }
             } else if (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt))) {
                 hideCharts();
                 healthConnectTracking.setVisibility(View.VISIBLE);
