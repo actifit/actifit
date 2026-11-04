@@ -155,6 +155,10 @@ public class TrackingManager {
         return cause.getClass().getSimpleName() + (msg != null ? ": " + msg : "");
     }
 
+    private static String shortReason(String detail) {
+        return detail.length() > 140 ? detail.substring(0, 140) + "…" : detail;
+    }
+
     // getSdkStatus() can transiently return SDK_UNAVAILABLE while the provider is mid restart/update.
     // Re-poll a couple of times before concluding it is really unavailable, so a momentary hiccup
     // doesn't pop the install prompt at a user whose Health Connect is actually fine.
@@ -212,7 +216,8 @@ public class TrackingManager {
                 }
                 Log.e(TAG, "Error checking HC permissions after " + (HC_MAX_BIND_RETRIES + 1) + " attempts - " + detail, throwable);
                 ((Activity) context).runOnUiThread(() -> Toast.makeText(context,
-                        "Health Connect unavailable — using device sensors.", Toast.LENGTH_LONG).show());
+                        "Health Connect unavailable — using device sensors.\n(" + shortReason(detail) + ")",
+                        Toast.LENGTH_LONG).show());
                 useDefaultTrackingMethod();
                 healthConnectCheckRunning.set(false);
                 return;
@@ -310,7 +315,9 @@ public class TrackingManager {
                     // switching to device sensors — that would abandon the user's chosen source AND, via
                     // useDefaultTrackingMethod()'s HC branch, kick off a 30-day backfill storm against the
                     // unhealthy provider. The next sync (once the provider is back) refreshes today.
-                    Toast.makeText(context, "Health Connect is temporarily unavailable — your steps will refresh shortly.", Toast.LENGTH_LONG).show();
+                    // the reason is in the toast so a user's screenshot tells us what failed
+                    Toast.makeText(context, "Health Connect is temporarily unavailable — your steps will refresh shortly.\n("
+                            + shortReason(detail) + ")", Toast.LENGTH_LONG).show();
                     // hideCharts() above collapsed bar_chart_container + chart_switcher; re-show them
                     // (mirroring the success path) so the last-known history actually renders instead of
                     // drawing into a GONE container and leaving the user with a blank chart.

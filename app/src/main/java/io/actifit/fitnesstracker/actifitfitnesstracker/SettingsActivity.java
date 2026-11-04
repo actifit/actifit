@@ -688,6 +688,14 @@ public class SettingsActivity extends BaseActivity {
             fitbitSettingsSection.setVisibility(View.GONE);
         }
 
+        // Fitbit login is retired: hide the option for new choices; users still on it are
+        // pointed to Health Connect when they tap it
+        if (!fitbitBtn.isChecked()) {
+            fitbitBtn.setVisibility(View.GONE);
+        }
+        fitbitBtn.setOnClickListener(v ->
+                FitbitRetired.show(this, () -> healthConnectBtn.setChecked(true)));
+
         RadioGroup trackingModeRadiogroup = findViewById(R.id.tracking_mode_radiogroup);
 
         //capture change event for radiobutton group to reflect on user available options

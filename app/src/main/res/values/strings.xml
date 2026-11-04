@@ -285,6 +285,10 @@
     <string name="cancel_button">Cancel</string>
     <string name="clear_button">Clear</string>
     <string name="error_fitbit_fecth" tools:ignore="MissingTranslation">There was a problem syncing your Fitbit. Please try again later.</string>
+    <string name="fitbit_retired_title" tools:ignore="MissingTranslation">Fitbit now syncs through Health Connect</string>
+    <string name="fitbit_retired_msg" tools:ignore="MissingTranslation">Google retired Fitbit\'s old connection for partner apps like Actifit on October 30, 2026.\n\nTo keep earning from your Fitbit steps:\n1. In the Google Health (Fitbit) app, turn on sharing with Health Connect.\n2. Switch Actifit to Health Connect and allow access to your steps.</string>
+    <string name="fitbit_retired_switch" tools:ignore="MissingTranslation">Switch to Health Connect</string>
+    <string name="fitbit_retired_later" tools:ignore="MissingTranslation">Later</string>
     <string name="pending_rewards_title">You have upcoming rewards!</string>
     <string name="pending_rewards_header">You have upcoming rewards within 7 days!</string>
     <string name="pending_rewards_note">Please note that those rewards are not final, and are subject to increase or decrease depending on actifit and blockchain community engagement. You can view your recent actifit posts and pending rewards by clicking button below.</string>
