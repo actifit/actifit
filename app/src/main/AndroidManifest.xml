@@ -90,6 +90,16 @@
             </intent-filter>
         </activity-alias>
 
+        <!-- Android 13 and below: Health Connect won't show its permission screen without this -->
+        <activity
+            android:name=".HealthPrivacyPolicyActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+
         <!-- Health Connect Provider for Android 13 (API 33) and below -->
         <!-- Required to launch Health Connect app when it's not pre-installed system app -->
         <provider
