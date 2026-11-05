@@ -39,7 +39,6 @@ import java.util.stream.Stream;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.EmptyCoroutineContext;
 import kotlin.jvm.JvmClassMappingKt;
-import kotlin.jvm.functions.Function2;
 import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.CoroutineScopeKt;
 import kotlinx.coroutines.CoroutineStart;
@@ -137,29 +136,10 @@ public class HealthConnectManager {
     }
 
     public CompletableFuture<Boolean> hasAllPermissions() {
-        if (healthConnectClient == null) {
-            return CompletableFuture.completedFuture(false);
-        }
-        return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT, new Function2<CoroutineScope, Continuation<? super Boolean>, Object>() {
-            @Override
-            public Object invoke(CoroutineScope scope, Continuation<? super Boolean> continuation) {
-                try {
-                    Continuation<? super Set<String>> setContinuation = (Continuation<? super Set<String>>) continuation;
-
-                    Object result = healthConnectClient.getPermissionController().getGrantedPermissions(setContinuation);
-
-                    if (result == kotlin.coroutines.intrinsics.CoroutineSingletons.COROUTINE_SUSPENDED) {
-                        return result;
-                    }
-
-                    Set<String> grantedPermissions = (Set<String>) result;
-
-                    return grantedPermissions.containsAll(permissions);
-                } catch (Throwable e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+        // When getGrantedPermissions suspends (always, with the standalone Health Connect app on
+        // Android 13), the coroutine resumes with the Set itself, so the containsAll check must run
+        // after the future completes rather than inside the coroutine body.
+        return getGrantedPermissions().thenApply(granted -> granted.containsAll(permissions));
     }
 
     private CompletableFuture<Set<String>> getGrantedPermissions() {

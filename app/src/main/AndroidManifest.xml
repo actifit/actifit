@@ -79,10 +79,21 @@
             android:exported="false"
             android:label="@string/signup_title" />
 
+        <!-- Android 13 and below: Health Connect won't show its permission screen without this -->
+        <activity
+            android:name=".HealthPrivacyPolicyActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+
+        <!-- Android 14+: privacy policy link in Health Connect settings -->
         <activity-alias
             android:name="ViewPermissionUsageActivity"
             android:exported="true"
-            android:targetActivity=".MainActivity"
+            android:targetActivity=".HealthPrivacyPolicyActivity"
             android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />

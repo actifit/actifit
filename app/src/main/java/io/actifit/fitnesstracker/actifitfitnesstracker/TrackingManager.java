@@ -91,7 +91,12 @@ public class TrackingManager {
                     BuildersKt.launch(lifecycleCoroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
                             (scope, continuation) -> {
                                 healthConnectManager.hasAllPermissions().whenComplete((hasPermissions, throwable) -> {
-                                    if (hasPermissions) {
+                                    // hasPermissions is null on failure; unboxing it would throw inside
+                                    // whenComplete and leave healthConnectCheckRunning stuck at true
+                                    if (throwable != null) {
+                                        Log.e(TAG, "HC permission re-check failed - " + hcErrorDetail(throwable), throwable);
+                                    }
+                                    if (Boolean.TRUE.equals(hasPermissions)) {
                                         Log.d(TAG, "HC permissions granted. Proceeding to read data.");
                                         ((Activity) context).runOnUiThread(() -> {
                                             SharedPreferences.Editor editor = sharedPreferences.edit();
