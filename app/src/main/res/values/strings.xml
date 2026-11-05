@@ -289,7 +289,6 @@
     <string name="fitbit_retired_msg" tools:ignore="MissingTranslation">Google retired Fitbit\'s old connection for partner apps like Actifit on October 30, 2026.\n\nTo keep earning from your Fitbit steps:\n1. In the Google Health (Fitbit) app, turn on sharing with Health Connect.\n2. Switch Actifit to Health Connect and allow access to your steps.</string>
     <string name="fitbit_retired_switch" tools:ignore="MissingTranslation">Switch to Health Connect</string>
     <string name="fitbit_retired_later" tools:ignore="MissingTranslation">Later</string>
-    <string name="fitbit_retired_sync_hc" tools:ignore="MissingTranslation">Sync from Health Connect</string>
     <string name="fitbit_retired_choose_hc" tools:ignore="MissingTranslation">Choose Health Connect (then Save)</string>
     <string name="pending_rewards_title">You have upcoming rewards!</string>
     <string name="pending_rewards_header">You have upcoming rewards within 7 days!</string>
