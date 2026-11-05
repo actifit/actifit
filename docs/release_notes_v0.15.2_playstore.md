@@ -8,4 +8,4 @@ Covers everything since v0.15.1, the last production release.
 • Pay with HIVE or HBD, or use a promo code, and get your AFIT signup reward
 • Clearer messages while your account is being created, plus safe resume if you leave midway
 • Fitbit users: Google retired Fitbit's old link for apps. Fitbit steps now sync through Health Connect, and the app guides you there
-• Health Connect errors now show their cause
+• Fixed Health Connect on Android 13 phones, and errors now show their cause
