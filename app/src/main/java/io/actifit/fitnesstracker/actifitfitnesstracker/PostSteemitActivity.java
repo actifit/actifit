@@ -2118,7 +2118,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                                         .format(mCalendar.getTime()));
                                         editor.apply();
                                         findViewById(R.id.fitbit_sync_notice).setVisibility(View.GONE);
-                                        Toast.makeText(PostSteemitActivity.this, "Steps Synced!", Toast.LENGTH_SHORT)
+                                        Toast.makeText(PostSteemitActivity.this, R.string.steps_synced_from_health_connect, Toast.LENGTH_SHORT)
                                                 .show();
                                     });
                                 }

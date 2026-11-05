@@ -183,7 +183,10 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="@dimen/spacing_sm"
-                                    android:text="@string/sync_data_btn_lbl" />
+                                    android:text="@string/sync_from_health_connect_btn_lbl"
+                                    app:icon="@mipmap/health_connect"
+                                    app:iconTint="@null"
+                                    app:iconSize="20dp" />
                             </LinearLayout>
 
                             <TextView
