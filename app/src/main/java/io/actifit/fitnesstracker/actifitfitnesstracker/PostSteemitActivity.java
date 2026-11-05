@@ -1070,30 +1070,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         });
 
         /*****************
-         * Sync Implementation (Fitbit + Health Connect)
+         * Sync Implementation (Health Connect; Fitbit's legacy API is retired and its data now
+         * reaches Health Connect, so there is nothing left to choose between)
          ****************/
 
         Button BtnSyncData = findViewById(R.id.sync_data);
-        BtnSyncData.setOnClickListener(arg0 -> {
-
-            final CharSequence[] items = {
-                    getString(R.string.fitbit_sync_option), getString(R.string.health_connect_sync_option)
-            };
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(PostSteemitActivity.this);
-            builder.setTitle(getString(R.string.sync_data_options_title));
-            builder.setItems(items, (dialog, item) -> {
-                if (items[item].equals(getString(R.string.fitbit_sync_option))) {
-                    // the Fitbit login no longer works (legacy API retired); offer Health Connect
-                    FitbitRetired.show(steemit_post_context, R.string.fitbit_retired_sync_hc,
-                            this::checkHealthConnectAndFetchSteps);
-                } else if (items[item].equals(getString(R.string.health_connect_sync_option))) {
-                    // initiate health connect sync
-                    checkHealthConnectAndFetchSteps();
-                }
-            });
-            builder.show();
-        });
+        BtnSyncData.setOnClickListener(arg0 -> checkHealthConnectAndFetchSteps());
 
         // retrieve resulting data from fitbit sync (parameter from the Intent)
         Uri returnUrl = getIntent().getData();
@@ -2136,7 +2118,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                                         .format(mCalendar.getTime()));
                                         editor.apply();
                                         findViewById(R.id.fitbit_sync_notice).setVisibility(View.GONE);
-                                        Toast.makeText(PostSteemitActivity.this, "Steps Synced!", Toast.LENGTH_SHORT)
+                                        Toast.makeText(PostSteemitActivity.this, R.string.steps_synced_from_health_connect, Toast.LENGTH_SHORT)
                                                 .show();
                                     });
                                 }
