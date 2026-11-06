@@ -20,6 +20,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -81,6 +82,21 @@ public class WorkoutWizardActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout_wizard);
+
+        // Back closes the workout details panel first, then leaves the screen
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (workoutDetailsLayout != null && workoutDetailsLayout.getVisibility() == View.VISIBLE) {
+                    hideWorkoutDetails();
+                    showFormOrList();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                    setEnabled(true);
+                }
+            }
+        });
 
         editWorkoutLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -730,16 +746,6 @@ public class WorkoutWizardActivity extends BaseActivity
 
     private void showError(String message) {
         Toast.makeText(this, getString(R.string.toast_prefix_error) + " " + message, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (workoutDetailsLayout.getVisibility() == View.VISIBLE) {
-            hideWorkoutDetails();
-            showFormOrList();
-        } else {
-            super.onBackPressed();
-        }
     }
 
     private void showFormOrList() {

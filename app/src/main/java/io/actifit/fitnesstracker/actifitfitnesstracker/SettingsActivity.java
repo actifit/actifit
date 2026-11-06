@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -133,6 +134,15 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        // fade back to the main screen instead of the default transition
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
+        });
 
         activeKey = findViewById(R.id.activeKey);
         voteWeight = findViewById(R.id.votePercent);
@@ -1355,13 +1365,6 @@ public class SettingsActivity extends BaseActivity {
         super.onResume();
     }
 
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        // Apply custom fade-out animation when navigating back to the main activity
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-    }
 
     private void setupBackupRestore() {
         Button backupBtn = findViewById(R.id.backup_data_btn);

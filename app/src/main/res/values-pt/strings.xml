@@ -897,6 +897,8 @@
     <string name="arena_featured_join">Grátis. Entre antes que o tempo acabe.</string>
     <string name="arena_featured_joined">Já está a participar. Publique o relatório de hoje para que conte.</string>
     <string name="arena_ends_in_clock">Termina em %1$s</string>
+    <string name="sync_from_health_connect_btn_lbl">Sincronizar a partir do Health Connect</string>
+    <string name="steps_synced_from_health_connect">Passos sincronizados a partir do Health Connect</string>
 </resources>
 
 

@@ -901,6 +901,8 @@
     <string name="arena_featured_joined">Du bist dabei. Veröffentliche deinen heutigen Bericht, damit er zählt.</string>
     <string name="arena_ends_in_clock">Endet in %1$s</string>
     <string name="arena_countdown_days">%1$d T. %2$02d:%3$02d:%4$02d</string>
+    <string name="sync_from_health_connect_btn_lbl">Von Health Connect synchronisieren</string>
+    <string name="steps_synced_from_health_connect">Schritte von Health Connect synchronisiert</string>
 </resources>
 
 

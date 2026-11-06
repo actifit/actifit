@@ -888,6 +888,8 @@
     <string name="arena_featured_joined">참여 중입니다. 오늘 리포트를 게시해야 집계됩니다.</string>
     <string name="arena_ends_in_clock">%1$s 후 종료</string>
     <string name="arena_countdown_days">%1$d일 %2$02d:%3$02d:%4$02d</string>
+    <string name="sync_from_health_connect_btn_lbl">Health Connect에서 동기화</string>
+    <string name="steps_synced_from_health_connect">Health Connect에서 걸음 수를 동기화했습니다</string>
 </resources>
 
 

@@ -80,6 +80,7 @@ import android.widget.Toast;
 
 import android.Manifest;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -1102,6 +1103,7 @@ public class MainActivity extends BaseActivity {
                 });
 
         setupRouteCard();
+        setupExitGuard();
 
         ImageView fitbitLogo = findViewById(R.id.fitbit_logo);
         fitbitLogo.setOnClickListener(view -> {
@@ -3896,27 +3898,19 @@ public class MainActivity extends BaseActivity {
 
     /*
      * preventing accidental single back button click leading to exiting the app and
-     * losing counter tracking
+     * losing counter tracking: the first Back shows a hint and disables this callback for
+     * 2 s, so a second Back in that window reaches the system and closes the app
      */
-    boolean doubleBackToExitPressedOnce = false;
-
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.onBackPressed();
-            return;
-        }
-
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, getString(R.string.back_exit_confirmation), Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-
+    private void setupExitGuard() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
+            public void handleOnBackPressed() {
+                setEnabled(false);
+                Toast.makeText(MainActivity.this, getString(R.string.back_exit_confirmation),
+                        Toast.LENGTH_SHORT).show();
+                new Handler(Looper.getMainLooper()).postDelayed(() -> setEnabled(true), 2000);
             }
-        }, 2000);
+        });
     }
 
     @Override
