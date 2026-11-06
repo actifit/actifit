@@ -1103,93 +1103,6 @@ public class MainActivity extends BaseActivity {
 
         setupRouteCard();
 
-        Uri returnUrl = getIntent().getData();
-        if (returnUrl != null) {
-            try {
-                NxFitbitHelper fitbit = new NxFitbitHelper(ctx, false);
-                fitbit.requestAccessTokenFromIntent(returnUrl);
-                try {
-                    JSONObject responseProfile = fitbit.getUserProfile();
-                    // essential for capability to fetch measurements
-                    responseProfile.getJSONObject("user");
-
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                    // grab userId
-                    String fitbitUserId = fitbit.getUserId();
-                    editor.putString("fitbitUserId", fitbitUserId);// trackedActivityCount);
-                    editor.apply();
-
-                    String soughtInfo = "steps";
-                    String targetDate = "today";
-                    int trackedActivityCount = 0;
-                    try {
-                        JSONObject stepActivityList;
-                        stepActivityList = fitbit.getActivityByDate(soughtInfo, targetDate);
-                        JSONArray stepActivityArray;
-                        stepActivityArray = stepActivityList.getJSONArray("activities-tracker-" + soughtInfo);
-                        Log.d(MainActivity.TAG, "From JSON distance:" + stepActivityArray.length());
-                        if (stepActivityArray.length() > 0) {
-                            Log.d(MainActivity.TAG, "we found matching records");
-                            // loop through records adding up recorded steps
-                            for (int i = 0; i < stepActivityArray.length(); i++) {
-                                trackedActivityCount += parseInt(stepActivityArray.getJSONObject(i).getString("value"));
-                            }
-
-                            String todayStamp = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH)
-                                    .format(Calendar.getInstance().getTime());
-                            editor.putString("fitbitLastSyncDate", todayStamp);
-                            editor.putLong("fitbitLastSyncTime", System.currentTimeMillis());
-                            // TODO: demo data, replace when go live
-                            editor.putInt("fitbitSyncCount", trackedActivityCount);// 6543);//
-                            editor.apply();
-
-                            // steps render immediately (distance/calories fill in as estimates until the
-                            // fetch below returns); the extra two Fitbit round-trips run off the main
-                            // thread so they don't block the OAuth-return onCreate.
-                            displayActivityChartFitbit(trackedActivityCount, true);
-
-                            final int fbSteps = trackedActivityCount;
-                            final String fbTargetDate = targetDate;
-                            new Thread(() -> {
-                                // activityCalories (not tracker/calories, which includes BMR) keeps parity
-                                // with Health Connect's active-calories. Distance always arrives in km
-                                // (Accept-Language: metric, pinned in NxFitbitHelper.makeApiRequest), so the
-                                // km->metres conversion is unconditional; -1 stays -1 -> "≈" estimate.
-                                float fbDistRaw = sumFitbitActivityResource(fitbit, "tracker/distance", fbTargetDate);
-                                float fbCal = sumFitbitActivityResource(fitbit, "activityCalories", fbTargetDate);
-                                float fbDistM = (fbDistRaw >= 0) ? fbDistRaw * 1000f : -1f;
-                                SharedPreferences.Editor ed = getSharedPreferences("actifitSets", MODE_PRIVATE).edit();
-                                ed.putFloat("fitbitDistanceM", fbDistM);
-                                ed.putFloat("fitbitCalories", fbCal);
-                                ed.putString("fitbitMetricsDate", todayStamp); // freshness stamp: stale -> estimate
-                                ed.apply();
-                                runOnUiThread(() -> updateFitbitDashboardRings(fbSteps));
-                            }).start();
-                        } else {
-                            Log.d(MainActivity.TAG, "No auto-tracked activity found for today");
-                        }
-
-                    } catch (Exception e) {
-                        // Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                        Log.e(TAG, "ERROR");
-                        e.printStackTrace();
-                    }
-                } catch (Exception myExc) {
-                    // Log.e(TAG, Objects.requireNonNull(myExc.getMessage()));
-                    Log.e(TAG, "ERROR");
-                    Toast.makeText(getApplicationContext(), getString(R.string.error_fitbit_fecth), Toast.LENGTH_SHORT)
-                            .show();
-                }
-            } catch (Exception ex) {
-                // Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
-                Log.e(TAG, "ERROR");
-                ex.printStackTrace();
-            }
-
-            fitbitSync.startAnimation(scaler);
-        }
-
         ImageView fitbitLogo = findViewById(R.id.fitbit_logo);
         fitbitLogo.setOnClickListener(view -> {
             String lastMainSyncDate = sharedPreferences.getString("fitbitLastSyncDate", "");
@@ -2525,29 +2438,6 @@ public class MainActivity extends BaseActivity {
     public static String formatValue(double value) {
         DecimalFormat df = new DecimalFormat("###,###,###.###");
         return df.format(value);
-    }
-
-    /**
-     * Sums a Fitbit daily activity time-series resource by its path under "activities/"
-     * (e.g. "tracker/distance", "activityCalories"). Returns the raw summed value (distance in the
-     * account's unit, calories in kcal), or -1 if unavailable so callers fall back to a step-derived
-     * estimate. Note the deliberate asymmetry: an empty/unavailable dataset returns -1 (→ estimate),
-     * whereas a dataset of genuine zeros sums to 0 (shown as a real "0"). Runs on a background thread.
-     */
-    private float sumFitbitActivityResource(NxFitbitHelper fitbit, String resourcePath, String targetDate) {
-        try {
-            JSONObject list = fitbit.getActivityResource(resourcePath, targetDate);
-            JSONArray arr = list.getJSONArray("activities-" + resourcePath.replace("/", "-"));
-            if (arr.length() == 0) return -1f;
-            float sum = 0f;
-            for (int i = 0; i < arr.length(); i++) {
-                sum += Float.parseFloat(arr.getJSONObject(i).getString("value"));
-            }
-            return sum;
-        } catch (Exception e) {
-            Log.e(TAG, "Fitbit " + resourcePath + " fetch failed: " + e.getMessage());
-            return -1f;
-        }
     }
 
     private void displayActivityChartFitbit(final int stepCount, final boolean animate) {

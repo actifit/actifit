@@ -98,17 +98,12 @@
     <string name="report_preview_lbl">रिपोर्ट पूर्वावलोकन</string>
     <string name="comment_preview_lbl">टिप्पणी पूर्वावलोकन</string>
     <string name="wave_preview_lbl">वेव पूर्वावलोकन</string>
-    <string name="fitbit_permissions_missing">सही फिटबिट सिंक के लिए कृपया सभी अनुमतियाँ प्रदान करें</string>
-    <string name="fitbit_sync_btn_lbl">फिटबिट सिंक</string>
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">गतिविधि डेटा स्रोत</string>
     <string name="device_sensors_option_lbl">फोन सेंसर</string>
     <string name="fitbit_option_lbl">तृतीय पक्ष</string>
     <string name="background_move_track_lbl">पृष्ठभूमि में गतिविधि ट्रैकिंग</string>
     <string name="enable_agg_mode_checkbox">आक्रामक पृष्ठभूमि ट्रैकिंग सक्षम करें*</string>
-    <string name="fitbit_settings_lbl">फिटबिट सेटिंग्स</string>
-    <string name="fitbit_measurements_lbl">मापदंड प्राप्त करें</string>
-    <string name="fitbit_fetch_steps">कदम प्राप्त करें</string>
     <string name="steem_post_payout">पोस्ट का भुगतान</string>
 	<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 	<string name="pay_option_full_sp">100% HP</string>
@@ -260,7 +255,6 @@
 	<string name="ok_button">ठीक</string>
 	<string name="cancel_button">रद्द करें</string>
 	<string name="clear_button">साफ़ करें</string>
-	<string name="error_fitbit_fecth">आपकी फिटबिट को सिंक करने में समस्या हुई। कृपया बाद में पुनः प्रयास करें।</string>
 	<string name="pending_rewards_title">आपके पास आगामी इनाम हैं!</string>
 	<string name="pending_rewards_header">आपके पास 7 दिनों के भीतर आगामी इनाम हैं!</string>
 	<string name="pending_rewards_note">कृपया ध्यान दें कि ये पुरस्कार अंतिम नहीं हैं, और actifit और ब्लॉकचेन समुदाय की सहभागिता पर निर्भर करके बढ़ या घट सकते हैं। आप अपने हालिया actifit पोस्ट और लंबित इनाम देखने के लिए नीचे दिए गए बटन पर क्लिक कर सकते हैं।</string>
@@ -599,9 +593,6 @@
 	<string name="sync_health_connect_btn">हेल्थ कनेक्ट सिंक करें</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">डेटा सिंक करें</string>
-    <string name="health_connect_sync_option">हेल्थ कनेक्ट</string>
-    <string name="fitbit_sync_option">फिटबिट</string>
-    <string name="sync_data_options_title">डेटा यहाँ से सिंक करें</string>
     <string name="exercise_search_title">व्यायाम खोजें</string>
     <string name="search_hint">व्यायाम के नाम से खोजें...</string>
     <string name="filter_by_body_part">शरीर का अंग:</string>

@@ -101,17 +101,12 @@
     <string name="report_preview_lbl">Vista previa del informe</string>
     <string name="comment_preview_lbl">Vista previa del comentario</string>
     <string name="wave_preview_lbl">Vista previa</string>
-    <string name="fitbit_permissions_missing">Concede permisos completos para una sincronización adecuada de Fitbit</string>
-    <string name="fitbit_sync_btn_lbl">SINCRONIZACIÓN DE FITBIT</string>
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">Fuente de datos de actividad</string>
     <string name="device_sensors_option_lbl">Sensores del teléfono</string>
     <string name="fitbit_option_lbl">Tercera parte</string>
     <string name="background_move_track_lbl">Seguimiento de movimiento en segundo plano</string>
     <string name="enable_agg_mode_checkbox">Activar seguimiento agresivo en segundo plano*</string>
-    <string name="fitbit_settings_lbl">Configuración de Fitbit</string>
-    <string name="fitbit_measurements_lbl">Obtener mediciones</string>
-    <string name="fitbit_fetch_steps">Obtener pasos</string>
     <string name="steem_post_payout">Pago por publicación</string>
     <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
     <string name="pay_option_full_sp">100% HP</string>
@@ -263,7 +258,6 @@
     <string name="ok_button">Aceptar</string>
     <string name="cancel_button">Cancelar</string>
     <string name="clear_button">Limpiar</string>
-    <string name="error_fitbit_fecth" tools:ignore="MissingTranslation">Hubo un problema al sincronizar su Fitbit. Inténtalo de nuevo más tarde.</string>
     <string name="pending_rewards_title">¡Tienes próximas recompensas!</string>
     <string name="pending_rewards_header">¡Tienes próximas recompensas dentro de 7 días!</string>
     <string name="pending_rewards_note">Tenga en cuenta que estas recompensas no son definitivas y pueden aumentar o disminuir según la participación de la comunidad de Actifit y Blockchain. Puede ver sus publicaciones recientes de Actifit y las recompensas pendientes haciendo clic en el botón de abajo.</string>
@@ -602,9 +596,6 @@
     <string name="sync_health_connect_btn">Синхронизировать Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Sincronizar Datos</string>
-    <string name="health_connect_sync_option">Health Connect</string>
-    <string name="fitbit_sync_option">Fitbit</string>
-    <string name="sync_data_options_title">Sincronizar Datos Desde</string>
     <string name="exercise_search_title">Buscar Ejercicios</string>
     <string name="search_hint">Buscar por nombre de ejercicio...</string>
     <string name="filter_by_body_part">Parte del Cuerpo:</string>

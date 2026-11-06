@@ -118,17 +118,12 @@
     <string name="report_preview_lbl">Report Preview</string>
     <string name="comment_preview_lbl">Comment Preview</string>
     <string name="wave_preview_lbl">Preview</string>
-    <string name="fitbit_permissions_missing">Please provide full permissions for proper Fitbit sync</string>
-    <string name="fitbit_sync_btn_lbl">FITBIT SYNC</string>
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">Activity Data Source</string>
     <string name="device_sensors_option_lbl">Phone Sensors</string>
     <string name="fitbit_option_lbl">3rd Party</string>
     <string name="background_move_track_lbl">Background Movement Tracking</string>
     <string name="enable_agg_mode_checkbox">Enable Aggressive Background Tracking*</string>
-    <string name="fitbit_settings_lbl">Fitbit Settings</string>
-    <string name="fitbit_measurements_lbl">Fetch Measurements</string>
-    <string name="fitbit_fetch_steps">Fetch Steps</string>
     <string name="steem_post_payout">Post Payout</string>
     <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
     <string name="pay_option_full_sp">100% HP</string>
@@ -284,7 +279,6 @@
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
     <string name="clear_button">Clear</string>
-    <string name="error_fitbit_fecth" tools:ignore="MissingTranslation">There was a problem syncing your Fitbit. Please try again later.</string>
     <string name="fitbit_retired_title" tools:ignore="MissingTranslation">Fitbit now syncs through Health Connect</string>
     <string name="fitbit_retired_msg" tools:ignore="MissingTranslation">Google retired Fitbit\'s old connection for partner apps like Actifit on October 30, 2026.\n\nTo keep earning from your Fitbit steps:\n1. In the Google Health (Fitbit) app, turn on sharing with Health Connect.\n2. Switch Actifit to Health Connect and allow access to your steps.</string>
     <string name="fitbit_retired_switch" tools:ignore="MissingTranslation">Switch to Health Connect</string>
@@ -603,9 +597,6 @@
     <string name="sync_health_connect_btn">Sync Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Sync Data</string>
-    <string name="health_connect_sync_option">Health Connect</string>
-    <string name="fitbit_sync_option">Fitbit</string>
-    <string name="sync_data_options_title">Sync Data From</string>
     <string name="exercise_search_title">Search Exercises</string>
     <string name="search_hint">Search by exercise name...</string>
     <string name="filter_by_body_part">Body Part:</string>

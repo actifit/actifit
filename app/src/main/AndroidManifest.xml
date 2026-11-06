@@ -145,18 +145,7 @@
     </activity>
 
     <activity android:name=".MainActivity"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-
-            <data
-                android:host="fitbitcallbackmain"
-                android:scheme="actifitcb" /> <!--ftbmaincb-->
-        </intent-filter>
-    </activity>
+        android:exported="false" />
 
     <activity
         android:name=".ShareAchievementActivity"
@@ -194,19 +183,7 @@
     <activity
         android:name=".PostSteemitActivity"
         android:theme="@style/NoToolbarTheme"
-        android:exported="true"
-        >
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-
-            <data
-                android:host="fitbitcallback"
-                android:scheme="actifitcb" />
-        </intent-filter>
-    </activity>
+        android:exported="false" />
     <activity android:name=".SettingsActivity" />
     <activity android:name=".LeaderboardActivity" />
     <activity android:name=".WalletActivity" />

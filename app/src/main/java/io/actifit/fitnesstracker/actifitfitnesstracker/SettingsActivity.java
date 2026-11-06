@@ -157,8 +157,6 @@ public class SettingsActivity extends BaseActivity {
 
         final LinearLayout aggModeSection = findViewById(R.id.background_tracking_section);
 
-        final LinearLayout fitbitSettingsSection = findViewById(R.id.fitbit_settings_section);
-        final CheckBox fitbitMeasurementsChckBox = findViewById(R.id.fitbit_measurements);
 
         final RadioButton fullSPayRadioBtn = findViewById(R.id.full_sp_pay);
         final RadioButton sbdSPPayRadioBtn = findViewById(R.id.sbd_sp_pay);
@@ -676,15 +674,12 @@ public class SettingsActivity extends BaseActivity {
         if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
             fitbitBtn.setChecked(true);
             aggModeSection.setVisibility(View.GONE);
-            fitbitSettingsSection.setVisibility(View.VISIBLE);
         } else if (dataTrackingSystem.equals(getString(R.string.health_connect_tracking_ntt))) {
             healthConnectBtn.setChecked(true);
             aggModeSection.setVisibility(View.GONE);
-            fitbitSettingsSection.setVisibility(View.GONE);
         } else {
             deviceSensorsBtn.setChecked(true);
             aggModeSection.setVisibility(View.VISIBLE);
-            fitbitSettingsSection.setVisibility(View.GONE);
         }
 
         // Fitbit login is retired: hide the option for new choices; users still on it are
@@ -706,13 +701,10 @@ public class SettingsActivity extends BaseActivity {
 
                 if (healthConnectBtn.isChecked()){
                     aggModeSection.setVisibility(View.GONE);
-                    fitbitSettingsSection.setVisibility(View.GONE);
                 }else if (deviceSensorsBtn.isChecked()){
                     aggModeSection.setVisibility(View.VISIBLE);
-                    fitbitSettingsSection.setVisibility(View.INVISIBLE);
                 }else{
                     aggModeSection.setVisibility(View.INVISIBLE);
-                    fitbitSettingsSection.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -738,9 +730,6 @@ public class SettingsActivity extends BaseActivity {
 
         aggBgTrackingChckBox.setChecked(aggModeEnabled.equals(getString(R.string.aggr_back_tracking_on_ntt)));
 
-        //grab fitbit setting and update checkbox accordingly
-        String fitbitMeasurements = sharedPreferences.getString("fitbitMeasurements",getString(R.string.fitbit_measurements_on_ntt));
-        fitbitMeasurementsChckBox.setChecked(fitbitMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt)));
 
 
         final Activity currentActivity = this;
@@ -932,14 +921,6 @@ public class SettingsActivity extends BaseActivity {
                 //cancellation case
                 editor.putString("selectedReminderHour", "");
                 editor.putString("selectedReminderMin", "");
-            }
-
-            //store fitbit setting to see if user wants to grab measurements too
-            //CheckBox fitbitMeasurements1 = findViewById(R.id.fitbit_measurements);
-            if (fitbitMeasurementsChckBox.isChecked()){
-                editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_on_ntt));
-            }else{
-                editor.putString("fitbitMeasurements", getString(R.string.fitbit_measurements_off_ntt));
             }
 
             //adjust notification status

@@ -190,7 +190,7 @@
                             </LinearLayout>
 
                             <TextView
-                                android:id="@+id/fitbit_sync_notice"
+                                android:id="@+id/sync_again_notice"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/spacing_xs"
