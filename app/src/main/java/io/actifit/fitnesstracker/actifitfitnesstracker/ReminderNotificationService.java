@@ -25,6 +25,12 @@ public class ReminderNotificationService extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        // re-arm first: the alarm is one-shot, and alarms are cleared by a reboot
+        ReminderScheduler.scheduleFromPrefs(context);
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            return;
+        }
+
         //let's check first if user had posted already so as to avoid sending a useless reminder
         SharedPreferences sharedPreferences = context.getSharedPreferences("actifitSets", context.MODE_PRIVATE);
         String lastPostDate = sharedPreferences.getString("actifitLastPostDate","");
