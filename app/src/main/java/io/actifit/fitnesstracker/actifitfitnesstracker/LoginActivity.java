@@ -278,7 +278,6 @@ public class LoginActivity extends BaseActivity {
                         // store token for reuse when saving settings
                         try {
                             if (response.has("success")) {
-                                Log.d(MainActivity.TAG, response.toString());
                                 accessToken = response.getString(getString(R.string.login_token));
 
                                 // also store username and posting key

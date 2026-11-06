@@ -362,7 +362,6 @@ public class SettingsActivity extends BaseActivity {
                                 //store token for reuse when saving settings
                                 try {
                                     if (response.has("success")) {
-                                        Log.d(MainActivity.TAG, response.toString());
                                         accessToken = response.getString(getString(R.string.login_token));
                                     }
                                 } catch (JSONException e) {

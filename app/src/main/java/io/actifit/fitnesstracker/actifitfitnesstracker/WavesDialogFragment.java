@@ -477,7 +477,6 @@ public class WavesDialogFragment extends DialogFragment {
                                 // store token for reuse when saving settings
                                 try {
                                     if (response.has("success")) {
-                                        Log.d(TAG, response.toString());
                                         LoginActivity.accessToken = response.getString(getString(R.string.login_token));
                                     }
                                 } catch (JSONException e) {
