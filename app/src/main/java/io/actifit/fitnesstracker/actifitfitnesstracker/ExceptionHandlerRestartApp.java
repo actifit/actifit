@@ -13,16 +13,20 @@ import android.os.Build;
  *
  * */
 public class ExceptionHandlerRestartApp implements Thread.UncaughtExceptionHandler {
-    private Activity activity;
+    // the system handler: it reports the crash (Play vitals) and ends the process
+    private final Thread.UncaughtExceptionHandler previous;
 
     public ExceptionHandlerRestartApp(Activity a) {
-        activity = a;
+        // MainActivity installs this on every onCreate; don't chain onto our own earlier copy
+        Thread.UncaughtExceptionHandler current = Thread.getDefaultUncaughtExceptionHandler();
+        previous = current instanceof ExceptionHandlerRestartApp
+                ? ((ExceptionHandlerRestartApp) current).previous : current;
     }
 
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
 
-        Intent intent = new Intent(activity, MainActivity.class);
+        Intent intent = new Intent(ActifitApplication.getInstance().getBaseContext(), MainActivity.class);
         intent.putExtra("crash", true);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -37,7 +41,12 @@ public class ExceptionHandlerRestartApp implements Thread.UncaughtExceptionHandl
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
 
 
-        activity.finish();
-        System.exit(2);
+        // finishing the activity from a background thread could hang (ANR); let the system
+        // handler report the crash and kill the process, then the alarm above restarts us
+        if (previous != null) {
+            previous.uncaughtException(thread, ex);
+        } else {
+            System.exit(2);
+        }
     }
 }
