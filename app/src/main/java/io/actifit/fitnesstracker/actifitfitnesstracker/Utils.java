@@ -889,7 +889,6 @@ public class  Utils {
                     public void onResponse(JSONArray response) {
                         try {
                             // Handle the response here
-                            System.out.println(response.toString());
 
                             // Check if the response contains data
                             if (response != null && response.length() >0){
@@ -978,8 +977,6 @@ public class  Utils {
                             JsonObjectRequest jsonInnerObjectRequest = new JsonObjectRequest
                                     (Request.Method.POST, apiUrl, jsonBody, response1 -> {
                                         try {
-                                            // Handle the response here
-                                            System.out.println(response1.toString());
                                             if (response1.has("error")){
                                                 parent.refreshList.clearAnimation();
                                             }else if (response1.has("xcstkn")){
@@ -1079,7 +1076,6 @@ public class  Utils {
                     public void onResponse(JSONObject response) {
                         try {
                             // Handle the response here
-                            System.out.println(response.toString());
 
                             // Check if the response contains data
                             if (response != null){
