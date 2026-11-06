@@ -78,25 +78,22 @@ public class WorkoutWizardActivity extends BaseActivity
     private TextView browseExercisesIconTextView;
 
 
+    private final OnBackPressedCallback detailsBackCallback = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            hideWorkoutDetails();
+            showFormOrList();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout_wizard);
 
-        // Back closes the workout details panel first, then leaves the screen
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (workoutDetailsLayout != null && workoutDetailsLayout.getVisibility() == View.VISIBLE) {
-                    hideWorkoutDetails();
-                    showFormOrList();
-                } else {
-                    setEnabled(false);
-                    getOnBackPressedDispatcher().onBackPressed();
-                    setEnabled(true);
-                }
-            }
-        });
+        // Back closes the workout details panel first; the callback is only enabled while the
+        // panel is open, so otherwise the system handles Back (with its predictive animation)
+        getOnBackPressedDispatcher().addCallback(this, detailsBackCallback);
 
         editWorkoutLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -547,6 +544,7 @@ public class WorkoutWizardActivity extends BaseActivity
         }
 
         workoutDetailsLayout.setVisibility(View.VISIBLE);
+        detailsBackCallback.setEnabled(true);
         workoutPlanDescription.setText(plan.getDescription());
         workoutPlanExplanation.setText(plan.getExplanation());
 
@@ -683,6 +681,7 @@ public class WorkoutWizardActivity extends BaseActivity
 
     private void hideAllContentSections() {
         workoutDetailsLayout.setVisibility(View.GONE);
+        detailsBackCallback.setEnabled(false);
         mainLoadingProgressBar.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
         savedWorkoutsContent.setVisibility(View.GONE);
@@ -728,10 +727,12 @@ public class WorkoutWizardActivity extends BaseActivity
     private void showWorkoutDetailsPanel() {
         hideAllContentSections();
         workoutDetailsLayout.setVisibility(View.VISIBLE);
+        detailsBackCallback.setEnabled(true);
     }
 
     private void hideWorkoutDetails() {
         workoutDetailsLayout.setVisibility(View.GONE);
+        detailsBackCallback.setEnabled(false);
         exercisesRecyclerView.setAdapter(null);
     }
 
