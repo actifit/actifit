@@ -36,6 +36,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import android.app.Activity;
 import android.content.SharedPreferences;
 
 /**
@@ -55,6 +60,39 @@ public class ChartManager {
 
     private int getDailyGoal() {
         return Utils.getDailyStepGoal(context);
+    }
+
+    // Chart data comes from SQLite; reading it on the main thread caused ANRs (Play vitals,
+    // builds 64-70). One background thread keeps reads ordered and reuses a single helper.
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
+    private StepsDBHelper chartDb;
+
+    /**
+     * Call from the owning activity's onDestroy to stop the worker thread. chartDb is not closed:
+     * StepsDBHelper keeps a static SQLiteDatabase shared with the step service.
+     */
+    public void release() {
+        dbExecutor.shutdown();
+    }
+
+    private <T> void loadThenRender(Callable<T> load, Consumer<T> render) {
+        // late callbacks (e.g. a Health Connect fetch) can still ask for a redraw after release()
+        if (dbExecutor.isShutdown()) return;
+        dbExecutor.execute(() -> {
+            T data;
+            try {
+                if (chartDb == null) chartDb = new StepsDBHelper(context);
+                data = load.call();
+            } catch (Exception e) {
+                Log.e(TAG, "Chart data load failed", e);
+                return;
+            }
+            Activity activity = (Activity) context;
+            activity.runOnUiThread(() -> {
+                if (activity.isFinishing() || activity.isDestroyed()) return;
+                render.accept(data);
+            });
+        });
     }
 
     private BarChart dayChart, fullChart;
@@ -237,14 +275,8 @@ public class ChartManager {
     }
 
     public void displayDayChartData(final boolean animate) {
-        ((android.app.Activity) context).runOnUiThread(() -> {
-            Date date = new Date();
-            java.text.DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", java.util.Locale.getDefault());
-            String strDate = dateFormat.format(date);
-
-            StepsDBHelper mStepsDBHelper = new StepsDBHelper(context);
-            ArrayList<ActivitySlot> mStepCountList = mStepsDBHelper.fetchDateTimeSlotActivity(strDate);
-
+        String strDate = new SimpleDateFormat("yyyyMMdd", java.util.Locale.getDefault()).format(new Date());
+        loadThenRender(() -> chartDb.fetchDateTimeSlotActivity(strDate), mStepCountList -> {
             dayChart = ((android.app.Activity) context).findViewById(R.id.main_today_activity_chart);
             List<BarEntry> entries = new ArrayList<>();
             int data_id = 0;
@@ -317,9 +349,7 @@ public class ChartManager {
     }
 
     public void displayChartData(final boolean animate) {
-        ((android.app.Activity) context).runOnUiThread(() -> {
-            StepsDBHelper mStepsDBHelper = new StepsDBHelper(context);
-            ArrayList<DateStepsModel> mStepCountList = mStepsDBHelper.readStepsEntries();
+        loadThenRender(() -> chartDb.readStepsEntries(), mStepCountList -> {
 
             SimpleDateFormat dateFormIn = new SimpleDateFormat("yyyyMMdd");
             SimpleDateFormat dateFormOut = new SimpleDateFormat("MM/dd");
@@ -416,28 +446,22 @@ public class ChartManager {
     // ── HC / Fitbit chart display methods ───────────────────────────────────
 
     public void displayChartDataHC(final boolean animate) {
-        ((android.app.Activity) context).runOnUiThread(() -> {
-            StepsDBHelper db = new StepsDBHelper(context);
-            ArrayList<DateStepsModel> data = db.readHCStepsEntries();
+        loadThenRender(() -> chartDb.readHCStepsEntries(), data -> {
             fullChart = ((android.app.Activity) context).findViewById(R.id.main_history_activity_chart);
             renderDailyBars(fullChart, data, animate);
         });
     }
 
     public void displayDayChartDataHC(final boolean animate) {
-        ((android.app.Activity) context).runOnUiThread(() -> {
-            String strDate = new SimpleDateFormat("yyyyMMdd", java.util.Locale.getDefault()).format(new Date());
-            StepsDBHelper db = new StepsDBHelper(context);
-            ArrayList<ActivitySlot> data = db.fetchHCDateTimeSlotActivity(strDate);
+        String strDate = new SimpleDateFormat("yyyyMMdd", java.util.Locale.getDefault()).format(new Date());
+        loadThenRender(() -> chartDb.fetchHCDateTimeSlotActivity(strDate), data -> {
             dayChart = ((android.app.Activity) context).findViewById(R.id.main_today_activity_chart);
             renderHourlyBars(dayChart, data, animate);
         });
     }
 
     public void displayChartDataFitbit(final boolean animate) {
-        ((android.app.Activity) context).runOnUiThread(() -> {
-            StepsDBHelper db = new StepsDBHelper(context);
-            ArrayList<DateStepsModel> data = db.readFitbitStepsEntries();
+        loadThenRender(() -> chartDb.readFitbitStepsEntries(), data -> {
             fullChart = ((android.app.Activity) context).findViewById(R.id.main_history_activity_chart);
             renderDailyBars(fullChart, data, animate);
         });

@@ -43,6 +43,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
@@ -291,6 +292,20 @@ public class MainActivity extends BaseActivity {
     private Context ctx;
 
     private BroadcastReceiver receiver;
+    // step broadcasts arrive per step; redraw the bar charts at most every 5 s, with a trailing
+    // refresh so the last steps still show once the user stops walking
+    private static final long STEP_CHART_REFRESH_MS = 5000;
+    private long lastStepChartRefresh = 0;
+    private boolean stepChartRefreshPending = false;
+    private final Handler chartRefreshHandler = new Handler(Looper.getMainLooper());
+    private final Runnable stepChartRefresh = () -> {
+        stepChartRefreshPending = false;
+        lastStepChartRefresh = SystemClock.elapsedRealtime();
+        if (MainActivity.isActivityVisible) {
+            displayDayChartData(false);
+            displayChartData(false);
+        }
+    };
 
     // flag if service is bound now
     boolean mBound = false;
@@ -1695,7 +1710,7 @@ public class MainActivity extends BaseActivity {
         });
 
         // hook up our standard thread catcher to allow auto-restart after crash
-        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerRestartApp(this));
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerRestartApp());
 
         // this is now needed for proper image upload to AWS
         // TODO: RECHECK THIS CRASHING
@@ -1736,11 +1751,11 @@ public class MainActivity extends BaseActivity {
                         getString(R.string.device_tracking_ntt));
                 if (activeMode.equals(getString(R.string.device_tracking_ntt))) {
                     displayActivityChart(stepCount, false);
-                    if (MainActivity.isActivityVisible) {
-                        DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(false);
-                        dispChartData.execute(false);
-                        DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(false);
-                        dispCData.execute(false);
+                    if (!stepChartRefreshPending) {
+                        stepChartRefreshPending = true;
+                        long sinceLast = SystemClock.elapsedRealtime() - lastStepChartRefresh;
+                        chartRefreshHandler.postDelayed(stepChartRefresh,
+                                Math.max(0, STEP_CHART_REFRESH_MS - sinceLast));
                     }
                 }
             }
@@ -2123,8 +2138,8 @@ public class MainActivity extends BaseActivity {
                 resumeAsyncTask.execute();
 
                 displayActivityChart(steps, true);
-                new DisplayChartDataAsyncTask(true).execute(true);
-                new DisplayDayChartDataAsyncTask(true).execute(true);
+                displayChartData(true);
+                displayDayChartData(true);
                 refreshSecondaryCards();
             }
         });
@@ -2479,39 +2494,8 @@ public class MainActivity extends BaseActivity {
         loadAiInsight();
     }
 
-    private class DisplayDayChartDataAsyncTask extends AsyncTask<Boolean, Void, ArrayList<ActivitySlot>> {
-        Boolean animate = false;
-        public DisplayDayChartDataAsyncTask(Boolean _animate) { animate = _animate; }
-        @Override
-        protected ArrayList<ActivitySlot> doInBackground(Boolean... animate) {
-            Date date = new Date();
-            DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-            String strDate = dateFormat.format(date);
-            return mStepsDBHelper.fetchDateTimeSlotActivity(strDate);
-        }
-        @Override
-        protected void onPostExecute(ArrayList<ActivitySlot> mStepCountList) {
-            super.onPostExecute(mStepCountList);
-            chartManager.displayDayChartData(animate);
-        }
-    }
-
     private void displayDayChartData(final boolean animate) {
         chartManager.displayDayChartData(animate);
-    }
-
-    private class DisplayChartDataAsyncTask extends AsyncTask<Boolean, Void, ArrayList<DateStepsModel>> {
-        Boolean animate = false;
-        public DisplayChartDataAsyncTask(Boolean _animate) { animate = _animate; }
-        @Override
-        protected ArrayList<DateStepsModel> doInBackground(Boolean... animate) {
-            return mStepsDBHelper.readStepsEntries();
-        }
-        @Override
-        protected void onPostExecute(ArrayList<DateStepsModel> mStepCountList) {
-            super.onPostExecute(mStepCountList);
-            chartManager.displayChartData(animate);
-        }
     }
 
     private class DisplayHCHistoryChartAsyncTask extends AsyncTask<Boolean, Void, Void> {
@@ -3481,6 +3465,7 @@ public class MainActivity extends BaseActivity {
                     final String userImgUrl = getString(R.string.hive_image_host_url).replace("USERNAME", encodedUsername);
                     Handler uiHandler = new Handler(Looper.getMainLooper());
                     uiHandler.post(() -> {
+                        if (isFinishing() || isDestroyed()) return;
                         Glide.with(ctx)
                                 .load(userImgUrl)
                                 .into(userProfilePic);
@@ -3814,10 +3799,8 @@ public class MainActivity extends BaseActivity {
                 if (getSharedPreferences("actifitSets", MODE_PRIVATE)
                         .getString("dataTrackingSystem", getString(R.string.device_tracking_ntt))
                         .equals(getString(R.string.device_tracking_ntt))) {
-                    DisplayDayChartDataAsyncTask dispChartData = new DisplayDayChartDataAsyncTask(true);
-                    dispChartData.execute(true);
-                    DisplayChartDataAsyncTask dispCData = new DisplayChartDataAsyncTask(true);
-                    dispCData.execute(true);
+                    displayDayChartData(true);
+                    displayChartData(true);
                 }
 
                 ResumeAsyncTask resumeAsyncTask = new ResumeAsyncTask();
@@ -3921,6 +3904,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        chartRefreshHandler.removeCallbacks(stepChartRefresh);
+        if (chartManager != null) chartManager.release();
         // sensorManager.unregisterListener(this);
         /*
          * isListenerActive = false;
@@ -4160,8 +4145,8 @@ public class MainActivity extends BaseActivity {
                 dayChartButton.setVisibility(View.VISIBLE);
                 displayActivityChart(stepCount, true);
                 // Device-mode charts
-                new DisplayDayChartDataAsyncTask(true).execute(true);
-                new DisplayChartDataAsyncTask(true).execute(true);
+                displayDayChartData(true);
+                displayChartData(true);
             } else if (dataTrackingSystem.equals(getString(R.string.fitbit_tracking_ntt))) {
                 hideCharts();
                 chartSwitcher.setVisibility(View.GONE);
