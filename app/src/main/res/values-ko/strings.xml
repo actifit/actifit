@@ -98,16 +98,12 @@
 	<string name="report_preview_lbl">보고서 미리보기</string>
 	<string name="comment_preview_lbl">댓글 미리보기</string>
 	<string name="wave_preview_lbl">웨이브 미리보기</string>
-	<string name="fitbit_sync_btn_lbl">FITBIT 동기화</string>
 	<string name="percent_lbl">%</string>
 	<string name="activity_source_lbl">활동 데이터 소스</string>
 	<string name="device_sensors_option_lbl">전화기 센서</string>
 	<string name="fitbit_option_lbl">제3자</string>
 	<string name="background_move_track_lbl">백그라운드 이동 추적</string>
 	<string name="enable_agg_mode_checkbox">공격적인 백그라운드 추적 활성화*</string>
-	<string name="fitbit_settings_lbl">Fitbit 설정</string>
-	<string name="fitbit_measurements_lbl">측정값 가져오기</string>
-	<string name="fitbit_fetch_steps">단계 가져오기</string>
 	<string name="steem_post_payout">포스트 지불</string>
 	<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 	<string name="pay_option_full_sp">100% HP</string>

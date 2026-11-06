@@ -100,16 +100,12 @@
     <string name="report_preview_lbl">معاينة التقرير</string>
     <string name="comment_preview_lbl">معاينة التعليق</string>
     <string name="wave_preview_lbl">معاينة</string>
-    <string name="fitbit_sync_btn_lbl">مزامنة Fitbit</string>
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">مصدر البيانات النشاط</string>
     <string name="device_sensors_option_lbl">مستشعرات الجهاز</string>
     <string name="fitbit_option_lbl">طرف ثالث</string>
     <string name="background_move_track_lbl">تتبع الحركة في الخلفية</string>
     <string name="enable_agg_mode_checkbox">تمكين التتبع العدواني في الخلفية*</string>
-    <string name="fitbit_settings_lbl">إعدادات Fitbit</string>
-    <string name="fitbit_measurements_lbl">جلب القياسات</string>
-    <string name="fitbit_fetch_steps">جلب الخطوات</string>
     <string name="steem_post_payout">مكافأة نشر Steem</string>
     <string name="pay_option_50_50" formatted="false">50٪ HBD - 50٪ HP</string>
     <string name="pay_option_full_sp">100٪ HP</string>

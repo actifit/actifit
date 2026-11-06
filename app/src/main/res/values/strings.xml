@@ -118,16 +118,12 @@
     <string name="report_preview_lbl">Report Preview</string>
     <string name="comment_preview_lbl">Comment Preview</string>
     <string name="wave_preview_lbl">Preview</string>
-    <string name="fitbit_sync_btn_lbl">FITBIT SYNC</string>
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">Activity Data Source</string>
     <string name="device_sensors_option_lbl">Phone Sensors</string>
     <string name="fitbit_option_lbl">3rd Party</string>
     <string name="background_move_track_lbl">Background Movement Tracking</string>
     <string name="enable_agg_mode_checkbox">Enable Aggressive Background Tracking*</string>
-    <string name="fitbit_settings_lbl">Fitbit Settings</string>
-    <string name="fitbit_measurements_lbl">Fetch Measurements</string>
-    <string name="fitbit_fetch_steps">Fetch Steps</string>
     <string name="steem_post_payout">Post Payout</string>
     <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
     <string name="pay_option_full_sp">100% HP</string>

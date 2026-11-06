@@ -97,16 +97,12 @@
     <string name="report_preview_lbl">Rapor Önizlemesi</string>
     <string name="comment_preview_lbl">Yorum Önizlemesi</string>
     <string name="wave_preview_lbl">Önizleme</string>
-    <string name="fitbit_sync_btn_lbl">FITBIT SENKRONİZASYONU</string>
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">Aktivite Veri Kaynağı</string>
     <string name="device_sensors_option_lbl">Telefon Sensörleri</string>
     <string name="fitbit_option_lbl">Üçüncü Taraf</string>
     <string name="background_move_track_lbl">Arka Plan Hareket Takibi</string>
     <string name="enable_agg_mode_checkbox">Aggresif Arka Plan Takibini Etkinleştir*</string>
-    <string name="fitbit_settings_lbl">Fitbit Ayarları</string>
-    <string name="fitbit_measurements_lbl">Ölçümleri Al</string>
-    <string name="fitbit_fetch_steps">Adımları Al</string>
     <string name="steem_post_payout">Gönderi Ödemesi</string>
     <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
     <string name="pay_option_full_sp">100% HP</string>

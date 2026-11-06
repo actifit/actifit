@@ -98,16 +98,12 @@
 <string name="report_preview_lbl">Atokọ Akopọ</string>
 <string name="comment_preview_lbl">Akopọ Ọrọìwòye</string>
 <string name="wave_preview_lbl">Akopọ</string>
-<string name="fitbit_sync_btn_lbl">FITBIT SYNC</string>
 <string name="percent_lbl">%</string>
 <string name="activity_source_lbl">Orisun Data Iṣẹ Iṣẹ</string>
 <string name="device_sensors_option_lbl">Awọn Sensọ Foonu</string>
 <string name="fitbit_option_lbl">Ẹgbẹ Kẹta</string>
 <string name="background_move_track_lbl">Iṣipopada Iṣipopada Iṣipopada</string>
 <string name="enable_agg_mode_checkbox">Mu Titele Abẹlẹ Agbara ṣiṣẹ*</string>
-<string name="fitbit_settings_lbl">Awọn eto Fitbit</string>
-<string name="fitbit_measurements_lbl">Gba Awọn wiwọn</string>
-<string name="fitbit_fetch_steps">Gba Awọn igbesẹ</string>
 <string name="steem_post_payout">Firanṣẹ Payout</string>
 <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 <string name="pay_option_full_sp">100% HP</string>

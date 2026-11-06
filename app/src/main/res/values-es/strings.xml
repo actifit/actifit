@@ -101,16 +101,12 @@
     <string name="report_preview_lbl">Vista previa del informe</string>
     <string name="comment_preview_lbl">Vista previa del comentario</string>
     <string name="wave_preview_lbl">Vista previa</string>
-    <string name="fitbit_sync_btn_lbl">SINCRONIZACIÓN DE FITBIT</string>
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">Fuente de datos de actividad</string>
     <string name="device_sensors_option_lbl">Sensores del teléfono</string>
     <string name="fitbit_option_lbl">Tercera parte</string>
     <string name="background_move_track_lbl">Seguimiento de movimiento en segundo plano</string>
     <string name="enable_agg_mode_checkbox">Activar seguimiento agresivo en segundo plano*</string>
-    <string name="fitbit_settings_lbl">Configuración de Fitbit</string>
-    <string name="fitbit_measurements_lbl">Obtener mediciones</string>
-    <string name="fitbit_fetch_steps">Obtener pasos</string>
     <string name="steem_post_payout">Pago por publicación</string>
     <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
     <string name="pay_option_full_sp">100% HP</string>

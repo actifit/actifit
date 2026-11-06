@@ -98,16 +98,12 @@
 	<string name="report_preview_lbl">Rapportvoorbeeld</string>
 	<string name="comment_preview_lbl">Commentaarvoorbeeld</string>
 	<string name="wave_preview_lbl">Golfvoorbeeld</string>
-	<string name="fitbit_sync_btn_lbl">FITBIT SYNC</string>
 	<string name="percent_lbl">%</string>
 	<string name="activity_source_lbl">Bron van activiteitsgegevens</string>
 	<string name="device_sensors_option_lbl">Telefoonsensoren</string>
 	<string name="fitbit_option_lbl">Derde partij</string>
 	<string name="background_move_track_lbl">Achtergrondbewegingsregistratie</string>
 	<string name="enable_agg_mode_checkbox">Schakel agressieve achtergrondtracking in*</string>
-	<string name="fitbit_settings_lbl">Fitbit-instellingen</string>
-	<string name="fitbit_measurements_lbl">Meetwaarden ophalen</string>
-	<string name="fitbit_fetch_steps">Stappen ophalen</string>
 	<string name="steem_post_payout">Uitbetaling na bericht</string>
 	<string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 	<string name="pay_option_full_sp">100% HP</string>

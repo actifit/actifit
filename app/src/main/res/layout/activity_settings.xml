@@ -126,41 +126,6 @@
 
                     </LinearLayout>
 
-                    <!-- Conditional: shown when Fitbit selected -->
-                    <LinearLayout
-                        android:id="@+id/fitbit_settings_section"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginTop="@dimen/spacing_sm"
-                        android:visibility="gone">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/fitbit_settings_lbl"
-                            android:textColor="@color/md_theme_onSurface"
-                            android:textSize="@dimen/text_body"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="@dimen/spacing_xs" />
-
-                        <CheckBox
-                            android:id="@+id/fitbit_measurements"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            android:text="@string/fitbit_measurements_lbl" />
-
-                        <CheckBox
-                            android:id="@+id/fitbit_steps"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:enabled="false"
-                            android:checked="true"
-                            android:text="@string/fitbit_fetch_steps" />
-
-                    </LinearLayout>
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

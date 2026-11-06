@@ -98,16 +98,12 @@
 <string name="report_preview_lbl">Pré-visualização do Relatório</string>
 <string name="comment_preview_lbl">Pré-visualização do Comentário</string>
 <string name="wave_preview_lbl">Pré-visualização</string>
-<string name="fitbit_sync_btn_lbl">SINCRONIZAÇÃO FITBIT</string>
 <string name="percent_lbl">%</string>
 <string name="activity_source_lbl">Fonte de Dados de Atividade</string>
 <string name="device_sensors_option_lbl">Sensores do Telefone</string>
 <string name="fitbit_option_lbl">Terceiros</string>
 <string name="background_move_track_lbl">Rastreamento de Movimento em Segundo Plano</string>
 <string name="enable_agg_mode_checkbox">Ativar Rastreamento Agressivo em Segundo Plano*</string>
-<string name="fitbit_settings_lbl">Configurações do Fitbit</string>
-<string name="fitbit_measurements_lbl">Buscar Medições</string>
-<string name="fitbit_fetch_steps">Buscar Passos</string>
 <string name="steem_post_payout">Pagamento da Postagem</string>
 <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 <string name="pay_option_full_sp">100% HP</string>

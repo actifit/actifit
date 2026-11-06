@@ -56,14 +56,8 @@
     <string name="sec_param" translatable="false">Actifit_sec_param</string>
     <string name="sec_param_val" translatable="false">*****</string>
     <string name="safetynet_google_api" translatable="false">*****</string>
-    <string name="fitbit_clientid" translatable="false">*****</string>
-    <string name="fitbit_clientsec" translatable="false">*****</string>
-    <string name="fitbit_apicb" translatable="false">actifitcb://fitbitcallback</string>
-    <string name="fitbit_apicbmain" translatable="false">actifitcb://fitbitcallbackmain</string><!-- ftbmaincb-->
     <string name="x_latest_post_url" translatable="false">latestXPost</string>
-    <string name="fitbit_revokeurl" translatable="false">https://www.fitbit.com/oauth2/revoke</string>
     <string name="sign_key" translatable="false">*****</string>
-    <string name="fitbit_user_enc" translatable="false">SHA-512</string>
     <string name="activity_url_link" translatable="false">activity</string>
     <string name="signup_link" translatable="false">signup</string>
     <string name="active_gadgets_url" translatable="false">activeGadgetsByUserApp/</string>

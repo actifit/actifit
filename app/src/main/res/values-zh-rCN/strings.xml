@@ -97,16 +97,12 @@
 <string name="report_preview_lbl">报告预览</string>
 <string name="comment_preview_lbl">评论预览</string>
 <string name="wave_preview_lbl">波浪预览</string>
-<string name="fitbit_sync_btn_lbl">FITBIT 同步</string>
 <string name="percent_lbl">%</string>
 <string name="activity_source_lbl">活动数据来源</string>
 <string name="device_sensors_option_lbl">手机传感器</string>
 <string name="fitbit_option_lbl">第三方</string>
 <string name="background_move_track_lbl">后台移动跟踪</string>
 <string name="enable_agg_mode_checkbox">启用激进后台跟踪*</string>
-<string name="fitbit_settings_lbl">Fitbit 设置</string>
-<string name="fitbit_measurements_lbl">获取测量数据</string>
-<string name="fitbit_fetch_steps">获取步骤</string>
 <string name="steem_post_payout">发布支付</string>
 <string name="pay_option_50_50" formatted="false">50% HBD - 50% HP</string>
 <string name="pay_option_full_sp">100% HP</string>
