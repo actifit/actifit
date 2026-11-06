@@ -25,9 +25,17 @@ public class ReminderNotificationService extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        // re-arm first: the alarm is one-shot, and alarms are cleared by a reboot
+        // re-arm first: the alarm is one-shot, alarms are cleared by a reboot, and a time or
+        // timezone change moves the next wall-clock reminder
         ReminderScheduler.scheduleFromPrefs(context);
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+        String action = intent.getAction();
+        if (Intent.ACTION_BOOT_COMPLETED.equals(action)
+                || Intent.ACTION_TIMEZONE_CHANGED.equals(action)
+                || Intent.ACTION_TIME_CHANGED.equals(action)) {
+            return;
+        }
+        // a stale alarm from an older version can still fire after the user turned reminders off
+        if (!ReminderScheduler.isEnabled(context)) {
             return;
         }
 

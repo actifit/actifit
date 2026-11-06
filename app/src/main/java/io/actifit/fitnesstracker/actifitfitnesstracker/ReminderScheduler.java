@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 
 import java.util.Calendar;
 
@@ -48,7 +49,18 @@ final class ReminderScheduler {
 
     static void cancel(Context ctx) {
         cancelLegacyAlarm(ctx);
-        alarmManager(ctx).cancel(reminderIntent(ctx));
+        Intent intent = new Intent(ctx, ReminderNotificationService.class).setAction(ACTION_REMIND);
+        PendingIntent existing = PendingIntent.getBroadcast(ctx, ReminderNotificationService.NOTIFICATION_ID,
+                intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE);
+        if (existing != null) {
+            alarmManager(ctx).cancel(existing);
+            existing.cancel();
+        }
+    }
+
+    static boolean isEnabled(Context ctx) {
+        SharedPreferences prefs = ctx.getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
+        return !prefs.getString("selectedReminderHour", "").isEmpty();
     }
 
     private static PendingIntent reminderIntent(Context ctx) {
@@ -57,11 +69,16 @@ final class ReminderScheduler {
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    // versions up to 0.15.2 set a daily repeating alarm with request code 0 and no action
+    // Versions up to 0.15.2 set a daily repeating alarm with request code 0 and no action.
+    // A PendingIntent lookup also matches on the mutability flag it was created with:
+    // FLAG_MUTABLE on Android 12+, none before that.
+    @android.annotation.SuppressLint("UnspecifiedImmutableFlag")
     private static void cancelLegacyAlarm(Context ctx) {
+        int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                ? PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_NO_CREATE
+                : PendingIntent.FLAG_NO_CREATE;
         PendingIntent legacy = PendingIntent.getBroadcast(ctx, 0,
-                new Intent(ctx, ReminderNotificationService.class),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE);
+                new Intent(ctx, ReminderNotificationService.class), flags);
         if (legacy != null) {
             alarmManager(ctx).cancel(legacy);
             legacy.cancel();
