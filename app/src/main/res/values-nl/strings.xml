@@ -896,6 +896,8 @@
     <string name="arena_featured_join">Gratis meedoen. Doe mee voordat de tijd om is.</string>
     <string name="arena_featured_joined">Je doet mee. Plaats het verslag van vandaag zodat het meetelt.</string>
     <string name="arena_ends_in_clock">Eindigt over %1$s</string>
+    <string name="sync_from_health_connect_btn_lbl">Synchroniseren vanuit Health Connect</string>
+    <string name="steps_synced_from_health_connect">Stappen gesynchroniseerd vanuit Health Connect</string>
 </resources>
 
 

@@ -778,6 +778,8 @@
     <string name="arena_metric_steps">Número de passos</string>
     <string name="arena_metric_distance">Distância</string>
     <string name="arena_metric_goal">Metas diárias alcançadas</string>
+    <string name="sync_from_health_connect_btn_lbl">Sincronizar do Health Connect</string>
+    <string name="steps_synced_from_health_connect">Passos sincronizados do Health Connect</string>
 </resources>
 
 

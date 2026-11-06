@@ -886,6 +886,8 @@
         <item quantity="one">Àmì-ẹ̀rí Arena (%d)</item>
         <item quantity="other">Àmì-ẹ̀rí Arena (%d)</item>
     </plurals>
+    <string name="sync_from_health_connect_btn_lbl">Ṣe amuṣiṣẹpọ lati Health Connect</string>
+    <string name="steps_synced_from_health_connect">A ti ṣe amuṣiṣẹpọ awọn igbesẹ lati Health Connect</string>
 </resources>
 
 
