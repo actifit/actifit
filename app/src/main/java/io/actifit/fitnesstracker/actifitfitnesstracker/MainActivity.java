@@ -937,9 +937,7 @@ public class MainActivity extends BaseActivity {
                         // Get new Instance ID token
                         commToken = task.getResult().getToken();
 
-                        // Log and toast
                         // String msg = getString(R.string.msg_, token);
-                        Log.d(TAG, commToken);
 
                         Thread thread = new Thread(() -> {
                             try {
