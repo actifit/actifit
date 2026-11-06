@@ -292,8 +292,20 @@ public class MainActivity extends BaseActivity {
     private Context ctx;
 
     private BroadcastReceiver receiver;
+    // step broadcasts arrive per step; redraw the bar charts at most every 5 s, with a trailing
+    // refresh so the last steps still show once the user stops walking
     private static final long STEP_CHART_REFRESH_MS = 5000;
     private long lastStepChartRefresh = 0;
+    private boolean stepChartRefreshPending = false;
+    private final Handler chartRefreshHandler = new Handler(Looper.getMainLooper());
+    private final Runnable stepChartRefresh = () -> {
+        stepChartRefreshPending = false;
+        lastStepChartRefresh = SystemClock.elapsedRealtime();
+        if (MainActivity.isActivityVisible) {
+            displayDayChartData(false);
+            displayChartData(false);
+        }
+    };
 
     // flag if service is bound now
     boolean mBound = false;
@@ -1698,7 +1710,7 @@ public class MainActivity extends BaseActivity {
         });
 
         // hook up our standard thread catcher to allow auto-restart after crash
-        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerRestartApp(this));
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerRestartApp());
 
         // this is now needed for proper image upload to AWS
         // TODO: RECHECK THIS CRASHING
@@ -1739,11 +1751,11 @@ public class MainActivity extends BaseActivity {
                         getString(R.string.device_tracking_ntt));
                 if (activeMode.equals(getString(R.string.device_tracking_ntt))) {
                     displayActivityChart(stepCount, false);
-                    long now = SystemClock.elapsedRealtime();
-                    if (MainActivity.isActivityVisible && now - lastStepChartRefresh >= STEP_CHART_REFRESH_MS) {
-                        lastStepChartRefresh = now;
-                        displayDayChartData(false);
-                        displayChartData(false);
+                    if (!stepChartRefreshPending) {
+                        stepChartRefreshPending = true;
+                        long sinceLast = SystemClock.elapsedRealtime() - lastStepChartRefresh;
+                        chartRefreshHandler.postDelayed(stepChartRefresh,
+                                Math.max(0, STEP_CHART_REFRESH_MS - sinceLast));
                     }
                 }
             }
@@ -3892,6 +3904,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        chartRefreshHandler.removeCallbacks(stepChartRefresh);
+        if (chartManager != null) chartManager.release();
         // sensorManager.unregisterListener(this);
         /*
          * isListenerActive = false;

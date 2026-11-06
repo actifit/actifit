@@ -1,6 +1,5 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -13,10 +12,11 @@ import android.os.Build;
  *
  * */
 public class ExceptionHandlerRestartApp implements Thread.UncaughtExceptionHandler {
-    // the system handler: it reports the crash (Play vitals) and ends the process
+    // the handler installed before ours (Crashlytics, then the system one): it reports the
+    // crash and ends the process
     private final Thread.UncaughtExceptionHandler previous;
 
-    public ExceptionHandlerRestartApp(Activity a) {
+    public ExceptionHandlerRestartApp() {
         // MainActivity installs this on every onCreate; don't chain onto our own earlier copy
         Thread.UncaughtExceptionHandler current = Thread.getDefaultUncaughtExceptionHandler();
         previous = current instanceof ExceptionHandlerRestartApp
@@ -25,6 +25,22 @@ public class ExceptionHandlerRestartApp implements Thread.UncaughtExceptionHandl
 
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
+        try {
+            scheduleRestart();
+        } catch (Throwable ignored) {
+            // never let the restart attempt stop the crash from being reported
+        }
+        // finishing the activity from a background thread could hang (ANR); let the previous
+        // handler report the crash and kill the process. The restart alarm may be blocked by
+        // background-activity-start limits on Android 10+.
+        if (previous != null) {
+            previous.uncaughtException(thread, ex);
+        } else {
+            System.exit(2);
+        }
+    }
+
+    private void scheduleRestart() {
 
         Intent intent = new Intent(ActifitApplication.getInstance().getBaseContext(), MainActivity.class);
         intent.putExtra("crash", true);
@@ -40,13 +56,5 @@ public class ExceptionHandlerRestartApp implements Thread.UncaughtExceptionHandl
         AlarmManager mgr = (AlarmManager) ActifitApplication.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
 
-
-        // finishing the activity from a background thread could hang (ANR); let the system
-        // handler report the crash and kill the process, then the alarm above restarts us
-        if (previous != null) {
-            previous.uncaughtException(thread, ex);
-        } else {
-            System.exit(2);
-        }
     }
 }

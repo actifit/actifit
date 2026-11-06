@@ -67,7 +67,17 @@ public class ChartManager {
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
     private StepsDBHelper chartDb;
 
+    /**
+     * Call from the owning activity's onDestroy to stop the worker thread. chartDb is not closed:
+     * StepsDBHelper keeps a static SQLiteDatabase shared with the step service.
+     */
+    public void release() {
+        dbExecutor.shutdown();
+    }
+
     private <T> void loadThenRender(Callable<T> load, Consumer<T> render) {
+        // late callbacks (e.g. a Health Connect fetch) can still ask for a redraw after release()
+        if (dbExecutor.isShutdown()) return;
         dbExecutor.execute(() -> {
             T data;
             try {
