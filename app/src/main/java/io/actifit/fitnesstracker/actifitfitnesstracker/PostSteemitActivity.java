@@ -1863,7 +1863,19 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         return chip;
     }
 
-    private void addTagChip(String tag) {
+    private void addTagChip(String rawTag) {
+        // Hive only accepts lowercase letters, digits and single dashes in tags, so clean the
+        // input here instead of letting the post fail or carry a broken tag
+        String tag = rawTag.toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9-]", "")
+                .replaceAll("-{2,}", "-");
+        if (tag.length() > 24) tag = tag.substring(0, 24);
+        tag = tag.replaceAll("^-+|-+$", "");
+        if (tag.isEmpty()) return;
+        for (int i = 0; i < tagsChipGroup.getChildCount(); i++) {
+            if (tag.equals(((Chip) tagsChipGroup.getChildAt(i)).getText().toString())) return;
+        }
+
         Chip chip = new Chip(this);
         chip.setText(tag);
         chip.setCloseIconVisible(true);

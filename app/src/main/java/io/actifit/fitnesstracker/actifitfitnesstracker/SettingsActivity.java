@@ -1,8 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -74,8 +72,6 @@ import java.util.Objects;
 public class SettingsActivity extends BaseActivity {
 
     private NumberPicker hourOptions, minOptions;
-    private AlarmManager alarmManager;
-    private PendingIntent alarmIntent;
     private String fullSPPay = "full_SP_Pay";
     private String sbdSPPay = "50_50_SBD_SP_Pay";
     private String liquidPay = "liquid_Pay";
@@ -883,54 +879,15 @@ public class SettingsActivity extends BaseActivity {
                 }
             }
 
-            //unset alarm and the need to restart Actifit notification reminder after reboot
-            alarmManager = (AlarmManager) getApplicationContext()
-                    .getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent(getApplicationContext(), ReminderNotificationService.class);
-            if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-                alarmIntent = PendingIntent.getService(getApplicationContext()
-                        , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_MUTABLE);
-            }else {
-                alarmIntent = PendingIntent.getService(getApplicationContext()
-                        , ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            }
-            //unset any existing alarms first
-            alarmManager.cancel(alarmIntent);
-
-            //check if reminder setting is on and only set it
+            //daily post reminder: store the time, then arm (or cancel) the alarm
             if (reminderSetChckBox.isChecked()) {
                 editor.putString("selectedReminderHour", "" + hourOptions.getValue());
                 editor.putString("selectedReminderMin", "" + minOptions.getValue());
-
-                //set the alarm at user defined value
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                calendar.set(Calendar.HOUR_OF_DAY, hourOptions.getValue());
-                calendar.set(Calendar.MINUTE, minOptions.getValue());
-
-                //PendingIntent.getService(currentActivity, ReminderNotificationService.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                intent.putExtra("NOTIFICATION_ID", ReminderNotificationService.NOTIFICATION_ID);
-
-                Log.d(MainActivity.TAG,">>>>[Actifit]: set alarm manager"+hourOptions.getValue()+" "+minOptions.getValue());
-
-                if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.S) {
-                    alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
-                            , 0, intent, PendingIntent.FLAG_MUTABLE);
-                }else{
-                    alarmIntent = PendingIntent.getBroadcast(getApplicationContext()
-                            , 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                }
-
-                alarmManager = (AlarmManager) getApplicationContext()
-                        .getSystemService(Context.ALARM_SERVICE);
-
-                //specify alarm interval to be every 24 hours at user defined slot
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                        1000 * 60 * 60 * 24, alarmIntent);
-            }else{
-                //cancellation case
+                ReminderScheduler.schedule(getApplicationContext(), hourOptions.getValue(), minOptions.getValue());
+            } else {
                 editor.putString("selectedReminderHour", "");
                 editor.putString("selectedReminderMin", "");
+                ReminderScheduler.cancel(getApplicationContext());
             }
 
             //adjust notification status
