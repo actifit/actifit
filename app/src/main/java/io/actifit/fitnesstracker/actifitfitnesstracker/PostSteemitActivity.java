@@ -80,7 +80,6 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
@@ -91,7 +90,6 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -141,17 +139,12 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     private boolean isEditorExpanded = false;
 
-    // tracks whether user synched his Fitbit data to avoid refetching activity
-    // count from current device
-    private static int fitbitSyncDone = 0;
-
     // tracks whether user synched his HealthConnect data
     private static int healthConnectSyncDone = 0;
 
     // tracks whether user wants to post yesterday's data instead
     private static boolean yesterdayReport = false;
 
-    private String fitbitUserId;
 
     EditText steemitPostTitle;
 
@@ -713,7 +706,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             reportDateOptionGroup.check(R.id.report_today_option);
         }
 
-        final TextView fitbitSyncNotice = findViewById(R.id.fitbit_sync_notice);
+        final TextView syncAgainNotice = findViewById(R.id.sync_again_notice);
 
         // event listener for change in selection
         reportDateOptionGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
@@ -721,10 +714,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
             // if user had synced before, we need to notify that they need to sync again
             // after change of date
-            if (fitbitSyncDone > 0 || healthConnectSyncDone > 0) {
-                fitbitSyncNotice.setVisibility(View.VISIBLE);
-                // reset that we fetched fitbit data
-                fitbitSyncDone = 0;
+            if (healthConnectSyncDone > 0) {
+                syncAgainNotice.setVisibility(View.VISIBLE);
                 healthConnectSyncDone = 0;
             }
 
@@ -1077,110 +1068,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         Button BtnSyncData = findViewById(R.id.sync_data);
         BtnSyncData.setOnClickListener(arg0 -> checkHealthConnectAndFetchSteps());
 
-        // retrieve resulting data from fitbit sync (parameter from the Intent)
-        Uri returnUrl = getIntent().getData();
-        if (returnUrl != null) {
-            try {
-                NxFitbitHelper fitbit = new NxFitbitHelper(getApplicationContext(), true);
-                fitbit.requestAccessTokenFromIntent(returnUrl);
-
-                // Get user profile using helper function
-                try {
-                    JSONObject responseProfile = fitbit.getUserProfile();
-                    // Log.d(MainActivity.TAG, "From JSON encodedId: " +
-                    // responseProfile.getJSONObject("user"));
-                    // Log.d(MainActivity.TAG, "From JSON fullName: " +
-                    // responseProfile.getJSONObject("user").getString("fullName"));
-
-                    // essential for capability to fetch measurements
-                    responseProfile.getJSONObject("user");
-
-                    // grab userId
-                    fitbitUserId = fitbit.getUserId();
-
-                    // check to see if settings allows fetching measurements - default true
-                    String fetchMeasurements = sharedPreferences.getString("fitbitMeasurements",
-                            getString(R.string.fitbit_measurements_on_ntt));
-                    if (fetchMeasurements.equals(getString(R.string.fitbit_measurements_on_ntt))) {
-
-                        // grab and update user weight
-                        try {
-                            String w = fitbit.getFieldFromProfile("weight");
-                            if (!w.isEmpty())
-                                weightSize.setValue(Math.min(Float.parseFloat(w), weightSize.getValueTo()));
-                        } catch (Exception ignored) {
-                        }
-
-                        // grab and update user height
-                        try {
-                            String h = fitbit.getFieldFromProfile("height");
-                            if (!h.isEmpty())
-                                heightSize.setValue(Math.min(Float.parseFloat(h), heightSize.getValueTo()));
-                        } catch (Exception ignored) {
-                        }
-                    }
-
-                } catch (JSONException | InterruptedException | ExecutionException |
-                         IOException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    String soughtInfo = "steps";
-                    String targetDate = "today";
-                    // fetch yesterday data in case this is yesterday's option
-                    if (yesterdayReport) {
-                        targetDate = new SimpleDateFormat("yyyy-MM-dd").format(mCalendar.getTime());
-                    }
-                    JSONObject stepActivityList = fitbit.getActivityByDate(soughtInfo, targetDate);
-                    JSONArray stepActivityArray = stepActivityList.getJSONArray("activities-tracker-" + soughtInfo);
-                    Log.d(MainActivity.TAG, "From JSON distance:" + stepActivityArray.length());
-                    int trackedActivityCount = 0;
-                    if (stepActivityArray.length() > 0) {
-                        Log.d(MainActivity.TAG, "we found matching records");
-                        // loop through records adding up recorded steps
-                        for (int i = 0; i < stepActivityArray.length(); i++) {
-                            trackedActivityCount += parseInt(stepActivityArray.getJSONObject(i).getString("value"));
-                        }
-
-                        // update value according to activity we were able to grab
-                        EditText activityCount = findViewById(R.id.steemit_step_count);
-                        activityCount.setText("" + trackedActivityCount);
-
-                        // flag that we synced properly
-                        fitbitSyncDone = 1;
-
-                        // store date of last sync to avoid improper use of older fitbit data
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        final String fitbitDate = new SimpleDateFormat("yyyyMMdd").format(mCalendar.getTime());
-                        editor.putString("fitbitLastSyncDate", fitbitDate);
-                        editor.putLong("fitbitLastSyncTime", System.currentTimeMillis());
-                        editor.apply();
-                        final int fitbitCount = trackedActivityCount;
-                        new Thread(() -> mStepsDBHelper.upsertFitbitSummary(fitbitDate, fitbitCount)).start();
-                    } else {
-                        Log.d(MainActivity.TAG, "No auto-tracked activity found for today");
-                    }
-
-                } catch (JSONException | InterruptedException | ExecutionException |
-                         IOException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } catch (Exception myExc) {
-                myExc.printStackTrace();
-                Toast.makeText(getApplicationContext(), getString(R.string.error_fitbit_fecth), Toast.LENGTH_SHORT)
-                        .show();
-            }
-
-        } else {
-            Log.d(MainActivity.TAG,
-                    "Something is wrong with the return value from Fitbit. getIntent().getData() is NULL?");
-        }
-
         focusTitle();
 
         healthConnectManager = new HealthConnectManager(this);
@@ -1463,11 +1350,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                 // fetch hourly slot data for device and HC modes (Fitbit has none)
                 String stepDataString = "";
-                ArrayList<ActivitySlot> timeSlotActivity = null;
-                if (fitbitSyncDone == 0 && healthConnectSyncDone == 0) {
-                    timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDate);
-                } else if (healthConnectSyncDone == 1) {
+                ArrayList<ActivitySlot> timeSlotActivity;
+                if (healthConnectSyncDone == 1) {
                     timeSlotActivity = mStepsDBHelper.fetchHCDateTimeSlotActivity(targetDate);
+                } else {
+                    timeSlotActivity = mStepsDBHelper.fetchDateTimeSlotActivity(targetDate);
                 }
                 if (timeSlotActivity != null) {
                     for (int position = 0; position < timeSlotActivity.size(); position++) {
@@ -1663,31 +1550,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     // append user ID
                     data.put("actifitUserID", sharedPreferences[0].getString("actifitUserID", ""));
 
-                    // append data tracking source to see if this is a device reading or a fitbit
-                    // one
-                    // if there was a Fitbit sync, also need to send out that this is Fitbit data
-                    // if (1 == 1){
+                    // append data tracking source: Health Connect when synced, otherwise the user's mode
                     if (healthConnectSyncDone == 1) {
                         data.put("dataTrackingSource", getString(R.string.health_connect_tracking_ntt));
-                    } else if (fitbitSyncDone == 1) {
-                        data.put("dataTrackingSource", getString(R.string.fitbit_tracking_ntt));
-                        if (fitbitUserId == null || fitbitUserId.equals("")) {
-                            // missing permission to fitbit
-                            notification = getString(R.string.fitbit_permissions_missing);
-                            displayNotification(notification, progress, context, currentActivity, "", "");
-                            return null;
-                        }
-
-                        // also append encrypted user identifier
-                        MessageDigest md = MessageDigest.getInstance(getString(R.string.fitbit_user_enc));
-                        byte[] digest = md.digest(fitbitUserId.getBytes());
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 0; i < digest.length; i++) {
-                            sb.append(Integer.toString((digest[i] & 0xff) + 0x100, 16).substring(1));
-                        }
-                        System.out.println(sb);
-
-                        data.put("fitbitUserId", sb.toString());
                     } else {
                         data.put("dataTrackingSource", sharedPreferences[0].getString("dataTrackingSystem",
                                 getString(R.string.device_tracking_ntt)));
@@ -1791,8 +1656,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     private void ProcessPost() {
 
-        // only if we haven't grabbed fitbit data, we need to grab new sensor data
-        if (fitbitSyncDone == 0 && healthConnectSyncDone == 0) {
+        // only if we haven't synced Health Connect data, we need to grab new sensor data
+        if (healthConnectSyncDone == 0) {
             int stepCount = 0;
             if (yesterdayReport) {
                 stepCount = mStepsDBHelper.fetchYesterdayStepCount();
@@ -1803,7 +1668,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             // tracked yet
             stepCountContainer.setText(String.valueOf((stepCount < 0 ? 0 : stepCount)), TextView.BufferType.EDITABLE);
         } else {
-            // need to check if a day has passed, to prevent posting again using same fitbit
+            // need to check if a day has passed, to prevent posting again using same synced
             // data
             SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
 
@@ -1817,17 +1682,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             String targetDate = new SimpleDateFormat("yyyyMMdd").format(
                     mCalendar.getTime());
 
-            String lastSyncDateKey = "";
-            String syncProviderName = "";
-            if (fitbitSyncDone == 1) {
-                lastSyncDateKey = "fitbitLastSyncDate";
-                syncProviderName = "Fitbit";
-            } else if (healthConnectSyncDone == 1) {
-                lastSyncDateKey = "healthConnectLastSyncDate";
-                syncProviderName = "Health Connect";
-            }
-
-            String lastSyncDate = sharedPreferences.getString(lastSyncDateKey, "");
+            String lastSyncDate = sharedPreferences.getString("healthConnectLastSyncDate", "");
 
             Log.d(MainActivity.TAG, ">>>>[Actifit]lastPostDate:" + lastSyncDate);
             Log.d(MainActivity.TAG, ">>>>[Actifit]currentDate:" + targetDate);
@@ -2100,7 +1955,6 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                     runOnUiThread(() -> {
                                         stepCountContainer.setText(String.valueOf(steps));
                                         healthConnectSyncDone = 1;
-                                        fitbitSyncDone = 0; // Reset other sync flags
 
                                         // Store date of last sync to avoid improper use of older data
                                         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",
@@ -2117,7 +1971,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                                 new SimpleDateFormat("yyyyMMdd", Locale.US)
                                                         .format(mCalendar.getTime()));
                                         editor.apply();
-                                        findViewById(R.id.fitbit_sync_notice).setVisibility(View.GONE);
+                                        findViewById(R.id.sync_again_notice).setVisibility(View.GONE);
                                         Toast.makeText(PostSteemitActivity.this, R.string.steps_synced_from_health_connect, Toast.LENGTH_SHORT)
                                                 .show();
                                     });

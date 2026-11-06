@@ -97,7 +97,6 @@
     <string name="report_preview_lbl">Rapor Önizlemesi</string>
     <string name="comment_preview_lbl">Yorum Önizlemesi</string>
     <string name="wave_preview_lbl">Önizleme</string>
-    <string name="fitbit_permissions_missing">Uygun Fitbit senkronizasyonu için lütfen tam izin sağlayın</string>
     <string name="fitbit_sync_btn_lbl">FITBIT SENKRONİZASYONU</string>
     <string name="percent_lbl">%</string>
     <string name="activity_source_lbl">Aktivite Veri Kaynağı</string>
@@ -259,7 +258,6 @@
     <string name="ok_button">Tamam</string>
     <string name="cancel_button">İptal</string>
     <string name="clear_button">Temizle</string>
-    <string name="error_fitbit_fecth" tools:ignore="MissingTranslation">Fitbit\'iniz senkronize edilirken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.</string>
     <string name="pending_rewards_title">Yaklaşan ödülleriniz var!</string>
     <string name="pending_rewards_header">7 gün içinde yaklaşan ödülleriniz var!</string>
     <string name="pending_rewards_note">Lütfen bu ödüllerin nihai olmadığını ve actifit ve blockchain topluluk etkileşimine bağlı olarak artış veya azalış gösterebileceğini unutmayın. Son actifit gönderilerinizi ve bekleyen ödüllerinizi görmek için aşağıdaki butona tıklayabilirsiniz.</string>
@@ -598,9 +596,6 @@
     <string name="sync_health_connect_btn">Health Connect\'ı senkronize et</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Veri Senkronize Et</string>
-    <string name="health_connect_sync_option">Health Connect</string>
-    <string name="fitbit_sync_option">Fitbit</string>
-    <string name="sync_data_options_title">Veri Senkronize Etme Kaynağı</string>
     <string name="exercise_search_title">Egzersiz Ara</string>
     <string name="search_hint">Egzersiz adına göre ara...</string>
     <string name="filter_by_body_part">Vücut Bölümü:</string>

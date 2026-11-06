@@ -98,7 +98,6 @@
 	<string name="report_preview_lbl">Rapportvoorbeeld</string>
 	<string name="comment_preview_lbl">Commentaarvoorbeeld</string>
 	<string name="wave_preview_lbl">Golfvoorbeeld</string>
-	<string name="fitbit_permissions_missing">Verleen volledige machtigingen voor juiste Fitbit-synchronisatie</string>
 	<string name="fitbit_sync_btn_lbl">FITBIT SYNC</string>
 	<string name="percent_lbl">%</string>
 	<string name="activity_source_lbl">Bron van activiteitsgegevens</string>
@@ -260,7 +259,6 @@
 	<string name="ok_button">OK</string>
 	<string name="cancel_button">Annuleren</string>
 	<string name="clear_button">Wissen</string>
-	<string name="error_fitbit_fecth">Er is een probleem opgetreden bij het synchroniseren van uw Fitbit. Probeer het later opnieuw.</string>
 	<string name="pending_rewards_title">U heeft aankomende beloningen!</string>
 	<string name="pending_rewards_header">U heeft binnen 7 dagen aankomende beloningen!</string>
 	<string name="pending_rewards_note">Let op dat deze beloningen niet definitief zijn en kunnen stijgen of dalen afhankelijk van de betrokkenheid van de Actifit- en blockchain-gemeenschap. U kunt uw recente Actifit-berichten en aankomende beloningen bekijken door op de onderstaande knop te klikken.</string>
@@ -599,9 +597,6 @@
 	<string name="sync_health_connect_btn">Sincronizar Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Gegevens Synchroniseren</string>
-    <string name="health_connect_sync_option">Health Connect</string>
-    <string name="fitbit_sync_option">Fitbit</string>
-    <string name="sync_data_options_title">Gegevens Synchroniseren Van</string>
     <string name="exercise_search_title">Oefeningen Zoeken</string>
     <string name="search_hint">Zoek op oefeningnaam...</string>
     <string name="filter_by_body_part">Lichaamsdeel:</string>

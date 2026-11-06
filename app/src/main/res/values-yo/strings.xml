@@ -98,7 +98,6 @@
 <string name="report_preview_lbl">Atokọ Akopọ</string>
 <string name="comment_preview_lbl">Akopọ Ọrọìwòye</string>
 <string name="wave_preview_lbl">Akopọ</string>
-<string name="fitbit_permissions_missing">Jọwọ pese gbogbo awọn igbanilaaye fun imudojuiwọn Fitbit to tọ</string>
 <string name="fitbit_sync_btn_lbl">FITBIT SYNC</string>
 <string name="percent_lbl">%</string>
 <string name="activity_source_lbl">Orisun Data Iṣẹ Iṣẹ</string>
@@ -260,7 +259,6 @@
 <string name="ok_button">Dara</string>
 <string name="cancel_button">Fagilee</string>
 <string name="clear_button">Ko</string>
-<string name="error_fitbit_fecth" tools:ignore="MissingTranslation">Aṣiṣe kan wa ninu iṣọpọ Fitbit rẹ. Jọwọ gbiyanju lẹẹkansi nigbamii.</string>
 <string name="pending_rewards_title">O ni awọn ẹbun ti n bọ!</string>
 <string name="pending_rewards_header">O ni awọn ẹbun ti n bọ laarin awọn ọjọ 7!</string>
 <string name="pending_rewards_note">Jọwọ ṣe akiyesi pe awọn ẹbun wọnyẹn kii ṣe ikẹhin, ati pe wọn le pọ si tabi dinku da lori actifit ati ifasilẹ agbegbe blockchain. O le wo awọn ifiweranṣẹ actifit aipẹ rẹ ati awọn ẹbun ti n bọ nipa tite bọtini isalẹ.</string>
@@ -599,9 +597,6 @@
     <string name="sync_health_connect_btn">同步健康連結</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Ṣiṣẹpọ Data</string>
-    <string name="health_connect_sync_option">Health Connect</string>
-    <string name="fitbit_sync_option">Fitbit</string>
-    <string name="sync_data_options_title">Ṣiṣẹpọ Data Lati</string>
     <string name="exercise_search_title">Wa Awọn adaṣe</string>
     <string name="search_hint">Wa nipasẹ orukọ adaṣe...</string>
     <string name="filter_by_body_part">Apakan Ara:</string>

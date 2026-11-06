@@ -97,7 +97,6 @@
 <string name="report_preview_lbl">报告预览</string>
 <string name="comment_preview_lbl">评论预览</string>
 <string name="wave_preview_lbl">波浪预览</string>
-<string name="fitbit_permissions_missing">请提供完整权限以进行适当的 Fitbit 同步</string>
 <string name="fitbit_sync_btn_lbl">FITBIT 同步</string>
 <string name="percent_lbl">%</string>
 <string name="activity_source_lbl">活动数据来源</string>
@@ -259,7 +258,6 @@
 <string name="ok_button">好</string>
 <string name="cancel_button">取消</string>
 <string name="clear_button">清除</string>
-<string name="error_fitbit_fecth" tools:ignore="MissingTranslation">同步您的 Fitbit 时出现问题。请稍后再试。</string>
 <string name="pending_rewards_title">您有即将到来的奖励！</string>
 <string name="pending_rewards_header">您在 7 天内有即将到来的奖励！</string>
 <string name="pending_rewards_note">请注意，这些奖励不是最终的，根据 actifit 和区块链社区的参与情况可能会增加或减少。您可以通过点击下方按钮查看您最近的 actifit 帖子和待处理的奖励。</string>
@@ -598,9 +596,6 @@
     <string name="sync_health_connect_btn">Health Connect synchronisieren</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">同步数据</string>
-    <string name="health_connect_sync_option">Health Connect</string>
-    <string name="fitbit_sync_option">Fitbit</string>
-    <string name="sync_data_options_title">同步数据来源</string>
     <string name="exercise_search_title">搜索运动</string>
     <string name="search_hint">按运动名称搜索...</string>
     <string name="filter_by_body_part">身体部位：</string>

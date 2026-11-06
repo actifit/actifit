@@ -98,7 +98,6 @@
 	<string name="report_preview_lbl">보고서 미리보기</string>
 	<string name="comment_preview_lbl">댓글 미리보기</string>
 	<string name="wave_preview_lbl">웨이브 미리보기</string>
-	<string name="fitbit_permissions_missing">Fitbit 동기화를 위해 전체 권한을 제공해 주세요</string>
 	<string name="fitbit_sync_btn_lbl">FITBIT 동기화</string>
 	<string name="percent_lbl">%</string>
 	<string name="activity_source_lbl">활동 데이터 소스</string>
@@ -260,7 +259,6 @@
 	<string name="ok_button">확인</string>
 	<string name="cancel_button">취소</string>
 	<string name="clear_button">지우기</string>
-	<string name="error_fitbit_fecth" tools:ignore="MissingTranslation">Fitbit 동기화에 문제가 발생했습니다. 나중에 다시 시도해주세요.</string>
 	<string name="pending_rewards_title">예정된 보상이 있습니다!</string>
 	<string name="pending_rewards_header">7일 이내에 예정된 보상이 있습니다!</string>
 	<string name="pending_rewards_note">이 보상은 최종 보상이 아니며, actifit 및 블록체인 커뮤니티 참여도에 따라 증가하거나 감소할 수 있습니다. 아래 버튼을 클릭하여 최근 actifit 게시물 및 예정된 보상을 확인할 수 있습니다.</string>
@@ -599,9 +597,6 @@
 	<string name="sync_health_connect_btn">ヘルスコネクトを同期</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">데이터 동기화</string>
-    <string name="health_connect_sync_option">Health Connect</string>
-    <string name="fitbit_sync_option">Fitbit</string>
-    <string name="sync_data_options_title">데이터 동기화 출처</string>
     <string name="exercise_search_title">운동 검색</string>
     <string name="search_hint">운동 이름으로 검색...</string>
     <string name="filter_by_body_part">신체 부위:</string>

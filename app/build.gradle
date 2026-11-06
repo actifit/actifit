@@ -132,7 +132,6 @@ dependencies {
 
     implementation 'com.scottyab:rootbeer-lib:0.1.1'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
-    implementation 'com.github.scribejava:scribejava-apis:7.1.1'
 
     //implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.10'
 

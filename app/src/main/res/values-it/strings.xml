@@ -98,7 +98,6 @@
 	<string name="report_preview_lbl">Anteprima del Report</string>
 	<string name="comment_preview_lbl">Anteprima del Commento</string>
 	<string name="wave_preview_lbl">Anteprima</string>
-	<string name="fitbit_permissions_missing">Si prega di fornire tutte le autorizzazioni per una corretta sincronizzazione di Fitbit</string>
 	<string name="fitbit_sync_btn_lbl">SINCRONIZZAZIONE FITBIT</string>
 	<string name="percent_lbl">%</string>
 	<string name="activity_source_lbl">Fonte dei Dati di Attività</string>
@@ -260,7 +259,6 @@
 	<string name="ok_button">OK</string>
 	<string name="cancel_button">Annulla</string>
 	<string name="clear_button">Cancella</string>
-	<string name="error_fitbit_fecth" tools:ignore="MissingTranslation">Si è verificato un problema nella sincronizzazione del tuo Fitbit. Per favore riprova più tardi.</string>
 	<string name="pending_rewards_title">Hai ricompense in arrivo!</string>
 	<string name="pending_rewards_header">Hai ricompense in arrivo entro 7 giorni!</string>
 	<string name="pending_rewards_note">Si prega di notare che queste ricompense non sono definitive e sono soggette a variazioni a seconda dell\'interazione della comunità di actifit e blockchain. Puoi visualizzare i tuoi recenti post di actifit e le ricompense in sospeso cliccando sul pulsante qui sotto.</string>
@@ -599,9 +597,6 @@
 	<string name="sync_health_connect_btn">Sincronizza Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Sincronizza Dati</string>
-    <string name="health_connect_sync_option">Health Connect</string>
-    <string name="fitbit_sync_option">Fitbit</string>
-    <string name="sync_data_options_title">Sincronizza Dati Da</string>
     <string name="exercise_search_title">Cerca Esercizi</string>
     <string name="search_hint">Cerca per nome esercizio...</string>
     <string name="filter_by_body_part">Parte del Corpo:</string>
