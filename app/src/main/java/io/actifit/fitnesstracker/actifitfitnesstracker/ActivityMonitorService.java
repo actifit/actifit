@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 
 import androidx.core.app.ActivityCompat;
@@ -44,8 +45,13 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     private int notificationID = 1;
     private int tenknotificationID = 446878874;
     private int fiveknotificationID = 574687813;
-    private NotificationCompat.Builder mBuilder;
-    private NotificationManagerCompat notificationManager;
+    // set on the main thread, read on the sensor thread
+    private volatile NotificationCompat.Builder mBuilder;
+    private volatile NotificationManagerCompat notificationManager;
+
+    // Sensor events, step counting and the per-step DB write run here instead of on the main
+    // thread, where they caused "app not responding" reports.
+    private HandlerThread sensorThread;
 
     private SharedPreferences sharedPreferences;
     private static PowerManager pm;
@@ -142,7 +148,9 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         }
 
 
-        new Thread(new ServiceSetupRunnable()).start();
+        sensorThread = new HandlerThread("actifit-steps");
+        sensorThread.start();
+        new Handler(sensorThread.getLooper()).post(new ServiceSetupRunnable());
 
     }
 
@@ -425,10 +433,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                 wl.release();
             }
         }
-        if (mStepsDBHelper != null) {
-            mStepsDBHelper.closeConnection();
-        }
-        // mStepsDBHelper.closeConnection();
+        // the DB connection is shared app-wide and stays open
+        sensorThread.quitSafely();
         // service destroyed, let's start it again
         // Intent broadcastIntent = new Intent(".MonitorRestart");
         // sendBroadcast(broadcastIntent);
@@ -473,7 +479,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             simpleStepDetector.registerListener(ActivityMonitorService.this);
 
             sensorManager.registerListener(ActivityMonitorService.this, accSensor,
-                    SensorManager.SENSOR_DELAY_GAME);
+                    SensorManager.SENSOR_DELAY_GAME, new Handler(Looper.myLooper()));
             // SensorManager.SENSOR_DELAY_GAME);
 
             // grab activity count so far today
@@ -491,6 +497,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                 android.widget.RemoteViews customView = getCustomNotificationViews(
                         Math.max(curActivityCount, 0));
 
+                notificationManager = NotificationManagerCompat.from(ctx);
                 mBuilder = new NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
                         .setContentTitle(getString(R.string.actifit_notif_title))
                         .setContentText(getString(R.string.activity_today_string) + " "
@@ -502,7 +509,6 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                         .setPriority(NotificationCompat.PRIORITY_LOW)
                         .setOnlyAlertOnce(true);
 
-                notificationManager = NotificationManagerCompat.from(ctx);
 
                 try {
                     if (ActivityCompat.checkSelfPermission(ctx, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {

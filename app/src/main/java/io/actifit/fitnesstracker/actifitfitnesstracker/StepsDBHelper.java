@@ -106,9 +106,9 @@ public class StepsDBHelper extends SQLiteOpenHelper {
 
 
     StepsDBHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        dbInstance = this.getWritableDatabase();
-        ctx = context;
+        super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
+        reConnect();
+        ctx = context.getApplicationContext();
         sharedPreferences = ctx.getSharedPreferences("actifitSets",MODE_PRIVATE);
     }
 
@@ -561,15 +561,14 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         return dbInstance.isOpen();
     }
 
+    // Every helper shares one connection that stays open for the life of the process. Opening a
+    // new one per helper replaced the shared handle and leaked the old one; closing it from one
+    // place (the step service) broke every other screen still using it.
     public void reConnect(){
-        if (dbInstance==null || !dbInstance.isOpen()) {
-            dbInstance = this.getWritableDatabase();
-        }
-    }
-
-    public void closeConnection(){
-        if (dbInstance.isOpen()){
-            dbInstance.close();
+        synchronized (StepsDBHelper.class) {
+            if (dbInstance==null || !dbInstance.isOpen()) {
+                dbInstance = this.getWritableDatabase();
+            }
         }
     }
 

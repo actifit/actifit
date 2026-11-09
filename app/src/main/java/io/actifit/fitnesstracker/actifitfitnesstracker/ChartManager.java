@@ -75,7 +75,7 @@ public class ChartManager {
         dbExecutor.shutdown();
     }
 
-    private <T> void loadThenRender(Callable<T> load, Consumer<T> render) {
+    <T> void loadThenRender(Callable<T> load, Consumer<T> render) {
         // late callbacks (e.g. a Health Connect fetch) can still ask for a redraw after release()
         if (dbExecutor.isShutdown()) return;
         dbExecutor.execute(() -> {
