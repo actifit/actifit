@@ -48,7 +48,7 @@
 <string name="steemit_url">https://www.actifit.io/</string>
 <string name="actifit_usermedia_url">https://usermedia.actifit.io/</string>
 <string name="actifit_find_posting_key_vid"><a href="https://actifit.io/password">Допоможіть знайти мій приватний ключ публікації (Private Posting Key)</a></string>
-<string name="create_account_link" translatable="false"><a href="https://actifit.io/signup">Bir hesap oluştur</a></string>
+<string name="create_account_link" translatable="false"><a href="https://actifit.io/signup">Створити обліковий запис</a></string>
 <string name="welcome_user">Вітаємо, USER_NAME USER_RANK</string>
 <string name="daily_post_reminder_title">Нагадування Actifit!</string>
 <string name="daily_post_reminder">Ви ще не опублікували сьогоднішній звіт про активність!</string>
@@ -698,9 +698,9 @@
     <string name="milestone_7k_msg">7 000 кроків! Вже майже!</string>
     <string name="milestone_5k_msg">5 000 кроків! Перша нагорода розблокована!</string>
     <string name="no_streak_yet">Ще немає серії</string>
-    <string name="day_streak_label">Серія %1\$d днів</string>
-    <string name="heatmap_streak_badge">🔥 %1\$d день</string>
-    <string name="heatmap_streak_badge_plural">🔥 %1\$d днів</string>
+    <string name="day_streak_label">Серія %1$d днів</string>
+    <string name="heatmap_streak_badge">🔥 %1$d день</string>
+    <string name="heatmap_streak_badge_plural">🔥 %1$d днів</string>
     <string name="day_abbr_sun">Нд</string>
     <string name="day_abbr_mon">Пн</string>
     <string name="day_abbr_tue">Вт</string>
