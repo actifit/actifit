@@ -682,6 +682,8 @@
     <string name="route_tracking_label">路线追踪</string>
     <string name="route_view_btn">查看 →</string>
     <string name="route_start_recording">▶  开始录制</string>
+    <string name="gps_verified_badge">✓ GPS 已验证</string>
+    <string name="gps_mismatch_hint">⚠ 步数与 GPS 距离不符</string>
     <string name="earnings_gadgets_label">收益与小工具</string>
     <string name="estimated_reward_label">预计奖励</string>
     <string name="this_month_label">本月</string>

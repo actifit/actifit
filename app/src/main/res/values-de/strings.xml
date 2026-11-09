@@ -687,6 +687,8 @@
     <string name="route_tracking_label">Routenverfolgung</string>
     <string name="route_view_btn">Anzeigen →</string>
     <string name="route_start_recording">▶  Aufzeichnung starten</string>
+    <string name="gps_verified_badge">✓ GPS-verifiziert</string>
+    <string name="gps_mismatch_hint">⚠ Schritte und GPS-Distanz passen nicht zusammen</string>
     <string name="earnings_gadgets_label">Einnahmen &amp; Gadgets</string>
     <string name="estimated_reward_label">Geschätzte Belohnung</string>
     <string name="this_month_label">Dieser Monat</string>

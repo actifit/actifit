@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class RouteMapActivity extends BaseActivity {
@@ -60,6 +62,7 @@ public class RouteMapActivity extends BaseActivity {
 
     private BroadcastReceiver waypointReceiver;
     private BroadcastReceiver stoppedReceiver;
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,13 +175,38 @@ public class RouteMapActivity extends BaseActivity {
 
         int dateInt = getIntent().getIntExtra(EXTRA_DATE, 0);
         long routeId = getIntent().getLongExtra(EXTRA_ROUTE_ID, -1);
+        boolean useHealthConnect = GpsVerification.usesHealthConnect(this);
+        long hcLastSyncMs = GpsVerification.hcLastSyncMs(this);
 
-        StepsDBHelper db = new StepsDBHelper(this);
-        RouteModel route = null;
-        if (dateInt != 0) {
-            route = db.getRouteForDate(dateInt);
-        }
+        // DB reads (route + step slots for the GPS check) happen off the main thread
+        dbExecutor.execute(() -> {
+            RouteModel route = null;
+            GpsVerification.Result verification = null;
+            try {
+                StepsDBHelper db = new StepsDBHelper(this);
+                // prefer the exact route; the date lookup only returns the day's latest route
+                if (routeId > 0) {
+                    route = db.getRouteById(routeId);
+                }
+                if (route == null && dateInt != 0) {
+                    route = db.getRouteForDate(dateInt);
+                }
+                if (route != null) {
+                    verification = GpsVerification.verifyRoute(db, route, useHealthConnect, hcLastSyncMs);
+                }
+            } catch (Exception e) {
+                android.util.Log.e(MainActivity.TAG, "Route load failed", e);
+            }
+            final RouteModel loaded = route;
+            final GpsVerification.Result result = verification;
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                showRoute(loaded, result);
+            });
+        });
+    }
 
+    private void showRoute(RouteModel route, GpsVerification.Result verification) {
         if (route == null) {
             Toast.makeText(this, "Route not found", Toast.LENGTH_SHORT).show();
             finish();
@@ -190,7 +218,14 @@ public class RouteMapActivity extends BaseActivity {
         tvDuration.setText(route.getFormattedDuration());
         tvPace.setText(route.getFormattedPace(this));
 
-        tvSteps.setText("--"); // day total ≠ route steps; no per-route step data available
+        // steps counted in the 15-min slots overlapping the route window (not the day total)
+        if (verification != null && verification.steps > 0
+                && verification.status != GpsVerification.Status.NOT_APPLICABLE) {
+            tvSteps.setText(java.text.NumberFormat.getIntegerInstance().format(verification.steps));
+        } else {
+            tvSteps.setText("--");
+        }
+        showGpsBadge(verification);
 
         // Draw route from stored waypoints
         if (route.waypointsJson != null) {
@@ -211,6 +246,22 @@ public class RouteMapActivity extends BaseActivity {
                 : route.sourceType != null ? route.sourceType : "";
         if (!sourceLabel.isEmpty()) {
             tvActivityLabel.setText(tvActivityLabel.getText() + "  •  " + sourceLabel);
+        }
+    }
+
+    private void showGpsBadge(GpsVerification.Result verification) {
+        TextView badge = findViewById(R.id.tv_route_gps_badge);
+        if (badge == null) return;
+        if (verification != null && verification.status == GpsVerification.Status.VERIFIED) {
+            badge.setText(R.string.gps_verified_badge);
+            badge.setTextColor(ContextCompat.getColor(this, R.color.md_theme_success));
+            badge.setVisibility(View.VISIBLE);
+        } else if (verification != null && verification.status == GpsVerification.Status.MISMATCH) {
+            badge.setText(R.string.gps_mismatch_hint);
+            badge.setTextColor(ContextCompat.getColor(this, R.color.md_theme_warning));
+            badge.setVisibility(View.VISIBLE);
+        } else {
+            badge.setVisibility(View.GONE);
         }
     }
 
@@ -306,6 +357,7 @@ public class RouteMapActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        dbExecutor.shutdownNow();
         if (timerHandler != null) timerHandler.removeCallbacks(timerRunnable);
         if (waypointReceiver != null)
             LocalBroadcastManager.getInstance(this).unregisterReceiver(waypointReceiver);

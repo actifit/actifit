@@ -682,6 +682,8 @@
     <string name="route_tracking_label">Відстеження маршруту</string>
     <string name="route_view_btn">Переглянути →</string>
     <string name="route_start_recording">▶  Почати запис</string>
+    <string name="gps_verified_badge">✓ Підтверджено GPS</string>
+    <string name="gps_mismatch_hint">⚠ Кроки та відстань GPS не збігаються</string>
     <string name="earnings_gadgets_label">Прибутки та гаджети</string>
     <string name="estimated_reward_label">Орієнтовна винагорода</string>
     <string name="this_month_label">Цього місяця</string>

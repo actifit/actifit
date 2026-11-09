@@ -686,6 +686,8 @@
     <string name="route_tracking_label">Seguimiento de ruta</string>
     <string name="route_view_btn">Ver →</string>
     <string name="route_start_recording">▶  Iniciar grabación</string>
+    <string name="gps_verified_badge">✓ Verificado por GPS</string>
+    <string name="gps_mismatch_hint">⚠ Los pasos y la distancia GPS no coinciden</string>
     <string name="earnings_gadgets_label">Ganancias y gadgets</string>
     <string name="estimated_reward_label">Recompensa estimada</string>
     <string name="this_month_label">Este mes</string>

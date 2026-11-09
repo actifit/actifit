@@ -1416,6 +1416,16 @@
                                 android:focusable="true" />
                         </LinearLayout>
 
+                        <!-- GPS-verified badge / mismatch hint for the last route (set in loadLastRoute) -->
+                        <TextView
+                            android:id="@+id/tv_last_route_gps_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:paddingBottom="@dimen/spacing_xs"
+                            android:visibility="gone" />
+
                         <!-- Start Recording button -->
                         <com.google.android.material.button.MaterialButton
                             style="@style/AppTheme.ActifitButton"

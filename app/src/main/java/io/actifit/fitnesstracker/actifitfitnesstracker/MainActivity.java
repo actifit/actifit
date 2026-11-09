@@ -2494,6 +2494,9 @@ public class MainActivity extends BaseActivity {
         updateStreakStrip();
         buildMonthHeatmap();
         loadAiInsight();
+        // also runs after a Health Connect sync completes (TrackingManager), so the route
+        // card's GPS badge is re-checked against the freshly synced HC slots
+        loadLastRoute();
     }
 
     private void displayDayChartData(final boolean animate) {
@@ -2950,23 +2953,60 @@ public class MainActivity extends BaseActivity {
         TextView tvLastRouteView = findViewById(R.id.tv_last_route_view);
         if (tvLastRouteView != null) {
             tvLastRouteView.setOnClickListener(v -> {
-                if (mStepsDBHelper == null) return;
-                RouteModel route = mStepsDBHelper.getMostRecentRoute();
-                if (route != null) {
-                    Intent intent = new Intent(this, RouteMapActivity.class);
-                    intent.putExtra(RouteMapActivity.EXTRA_MODE, RouteMapActivity.MODE_VIEW);
-                    intent.putExtra(RouteMapActivity.EXTRA_DATE, route.date);
-                    startActivity(intent);
-                }
+                final StepsDBHelper db = mStepsDBHelper;
+                if (db == null) return;
+                // DB read off the main thread
+                new Thread(() -> {
+                    RouteModel route = null;
+                    try {
+                        route = db.getMostRecentRoute();
+                    } catch (Exception e) {
+                        Log.e(TAG, "getMostRecentRoute failed", e);
+                    }
+                    final RouteModel found = route;
+                    runOnUiThread(() -> {
+                        if (found == null || isFinishing() || isDestroyed()) return;
+                        Intent intent = new Intent(this, RouteMapActivity.class);
+                        intent.putExtra(RouteMapActivity.EXTRA_MODE, RouteMapActivity.MODE_VIEW);
+                        intent.putExtra(RouteMapActivity.EXTRA_DATE, found.date);
+                        intent.putExtra(RouteMapActivity.EXTRA_ROUTE_ID, found.routeId);
+                        startActivity(intent);
+                    });
+                }).start();
             });
         }
     }
 
     private void loadLastRoute() {
-        if (mStepsDBHelper == null) return;
-        RouteModel route = mStepsDBHelper.getMostRecentRoute();
+        final StepsDBHelper db = mStepsDBHelper;
+        if (db == null) return;
+        final boolean useHealthConnect = GpsVerification.usesHealthConnect(this);
+        final long hcLastSyncMs = GpsVerification.hcLastSyncMs(this);
+        // route + step-slot reads (for the GPS-verified badge) happen off the main thread
+        new Thread(() -> {
+            RouteModel route = null;
+            GpsVerification.Result verification = null;
+            try {
+                route = db.getMostRecentRoute();
+                if (route != null) {
+                    verification = GpsVerification.verifyRoute(db, route, useHealthConnect, hcLastSyncMs);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "loadLastRoute failed", e);
+            }
+            final RouteModel found = route;
+            final GpsVerification.Result result = verification;
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                showLastRoute(found, result);
+            });
+        }).start();
+    }
+
+    private void showLastRoute(RouteModel route, GpsVerification.Result verification) {
         LinearLayout summary = findViewById(R.id.last_route_summary);
         TextView tvInfo = findViewById(R.id.tv_last_route_info);
+        TextView tvBadge = findViewById(R.id.tv_last_route_gps_badge);
         View fullContent = findViewById(R.id.route_full_content);
         if (summary == null || tvInfo == null) return;
         if (route != null) {
@@ -2976,6 +3016,21 @@ public class MainActivity extends BaseActivity {
             if (fullContent != null) fullContent.setVisibility(View.VISIBLE);
         } else {
             summary.setVisibility(View.GONE);
+        }
+        if (tvBadge != null) {
+            GpsVerification.Status status = (route != null && verification != null)
+                    ? verification.status : GpsVerification.Status.NOT_APPLICABLE;
+            if (status == GpsVerification.Status.VERIFIED) {
+                tvBadge.setText(R.string.gps_verified_badge);
+                tvBadge.setTextColor(ContextCompat.getColor(this, R.color.actifitDarkGreen));
+                tvBadge.setVisibility(View.VISIBLE);
+            } else if (status == GpsVerification.Status.MISMATCH) {
+                tvBadge.setText(R.string.gps_mismatch_hint);
+                tvBadge.setTextColor(ContextCompat.getColor(this, R.color.md_theme_warning));
+                tvBadge.setVisibility(View.VISIBLE);
+            } else {
+                tvBadge.setVisibility(View.GONE);
+            }
         }
     }
 
