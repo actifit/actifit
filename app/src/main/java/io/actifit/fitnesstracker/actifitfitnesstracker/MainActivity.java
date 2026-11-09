@@ -2494,6 +2494,9 @@ public class MainActivity extends BaseActivity {
         updateStreakStrip();
         buildMonthHeatmap();
         loadAiInsight();
+        // also runs after a Health Connect sync completes (TrackingManager), so the route
+        // card's GPS badge is re-checked against the freshly synced HC slots
+        loadLastRoute();
     }
 
     private void displayDayChartData(final boolean animate) {
@@ -2966,6 +2969,7 @@ public class MainActivity extends BaseActivity {
                         Intent intent = new Intent(this, RouteMapActivity.class);
                         intent.putExtra(RouteMapActivity.EXTRA_MODE, RouteMapActivity.MODE_VIEW);
                         intent.putExtra(RouteMapActivity.EXTRA_DATE, found.date);
+                        intent.putExtra(RouteMapActivity.EXTRA_ROUTE_ID, found.routeId);
                         startActivity(intent);
                     });
                 }).start();
@@ -2977,6 +2981,7 @@ public class MainActivity extends BaseActivity {
         final StepsDBHelper db = mStepsDBHelper;
         if (db == null) return;
         final boolean useHealthConnect = GpsVerification.usesHealthConnect(this);
+        final long hcLastSyncMs = GpsVerification.hcLastSyncMs(this);
         // route + step-slot reads (for the GPS-verified badge) happen off the main thread
         new Thread(() -> {
             RouteModel route = null;
@@ -2984,7 +2989,7 @@ public class MainActivity extends BaseActivity {
             try {
                 route = db.getMostRecentRoute();
                 if (route != null) {
-                    verification = GpsVerification.verifyRoute(db, route, useHealthConnect);
+                    verification = GpsVerification.verifyRoute(db, route, useHealthConnect, hcLastSyncMs);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "loadLastRoute failed", e);
@@ -3021,7 +3026,7 @@ public class MainActivity extends BaseActivity {
                 tvBadge.setVisibility(View.VISIBLE);
             } else if (status == GpsVerification.Status.MISMATCH) {
                 tvBadge.setText(R.string.gps_mismatch_hint);
-                tvBadge.setTextColor(ContextCompat.getColor(this, R.color.md_theme_secondary));
+                tvBadge.setTextColor(ContextCompat.getColor(this, R.color.md_theme_warning));
                 tvBadge.setVisibility(View.VISIBLE);
             } else {
                 tvBadge.setVisibility(View.GONE);

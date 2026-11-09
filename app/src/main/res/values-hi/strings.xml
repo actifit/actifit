@@ -685,7 +685,6 @@
     <string name="route_start_recording">▶  रिकॉर्डिंग शुरू करें</string>
     <string name="gps_verified_badge">✓ GPS-सत्यापित</string>
     <string name="gps_mismatch_hint">⚠ कदम और GPS दूरी मेल नहीं खाते</string>
-    <string name="gps_verified_post_line">📍 GPS-सत्यापित मार्ग: %1$s</string>
     <string name="earnings_gadgets_label">कमाई और उपकरण</string>
     <string name="estimated_reward_label">अनुमानित पुरस्कार</string>
     <string name="this_month_label">इस महीने</string>

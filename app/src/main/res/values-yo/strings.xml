@@ -685,7 +685,6 @@
     <string name="route_start_recording">▶  Bẹ̀rẹ̀ gbigbasilẹ</string>
     <string name="gps_verified_badge">✓ GPS ti fìdí rẹ̀ múlẹ̀</string>
     <string name="gps_mismatch_hint">⚠ Ìgbésẹ̀ àti ijìnnà GPS kò bára mu</string>
-    <string name="gps_verified_post_line">📍 Ọ̀nà tí GPS fìdí rẹ̀ múlẹ̀: %1$s</string>
     <string name="earnings_gadgets_label">Èrè àti ohun èlò</string>
     <string name="estimated_reward_label">Èrè tí a retí</string>
     <string name="this_month_label">Oṣù yìí</string>

@@ -174,7 +174,9 @@ public class RouteMapActivity extends BaseActivity {
         tvDuration.setVisibility(View.VISIBLE);
 
         int dateInt = getIntent().getIntExtra(EXTRA_DATE, 0);
+        long routeId = getIntent().getLongExtra(EXTRA_ROUTE_ID, -1);
         boolean useHealthConnect = GpsVerification.usesHealthConnect(this);
+        long hcLastSyncMs = GpsVerification.hcLastSyncMs(this);
 
         // DB reads (route + step slots for the GPS check) happen off the main thread
         dbExecutor.execute(() -> {
@@ -182,11 +184,15 @@ public class RouteMapActivity extends BaseActivity {
             GpsVerification.Result verification = null;
             try {
                 StepsDBHelper db = new StepsDBHelper(this);
-                if (dateInt != 0) {
+                // prefer the exact route; the date lookup only returns the day's latest route
+                if (routeId > 0) {
+                    route = db.getRouteById(routeId);
+                }
+                if (route == null && dateInt != 0) {
                     route = db.getRouteForDate(dateInt);
                 }
                 if (route != null) {
-                    verification = GpsVerification.verifyRoute(db, route, useHealthConnect);
+                    verification = GpsVerification.verifyRoute(db, route, useHealthConnect, hcLastSyncMs);
                 }
             } catch (Exception e) {
                 android.util.Log.e(MainActivity.TAG, "Route load failed", e);

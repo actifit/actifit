@@ -685,7 +685,6 @@
     <string name="route_start_recording">▶  Iniciar gravação</string>
     <string name="gps_verified_badge">✓ Verificado por GPS</string>
     <string name="gps_mismatch_hint">⚠ Os passos e a distância do GPS não batem</string>
-    <string name="gps_verified_post_line">📍 Rota verificada por GPS: %1$s</string>
     <string name="earnings_gadgets_label">Ganhos e gadgets</string>
     <string name="estimated_reward_label">Recompensa estimada</string>
     <string name="this_month_label">Este mês</string>

@@ -696,7 +696,6 @@
     <string name="route_start_recording">▶  بدء التسجيل</string>
     <string name="gps_verified_badge">✓ موثّق بنظام GPS</string>
     <string name="gps_mismatch_hint">⚠ الخطوات ومسافة GPS غير متطابقة</string>
-    <string name="gps_verified_post_line">📍 مسار موثّق بنظام GPS: %1$s</string>
     <string name="earnings_gadgets_label">الأرباح والأدوات</string>
     <string name="estimated_reward_label">المكافأة المتوقعة</string>
     <string name="this_month_label">هذا الشهر</string>

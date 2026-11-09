@@ -1381,8 +1381,9 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     GpsVerification.Result gps = GpsVerification.bestVerifiedRouteForDate(
                             mStepsDBHelper, parseInt(targetDate), healthConnectSyncDone == 1);
                     if (gps != null) {
-                        postContent = finalPostContent + "\n\n" + getString(R.string.gps_verified_post_line,
-                                Utils.formatDistance(PostSteemitActivity.this, gps.distanceMeters));
+                        // always English with a dot decimal (owner decision); km/mi per user setting
+                        postContent = finalPostContent + "\n\n" + GpsVerification.postBodyLine(
+                                gps.distanceMeters, Utils.isMetricSystem(PostSteemitActivity.this));
                         gpsVerified = new JSONObject();
                         gpsVerified.put("distance_m", Math.round(gps.distanceMeters));
                         gpsVerified.put("steps", gps.steps);

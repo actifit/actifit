@@ -817,4 +817,19 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         return routes;
     }
 
+    /** One route by id, or null. Read-only; call off the main thread. */
+    public RouteModel getRouteById(long routeId) {
+        reConnect();
+        try (Cursor cursor = dbInstance.query(TABLE_ACTIVITY_ROUTES, null,
+                ROUTE_ID + "=?", new String[]{String.valueOf(routeId)},
+                null, null, null, "1")) {
+            if (cursor.moveToFirst()) {
+                return cursorToRoute(cursor);
+            }
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "getRouteById failed", e);
+        }
+        return null;
+    }
+
 }

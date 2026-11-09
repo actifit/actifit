@@ -684,7 +684,6 @@
     <string name="route_start_recording">▶  Kayda başla</string>
     <string name="gps_verified_badge">✓ GPS ile doğrulandı</string>
     <string name="gps_mismatch_hint">⚠ Adımlar ve GPS mesafesi uyuşmuyor</string>
-    <string name="gps_verified_post_line">📍 GPS ile doğrulanmış rota: %1$s</string>
     <string name="earnings_gadgets_label">Kazanç ve aletler</string>
     <string name="estimated_reward_label">Tahmini ödül</string>
     <string name="this_month_label">Bu ay</string>
