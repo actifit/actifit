@@ -1373,6 +1373,27 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     }
                 }
 
+                // GPS-verified route for the report date (additive only: one extra body line and
+                // a new gps_verified field; no existing field or format changes)
+                String postContent = finalPostContent;
+                JSONObject gpsVerified = null;
+                try {
+                    GpsVerification.Result gps = GpsVerification.bestVerifiedRouteForDate(
+                            mStepsDBHelper, parseInt(targetDate), healthConnectSyncDone == 1);
+                    if (gps != null) {
+                        postContent = finalPostContent + "\n\n" + getString(R.string.gps_verified_post_line,
+                                Utils.formatDistance(PostSteemitActivity.this, gps.distanceMeters));
+                        gpsVerified = new JSONObject();
+                        gpsVerified.put("distance_m", Math.round(gps.distanceMeters));
+                        gpsVerified.put("steps", gps.steps);
+                        gpsVerified.put("route_min", gps.routeMinutes);
+                    }
+                } catch (Exception e) {
+                    Log.e(MainActivity.TAG, "GPS verification failed", e);
+                    postContent = finalPostContent;
+                    gpsVerified = null;
+                }
+
                 // prepare data to be sent along post
                 final JSONObject data = new JSONObject();
                 try {
@@ -1382,7 +1403,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                             .trim().toLowerCase().replace("@", ""));
                     data.put("posting_key", accountPostingKey);
                     data.put("title", finalPostTitle);
-                    data.put("content", finalPostContent);
+                    data.put("content", postContent);
                     data.put("tags", finalPostTags);
                     data.put("step_count", accountActivityCount);
                     data.put("activity_type", selectedActivitiesVal);
@@ -1410,6 +1431,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
                     // append detailed activity data
                     data.put("detailedActivity", stepDataString);
+
+                    // GPS-verified route summary (new, additive field)
+                    if (gpsVerified != null) {
+                        data.put("gps_verified", gpsVerified);
+                    }
 
                     // appending security param values
                     data.put(getString(R.string.sec_param), getString(R.string.sec_param_val));

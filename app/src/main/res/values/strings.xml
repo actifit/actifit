@@ -689,6 +689,9 @@
     <string name="route_tracking_label">Route Tracking</string>
     <string name="route_view_btn">View →</string>
     <string name="route_start_recording">▶  Start Recording</string>
+    <string name="gps_verified_badge">✓ GPS-verified</string>
+    <string name="gps_mismatch_hint">⚠ Steps and GPS distance don\'t match</string>
+    <string name="gps_verified_post_line">📍 GPS-verified route: %1$s</string>
     <string name="earnings_gadgets_label">Earnings &amp; Gadgets</string>
     <string name="estimated_reward_label">Estimated Reward</string>
     <string name="this_month_label">This Month</string>

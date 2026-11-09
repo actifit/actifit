@@ -233,6 +233,17 @@
             android:paddingBottom="8dp"
             tools:ignore="HardcodedText" />
 
+        <!-- GPS-verified badge / mismatch hint (view mode only, set from RouteMapActivity) -->
+        <TextView
+            android:id="@+id/tv_route_gps_badge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp"
+            android:visibility="gone" />
+
         <!-- LIVE controls -->
         <LinearLayout
             android:id="@+id/live_controls"

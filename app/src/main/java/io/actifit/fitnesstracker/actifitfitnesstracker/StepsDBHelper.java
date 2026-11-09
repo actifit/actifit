@@ -801,4 +801,20 @@ public class StepsDBHelper extends SQLiteOpenHelper {
         return route;
     }
 
+    /** All routes recorded on a date (yyyyMMdd), newest first. Read-only; call off the main thread. */
+    public ArrayList<RouteModel> getRoutesForDate(int date) {
+        ArrayList<RouteModel> routes = new ArrayList<>();
+        reConnect();
+        try (Cursor cursor = dbInstance.query(TABLE_ACTIVITY_ROUTES, null,
+                ROUTE_DATE + "=?", new String[]{String.valueOf(date)},
+                null, null, ROUTE_START_TIME + " DESC")) {
+            while (cursor.moveToNext()) {
+                routes.add(cursorToRoute(cursor));
+            }
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "getRoutesForDate failed", e);
+        }
+        return routes;
+    }
+
 }
