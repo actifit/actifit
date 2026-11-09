@@ -254,6 +254,8 @@
         android:description="@string/actifit_reminder_service_desc">
         <intent-filter>
             <action android:name="android.intent.action.BOOT_COMPLETED" />
+            <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            <action android:name="android.intent.action.TIME_SET" />
         </intent-filter>
     </receiver>
 

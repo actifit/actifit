@@ -80,6 +80,7 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
@@ -1748,17 +1749,18 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             }
         }
 
-        // collect tags from chips + any pending text in input field
+        // turn any text still in the input into a chip (same cleanup, dedupe and 10-tag cap),
+        // then collect tags from the chips
+        String pendingTag = steemitPostTags.getText().toString().trim();
+        if (!pendingTag.isEmpty() && tagsChipGroup.getChildCount() < 10) {
+            addTagChip(pendingTag);
+            steemitPostTags.setText("");
+        }
         StringBuilder tags = new StringBuilder();
         for (int i = 0; i < tagsChipGroup.getChildCount(); i++) {
             Chip chip = (Chip) tagsChipGroup.getChildAt(i);
             if (tags.length() > 0) tags.append(",");
             tags.append(chip.getText());
-        }
-        String pendingTag = steemitPostTags.getText().toString().trim();
-        if (!pendingTag.isEmpty()) {
-            if (tags.length() > 0) tags.append(",");
-            tags.append(pendingTag);
         }
         finalPostTags = tags.toString();
 
@@ -1863,7 +1865,26 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         return chip;
     }
 
-    private void addTagChip(String tag) {
+    // Hive only accepts lowercase letters, digits and dashes in tags, so clean the input here
+    // instead of letting the post carry a broken tag. Accents are folded (español -> espanol);
+    // scripts with no Latin form end up empty and are dropped.
+    static String sanitizeTag(String rawTag) {
+        String tag = Normalizer.normalize(rawTag, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9-]", "")
+                .replaceAll("-{2,}", "-");
+        if (tag.length() > 24) tag = tag.substring(0, 24);
+        return tag.replaceAll("^-+|-+$", "");
+    }
+
+    private void addTagChip(String rawTag) {
+        String tag = sanitizeTag(rawTag);
+        if (tag.isEmpty()) return;
+        for (int i = 0; i < tagsChipGroup.getChildCount(); i++) {
+            if (tag.equals(((Chip) tagsChipGroup.getChildAt(i)).getText().toString())) return;
+        }
+
         Chip chip = new Chip(this);
         chip.setText(tag);
         chip.setCloseIconVisible(true);
