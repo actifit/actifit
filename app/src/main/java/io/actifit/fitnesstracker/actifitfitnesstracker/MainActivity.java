@@ -2491,8 +2491,7 @@ public class MainActivity extends BaseActivity {
         RequestQueue q = Volley.newRequestQueue(this);
         TextView tvAfit = findViewById(R.id.tv_estimated_afit);
         apiManager.displayEstimatedReward(q, tvAfit, todaySteps);
-        updateStreakStrip();
-        buildMonthHeatmap();
+        updateStreakAndHeatmap();
         loadAiInsight();
     }
 
@@ -2643,7 +2642,29 @@ public class MainActivity extends BaseActivity {
         nudgeCard.setVisibility(View.VISIBLE);
         if (tvDismiss != null) tvDismiss.setOnClickListener(v -> nudgeCard.setVisibility(View.GONE));
     }
-    private void updateStreakStrip() {
+    /** Step counts for the last 31 days, index = days back from today; -1 when unknown. */
+    private int[] loadRecentSteps() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+        StepsDBHelper db = mStepsDBHelper;
+        int[] steps = new int[31];
+        for (int back = 0; back < steps.length; back++) {
+            Calendar day = Calendar.getInstance();
+            day.add(Calendar.DATE, -back);
+            steps[back] = db != null ? db.fetchStepCountByDate(sdf.format(day.getTime())) : -1;
+        }
+        return steps;
+    }
+
+    // the streak strip and the month heatmap read up to 31 days of steps: one load, off the main thread
+    private void updateStreakAndHeatmap() {
+        if (chartManager == null) return;
+        chartManager.loadThenRender(this::loadRecentSteps, stepsBack -> {
+            renderStreakStrip(stepsBack);
+            if (mStepsDBHelper != null) renderMonthHeatmap(stepsBack);
+        });
+    }
+
+    private void renderStreakStrip(int[] stepsBack) {
         int[] dayViewIds = {
             R.id.streak_day_0, R.id.streak_day_1, R.id.streak_day_2,
             R.id.streak_day_3, R.id.streak_day_4, R.id.streak_day_5, R.id.streak_day_6
@@ -2658,14 +2679,11 @@ public class MainActivity extends BaseActivity {
             getString(R.string.day_abbr_thu), getString(R.string.day_abbr_fri),
             getString(R.string.day_abbr_sat)
         };
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-
         // Fill 7-day window: index 0 = 6 days ago, index 6 = today
         for (int i = 0; i < 7; i++) {
             Calendar dayCal = Calendar.getInstance();
             dayCal.add(Calendar.DATE, -(6 - i));
-            String dateStr = sdf.format(dayCal.getTime());
-            int steps = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(dateStr) : -1;
+            int steps = stepsBack[6 - i];
             boolean active = steps >= 5000;
 
             View dayView = findViewById(dayViewIds[i]);
@@ -2680,15 +2698,11 @@ public class MainActivity extends BaseActivity {
         }
 
         // Compute streak: consecutive days ending at today (skip today if inactive — day in progress)
-        Calendar todayCal = Calendar.getInstance();
-        int todaySteps = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(todayCal.getTime())) : -1;
+        int todaySteps = stepsBack[0];
         int startDaysBack = (todaySteps >= 5000) ? 0 : 1;
         int streak = 0;
-        for (int daysBack = startDaysBack; daysBack <= 30; daysBack++) {
-            Calendar dayCal = Calendar.getInstance();
-            dayCal.add(Calendar.DATE, -daysBack);
-            int steps = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(dayCal.getTime())) : -1;
-            if (steps >= 5000) {
+        for (int daysBack = startDaysBack; daysBack < stepsBack.length; daysBack++) {
+            if (stepsBack[daysBack] >= 5000) {
                 streak++;
             } else {
                 break;
@@ -3028,11 +3042,15 @@ public class MainActivity extends BaseActivity {
     }
 
     public void buildMonthHeatmap() {
+        if (mStepsDBHelper == null || chartManager == null) return;
+        chartManager.loadThenRender(this::loadRecentSteps, this::renderMonthHeatmap);
+    }
+
+    private void renderMonthHeatmap(int[] stepsBack) {
         LinearLayout heatmapGrid = findViewById(R.id.heatmap_grid);
-        if (heatmapGrid == null || mStepsDBHelper == null) return;
+        if (heatmapGrid == null) return;
         heatmapGrid.removeAllViews();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
         Calendar today = Calendar.getInstance();
         int year = today.get(Calendar.YEAR);
         int month = today.get(Calendar.MONTH);
@@ -3044,12 +3062,10 @@ public class MainActivity extends BaseActivity {
         int firstDow = monthStart.get(Calendar.DAY_OF_WEEK);
         int leadingBlanks = (firstDow == Calendar.SUNDAY) ? 6 : firstDow - Calendar.MONDAY;
 
-        // Load step counts for all past days this month
+        // Step counts for all past days this month (todayDay - 1 <= 30 days back)
         int[] stepsByDay = new int[daysInMonth + 1];
         for (int d = 1; d <= todayDay; d++) {
-            Calendar c = Calendar.getInstance();
-            c.set(year, month, d);
-            stepsByDay[d] = mStepsDBHelper.fetchStepCountByDate(sdf.format(c.getTime()));
+            stepsByDay[d] = stepsBack[todayDay - d];
         }
 
         // Calculate streak matching streak-strip logic:
@@ -3780,11 +3796,10 @@ public class MainActivity extends BaseActivity {
 
                 displayEstimatedReward();
 
-                updateStreakStrip();
+                updateStreakAndHeatmap();
 
                 loadAiInsight();
 
-                buildMonthHeatmap();
 
                 loadLastRoute();
 
@@ -4118,11 +4133,10 @@ public class MainActivity extends BaseActivity {
 
             displayEstimatedReward();
 
-            updateStreakStrip();
+            updateStreakAndHeatmap();
 
             loadAiInsight();
 
-            buildMonthHeatmap();
 
             displayVotingStatus();
 
