@@ -567,9 +567,22 @@ public class StepsDBHelper extends SQLiteOpenHelper {
     public void reConnect(){
         synchronized (StepsDBHelper.class) {
             if (dbInstance==null || !dbInstance.isOpen()) {
-                dbInstance = this.getWritableDatabase();
+                dbInstance = super.getWritableDatabase();
             }
         }
+    }
+
+    // callers such as BackupUtils must get the shared connection, not a second one that would
+    // lock against it
+    @Override
+    public SQLiteDatabase getWritableDatabase() {
+        reConnect();
+        return dbInstance;
+    }
+
+    @Override
+    public SQLiteDatabase getReadableDatabase() {
+        return getWritableDatabase();
     }
 
     // ── HC / Fitbit parallel tables ─────────────────────────────────────────

@@ -52,6 +52,9 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     // Sensor events, step counting and the per-step DB write run here instead of on the main
     // thread, where they caused "app not responding" reports.
     private HandlerThread sensorThread;
+    private Handler sensorHandler;
+    // set when the service stops; a step already in progress must not re-post the notification
+    private volatile boolean destroyed;
 
     private SharedPreferences sharedPreferences;
     private static PowerManager pm;
@@ -150,7 +153,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
         sensorThread = new HandlerThread("actifit-steps");
         sensorThread.start();
-        new Handler(sensorThread.getLooper()).post(new ServiceSetupRunnable());
+        sensorHandler = new Handler(sensorThread.getLooper());
+        sensorHandler.post(new ServiceSetupRunnable());
 
     }
 
@@ -254,6 +258,10 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             curStepCount = mStepsDBHelper.createStepsEntry();
         } else {
             curStepCount = mStepsDBHelper.fetchTodayStepCount();
+        }
+
+        if (destroyed) {
+            return;
         }
 
         // adjust step count display and print to notification activity
@@ -411,15 +419,19 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     @Override
     public void onDestroy() {
+        destroyed = true;
         super.onDestroy();
         Log.d(MainActivity.TAG, ">>>>[Actifit]ondestroy service!");
         stopForeground(Service.STOP_FOREGROUND_REMOVE);
 
-        try {
-            sensorManager.unregisterListener(ActivityMonitorService.this);
-        } catch (Exception e) {
-            Log.d(MainActivity.TAG, "error unregisterig listener");
-        }
+        // unregister on the sensor thread, so it runs after a setup or step already queued there
+        sensorHandler.post(() -> {
+            try {
+                sensorManager.unregisterListener(ActivityMonitorService.this);
+            } catch (Exception e) {
+                Log.d(MainActivity.TAG, "error unregisterig listener");
+            }
+        });
         sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
         String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",
                 getString(R.string.aggr_back_tracking_off_ntt));
@@ -444,6 +456,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     private final class ServiceSetupRunnable implements Runnable {
         @Override
         public void run() {
+            if (destroyed) return;
             // initialize power manager and wake locks either way
             pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.actifit_wake_lock_tag));
@@ -479,7 +492,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             simpleStepDetector.registerListener(ActivityMonitorService.this);
 
             sensorManager.registerListener(ActivityMonitorService.this, accSensor,
-                    SensorManager.SENSOR_DELAY_GAME, new Handler(Looper.myLooper()));
+                    SensorManager.SENSOR_DELAY_GAME, sensorHandler);
             // SensorManager.SENSOR_DELAY_GAME);
 
             // grab activity count so far today

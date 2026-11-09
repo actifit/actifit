@@ -2491,8 +2491,7 @@ public class MainActivity extends BaseActivity {
         RequestQueue q = Volley.newRequestQueue(this);
         TextView tvAfit = findViewById(R.id.tv_estimated_afit);
         apiManager.displayEstimatedReward(q, tvAfit, todaySteps);
-        updateStreakStrip();
-        buildMonthHeatmap();
+        updateStreakAndHeatmap();
         loadAiInsight();
     }
 
@@ -2656,9 +2655,13 @@ public class MainActivity extends BaseActivity {
         return steps;
     }
 
-    // the streak strip and the month heatmap read up to 31 days of steps: do it off the main thread
-    private void updateStreakStrip() {
-        if (chartManager != null) chartManager.loadThenRender(this::loadRecentSteps, this::renderStreakStrip);
+    // the streak strip and the month heatmap read up to 31 days of steps: one load, off the main thread
+    private void updateStreakAndHeatmap() {
+        if (chartManager == null) return;
+        chartManager.loadThenRender(this::loadRecentSteps, stepsBack -> {
+            renderStreakStrip(stepsBack);
+            if (mStepsDBHelper != null) renderMonthHeatmap(stepsBack);
+        });
     }
 
     private void renderStreakStrip(int[] stepsBack) {
@@ -3793,11 +3796,10 @@ public class MainActivity extends BaseActivity {
 
                 displayEstimatedReward();
 
-                updateStreakStrip();
+                updateStreakAndHeatmap();
 
                 loadAiInsight();
 
-                buildMonthHeatmap();
 
                 loadLastRoute();
 
@@ -4131,11 +4133,10 @@ public class MainActivity extends BaseActivity {
 
             displayEstimatedReward();
 
-            updateStreakStrip();
+            updateStreakAndHeatmap();
 
             loadAiInsight();
 
-            buildMonthHeatmap();
 
             displayVotingStatus();
 
