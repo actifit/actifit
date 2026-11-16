@@ -258,7 +258,10 @@ public class ApiManager {
         }, error -> Log.e(TAG, "ERROR"));
         queue.add(accountRCRequest);
 
-        String accountDataUrl = Utils.apiUrl(context) + context.getString(R.string.get_account_api_url) + username;
+        // markErrors=1: the server answers {"error":true} when the Blurt nodes are down, instead of the
+        // null that means "no account", so an outage shows "Unavailable" rather than "No Blurt account"
+        String accountDataUrl = Utils.apiUrl(context) + context.getString(R.string.get_account_api_url) + username
+                + "&markErrors=1";
         JsonObjectRequest userDataRequest = new JsonObjectRequest(Request.Method.GET, accountDataUrl, null, response -> {
             EarningsStatus.BlurtAccount blurt = EarningsStatus.fromAccountData(response);
             notifyEarnings(main -> main.onBlurtAccountLoaded(blurt));
