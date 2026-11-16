@@ -683,6 +683,8 @@
     <string name="route_tracking_label">경로 추적</string>
     <string name="route_view_btn">보기 →</string>
     <string name="route_start_recording">▶  녹화 시작</string>
+    <string name="gps_verified_badge">✓ GPS 인증됨</string>
+    <string name="gps_mismatch_hint">⚠ 걸음 수와 GPS 거리가 일치하지 않습니다</string>
     <string name="earnings_gadgets_label">수입 및 가젯</string>
     <string name="estimated_reward_label">예상 보상</string>
     <string name="this_month_label">이번 달</string>

@@ -683,6 +683,8 @@
     <string name="route_tracking_label">Tracciamento percorso</string>
     <string name="route_view_btn">Visualizza →</string>
     <string name="route_start_recording">▶  Inizia registrazione</string>
+    <string name="gps_verified_badge">✓ Verificato con GPS</string>
+    <string name="gps_mismatch_hint">⚠ Passi e distanza GPS non corrispondono</string>
     <string name="earnings_gadgets_label">Guadagni e gadget</string>
     <string name="estimated_reward_label">Ricompensa stimata</string>
     <string name="this_month_label">Questo mese</string>
