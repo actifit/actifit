@@ -263,14 +263,19 @@
 	<string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
 	<string name="actifit_image">https://actifit.io/img/</string>
 	<string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-	<string name="earnings_pane_title">आपकी संभावित टोकन कमाई</string>
-	<string name="earnings_pane_note_0">आप वर्तमान में टोकन प्राप्त करने के योग्य हैं जो वर्तमान में पेन में दिख रहे हैं जैसा कि आप अपनी actifit पोस्ट बनाते हैं।<br/></string>
-	<string name="earnings_pane_note_1">आपको कम से कम 5,000 गतिविधि तक पहुँचना है ताकि कमाई शुरू हो सके। <br /> आपकी AFIT कमाई आपकी पोस्ट बनाने के 48 घंटों के भीतर आती है।<br /></string>
-	<string name="earnings_pane_note_2">आपके अन्य टोकन पुरस्कार आपकी पोस्ट के 7 दिनों के बाद आते हैं।</string>
-	<string name="not_earning_afit">⚠ आप वर्तमान में AFIT नहीं कमा रहे हैं क्योंकि आपका बैलेंस </string>
-	<string name="not_earning_steem">⚠ आप वर्तमान में STEEM नहीं कमा रहे हैं क्योंकि आपके पास Steem खाता नहीं है। आप हमारे साइनअप पेज के माध्यम से साइनअप कर सकते हैं </string>
-	<string name="not_earning_blurt">⚠ आप वर्तमान में BLURT नहीं कमा रहे हैं क्योंकि आपके पास Blurt खाता नहीं है। आप हमारे साइनअप पेज के माध्यम से साइनअप कर सकते हैं </string>
-	<string name="not_earning_blurt_balance">⚠ आप वर्तमान में BLURT नहीं कमा रहे हैं क्योंकि आपका बैलेंस 5 BLURT से कम है।</string>
+	<string name="earnings_sheet_title">आपकी टोकन कमाई</string>
+	<string name="earnings_status_earning">कमा रहे हैं</string>
+	<string name="earnings_status_not_earning">नहीं कमा रहे</string>
+	<string name="earnings_status_checking">जाँच हो रही है…</string>
+	<string name="earnings_status_unavailable">उपलब्ध नहीं</string>
+	<string name="earnings_reason_low_balance">%1$s %2$s चाहिए (आपके पास %3$s है)</string>
+	<string name="earnings_reason_no_blurt_account">अभी तक कोई Blurt खाता नहीं</string>
+	<string name="earnings_action_open_signup">साइनअप पेज खोलें</string>
+	<string name="earnings_how_title">पुरस्कार कैसे काम करते हैं</string>
+	<string name="earnings_how_min_activity">योग्य होने के लिए 5,000 गतिविधि तक पहुँचें</string>
+	<string name="earnings_how_afit_timing">AFIT 48 घंटे के भीतर आता है</string>
+	<string name="earnings_how_other_timing">HIVE, BLURT और SPORTS 7 दिनों के बाद आते हैं</string>
+	<string name="earnings_got_it">समझ गया</string>
 	<string name="loading">लोड हो रहा है...</string>
 	<string name="rewards_claimed_successfully">आपने सफलतापूर्वक अपने पुरस्कार प्राप्त कर लिए हैं!</string>
 	<string name="rewards_claim_error">आपके पुरस्कार का दावा करने में त्रुटि हुई। कृपया बाद में पुनः प्रयास करें।</string>

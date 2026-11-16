@@ -263,14 +263,19 @@
 	<string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
 	<string name="actifit_image">https://actifit.io/img/</string>
 	<string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-	<string name="earnings_pane_title">Seus Ganhos Potenciais de Token</string>
-	<string name="earnings_pane_note_0">Você atualmente é elegível para ganhar tokens que estão aparecendo no painel à medida que você faz sua postagem no actifit.<br/></string>
-	<string name="earnings_pane_note_1">Você precisa alcançar no mínimo 5.000 atividades para começar a ganhar. <br /> Seus ganhos de AFIT chegam dentro de 48 horas após fazer sua postagem.<br /></string>
-	<string name="earnings_pane_note_2">Suas outras recompensas de token chegam após 7 dias da sua postagem.</string>
-	<string name="not_earning_afit">⚠ Você atualmente NÃO está ganhando AFIT devido ao seu saldo estar abaixo de </string>
-	<string name="not_earning_steem">⚠ Você atualmente NÃO está ganhando STEEM devido a não ter uma conta Steem. Você pode se inscrever para uma na nossa página de inscrição </string>
-	<string name="not_earning_blurt">⚠ Você atualmente NÃO está ganhando BLURT devido a não ter uma conta Blurt. Você pode se inscrever para uma na nossa página de inscrição </string>
-	<string name="not_earning_blurt_balance">⚠ Você atualmente NÃO está ganhando BLURT devido ao seu saldo estar abaixo de 5 BLURT.</string>
+	<string name="earnings_sheet_title">Seus ganhos em tokens</string>
+	<string name="earnings_status_earning">Ganhando</string>
+	<string name="earnings_status_not_earning">Não ganhando</string>
+	<string name="earnings_status_checking">Verificando…</string>
+	<string name="earnings_status_unavailable">Indisponível</string>
+	<string name="earnings_reason_low_balance">Precisa de %1$s %2$s (você tem %3$s)</string>
+	<string name="earnings_reason_no_blurt_account">Ainda sem conta Blurt</string>
+	<string name="earnings_action_open_signup">Abrir página de inscrição</string>
+	<string name="earnings_how_title">Como funcionam as recompensas</string>
+	<string name="earnings_how_min_activity">Atinja 5.000 de atividade para se qualificar</string>
+	<string name="earnings_how_afit_timing">AFIT chega em até 48 h</string>
+	<string name="earnings_how_other_timing">HIVE, BLURT e SPORTS chegam após 7 dias</string>
+	<string name="earnings_got_it">Entendi</string>
 	<string name="loading">Carregando...</string>
 	<string name="rewards_claimed_successfully">Você reivindicou suas recompensas com sucesso!</string>
 	<string name="rewards_claim_error">Houve um erro ao reivindicar suas recompensas. Por favor, tente novamente mais tarde.</string>

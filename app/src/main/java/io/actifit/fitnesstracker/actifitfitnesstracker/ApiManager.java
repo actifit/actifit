@@ -89,8 +89,6 @@ public class ApiManager {
     private View referLayout;
     private AlertDialog.Builder pendingRewardsDialogBuilder;
     private AlertDialog pendingRewardsDialog;
-    private AlertDialog.Builder earningsDialogBuilder;
-    private AlertDialog earningsDialog;
     private AlertDialog.Builder gadgetsDialogBuilder;
     private AlertDialog gadgetsDialog;
     private AlertDialog.Builder afitBuyDialogBuilder;
@@ -236,17 +234,16 @@ public class ApiManager {
                 if (MainActivity.userFullBalance < MainActivity.minTokenCount) {
                     afitLogo.setColorFilter(Color.rgb(210, 215, 211));
                 }
-                try {
-                    if (earningsDialog != null) {
-                        String msg = grabEarningsPanelNote();
-                        earningsDialog.setMessage(Html.fromHtml(msg));
-                    }
-                } catch (Exception ignored) {}
+                notifyEarnings(main -> main.onAfitBalanceLoaded(true));
             } catch (JSONException e) {
                 Log.e(TAG, "ERROR");
                 e.printStackTrace();
+                notifyEarnings(main -> main.onAfitBalanceLoaded(false));
             }
-        }, error -> Log.e(TAG, "ERROR"));
+        }, error -> {
+            Log.e(TAG, "ERROR");
+            notifyEarnings(main -> main.onAfitBalanceLoaded(false));
+        });
         queue.add(balanceRequest);
 
         String accountRCUrl = Utils.apiUrl(context) + context.getString(R.string.get_account_rc) + username;
@@ -261,24 +258,23 @@ public class ApiManager {
         }, error -> Log.e(TAG, "ERROR"));
         queue.add(accountRCRequest);
 
-        String accountDataUrl = Utils.apiUrl(context) + context.getString(R.string.get_account_api_url) + username;
+        // markErrors=1: the server answers {"error":true} when the Blurt nodes are down, instead of the
+        // null that means "no account", so an outage shows "Unavailable" rather than "No Blurt account"
+        String accountDataUrl = Utils.apiUrl(context) + context.getString(R.string.get_account_api_url) + username
+                + "&markErrors=1";
         JsonObjectRequest userDataRequest = new JsonObjectRequest(Request.Method.GET, accountDataUrl, null, response -> {
-            try {
-                if (!response.has("STEEM")) {
-                    // ImageView iv = activity.findViewById(R.id.steem_logo);
-                    // iv.setColorFilter(Color.rgb(210, 215, 211));
-                } else {
-                    // hasSteemAccount = true;
-                }
-                if (!response.has("BLURT")) {
-                    // ImageView iv = activity.findViewById(R.id.blurt_logo);
-                    // iv.setColorFilter(Color.rgb(210, 215, 211));
-                } else {
-                    // hasBlurtAccount = true;
-                }
-            } catch (Exception ignored) {}
-        }, error -> {});
+            EarningsStatus.BlurtAccount blurt = EarningsStatus.fromAccountData(response);
+            notifyEarnings(main -> main.onBlurtAccountLoaded(blurt));
+        }, error -> {
+            Log.e(TAG, "error fetching account data");
+            notifyEarnings(MainActivity::onBlurtAccountFailed);
+        });
         queue.add(userDataRequest);
+    }
+
+    /** Hands an earnings lookup result to MainActivity, which owns the earnings sheet. */
+    private void notifyEarnings(java.util.function.Consumer<MainActivity> update) {
+        if (activity instanceof MainActivity) update.accept((MainActivity) activity);
     }
 
     public void displayUserAndRank(RequestQueue queue, TextView welcomeUser, TextView userRankTV, View topIconsContainer, View loginContainer, ImageView userProfilePic) {
@@ -598,15 +594,6 @@ public class ApiManager {
             } catch (Exception ignored) {}
         }, error -> {});
         queue.add(votingStatusRequest);
-    }
-
-    private String grabEarningsPanelNote() {
-        String msg = "";
-        boolean showNotice = false;
-        // Simplified - full implementation would check balances
-        msg += "<i>" + context.getString(R.string.earnings_pane_note_0) + "<br />";
-        msg += context.getString(R.string.earnings_pane_note_1) + "<br /></i>";
-        return msg;
     }
 
     public static String parseRewards(JSONObject innerRewards, String chain, String currency, Double price) {

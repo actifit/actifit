@@ -263,14 +263,19 @@
 <string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
 <string name="actifit_image">https://actifit.io/img/</string>
 <string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-<string name="earnings_pane_title">Awọn Ere Token Ẹri Rẹ</string>
-<string name="earnings_pane_note_0">Lọwọlọwọ o ni ẹtọ lati jo\'gun awọn aami ti o han lọwọlọwọ ninu pane bi o ṣe ṣe ifiweranṣẹ actifit rẹ.<br/></string>
-<string name="earnings_pane_note_1">O nilo lati de ọdọ iṣẹ-ṣiṣe 5,000 ti o kere julọ lati bẹrẹ jèrè. <br /> Awọn ere AFIT rẹ wa laarin awọn wakati 48 ti o ti fi ifiweranṣẹ rẹ ṣe.<br /></string>
-<string name="earnings_pane_note_2">Awọn ẹbun ami miiran rẹ wa lẹhin awọn ọjọ 7 ti ifiweranṣẹ rẹ.</string>
-<string name="not_earning_afit">⚠ Lọwọlọwọ O KO jo\'gun AFIT nitori iwọntunwọnsi rẹ wa ni isalẹ </string>
-<string name="not_earning_steem">⚠ Lọwọlọwọ O KO jo\'gun STEEM nitori pe ko ni akọọlẹ Steem kan. O le forukọsilẹ fun ọkan nipasẹ oju-iwe forukọsilẹ wa </string>
-<string name="not_earning_blurt">⚠ Lọwọlọwọ O KO jo\'gun BLURT nitori pe ko ni akọọlẹ Blurt kan. O le forukọsilẹ fun ọkan nipasẹ oju-iwe forukọsilẹ wa </string>
-<string name="not_earning_blurt_balance">⚠ Lọwọlọwọ O KO jo\'gun BLURT nitori pe iwọntunwọnsi rẹ wa ni isalẹ 5 BLURT.</string>
+<string name="earnings_sheet_title">Awọn ere token rẹ</string>
+<string name="earnings_status_earning">Ń jèrè</string>
+<string name="earnings_status_not_earning">Kò jèrè</string>
+<string name="earnings_status_checking">Ń ṣayẹwo…</string>
+<string name="earnings_status_unavailable">Ko si lọwọlọwọ</string>
+<string name="earnings_reason_low_balance">O nilo %1$s %2$s (o ni %3$s)</string>
+<string name="earnings_reason_no_blurt_account">Ko si akọọlẹ Blurt sibẹsibẹ</string>
+<string name="earnings_action_open_signup">Ṣii oju-iwe iforukọsilẹ</string>
+<string name="earnings_how_title">Bawo ni awọn ẹbun ṣe n ṣiṣẹ</string>
+<string name="earnings_how_min_activity">De iṣẹ-ṣiṣe 5,000 lati yẹ</string>
+<string name="earnings_how_afit_timing">AFIT de laarin wakati 48</string>
+<string name="earnings_how_other_timing">HIVE, BLURT ati SPORTS de lẹhin ọjọ 7</string>
+<string name="earnings_got_it">O ye mi</string>
 <string name="loading">Ṣiṣakoṣo...</string>
 <string name="rewards_claimed_successfully">O ti ṣaṣeyọri gba awọn ẹbun rẹ!</string>
 <string name="rewards_claim_error">Aṣiṣe kan wa ninu gbigba awọn ẹbun rẹ. Jọwọ gbiyanju lẹẹkansi nigbamii.</string>

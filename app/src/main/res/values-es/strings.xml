@@ -266,14 +266,19 @@
     <string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
     <string name="actifit_image">https://actifit.io/img/</string>
     <string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-    <string name="earnings_pane_title">Sus posibles ingresos en tokens</string>
-    <string name="earnings_pane_note_0">Actualmente es elegible para ganar tokens que se muestran actualmente en el panel mientras crea su publicación de Actifit.<br/></string>
-    <string name="earnings_pane_note_1">Debe alcanzar al menos 5.000 actividades para comenzar a ganar. <br /> Sus ingresos en AFIT se realizan dentro de las 48 horas posteriores a la creación de su publicación.<br /></string>
-    <string name="earnings_pane_note_2">Sus otras recompensas de tokens llegan después de 7 días de su publicación.</string>
-    <string name="not_earning_afit">⚠ Actualmente NO está ganando AFIT debido a que su saldo es inferior a </string>
-    <string name="not_earning_steem">⚠ Actualmente NO está ganando STEEM debido a que no tiene una cuenta de Steem. Puede registrarse para obtener una a través de nuestra página de registro </string>
-    <string name="not_earning_blurt">⚠ Actualmente NO está ganando BLURT debido a que no tiene una cuenta de Blurt. Puede registrarse para obtener una a través de nuestra página de registro </string>
-    <string name="not_earning_blurt_balance">⚠ Actualmente NO está ganando BLURT debido a que su saldo es inferior a 5 BLURT.</string>
+    <string name="earnings_sheet_title">Sus ganancias en tokens</string>
+    <string name="earnings_status_earning">Ganando</string>
+    <string name="earnings_status_not_earning">Sin ganar</string>
+    <string name="earnings_status_checking">Comprobando…</string>
+    <string name="earnings_status_unavailable">No disponible</string>
+    <string name="earnings_reason_low_balance">Necesita %1$s %2$s (tiene %3$s)</string>
+    <string name="earnings_reason_no_blurt_account">Aún no tiene cuenta de Blurt</string>
+    <string name="earnings_action_open_signup">Abrir página de registro</string>
+    <string name="earnings_how_title">Cómo funcionan las recompensas</string>
+    <string name="earnings_how_min_activity">Alcance 5.000 de actividad para calificar</string>
+    <string name="earnings_how_afit_timing">AFIT llega en 48 h</string>
+    <string name="earnings_how_other_timing">HIVE, BLURT y SPORTS llegan después de 7 días</string>
+    <string name="earnings_got_it">Entendido</string>
     <string name="loading">Cargando...</string>
     <string name="rewards_claimed_successfully">¡Ha reclamado sus recompensas con éxito!</string>
     <string name="rewards_claim_error">Se produjo un error al reclamar sus recompensas. Inténtalo de nuevo más tarde.</string>

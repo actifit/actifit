@@ -294,14 +294,19 @@
     <string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
     <string name="actifit_image">https://actifit.io/img/</string>
     <string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-    <string name="earnings_pane_title">Your Potential Token Earnings</string>
-    <string name="earnings_pane_note_0">You are currently eligible to earn tokens currently showing in the pane as you make your actifit post.<br/></string>
-    <string name="earnings_pane_note_1">You need to reach minimum 5,000 activity to start earning. <br /> Your AFIT earnings come in within 48 hours of making your post.<br /></string>
-    <string name="earnings_pane_note_2">Your other token rewards come in after 7 days of your post.</string>
-    <string name="not_earning_afit">⚠ You are currently NOT earning AFIT due to your balance being below </string>
-    <string name="not_earning_steem">⚠ You are currently NOT earning STEEM due to not having a Steem account. You can signup for one via our signup page </string>
-    <string name="not_earning_blurt">⚠ You are currently NOT earning BLURT due to not having a Blurt account. You can signup for one via our signup page </string>
-    <string name="not_earning_blurt_balance">⚠ You are currently NOT earning BLURT due to your balance being below 5 BLURT.</string>
+    <string name="earnings_sheet_title">Your token earnings</string>
+    <string name="earnings_status_earning">Earning</string>
+    <string name="earnings_status_not_earning">Not earning</string>
+    <string name="earnings_status_checking">Checking…</string>
+    <string name="earnings_status_unavailable">Unavailable</string>
+    <string name="earnings_reason_low_balance">Needs %1$s %2$s (you have %3$s)</string>
+    <string name="earnings_reason_no_blurt_account">No Blurt account yet</string>
+    <string name="earnings_action_open_signup">Open signup page</string>
+    <string name="earnings_how_title">How rewards work</string>
+    <string name="earnings_how_min_activity">Reach 5,000 activity to qualify</string>
+    <string name="earnings_how_afit_timing">AFIT arrives within 48 h</string>
+    <string name="earnings_how_other_timing">HIVE, BLURT &amp; SPORTS arrive after 7 days</string>
+    <string name="earnings_got_it">Got it</string>
     <string name="loading">Loading...</string>
     <string name="rewards_claimed_successfully">You have successfully claimed your rewards!</string>
     <string name="rewards_claim_error">There was an error claiming your rewards. Please try again later.</string>

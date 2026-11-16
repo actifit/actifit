@@ -262,14 +262,6 @@
 <string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
 <string name="actifit_image">https://actifit.io/img/</string>
 <string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-<string name="earnings_pane_title">Ваш потенційний заробіток у токенах</string>
-<string name="earnings_pane_note_0">Зараз ви можете заробити токени, показані на цій панелі, опублікувавши свій допис Actifit.<br/></string>
-<string name="earnings_pane_note_1">Щоб почати заробляти, потрібно досягти щонайменше 5000 активності. <br /> Ваш заробіток в AFIT надходить протягом 48 годин після публікації допису.<br /></string>
-<string name="earnings_pane_note_2">Інші винагороди в токенах надходять через 7 днів після публікації допису.</string>
-<string name="not_earning_afit">⚠ Зараз ви НЕ заробляєте AFIT, оскільки ваш баланс нижчий за </string>
-<string name="not_earning_steem">⚠ Зараз ви НЕ заробляєте STEEM, оскільки у вас немає облікового запису Steem. Ви можете зареєструвати його на нашій сторінці реєстрації </string>
-<string name="not_earning_blurt">⚠ Зараз ви НЕ заробляєте BLURT, оскільки у вас немає облікового запису Blurt. Ви можете зареєструвати його на нашій сторінці реєстрації </string>
-<string name="not_earning_blurt_balance">⚠ Зараз ви НЕ заробляєте BLURT, оскільки ваш баланс нижчий за 5 BLURT.</string>
 <string name="loading">Завантаження...</string>
 <string name="rewards_claimed_successfully">Ви успішно отримали свої винагороди!</string>
 <string name="rewards_claim_error">Під час отримання винагород сталася помилка. Спробуйте пізніше.</string>
@@ -918,6 +910,19 @@
     <string name="arena_countdown_days">%1$d д %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Синхронізувати з Health Connect</string>
     <string name="steps_synced_from_health_connect">Кроки синхронізовано з Health Connect</string>
+<string name="earnings_action_open_signup">Відкрити сторінку реєстрації</string>
+<string name="earnings_got_it">Зрозуміло</string>
+<string name="earnings_how_afit_timing">AFIT надходить протягом 48 год</string>
+<string name="earnings_how_min_activity">Досягніть 5 000 активності, щоб отримати право</string>
+<string name="earnings_how_other_timing">HIVE, BLURT і SPORTS надходять через 7 днів</string>
+<string name="earnings_how_title">Як працюють винагороди</string>
+<string name="earnings_reason_low_balance">Потрібно %1$s %2$s (у вас %3$s)</string>
+<string name="earnings_reason_no_blurt_account">Ще немає облікового запису Blurt</string>
+<string name="earnings_sheet_title">Ваші заробітки в токенах</string>
+<string name="earnings_status_checking">Перевірка…</string>
+<string name="earnings_status_earning">Заробляєте</string>
+<string name="earnings_status_not_earning">Не заробляєте</string>
+<string name="earnings_status_unavailable">Недоступно</string>
 </resources>
 
 
