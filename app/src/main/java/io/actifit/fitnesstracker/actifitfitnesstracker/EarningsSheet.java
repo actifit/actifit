@@ -66,6 +66,11 @@ final class EarningsSheet {
         return dialog.isShowing();
     }
 
+    /** Closes the sheet; called from the activity's onDestroy so the window does not leak. */
+    void dismiss() {
+        if (dialog.isShowing()) dialog.dismiss();
+    }
+
     void show(Row... rows) {
         update(rows);
         if (!activity.isFinishing() && !activity.isDestroyed()) dialog.show();

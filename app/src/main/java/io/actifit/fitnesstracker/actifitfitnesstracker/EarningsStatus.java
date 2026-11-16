@@ -1,5 +1,7 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import org.json.JSONObject;
+
 /**
  * Rules for the "Your token earnings" bottom sheet: whether the user is earning each token
  * and, if not, why. Pure Java with no Android types, so it is covered by plain JUnit tests.
@@ -35,7 +37,48 @@ public final class EarningsStatus {
         }
     }
 
+    /** The BLURT part of a getAccountData response. */
+    public static final class BlurtAccount {
+        public final Lookup lookup;
+        public final boolean hasAccount;
+        /** Liquid BLURT balance; set only when lookup is DONE and hasAccount is true. */
+        public final Double balance;
+
+        BlurtAccount(Lookup lookup, boolean hasAccount, Double balance) {
+            this.lookup = lookup;
+            this.hasAccount = hasAccount;
+            this.balance = balance;
+        }
+    }
+
+    private static final BlurtAccount BLURT_FAILED = new BlurtAccount(Lookup.FAILED, false, null);
+
     private EarningsStatus() {}
+
+    /**
+     * Maps a getAccountData response ({"HIVE":{...},"BLURT":{...}}) to the user's Blurt account.
+     * "BLURT": null means the user has no Blurt account. The server sends "BLURT": {"error": true}
+     * when every Blurt node failed, so an outage is not mistaken for a missing account. A missing
+     * key, a non-object, or an object without a readable "balance" is also treated as a failure.
+     */
+    public static BlurtAccount fromAccountData(JSONObject response) {
+        if (response == null || !response.has("BLURT")) return BLURT_FAILED;
+        if (response.isNull("BLURT")) return new BlurtAccount(Lookup.DONE, false, null);
+        JSONObject blurt = response.optJSONObject("BLURT");
+        if (blurt == null || blurt.optBoolean("error", false)) return BLURT_FAILED;
+        Double balance = parseAmount(blurt.optString("balance", null));
+        if (balance == null) return BLURT_FAILED;
+        return new BlurtAccount(Lookup.DONE, true, balance);
+    }
+
+    /**
+     * The lookup state after a new result arrives. The balance and account lookups can run twice
+     * at once (app start and onResume); once one has succeeded, a later failure keeps the good
+     * result instead of turning the row into "Unavailable". A later success always applies.
+     */
+    public static Lookup merge(Lookup current, Lookup incoming) {
+        return current == Lookup.DONE && incoming == Lookup.FAILED ? Lookup.DONE : incoming;
+    }
 
     /** AFIT is earned only while the AFIT balance is at least {@code minRequired}. */
     public static TokenStatus afit(boolean loggedIn, Lookup lookup, Double balance, double minRequired) {

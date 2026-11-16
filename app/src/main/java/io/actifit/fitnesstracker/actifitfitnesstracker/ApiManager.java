@@ -259,18 +259,9 @@ public class ApiManager {
         queue.add(accountRCRequest);
 
         String accountDataUrl = Utils.apiUrl(context) + context.getString(R.string.get_account_api_url) + username;
-        // Response: {"HIVE":{...},"BLURT":{...}}. A chain the user has no account on is present
-        // but null ({"BLURT":null}), so test isNull(), not has().
         JsonObjectRequest userDataRequest = new JsonObjectRequest(Request.Method.GET, accountDataUrl, null, response -> {
-            boolean hasBlurt = !response.isNull("BLURT");
-            Double blurtBalance = null;
-            if (hasBlurt) {
-                JSONObject blurt = response.optJSONObject("BLURT");
-                // "balance" is the liquid balance as a string, e.g. "0.630 BLURT"
-                if (blurt != null) blurtBalance = EarningsStatus.parseAmount(blurt.optString("balance", null));
-            }
-            final Double balance = blurtBalance;
-            notifyEarnings(main -> main.onBlurtAccountLoaded(hasBlurt, balance));
+            EarningsStatus.BlurtAccount blurt = EarningsStatus.fromAccountData(response);
+            notifyEarnings(main -> main.onBlurtAccountLoaded(blurt));
         }, error -> {
             Log.e(TAG, "error fetching account data");
             notifyEarnings(MainActivity::onBlurtAccountFailed);

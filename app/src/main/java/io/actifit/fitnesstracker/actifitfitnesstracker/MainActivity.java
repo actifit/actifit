@@ -2322,21 +2322,26 @@ public class MainActivity extends BaseActivity {
 
     /** ApiManager: the AFIT balance lookup finished ({@code ok}) or failed. */
     void onAfitBalanceLoaded(boolean ok) {
-        afitLookup = ok ? EarningsStatus.Lookup.DONE : EarningsStatus.Lookup.FAILED;
+        afitLookup = EarningsStatus.merge(afitLookup,
+                ok ? EarningsStatus.Lookup.DONE : EarningsStatus.Lookup.FAILED);
         refreshEarningsStatus();
     }
 
-    /** ApiManager: the getAccountData lookup finished. {@code balance} is the liquid BLURT, or null. */
-    void onBlurtAccountLoaded(boolean hasAccount, Double balance) {
-        hasBlurtAccount = hasAccount;
-        blurtBalance = balance;
+    /** ApiManager: the getAccountData lookup returned. */
+    void onBlurtAccountLoaded(EarningsStatus.BlurtAccount blurt) {
+        if (blurt.lookup != EarningsStatus.Lookup.DONE) {
+            onBlurtAccountFailed();
+            return;
+        }
+        hasBlurtAccount = blurt.hasAccount;
+        blurtBalance = blurt.balance;
         blurtLookup = EarningsStatus.Lookup.DONE;
         refreshEarningsStatus();
     }
 
-    /** ApiManager: the getAccountData lookup failed. */
+    /** ApiManager: the getAccountData lookup failed. Keeps an earlier good result, if any. */
     void onBlurtAccountFailed() {
-        blurtLookup = EarningsStatus.Lookup.FAILED;
+        blurtLookup = EarningsStatus.merge(blurtLookup, EarningsStatus.Lookup.FAILED);
         refreshEarningsStatus();
     }
 
@@ -3892,6 +3897,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        if (earningsSheet != null) earningsSheet.dismiss();
         chartRefreshHandler.removeCallbacks(stepChartRefresh);
         if (chartManager != null) chartManager.release();
         // sensorManager.unregisterListener(this);

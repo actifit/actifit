@@ -15,7 +15,8 @@ import io.actifit.fitnesstracker.actifitfitnesstracker.EarningsStatus.TokenStatu
 
 public class EarningsStatusTest {
 
-    private static final double MIN_AFIT = 5;
+    // Real values of min_afit_reward_balance and min_blurt_reward_balance
+    private static final double MIN_AFIT = 5000;
     private static final double MIN_BLURT = 5;
 
     // ---- AFIT ----
@@ -28,17 +29,17 @@ public class EarningsStatusTest {
 
     @Test
     public void afitBelowMinimumIsNotEarningWithBalances() {
-        TokenStatus s = EarningsStatus.afit(true, Lookup.DONE, 2.5, MIN_AFIT);
+        TokenStatus s = EarningsStatus.afit(true, Lookup.DONE, 4999.5, MIN_AFIT);
         assertEquals(State.NOT_EARNING, s.state);
         assertEquals(Reason.LOW_BALANCE, s.reason);
-        assertEquals(5.0, s.required, 0);
-        assertEquals(2.5, s.current, 0);
+        assertEquals(5000.0, s.required, 0);
+        assertEquals(4999.5, s.current, 0);
     }
 
     @Test
     public void afitAtOrAboveMinimumIsEarning() {
-        assertEquals(State.EARNING, EarningsStatus.afit(true, Lookup.DONE, 5.0, MIN_AFIT).state);
-        assertEquals(State.EARNING, EarningsStatus.afit(true, Lookup.DONE, 1234.5, MIN_AFIT).state);
+        assertEquals(State.EARNING, EarningsStatus.afit(true, Lookup.DONE, 5000.0, MIN_AFIT).state);
+        assertEquals(State.EARNING, EarningsStatus.afit(true, Lookup.DONE, 123456.5, MIN_AFIT).state);
     }
 
     @Test
@@ -117,19 +118,71 @@ public class EarningsStatusTest {
         assertNull(EarningsStatus.parseAmount("NaN BLURT"));
     }
 
-    /**
-     * getAccountData returns {"HIVE":null,"BLURT":null} for a user with no account on a chain:
-     * the key is present, so has() is true. ApiManager must use isNull().
-     */
-    @Test
-    public void accountDataNullChainMeansNoAccount() throws Exception {
-        JSONObject none = new JSONObject("{\"HIVE\":{\"name\":\"u\"},\"BLURT\":null}");
-        assertTrue(none.has("BLURT"));
-        assertTrue(none.isNull("BLURT"));
+    // ---- fromAccountData ----
 
-        JSONObject some = new JSONObject("{\"HIVE\":{},\"BLURT\":{\"balance\":\"0.630 BLURT\"}}");
-        assertFalse(some.isNull("BLURT"));
-        assertEquals(0.63, EarningsStatus.parseAmount(
-                some.getJSONObject("BLURT").optString("balance", null)), 1e-9);
+    private static EarningsStatus.BlurtAccount parse(String json) throws Exception {
+        return EarningsStatus.fromAccountData(new JSONObject(json));
+    }
+
+    @Test
+    public void accountDataNullBlurtMeansNoAccount() throws Exception {
+        // the key is present, so has() is true; only isNull() tells a missing account apart
+        EarningsStatus.BlurtAccount a = parse("{\"HIVE\":{\"name\":\"u\"},\"BLURT\":null}");
+        assertEquals(Lookup.DONE, a.lookup);
+        assertFalse(a.hasAccount);
+        assertEquals(Reason.NO_ACCOUNT,
+                EarningsStatus.blurt(true, a.lookup, a.hasAccount, a.balance, MIN_BLURT).reason);
+    }
+
+    @Test
+    public void accountDataValidBlurtGivesBalance() throws Exception {
+        EarningsStatus.BlurtAccount a = parse("{\"HIVE\":{},\"BLURT\":{\"balance\":\"0.630 BLURT\"}}");
+        assertEquals(Lookup.DONE, a.lookup);
+        assertTrue(a.hasAccount);
+        assertEquals(0.63, a.balance, 1e-9);
+    }
+
+    @Test
+    public void accountDataMissingBlurtKeyIsFailed() throws Exception {
+        assertEquals(Lookup.FAILED, parse("{\"HIVE\":{}}").lookup);
+        assertEquals(Lookup.FAILED, EarningsStatus.fromAccountData(null).lookup);
+    }
+
+    @Test
+    public void accountDataServerErrorMarkerIsFailed() throws Exception {
+        EarningsStatus.BlurtAccount a = parse("{\"HIVE\":{},\"BLURT\":{\"error\":true}}");
+        assertEquals(Lookup.FAILED, a.lookup);
+        assertEquals(State.UNAVAILABLE,
+                EarningsStatus.blurt(true, a.lookup, a.hasAccount, a.balance, MIN_BLURT).state);
+    }
+
+    @Test
+    public void accountDataNonObjectBlurtIsFailed() throws Exception {
+        assertEquals(Lookup.FAILED, parse("{\"BLURT\":\"oops\"}").lookup);
+        assertEquals(Lookup.FAILED, parse("{\"BLURT\":[]}").lookup);
+        assertEquals(Lookup.FAILED, parse("{\"BLURT\":false}").lookup);
+    }
+
+    @Test
+    public void accountDataMissingOrMalformedBalanceIsFailed() throws Exception {
+        assertEquals(Lookup.FAILED, parse("{\"BLURT\":{\"name\":\"u\"}}").lookup);
+        assertEquals(Lookup.FAILED, parse("{\"BLURT\":{\"balance\":\"abc BLURT\"}}").lookup);
+        assertEquals(Lookup.FAILED, parse("{\"BLURT\":{\"balance\":null}}").lookup);
+    }
+
+    // ---- merge (duplicate lookups racing) ----
+
+    @Test
+    public void mergeKeepsAnEarlierSuccessOverALaterFailure() {
+        assertEquals(Lookup.DONE, EarningsStatus.merge(Lookup.DONE, Lookup.FAILED));
+    }
+
+    @Test
+    public void mergeAppliesSuccessAndFirstResults() {
+        assertEquals(Lookup.DONE, EarningsStatus.merge(Lookup.DONE, Lookup.DONE));
+        assertEquals(Lookup.DONE, EarningsStatus.merge(Lookup.FAILED, Lookup.DONE));
+        assertEquals(Lookup.DONE, EarningsStatus.merge(Lookup.PENDING, Lookup.DONE));
+        assertEquals(Lookup.FAILED, EarningsStatus.merge(Lookup.PENDING, Lookup.FAILED));
+        assertEquals(Lookup.FAILED, EarningsStatus.merge(Lookup.FAILED, Lookup.FAILED));
     }
 }
