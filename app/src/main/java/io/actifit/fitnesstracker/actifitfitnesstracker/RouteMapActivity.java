@@ -77,6 +77,9 @@ public class RouteMapActivity extends BaseActivity {
         File mapBase = new File(getCacheDir(), "osmdroid");
         mapConfig.setOsmdroidBasePath(mapBase);
         mapConfig.setOsmdroidTileCache(new File(mapBase, "tiles"));
+        // the 600 MB default would make Android more likely to wipe the whole app cache
+        mapConfig.setTileFileSystemCacheMaxBytes(50L << 20);
+        mapConfig.setTileFileSystemCacheTrimBytes(40L << 20);
 
         setContentView(R.layout.activity_route_map);
 
