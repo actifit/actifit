@@ -492,7 +492,9 @@ public class TrackingManager {
                         }
                     }
                     if (mStepsDBHelper != null) {
-                        chartManager.displayActivityChart((int) mStepsDBHelper.fetchTodayStepCount(), true);
+                        StepsDBHelper db = mStepsDBHelper;
+                        chartManager.loadThenRender(() -> (int) db.fetchTodayStepCount(),
+                                steps -> chartManager.displayActivityChart(steps, true));
                     } else {
                         chartManager.displayActivityChart(0, false);
                     }

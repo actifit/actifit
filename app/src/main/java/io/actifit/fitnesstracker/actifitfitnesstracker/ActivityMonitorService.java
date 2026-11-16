@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 
 import androidx.core.app.ActivityCompat;
@@ -44,8 +45,16 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     private int notificationID = 1;
     private int tenknotificationID = 446878874;
     private int fiveknotificationID = 574687813;
-    private NotificationCompat.Builder mBuilder;
-    private NotificationManagerCompat notificationManager;
+    // set on the main thread, read on the sensor thread
+    private volatile NotificationCompat.Builder mBuilder;
+    private volatile NotificationManagerCompat notificationManager;
+
+    // Sensor events, step counting and the per-step DB write run here instead of on the main
+    // thread, where they caused "app not responding" reports.
+    private HandlerThread sensorThread;
+    private Handler sensorHandler;
+    // set when the service stops; a step already in progress must not re-post the notification
+    private volatile boolean destroyed;
 
     private SharedPreferences sharedPreferences;
     private static PowerManager pm;
@@ -142,7 +151,10 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         }
 
 
-        new Thread(new ServiceSetupRunnable()).start();
+        sensorThread = new HandlerThread("actifit-steps");
+        sensorThread.start();
+        sensorHandler = new Handler(sensorThread.getLooper());
+        sensorHandler.post(new ServiceSetupRunnable());
 
     }
 
@@ -246,6 +258,10 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             curStepCount = mStepsDBHelper.createStepsEntry();
         } else {
             curStepCount = mStepsDBHelper.fetchTodayStepCount();
+        }
+
+        if (destroyed) {
+            return;
         }
 
         // adjust step count display and print to notification activity
@@ -403,15 +419,19 @@ public class ActivityMonitorService extends Service implements SensorEventListen
 
     @Override
     public void onDestroy() {
+        destroyed = true;
         super.onDestroy();
         Log.d(MainActivity.TAG, ">>>>[Actifit]ondestroy service!");
         stopForeground(Service.STOP_FOREGROUND_REMOVE);
 
-        try {
-            sensorManager.unregisterListener(ActivityMonitorService.this);
-        } catch (Exception e) {
-            Log.d(MainActivity.TAG, "error unregisterig listener");
-        }
+        // unregister on the sensor thread, so it runs after a setup or step already queued there
+        sensorHandler.post(() -> {
+            try {
+                sensorManager.unregisterListener(ActivityMonitorService.this);
+            } catch (Exception e) {
+                Log.d(MainActivity.TAG, "error unregisterig listener");
+            }
+        });
         sharedPreferences = getSharedPreferences("actifitSets", MODE_PRIVATE);
         String aggModeEnabled = sharedPreferences.getString("aggressiveBackgroundTracking",
                 getString(R.string.aggr_back_tracking_off_ntt));
@@ -425,10 +445,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                 wl.release();
             }
         }
-        if (mStepsDBHelper != null) {
-            mStepsDBHelper.closeConnection();
-        }
-        // mStepsDBHelper.closeConnection();
+        // the DB connection is shared app-wide and stays open
+        sensorThread.quitSafely();
         // service destroyed, let's start it again
         // Intent broadcastIntent = new Intent(".MonitorRestart");
         // sendBroadcast(broadcastIntent);
@@ -438,6 +456,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
     private final class ServiceSetupRunnable implements Runnable {
         @Override
         public void run() {
+            if (destroyed) return;
             // initialize power manager and wake locks either way
             pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.actifit_wake_lock_tag));
@@ -473,7 +492,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             simpleStepDetector.registerListener(ActivityMonitorService.this);
 
             sensorManager.registerListener(ActivityMonitorService.this, accSensor,
-                    SensorManager.SENSOR_DELAY_GAME);
+                    SensorManager.SENSOR_DELAY_GAME, sensorHandler);
             // SensorManager.SENSOR_DELAY_GAME);
 
             // grab activity count so far today
@@ -491,6 +510,7 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                 android.widget.RemoteViews customView = getCustomNotificationViews(
                         Math.max(curActivityCount, 0));
 
+                notificationManager = NotificationManagerCompat.from(ctx);
                 mBuilder = new NotificationCompat.Builder(ctx, getString(R.string.actifit_channel_ID))
                         .setContentTitle(getString(R.string.actifit_notif_title))
                         .setContentText(getString(R.string.activity_today_string) + " "
@@ -502,7 +522,6 @@ public class ActivityMonitorService extends Service implements SensorEventListen
                         .setPriority(NotificationCompat.PRIORITY_LOW)
                         .setOnlyAlertOnce(true);
 
-                notificationManager = NotificationManagerCompat.from(ctx);
 
                 try {
                     if (ActivityCompat.checkSelfPermission(ctx, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
