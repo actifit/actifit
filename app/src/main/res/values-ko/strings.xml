@@ -263,14 +263,19 @@
 	<string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
 	<string name="actifit_image">https://actifit.io/img/</string>
 	<string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-	<string name="earnings_pane_title">귀하의 잠재적인 토큰 수익</string>
-	<string name="earnings_pane_note_0">actifit 게시물을 작성할 때 현재 표시되는 토큰을 받을 자격이 있습니다.<br/></string>
-	<string name="earnings_pane_note_1">최소 5,000 활동에 도달해야 수익을 얻을 수 있습니다. <br /> 게시물을 작성한 후 48시간 이내에 AFIT 수익이 들어옵니다.<br /></string>
-	<string name="earnings_pane_note_2">다른 토큰 보상은 게시물 작성 후 7일 후에 들어옵니다.</string>
-	<string name="not_earning_afit">⚠ 현재 잔액이 낮아 AFIT를 얻고 있지 않습니다 </string>
-	<string name="not_earning_steem">⚠ Steem 계정이 없어 현재 STEEM을 얻고 있지 않습니다. 우리 가입 페이지를 통해 가입할 수 있습니다 </string>
-	<string name="not_earning_blurt">⚠ Blurt 계정이 없어 현재 BLURT를 얻고 있지 않습니다. 우리 가입 페이지를 통해 가입할 수 있습니다 </string>
-	<string name="not_earning_blurt_balance">⚠ 잔액이 5 BLURT 이하로 현재 BLURT를 얻고 있지 않습니다.</string>
+	<string name="earnings_sheet_title">내 토큰 수익</string>
+	<string name="earnings_status_earning">적립 중</string>
+	<string name="earnings_status_not_earning">적립 안 됨</string>
+	<string name="earnings_status_checking">확인 중…</string>
+	<string name="earnings_status_unavailable">확인 불가</string>
+	<string name="earnings_reason_low_balance">%1$s %2$s 필요 (보유: %3$s)</string>
+	<string name="earnings_reason_no_blurt_account">아직 Blurt 계정 없음</string>
+	<string name="earnings_action_open_signup">가입 페이지 열기</string>
+	<string name="earnings_how_title">보상 방식</string>
+	<string name="earnings_how_min_activity">자격을 얻으려면 활동 5,000 달성</string>
+	<string name="earnings_how_afit_timing">AFIT는 48시간 이내 지급</string>
+	<string name="earnings_how_other_timing">HIVE, BLURT 및 SPORTS는 7일 후 지급</string>
+	<string name="earnings_got_it">확인</string>
 	<string name="loading">로드 중...</string>
 	<string name="rewards_claimed_successfully">보상을 성공적으로 청구했습니다!</string>
 	<string name="rewards_claim_error">보상을 청구하는 동안 오류가 발생했습니다. 나중에 다시 시도해주세요.</string>

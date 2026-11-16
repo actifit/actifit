@@ -143,18 +143,6 @@ public class UiHelper {
         customTabsIntent.launchUrl(context, Uri.parse(MainActivity.ACTIFIT_RANK_URL));
     }
 
-    public void showEarningsPanel(String msg) {
-        AlertDialog.Builder earningsDialogBuilder = new AlertDialog.Builder(context);
-        AlertDialog.OnClickListener dialogClickListener = (dialog, which) -> {};
-
-        AlertDialog earningsDialog = earningsDialogBuilder.setMessage(Html.fromHtml(msg))
-                .setTitle(context.getString(R.string.earnings_pane_title))
-                .setIcon(context.getResources().getDrawable(R.drawable.actifit_logo))
-                .setPositiveButton(context.getString(R.string.close_button), dialogClickListener)
-                .create();
-        earningsDialogBuilder.show();
-    }
-
     public void showGadgetsDialog() {
         AlertDialog.Builder gadgetsDialogBuilder = new AlertDialog.Builder(context);
         AlertDialog.OnClickListener dialogClickListener = (dialog, which) -> {

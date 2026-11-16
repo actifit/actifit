@@ -262,14 +262,19 @@
 <string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
 <string name="actifit_image">https://actifit.io/img/</string>
 <string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-<string name="earnings_pane_title">您的潜在代币收入</string>
-<string name="earnings_pane_note_0">当您发布 actifit 帖子时，您当前有资格获得显示在面板中的代币。<br/></string>
-<string name="earnings_pane_note_1">您需要达到至少 5,000 活动量才能开始赚取。 <br /> 您的 AFIT 收益将在发布后 48 小时内到达。<br /></string>
-<string name="earnings_pane_note_2">您的其他代币奖励将在您发布 7 天后到达。</string>
-<string name="not_earning_afit">⚠ 由于您的余额低于最低限度，您目前没有赚取 AFIT</string>
-<string name="not_earning_steem">⚠ 由于没有 Steem 账户，您目前没有赚取 STEEM。您可以通过我们的注册页面注册一个</string>
-<string name="not_earning_blurt">⚠ 由于没有 Blurt 账户，您目前没有赚取 BLURT。您可以通过我们的注册页面注册一个</string>
-<string name="not_earning_blurt_balance">⚠ 由于您的余额低于 5 BLURT，您目前没有赚取 BLURT。</string>
+<string name="earnings_sheet_title">您的代币收益</string>
+<string name="earnings_status_earning">正在赚取</string>
+<string name="earnings_status_not_earning">未在赚取</string>
+<string name="earnings_status_checking">正在检查…</string>
+<string name="earnings_status_unavailable">不可用</string>
+<string name="earnings_reason_low_balance">需要 %1$s %2$s（您有 %3$s）</string>
+<string name="earnings_reason_no_blurt_account">尚无 Blurt 账户</string>
+<string name="earnings_action_open_signup">打开注册页面</string>
+<string name="earnings_how_title">奖励规则</string>
+<string name="earnings_how_min_activity">达到 5,000 活动量即可获得资格</string>
+<string name="earnings_how_afit_timing">AFIT 在 48 小时内到账</string>
+<string name="earnings_how_other_timing">HIVE、BLURT 和 SPORTS 在 7 天后到账</string>
+<string name="earnings_got_it">知道了</string>
 <string name="loading">加载中...</string>
 <string name="rewards_claimed_successfully">您已成功领取奖励！</string>
 <string name="rewards_claim_error">领取奖励时出错。请稍后再试。</string>

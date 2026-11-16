@@ -243,8 +243,7 @@ public class MainActivity extends BaseActivity {
     private AlertDialog pendingRewardsDialog;
     private JSONObject innerRewards = new JSONObject();
 
-    private AlertDialog.Builder earningsDialogBuilder;
-    private AlertDialog earningsDialog;
+    private EarningsSheet earningsSheet;
 
     private AlertDialog.Builder gadgetsDialogBuilder;
     private AlertDialog gadgetsDialog;
@@ -329,9 +328,11 @@ public class MainActivity extends BaseActivity {
 
     public static Double userFullBalance = 0.0;
     public static String userRank = "0.0";// default 0
-    public boolean hasSteemAccount = false;
-    public boolean hasBlurtAccount = false;
-    public Double blurtBalance = 0.0;
+    // Inputs for the earnings sheet, reported by ApiManager.displayUserBalance.
+    private EarningsStatus.Lookup afitLookup = EarningsStatus.Lookup.PENDING;
+    private EarningsStatus.Lookup blurtLookup = EarningsStatus.Lookup.PENDING;
+    private boolean hasBlurtAccount = false;
+    private Double blurtBalance = null;
 
     public static Double minTokenCount;
     TextView loginLink, logoutLink, signupLink, accountRCValue, votingStatusText, newbieLink,
@@ -1310,40 +1311,7 @@ public class MainActivity extends BaseActivity {
 
         Log.d(TAG, ">>>>[Actifit] Getting jiggy with it");
 
-        EarningsPanel.setOnClickListener(view -> {
-
-            // display alert dialog about pending rewards
-            earningsDialogBuilder = new AlertDialog.Builder(ctx);
-
-            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE:
-                            // cancel
-                            break;
-                    }
-                }
-            };
-
-            String msg = grabEarningsPanelNote();
-
-            earningsDialog = earningsDialogBuilder.setMessage(Html.fromHtml(msg))
-                    .setTitle(getString(R.string.earnings_pane_title))
-                    .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                    .setPositiveButton(getString(R.string.close_button), dialogClickListener).create();
-
-            earningsDialogBuilder.show();
-            /*
-             * earningsDialog.getWindow().getAttributes().windowAnimations =
-             * R.style.DialogAnimation;
-             * earningsDialog.getWindow().getDecorView().setBackground(getDrawable(R.
-             * drawable.dialog_shape));
-             * earningsDialog.show();
-             *
-             */
-
-        });
+        EarningsPanel.setOnClickListener(view -> showEarningsSheet());
 
         // introduce the functionality under a separate thread to avoid ANRs
 
@@ -2327,37 +2295,82 @@ public class MainActivity extends BaseActivity {
         rewardManager.showConsentForm();
     }
 
-    private String grabEarningsPanelNote() {
-        String msg = "";
-        boolean showNotice = false;
-        if (userFullBalance < minTokenCount) {
-            msg += "<b>" + getString(R.string.not_earning_afit) + " " + getString(R.string.min_afit_reward_balance)
-                    + " AFIT. <br /></b>";
-            showNotice = true;
-        }
-        if (!hasSteemAccount) {
-            msg += "<b>" + getString(R.string.not_earning_steem) + "<br /></b>";
-            showNotice = true;
-        }
-        if (!hasBlurtAccount) {
-            msg += "<b>" + getString(R.string.not_earning_blurt) + "<br /></b>";
-            showNotice = true;
-        } else if (blurtBalance < Double.parseDouble(getString(R.string.min_blurt_reward_balance))) {
-            msg += "<b>" + getString(R.string.not_earning_blurt_balance) + "<br /></b>";
-            showNotice = true;
-        }
-        msg += "<i>" + getString(R.string.earnings_pane_note_0) + "<br />";
-        msg += getString(R.string.earnings_pane_note_1) + "<br /></i>";
-        msg += getString(R.string.earnings_pane_note_2) + "<br /></i>";
+    /** Opens the "Your token earnings" sheet. It updates in place as the lookups return. */
+    private void showEarningsSheet() {
+        if (isFinishing() || isDestroyed()) return;
+        if (earningsSheet == null) earningsSheet = new EarningsSheet(this);
+        earningsSheet.show(buildEarningsRows());
+    }
 
-        TextView ftv = findViewById(R.id.token_notice);
-        if (showNotice) {
-            ftv.setVisibility(View.VISIBLE);
-        } else {
-            ftv.setVisibility(GONE);
-        }
+    /** One row per token shown in the earnings panel: AFIT, HIVE, BLURT, SPORTS. */
+    private EarningsSheet.Row[] buildEarningsRows() {
+        String user = getSharedPreferences("actifitSets", MODE_PRIVATE).getString("actifitUser", "");
+        boolean loggedIn = user != null && !user.isEmpty();
+        double minAfit = Double.parseDouble(getString(R.string.min_afit_reward_balance));
+        double minBlurt = Double.parseDouble(getString(R.string.min_blurt_reward_balance));
+        EarningsStatus.TokenStatus hive = EarningsStatus.hive(loggedIn);
+        return new EarningsSheet.Row[]{
+                new EarningsSheet.Row("AFIT", R.drawable.afit_logo,
+                        EarningsStatus.afit(loggedIn, afitLookup, userFullBalance, minAfit)),
+                new EarningsSheet.Row("HIVE", R.drawable.hive, hive),
+                new EarningsSheet.Row("BLURT", R.drawable.blurt,
+                        EarningsStatus.blurt(loggedIn, blurtLookup, hasBlurtAccount, blurtBalance, minBlurt),
+                        this::openSignupPage, R.string.earnings_action_open_signup),
+                new EarningsSheet.Row("SPORTS", R.drawable.sports, hive),
+        };
+    }
 
-        return msg;
+    /** ApiManager: the AFIT balance lookup finished ({@code ok}) or failed. */
+    void onAfitBalanceLoaded(boolean ok) {
+        afitLookup = ok ? EarningsStatus.Lookup.DONE : EarningsStatus.Lookup.FAILED;
+        refreshEarningsStatus();
+    }
+
+    /** ApiManager: the getAccountData lookup finished. {@code balance} is the liquid BLURT, or null. */
+    void onBlurtAccountLoaded(boolean hasAccount, Double balance) {
+        hasBlurtAccount = hasAccount;
+        blurtBalance = balance;
+        blurtLookup = EarningsStatus.Lookup.DONE;
+        refreshEarningsStatus();
+    }
+
+    /** ApiManager: the getAccountData lookup failed. */
+    void onBlurtAccountFailed() {
+        blurtLookup = EarningsStatus.Lookup.FAILED;
+        refreshEarningsStatus();
+    }
+
+    /** Updates the panel's notice icon and, if it is open, the earnings sheet. */
+    private void refreshEarningsStatus() {
+        runOnUiThread(() -> {
+            if (isFinishing() || isDestroyed()) return;
+            EarningsSheet.Row[] rows = buildEarningsRows();
+            EarningsStatus.TokenStatus[] statuses = new EarningsStatus.TokenStatus[rows.length];
+            for (int i = 0; i < rows.length; i++) statuses[i] = rows[i].status;
+            TextView notice = findViewById(R.id.token_notice);
+            if (notice != null) {
+                notice.setVisibility(EarningsStatus.anyNotEarning(statuses) ? View.VISIBLE : GONE);
+            }
+            if (earningsSheet != null && earningsSheet.isShowing()) earningsSheet.update(rows);
+        });
+    }
+
+    /** Opens the Actifit signup page in a custom tab. */
+    private void openSignupPage() {
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+
+        builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
+
+        // animation for showing and closing fitbit authorization screen
+        builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
+
+        // animation for back button clicks
+        builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
+                android.R.anim.slide_out_right);
+
+        CustomTabsIntent customTabsIntent = builder.build();
+
+        customTabsIntent.launchUrl(ctx, Uri.parse(Utils.apiUrl(ctx) + getString(R.string.signup_link)));
     }
 
     // check and notify user about battery optimization
@@ -3657,26 +3670,7 @@ public class MainActivity extends BaseActivity {
          * });
          */
 
-        signupLink.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-
-                builder.setToolbarColor(getResources().getColor(R.color.actifitRed));
-
-                // animation for showing and closing fitbit authorization screen
-                builder.setStartAnimations(ctx, R.anim.slide_in_right, R.anim.slide_out_left);
-
-                // animation for back button clicks
-                builder.setExitAnimations(ctx, android.R.anim.slide_in_left,
-                        android.R.anim.slide_out_right);
-
-                CustomTabsIntent customTabsIntent = builder.build();
-
-                customTabsIntent.launchUrl(ctx, Uri.parse(Utils.apiUrl(ctx) + getString(R.string.signup_link)));
-            }
-
-        });
+        signupLink.setOnClickListener(view -> openSignupPage());
     }
 
     public static String parseRewards(JSONObject innerRewards, String chain, String currency, Double price) {

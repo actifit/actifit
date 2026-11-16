@@ -262,14 +262,19 @@
 <string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
 <string name="actifit_image">https://actifit.io/img/</string>
 <string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-<string name="earnings_pane_title">Potansiyel Token Kazançlarınız</string>
-<string name="earnings_pane_note_0">Actifit gönderinizi yaparken şu anda panelde gösterilen tokenleri kazanmaya hak kazandınız.<br/></string>
-<string name="earnings_pane_note_1">Kazanmaya başlamak için en az 5.000 aktiviteye ulaşmanız gerekiyor. <br /> AFIT kazançlarınız, gönderinizi yaptıktan sonraki 48 saat içinde gelir.<br /></string>
-<string name="earnings_pane_note_2">Diğer token ödülleriniz, gönderinizden sonraki 7 gün içinde gelir.</string>
-<string name="not_earning_afit">⚠ Şu anda bakiyeniz düşük olduğu için AFIT kazanmıyorsunuz </string>
-<string name="not_earning_steem">⚠ Bir Steem hesabınız olmadığı için şu anda STEEM kazanmıyorsunuz. Kayıt sayfamızdan bir hesap oluşturabilirsiniz </string>
-<string name="not_earning_blurt">⚠ Bir Blurt hesabınız olmadığı için şu anda BLURT kazanmıyorsunuz. Kayıt sayfamızdan bir hesap oluşturabilirsiniz </string>
-<string name="not_earning_blurt_balance">⚠ Bakiyeniz 5 BLURT\'ün altında olduğu için şu anda BLURT kazanmıyorsunuz.</string>
+<string name="earnings_sheet_title">Ваші заробітки в токенах</string>
+<string name="earnings_status_earning">Заробляєте</string>
+<string name="earnings_status_not_earning">Не заробляєте</string>
+<string name="earnings_status_checking">Перевірка…</string>
+<string name="earnings_status_unavailable">Недоступно</string>
+<string name="earnings_reason_low_balance">Потрібно %1$s %2$s (у вас %3$s)</string>
+<string name="earnings_reason_no_blurt_account">Ще немає облікового запису Blurt</string>
+<string name="earnings_action_open_signup">Відкрити сторінку реєстрації</string>
+<string name="earnings_how_title">Як працюють винагороди</string>
+<string name="earnings_how_min_activity">Досягніть 5 000 активності, щоб отримати право</string>
+<string name="earnings_how_afit_timing">AFIT надходить протягом 48 год</string>
+<string name="earnings_how_other_timing">HIVE, BLURT і SPORTS надходять через 7 днів</string>
+<string name="earnings_got_it">Зрозуміло</string>
 <string name="loading">Yükleniyor...</string>
 <string name="rewards_claimed_successfully">Ödüllerinizi başarıyla talep ettiniz!</string>
 <string name="rewards_claim_error">Ödüllerinizi talep ederken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</string>

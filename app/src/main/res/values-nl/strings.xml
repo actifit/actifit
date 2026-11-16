@@ -263,14 +263,19 @@
 	<string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
 	<string name="actifit_image">https://actifit.io/img/</string>
 	<string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-	<string name="earnings_pane_title">Uw potentiële tokenverdiensten</string>
-	<string name="earnings_pane_note_0">U bent momenteel in aanmerking om tokens te verdienen die momenteel in het paneel worden weergegeven terwijl u uw Actifit-bericht maakt.<br/></string>
-	<string name="earnings_pane_note_1">U moet een minimum van 5.000 activiteiten bereiken om te beginnen met verdienen. <br/> Uw AFIT-inkomsten komen binnen 48 uur na het maken van uw bericht binnen.<br /></string>
-	<string name="earnings_pane_note_2">Uw andere tokenbeloningen komen binnen 7 dagen na uw bericht binnen.</string>
-	<string name="not_earning_afit">⚠ U verdient momenteel GEEN AFIT omdat uw saldo lager is dan </string>
-	<string name="not_earning_steem">⚠ U verdient momenteel GEEN STEEM omdat u geen Steem-account heeft. U kunt zich aanmelden via onze registratiepagina </string>
-	<string name="not_earning_blurt">⚠ U verdient momenteel GEEN BLURT omdat u geen Blurt-account heeft. U kunt zich aanmelden via onze registratiepagina </string>
-	<string name="not_earning_blurt_balance">⚠ U verdient momenteel GEEN BLURT omdat uw saldo lager is dan 5 BLURT.</string>
+	<string name="earnings_sheet_title">Uw tokenverdiensten</string>
+	<string name="earnings_status_earning">Verdient</string>
+	<string name="earnings_status_not_earning">Verdient niet</string>
+	<string name="earnings_status_checking">Controleren…</string>
+	<string name="earnings_status_unavailable">Niet beschikbaar</string>
+	<string name="earnings_reason_low_balance">Vereist %1$s %2$s (u heeft %3$s)</string>
+	<string name="earnings_reason_no_blurt_account">Nog geen Blurt-account</string>
+	<string name="earnings_action_open_signup">Aanmeldpagina openen</string>
+	<string name="earnings_how_title">Zo werken beloningen</string>
+	<string name="earnings_how_min_activity">Bereik 5.000 activiteit om in aanmerking te komen</string>
+	<string name="earnings_how_afit_timing">AFIT komt binnen 48 uur</string>
+	<string name="earnings_how_other_timing">HIVE, BLURT &amp; SPORTS komen na 7 dagen</string>
+	<string name="earnings_got_it">Begrepen</string>
 	<string name="loading">Laden...</string>
 	<string name="rewards_claimed_successfully">U heeft uw beloningen met succes geclaimd!</string>
 	<string name="rewards_claim_error">Er is een fout opgetreden bij het claimen van uw beloningen. Probeer het later opnieuw.</string>

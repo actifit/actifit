@@ -269,14 +269,19 @@
     <string name="coingecko_price">https://api.coingecko.com/api/v3/simple/price?ids=CURRENCY&amp;vs_currencies=usd</string>
     <string name="actifit_image">https://actifit.io/img/</string>
     <string name="actifit_gadget_image">https://actifit.io/img/gadgets/</string>
-    <string name="earnings_pane_title">أرباحك المحتملة من الرموز المميزة</string>
-    <string name="earnings_pane_note_0">أنت مؤهل حاليًا لكسب الرموز المميزة الظاهرة حاليًا في الجزء عند إجراء منشور Actifit الخاص بك.<br/></string>
-    <string name="earnings_pane_note_1">تحتاج إلى الوصول إلى الحد الأدنى 5000 نشاط لبدء الكسب. <br /> تأتي أرباحك من AFIT في غضون 48 ساعة من نشر منشورك.<br /></string>
-    <string name="earnings_pane_note_2">تأتي مكافآتك الأخرى من الرموز المميزة بعد 7 أيام من منشورك.</string>
-    <string name="not_earning_afit">⚠ أنت حاليًا لا تكسب AFIT بسبب أن رصيدك أقل من</string>
-    <string name="not_earning_steem">⚠ أنت حاليًا لا تكسب STEEM بسبب عدم وجود حساب Steem. يمكنك التسجيل للحصول على حساب واحد من خلال صفحة التسجيل الخاصة بنا</string>
-    <string name="not_earning_blurt">⚠ أنت حاليًا لا تكسب BLURT بسبب عدم وجود حساب Blurt. يمكنك التسجيل للحصول على حساب واحد من خلال صفحة التسجيل الخاصة بنا</string>
-    <string name="not_earning_blurt_balance">⚠ أنت حاليًا لا تكسب BLURT بسبب أن رصيدك أقل من 5 BLURT.</string>
+    <string name="earnings_sheet_title">أرباحك من الرموز</string>
+    <string name="earnings_status_earning">تكسب</string>
+    <string name="earnings_status_not_earning">لا تكسب</string>
+    <string name="earnings_status_checking">جارٍ التحقق…</string>
+    <string name="earnings_status_unavailable">غير متاح</string>
+    <string name="earnings_reason_low_balance">تحتاج إلى %1$s %2$s (لديك %3$s)</string>
+    <string name="earnings_reason_no_blurt_account">لا يوجد حساب Blurt بعد</string>
+    <string name="earnings_action_open_signup">فتح صفحة التسجيل</string>
+    <string name="earnings_how_title">كيف تعمل المكافآت</string>
+    <string name="earnings_how_min_activity">حقق 5,000 نشاط لتصبح مؤهلًا</string>
+    <string name="earnings_how_afit_timing">تصل AFIT خلال 48 ساعة</string>
+    <string name="earnings_how_other_timing">تصل HIVE و BLURT و SPORTS بعد 7 أيام</string>
+    <string name="earnings_got_it">حسنًا</string>
     <string name="loading">جارٍ التحميل...</string>
     <string name="rewards_claimed_successfully">لقد استردت مكافآتك بنجاح!</string>
     <string name="rewards_claim_error">حدث خطأ أثناء المطالبة بالمكافآت. يرجى المحاولة مرة أخرى لاحقًا.</string>
