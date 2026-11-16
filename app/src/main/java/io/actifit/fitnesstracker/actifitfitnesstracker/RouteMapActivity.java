@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.osmdroid.config.Configuration;
+import org.osmdroid.config.IConfigurationProvider;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
@@ -27,6 +28,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,7 +70,13 @@ public class RouteMapActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Configuration.getInstance().setUserAgentValue(getPackageName());
+        // Without a fixed path osmdroid picks a storage by test-writing to every volume (SD card
+        // included) on the main thread, which froze this screen for seconds on open.
+        IConfigurationProvider mapConfig = Configuration.getInstance();
+        mapConfig.setUserAgentValue(getPackageName());
+        File mapBase = new File(getCacheDir(), "osmdroid");
+        mapConfig.setOsmdroidBasePath(mapBase);
+        mapConfig.setOsmdroidTileCache(new File(mapBase, "tiles"));
 
         setContentView(R.layout.activity_route_map);
 
