@@ -923,6 +923,11 @@
     <string name="badge_claim_not_met">Ainda não cumpres os requisitos desta insígnia.</string>
     <string name="badge_claim_login_again">A tua sessão expirou. Inicia sessão novamente para reclamar esta insígnia.</string>
     <string name="badge_claim_network">Não foi possível reclamar a insígnia. Verifica a tua ligação e tenta novamente.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">reclamada</string>
+    <string name="badge_state_claimable">pronta a reclamar</string>
+    <string name="badge_state_missed">perdida</string>
+    <string name="badge_state_locked">ainda não conquistada</string>
     <plurals name="badges_header">
         <item quantity="one">Insígnia (%d)</item>
         <item quantity="other">Insígnias (%d)</item>

@@ -924,6 +924,11 @@
     <string name="badge_claim_not_met">Non soddisfi ancora i requisiti per questo badge.</string>
     <string name="badge_claim_login_again">La tua sessione è scaduta. Accedi di nuovo per riscattare questo badge.</string>
     <string name="badge_claim_network">Impossibile riscattare il badge. Controlla la connessione e riprova.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">riscattato</string>
+    <string name="badge_state_claimable">pronto da riscattare</string>
+    <string name="badge_state_missed">perso</string>
+    <string name="badge_state_locked">non ancora ottenuto</string>
     <plurals name="badges_header">
         <item quantity="one">Badge (%d)</item>
         <item quantity="other">Badge (%d)</item>

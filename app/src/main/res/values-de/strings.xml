@@ -927,6 +927,11 @@
     <string name="badge_claim_not_met">Du erfüllst die Voraussetzungen für dieses Abzeichen noch nicht.</string>
     <string name="badge_claim_login_again">Deine Sitzung ist abgelaufen. Bitte melde dich erneut an, um dieses Abzeichen abzuholen.</string>
     <string name="badge_claim_network">Das Abzeichen konnte nicht abgeholt werden. Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">abgeholt</string>
+    <string name="badge_state_claimable">bereit zum Abholen</string>
+    <string name="badge_state_missed">verpasst</string>
+    <string name="badge_state_locked">noch nicht verdient</string>
     <plurals name="badges_header">
         <item quantity="one">Abzeichen (%d)</item>
         <item quantity="other">Abzeichen (%d)</item>

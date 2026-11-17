@@ -934,6 +934,11 @@
     <string name="badge_claim_not_met">لا تستوفي متطلبات هذه الشارة بعد.</string>
     <string name="badge_claim_login_again">انتهت صلاحية جلستك. يرجى تسجيل الدخول مجددًا لاستلام هذه الشارة.</string>
     <string name="badge_claim_network">تعذّر استلام الشارة. تحقق من اتصالك وحاول مرة أخرى.</string>
+    <string name="badge_tile_description">%1$s، %2$s</string>
+    <string name="badge_state_claimed">تم الاستلام</string>
+    <string name="badge_state_claimable">جاهزة للاستلام</string>
+    <string name="badge_state_missed">فاتتك</string>
+    <string name="badge_state_locked">لم تُكتسب بعد</string>
     <plurals name="badges_header">
         <item quantity="zero">الشارات (%d)</item>
         <item quantity="one">الشارات (%d)</item>

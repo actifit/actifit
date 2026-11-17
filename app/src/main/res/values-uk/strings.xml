@@ -940,6 +940,11 @@
     <string name="badge_claim_not_met">Ви ще не відповідаєте вимогам цього значка.</string>
     <string name="badge_claim_login_again">Ваш сеанс завершився. Увійдіть знову, щоб отримати цей значок.</string>
     <string name="badge_claim_network">Не вдалося отримати значок. Перевірте з’єднання та спробуйте ще раз.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">отримано</string>
+    <string name="badge_state_claimable">можна отримати</string>
+    <string name="badge_state_missed">пропущено</string>
+    <string name="badge_state_locked">ще не здобуто</string>
     <plurals name="badges_header">
         <item quantity="one">Значки (%d)</item>
         <item quantity="few">Значки (%d)</item>

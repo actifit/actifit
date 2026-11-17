@@ -982,6 +982,11 @@
     <string name="badge_claim_not_met">You don\'t meet the requirements for this badge yet.</string>
     <string name="badge_claim_login_again">Your session has expired. Please log in again to claim this badge.</string>
     <string name="badge_claim_network">Couldn\'t claim the badge. Check your connection and try again.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">claimed</string>
+    <string name="badge_state_claimable">ready to claim</string>
+    <string name="badge_state_missed">missed</string>
+    <string name="badge_state_locked">not earned yet</string>
     <plurals name="badges_header">
         <item quantity="one">Badge (%d)</item>
         <item quantity="other">Badges (%d)</item>

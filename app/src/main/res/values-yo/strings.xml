@@ -912,6 +912,11 @@
     <string name="badge_claim_not_met">O kò tíì pé ojú ìwọ̀n fún àmì-ẹ̀yẹ yìí.</string>
     <string name="badge_claim_login_again">Àkókò ìwọlé rẹ ti parí. Jọ̀wọ́ wọlé padà láti gba àmì-ẹ̀yẹ yìí.</string>
     <string name="badge_claim_network">A kò lè gba àmì-ẹ̀yẹ náà. Ṣàyẹ̀wò ìsopọ̀ rẹ kí o sì gbìyànjú lẹ́ẹ̀kan sí i.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">a ti gbà á</string>
+    <string name="badge_state_claimable">ó ti ṣetán láti gbà</string>
+    <string name="badge_state_missed">o pàdánù rẹ̀</string>
+    <string name="badge_state_locked">o kò tíì rí i gbà</string>
     <plurals name="badges_header">
         <item quantity="other">Àmì-ẹ̀yẹ (%d)</item>
     </plurals>

@@ -924,6 +924,11 @@
     <string name="badge_claim_not_met">आप अभी इस बैज की शर्तें पूरी नहीं करते।</string>
     <string name="badge_claim_login_again">आपका सत्र समाप्त हो गया है। यह बैज प्राप्त करने के लिए कृपया फिर से लॉग इन करें।</string>
     <string name="badge_claim_network">बैज प्राप्त नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें।</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">प्राप्त किया</string>
+    <string name="badge_state_claimable">प्राप्त करने के लिए तैयार</string>
+    <string name="badge_state_missed">छूट गया</string>
+    <string name="badge_state_locked">अभी अर्जित नहीं</string>
     <plurals name="badges_header">
         <item quantity="one">बैज (%d)</item>
         <item quantity="other">बैज (%d)</item>

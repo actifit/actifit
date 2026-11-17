@@ -804,6 +804,11 @@
     <string name="badge_claim_not_met">Você ainda não cumpre os requisitos deste emblema.</string>
     <string name="badge_claim_login_again">Sua sessão expirou. Entre novamente para resgatar este emblema.</string>
     <string name="badge_claim_network">Não foi possível resgatar o emblema. Verifique sua conexão e tente novamente.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">resgatado</string>
+    <string name="badge_state_claimable">pronto para resgatar</string>
+    <string name="badge_state_missed">perdido</string>
+    <string name="badge_state_locked">ainda não conquistado</string>
     <plurals name="badges_header">
         <item quantity="one">Emblema (%d)</item>
         <item quantity="other">Emblemas (%d)</item>

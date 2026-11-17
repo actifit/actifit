@@ -89,7 +89,8 @@ public class ProfileActivity extends BaseActivity {
     // profile badges: held ids (null until known), eligibility (own profile), claim in flight
     private java.util.Set<String> badgesHeld;
     private BadgeLogic.Eligibility badgesEligibility = new BadgeLogic.Eligibility();
-    private String claimingBadge;
+    // claims (possibly started by an earlier profile screen) whose reply this screen handles
+    private final java.util.Set<String> awaitedClaims = new java.util.HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,7 +130,7 @@ public class ProfileActivity extends BaseActivity {
         if (username == null || username.trim().isEmpty()) {
             username = loggedInUser;
         }
-        username = username.trim().toLowerCase().replace("@", "");
+        username = username.trim().toLowerCase(Locale.ROOT).replace("@", "");
         isSelf = !username.isEmpty() && username.equalsIgnoreCase(loggedInUser);
 
         // the logged-in user picks and keeps their companion; other users get a stable
@@ -611,6 +612,8 @@ public class ProfileActivity extends BaseActivity {
         container.removeAllViews();
         View celebrateTile = null;
         for (String id : ordered) {
+            // a claim still running from an earlier screen: wait for its reply here too
+            if (isSelf && BadgesApi.isClaiming(id)) awaitClaim(id);
             View tile = bindBadgeTile(container, id, BadgeLogic.stateOf(id, held, elig, isSelf));
             container.addView(tile);
             if (id.equals(celebrate)) celebrateTile = tile;
@@ -647,16 +650,23 @@ public class ProfileActivity extends BaseActivity {
                 status.setVisibility(View.VISIBLE);
                 break;
             case CLAIMABLE:
-                boolean thisOne = id.equals(claimingBadge);
+                boolean thisOne = BadgesApi.isClaiming(id);
                 claim.setVisibility(thisOne ? View.INVISIBLE : View.VISIBLE);
-                claim.setEnabled(claimingBadge == null);
+                claim.setEnabled(!BadgesApi.isAnyClaiming());
                 spinner.setVisibility(thisOne ? View.VISIBLE : View.GONE);
                 claim.setOnClickListener(v -> claimBadge(id));
                 break;
             default:
                 break;
         }
-        tile.setContentDescription(name.getText());
+        int stateText;
+        switch (state) {
+            case CLAIMED: stateText = R.string.badge_state_claimed; break;
+            case CLAIMABLE: stateText = R.string.badge_state_claimable; break;
+            case MISSED: stateText = R.string.badge_state_missed; break;
+            default: stateText = R.string.badge_state_locked; break;
+        }
+        tile.setContentDescription(getString(R.string.badge_tile_description, name.getText(), getString(stateText)));
         tile.setOnClickListener(v -> showBadgeInfo(id));
         return tile;
     }
@@ -686,11 +696,20 @@ public class ProfileActivity extends BaseActivity {
     }
 
     private void claimBadge(String id) {
-        if (claimingBadge != null || !isSelf) return;
-        claimingBadge = id;
+        if (!isSelf || BadgesApi.isAnyClaiming()) return;
+        awaitClaim(id);
         renderBadges(null);
+    }
+
+    /**
+     * Starts the claim, or joins one already in flight (e.g. begun on a profile screen the
+     * user has since closed), and handles its reply. Never re-renders by itself, so the
+     * renderer may call it.
+     */
+    private void awaitClaim(String id) {
+        if (!awaitedClaims.add(id)) return;
         BadgesApi.claim(this, username, id, reply -> {
-            claimingBadge = null;
+            awaitedClaims.remove(id);
             if (isFinishing() || isDestroyed()) return;
             switch (reply) {
                 case SUCCESS:

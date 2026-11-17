@@ -913,6 +913,11 @@
     <string name="badge_claim_not_met">你暂未满足此徽章的要求。</string>
     <string name="badge_claim_login_again">你的会话已过期。请重新登录以领取此徽章。</string>
     <string name="badge_claim_network">无法领取徽章。请检查网络连接后重试。</string>
+    <string name="badge_tile_description">%1$s，%2$s</string>
+    <string name="badge_state_claimed">已领取</string>
+    <string name="badge_state_claimable">可领取</string>
+    <string name="badge_state_missed">已错过</string>
+    <string name="badge_state_locked">尚未获得</string>
     <plurals name="badges_header">
         <item quantity="other">徽章 (%d)</item>
     </plurals>

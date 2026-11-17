@@ -923,6 +923,11 @@
     <string name="badge_claim_not_met">Bu rozetin gereksinimlerini henüz karşılamıyorsun.</string>
     <string name="badge_claim_login_again">Oturumunun süresi doldu. Bu rozeti almak için lütfen yeniden giriş yap.</string>
     <string name="badge_claim_network">Rozet alınamadı. Bağlantını kontrol edip tekrar dene.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">alındı</string>
+    <string name="badge_state_claimable">alınmaya hazır</string>
+    <string name="badge_state_missed">kaçırıldı</string>
+    <string name="badge_state_locked">henüz kazanılmadı</string>
     <plurals name="badges_header">
         <item quantity="one">Rozetler (%d)</item>
         <item quantity="other">Rozetler (%d)</item>

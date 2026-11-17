@@ -54,9 +54,13 @@ public final class BadgeHomeNudge {
         final int gen = ++generation;
         BadgesApi.load(act, queue, user, true, snap -> {
             if (gen != generation) return;
-            // Without the held list a claimable badge may already be claimed: show nothing.
-            int count = snap.claimed == null ? 0
-                    : BadgeLogic.claimable(snap.claimed, snap.eligibility).size();
+            if (snap.claimed == null) {
+                // Without the held list a claimable badge may already be claimed: show nothing,
+                // and don't cache it, so the next resume tries again.
+                if (!act.isFinishing() && !act.isDestroyed()) chip.setVisibility(View.GONE);
+                return;
+            }
+            int count = BadgeLogic.claimable(snap.claimed, snap.eligibility).size();
             cachedUser = user;
             cachedCount = count;
             loadedAtMs = System.currentTimeMillis();

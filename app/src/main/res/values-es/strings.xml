@@ -925,6 +925,11 @@
     <string name="badge_claim_not_met">Aún no cumples los requisitos de esta insignia.</string>
     <string name="badge_claim_login_again">Tu sesión ha caducado. Vuelve a iniciar sesión para reclamar esta insignia.</string>
     <string name="badge_claim_network">No se pudo reclamar la insignia. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">reclamada</string>
+    <string name="badge_state_claimable">lista para reclamar</string>
+    <string name="badge_state_missed">perdida</string>
+    <string name="badge_state_locked">aún no conseguida</string>
     <plurals name="badges_header">
         <item quantity="one">Insignia (%d)</item>
         <item quantity="other">Insignias (%d)</item>

@@ -922,6 +922,11 @@
     <string name="badge_claim_not_met">Je voldoet nog niet aan de vereisten voor deze badge.</string>
     <string name="badge_claim_login_again">Je sessie is verlopen. Log opnieuw in om deze badge op te halen.</string>
     <string name="badge_claim_network">De badge kon niet worden opgehaald. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">opgehaald</string>
+    <string name="badge_state_claimable">klaar om op te halen</string>
+    <string name="badge_state_missed">gemist</string>
+    <string name="badge_state_locked">nog niet verdiend</string>
     <plurals name="badges_header">
         <item quantity="one">Badge (%d)</item>
         <item quantity="other">Badges (%d)</item>

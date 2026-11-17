@@ -914,6 +914,11 @@
     <string name="badge_claim_not_met">아직 이 배지의 요건을 충족하지 않습니다.</string>
     <string name="badge_claim_login_again">세션이 만료되었습니다. 이 배지를 받으려면 다시 로그인하세요.</string>
     <string name="badge_claim_network">배지를 받지 못했습니다. 연결을 확인하고 다시 시도하세요.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">받음</string>
+    <string name="badge_state_claimable">받을 수 있음</string>
+    <string name="badge_state_missed">놓침</string>
+    <string name="badge_state_locked">아직 획득하지 않음</string>
     <plurals name="badges_header">
         <item quantity="other">배지 (%d)</item>
     </plurals>

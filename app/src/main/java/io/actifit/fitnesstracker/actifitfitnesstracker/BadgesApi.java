@@ -7,6 +7,7 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -16,12 +17,15 @@ import org.json.JSONObject;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * The profile badges backend (the same endpoints the web profile uses).
+ *
+ * Only the logged-in user's badge ids are cached (in their own small prefs file).
  *
  * Reads are public GETs: /userBadges, and for the logged-in user's own profile the
  * eligibility sources /isoParticipant, /luckyWinner, /charityDonor and
@@ -40,8 +44,13 @@ public final class BadgesApi {
 
     private static final int READ_TIMEOUT_MS = 15000;
     private static final int CLAIM_TIMEOUT_MS = 20000;
-    private static final String PREFS = "actifitSets";
-    private static final String CACHE_PREFIX = "userBadgesCache_";
+    // Own small file, not actifitSets: it holds only the logged-in user's badge ids.
+    private static final String CACHE_PREFS = "actifitBadges";
+    private static final String CACHE_USER = "user";
+    private static final String CACHE_IDS = "ids";
+
+    /** Claims in flight, app-wide, with everyone waiting on each (main thread only). */
+    private static final Map<String, List<ClaimCallback>> IN_FLIGHT = new HashMap<>();
 
     /** Everything the badge section needs. */
     public static final class Snapshot {
@@ -58,27 +67,36 @@ public final class BadgesApi {
         void onResult(BadgeLogic.ClaimReply reply);
     }
 
-    /** The last /userBadges reply cached for this user, parsed; null when there is none. */
+    /** The logged-in user's cached badge ids; null for anyone else or when nothing is cached. */
     public static Set<String> cachedClaimed(Context ctx, String user) {
-        String raw = prefs(ctx).getString(CACHE_PREFIX + user, null);
-        if (raw == null) return null;
-        try {
-            return parseClaimed(new JSONArray(raw), user);
-        } catch (Exception e) {
-            return null;
-        }
+        SharedPreferences p = cache(ctx);
+        if (user == null || !user.equals(p.getString(CACHE_USER, null))) return null;
+        Set<String> ids = p.getStringSet(CACHE_IDS, null);
+        return ids == null ? null : BadgeLogic.dedupe(ids);
     }
 
-    /** Adds a just-claimed badge to the cached list, so the next screen shows it at once. */
+    /** Caches {@code ids} only for the logged-in user, replacing any other user's entry. */
+    private static void saveCache(Context ctx, String user, Set<String> ids) {
+        String me = ctx.getSharedPreferences("actifitSets", Context.MODE_PRIVATE).getString("actifitUser", "");
+        if (user == null || !user.equals(me)) return;
+        cache(ctx).edit().putString(CACHE_USER, user).putStringSet(CACHE_IDS, new HashSet<>(ids)).apply();
+    }
+
+    /** Adds a just-claimed badge to the cache, so the next screen shows it at once. */
     private static void rememberClaim(Context ctx, String user, String badge) {
-        SharedPreferences p = prefs(ctx);
-        try {
-            JSONArray arr = new JSONArray(p.getString(CACHE_PREFIX + user, "[]"));
-            arr.put(new JSONObject().put("user", user).put("badge", badge));
-            p.edit().putString(CACHE_PREFIX + user, arr.toString()).apply();
-        } catch (Exception ignored) {
-            // the next load rewrites the cache anyway
-        }
+        Set<String> ids = cachedClaimed(ctx, user);
+        Set<String> next = ids == null ? new HashSet<>() : new HashSet<>(ids);
+        next.add(badge);
+        saveCache(ctx, user, next);
+    }
+
+    /** True while a claim for this badge is in flight (from any screen). */
+    public static boolean isClaiming(String badge) {
+        return IN_FLIGHT.containsKey(badge);
+    }
+
+    public static boolean isAnyClaiming() {
+        return !IN_FLIGHT.isEmpty();
     }
 
     /**
@@ -99,7 +117,7 @@ public final class BadgesApi {
         addRead(queue, new JsonArrayRequest(Request.Method.GET, base + "userBadges/" + u, null,
                 arr -> {
                     snap.claimed = parseClaimed(arr, user);
-                    prefs(app).edit().putString(CACHE_PREFIX + user, arr.toString()).apply();
+                    saveCache(app, user, snap.claimed);
                     done.run();
                 },
                 err -> done.run()));
@@ -130,18 +148,46 @@ public final class BadgesApi {
 
     /**
      * Claims a badge for the logged-in user. On SUCCESS the on-chain record is written in the
-     * background (best effort). Other replies leave nothing behind.
+     * background (best effort). Other replies leave nothing behind. While a claim for the same
+     * badge is already in flight (e.g. started from a profile screen since closed), nothing is
+     * sent again: {@code cb} just joins and gets that claim's reply.
+     *
+     * When the session token is missing (the process was restored without LoginActivity) or
+     * refused, a fresh one is fetched once from the stored posting key and the claim retried.
      */
     public static void claim(Context ctx, String user, String badge, ClaimCallback cb) {
-        final String token = LoginActivity.accessToken;
-        if (token == null || token.isEmpty()) {
-            cb.onResult(BadgeLogic.ClaimReply.AUTH);
+        List<ClaimCallback> waiting = IN_FLIGHT.get(badge);
+        if (waiting != null) {
+            waiting.add(cb);
             return;
         }
+        waiting = new ArrayList<>();
+        waiting.add(cb);
+        IN_FLIGHT.put(badge, waiting);
         final Context app = ctx.getApplicationContext();
-        final String header = ctx.getString(R.string.validation_header);
-        final String headerValue = ctx.getString(R.string.validation_pre_data) + " " + token;
-        String url = Utils.apiUrl(ctx) + "claimBadge/?user=" + enc(user) + "&badge=" + enc(badge);
+        final ClaimCallback finish = reply -> {
+            List<ClaimCallback> all = IN_FLIGHT.remove(badge);
+            if (all != null) for (ClaimCallback c : all) c.onResult(reply);
+        };
+        String token = LoginActivity.accessToken;
+        if (token == null || token.isEmpty()) {
+            refreshThenSend(app, user, badge, finish);
+        } else {
+            send(app, user, badge, true, finish);
+        }
+    }
+
+    private static void refreshThenSend(Context app, String user, String badge, ClaimCallback finish) {
+        refreshToken(app, user, ok -> {
+            if (ok) send(app, user, badge, false, finish);
+            else finish.onResult(BadgeLogic.ClaimReply.AUTH);
+        });
+    }
+
+    private static void send(Context app, String user, String badge, boolean mayRefresh, ClaimCallback finish) {
+        final String header = app.getString(R.string.validation_header);
+        final String headerValue = app.getString(R.string.validation_pre_data) + " " + LoginActivity.accessToken;
+        String url = Utils.apiUrl(app) + "claimBadge/?user=" + enc(user) + "&badge=" + enc(badge);
         StringRequest req = new StringRequest(Request.Method.GET, url,
                 body -> {
                     BadgeLogic.ClaimReply reply = BadgeLogic.ClaimReply.UNKNOWN;
@@ -152,16 +198,21 @@ public final class BadgesApi {
                                 o.has("success") && !o.optBoolean("success", true),
                                 o.has("error"));
                     } catch (Exception ignored) {
-                        // not JSON (proxy page etc.) → UNKNOWN, offered as a retry
+                        // not JSON (proxy page etc.) -> UNKNOWN, offered as a retry
+                    }
+                    if (reply == BadgeLogic.ClaimReply.AUTH && mayRefresh) {
+                        // The token was refused before anything was stored: safe to retry once.
+                        refreshThenSend(app, user, badge, finish);
+                        return;
                     }
                     if (reply == BadgeLogic.ClaimReply.SUCCESS) {
                         rememberClaim(app, user, badge);
                         BadgeHomeNudge.invalidate();
                         writeOnChain(app, user, badge);
                     }
-                    cb.onResult(reply);
+                    finish.onResult(reply);
                 },
-                err -> cb.onResult(BadgeLogic.ClaimReply.UNKNOWN)) {
+                err -> finish.onResult(BadgeLogic.ClaimReply.UNKNOWN)) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> h = new HashMap<>();
@@ -175,6 +226,46 @@ public final class BadgesApi {
         req.setShouldCache(false);
         // An app-lifetime queue, not the screen's: leaving the profile mid-claim must not drop
         // the reply, or the on-chain record that follows a stored claim would never be written.
+        claimQueue(app).add(req);
+    }
+
+    private interface TokenCallback {
+        void onDone(boolean ok);
+    }
+
+    /**
+     * Re-issues the session token from the stored posting key: the same login_auth request
+     * Wallet/Market/Settings/Social send when they open. No stored key -> not ok ("log in again").
+     */
+    private static void refreshToken(Context app, String user, TokenCallback cb) {
+        String pkey = HiveBroadcaster.storedKey(app, HiveBroadcaster.KeyRole.POSTING);
+        if (user == null || user.isEmpty() || pkey.isEmpty()) {
+            cb.onDone(false);
+            return;
+        }
+        JSONObject loginSettings = new JSONObject();
+        try {
+            loginSettings.put(app.getString(R.string.username_param), user);
+            loginSettings.put(app.getString(R.string.pkey_param), pkey);
+            loginSettings.put(app.getString(R.string.bchain_param), "HIVE");
+            loginSettings.put(app.getString(R.string.keeploggedin_param), false);
+            loginSettings.put(app.getString(R.string.login_source),
+                    app.getString(R.string.android) + BuildConfig.VERSION_NAME);
+        } catch (Exception e) {
+            cb.onDone(false);
+            return;
+        }
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,
+                Utils.apiUrl(app) + app.getString(R.string.login_auth), loginSettings,
+                response -> {
+                    String token = response.has("success")
+                            ? response.optString(app.getString(R.string.login_token), "") : "";
+                    if (!token.isEmpty()) LoginActivity.accessToken = token;
+                    cb.onDone(!token.isEmpty());
+                },
+                error -> cb.onDone(false));
+        req.setRetryPolicy(new DefaultRetryPolicy(CLAIM_TIMEOUT_MS, 0, 1f));
+        req.setShouldCache(false);
         claimQueue(app).add(req);
     }
 
@@ -214,8 +305,8 @@ public final class BadgesApi {
         queue.add(req);
     }
 
-    private static SharedPreferences prefs(Context ctx) {
-        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    private static SharedPreferences cache(Context ctx) {
+        return ctx.getSharedPreferences(CACHE_PREFS, Context.MODE_PRIVATE);
     }
 
     private static String enc(String s) {
