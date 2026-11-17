@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+: the platform's widget internal padding (system_app_widget_internal_padding,
+         16dp in AOSP). That resource is not public, so its value is mirrored here. -->
+    <dimen name="widget_padding">16dp</dimen>
+</resources>

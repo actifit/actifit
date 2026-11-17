@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Steps widget inner padding (Android 12+: the platform widget padding, see values-v31) -->
+    <dimen name="widget_padding">12dp</dimen>
+    <!-- tighter padding for the compact (1x1 / 2x1) and narrow layouts -->
+    <dimen name="widget_padding_tight">8dp</dimen>
+</resources>

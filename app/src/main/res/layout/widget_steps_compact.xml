@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Steps widget, compact (1x1 / 2x1 and other sizes under 96dp): the three rings around the
-     companion, plus today's steps beside them when there is room (WidgetState.compactShowsSteps). -->
+<!-- Steps widget, compact (1x1 / 2x1): the three rings around the companion, plus today's steps
+     beside them when there is room (WidgetState.compactShowsSteps). -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:padding="2dp">
+    android:padding="@dimen/widget_padding_tight">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -15,10 +15,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <!-- ring insets 5dp / 10dp of 48dp (10.4% / 20.8%): see the widget_ring_* drawables -->
+        <!-- rings 44dp, insets 4.6dp / 9.2dp (10.4% / 20.8%): see the widget_ring_* drawables -->
         <FrameLayout
-            android:layout_width="48dp"
-            android:layout_height="48dp">
+            android:layout_width="44dp"
+            android:layout_height="44dp">
 
             <ProgressBar
                 android:id="@+id/widget_ring_steps"
@@ -34,7 +34,7 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="5dp"
+                android:layout_margin="4.6dp"
                 android:indeterminate="false"
                 android:max="100"
                 android:progressDrawable="@drawable/widget_ring_distance" />
@@ -44,7 +44,7 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
+                android:layout_margin="9.2dp"
                 android:indeterminate="false"
                 android:max="100"
                 android:progressDrawable="@drawable/widget_ring_kcal" />
@@ -71,7 +71,7 @@
             android:id="@+id/widget_steps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="8dp"
             android:maxLines="1"
             android:textColor="@color/widget_text_primary"
             android:textSize="13sp"

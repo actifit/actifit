@@ -244,17 +244,24 @@ final class WidgetUpdater {
             Bitmap avatar = s.loggedIn ? WidgetAvatar.cached(app, s.user) : null;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 // the launcher picks the largest entry that fits; thresholds match WidgetState.layoutFor
-                float compact = WidgetState.COMPACT_MIN_DP;
-                float below = WidgetState.COMPACT_BELOW_DP;
+                // and WidgetState.showsFooter
                 Map<SizeF, RemoteViews> sized = new HashMap<>();
-                sized.put(new SizeF(compact, compact),
+                float min = WidgetState.COMPACT_MIN_DP;
+                float narrow = WidgetState.NARROW_MIN_DP;
+                sized.put(new SizeF(min, min),
                         build(ui, s, animal, avatar, WidgetState.LAYOUT_COMPACT, false));
-                sized.put(new SizeF(WidgetState.COMPACT_STEPS_MIN_WIDTH_DP, compact),
+                sized.put(new SizeF(WidgetState.COMPACT_STEPS_MIN_WIDTH_DP, min),
                         build(ui, s, animal, avatar, WidgetState.LAYOUT_COMPACT, true));
-                sized.put(new SizeF(below, below),
+                sized.put(new SizeF(narrow, narrow),
+                        build(ui, s, animal, avatar, WidgetState.LAYOUT_NARROW, false));
+                sized.put(new SizeF(WidgetState.SMALL_MIN_WIDTH_DP, WidgetState.SMALL_MIN_HEIGHT_DP),
                         build(ui, s, animal, avatar, WidgetState.LAYOUT_SMALL, false));
-                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, below),
+                sized.put(new SizeF(WidgetState.SMALL_MIN_WIDTH_DP, WidgetState.SMALL_FOOTER_MIN_HEIGHT_DP),
+                        build(ui, s, animal, avatar, WidgetState.LAYOUT_SMALL, true));
+                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, WidgetState.MEDIUM_MIN_HEIGHT_DP),
                         build(ui, s, animal, avatar, WidgetState.LAYOUT_MEDIUM, false));
+                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, WidgetState.MEDIUM_FOOTER_MIN_HEIGHT_DP),
+                        build(ui, s, animal, avatar, WidgetState.LAYOUT_MEDIUM, true));
                 mgr.updateAppWidget(ids, new RemoteViews(sized));
             } else {
                 for (int id : ids) {
@@ -262,8 +269,10 @@ final class WidgetUpdater {
                     int w = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0) : 0;
                     // portrait size: MIN_WIDTH is the portrait width, MAX_HEIGHT the portrait height
                     int h = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0) : 0;
-                    mgr.updateAppWidget(id, build(ui, s, animal, avatar, WidgetState.layoutFor(w, h),
-                            WidgetState.compactShowsSteps(w)));
+                    int layout = WidgetState.layoutFor(w, h);
+                    boolean extra = layout == WidgetState.LAYOUT_COMPACT
+                            ? WidgetState.compactShowsSteps(w) : WidgetState.showsFooter(layout, h);
+                    mgr.updateAppWidget(id, build(ui, s, animal, avatar, layout, extra));
                 }
             }
 
@@ -378,26 +387,35 @@ final class WidgetUpdater {
         return run;
     }
 
+    /**
+     * @param extra compact: show the step count beside the rings; small / medium: show the footer
+     */
     private static RemoteViews build(Context ui, Snapshot s, Bitmap animal, Bitmap avatar,
-                                     int layout, boolean compactSteps) {
-        boolean medium = layout == WidgetState.LAYOUT_MEDIUM;
+                                     int layout, boolean extra) {
         boolean compact = layout == WidgetState.LAYOUT_COMPACT;
-        RemoteViews v = new RemoteViews(ui.getPackageName(), compact ? R.layout.widget_steps_compact
-                : medium ? R.layout.widget_steps_medium : R.layout.widget_steps_small);
+        boolean narrow = layout == WidgetState.LAYOUT_NARROW;
+        boolean medium = layout == WidgetState.LAYOUT_MEDIUM;
+        int res = compact ? R.layout.widget_steps_compact
+                : narrow ? R.layout.widget_steps_narrow
+                : medium ? R.layout.widget_steps_medium : R.layout.widget_steps_small;
+        RemoteViews v = new RemoteViews(ui.getPackageName(), res);
         Locale locale = ui.getResources().getConfiguration().getLocales().get(0);
         NumberFormat nf = NumberFormat.getIntegerInstance(locale);
 
         // the dashboard's three rings: steps / goal, distance / 8 km, calories / 500 kcal
-        v.setProgressBar(R.id.widget_ring_steps, 100, s.stale ? 0 : WidgetState.progressPercent(s.steps, s.goal), false);
+        int stepsPct = s.stale ? 0 : WidgetState.progressPercent(s.steps, s.goal);
+        v.setProgressBar(R.id.widget_ring_steps, 100, stepsPct, false);
         v.setProgressBar(R.id.widget_ring_distance, 100, WidgetState.ringPercent(s.distanceM, WidgetState.DISTANCE_GOAL_M), false);
         v.setProgressBar(R.id.widget_ring_kcal, 100, WidgetState.ringPercent(s.kcal, WidgetState.KCAL_GOAL), false);
+        ColorStateList companionTint = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // outer ring in the companion's colour, as on the dashboard (static Actifit red before 12)
             boolean night = Utils.isDarkModeActive(ui);
             int color = visibleRingColor(AuraView.auraColor(s.companion, s.level, s.wilting), night);
+            companionTint = ColorStateList.valueOf(color);
             // only the progress layer: the track comes from values / values-night, which the launcher
             // resolves itself, so a later light/dark switch never shows a track baked for the other mode
-            v.setColorStateList(R.id.widget_ring_steps, "setProgressTintList", ColorStateList.valueOf(color));
+            v.setColorStateList(R.id.widget_ring_steps, "setProgressTintList", companionTint);
         }
 
         if (animal != null) {
@@ -413,21 +431,7 @@ final class WidgetUpdater {
         String stepsText = s.stale ? "–" : nf.format(s.steps);
         String stepsLabel = ui.getString(R.string.widget_steps_label);
         v.setTextViewText(R.id.widget_steps, stepsText);
-
-        if (compact) {
-            // rings + animal only; the step count beside them when there is room (2x1)
-            v.setViewVisibility(R.id.widget_steps, compactSteps ? View.VISIBLE : View.GONE);
-            v.setContentDescription(R.id.widget_root, stepsText + " " + stepsLabel);
-            v.setOnClickPendingIntent(R.id.widget_root, openAppIntent(ui));
-            return v;
-        }
-
-        if (avatar != null) {
-            v.setImageViewBitmap(R.id.widget_avatar, avatar);
-            v.setViewVisibility(R.id.widget_avatar, View.VISIBLE);
-        } else {
-            v.setViewVisibility(R.id.widget_avatar, View.GONE);
-        }
+        v.setOnClickPendingIntent(R.id.widget_root, openAppIntent(ui));
 
         String status;
         if (s.stale) {
@@ -440,32 +444,54 @@ final class WidgetUpdater {
         } else {
             status = "";
         }
-        String streakText = s.streak > 0
-                ? ui.getString(R.string.day_streak_label, s.streak)
-                : ui.getString(R.string.no_streak_yet);
+
+        if (compact) {
+            // rings + animal only; the step count beside them when there is room (2x1)
+            v.setViewVisibility(R.id.widget_steps, extra ? View.VISIBLE : View.GONE);
+            v.setContentDescription(R.id.widget_root, join(stepsText + " " + stepsLabel, status));
+            return v;
+        }
+        if (narrow) {
+            // when today's synced steps are unknown the hint takes the count's place
+            if (s.stale) v.setTextViewText(R.id.widget_steps, status);
+            v.setContentDescription(R.id.widget_root, join(stepsText + " " + stepsLabel, status));
+            return v;
+        }
+
+        if (avatar != null) {
+            v.setImageViewBitmap(R.id.widget_avatar, avatar);
+            v.setViewVisibility(R.id.widget_avatar, View.VISIBLE);
+        } else {
+            v.setViewVisibility(R.id.widget_avatar, View.GONE);
+        }
+
+        // stats column: one dot row per ring, coloured like it (steps dot = companion colour on 12+)
+        if (companionTint != null) {
+            v.setColorStateList(R.id.widget_dot_steps, "setImageTintList", companionTint);
+        }
+        String stepsRow = stepsLabel + " " + stepsPct + "%";
         String distText = (s.distanceEstimated ? "≈" : "") + Utils.formatDistance(ui, s.distanceM);
         String kcalText = (s.kcalEstimated ? "≈" : "") + Math.round(s.kcal) + " " + ui.getString(R.string.kcal_unit);
-        String metrics = "📏 " + distText + "  🔥 " + kcalText;
-
-        StringBuilder cd = new StringBuilder(stepsText).append(' ').append(stepsLabel);
+        v.setTextViewText(R.id.widget_row_steps, stepsRow);
+        v.setTextViewText(R.id.widget_row_distance, distText);
+        v.setTextViewText(R.id.widget_row_kcal, kcalText);
         if (medium) {
             v.setTextViewText(R.id.widget_goal, ui.getString(R.string.widget_steps_of_goal,
                     stepsText, nf.format(s.goal)) + " " + stepsLabel);
-            v.setTextViewText(R.id.widget_metrics, metrics);
-            // the action the user must take first, otherwise the streak with the sync time
-            String line = (s.stale || !s.loggedIn) ? join(status, streakText) : join(streakText, status);
-            v.setTextViewText(R.id.widget_status, line);
-            cd.append(", ").append(metrics).append(", ").append(line);
-        } else {
-            // small: when today's synced steps are unknown the hint takes the count's place
-            v.setTextViewText(R.id.widget_status, s.stale ? status : "");
-            v.setViewVisibility(R.id.widget_status, s.stale ? View.VISIBLE : View.GONE);
-            v.setViewVisibility(R.id.widget_steps, s.stale ? View.GONE : View.VISIBLE);
-            if (!status.isEmpty()) cd.append(", ").append(status);
         }
-        v.setContentDescription(R.id.widget_root, cd.toString());
 
-        v.setOnClickPendingIntent(R.id.widget_root, openAppIntent(ui));
+        // footer: the action the user must take first, otherwise the streak with the sync time. It is
+        // the first thing dropped on a short widget, except when the user must act.
+        String streakText = "🔥 " + (s.streak > 0
+                ? ui.getString(R.string.day_streak_label, s.streak)
+                : ui.getString(R.string.no_streak_yet));
+        boolean mustAct = s.stale || !s.loggedIn;
+        String footer = mustAct ? join(status, streakText) : join(streakText, status);
+        v.setTextViewText(R.id.widget_footer, footer);
+        v.setViewVisibility(R.id.widget_footer, extra || mustAct ? View.VISIBLE : View.GONE);
+
+        v.setContentDescription(R.id.widget_root, stepsText + " " + stepsLabel + ", " + stepsPct + "%, "
+                + distText + ", " + kcalText + ", " + footer);
         return v;
     }
 

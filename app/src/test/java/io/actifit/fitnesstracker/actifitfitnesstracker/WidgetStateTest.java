@@ -186,16 +186,25 @@ public class WidgetStateTest {
     }
 
     @Test
-    public void twoByTwoIsSmallAndWideIsMedium() {
-        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(110, 110));
-        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(179, 180));
-        assertEquals(WidgetState.LAYOUT_MEDIUM, WidgetState.layoutFor(180, 110));
-        assertEquals(WidgetState.LAYOUT_MEDIUM, WidgetState.layoutFor(320, 180));
+    public void typicalTwoByTwoIsSmallAndWideIsMedium() {
+        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(170, 180));   // Pixel-like 2x2
+        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(160, 126));
+        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(300, 130));   // wide but short
+        assertEquals(WidgetState.LAYOUT_MEDIUM, WidgetState.layoutFor(230, 142));
+        assertEquals(WidgetState.LAYOUT_MEDIUM, WidgetState.layoutFor(340, 180));
+    }
+
+    @Test
+    public void tightTwoByTwoIsNarrow() {
+        assertEquals(WidgetState.LAYOUT_NARROW, WidgetState.layoutFor(110, 110));  // legacy 2x2 minimum
+        assertEquals(WidgetState.LAYOUT_NARROW, WidgetState.layoutFor(159, 200));
+        assertEquals(WidgetState.LAYOUT_NARROW, WidgetState.layoutFor(200, 125));
+        assertEquals(WidgetState.LAYOUT_NARROW, WidgetState.layoutFor(96, 96));
     }
 
     @Test
     public void oneByOneAndTwoByOneAreCompact() {
-        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(57, 57));   // 1x1
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(60, 60));   // 1x1
         assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(130, 57));  // 2x1
         assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(250, 60));  // 4x1: too short for rings + text
         assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(70, 200));  // 1x3: too narrow
@@ -203,8 +212,19 @@ public class WidgetStateTest {
 
     @Test
     public void compactShowsStepsOnlyWithRoom() {
-        assertFalse(WidgetState.compactShowsSteps(57));
-        assertFalse(WidgetState.compactShowsSteps(99));
-        assertTrue(WidgetState.compactShowsSteps(100));
+        assertFalse(WidgetState.compactShowsSteps(60));
+        assertFalse(WidgetState.compactShowsSteps(109));
+        assertTrue(WidgetState.compactShowsSteps(110));
+    }
+
+    @Test
+    public void footerIsDroppedFirstOnShortWidgets() {
+        assertFalse(WidgetState.showsFooter(WidgetState.LAYOUT_SMALL, 143));
+        assertTrue(WidgetState.showsFooter(WidgetState.LAYOUT_SMALL, 144));
+        assertFalse(WidgetState.showsFooter(WidgetState.LAYOUT_MEDIUM, 159));
+        assertTrue(WidgetState.showsFooter(WidgetState.LAYOUT_MEDIUM, 160));
+        assertTrue(WidgetState.showsFooter(WidgetState.LAYOUT_SMALL, 0));
+        assertFalse(WidgetState.showsFooter(WidgetState.LAYOUT_NARROW, 200));
+        assertFalse(WidgetState.showsFooter(WidgetState.LAYOUT_COMPACT, 200));
     }
 }
