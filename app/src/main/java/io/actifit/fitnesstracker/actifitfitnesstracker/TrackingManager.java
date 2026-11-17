@@ -346,6 +346,8 @@ public class TrackingManager {
                 }
                 editor.apply();
                 chartManager.displayActivityChartHealthConnect(steps != null ? steps.intValue() : 0, true);
+                // one-time note if this (or an earlier) sync left manually entered steps out
+                HealthConnectManager.maybeShowManualStepsNote(activity);
 
                 // additionally read today's distance + active calories (optional HC metrics) for
                 // the activity rings; stored to prefs and pushed to the dashboard when available

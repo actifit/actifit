@@ -2022,6 +2022,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                         findViewById(R.id.sync_again_notice).setVisibility(View.GONE);
                                         Toast.makeText(PostSteemitActivity.this, R.string.steps_synced_from_health_connect, Toast.LENGTH_SHORT)
                                                 .show();
+                                        HealthConnectManager.maybeShowManualStepsNote(PostSteemitActivity.this);
                                     });
                                 }
                                 healthConnectCheckRunning.set(false);

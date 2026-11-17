@@ -896,6 +896,8 @@
     <string name="arena_countdown_days">%1$d天 %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">从 Health Connect 同步</string>
     <string name="steps_synced_from_health_connect">已从 Health Connect 同步步数</string>
+    <string name="hc_manual_steps_note_title">手动输入的步数</string>
+    <string name="hc_manual_steps_note_body">在 Health Connect 中手动输入的步数将不再计入 Actifit 奖励。只有手机或手环记录的步数才会计入，因此 Actifit 中的步数可能低于 Health Connect 中的步数。</string>
 </resources>
 
 
