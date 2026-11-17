@@ -11,8 +11,16 @@ final class WidgetState {
     /** Device-sensor pushes are throttled to at most one per this interval. */
     static final long PUSH_INTERVAL_MS = 60_000L;
 
-    /** At this launcher-reported width (dp) and above the medium layout is used (pre-Android 12). */
+    static final int LAYOUT_COMPACT = 0; // rings + animal (+ steps when there is room): 1x1, 2x1
+    static final int LAYOUT_SMALL = 1;   // 2x2
+    static final int LAYOUT_MEDIUM = 2;  // wide
+
+    /** At this width (dp) and above the medium layout is used. */
     static final int MEDIUM_MIN_WIDTH_DP = 180;
+    /** Narrower or shorter than this (dp) the compact layout is used. */
+    static final int COMPACT_BELOW_DP = 96;
+    /** The compact layout shows the step count from this width (dp), e.g. 2x1. */
+    static final int COMPACT_STEPS_MIN_WIDTH_DP = 100;
 
     private WidgetState() {
     }
@@ -126,8 +134,19 @@ final class WidgetState {
         return mark > 0 && from < mark && to >= mark;
     }
 
-    /** Pre-Android 12 layout choice from the launcher's reported minimum width. */
-    static boolean useMediumLayout(int minWidthDp) {
-        return minWidthDp >= MEDIUM_MIN_WIDTH_DP;
+    /**
+     * Layout for a widget of {@code widthDp} x {@code heightDp} (pre-Android 12: the launcher's
+     * reported size; Android 12+ uses the same thresholds as its size map). Unknown (0) sizes get
+     * the default 2x2 layout.
+     */
+    static int layoutFor(int widthDp, int heightDp) {
+        if (widthDp <= 0 || heightDp <= 0) return LAYOUT_SMALL;
+        if (widthDp < COMPACT_BELOW_DP || heightDp < COMPACT_BELOW_DP) return LAYOUT_COMPACT;
+        return widthDp >= MEDIUM_MIN_WIDTH_DP ? LAYOUT_MEDIUM : LAYOUT_SMALL;
+    }
+
+    /** Whether the compact layout has room for the step count next to the rings. */
+    static boolean compactShowsSteps(int widthDp) {
+        return widthDp >= COMPACT_STEPS_MIN_WIDTH_DP;
     }
 }

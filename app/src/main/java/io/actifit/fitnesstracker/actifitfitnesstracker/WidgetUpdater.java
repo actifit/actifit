@@ -231,17 +231,38 @@ final class WidgetUpdater {
             Context ui = LocaleManager.setLocale(app);
             Snapshot s = snapshot(app, liveCount);
             Bitmap animal = WidgetAnimal.get(app, s.companion, s.wilting);
+            // the cached avatar only: a download never delays this render (see below)
+            Bitmap avatar = s.loggedIn ? WidgetAvatar.cached(app, s.user) : null;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // the launcher picks the largest entry that fits; thresholds match WidgetState.layoutFor
+                float compact = 40f;
+                float below = WidgetState.COMPACT_BELOW_DP;
                 Map<SizeF, RemoteViews> sized = new HashMap<>();
-                sized.put(new SizeF(110f, 110f), build(ui, s, animal, false));
-                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, 110f), build(ui, s, animal, true));
+                sized.put(new SizeF(compact, compact),
+                        build(ui, s, animal, avatar, WidgetState.LAYOUT_COMPACT, false));
+                sized.put(new SizeF(WidgetState.COMPACT_STEPS_MIN_WIDTH_DP, compact),
+                        build(ui, s, animal, avatar, WidgetState.LAYOUT_COMPACT, true));
+                sized.put(new SizeF(below, below),
+                        build(ui, s, animal, avatar, WidgetState.LAYOUT_SMALL, false));
+                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, below),
+                        build(ui, s, animal, avatar, WidgetState.LAYOUT_MEDIUM, false));
                 mgr.updateAppWidget(ids, new RemoteViews(sized));
             } else {
                 for (int id : ids) {
                     Bundle opts = mgr.getAppWidgetOptions(id);
-                    int minWidth = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0) : 0;
-                    mgr.updateAppWidget(id, build(ui, s, animal, WidgetState.useMediumLayout(minWidth)));
+                    int w = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0) : 0;
+                    int h = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0) : 0;
+                    mgr.updateAppWidget(id, build(ui, s, animal, avatar, WidgetState.layoutFor(w, h),
+                            WidgetState.compactShowsSteps(w)));
                 }
+            }
+
+            // avatar: fetched at most once a day (or for a new user), after this render; re-render once it lands
+            final String user = s.user;
+            if (s.loggedIn && WidgetAvatar.needsRefresh(app, user)) {
+                EXECUTOR.execute(() -> {
+                    if (WidgetAvatar.refresh(app, user)) render(app, -1);
+                });
             }
         } catch (Exception e) {
             // never let a widget problem reach the step service or the app
@@ -251,6 +272,7 @@ final class WidgetUpdater {
 
     /** What the widget shows, read once per render. */
     private static final class Snapshot {
+        String user;
         int steps;
         int goal;
         int streak;
@@ -282,6 +304,7 @@ final class WidgetUpdater {
         Snapshot s = new Snapshot();
         s.goal = Utils.getDailyStepGoal(app);
         String user = sp.getString("actifitUser", "");
+        s.user = user;
         s.loggedIn = !TextUtils.isEmpty(user);
         float realDistanceM = -1f;
         float realKcal = -1f;
@@ -344,9 +367,12 @@ final class WidgetUpdater {
         return run;
     }
 
-    private static RemoteViews build(Context ui, Snapshot s, Bitmap animal, boolean medium) {
-        RemoteViews v = new RemoteViews(ui.getPackageName(),
-                medium ? R.layout.widget_steps_medium : R.layout.widget_steps_small);
+    private static RemoteViews build(Context ui, Snapshot s, Bitmap animal, Bitmap avatar,
+                                     int layout, boolean compactSteps) {
+        boolean medium = layout == WidgetState.LAYOUT_MEDIUM;
+        boolean compact = layout == WidgetState.LAYOUT_COMPACT;
+        RemoteViews v = new RemoteViews(ui.getPackageName(), compact ? R.layout.widget_steps_compact
+                : medium ? R.layout.widget_steps_medium : R.layout.widget_steps_small);
         Locale locale = ui.getResources().getConfiguration().getLocales().get(0);
         NumberFormat nf = NumberFormat.getIntegerInstance(locale);
 
@@ -376,6 +402,21 @@ final class WidgetUpdater {
         String stepsText = s.stale ? "–" : nf.format(s.steps);
         String stepsLabel = ui.getString(R.string.widget_steps_label);
         v.setTextViewText(R.id.widget_steps, stepsText);
+
+        if (compact) {
+            // rings + animal only; the step count beside them when there is room (2x1)
+            v.setViewVisibility(R.id.widget_steps, compactSteps ? View.VISIBLE : View.GONE);
+            v.setContentDescription(R.id.widget_root, stepsText + " " + stepsLabel);
+            v.setOnClickPendingIntent(R.id.widget_root, openAppIntent(ui));
+            return v;
+        }
+
+        if (avatar != null) {
+            v.setImageViewBitmap(R.id.widget_avatar, avatar);
+            v.setViewVisibility(R.id.widget_avatar, View.VISIBLE);
+        } else {
+            v.setViewVisibility(R.id.widget_avatar, View.GONE);
+        }
 
         String status;
         if (s.stale) {
@@ -413,11 +454,14 @@ final class WidgetUpdater {
         }
         v.setContentDescription(R.id.widget_root, cd.toString());
 
+        v.setOnClickPendingIntent(R.id.widget_root, openAppIntent(ui));
+        return v;
+    }
+
+    private static PendingIntent openAppIntent(Context ui) {
         Intent open = new Intent(ui, MainActivity.class);
         open.setAction("OPEN_MAIN_ACTIVITY");
-        PendingIntent pi = PendingIntent.getActivity(ui, 0, open, PendingIntent.FLAG_IMMUTABLE);
-        v.setOnClickPendingIntent(R.id.widget_root, pi);
-        return v;
+        return PendingIntent.getActivity(ui, 0, open, PendingIntent.FLAG_IMMUTABLE);
     }
 
     private static String join(String first, String second) {

@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Steps widget, small (2x2): the dashboard's three activity rings (steps, distance, calories)
-     around the companion animal, today's steps below, Actifit logo in the corner.
-     Texts are set by WidgetUpdater so they follow the in-app language. -->
+     around the companion animal, today's steps below, Actifit logo top-left, the user's avatar
+     top-right. Texts are set by WidgetUpdater so they follow the in-app language. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:padding="4dp">
+    android:padding="3dp">
 
     <ImageView
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
         android:layout_gravity="top|start"
-        android:layout_margin="4dp"
+        android:layout_margin="3dp"
         android:importantForAccessibility="no"
         android:src="@drawable/actifit_logo" />
+
+    <ImageView
+        android:id="@+id/widget_avatar"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="2dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,10 +33,10 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <!-- ring insets 8dp / 17dp of 80dp (10% / 21%): see the widget_ring_* drawables -->
+        <!-- ring insets 7dp / 14dp of 68dp (10% / 21%): see the widget_ring_* drawables -->
         <FrameLayout
-            android:layout_width="80dp"
-            android:layout_height="80dp">
+            android:layout_width="68dp"
+            android:layout_height="68dp">
 
             <ProgressBar
                 android:id="@+id/widget_ring_steps"
@@ -42,7 +52,7 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="8dp"
+                android:layout_margin="7dp"
                 android:indeterminate="false"
                 android:max="100"
                 android:progressDrawable="@drawable/widget_ring_distance" />
@@ -52,15 +62,15 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="17dp"
+                android:layout_margin="14dp"
                 android:indeterminate="false"
                 android:max="100"
                 android:progressDrawable="@drawable/widget_ring_kcal" />
 
             <ImageView
                 android:id="@+id/widget_animal"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
                 android:layout_gravity="center"
                 android:importantForAccessibility="no"
                 android:scaleType="fitCenter" />
@@ -71,16 +81,16 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:importantForAccessibility="no"
-                android:textSize="18sp"
+                android:textSize="15sp"
                 android:visibility="gone" />
         </FrameLayout>
 
         <TextView
             android:id="@+id/widget_steps"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:autoSizeMaxTextSize="16sp"
-            android:autoSizeMinTextSize="10sp"
+            android:layout_height="18dp"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="9sp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
             android:maxLines="1"
@@ -96,7 +106,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:textColor="@color/widget_accent"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:visibility="gone" />
     </LinearLayout>
 </FrameLayout>

@@ -177,14 +177,34 @@ public class WidgetStateTest {
         assertTrue(WidgetState.shouldPush(T0 - 5000, T0, 100, 120, GOAL, false));
     }
 
-    // ---- pre-Android 12 layout choice
+    // ---- layout choice by size
 
     @Test
-    public void mediumLayoutFromWidth() {
-        assertFalse(WidgetState.useMediumLayout(0));
-        assertFalse(WidgetState.useMediumLayout(110));
-        assertFalse(WidgetState.useMediumLayout(179));
-        assertTrue(WidgetState.useMediumLayout(180));
-        assertTrue(WidgetState.useMediumLayout(320));
+    public void unknownSizeGetsTheDefaultLayout() {
+        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(0, 0));
+        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(250, 0));
+    }
+
+    @Test
+    public void twoByTwoIsSmallAndWideIsMedium() {
+        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(110, 110));
+        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(179, 180));
+        assertEquals(WidgetState.LAYOUT_MEDIUM, WidgetState.layoutFor(180, 110));
+        assertEquals(WidgetState.LAYOUT_MEDIUM, WidgetState.layoutFor(320, 180));
+    }
+
+    @Test
+    public void oneByOneAndTwoByOneAreCompact() {
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(57, 57));   // 1x1
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(130, 57));  // 2x1
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(250, 60));  // 4x1: too short for rings + text
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(70, 200));  // 1x3: too narrow
+    }
+
+    @Test
+    public void compactShowsStepsOnlyWithRoom() {
+        assertFalse(WidgetState.compactShowsSteps(57));
+        assertFalse(WidgetState.compactShowsSteps(99));
+        assertTrue(WidgetState.compactShowsSteps(100));
     }
 }

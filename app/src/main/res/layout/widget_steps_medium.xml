@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Steps widget, medium (180dp+ wide): rings + companion on the left; Actifit header, today's
-     steps, "steps / goal", distance + calories and the streak / sync line on the right.
-     Texts are set by WidgetUpdater so they follow the in-app language. -->
+<!-- Steps widget, medium (180dp+ wide): rings + companion on the left; Actifit header with the
+     user's avatar, today's steps, "steps / goal", distance + calories and the streak / sync line on
+     the right. Texts are set by WidgetUpdater so they follow the in-app language. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
@@ -9,12 +9,12 @@
     android:background="@drawable/widget_background"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:padding="6dp">
 
-    <!-- ring insets 10dp / 20dp of 96dp (10.4% / 20.8%): see the widget_ring_* drawables -->
+    <!-- ring insets 9dp / 17dp of 84dp (~10% / ~21%): see the widget_ring_* drawables -->
     <FrameLayout
-        android:layout_width="96dp"
-        android:layout_height="96dp">
+        android:layout_width="84dp"
+        android:layout_height="84dp">
 
         <ProgressBar
             android:id="@+id/widget_ring_steps"
@@ -30,7 +30,7 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
+            android:layout_margin="9dp"
             android:indeterminate="false"
             android:max="100"
             android:progressDrawable="@drawable/widget_ring_distance" />
@@ -40,15 +40,15 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="20dp"
+            android:layout_margin="17dp"
             android:indeterminate="false"
             android:max="100"
             android:progressDrawable="@drawable/widget_ring_kcal" />
 
         <ImageView
             android:id="@+id/widget_animal"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:layout_gravity="center"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter" />
@@ -59,14 +59,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:importantForAccessibility="no"
-            android:textSize="22sp"
+            android:textSize="19sp"
             android:visibility="gone" />
     </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="8dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -77,8 +77,8 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/actifit_logo" />
 
@@ -88,16 +88,25 @@
                 android:layout_marginStart="4dp"
                 android:text="@string/widget_brand"
                 android:textColor="@color/widget_accent"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/widget_avatar"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="6dp"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/widget_steps"
             android:layout_width="match_parent"
-            android:layout_height="26dp"
-            android:autoSizeMaxTextSize="22sp"
-            android:autoSizeMinTextSize="12sp"
+            android:layout_height="24dp"
+            android:autoSizeMaxTextSize="20sp"
+            android:autoSizeMinTextSize="11sp"
             android:autoSizeTextType="uniform"
             android:gravity="center_vertical|start"
             android:maxLines="1"
@@ -111,7 +120,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/widget_text_secondary"
-            android:textSize="12sp" />
+            android:textSize="11sp" />
 
         <TextView
             android:id="@+id/widget_metrics"
@@ -121,7 +130,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/widget_text_primary"
-            android:textSize="11sp" />
+            android:textSize="10sp" />
 
         <!-- streak, plus the sync / login state when relevant -->
         <TextView
@@ -132,6 +141,6 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/widget_text_secondary"
-            android:textSize="11sp" />
+            android:textSize="10sp" />
     </LinearLayout>
 </LinearLayout>

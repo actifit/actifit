@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:padding="4dp">
+    android:padding="3dp">
 
     <ImageView
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
         android:layout_gravity="top|start"
-        android:layout_margin="4dp"
+        android:layout_margin="3dp"
         android:importantForAccessibility="no"
         android:src="@drawable/actifit_logo" />
 
@@ -22,8 +22,8 @@
         android:orientation="vertical">
 
         <FrameLayout
-            android:layout_width="80dp"
-            android:layout_height="80dp">
+            android:layout_width="68dp"
+            android:layout_height="68dp">
 
             <ProgressBar
                 android:id="@+id/widget_ring_steps"
@@ -40,7 +40,7 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="8dp"
+                android:layout_margin="7dp"
                 android:indeterminate="false"
                 android:max="100"
                 android:progress="59"
@@ -51,7 +51,7 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="17dp"
+                android:layout_margin="14dp"
                 android:indeterminate="false"
                 android:max="100"
                 android:progress="50"
@@ -64,18 +64,18 @@
                 android:layout_gravity="center"
                 android:importantForAccessibility="no"
                 android:text="&#x1F43A;"
-                android:textSize="18sp" />
+                android:textSize="15sp" />
         </FrameLayout>
 
         <TextView
             android:id="@+id/widget_steps"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:layout_height="18dp"
             android:gravity="center"
             android:maxLines="1"
             android:text="6,240"
             android:textColor="@color/widget_text_primary"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>
 </FrameLayout>
