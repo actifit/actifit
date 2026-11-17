@@ -17,6 +17,8 @@ final class WidgetState {
 
     /** At this width (dp) and above the medium layout is used. */
     static final int MEDIUM_MIN_WIDTH_DP = 180;
+    /** Smallest supported size (dp): the compact layout's 48dp rings + 2dp padding each side. */
+    static final int COMPACT_MIN_DP = 52;
     /** Narrower or shorter than this (dp) the compact layout is used. */
     static final int COMPACT_BELOW_DP = 96;
     /** The compact layout shows the step count from this width (dp), e.g. 2x1. */

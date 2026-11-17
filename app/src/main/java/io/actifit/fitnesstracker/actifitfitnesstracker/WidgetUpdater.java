@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -70,6 +71,13 @@ final class WidgetUpdater {
     private static final Set<String> STREAK_KEYS = new HashSet<>(Arrays.asList(
             "dataTrackingSystem", "healthConnectLastSyncDate", "healthConnectLastSyncTime",
             "fitbitLastSyncDate", "fitbitLastSyncTime"));
+
+    /** Avatar downloads only (network), kept off EXECUTOR. */
+    private static final ExecutorService DOWNLOADER = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "actifit-widget-avatar");
+        t.setPriority(Thread.MIN_PRIORITY);
+        return t;
+    });
 
     /** LocaleManager's in-app language key (default shared prefs). */
     private static final String LANGUAGE_KEY = "language_key";
@@ -232,10 +240,11 @@ final class WidgetUpdater {
             Snapshot s = snapshot(app, liveCount);
             Bitmap animal = WidgetAnimal.get(app, s.companion, s.wilting);
             // the cached avatar only: a download never delays this render (see below)
+            WidgetAvatar.pruneOtherUsers(app, s.loggedIn ? s.user : null);
             Bitmap avatar = s.loggedIn ? WidgetAvatar.cached(app, s.user) : null;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 // the launcher picks the largest entry that fits; thresholds match WidgetState.layoutFor
-                float compact = 40f;
+                float compact = WidgetState.COMPACT_MIN_DP;
                 float below = WidgetState.COMPACT_BELOW_DP;
                 Map<SizeF, RemoteViews> sized = new HashMap<>();
                 sized.put(new SizeF(compact, compact),
@@ -251,17 +260,19 @@ final class WidgetUpdater {
                 for (int id : ids) {
                     Bundle opts = mgr.getAppWidgetOptions(id);
                     int w = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0) : 0;
-                    int h = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0) : 0;
+                    // portrait size: MIN_WIDTH is the portrait width, MAX_HEIGHT the portrait height
+                    int h = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0) : 0;
                     mgr.updateAppWidget(id, build(ui, s, animal, avatar, WidgetState.layoutFor(w, h),
                             WidgetState.compactShowsSteps(w)));
                 }
             }
 
-            // avatar: fetched at most once a day (or for a new user), after this render; re-render once it lands
+            // avatar: fetched at most once a day (or for a new user) on its own thread, so a slow network
+            // never holds up renders or goAsync broadcasts; only the re-render comes back here
             final String user = s.user;
             if (s.loggedIn && WidgetAvatar.needsRefresh(app, user)) {
-                EXECUTOR.execute(() -> {
-                    if (WidgetAvatar.refresh(app, user)) render(app, -1);
+                DOWNLOADER.execute(() -> {
+                    if (WidgetAvatar.refresh(app, user)) EXECUTOR.execute(() -> render(app, -1));
                 });
             }
         } catch (Exception e) {
