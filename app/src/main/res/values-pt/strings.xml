@@ -906,6 +906,39 @@
     <string name="arena_ends_in_clock">Termina em %1$s</string>
     <string name="sync_from_health_connect_btn_lbl">Sincronizar a partir do Health Connect</string>
     <string name="steps_synced_from_health_connect">Passos sincronizados a partir do Health Connect</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">Reclamar</string>
+    <string name="badge_claimed">Reclamada</string>
+    <string name="badge_missed_event">Evento perdido</string>
+    <string name="badge_not_lucky_yet">A sorte ainda não chegou!</string>
+    <string name="badge_name_iso">Evento ISO</string>
+    <string name="badge_name_activity">Atividade nível %d</string>
+    <string name="badge_name_lucky">Duplicação da sorte</string>
+    <string name="badge_name_charity">Doador solidário</string>
+    <string name="badge_desc_iso">Atribuída a todos os que participaram no evento ISO da Actifit.</string>
+    <string name="badge_desc_lucky">Atribuída quando um dos teus relatórios de atividade ganha uma recompensa AFIT duplicada ao acaso.</string>
+    <string name="badge_desc_charity">Atribuída quando doas as recompensas de um relatório de atividade a uma instituição de solidariedade.</string>
+    <string name="badges_activity_max">Atingiste o nível de atividade mais alto.</string>
+    <string name="badge_claim_success">Insígnia reclamada: %s</string>
+    <string name="badge_claim_not_met">Ainda não cumpres os requisitos desta insígnia.</string>
+    <string name="badge_claim_login_again">A tua sessão expirou. Inicia sessão novamente para reclamar esta insígnia.</string>
+    <string name="badge_claim_network">Não foi possível reclamar a insígnia. Verifica a tua ligação e tenta novamente.</string>
+    <plurals name="badges_header">
+        <item quantity="one">Insígnia (%d)</item>
+        <item quantity="other">Insígnias (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="one">Falta %1$d relatório recompensado para o nível de atividade %2$d</item>
+        <item quantity="other">Faltam %1$d relatórios recompensados para o nível de atividade %2$d</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="one">Conquista-se à medida que os teus relatórios de atividade recompensados aumentam. O nível %1$d requer %2$d relatório recompensado.</item>
+        <item quantity="other">Conquista-se à medida que os teus relatórios de atividade recompensados aumentam. O nível %1$d requer %2$d relatórios recompensados.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="one">%d insígnia por reclamar</item>
+        <item quantity="other">%d insígnias por reclamar</item>
+    </plurals>
 </resources>
 
 

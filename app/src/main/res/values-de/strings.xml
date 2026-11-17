@@ -910,6 +910,39 @@
     <string name="arena_countdown_days">%1$d T. %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Von Health Connect synchronisieren</string>
     <string name="steps_synced_from_health_connect">Schritte von Health Connect synchronisiert</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">Abholen</string>
+    <string name="badge_claimed">Abgeholt</string>
+    <string name="badge_missed_event">Event verpasst</string>
+    <string name="badge_not_lucky_yet">Das Glück kommt noch!</string>
+    <string name="badge_name_iso">ISO-Event</string>
+    <string name="badge_name_activity">Aktivität Stufe %d</string>
+    <string name="badge_name_lucky">Glücks-Verdopplung</string>
+    <string name="badge_name_charity">Spender</string>
+    <string name="badge_desc_iso">Für alle, die am Actifit-ISO-Event teilgenommen haben.</string>
+    <string name="badge_desc_lucky">Wird vergeben, wenn einer deiner Aktivitätsberichte eine zufällige doppelte AFIT-Belohnung gewinnt.</string>
+    <string name="badge_desc_charity">Wird vergeben, sobald du die Belohnungen eines Aktivitätsberichts an eine Wohltätigkeitsorganisation spendest.</string>
+    <string name="badges_activity_max">Du hast die höchste Aktivitätsstufe erreicht.</string>
+    <string name="badge_claim_success">Abzeichen abgeholt: %s</string>
+    <string name="badge_claim_not_met">Du erfüllst die Voraussetzungen für dieses Abzeichen noch nicht.</string>
+    <string name="badge_claim_login_again">Deine Sitzung ist abgelaufen. Bitte melde dich erneut an, um dieses Abzeichen abzuholen.</string>
+    <string name="badge_claim_network">Das Abzeichen konnte nicht abgeholt werden. Prüfe deine Verbindung und versuche es erneut.</string>
+    <plurals name="badges_header">
+        <item quantity="one">Abzeichen (%d)</item>
+        <item quantity="other">Abzeichen (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="one">Noch %1$d belohnter Bericht bis Aktivitätsstufe %2$d</item>
+        <item quantity="other">Noch %1$d belohnte Berichte bis Aktivitätsstufe %2$d</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="one">Wächst mit deinen belohnten Aktivitätsberichten. Stufe %1$d erfordert %2$d belohnten Bericht.</item>
+        <item quantity="other">Wächst mit deinen belohnten Aktivitätsberichten. Stufe %1$d erfordert %2$d belohnte Berichte.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="one">%d Abzeichen zum Abholen</item>
+        <item quantity="other">%d Abzeichen zum Abholen</item>
+    </plurals>
 </resources>
 
 

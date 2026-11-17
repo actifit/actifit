@@ -86,6 +86,11 @@ public class ProfileActivity extends BaseActivity {
     private int shareSteps = 0;
     private String shareRank = "0";
 
+    // profile badges: held ids (null until known), eligibility (own profile), claim in flight
+    private java.util.Set<String> badgesHeld;
+    private BadgeLogic.Eligibility badgesEligibility = new BadgeLogic.Eligibility();
+    private String claimingBadge;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,6 +154,7 @@ public class ProfileActivity extends BaseActivity {
             setupFriendButton();
             loadMutualFriends();
         }
+        loadBadges();
         loadArenaBadges();
 
         updateAura();
@@ -521,6 +527,223 @@ public class ProfileActivity extends BaseActivity {
         friendBtn.setEnabled(false);
         friendBtn.setText(R.string.friends_action_loading);
         refreshFriendState(friendBtn, me);
+    }
+
+    // ── Profile badges (ISO, activity levels, lucky doubled-up, charity) ─────────
+
+    /** Shows the cached badges at once, then refreshes them (and, own profile, eligibility). */
+    private void loadBadges() {
+        if (username == null || username.isEmpty()) return;
+        java.util.Set<String> cached = BadgesApi.cachedClaimed(this, username);
+        if (cached != null) {
+            badgesHeld = cached;
+            renderBadges(null);
+        }
+        refreshBadges(null);
+    }
+
+    /** Refetches; {@code then} (may be null) runs on the main thread once the result is shown. */
+    private void refreshBadges(Runnable then) {
+        BadgesApi.load(this, queue, username, isSelf, snap -> {
+            if (isFinishing() || isDestroyed()) return;
+            if (snap.claimed != null) badgesHeld = snap.claimed;
+            if (isSelf) badgesEligibility = snap.eligibility;
+            renderBadges(null);
+            if (then != null) then.run();
+        });
+    }
+
+    /** Draws the badge tiles; {@code celebrate} is a just-claimed badge to animate (or null). */
+    private void renderBadges(String celebrate) {
+        if (isFinishing() || isDestroyed()) return;
+        TextView header = findViewById(R.id.badges_header);
+        TextView progress = findViewById(R.id.badges_progress);
+        android.widget.HorizontalScrollView scroll = findViewById(R.id.badges_scroll);
+        LinearLayout container = findViewById(R.id.badges_container);
+
+        java.util.Set<String> held = badgesHeld == null
+                ? java.util.Collections.<String>emptySet() : badgesHeld;
+        // Until the held list is known a claim could duplicate one: offer no buttons then.
+        BadgeLogic.Eligibility elig = badgesHeld == null ? null : badgesEligibility;
+
+        java.util.List<String> ids = new ArrayList<>();
+        ids.add(BadgeLogic.ISO);
+        for (int lvl : BadgeLogic.visibleActivityLevels(held, isSelf)) ids.add(BadgeLogic.activityId(lvl));
+        ids.add(BadgeLogic.DOUBLED_UP);
+        ids.add(BadgeLogic.CHARITY);
+        if (!isSelf) ids.retainAll(held);   // other users: only what they hold
+        if (ids.isEmpty()) {
+            header.setVisibility(View.GONE);
+            progress.setVisibility(View.GONE);
+            scroll.setVisibility(View.GONE);
+            return;
+        }
+
+        // Claimable first, then held, then the rest — each group in catalog order.
+        java.util.List<String> ordered = new ArrayList<>();
+        for (BadgeLogic.State group : new BadgeLogic.State[]{BadgeLogic.State.CLAIMABLE,
+                BadgeLogic.State.CLAIMED, BadgeLogic.State.MISSED, BadgeLogic.State.LOCKED}) {
+            for (String id : ids) {
+                if (BadgeLogic.stateOf(id, held, elig, isSelf) == group) ordered.add(id);
+            }
+        }
+
+        int heldCount = 0;
+        for (String id : held) if (BadgeLogic.isKnown(id)) heldCount++;
+        header.setText(getResources().getQuantityString(R.plurals.badges_header, heldCount, heldCount));
+        header.setVisibility(View.VISIBLE);
+
+        long posts = elig == null ? -1 : elig.rewardedPosts;
+        if (isSelf && posts >= 0) {
+            long missing = BadgeLogic.postsToNextLevel(posts);
+            if (missing == 0) {
+                progress.setText(R.string.badges_activity_max);
+            } else {
+                int nextLevel = BadgeLogic.levelFor(posts) + 1;
+                progress.setText(getResources().getQuantityString(R.plurals.badges_activity_progress,
+                        (int) missing, (int) missing, nextLevel));
+            }
+            progress.setVisibility(View.VISIBLE);
+        } else {
+            progress.setVisibility(View.GONE);
+        }
+
+        container.removeAllViews();
+        View celebrateTile = null;
+        for (String id : ordered) {
+            View tile = bindBadgeTile(container, id, BadgeLogic.stateOf(id, held, elig, isSelf));
+            container.addView(tile);
+            if (id.equals(celebrate)) celebrateTile = tile;
+        }
+        scroll.setVisibility(View.VISIBLE);
+        if (celebrateTile != null) celebrateBadge(scroll, celebrateTile);
+    }
+
+    private View bindBadgeTile(LinearLayout parent, String id, BadgeLogic.State state) {
+        View tile = getLayoutInflater().inflate(R.layout.profile_badge_tile, parent, false);
+        android.widget.ImageView art = tile.findViewById(R.id.badge_art);
+        TextView name = tile.findViewById(R.id.badge_name);
+        TextView status = tile.findViewById(R.id.badge_status);
+        Button claim = tile.findViewById(R.id.badge_claim);
+        View spinner = tile.findViewById(R.id.badge_claim_progress);
+
+        name.setText(badgeName(id));
+        Glide.with(this).load(BadgeLogic.artUrl(id)).into(art);
+        if (state != BadgeLogic.State.CLAIMED) {
+            android.graphics.ColorMatrix gray = new android.graphics.ColorMatrix();
+            gray.setSaturation(0f);
+            art.setColorFilter(new android.graphics.ColorMatrixColorFilter(gray));
+            art.setAlpha(0.4f);
+        }
+
+        switch (state) {
+            case CLAIMED:
+                status.setText("✓ " + getString(R.string.badge_claimed));
+                status.setTextColor(getColorCompat(R.color.md_theme_success));
+                status.setVisibility(View.VISIBLE);
+                break;
+            case MISSED:
+                status.setText(BadgeLogic.ISO.equals(id) ? R.string.badge_missed_event : R.string.badge_not_lucky_yet);
+                status.setVisibility(View.VISIBLE);
+                break;
+            case CLAIMABLE:
+                boolean thisOne = id.equals(claimingBadge);
+                claim.setVisibility(thisOne ? View.INVISIBLE : View.VISIBLE);
+                claim.setEnabled(claimingBadge == null);
+                spinner.setVisibility(thisOne ? View.VISIBLE : View.GONE);
+                claim.setOnClickListener(v -> claimBadge(id));
+                break;
+            default:
+                break;
+        }
+        tile.setContentDescription(name.getText());
+        tile.setOnClickListener(v -> showBadgeInfo(id));
+        return tile;
+    }
+
+    private String badgeName(String id) {
+        if (BadgeLogic.ISO.equals(id)) return getString(R.string.badge_name_iso);
+        if (BadgeLogic.DOUBLED_UP.equals(id)) return getString(R.string.badge_name_lucky);
+        if (BadgeLogic.CHARITY.equals(id)) return getString(R.string.badge_name_charity);
+        return getString(R.string.badge_name_activity, BadgeLogic.activityLevelOf(id));
+    }
+
+    private void showBadgeInfo(String id) {
+        String message;
+        if (BadgeLogic.ISO.equals(id)) message = getString(R.string.badge_desc_iso);
+        else if (BadgeLogic.DOUBLED_UP.equals(id)) message = getString(R.string.badge_desc_lucky);
+        else if (BadgeLogic.CHARITY.equals(id)) message = getString(R.string.badge_desc_charity);
+        else {
+            int lvl = BadgeLogic.activityLevelOf(id);
+            int needed = (int) BadgeLogic.postsForLevel(lvl);
+            message = getResources().getQuantityString(R.plurals.badge_desc_activity, needed, lvl, needed);
+        }
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(badgeName(id))
+                .setMessage(message)
+                .setPositiveButton(R.string.close_button, null)
+                .show();
+    }
+
+    private void claimBadge(String id) {
+        if (claimingBadge != null || !isSelf) return;
+        claimingBadge = id;
+        renderBadges(null);
+        BadgesApi.claim(this, username, id, reply -> {
+            claimingBadge = null;
+            if (isFinishing() || isDestroyed()) return;
+            switch (reply) {
+                case SUCCESS:
+                    java.util.Set<String> held = new java.util.LinkedHashSet<>();
+                    if (badgesHeld != null) held.addAll(badgesHeld);
+                    held.add(id);
+                    badgesHeld = held;
+                    renderBadges(id);
+                    android.widget.Toast.makeText(this, getString(R.string.badge_claim_success, badgeName(id)),
+                            android.widget.Toast.LENGTH_SHORT).show();
+                    break;
+                case NOT_ELIGIBLE:
+                    android.widget.Toast.makeText(this, R.string.badge_claim_not_met,
+                            android.widget.Toast.LENGTH_LONG).show();
+                    refreshBadges(null);
+                    break;
+                case AUTH:
+                    android.widget.Toast.makeText(this, R.string.badge_claim_login_again,
+                            android.widget.Toast.LENGTH_LONG).show();
+                    renderBadges(null);
+                    break;
+                default:
+                    // The claim may have been stored before the reply was lost: refetch the
+                    // list first, and only offer a retry while the badge is still unclaimed.
+                    renderBadges(null);
+                    refreshBadges(() -> {
+                        if (badgesHeld != null && badgesHeld.contains(id)) {
+                            BadgeHomeNudge.invalidate();
+                            return;
+                        }
+                        com.google.android.material.snackbar.Snackbar
+                                .make(findViewById(android.R.id.content), R.string.badge_claim_network,
+                                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
+                                .setAction(R.string.retry_action, v -> {
+                                    if (BadgeLogic.stateOf(id, badgesHeld, badgesEligibility, true)
+                                            == BadgeLogic.State.CLAIMABLE) claimBadge(id);
+                                })
+                                .show();
+                    });
+                    break;
+            }
+        });
+    }
+
+    /** A short pulse on the claimed badge, scrolled into view. */
+    private void celebrateBadge(android.widget.HorizontalScrollView scroll, View tile) {
+        scroll.post(() -> scroll.smoothScrollTo(Math.max(0, tile.getLeft() - dp(16)), 0));
+        View art = tile.findViewById(R.id.badge_art);
+        art.setScaleX(0.6f);
+        art.setScaleY(0.6f);
+        art.animate().scaleX(1.35f).scaleY(1.35f).setDuration(220)
+                .withEndAction(() -> art.animate().scaleX(1f).scaleY(1f).setDuration(280).start())
+                .start();
     }
 
     /** Badges this user earned in Arena challenges; the section stays hidden when there are none. */

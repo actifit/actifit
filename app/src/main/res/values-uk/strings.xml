@@ -923,6 +923,47 @@
 <string name="earnings_status_earning">Заробляєте</string>
 <string name="earnings_status_not_earning">Не заробляєте</string>
 <string name="earnings_status_unavailable">Недоступно</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">Отримати</string>
+    <string name="badge_claimed">Отримано</string>
+    <string name="badge_missed_event">Подію пропущено</string>
+    <string name="badge_not_lucky_yet">Удача ще не усміхнулася!</string>
+    <string name="badge_name_iso">Подія ISO</string>
+    <string name="badge_name_activity">Активність рів. %d</string>
+    <string name="badge_name_lucky">Щасливе подвоєння</string>
+    <string name="badge_name_charity">Благодійник</string>
+    <string name="badge_desc_iso">Видається всім, хто взяв участь у події Actifit ISO.</string>
+    <string name="badge_desc_lucky">Видається, коли один із ваших звітів про активність виграє випадкову подвоєну винагороду AFIT.</string>
+    <string name="badge_desc_charity">Видається, щойно ви пожертвуєте винагороду за звіт про активність на благодійність.</string>
+    <string name="badges_activity_max">Ви досягли найвищого рівня активності.</string>
+    <string name="badge_claim_success">Значок отримано: %s</string>
+    <string name="badge_claim_not_met">Ви ще не відповідаєте вимогам цього значка.</string>
+    <string name="badge_claim_login_again">Ваш сеанс завершився. Увійдіть знову, щоб отримати цей значок.</string>
+    <string name="badge_claim_network">Не вдалося отримати значок. Перевірте з’єднання та спробуйте ще раз.</string>
+    <plurals name="badges_header">
+        <item quantity="one">Значки (%d)</item>
+        <item quantity="few">Значки (%d)</item>
+        <item quantity="many">Значки (%d)</item>
+        <item quantity="other">Значки (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="one">Ще %1$d винагороджений звіт до рівня активності %2$d</item>
+        <item quantity="few">Ще %1$d винагороджені звіти до рівня активності %2$d</item>
+        <item quantity="many">Ще %1$d винагороджених звітів до рівня активності %2$d</item>
+        <item quantity="other">Ще %1$d винагородженого звіту до рівня активності %2$d</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="one">Здобувається з ростом кількості ваших винагороджених звітів про активність. Для рівня %1$d потрібен %2$d винагороджений звіт.</item>
+        <item quantity="few">Здобувається з ростом кількості ваших винагороджених звітів про активність. Для рівня %1$d потрібно %2$d винагороджені звіти.</item>
+        <item quantity="many">Здобувається з ростом кількості ваших винагороджених звітів про активність. Для рівня %1$d потрібно %2$d винагороджених звітів.</item>
+        <item quantity="other">Здобувається з ростом кількості ваших винагороджених звітів про активність. Для рівня %1$d потрібно %2$d винагородженого звіту.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="one">%d значок можна отримати</item>
+        <item quantity="few">%d значки можна отримати</item>
+        <item quantity="many">%d значків можна отримати</item>
+        <item quantity="other">%d значка можна отримати</item>
+    </plurals>
 </resources>
 
 

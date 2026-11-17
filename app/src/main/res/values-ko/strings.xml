@@ -897,6 +897,35 @@
     <string name="arena_countdown_days">%1$d일 %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Health Connect에서 동기화</string>
     <string name="steps_synced_from_health_connect">Health Connect에서 걸음 수를 동기화했습니다</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">받기</string>
+    <string name="badge_claimed">받음</string>
+    <string name="badge_missed_event">이벤트 놓침</string>
+    <string name="badge_not_lucky_yet">아직 행운이 오지 않았어요!</string>
+    <string name="badge_name_iso">ISO 이벤트</string>
+    <string name="badge_name_activity">활동 레벨 %d</string>
+    <string name="badge_name_lucky">행운의 더블업</string>
+    <string name="badge_name_charity">기부자</string>
+    <string name="badge_desc_iso">Actifit ISO 이벤트에 참여한 모든 분께 드립니다.</string>
+    <string name="badge_desc_lucky">활동 보고서 중 하나가 무작위 AFIT 두 배 보상에 당첨되면 드립니다.</string>
+    <string name="badge_desc_charity">활동 보고서 보상을 자선 단체에 기부하면 드립니다.</string>
+    <string name="badges_activity_max">최고 활동 레벨에 도달했습니다.</string>
+    <string name="badge_claim_success">배지를 받았습니다: %s</string>
+    <string name="badge_claim_not_met">아직 이 배지의 요건을 충족하지 않습니다.</string>
+    <string name="badge_claim_login_again">세션이 만료되었습니다. 이 배지를 받으려면 다시 로그인하세요.</string>
+    <string name="badge_claim_network">배지를 받지 못했습니다. 연결을 확인하고 다시 시도하세요.</string>
+    <plurals name="badges_header">
+        <item quantity="other">배지 (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="other">활동 레벨 %2$d까지 보상받은 보고서 %1$d개 남음</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="other">보상받은 활동 보고서가 쌓일수록 획득합니다. 레벨 %1$d에는 보상받은 보고서 %2$d개가 필요합니다.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="other">받을 수 있는 배지 %d개</item>
+    </plurals>
 </resources>
 
 

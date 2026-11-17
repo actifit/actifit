@@ -917,6 +917,55 @@
     <string name="arena_countdown_days">%1$d ي %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">المزامنة من Health Connect</string>
     <string name="steps_synced_from_health_connect">تمت مزامنة الخطوات من Health Connect</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">استلام</string>
+    <string name="badge_claimed">تم الاستلام</string>
+    <string name="badge_missed_event">فاتتك الفعالية</string>
+    <string name="badge_not_lucky_yet">لم يحالفك الحظ بعد!</string>
+    <string name="badge_name_iso">فعالية ISO</string>
+    <string name="badge_name_activity">مستوى النشاط %d</string>
+    <string name="badge_name_lucky">المضاعفة المحظوظة</string>
+    <string name="badge_name_charity">متبرع خيري</string>
+    <string name="badge_desc_iso">تُمنح لكل من شارك في فعالية ISO من Actifit.</string>
+    <string name="badge_desc_lucky">تُمنح عندما يفوز أحد تقارير نشاطك بمكافأة AFIT مضاعفة عشوائية.</string>
+    <string name="badge_desc_charity">تُمنح بمجرد تبرعك بمكافآت أحد تقارير نشاطك لجمعية خيرية.</string>
+    <string name="badges_activity_max">لقد بلغت أعلى مستوى نشاط.</string>
+    <string name="badge_claim_success">تم استلام الشارة: %s</string>
+    <string name="badge_claim_not_met">لا تستوفي متطلبات هذه الشارة بعد.</string>
+    <string name="badge_claim_login_again">انتهت صلاحية جلستك. يرجى تسجيل الدخول مجددًا لاستلام هذه الشارة.</string>
+    <string name="badge_claim_network">تعذّر استلام الشارة. تحقق من اتصالك وحاول مرة أخرى.</string>
+    <plurals name="badges_header">
+        <item quantity="zero">الشارات (%d)</item>
+        <item quantity="one">الشارات (%d)</item>
+        <item quantity="two">الشارات (%d)</item>
+        <item quantity="few">الشارات (%d)</item>
+        <item quantity="many">الشارات (%d)</item>
+        <item quantity="other">الشارات (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="zero">تبقّى %1$d من التقارير المكافأة للوصول إلى مستوى النشاط %2$d</item>
+        <item quantity="one">تبقّى %1$d من التقارير المكافأة للوصول إلى مستوى النشاط %2$d</item>
+        <item quantity="two">تبقّى %1$d من التقارير المكافأة للوصول إلى مستوى النشاط %2$d</item>
+        <item quantity="few">تبقّى %1$d من التقارير المكافأة للوصول إلى مستوى النشاط %2$d</item>
+        <item quantity="many">تبقّى %1$d من التقارير المكافأة للوصول إلى مستوى النشاط %2$d</item>
+        <item quantity="other">تبقّى %1$d من التقارير المكافأة للوصول إلى مستوى النشاط %2$d</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="zero">تُكتسب مع تراكم تقارير نشاطك المكافأة. يتطلب المستوى %1$d عدد %2$d من التقارير المكافأة.</item>
+        <item quantity="one">تُكتسب مع تراكم تقارير نشاطك المكافأة. يتطلب المستوى %1$d عدد %2$d من التقارير المكافأة.</item>
+        <item quantity="two">تُكتسب مع تراكم تقارير نشاطك المكافأة. يتطلب المستوى %1$d عدد %2$d من التقارير المكافأة.</item>
+        <item quantity="few">تُكتسب مع تراكم تقارير نشاطك المكافأة. يتطلب المستوى %1$d عدد %2$d من التقارير المكافأة.</item>
+        <item quantity="many">تُكتسب مع تراكم تقارير نشاطك المكافأة. يتطلب المستوى %1$d عدد %2$d من التقارير المكافأة.</item>
+        <item quantity="other">تُكتسب مع تراكم تقارير نشاطك المكافأة. يتطلب المستوى %1$d عدد %2$d من التقارير المكافأة.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="zero">%d شارة للاستلام</item>
+        <item quantity="one">شارة واحدة للاستلام</item>
+        <item quantity="two">شارتان للاستلام</item>
+        <item quantity="few">%d شارات للاستلام</item>
+        <item quantity="many">%d شارة للاستلام</item>
+        <item quantity="other">%d شارة للاستلام</item>
+    </plurals>
 </resources>
 
 

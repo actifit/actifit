@@ -906,5 +906,38 @@
     <string name="arena_countdown_days">%1$d g %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Health Connect\'ten senkronize et</string>
     <string name="steps_synced_from_health_connect">Adımlar Health Connect\'ten senkronize edildi</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">Al</string>
+    <string name="badge_claimed">Alındı</string>
+    <string name="badge_missed_event">Etkinlik kaçırıldı</string>
+    <string name="badge_not_lucky_yet">Şans henüz gülmedi!</string>
+    <string name="badge_name_iso">ISO Etkinliği</string>
+    <string name="badge_name_activity">Aktivite seviye %d</string>
+    <string name="badge_name_lucky">Şanslı İkiye Katlama</string>
+    <string name="badge_name_charity">Bağışçı</string>
+    <string name="badge_desc_iso">Actifit ISO etkinliğine katılan herkese verilir.</string>
+    <string name="badge_desc_lucky">Aktivite raporlarından biri rastgele iki katı AFIT ödülü kazandığında verilir.</string>
+    <string name="badge_desc_charity">Bir aktivite raporunun ödüllerini bir hayır kurumuna bağışladığında verilir.</string>
+    <string name="badges_activity_max">En yüksek aktivite seviyesine ulaştın.</string>
+    <string name="badge_claim_success">Rozet alındı: %s</string>
+    <string name="badge_claim_not_met">Bu rozetin gereksinimlerini henüz karşılamıyorsun.</string>
+    <string name="badge_claim_login_again">Oturumunun süresi doldu. Bu rozeti almak için lütfen yeniden giriş yap.</string>
+    <string name="badge_claim_network">Rozet alınamadı. Bağlantını kontrol edip tekrar dene.</string>
+    <plurals name="badges_header">
+        <item quantity="one">Rozetler (%d)</item>
+        <item quantity="other">Rozetler (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="one">Aktivite seviyesi %2$d için %1$d ödüllendirilmiş rapor daha</item>
+        <item quantity="other">Aktivite seviyesi %2$d için %1$d ödüllendirilmiş rapor daha</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="one">Ödüllendirilen aktivite raporların arttıkça kazanılır. Seviye %1$d için %2$d ödüllendirilmiş rapor gerekir.</item>
+        <item quantity="other">Ödüllendirilen aktivite raporların arttıkça kazanılır. Seviye %1$d için %2$d ödüllendirilmiş rapor gerekir.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="one">Alınacak %d rozet</item>
+        <item quantity="other">Alınacak %d rozet</item>
+    </plurals>
 </resources>
 

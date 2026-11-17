@@ -907,6 +907,39 @@
     <string name="arena_countdown_days">%1$d दि %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Health Connect से सिंक करें</string>
     <string name="steps_synced_from_health_connect">Health Connect से कदम सिंक हो गए</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">प्राप्त करें</string>
+    <string name="badge_claimed">प्राप्त किया</string>
+    <string name="badge_missed_event">इवेंट छूट गया</string>
+    <string name="badge_not_lucky_yet">किस्मत ने अभी साथ नहीं दिया!</string>
+    <string name="badge_name_iso">ISO इवेंट</string>
+    <string name="badge_name_activity">गतिविधि स्तर %d</string>
+    <string name="badge_name_lucky">लकी डबल्ड अप</string>
+    <string name="badge_name_charity">चैरिटी दानदाता</string>
+    <string name="badge_desc_iso">Actifit ISO इवेंट में भाग लेने वाले सभी लोगों को दिया जाता है।</string>
+    <string name="badge_desc_lucky">जब आपकी किसी गतिविधि रिपोर्ट को यादृच्छिक दोगुना AFIT इनाम मिलता है, तब दिया जाता है।</string>
+    <string name="badge_desc_charity">जब आप किसी गतिविधि रिपोर्ट का इनाम किसी चैरिटी को दान करते हैं, तब दिया जाता है।</string>
+    <string name="badges_activity_max">आप उच्चतम गतिविधि स्तर पर पहुँच गए हैं।</string>
+    <string name="badge_claim_success">बैज प्राप्त हुआ: %s</string>
+    <string name="badge_claim_not_met">आप अभी इस बैज की शर्तें पूरी नहीं करते।</string>
+    <string name="badge_claim_login_again">आपका सत्र समाप्त हो गया है। यह बैज प्राप्त करने के लिए कृपया फिर से लॉग इन करें।</string>
+    <string name="badge_claim_network">बैज प्राप्त नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें।</string>
+    <plurals name="badges_header">
+        <item quantity="one">बैज (%d)</item>
+        <item quantity="other">बैज (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="one">गतिविधि स्तर %2$d तक पहुँचने के लिए %1$d और पुरस्कृत रिपोर्ट</item>
+        <item quantity="other">गतिविधि स्तर %2$d तक पहुँचने के लिए %1$d और पुरस्कृत रिपोर्टें</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="one">आपकी पुरस्कृत गतिविधि रिपोर्टें बढ़ने के साथ मिलता है। स्तर %1$d के लिए %2$d पुरस्कृत रिपोर्ट चाहिए।</item>
+        <item quantity="other">आपकी पुरस्कृत गतिविधि रिपोर्टें बढ़ने के साथ मिलता है। स्तर %1$d के लिए %2$d पुरस्कृत रिपोर्टें चाहिए।</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="one">प्राप्त करने के लिए %d बैज</item>
+        <item quantity="other">प्राप्त करने के लिए %d बैज</item>
+    </plurals>
 </resources>
 
 

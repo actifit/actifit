@@ -895,6 +895,35 @@
     </plurals>
     <string name="sync_from_health_connect_btn_lbl">Ṣe amuṣiṣẹpọ lati Health Connect</string>
     <string name="steps_synced_from_health_connect">A ti ṣe amuṣiṣẹpọ awọn igbesẹ lati Health Connect</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">Gbà á</string>
+    <string name="badge_claimed">A ti gbà á</string>
+    <string name="badge_missed_event">O pàdánù ìṣẹ̀lẹ̀ náà</string>
+    <string name="badge_not_lucky_yet">Oríire kò tíì dé!</string>
+    <string name="badge_name_iso">Ìṣẹ̀lẹ̀ ISO</string>
+    <string name="badge_name_activity">Ìpele iṣẹ́ %d</string>
+    <string name="badge_name_lucky">Ìlọ́po méjì oríire</string>
+    <string name="badge_name_charity">Olùfitọrẹ àánú</string>
+    <string name="badge_desc_iso">A fún gbogbo ẹni tí ó kópa nínú ìṣẹ̀lẹ̀ ISO ti Actifit.</string>
+    <string name="badge_desc_lucky">A máa ń fún ọ nígbà tí ọ̀kan nínú àwọn ìròyìn iṣẹ́ rẹ bá jẹ èrè AFIT ìlọ́po méjì láìròtẹ́lẹ̀.</string>
+    <string name="badge_desc_charity">A máa ń fún ọ nígbà tí o bá fi èrè ìròyìn iṣẹ́ kan tọrẹ fún àjọ aláàánú.</string>
+    <string name="badges_activity_max">O ti dé ìpele iṣẹ́ tó ga jùlọ.</string>
+    <string name="badge_claim_success">A ti gba àmì-ẹ̀yẹ: %s</string>
+    <string name="badge_claim_not_met">O kò tíì pé ojú ìwọ̀n fún àmì-ẹ̀yẹ yìí.</string>
+    <string name="badge_claim_login_again">Àkókò ìwọlé rẹ ti parí. Jọ̀wọ́ wọlé padà láti gba àmì-ẹ̀yẹ yìí.</string>
+    <string name="badge_claim_network">A kò lè gba àmì-ẹ̀yẹ náà. Ṣàyẹ̀wò ìsopọ̀ rẹ kí o sì gbìyànjú lẹ́ẹ̀kan sí i.</string>
+    <plurals name="badges_header">
+        <item quantity="other">Àmì-ẹ̀yẹ (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="other">Ìròyìn %1$d mìíràn tí a san èrè fún kí o tó dé ìpele iṣẹ́ %2$d</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="other">O máa ń jẹ ẹ́ bí àwọn ìròyìn iṣẹ́ rẹ tí a san èrè fún ṣe ń pọ̀ sí i. Ìpele %1$d nílò ìròyìn %2$d tí a san èrè fún.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="other">Àmì-ẹ̀yẹ %d láti gbà</item>
+    </plurals>
 </resources>
 
 
