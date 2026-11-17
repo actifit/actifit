@@ -1066,6 +1066,7 @@ public class MainActivity extends BaseActivity {
             if (mStepsDBHelper == null) {
                 mStepsDBHelper = new StepsDBHelper(ctx);
             }
+            // outside device mode this reads the synced count from prefs, not the DB
             fitbitStepCount = mStepsDBHelper.fetchTodayStepCount();
         }
         displayActivityChartFitbit(fitbitStepCount, true);
@@ -2103,11 +2104,10 @@ public class MainActivity extends BaseActivity {
                 if (mStepsDBHelper == null) {
                     mStepsDBHelper = new StepsDBHelper(ctx);
                 }
-                int steps = mStepsDBHelper.fetchTodayStepCount();
                 ResumeAsyncTask resumeAsyncTask = new ResumeAsyncTask();
                 resumeAsyncTask.execute();
 
-                displayActivityChart(steps, true);
+                chartManager.loadThenRender(mStepsDBHelper::fetchTodayStepCount, steps -> displayActivityChart(steps, true));
                 displayChartData(true);
                 displayDayChartData(true);
                 refreshSecondaryCards();
@@ -2502,13 +2502,11 @@ public class MainActivity extends BaseActivity {
      * fetchStepCountByDate/fetchTodayStepCount are already mode-aware so no extra branching needed.
      */
     public void refreshSecondaryCards() {
-        int todaySteps = Math.max(0, mStepsDBHelper != null
-                ? mStepsDBHelper.fetchTodayStepCount()
-                : currentDisplayedStepCount);
-        updateNudgeCard(todaySteps);
-        RequestQueue q = Volley.newRequestQueue(this);
-        TextView tvAfit = findViewById(R.id.tv_estimated_afit);
-        apiManager.displayEstimatedReward(q, tvAfit, todaySteps);
+        if (mStepsDBHelper != null && chartManager != null) {
+            chartManager.loadThenRender(mStepsDBHelper::fetchTodayStepCount, steps -> renderTodayCards(Math.max(0, steps)));
+        } else {
+            renderTodayCards(Math.max(0, currentDisplayedStepCount));
+        }
         updateStreakAndHeatmap();
         loadAiInsight();
         // also runs after a Health Connect sync completes (TrackingManager), so the route
@@ -2887,6 +2885,13 @@ public class MainActivity extends BaseActivity {
         Toast.makeText(this, finalMessage, Toast.LENGTH_SHORT).show();
     }
 
+    private void renderTodayCards(int todaySteps) {
+        updateNudgeCard(todaySteps);
+        RequestQueue q = Volley.newRequestQueue(this);
+        TextView tvAfit = findViewById(R.id.tv_estimated_afit);
+        apiManager.displayEstimatedReward(q, tvAfit, todaySteps);
+    }
+
     private void loadAiInsight() {
         android.content.SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
         String todayStr = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(new java.util.Date());
@@ -2902,29 +2907,25 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        // Compute inputs for the prompt
-        int todaySteps = mStepsDBHelper != null ? mStepsDBHelper.fetchTodayStepCount() : 0;
+        // the prompt inputs come from 31 days of step counts: read them off the main thread
+        if (chartManager == null) return;
+        chartManager.loadThenRender(this::loadRecentSteps,
+                stepsBack -> requestAiInsight(stepsBack, prefs, todayStr, aiCard, tvInsight));
+    }
+
+    private void requestAiInsight(int[] stepsBack, android.content.SharedPreferences prefs, String todayStr,
+                                  View aiCard, TextView tvInsight) {
+        int todaySteps = Math.max(stepsBack[0], 0);
         int streakDays = 0;
+        for (int i = (stepsBack[0] >= 5000) ? 0 : 1; i < stepsBack.length; i++) {
+            if (stepsBack[i] >= 5000) streakDays++; else break;
+        }
         int totalSteps7d = 0;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-        Calendar todayStepsCal = Calendar.getInstance();
-        int todayStepsVal = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(todayStepsCal.getTime())) : -1;
-        int startDaysBack = (todayStepsVal >= 5000) ? 0 : 1;
-        for (int i = startDaysBack; i <= 30; i++) {
-            Calendar c = Calendar.getInstance(); c.add(Calendar.DATE, -i);
-            int s = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(c.getTime())) : -1;
-            if (s >= 5000) streakDays++; else break;
-        }
-        for (int i = 0; i < 7; i++) {
-            Calendar c = Calendar.getInstance(); c.add(Calendar.DATE, -i);
-            int s = mStepsDBHelper != null ? mStepsDBHelper.fetchStepCountByDate(sdf.format(c.getTime())) : 0;
-            totalSteps7d += Math.max(s, 0);
-        }
+        for (int i = 0; i < 7; i++) totalSteps7d += Math.max(stepsBack[i], 0);
         int avgSteps7d = totalSteps7d / 7;
 
         AiService aiService = new AiService();
-        final int finalStreak = streakDays;
-        aiService.generateDashboardInsight(todaySteps, finalStreak, avgSteps7d, new AiService.TextResponseCallback() {
+        aiService.generateDashboardInsight(todaySteps, streakDays, avgSteps7d, new AiService.TextResponseCallback() {
             @Override
             public void onSuccess(String insight) {
                 runOnUiThread(() -> {

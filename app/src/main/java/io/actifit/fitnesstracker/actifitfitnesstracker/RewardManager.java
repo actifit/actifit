@@ -126,8 +126,12 @@ public class RewardManager {
         if (isMobileAdsInitializeCalled.getAndSet(true)) {
             return;
         }
-        MobileAds.initialize(activity);
-        loadRewardedAd();
+        // the SDK's startup does disk work that froze the dashboard for ~0.7 s on the main thread;
+        // Google recommends initializing on a background thread
+        Context appContext = activity.getApplicationContext();
+        new Thread(() -> MobileAds.initialize(appContext, status -> activity.runOnUiThread(() -> {
+            if (!activity.isFinishing() && !activity.isDestroyed()) loadRewardedAd();
+        })), "ads-init").start();
     }
 
     public void loadRewardedAd() {

@@ -17,6 +17,16 @@ public class ActifitApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // open the shared step database early, off the main thread, so the dashboard finds it open
+        Context appContext = this;
+        new Thread(() -> {
+            try {
+                new StepsDBHelper(appContext);
+            } catch (Exception e) {
+                // the first screen that needs the DB will open it (and report the problem) itself
+                android.util.Log.e("actifit", "step DB warm-up failed", e);
+            }
+        }, "db-warmup").start();
         instance = this;
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
         boolean isDarkModeEnabled = sharedPreferences.getBoolean("theme_mode", false);
