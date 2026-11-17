@@ -2718,15 +2718,7 @@ public class MainActivity extends BaseActivity {
 
         // Compute streak: consecutive days ending at today (skip today if inactive — day in progress)
         int todaySteps = stepsBack[0];
-        int startDaysBack = (todaySteps >= 5000) ? 0 : 1;
-        int streak = 0;
-        for (int daysBack = startDaysBack; daysBack < stepsBack.length; daysBack++) {
-            if (stepsBack[daysBack] >= 5000) {
-                streak++;
-            } else {
-                break;
-            }
-        }
+        int streak = WidgetState.streak(stepsBack);
 
         TextView tvStreakCount = findViewById(R.id.tv_streak_count);
         if (tvStreakCount != null) {
@@ -2916,10 +2908,7 @@ public class MainActivity extends BaseActivity {
     private void requestAiInsight(int[] stepsBack, android.content.SharedPreferences prefs, String todayStr,
                                   View aiCard, TextView tvInsight) {
         int todaySteps = Math.max(stepsBack[0], 0);
-        int streakDays = 0;
-        for (int i = (stepsBack[0] >= 5000) ? 0 : 1; i < stepsBack.length; i++) {
-            if (stepsBack[i] >= 5000) streakDays++; else break;
-        }
+        int streakDays = WidgetState.streak(stepsBack);
         int totalSteps7d = 0;
         for (int i = 0; i < 7; i++) totalSteps7d += Math.max(stepsBack[i], 0);
         int avgSteps7d = totalSteps7d / 7;

@@ -908,6 +908,13 @@
     <string name="arena_ends_in_clock">Termina en %1$s</string>
     <string name="sync_from_health_connect_btn_lbl">Sincronizar desde Health Connect</string>
     <string name="steps_synced_from_health_connect">Pasos sincronizados desde Health Connect</string>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">Pasos de Actifit</string>
+    <string name="widget_description">Tus pasos de hoy, el progreso de tu meta y tu racha de un vistazo</string>
+    <string name="widget_steps_label">pasos</string>
+    <string name="widget_synced_at">Sincronizado %1$s</string>
+    <string name="widget_open_to_sync">Abre Actifit para sincronizar</string>
+    <string name="widget_login_hint">Inicia sesión para ganar AFIT</string>
 </resources>
 
 

@@ -296,6 +296,8 @@ public class ActivityMonitorService extends Service implements SensorEventListen
         in.setAction("ACTIFIT_SERVICE");
         // sendBroadcast(in);
         LocalBroadcastManager.getInstance(ctx).sendBroadcast(in);
+        // and the home-screen widget (no-op without a placed widget; throttled inside)
+        WidgetUpdater.onSteps(ctx, curStepCount);
 
         boolean doNotify = false;
         // if user crossed 5k, or 10k, also send out another notification

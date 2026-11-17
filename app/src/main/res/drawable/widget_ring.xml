@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Progress ring for the steps widget: a ProgressBar progressDrawable, driven by RemoteViews.setProgressBar -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape
+            android:innerRadiusRatio="2.6"
+            android:shape="ring"
+            android:thicknessRatio="11"
+            android:useLevel="false">
+            <solid android:color="@color/widget_ring_track" />
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <rotate
+            android:fromDegrees="270"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="270">
+            <shape
+                android:innerRadiusRatio="2.6"
+                android:shape="ring"
+                android:thicknessRatio="11"
+                android:useLevel="true">
+                <solid android:color="@color/widget_ring_progress" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

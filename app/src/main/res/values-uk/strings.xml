@@ -923,6 +923,13 @@
 <string name="earnings_status_earning">Заробляєте</string>
 <string name="earnings_status_not_earning">Не заробляєте</string>
 <string name="earnings_status_unavailable">Недоступно</string>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">Кроки Actifit</string>
+    <string name="widget_description">Сьогоднішні кроки, прогрес до мети та серія з першого погляду</string>
+    <string name="widget_steps_label">кроків</string>
+    <string name="widget_synced_at">Синхронізовано %1$s</string>
+    <string name="widget_open_to_sync">Відкрийте Actifit, щоб синхронізувати</string>
+    <string name="widget_login_hint">Увійдіть, щоб заробляти AFIT</string>
 </resources>
 
 
