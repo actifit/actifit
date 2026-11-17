@@ -90,6 +90,22 @@ public class WidgetStateTest {
         assertTrue(WidgetState.isStale(null, "20261117"));
     }
 
+    @Test
+    public void syncDateWrittenInDefaultLocaleMatchesTodayInThatLocale() {
+        // TrackingManager writes the date with the default locale (e.g. Arabic-Indic digits);
+        // the widget formats "today" the same way, so the two compare equal
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(new java.util.Locale("ar"));
+            java.util.Date now = new java.util.Date();
+            String written = new java.text.SimpleDateFormat("yyyyMMdd").format(now);
+            String today = new java.text.SimpleDateFormat("yyyyMMdd").format(now);
+            assertFalse(WidgetState.isStale(written, today));
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
+    }
+
     // ---- live push throttle
 
     @Test

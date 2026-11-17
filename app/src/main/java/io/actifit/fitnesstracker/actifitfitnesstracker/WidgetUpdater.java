@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SizeF;
@@ -24,8 +25,9 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -61,7 +63,10 @@ final class WidgetUpdater {
             "dataTrackingSystem", "healthConnectLastSyncDate", "healthConnectLastSyncTime",
             "fitbitLastSyncDate", "fitbitLastSyncTime"));
 
-    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(r -> {
+    /** LocaleManager's in-app language key (default shared prefs). */
+    private static final String LANGUAGE_KEY = "language_key";
+
+    private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "actifit-widget");
         t.setPriority(Thread.NORM_PRIORITY - 1);
         return t;
@@ -76,10 +81,15 @@ final class WidgetUpdater {
     private static long lastPushMs;
     private static int lastPushCount;
     private static int lastPushDay;
+    // latest count seen while throttled, and whether a trailing render is already scheduled for it
+    private static int latestCount;
+    private static boolean trailingScheduled;
 
-    // SharedPreferences keeps listeners weakly: hold a strong reference for the process lifetime
+    // SharedPreferences keeps listeners weakly: hold strong references for the process lifetime
     @SuppressWarnings("FieldCanBeLocal")
     private static SharedPreferences.OnSharedPreferenceChangeListener prefsListener;
+    @SuppressWarnings("FieldCanBeLocal")
+    private static SharedPreferences.OnSharedPreferenceChangeListener languageListener;
 
     private WidgetUpdater() {
     }
@@ -89,6 +99,8 @@ final class WidgetUpdater {
     /** Called once from ActifitApplication: refresh when sync results, mode, goal or login change. */
     static void watchAppPrefs(Context context) {
         final Context app = context.getApplicationContext();
+        // load the widget prefs file here, so the main-thread listener and onEnabled never wait on it
+        EXECUTOR.execute(() -> isActive(app));
         prefsListener = (prefs, key) -> {
             // key is null when the prefs were cleared (API 30+)
             if (key != null && !WATCHED_KEYS.contains(key)) return;
@@ -106,6 +118,12 @@ final class WidgetUpdater {
         };
         app.getSharedPreferences("actifitSets", Context.MODE_PRIVATE)
                 .registerOnSharedPreferenceChangeListener(prefsListener);
+        // the in-app language lives in the default prefs (LocaleManager)
+        languageListener = (prefs, key) -> {
+            if (LANGUAGE_KEY.equals(key) && isActive(app)) requestUpdate(app);
+        };
+        PreferenceManager.getDefaultSharedPreferences(app)
+                .registerOnSharedPreferenceChangeListener(languageListener);
     }
 
     static void requestUpdate(Context context) {
@@ -134,23 +152,48 @@ final class WidgetUpdater {
         Calendar now = Calendar.getInstance();
         int day = now.get(Calendar.YEAR) * 1000 + now.get(Calendar.DAY_OF_YEAR);
         long nowMs = now.getTimeInMillis();
+        final Context app = context.getApplicationContext();
         synchronized (WidgetUpdater.class) {
+            latestCount = count;
             if (!WidgetState.shouldPush(nowMs, lastPushMs, lastPushCount, count,
                     Utils.getDailyStepGoal(context), day != lastPushDay)) {
+                // throttled: make sure the last steps before the user stops walking still show up
+                if (count != lastPushCount && !trailingScheduled) {
+                    trailingScheduled = true;
+                    long delay = Math.max(0L, lastPushMs + WidgetState.PUSH_INTERVAL_MS - nowMs);
+                    EXECUTOR.schedule(() -> trailingPush(app), delay, TimeUnit.MILLISECONDS);
+                }
                 return;
             }
             lastPushMs = nowMs;
             lastPushCount = count;
             lastPushDay = day;
         }
-        final Context app = context.getApplicationContext();
         EXECUTOR.execute(() -> render(app, count));
+    }
+
+    /** The one delayed render queued by a throttled {@link #onSteps}; shows the latest count. */
+    private static void trailingPush(Context app) {
+        int count;
+        synchronized (WidgetUpdater.class) {
+            trailingScheduled = false;
+            if (latestCount == lastPushCount) return; // a regular push already showed it
+            count = latestCount;
+            Calendar now = Calendar.getInstance();
+            lastPushMs = now.getTimeInMillis();
+            lastPushCount = count;
+            lastPushDay = now.get(Calendar.YEAR) * 1000 + now.get(Calendar.DAY_OF_YEAR);
+        }
+        render(app, count);
     }
 
     static void setActive(Context context, boolean isActive) {
         active = isActive;
-        context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .edit().putBoolean(KEY_ACTIVE, isActive).apply();
+        SharedPreferences.Editor ed = context.getApplicationContext()
+                .getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_ACTIVE, isActive);
+        // (re)added widget: a streak cached before it was removed may be out of date
+        if (isActive) ed.remove(KEY_STREAK_DATE);
+        ed.apply();
     }
 
     private static boolean isActive(Context context) {
@@ -176,17 +219,19 @@ final class WidgetUpdater {
             }
             if (!isActive(app)) setActive(app, true);
 
+            // strings in the current in-app language (the app context keeps the one from process start)
+            Context ui = LocaleManager.setLocale(app);
             Snapshot s = snapshot(app, liveCount);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 Map<SizeF, RemoteViews> sized = new HashMap<>();
-                sized.put(new SizeF(110f, 110f), build(app, s, false));
-                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, 110f), build(app, s, true));
+                sized.put(new SizeF(110f, 110f), build(ui, s, false));
+                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, 110f), build(ui, s, true));
                 mgr.updateAppWidget(ids, new RemoteViews(sized));
             } else {
                 for (int id : ids) {
                     Bundle opts = mgr.getAppWidgetOptions(id);
                     int minWidth = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0) : 0;
-                    mgr.updateAppWidget(id, build(app, s, WidgetState.useMediumLayout(minWidth)));
+                    mgr.updateAppWidget(id, build(ui, s, WidgetState.useMediumLayout(minWidth)));
                 }
             }
         } catch (Exception e) {
@@ -222,7 +267,10 @@ final class WidgetUpdater {
             // same rule as StepsDBHelper.fetchTodayStepCount: a sync from another day says nothing about today
             String prefix = hc ? "healthConnect" : "fitbit";
             s.synced = true;
-            s.stale = WidgetState.isStale(sp.getString(prefix + "LastSyncDate", ""), today);
+            // the sync date is written with the default locale (the in-app language, e.g. Arabic-Indic
+            // digits), and StepsDBHelper.fetchTodayStepCount compares it that way too
+            String syncToday = new SimpleDateFormat("yyyyMMdd").format(new Date());
+            s.stale = WidgetState.isStale(sp.getString(prefix + "LastSyncDate", ""), syncToday);
             s.syncTimeMs = sp.getLong(prefix + "LastSyncTime", 0L);
             s.steps = s.stale ? 0 : sp.getInt(prefix + "SyncCount", 0);
         } else if (liveCount >= 0) {
