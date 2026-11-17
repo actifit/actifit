@@ -595,8 +595,9 @@
     <string name="dialog_message_insufficient_afit_part1">Şuna ihtiyacınız var</string>
     <string name="health_connect_option_lbl">Health Connect</string>
     <string name="hc_show_workouts_lbl">Antrenmanlarımı göster</string>
-    <string name="hc_show_workouts_note">Egzersiz oturumlarınızı panonuzda ve raporunuzda göstermek için Health Connect\'ten okur (yalnızca tür ve süre). Antrenmanlar ödüllere sayılmaz; ödüller adımlara dayanır.</string>
+    <string name="hc_show_workouts_note">Antrenmanlarınızın türünü, süresini ve mesafesini panonuzda ve raporunuzda göstermek için Health Connect\'ten okur. Eklediğiniz antrenmanlar herkese açık raporunuzla birlikte yayınlanır. Antrenmanlar ödüllere sayılmaz; ödüller adımlara dayanır.</string>
     <string name="hc_show_workouts_denied">Antrenmanlar gizli kalacak: Health Connect egzersiz oturumlarına erişime izin vermedi.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect bu cihazda kullanılamıyor, bu yüzden antrenmanlar gösterilemiyor.</string>
     <string name="hc_workouts_card_title">Bugünkü antrenmanlar</string>
     <string name="hc_workouts_footnote">Antrenmanlar kayıt amacıyla gösterilir; ödüller adımlara dayanır.</string>
     <string name="hc_workouts_minutes">%1$d dk</string>

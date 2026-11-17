@@ -582,8 +582,9 @@
     <string name="dialog_message_insufficient_afit_part1">Вам потрібно</string>
     <string name="health_connect_option_lbl">Health Connect</string>
     <string name="hc_show_workouts_lbl">Показувати мої тренування</string>
-    <string name="hc_show_workouts_note">Зчитує ваші тренування з Health Connect (лише тип і тривалість), щоб показувати їх на панелі та у звіті. Тренування не зараховуються до винагород; винагороди нараховуються за кроки.</string>
+    <string name="hc_show_workouts_note">Зчитує тип, тривалість і відстань ваших тренувань із Health Connect, щоб показувати їх на панелі та у звіті. Тренування, які ви додаєте, публікуються разом із вашим публічним звітом. Тренування не зараховуються до винагород; винагороди нараховуються за кроки.</string>
     <string name="hc_show_workouts_denied">Тренування залишаться прихованими: Health Connect не дозволив доступ до тренувань.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect недоступний на цьому пристрої, тому тренування не можна показати.</string>
     <string name="hc_workouts_card_title">Сьогоднішні тренування</string>
     <string name="hc_workouts_footnote">Тренування показано для довідки; винагороди нараховуються за кроки.</string>
     <string name="hc_workouts_minutes">%1$d хв</string>

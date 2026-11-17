@@ -596,8 +596,9 @@
     <string name="dialog_message_insufficient_afit_part1">Hai bisogno di</string>
     <string name="health_connect_option_lbl">Health Connect</string>
     <string name="hc_show_workouts_lbl">Mostra i miei allenamenti</string>
-    <string name="hc_show_workouts_note">Legge le tue sessioni di esercizio da Health Connect (solo tipo e durata) per mostrarle nella dashboard e nel tuo report. Gli allenamenti non contano per i premi; i premi si basano sui passi.</string>
+    <string name="hc_show_workouts_note">Legge tipo, durata e distanza dei tuoi allenamenti da Health Connect per mostrarli nella dashboard e nel tuo report. Gli allenamenti che includi vengono pubblicati con il tuo report pubblico. Gli allenamenti non contano per i premi; i premi si basano sui passi.</string>
     <string name="hc_show_workouts_denied">Gli allenamenti restano nascosti: Health Connect non ha consentito l\'accesso alle sessioni di esercizio.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect non è disponibile su questo dispositivo, quindi gli allenamenti non possono essere mostrati.</string>
     <string name="hc_workouts_card_title">Allenamenti di oggi</string>
     <string name="hc_workouts_footnote">Gli allenamenti sono mostrati come promemoria; i premi si basano sui passi.</string>
     <string name="hc_workouts_minutes">%1$d min</string>

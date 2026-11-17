@@ -596,8 +596,9 @@
     <string name="dialog_message_insufficient_afit_part1">Je hebt</string>
     <string name="health_connect_option_lbl">Health Connect</string>
     <string name="hc_show_workouts_lbl">Mijn workouts tonen</string>
-    <string name="hc_show_workouts_note">Leest je trainingssessies uit Health Connect (alleen type en duur) om ze op je dashboard en in je verslag te tonen. Workouts tellen niet mee voor beloningen; beloningen zijn gebaseerd op stappen.</string>
+    <string name="hc_show_workouts_note">Leest het type, de duur en de afstand van je workouts uit Health Connect om ze op je dashboard en in je verslag te tonen. Workouts die je opneemt, worden met je openbare verslag gepubliceerd. Workouts tellen niet mee voor beloningen; beloningen zijn gebaseerd op stappen.</string>
     <string name="hc_show_workouts_denied">Workouts blijven verborgen: Health Connect heeft geen toegang tot trainingssessies gegeven.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect is niet beschikbaar op dit apparaat, dus workouts kunnen niet worden getoond.</string>
     <string name="hc_workouts_card_title">Workouts van vandaag</string>
     <string name="hc_workouts_footnote">Workouts worden getoond als overzicht; beloningen zijn gebaseerd op stappen.</string>
     <string name="hc_workouts_minutes">%1$d min</string>

@@ -12,7 +12,8 @@ import android.os.Bundle;
  * the permission request closes instantly and nothing is granted.
  *
  * Data read from Health Connect: steps, distance and active calories, and, only when the user
- * turns on "Show my workouts", exercise sessions (type and duration only). Keep the privacy policy
+ * turns on "Show my workouts", exercise sessions (workout type, duration and distance). Workouts
+ * the user includes in a report are published with that public report. Keep the privacy policy
  * page in step with this list.
  */
 public class HealthPrivacyPolicyActivity extends Activity {

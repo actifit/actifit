@@ -60,11 +60,18 @@ public class WorkoutMapperTest {
         assertEquals("DailyActivity", WorkoutMapper.activityKey(9999));
     }
 
+    /** Mirror of the post service whitelist (actifit-post-creator index.js, workoutTypes). */
+    private static final List<String> POST_SERVICE_WHITELIST = Arrays.asList(
+            "Cycling", "Swimming", "WeightLifting", "Yoga", "Stretching", "Bootcamp",
+            "Elliptical", "Gym", "Hiking", "Walking", "Running", "Treadmill", "StairClimbing", "StairMill",
+            "Dancing", "Basketball", "Football", "Boxing", "Tennis", "TableTennis", "MartialArts", "Golf",
+            "Volleyball", "Skiing", "Skating", "Hockey", "Badminton", "Snowshoeing", "Sailing", "Kayaking",
+            "Calisthenics", "Cricket", "DailyActivity");
+
     @Test
-    public void allKeysAreTheWhitelistAndIncludeFallback() {
-        assertTrue(WorkoutMapper.ALL_KEYS.contains("DailyActivity"));
-        assertTrue(WorkoutMapper.ALL_KEYS.contains("Cycling"));
-        assertFalse(WorkoutMapper.ALL_KEYS.contains("workout_minutes"));
+    public void allKeysEqualThePostServiceWhitelist() {
+        assertEquals(33, POST_SERVICE_WHITELIST.size());
+        assertEquals(new java.util.HashSet<>(POST_SERVICE_WHITELIST), WorkoutMapper.ALL_KEYS);
         for (int t = -1; t < 120; t++) {
             assertTrue(WorkoutMapper.ALL_KEYS.contains(WorkoutMapper.activityKey(t)));
         }
@@ -217,6 +224,68 @@ public class WorkoutMapperTest {
         WorkoutMapper.Workout w = new WorkoutMapper.Workout("Cycling", DAY_START, DAY_START + 30 * MIN,
                 false, "a", 300_001);
         assertFalse(WorkoutMapper.toJson(Collections.singletonList(w)).getJSONObject(0).has("distance_m"));
+    }
+
+    @Test
+    public void toJsonTruncatesToTen() throws Exception {
+        List<WorkoutMapper.Workout> ws = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            ws.add(new WorkoutMapper.Workout("Yoga", DAY_START + i * 60 * MIN,
+                    DAY_START + i * 60 * MIN + 20 * MIN, false, "a", -1));
+        }
+        JSONArray arr = WorkoutMapper.toJson(ws);
+        assertEquals(10, arr.length());
+        assertEquals(20, arr.getJSONObject(9).getInt("min"));
+    }
+
+    @Test
+    public void minutesRoundAndClamp() {
+        assertEquals(5, new WorkoutMapper.Workout("Yoga", 0, 5 * MIN + 29_000, false, "a", -1).minutes());
+        assertEquals(6, new WorkoutMapper.Workout("Yoga", 0, 5 * MIN + 30_000, false, "a", -1).minutes());
+        assertEquals(1, new WorkoutMapper.Workout("Yoga", 0, 10_000, false, "a", -1).minutes());
+        assertEquals(1440, new WorkoutMapper.Workout("Yoga", 0, 2000 * MIN, false, "a", -1).minutes());
+    }
+
+    @Test
+    public void dedupeThreeMutuallyOverlappingKeepsOnlyLongest() {
+        List<WorkoutMapper.Workout> out = WorkoutMapper.select(Arrays.asList(
+                s(ExerciseSessionRecord.EXERCISE_TYPE_BIKING, 0, 60, "a"),
+                s(ExerciseSessionRecord.EXERCISE_TYPE_BIKING, 5, 65, "b"),
+                s(ExerciseSessionRecord.EXERCISE_TYPE_BIKING_STATIONARY, 10, 50, "c")), DAY_START, DAY_END);
+        assertEquals(1, out.size());
+        assertEquals("b", out.get(0).origin);
+        assertEquals(65, out.get(0).minutes());
+    }
+
+    @Test
+    public void dedupeChainComparesOnlyWithKeptSessions() {
+        // A and C each overlap B by less than half, so all three stay
+        List<WorkoutMapper.Workout> out = WorkoutMapper.select(Arrays.asList(
+                s(ExerciseSessionRecord.EXERCISE_TYPE_YOGA, 0, 40, "a"),
+                s(ExerciseSessionRecord.EXERCISE_TYPE_YOGA, 25, 50, "b"),
+                s(ExerciseSessionRecord.EXERCISE_TYPE_YOGA, 60, 40, "c")), DAY_START, DAY_END);
+        assertEquals(3, out.size());
+    }
+
+    @Test
+    public void dedupeHappensBeforeTheCap() {
+        List<WorkoutMapper.Session> in = new ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            in.add(s(ExerciseSessionRecord.EXERCISE_TYPE_YOGA, i * 100, 30 + i, "a"));
+        }
+        // five copies of the longest session from other apps must not use up slots
+        for (int k = 0; k < 5; k++) {
+            in.add(s(ExerciseSessionRecord.EXERCISE_TYPE_YOGA, 1000 + k, 39, "copy" + k));
+        }
+        List<WorkoutMapper.Workout> out = WorkoutMapper.select(in, DAY_START, DAY_END);
+        assertEquals(10, out.size());
+        java.util.Set<Long> starts = new java.util.HashSet<>();
+        for (WorkoutMapper.Workout w : out) {
+            assertEquals("a", w.origin);
+            starts.add(w.startMs);
+        }
+        assertEquals(10, starts.size());
+        assertEquals(31, out.get(0).minutes()); // the shortest (30 min) is the one capped out
     }
 
     @Test

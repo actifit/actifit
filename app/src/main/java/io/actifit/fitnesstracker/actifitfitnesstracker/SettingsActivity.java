@@ -709,29 +709,43 @@ public class SettingsActivity extends BaseActivity {
         hcShowWorkoutsBox = findViewById(R.id.hc_show_workouts);
         hcWorkoutsSection.setVisibility(healthConnectBtn.isChecked() ? View.VISIBLE : View.GONE);
         hcShowWorkoutsBox.setChecked(HealthConnectManager.isShowWorkoutsEnabled(this));
+        // reflect the real permission: if it was revoked in Health Connect, show the toggle off
+        if (hcShowWorkoutsBox.isChecked()) {
+            HealthConnectManager hcCheck = new HealthConnectManager(this);
+            if (!hcCheck.isHealthConnectAvailable()) {
+                setShowWorkouts(false, 0);
+            } else {
+                hcCheck.hasWorkoutPermission().whenComplete((has, e) -> runOnUiThread(() -> {
+                    if (!Boolean.TRUE.equals(has) && !isFinishing()) setShowWorkouts(false, 0);
+                }));
+            }
+        }
         hcWorkoutsPermLauncher = registerForActivityResult(
                 PermissionController.createRequestPermissionResultContract(),
-                granted -> setShowWorkouts(granted.contains(HealthConnectManager.PERM_EXERCISE), true));
+                granted -> {
+                    boolean ok = granted.contains(HealthConnectManager.PERM_EXERCISE);
+                    setShowWorkouts(ok, ok ? 0 : R.string.hc_show_workouts_denied);
+                });
         hcShowWorkoutsBox.setOnClickListener(v -> {
             if (!hcShowWorkoutsBox.isChecked()) {
-                setShowWorkouts(false, false);
+                setShowWorkouts(false, 0);
                 return;
             }
             HealthConnectManager hcm = new HealthConnectManager(this);
             if (!hcm.isHealthConnectAvailable()) {
-                setShowWorkouts(false, true);
+                setShowWorkouts(false, R.string.hc_show_workouts_unavailable);
                 return;
             }
             hcm.hasWorkoutPermission().whenComplete((has, e) -> runOnUiThread(() -> {
                 if (Boolean.TRUE.equals(has)) {
-                    setShowWorkouts(true, false);
+                    setShowWorkouts(true, 0);
                     return;
                 }
                 try {
                     hcWorkoutsPermLauncher.launch(HealthConnectManager.workoutPermissions);
                 } catch (Exception ex) {
                     Log.e(MainActivity.TAG, "Could not request the workouts permission", ex);
-                    setShowWorkouts(false, true);
+                    setShowWorkouts(false, R.string.hc_show_workouts_unavailable);
                 }
             }));
         });
@@ -1252,13 +1266,16 @@ public class SettingsActivity extends BaseActivity {
 
     }
 
-    /** Saves the "Show my workouts" choice; a refused permission switches it back off. */
-    private void setShowWorkouts(boolean on, boolean notifyIfOff) {
+    /**
+     * Saves the "Show my workouts" choice; a refused or unavailable permission switches it back off.
+     * messageRes: toast to show (0 for none).
+     */
+    private void setShowWorkouts(boolean on, int messageRes) {
         getSharedPreferences("actifitSets", MODE_PRIVATE).edit()
                 .putBoolean(HealthConnectManager.PREF_SHOW_WORKOUTS, on).apply();
         if (hcShowWorkoutsBox != null) hcShowWorkoutsBox.setChecked(on);
-        if (!on && notifyIfOff) {
-            Toast.makeText(this, R.string.hc_show_workouts_denied, Toast.LENGTH_LONG).show();
+        if (messageRes != 0) {
+            Toast.makeText(this, messageRes, Toast.LENGTH_LONG).show();
         }
     }
 

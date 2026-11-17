@@ -600,8 +600,9 @@
     <string name="dialog_message_insufficient_afit_part1">Du benötigst</string>
     <string name="health_connect_option_lbl">Health Connect</string>
     <string name="hc_show_workouts_lbl">Meine Workouts anzeigen</string>
-    <string name="hc_show_workouts_note">Liest deine Trainingseinheiten aus Health Connect (nur Art und Dauer), um sie auf deinem Dashboard und in deinem Bericht anzuzeigen. Workouts zählen nicht für Belohnungen; Belohnungen basieren auf Schritten.</string>
+    <string name="hc_show_workouts_note">Liest Art, Dauer und Distanz deiner Workouts aus Health Connect, um sie auf deinem Dashboard und in deinem Bericht anzuzeigen. Workouts, die du einbeziehst, werden mit deinem öffentlichen Bericht veröffentlicht. Workouts zählen nicht für Belohnungen; Belohnungen basieren auf Schritten.</string>
     <string name="hc_show_workouts_denied">Workouts bleiben ausgeblendet: Health Connect hat den Zugriff auf Trainingseinheiten nicht erlaubt.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect ist auf diesem Gerät nicht verfügbar, daher können keine Workouts angezeigt werden.</string>
     <string name="hc_workouts_card_title">Heutige Workouts</string>
     <string name="hc_workouts_footnote">Workouts werden nur zur Übersicht angezeigt; Belohnungen basieren auf Schritten.</string>
     <string name="hc_workouts_minutes">%1$d Min.</string>

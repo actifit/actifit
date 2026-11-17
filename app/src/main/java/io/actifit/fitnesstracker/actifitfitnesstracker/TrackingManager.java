@@ -309,6 +309,9 @@ public class TrackingManager {
         View hcTracking = ((android.app.Activity) context).findViewById(R.id.health_connect_active);
         hcTracking.setVisibility(View.VISIBLE);
 
+        // a list filled yesterday must not sit under "Today's workouts" while today's sync runs
+        if (context instanceof MainActivity) ((MainActivity) context).clearStaleHcWorkoutsCard();
+
         ZonedDateTime today = ZonedDateTime.now();
         healthConnectManager.readAndPersistStepsData(today, mStepsDBHelper).whenComplete((steps, readThrowable) -> {
             ((Activity) context).runOnUiThread(() -> {
@@ -333,6 +336,11 @@ public class TrackingManager {
                     if (chartSwitcherView != null) chartSwitcherView.setVisibility(View.VISIBLE);
                     chartManager.displayChartDataHC(true);
                     chartManager.displayDayChartDataHC(true);
+                    // a failed sync can't confirm today's workouts; never leave an older day's list
+                    // under "Today's workouts"
+                    if (context instanceof MainActivity) {
+                        ((MainActivity) context).updateHcWorkoutsCard(null);
+                    }
                     return;
                 }
                 Log.d(TAG, "Steps from Health Connect: " + steps);

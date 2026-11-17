@@ -146,6 +146,16 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     // Health Connect workouts for the report date, read after a Health Connect sync when
     // "Show my workouts" is on. Shown in the post and its metadata; never part of rewards.
     private volatile List<WorkoutMapper.Workout> hcWorkouts = null;
+    // bumped on every workouts read and every report-date switch; a read that finishes for an
+    // older generation (e.g. the previous day) is ignored
+    private final java.util.concurrent.atomic.AtomicInteger hcWorkoutsGeneration =
+            new java.util.concurrent.atomic.AtomicInteger();
+    // activity chips checked automatically from workouts (UI thread only); the user's own picks
+    // are never in here, so they are never unchecked by us
+    private final Set<String> workoutAutoCheckedChips = new java.util.HashSet<>();
+    // chips the user unchecked after we auto-checked them; not re-checked on a later sync
+    private final Set<String> workoutUserUncheckedChips = new java.util.HashSet<>();
+    private boolean applyingWorkoutChips = false;
 
     // tracks whether user wants to post yesterday's data instead
     private static boolean yesterdayReport = false;
@@ -723,7 +733,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 syncAgainNotice.setVisibility(View.VISIBLE);
                 healthConnectSyncDone = 0;
             }
-            hcWorkouts = null;
+            resetHcWorkouts();
 
             if (checkedId == R.id.report_today_option) {// we have today's option
                 // set initial steps display value
@@ -1909,34 +1919,65 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     /**
      * Reads the report day's Health Connect workouts (empty unless "Show my workouts" is on) and
-     * pre-selects the matching activity chips. The user can still change the selection.
+     * pre-selects the matching activity chips. The user can still change the selection; chips the
+     * user unchecked earlier are left alone. A read for an older day/generation is ignored.
      */
     private void loadHcWorkouts(ZonedDateTime day) {
+        final int generation = hcWorkoutsGeneration.incrementAndGet();
         hcWorkouts = null;
         healthConnectManager.readWorkouts(day).whenComplete((workouts, t) -> {
             if (t != null || workouts == null || workouts.isEmpty()) return;
-            hcWorkouts = workouts;
+            if (generation != hcWorkoutsGeneration.get()) return;
             runOnUiThread(() -> {
+                if (generation != hcWorkoutsGeneration.get()) return;
+                hcWorkouts = workouts;
                 for (String key : WorkoutMapper.distinctKeys(workouts)) {
                     int id = getResources().getIdentifier(key, "string", getPackageName());
                     if (id == 0) continue;
-                    checkActivityChip(getString(id));
+                    autoCheckActivityChip(getString(id));
                 }
             });
         });
     }
 
-    private void checkActivityChip(String label) {
+    /** Report date changed: drop the old day's workouts and the chips they checked. UI thread. */
+    private void resetHcWorkouts() {
+        hcWorkoutsGeneration.incrementAndGet();
+        hcWorkouts = null;
+        applyingWorkoutChips = true;
+        try {
+            for (String label : workoutAutoCheckedChips) {
+                Chip chip = findActivityChip(label);
+                if (chip != null) chip.setChecked(false);
+            }
+        } finally {
+            applyingWorkoutChips = false;
+        }
+        workoutAutoCheckedChips.clear();
+    }
+
+    private void autoCheckActivityChip(String label) {
+        if (workoutUserUncheckedChips.contains(label)) return;
+        Chip chip = findActivityChip(label);
+        if (chip == null || chip.isChecked()) return; // already picked (by the user or earlier)
+        applyingWorkoutChips = true;
+        try {
+            chip.setChecked(true);
+        } finally {
+            applyingWorkoutChips = false;
+        }
+        workoutAutoCheckedChips.add(label);
+    }
+
+    private Chip findActivityChip(String label) {
         for (ChipGroup group : new ChipGroup[]{activityChipGroup, activityChipGroupMore}) {
             if (group == null) continue;
             for (int i = 0; i < group.getChildCount(); i++) {
                 Chip chip = (Chip) group.getChildAt(i);
-                if (label.contentEquals(chip.getText())) {
-                    chip.setChecked(true);
-                    return;
-                }
+                if (label.contentEquals(chip.getText())) return chip;
             }
         }
+        return null;
     }
 
     private Chip createActivityChip(String label) {
@@ -1945,10 +1986,21 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         chip.setCheckable(true);
         chip.setChipBackgroundColor(ColorStateList.valueOf(
                 getResources().getColor(R.color.md_theme_chipBackground)));
-        chip.setOnCheckedChangeListener((c, isChecked) -> ((Chip) c).setChipBackgroundColor(
-                ColorStateList.valueOf(isChecked
-                        ? getResources().getColor(R.color.actifitRed)
-                        : getResources().getColor(R.color.md_theme_chipBackground))));
+        chip.setOnCheckedChangeListener((c, isChecked) -> {
+            ((Chip) c).setChipBackgroundColor(
+                    ColorStateList.valueOf(isChecked
+                            ? getResources().getColor(R.color.actifitRed)
+                            : getResources().getColor(R.color.md_theme_chipBackground)));
+            if (applyingWorkoutChips) return;
+            // a user change takes the chip out of the workouts' hands
+            String chipLabel = ((Chip) c).getText().toString();
+            if (isChecked) {
+                workoutUserUncheckedChips.remove(chipLabel);
+            } else if (workoutAutoCheckedChips.contains(chipLabel)) {
+                workoutUserUncheckedChips.add(chipLabel);
+            }
+            workoutAutoCheckedChips.remove(chipLabel);
+        });
         return chip;
     }
 

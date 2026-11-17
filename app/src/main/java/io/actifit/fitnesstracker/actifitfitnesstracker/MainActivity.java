@@ -2764,10 +2764,12 @@ public class MainActivity extends BaseActivity {
         LinearLayout list = findViewById(R.id.hc_workouts_list);
         if (card == null || list == null) return;
         list.removeAllViews();
+        hcWorkoutsCardDay = null;
         if (workouts == null || workouts.isEmpty()) {
             card.setVisibility(View.GONE);
             return;
         }
+        hcWorkoutsCardDay = todayKey();
         android.graphics.Typeface fa = null;
         try {
             fa = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.font_awesome_6_solid);
@@ -2808,6 +2810,20 @@ public class MainActivity extends BaseActivity {
             list.addView(row);
         }
         card.setVisibility(View.VISIBLE);
+    }
+
+    // the day (yyyyMMdd) the workouts card was filled for; null when it is empty/hidden
+    private String hcWorkoutsCardDay = null;
+
+    private static String todayKey() {
+        return new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(Calendar.getInstance().getTime());
+    }
+
+    /** Hides the workouts card if it was filled on an earlier day (call on the UI thread). */
+    public void clearStaleHcWorkoutsCard() {
+        if (hcWorkoutsCardDay != null && !hcWorkoutsCardDay.equals(todayKey())) {
+            updateHcWorkoutsCard(null);
+        }
     }
 
     /** Localized activity name for a WorkoutMapper key (the keys are string resource names). */
