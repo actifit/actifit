@@ -28,6 +28,42 @@ public class WidgetStateTest {
         assertEquals(100, WidgetState.progressPercent(Integer.MAX_VALUE, 1));
     }
 
+    // ---- distance / calorie rings (dashboard: 8 km and 500 kcal goals, step-derived estimates)
+
+    @Test
+    public void estimatesMatchTheDashboard() {
+        assertEquals(7620f, WidgetState.estimateDistanceMeters(10000), 0.01f);
+        assertEquals(400f, WidgetState.estimateKcal(10000), 0.01f);
+        assertEquals(0f, WidgetState.estimateDistanceMeters(-5), 0f);
+        assertEquals(0f, WidgetState.estimateKcal(-5), 0f);
+    }
+
+    @Test
+    public void ringPercentIsClamped() {
+        assertEquals(0, WidgetState.ringPercent(0f, WidgetState.DISTANCE_GOAL_M));
+        assertEquals(0, WidgetState.ringPercent(-1f, WidgetState.DISTANCE_GOAL_M));
+        assertEquals(0, WidgetState.ringPercent(Float.NaN, WidgetState.KCAL_GOAL));
+        assertEquals(50, WidgetState.ringPercent(4000f, WidgetState.DISTANCE_GOAL_M));
+        assertEquals(80, WidgetState.ringPercent(400f, WidgetState.KCAL_GOAL));
+        assertEquals(100, WidgetState.ringPercent(9000f, WidgetState.DISTANCE_GOAL_M));
+        assertEquals(100, WidgetState.ringPercent(1f, 0f));
+    }
+
+    @Test
+    public void tenThousandEstimatedStepsFillTheRingsLikeTheDashboard() {
+        int steps = 10000;
+        assertEquals(95, WidgetState.ringPercent(WidgetState.estimateDistanceMeters(steps), WidgetState.DISTANCE_GOAL_M));
+        assertEquals(80, WidgetState.ringPercent(WidgetState.estimateKcal(steps), WidgetState.KCAL_GOAL));
+    }
+
+    @Test
+    public void cachedMetricsDateMatchesEitherFormat() {
+        assertTrue(WidgetState.isToday("20261117", "٢٠٢٦١١١٧", "20261117"));
+        assertTrue(WidgetState.isToday("٢٠٢٦١١١٧", "٢٠٢٦١١١٧", "20261117"));
+        assertFalse(WidgetState.isToday("20261116", "20261117", "20261117"));
+        assertFalse(WidgetState.isToday("", "20261117", "20261117"));
+    }
+
     // ---- streak (dashboard rule: today counts only once it reaches 5,000)
 
     @Test

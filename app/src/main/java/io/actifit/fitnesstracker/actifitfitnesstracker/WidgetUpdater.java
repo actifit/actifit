@@ -7,12 +7,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SizeF;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import java.text.NumberFormat;
@@ -37,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Refresh sources:
  *  - device-sensor mode: {@link #onSteps} from ActivityMonitorService, throttled (see WidgetState.shouldPush);
  *  - Health Connect / Fitbit: only when the app syncs (the sync writes the prefs watched by {@link #watchAppPrefs});
- *  - mode / goal / login changes: also through the watched prefs;
+ *  - mode / goal / login / companion / unit changes: also through the watched prefs;
  *  - the provider's 30 min updatePeriodMillis (midnight rollover, "Open Actifit to sync" labels).
  */
 final class WidgetUpdater {
@@ -57,7 +61,11 @@ final class WidgetUpdater {
     private static final Set<String> WATCHED_KEYS = new HashSet<>(Arrays.asList(
             "dataTrackingSystem", "dailyStepGoal", "actifitUser",
             "healthConnectSyncCount", "healthConnectLastSyncDate", "healthConnectLastSyncTime",
-            "fitbitSyncCount", "fitbitLastSyncDate", "fitbitLastSyncTime"));
+            "fitbitSyncCount", "fitbitLastSyncDate", "fitbitLastSyncTime",
+            // distance / calories for the rings, the companion, the distance unit
+            "hcMetricsDate", "hcTodayDistanceM", "hcTodayKcal",
+            "fitbitMetricsDate", "fitbitDistanceM", "fitbitCalories",
+            CompanionUtil.PREF_COMPANION, CompanionUtil.PREF_COMPANION_AUTO, "activeSystem"));
     /** Of those, the ones after which past days may differ (sync backfill, other data source). */
     private static final Set<String> STREAK_KEYS = new HashSet<>(Arrays.asList(
             "dataTrackingSystem", "healthConnectLastSyncDate", "healthConnectLastSyncTime",
@@ -222,16 +230,17 @@ final class WidgetUpdater {
             // strings in the current in-app language (the app context keeps the one from process start)
             Context ui = LocaleManager.setLocale(app);
             Snapshot s = snapshot(app, liveCount);
+            Bitmap animal = WidgetAnimal.get(app, s.companion, s.wilting);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 Map<SizeF, RemoteViews> sized = new HashMap<>();
-                sized.put(new SizeF(110f, 110f), build(ui, s, false));
-                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, 110f), build(ui, s, true));
+                sized.put(new SizeF(110f, 110f), build(ui, s, animal, false));
+                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, 110f), build(ui, s, animal, true));
                 mgr.updateAppWidget(ids, new RemoteViews(sized));
             } else {
                 for (int id : ids) {
                     Bundle opts = mgr.getAppWidgetOptions(id);
                     int minWidth = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0) : 0;
-                    mgr.updateAppWidget(id, build(ui, s, WidgetState.useMediumLayout(minWidth)));
+                    mgr.updateAppWidget(id, build(ui, s, animal, WidgetState.useMediumLayout(minWidth)));
                 }
             }
         } catch (Exception e) {
@@ -249,6 +258,13 @@ final class WidgetUpdater {
         boolean loggedIn;
         long syncTimeMs;
         boolean synced; // Health Connect / Fitbit mode
+        float distanceM;
+        boolean distanceEstimated;
+        float kcal;
+        boolean kcalEstimated;
+        int companion;
+        int level;
+        boolean wilting;
     }
 
     private static Snapshot snapshot(Context app, int liveCount) {
@@ -257,22 +273,32 @@ final class WidgetUpdater {
         String mode = sp.getString("dataTrackingSystem", deviceMode);
         boolean hc = mode.equals(app.getString(R.string.health_connect_tracking_ntt));
         boolean fitbit = mode.equals(app.getString(R.string.fitbit_tracking_ntt));
-        String today = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(new Date());
+        Date now = new Date();
+        String today = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(now);
+        // the app writes sync dates with the default locale (the in-app language, e.g. Arabic-Indic
+        // digits), and StepsDBHelper.fetchTodayStepCount compares them that way too
+        String todayDefault = new SimpleDateFormat("yyyyMMdd").format(now);
 
         Snapshot s = new Snapshot();
         s.goal = Utils.getDailyStepGoal(app);
-        s.loggedIn = !TextUtils.isEmpty(sp.getString("actifitUser", ""));
+        String user = sp.getString("actifitUser", "");
+        s.loggedIn = !TextUtils.isEmpty(user);
+        float realDistanceM = -1f;
+        float realKcal = -1f;
         StepsDBHelper db = null;
         if (hc || fitbit) {
             // same rule as StepsDBHelper.fetchTodayStepCount: a sync from another day says nothing about today
             String prefix = hc ? "healthConnect" : "fitbit";
             s.synced = true;
-            // the sync date is written with the default locale (the in-app language, e.g. Arabic-Indic
-            // digits), and StepsDBHelper.fetchTodayStepCount compares it that way too
-            String syncToday = new SimpleDateFormat("yyyyMMdd").format(new Date());
-            s.stale = WidgetState.isStale(sp.getString(prefix + "LastSyncDate", ""), syncToday);
+            s.stale = WidgetState.isStale(sp.getString(prefix + "LastSyncDate", ""), todayDefault);
             s.syncTimeMs = sp.getLong(prefix + "LastSyncTime", 0L);
             s.steps = s.stale ? 0 : sp.getInt(prefix + "SyncCount", 0);
+            // real distance / calories cached at sync time (TrackingManager / Fitbit sync), today's only
+            String metricsDate = sp.getString(hc ? "hcMetricsDate" : "fitbitMetricsDate", "");
+            if (!s.stale && WidgetState.isToday(metricsDate, todayDefault, today)) {
+                realDistanceM = sp.getFloat(hc ? "hcTodayDistanceM" : "fitbitDistanceM", -1f);
+                realKcal = sp.getFloat(hc ? "hcTodayKcal" : "fitbitCalories", -1f);
+            }
         } else if (liveCount >= 0) {
             s.steps = liveCount;
         } else {
@@ -281,8 +307,18 @@ final class WidgetUpdater {
         }
         s.steps = Math.max(0, s.steps);
 
+        // like MainActivity.renderDashboardRings: real values when known, else step-derived "≈" estimates
+        s.distanceEstimated = realDistanceM < 0;
+        s.distanceM = s.distanceEstimated ? WidgetState.estimateDistanceMeters(s.steps) : realDistanceM;
+        s.kcalEstimated = realKcal < 0;
+        s.kcal = s.kcalEstimated ? WidgetState.estimateKcal(s.steps) : realKcal;
+
         int pastRun = cachedPastRun(app, db, mode, today);
         s.streak = s.stale ? pastRun : WidgetState.streakWithToday(pastRun, s.steps);
+
+        s.companion = CompanionUtil.resolveCompanion(sp, user, true);
+        s.level = CompanionUtil.levelFromStreak(s.streak);
+        s.wilting = CompanionUtil.isWilting(s.streak, s.steps, Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
         return s;
     }
 
@@ -308,51 +344,97 @@ final class WidgetUpdater {
         return run;
     }
 
-    private static RemoteViews build(Context app, Snapshot s, boolean medium) {
-        RemoteViews v = new RemoteViews(app.getPackageName(),
+    private static RemoteViews build(Context ui, Snapshot s, Bitmap animal, boolean medium) {
+        RemoteViews v = new RemoteViews(ui.getPackageName(),
                 medium ? R.layout.widget_steps_medium : R.layout.widget_steps_small);
-        Locale locale = app.getResources().getConfiguration().getLocales().get(0);
+        Locale locale = ui.getResources().getConfiguration().getLocales().get(0);
         NumberFormat nf = NumberFormat.getIntegerInstance(locale);
 
+        // the dashboard's three rings: steps / goal, distance / 8 km, calories / 500 kcal
+        v.setProgressBar(R.id.widget_ring_steps, 100, s.stale ? 0 : WidgetState.progressPercent(s.steps, s.goal), false);
+        v.setProgressBar(R.id.widget_ring_distance, 100, WidgetState.ringPercent(s.distanceM, WidgetState.DISTANCE_GOAL_M), false);
+        v.setProgressBar(R.id.widget_ring_kcal, 100, WidgetState.ringPercent(s.kcal, WidgetState.KCAL_GOAL), false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // outer ring in the companion's colour, as on the dashboard (static Actifit red before 12)
+            boolean night = Utils.isDarkModeActive(ui);
+            int color = visibleRingColor(AuraView.auraColor(s.companion, s.level, s.wilting), night);
+            v.setColorStateList(R.id.widget_ring_steps, "setProgressTintList", ColorStateList.valueOf(color));
+            if (!night) {
+                // light-mode track = ring colour at alpha 55 (dark mode keeps the neutral white track)
+                v.setColorStateList(R.id.widget_ring_steps, "setProgressBackgroundTintList",
+                        ColorStateList.valueOf((color & 0x00FFFFFF) | (55 << 24)));
+            }
+        }
+
+        if (animal != null) {
+            v.setImageViewBitmap(R.id.widget_animal, animal);
+            v.setViewVisibility(R.id.widget_animal, View.VISIBLE);
+            v.setViewVisibility(R.id.widget_animal_emoji, View.GONE);
+        } else {
+            v.setTextViewText(R.id.widget_animal_emoji, AuraView.companionEmoji(s.companion));
+            v.setViewVisibility(R.id.widget_animal, View.GONE);
+            v.setViewVisibility(R.id.widget_animal_emoji, View.VISIBLE);
+        }
+
         String stepsText = s.stale ? "–" : nf.format(s.steps);
-        v.setProgressBar(R.id.widget_ring, 100, s.stale ? 0 : WidgetState.progressPercent(s.steps, s.goal), false);
+        String stepsLabel = ui.getString(R.string.widget_steps_label);
         v.setTextViewText(R.id.widget_steps, stepsText);
-        v.setTextViewText(R.id.widget_steps_label, app.getString(R.string.widget_steps_label));
 
         String status;
         if (s.stale) {
-            status = app.getString(R.string.widget_open_to_sync);
+            status = ui.getString(R.string.widget_open_to_sync);
         } else if (!s.loggedIn) {
-            status = app.getString(R.string.widget_login_hint);
+            status = ui.getString(R.string.widget_login_hint);
         } else if (s.synced && s.syncTimeMs > 0) {
-            status = app.getString(R.string.widget_synced_at,
-                    android.text.format.DateFormat.getTimeFormat(app).format(new Date(s.syncTimeMs)));
+            status = ui.getString(R.string.widget_synced_at,
+                    android.text.format.DateFormat.getTimeFormat(ui).format(new Date(s.syncTimeMs)));
         } else {
             status = "";
         }
-        v.setTextViewText(R.id.widget_status, status);
-        v.setViewVisibility(R.id.widget_status, status.isEmpty() ? android.view.View.GONE : android.view.View.VISIBLE);
-
         String streakText = s.streak > 0
-                ? app.getString(R.string.day_streak_label, s.streak)
-                : app.getString(R.string.no_streak_yet);
-        if (medium) {
-            v.setTextViewText(R.id.widget_goal, app.getString(R.string.widget_steps_of_goal,
-                    stepsText, nf.format(s.goal)));
-            v.setTextViewText(R.id.widget_streak, streakText);
-        }
+                ? ui.getString(R.string.day_streak_label, s.streak)
+                : ui.getString(R.string.no_streak_yet);
+        String distText = (s.distanceEstimated ? "≈" : "") + Utils.formatDistance(ui, s.distanceM);
+        String kcalText = (s.kcalEstimated ? "≈" : "") + Math.round(s.kcal) + " " + ui.getString(R.string.kcal_unit);
+        String metrics = "📏 " + distText + "  🔥 " + kcalText;
 
-        StringBuilder cd = new StringBuilder(stepsText).append(' ')
-                .append(app.getString(R.string.widget_steps_label));
-        if (medium) cd.append(", ").append(streakText);
-        if (!status.isEmpty()) cd.append(", ").append(status);
+        StringBuilder cd = new StringBuilder(stepsText).append(' ').append(stepsLabel);
+        if (medium) {
+            v.setTextViewText(R.id.widget_goal, ui.getString(R.string.widget_steps_of_goal,
+                    stepsText, nf.format(s.goal)) + " " + stepsLabel);
+            v.setTextViewText(R.id.widget_metrics, metrics);
+            // the action the user must take first, otherwise the streak with the sync time
+            String line = (s.stale || !s.loggedIn) ? join(status, streakText) : join(streakText, status);
+            v.setTextViewText(R.id.widget_status, line);
+            cd.append(", ").append(metrics).append(", ").append(line);
+        } else {
+            // small: when today's synced steps are unknown the hint takes the count's place
+            v.setTextViewText(R.id.widget_status, s.stale ? status : "");
+            v.setViewVisibility(R.id.widget_status, s.stale ? View.VISIBLE : View.GONE);
+            v.setViewVisibility(R.id.widget_steps, s.stale ? View.GONE : View.VISIBLE);
+            if (!status.isEmpty()) cd.append(", ").append(status);
+        }
         v.setContentDescription(R.id.widget_root, cd.toString());
 
-        Intent open = new Intent(app, MainActivity.class);
+        Intent open = new Intent(ui, MainActivity.class);
         open.setAction("OPEN_MAIN_ACTIVITY");
-        PendingIntent pi = PendingIntent.getActivity(app, 0, open,
-                PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pi = PendingIntent.getActivity(ui, 0, open, PendingIntent.FLAG_IMMUTABLE);
         v.setOnClickPendingIntent(R.id.widget_root, pi);
         return v;
+    }
+
+    private static String join(String first, String second) {
+        if (first.isEmpty()) return second;
+        if (second.isEmpty()) return first;
+        return first + " · " + second;
+    }
+
+    /** AuraView's dark-mode lift: dark companion colours get a minimum brightness so they stay visible. */
+    private static int visibleRingColor(int color, boolean night) {
+        if (!night) return color;
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        if (hsv[2] < 0.72f) hsv[2] = 0.72f;
+        return Color.HSVToColor(hsv);
     }
 }

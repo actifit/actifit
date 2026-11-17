@@ -17,6 +17,38 @@ final class WidgetState {
     private WidgetState() {
     }
 
+    // dashboard activity rings (MainActivity.renderDashboardRings): distance/8 km, calories/500 kcal,
+    // step-derived estimates when there is no real source
+    static final float DISTANCE_GOAL_M = 8000f;
+    static final float KCAL_GOAL = 500f;
+    static final float STRIDE_M = 0.762f;
+    static final float KCAL_PER_STEP = 0.04f;
+
+    /** Step-derived distance estimate in metres. */
+    static float estimateDistanceMeters(int steps) {
+        return Math.max(0, steps) * STRIDE_M;
+    }
+
+    /** Step-derived calorie estimate. */
+    static float estimateKcal(int steps) {
+        return Math.max(0, steps) * KCAL_PER_STEP;
+    }
+
+    /** Ring progress 0..100 for {@code value} towards {@code goal}. */
+    static int ringPercent(float value, float goal) {
+        if (!(value > 0f)) return 0; // also NaN
+        if (goal <= 0f) return 100;
+        return (int) Math.min(100f, value * 100f / goal);
+    }
+
+    /**
+     * A cached synced value is today's when its stored date equals today in either format the app
+     * writes (default-locale digits, or English digits).
+     */
+    static boolean isToday(String storedDate, String todayDefaultLocale, String todayEnglish) {
+        return !isStale(storedDate, todayDefaultLocale) || !isStale(storedDate, todayEnglish);
+    }
+
     /** Ring progress 0..100 for {@code steps} towards {@code goal}; never negative, never above 100. */
     static int progressPercent(int steps, int goal) {
         if (steps <= 0) return 0;

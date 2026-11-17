@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Progress ring for the steps widget: a ProgressBar progressDrawable, driven by RemoteViews.setProgressBar -->
+<!-- Steps widget steps ring (ProgressBar progressDrawable, driven by RemoteViews.setProgressBar).
+     Ratios are relative to the view width; with the layouts' 10.4% / 20.8% insets the three rings
+     share one stroke width and a small gap, like the dashboard's AuraView. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape
-            android:innerRadiusRatio="2.6"
+            android:innerRadiusRatio="2.34"
             android:shape="ring"
-            android:thicknessRatio="11"
+            android:thicknessRatio="13.7"
             android:useLevel="false">
-            <solid android:color="@color/widget_ring_track" />
+            <solid android:color="@color/widget_ring_steps_track" />
         </shape>
     </item>
     <item android:id="@android:id/progress">
@@ -17,11 +19,11 @@
             android:pivotY="50%"
             android:toDegrees="270">
             <shape
-                android:innerRadiusRatio="2.6"
+                android:innerRadiusRatio="2.34"
                 android:shape="ring"
-                android:thicknessRatio="11"
+                android:thicknessRatio="13.7"
                 android:useLevel="true">
-                <solid android:color="@color/widget_ring_progress" />
+                <solid android:color="@color/widget_ring_steps" />
             </shape>
         </rotate>
     </item>
