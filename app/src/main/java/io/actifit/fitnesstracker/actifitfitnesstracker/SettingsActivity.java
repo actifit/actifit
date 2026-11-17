@@ -68,6 +68,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+
+import androidx.health.connect.client.PermissionController;
 
 public class SettingsActivity extends BaseActivity {
 
@@ -110,6 +113,8 @@ public class SettingsActivity extends BaseActivity {
 
     private ActivityResultLauncher<Intent> backupLauncher;
     private ActivityResultLauncher<Intent> restoreLauncher;
+    private ActivityResultLauncher<Set<String>> hcWorkoutsPermLauncher;
+    private CheckBox hcShowWorkoutsBox;
 
     /*@Bind(R.id.main_toolbar)
     Toolbar toolbar;*/
@@ -697,6 +702,40 @@ public class SettingsActivity extends BaseActivity {
         fitbitBtn.setOnClickListener(v -> FitbitRetired.show(this, R.string.fitbit_retired_choose_hc,
                 () -> healthConnectBtn.setChecked(true)));
 
+        // opt-in "Show my workouts" (Health Connect only). The exercise permission is asked for
+        // only from here, never on the first Health Connect screen; steps never depend on it.
+        // Saved right away (not on Save) because it goes with a permission prompt.
+        final LinearLayout hcWorkoutsSection = findViewById(R.id.hc_workouts_section);
+        hcShowWorkoutsBox = findViewById(R.id.hc_show_workouts);
+        hcWorkoutsSection.setVisibility(healthConnectBtn.isChecked() ? View.VISIBLE : View.GONE);
+        hcShowWorkoutsBox.setChecked(HealthConnectManager.isShowWorkoutsEnabled(this));
+        hcWorkoutsPermLauncher = registerForActivityResult(
+                PermissionController.createRequestPermissionResultContract(),
+                granted -> setShowWorkouts(granted.contains(HealthConnectManager.PERM_EXERCISE), true));
+        hcShowWorkoutsBox.setOnClickListener(v -> {
+            if (!hcShowWorkoutsBox.isChecked()) {
+                setShowWorkouts(false, false);
+                return;
+            }
+            HealthConnectManager hcm = new HealthConnectManager(this);
+            if (!hcm.isHealthConnectAvailable()) {
+                setShowWorkouts(false, true);
+                return;
+            }
+            hcm.hasWorkoutPermission().whenComplete((has, e) -> runOnUiThread(() -> {
+                if (Boolean.TRUE.equals(has)) {
+                    setShowWorkouts(true, false);
+                    return;
+                }
+                try {
+                    hcWorkoutsPermLauncher.launch(HealthConnectManager.workoutPermissions);
+                } catch (Exception ex) {
+                    Log.e(MainActivity.TAG, "Could not request the workouts permission", ex);
+                    setShowWorkouts(false, true);
+                }
+            }));
+        });
+
         RadioGroup trackingModeRadiogroup = findViewById(R.id.tracking_mode_radiogroup);
 
         //capture change event for radiobutton group to reflect on user available options
@@ -704,6 +743,8 @@ public class SettingsActivity extends BaseActivity {
         {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+                hcWorkoutsSection.setVisibility(healthConnectBtn.isChecked() ? View.VISIBLE : View.GONE);
 
                 if (healthConnectBtn.isChecked()){
                     aggModeSection.setVisibility(View.GONE);
@@ -1209,6 +1250,16 @@ public class SettingsActivity extends BaseActivity {
             metricSysRadioBtn.setChecked(true);
         }
 
+    }
+
+    /** Saves the "Show my workouts" choice; a refused permission switches it back off. */
+    private void setShowWorkouts(boolean on, boolean notifyIfOff) {
+        getSharedPreferences("actifitSets", MODE_PRIVATE).edit()
+                .putBoolean(HealthConnectManager.PREF_SHOW_WORKOUTS, on).apply();
+        if (hcShowWorkoutsBox != null) hcShowWorkoutsBox.setChecked(on);
+        if (!on && notifyIfOff) {
+            Toast.makeText(this, R.string.hc_show_workouts_denied, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void removeBeneficiary(int index, String data) {

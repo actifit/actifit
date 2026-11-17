@@ -996,6 +996,69 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Today's workouts (Health Connect mode, "Show my workouts" on). Rows are added in
+                 MainActivity.updateHcWorkoutsCard; hidden when off or when there are none.
+                 Workouts are for the record only: rewards are based on steps. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/hc_workouts_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:visibility="gone"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:cardBackgroundColor="@color/md_theme_cardBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_awesome_6_solid"
+                            android:textColor="@color/actifitRed"
+                            android:textSize="14sp"
+                            android:text="&#xf44b;"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="8dp"
+                            android:text="@string/hc_workouts_card_title"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/md_theme_onSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/hc_workouts_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:text="@string/hc_workouts_footnote"
+                        android:textColor="@color/md_theme_textSecondary"
+                        android:textSize="12sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Arena card: the user's most urgent challenge, or an invitation to the open ones.
                  Filled and shown by ArenaHomeCard. -->
             <com.google.android.material.card.MaterialCardView

@@ -595,6 +595,13 @@
     <string name="success_workout_plan_saved">Plano de treino salvo!</string>
     <string name="dialog_message_insufficient_afit_part1">Você precisa de</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Mostrar os meus treinos</string>
+    <string name="hc_show_workouts_note">Lê as suas sessões de exercício do Health Connect (apenas tipo e duração) para as mostrar no painel e no seu relatório. Os treinos não contam para as recompensas; as recompensas baseiam-se nos passos.</string>
+    <string name="hc_show_workouts_denied">Os treinos continuam ocultos: o Health Connect não permitiu o acesso às sessões de exercício.</string>
+    <string name="hc_workouts_card_title">Treinos de hoje</string>
+    <string name="hc_workouts_footnote">Os treinos são mostrados como registo; as recompensas baseiam-se nos passos.</string>
+    <string name="hc_workouts_minutes">%1$d min</string>
+    <string name="hc_workouts_manual">introduzido manualmente</string>
 	<string name="sync_health_connect_btn">Sincronizar Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Sincronizar Dados</string>

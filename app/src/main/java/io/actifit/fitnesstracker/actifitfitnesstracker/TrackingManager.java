@@ -363,6 +363,14 @@ public class TrackingManager {
                             ((MainActivity) context).updateHcDashboardRings(hcSteps, distM, kcal);
                         }
                     });
+                    // then today's workouts (opt-in; empty when "Show my workouts" is off). Shown
+                    // for the record only; they never count toward rewards.
+                    healthConnectManager.readWorkouts(ZonedDateTime.now()).whenComplete((workouts, wThrowable) ->
+                            ((Activity) context).runOnUiThread(() -> {
+                                if (context instanceof MainActivity) {
+                                    ((MainActivity) context).updateHcWorkoutsCard(workouts);
+                                }
+                            }));
                 });
 
                 View barChartContainer = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
@@ -426,6 +434,11 @@ public class TrackingManager {
             try {
                 String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem", context.getString(R.string.device_tracking_ntt));
                 chartManager.hideCharts();
+                // the workouts card belongs to Health Connect mode only
+                if (!dataTrackingSystem.equals(context.getString(R.string.health_connect_tracking_ntt))
+                        && context instanceof MainActivity) {
+                    ((MainActivity) context).updateHcWorkoutsCard(null);
+                }
 
                 if (dataTrackingSystem.equals(context.getString(R.string.fitbit_tracking_ntt))) {
                     View thirdPartyTracking = ((android.app.Activity) context).findViewById(R.id.third_party_active);

@@ -143,6 +143,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
     // tracks whether user synched his HealthConnect data
     private static int healthConnectSyncDone = 0;
 
+    // Health Connect workouts for the report date, read after a Health Connect sync when
+    // "Show my workouts" is on. Shown in the post and its metadata; never part of rewards.
+    private volatile List<WorkoutMapper.Workout> hcWorkouts = null;
+
     // tracks whether user wants to post yesterday's data instead
     private static boolean yesterdayReport = false;
 
@@ -719,6 +723,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                 syncAgainNotice.setVisibility(View.VISIBLE);
                 healthConnectSyncDone = 0;
             }
+            hcWorkouts = null;
 
             if (checkedId == R.id.report_today_option) {// we have today's option
                 // set initial steps display value
@@ -1395,6 +1400,24 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     gpsVerified = null;
                 }
 
+                // Health Connect workouts (additive only: one extra English body line and a new
+                // "workouts" field). For the record only; rewards stay based on steps.
+                JSONArray workoutsJson = null;
+                List<WorkoutMapper.Workout> workouts = hcWorkouts;
+                if (healthConnectSyncDone == 1 && workouts != null && !workouts.isEmpty()) {
+                    try {
+                        String workoutsLine = WorkoutMapper.postBodyLine(workouts);
+                        JSONArray arr = WorkoutMapper.toJson(workouts);
+                        if (workoutsLine != null && arr.length() > 0) {
+                            postContent = postContent + "\n\n" + workoutsLine;
+                            workoutsJson = arr;
+                        }
+                    } catch (Exception e) {
+                        Log.e(MainActivity.TAG, "Adding workouts failed", e);
+                        workoutsJson = null;
+                    }
+                }
+
                 // prepare data to be sent along post
                 final JSONObject data = new JSONObject();
                 try {
@@ -1436,6 +1459,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     // GPS-verified route summary (new, additive field)
                     if (gpsVerified != null) {
                         data.put("gps_verified", gpsVerified);
+                    }
+
+                    // Health Connect workouts (new, additive field; never counts toward rewards)
+                    if (workoutsJson != null) {
+                        data.put("workouts", workoutsJson);
                     }
 
                     // appending security param values
@@ -1879,6 +1907,38 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
+    /**
+     * Reads the report day's Health Connect workouts (empty unless "Show my workouts" is on) and
+     * pre-selects the matching activity chips. The user can still change the selection.
+     */
+    private void loadHcWorkouts(ZonedDateTime day) {
+        hcWorkouts = null;
+        healthConnectManager.readWorkouts(day).whenComplete((workouts, t) -> {
+            if (t != null || workouts == null || workouts.isEmpty()) return;
+            hcWorkouts = workouts;
+            runOnUiThread(() -> {
+                for (String key : WorkoutMapper.distinctKeys(workouts)) {
+                    int id = getResources().getIdentifier(key, "string", getPackageName());
+                    if (id == 0) continue;
+                    checkActivityChip(getString(id));
+                }
+            });
+        });
+    }
+
+    private void checkActivityChip(String label) {
+        for (ChipGroup group : new ChipGroup[]{activityChipGroup, activityChipGroupMore}) {
+            if (group == null) continue;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                Chip chip = (Chip) group.getChildAt(i);
+                if (label.contentEquals(chip.getText())) {
+                    chip.setChecked(true);
+                    return;
+                }
+            }
+        }
+    }
+
     private Chip createActivityChip(String label) {
         Chip chip = new Chip(this);
         chip.setText(label);
@@ -2003,6 +2063,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                     runOnUiThread(() -> {
                                         stepCountContainer.setText(String.valueOf(steps));
                                         healthConnectSyncDone = 1;
+                                        loadHcWorkouts(day);
 
                                         // Store date of last sync to avoid improper use of older data
                                         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets",

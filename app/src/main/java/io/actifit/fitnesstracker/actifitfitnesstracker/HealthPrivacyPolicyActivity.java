@@ -10,6 +10,10 @@ import android.os.Bundle;
  * Health Connect on Android 13 and below refuses to show its permission screen unless the app
  * declares an activity for ACTION_SHOW_PERMISSIONS_RATIONALE (the privacy policy link). Without it
  * the permission request closes instantly and nothing is granted.
+ *
+ * Data read from Health Connect: steps, distance and active calories, and, only when the user
+ * turns on "Show my workouts", exercise sessions (type and duration only). Keep the privacy policy
+ * page in step with this list.
  */
 public class HealthPrivacyPolicyActivity extends Activity {
 

@@ -606,6 +606,13 @@
     <string name="success_workout_plan_saved">تم حفظ خطة التمرين!</string>
     <string name="dialog_message_insufficient_afit_part1">أنت بحاجة إلى</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">عرض تماريني</string>
+    <string name="hc_show_workouts_note">يقرأ جلسات التمرين من Health Connect (النوع والمدة فقط) لعرضها في لوحتك وفي تقريرك. لا تُحتسب التمارين ضمن المكافآت؛ فالمكافآت تعتمد على الخطوات.</string>
+    <string name="hc_show_workouts_denied">ستبقى التمارين مخفية: لم يسمح Health Connect بالوصول إلى جلسات التمرين.</string>
+    <string name="hc_workouts_card_title">تمارين اليوم</string>
+    <string name="hc_workouts_footnote">تُعرض التمارين للاطلاع فقط؛ المكافآت تعتمد على الخطوات.</string>
+    <string name="hc_workouts_minutes">%1$d د</string>
+    <string name="hc_workouts_manual">مُدخل يدويًا</string>
     <string name="sync_health_connect_btn">مزامنة Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">مزامنة البيانات</string>

@@ -594,6 +594,13 @@
     <string name="success_workout_plan_saved">锻炼计划已保存！</string>
     <string name="dialog_message_insufficient_afit_part1">您需要</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">显示我的锻炼</string>
+    <string name="hc_show_workouts_note">从 Health Connect 读取你的锻炼记录（仅类型和时长），显示在主页和报告中。锻炼不计入奖励，奖励以步数为准。</string>
+    <string name="hc_show_workouts_denied">锻炼将保持隐藏：Health Connect 未允许访问锻炼记录。</string>
+    <string name="hc_workouts_card_title">今日锻炼</string>
+    <string name="hc_workouts_footnote">锻炼仅供记录显示；奖励以步数为准。</string>
+    <string name="hc_workouts_minutes">%1$d 分钟</string>
+    <string name="hc_workouts_manual">手动输入</string>
     <string name="sync_health_connect_btn">同步 Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">同步数据</string>

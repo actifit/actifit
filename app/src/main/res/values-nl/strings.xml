@@ -595,6 +595,13 @@
     <string name="success_workout_plan_saved">Trainingsplan opgeslagen!</string>
     <string name="dialog_message_insufficient_afit_part1">Je hebt</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Mijn workouts tonen</string>
+    <string name="hc_show_workouts_note">Leest je trainingssessies uit Health Connect (alleen type en duur) om ze op je dashboard en in je verslag te tonen. Workouts tellen niet mee voor beloningen; beloningen zijn gebaseerd op stappen.</string>
+    <string name="hc_show_workouts_denied">Workouts blijven verborgen: Health Connect heeft geen toegang tot trainingssessies gegeven.</string>
+    <string name="hc_workouts_card_title">Workouts van vandaag</string>
+    <string name="hc_workouts_footnote">Workouts worden getoond als overzicht; beloningen zijn gebaseerd op stappen.</string>
+    <string name="hc_workouts_minutes">%1$d min</string>
+    <string name="hc_workouts_manual">handmatig ingevoerd</string>
 	<string name="sync_health_connect_btn">Health Connect synchroniseren</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Gegevens Synchroniseren</string>

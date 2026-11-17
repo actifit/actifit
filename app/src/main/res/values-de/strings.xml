@@ -599,6 +599,13 @@
     <string name="success_workout_plan_saved">Trainingsplan gespeichert!</string>
     <string name="dialog_message_insufficient_afit_part1">Du benötigst</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Meine Workouts anzeigen</string>
+    <string name="hc_show_workouts_note">Liest deine Trainingseinheiten aus Health Connect (nur Art und Dauer), um sie auf deinem Dashboard und in deinem Bericht anzuzeigen. Workouts zählen nicht für Belohnungen; Belohnungen basieren auf Schritten.</string>
+    <string name="hc_show_workouts_denied">Workouts bleiben ausgeblendet: Health Connect hat den Zugriff auf Trainingseinheiten nicht erlaubt.</string>
+    <string name="hc_workouts_card_title">Heutige Workouts</string>
+    <string name="hc_workouts_footnote">Workouts werden nur zur Übersicht angezeigt; Belohnungen basieren auf Schritten.</string>
+    <string name="hc_workouts_minutes">%1$d Min.</string>
+    <string name="hc_workouts_manual">manuell eingetragen</string>
     <string name="sync_health_connect_btn">Health Connect synchronisieren</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Daten synchronisieren</string>

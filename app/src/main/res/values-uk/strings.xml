@@ -581,6 +581,13 @@
     <string name="success_workout_plan_saved">План тренувань збережено!</string>
     <string name="dialog_message_insufficient_afit_part1">Вам потрібно</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Показувати мої тренування</string>
+    <string name="hc_show_workouts_note">Зчитує ваші тренування з Health Connect (лише тип і тривалість), щоб показувати їх на панелі та у звіті. Тренування не зараховуються до винагород; винагороди нараховуються за кроки.</string>
+    <string name="hc_show_workouts_denied">Тренування залишаться прихованими: Health Connect не дозволив доступ до тренувань.</string>
+    <string name="hc_workouts_card_title">Сьогоднішні тренування</string>
+    <string name="hc_workouts_footnote">Тренування показано для довідки; винагороди нараховуються за кроки.</string>
+    <string name="hc_workouts_minutes">%1$d хв</string>
+    <string name="hc_workouts_manual">введено вручну</string>
     <string name="sync_health_connect_btn">Синхронізувати Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Синхронізувати дані</string>

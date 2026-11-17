@@ -594,6 +594,13 @@
     <string name="success_workout_plan_saved">Antrenman planı kaydedildi!</string>
     <string name="dialog_message_insufficient_afit_part1">Şuna ihtiyacınız var</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Antrenmanlarımı göster</string>
+    <string name="hc_show_workouts_note">Egzersiz oturumlarınızı panonuzda ve raporunuzda göstermek için Health Connect\'ten okur (yalnızca tür ve süre). Antrenmanlar ödüllere sayılmaz; ödüller adımlara dayanır.</string>
+    <string name="hc_show_workouts_denied">Antrenmanlar gizli kalacak: Health Connect egzersiz oturumlarına erişime izin vermedi.</string>
+    <string name="hc_workouts_card_title">Bugünkü antrenmanlar</string>
+    <string name="hc_workouts_footnote">Antrenmanlar kayıt amacıyla gösterilir; ödüller adımlara dayanır.</string>
+    <string name="hc_workouts_minutes">%1$d dk</string>
+    <string name="hc_workouts_manual">elle girildi</string>
     <string name="sync_health_connect_btn">Health Connect\'ı senkronize et</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Veri Senkronize Et</string>
