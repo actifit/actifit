@@ -1059,16 +1059,17 @@ public class MainActivity extends BaseActivity {
         scaler.setRepeatMode(Animation.REVERSE);
         scaler.setRepeatCount(Animation.INFINITE);
 
+        int fitbitStepCount = 0;
         if (!sharedPreferences.getString("dataTrackingSystem",
                         ctx.getString(R.string.device_tracking_ntt))
                 .equals(ctx.getString(R.string.device_tracking_ntt))) {
             if (mStepsDBHelper == null) {
                 mStepsDBHelper = new StepsDBHelper(ctx);
             }
-            chartManager.loadThenRender(mStepsDBHelper::fetchTodayStepCount, steps -> displayActivityChartFitbit(steps, true));
-        } else {
-            displayActivityChartFitbit(0, true);
+            // outside device mode this reads the synced count from prefs, not the DB
+            fitbitStepCount = mStepsDBHelper.fetchTodayStepCount();
         }
+        displayActivityChartFitbit(fitbitStepCount, true);
 
         TextView fitbitSync = findViewById(R.id.sync);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
