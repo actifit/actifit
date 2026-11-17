@@ -917,6 +917,8 @@
     <string name="widget_synced_at">Synchronisiert %1$s</string>
     <string name="widget_open_to_sync">Actifit zum Synchronisieren öffnen</string>
     <string name="widget_login_hint">Melde dich an, um AFIT zu verdienen</string>
+    <string name="widget_steps_percent">%1$s%% Schritte</string>
+    <string name="widget_open_to_sync_short">Zum Sync öffnen</string>
 </resources>
 
 

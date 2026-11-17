@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android 12+: the platform's widget internal padding (system_app_widget_internal_padding,
-         16dp in AOSP). That resource is not public, so its value is mirrored here. -->
+    <!-- Android 12+: no launcher padding. 16dp mirrors the platform's (non-public)
+         system_app_widget_internal_padding; WidgetState.SIZES is budgeted for it. -->
     <dimen name="widget_padding">16dp</dimen>
+    <dimen name="widget_padding_tight">8dp</dimen>
 </resources>

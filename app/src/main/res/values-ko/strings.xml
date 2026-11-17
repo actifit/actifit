@@ -904,6 +904,8 @@
     <string name="widget_synced_at">동기화됨 %1$s</string>
     <string name="widget_open_to_sync">동기화하려면 Actifit을 여세요</string>
     <string name="widget_login_hint">로그인하고 AFIT을 받으세요</string>
+    <string name="widget_steps_percent">걸음 %1$s%%</string>
+    <string name="widget_open_to_sync_short">열어서 동기화</string>
 </resources>
 
 

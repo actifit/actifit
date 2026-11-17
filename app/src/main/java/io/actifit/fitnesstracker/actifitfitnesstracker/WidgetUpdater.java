@@ -243,25 +243,12 @@ final class WidgetUpdater {
             WidgetAvatar.pruneOtherUsers(app, s.loggedIn ? s.user : null);
             Bitmap avatar = s.loggedIn ? WidgetAvatar.cached(app, s.user) : null;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // the launcher picks the largest entry that fits; thresholds match WidgetState.layoutFor
-                // and WidgetState.showsFooter
+                // the launcher picks the closest fitting entry; WidgetState.sizeEntry mirrors that rule
                 Map<SizeF, RemoteViews> sized = new HashMap<>();
-                float min = WidgetState.COMPACT_MIN_DP;
-                float narrow = WidgetState.NARROW_MIN_DP;
-                sized.put(new SizeF(min, min),
-                        build(ui, s, animal, avatar, WidgetState.LAYOUT_COMPACT, false));
-                sized.put(new SizeF(WidgetState.COMPACT_STEPS_MIN_WIDTH_DP, min),
-                        build(ui, s, animal, avatar, WidgetState.LAYOUT_COMPACT, true));
-                sized.put(new SizeF(narrow, narrow),
-                        build(ui, s, animal, avatar, WidgetState.LAYOUT_NARROW, false));
-                sized.put(new SizeF(WidgetState.SMALL_MIN_WIDTH_DP, WidgetState.SMALL_MIN_HEIGHT_DP),
-                        build(ui, s, animal, avatar, WidgetState.LAYOUT_SMALL, false));
-                sized.put(new SizeF(WidgetState.SMALL_MIN_WIDTH_DP, WidgetState.SMALL_FOOTER_MIN_HEIGHT_DP),
-                        build(ui, s, animal, avatar, WidgetState.LAYOUT_SMALL, true));
-                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, WidgetState.MEDIUM_MIN_HEIGHT_DP),
-                        build(ui, s, animal, avatar, WidgetState.LAYOUT_MEDIUM, false));
-                sized.put(new SizeF(WidgetState.MEDIUM_MIN_WIDTH_DP, WidgetState.MEDIUM_FOOTER_MIN_HEIGHT_DP),
-                        build(ui, s, animal, avatar, WidgetState.LAYOUT_MEDIUM, true));
+                for (int[] entry : WidgetState.SIZES) {
+                    sized.put(new SizeF(entry[0], entry[1]),
+                            build(ui, s, animal, avatar, entry[2], entry[3] == 1));
+                }
                 mgr.updateAppWidget(ids, new RemoteViews(sized));
             } else {
                 for (int id : ids) {
@@ -269,10 +256,8 @@ final class WidgetUpdater {
                     int w = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0) : 0;
                     // portrait size: MIN_WIDTH is the portrait width, MAX_HEIGHT the portrait height
                     int h = opts != null ? opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0) : 0;
-                    int layout = WidgetState.layoutFor(w, h);
-                    boolean extra = layout == WidgetState.LAYOUT_COMPACT
-                            ? WidgetState.compactShowsSteps(w) : WidgetState.showsFooter(layout, h);
-                    mgr.updateAppWidget(id, build(ui, s, animal, avatar, layout, extra));
+                    int[] entry = WidgetState.sizeEntry(w, h);
+                    mgr.updateAppWidget(id, build(ui, s, animal, avatar, entry[2], entry[3] == 1));
                 }
             }
 
@@ -452,8 +437,8 @@ final class WidgetUpdater {
             return v;
         }
         if (narrow) {
-            // when today's synced steps are unknown the hint takes the count's place
-            if (s.stale) v.setTextViewText(R.id.widget_steps, status);
+            // when today's synced steps are unknown the (short) hint takes the count's place
+            if (s.stale) v.setTextViewText(R.id.widget_steps, ui.getString(R.string.widget_open_to_sync_short));
             v.setContentDescription(R.id.widget_root, join(stepsText + " " + stepsLabel, status));
             return v;
         }
@@ -469,7 +454,8 @@ final class WidgetUpdater {
         if (companionTint != null) {
             v.setColorStateList(R.id.widget_dot_steps, "setImageTintList", companionTint);
         }
-        String stepsRow = stepsLabel + " " + stepsPct + "%";
+        // stale: the percent is unknown like the count, so it shows the same dash
+        String stepsRow = ui.getString(R.string.widget_steps_percent, s.stale ? "\u2013" : nf.format(stepsPct));
         String distText = (s.distanceEstimated ? "≈" : "") + Utils.formatDistance(ui, s.distanceM);
         String kcalText = (s.kcalEstimated ? "≈" : "") + Math.round(s.kcal) + " " + ui.getString(R.string.kcal_unit);
         v.setTextViewText(R.id.widget_row_steps, stepsRow);
@@ -486,12 +472,21 @@ final class WidgetUpdater {
                 ? ui.getString(R.string.day_streak_label, s.streak)
                 : ui.getString(R.string.no_streak_yet));
         boolean mustAct = s.stale || !s.loggedIn;
-        String footer = mustAct ? join(status, streakText) : join(streakText, status);
-        v.setTextViewText(R.id.widget_footer, footer);
-        v.setViewVisibility(R.id.widget_footer, extra || mustAct ? View.VISIBLE : View.GONE);
+        // the footer's height is only budgeted when the size entry has room for it, and not with
+        // enlarged system fonts
+        boolean footer = extra && ui.getResources().getConfiguration().fontScale <= WidgetState.LARGE_FONT_SCALE;
+        String footerText = mustAct ? join(status, streakText) : join(streakText, status);
+        v.setTextViewText(R.id.widget_footer, footerText);
+        v.setViewVisibility(R.id.widget_footer, footer ? View.VISIBLE : View.GONE);
+        // no room for the footer but the user must act: the hint takes the distance + kcal rows' place
+        boolean hint = mustAct && !footer;
+        v.setTextViewText(R.id.widget_hint, hint ? status : "");
+        v.setViewVisibility(R.id.widget_hint, hint ? View.VISIBLE : View.GONE);
+        v.setViewVisibility(R.id.widget_row_distance_line, hint ? View.GONE : View.VISIBLE);
+        v.setViewVisibility(R.id.widget_row_kcal_line, hint ? View.GONE : View.VISIBLE);
 
-        v.setContentDescription(R.id.widget_root, stepsText + " " + stepsLabel + ", " + stepsPct + "%, "
-                + distText + ", " + kcalText + ", " + footer);
+        v.setContentDescription(R.id.widget_root, stepsText + " " + stepsLabel + ", " + stepsRow + ", "
+                + distText + ", " + kcalText + ", " + footerText);
         return v;
     }
 

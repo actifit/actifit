@@ -70,6 +70,7 @@
         android:autoSizeMaxTextSize="14sp"
         android:autoSizeMinTextSize="9sp"
         android:autoSizeTextType="uniform"
+        android:ellipsize="end"
         android:gravity="center"
         android:maxLines="1"
         android:textColor="@color/widget_text_primary"

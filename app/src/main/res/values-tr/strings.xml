@@ -913,5 +913,7 @@
     <string name="widget_synced_at">Senkronize edildi %1$s</string>
     <string name="widget_open_to_sync">Senkronize etmek için Actifit\'i aç</string>
     <string name="widget_login_hint">AFIT kazanmak için giriş yap</string>
+    <string name="widget_steps_percent">%%%1$s adım</string>
+    <string name="widget_open_to_sync_short">Senkron için aç</string>
 </resources>
 

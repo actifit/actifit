@@ -177,54 +177,64 @@ public class WidgetStateTest {
         assertTrue(WidgetState.shouldPush(T0 - 5000, T0, 100, 120, GOAL, false));
     }
 
-    // ---- layout choice by size
+    // ---- layout choice by size (same rule as Android 12's size map: closest fitting entry)
 
     @Test
     public void unknownSizeGetsTheDefaultLayout() {
         assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(0, 0));
-        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(250, 0));
+        assertTrue(WidgetState.extraFor(250, 0));
     }
 
     @Test
-    public void typicalTwoByTwoIsSmallAndWideIsMedium() {
+    public void typicalTwoByTwoIsSmallWithFooterAndWideIsMedium() {
         assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(170, 180));   // Pixel-like 2x2
-        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(160, 126));
-        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(300, 130));   // wide but short
-        assertEquals(WidgetState.LAYOUT_MEDIUM, WidgetState.layoutFor(230, 142));
+        assertTrue(WidgetState.extraFor(170, 180));
+        assertEquals(WidgetState.LAYOUT_SMALL, WidgetState.layoutFor(300, 140));   // wide but short
+        assertFalse(WidgetState.extraFor(300, 140));
         assertEquals(WidgetState.LAYOUT_MEDIUM, WidgetState.layoutFor(340, 180));
+        assertTrue(WidgetState.extraFor(340, 180));
+        assertEquals(WidgetState.LAYOUT_MEDIUM, WidgetState.layoutFor(240, 155));
+        assertFalse(WidgetState.extraFor(240, 155));
     }
 
     @Test
     public void tightTwoByTwoIsNarrow() {
         assertEquals(WidgetState.LAYOUT_NARROW, WidgetState.layoutFor(110, 110));  // legacy 2x2 minimum
-        assertEquals(WidgetState.LAYOUT_NARROW, WidgetState.layoutFor(159, 200));
-        assertEquals(WidgetState.LAYOUT_NARROW, WidgetState.layoutFor(200, 125));
+        assertEquals(WidgetState.LAYOUT_NARROW, WidgetState.layoutFor(150, 150));
         assertEquals(WidgetState.LAYOUT_NARROW, WidgetState.layoutFor(96, 96));
+    }
+
+    @Test
+    public void wideButShortPicksTheClosestFitLikeTheLauncher() {
+        // 200x100 and 159x97 are closer to the compact+steps entry than to narrow
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(200, 100));
+        assertTrue(WidgetState.extraFor(200, 100));
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(159, 97));
     }
 
     @Test
     public void oneByOneAndTwoByOneAreCompact() {
         assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(60, 60));   // 1x1
-        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(130, 57));  // 2x1
-        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(250, 60));  // 4x1: too short for rings + text
-        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(70, 200));  // 1x3: too narrow
+        assertFalse(WidgetState.extraFor(60, 60));
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(130, 70));  // 2x1
+        assertTrue(WidgetState.extraFor(130, 70));
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(250, 60));  // 4x1
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(70, 200));  // 1x3
+        assertEquals(WidgetState.LAYOUT_COMPACT, WidgetState.layoutFor(40, 40));   // below everything: smallest
     }
 
     @Test
-    public void compactShowsStepsOnlyWithRoom() {
-        assertFalse(WidgetState.compactShowsSteps(60));
-        assertFalse(WidgetState.compactShowsSteps(109));
-        assertTrue(WidgetState.compactShowsSteps(110));
+    public void everyEntryIsChosenAtItsOwnSize() {
+        for (int[] e : WidgetState.SIZES) {
+            assertEquals(e, WidgetState.sizeEntry(e[0], e[1]));
+        }
     }
 
     @Test
-    public void footerIsDroppedFirstOnShortWidgets() {
-        assertFalse(WidgetState.showsFooter(WidgetState.LAYOUT_SMALL, 143));
-        assertTrue(WidgetState.showsFooter(WidgetState.LAYOUT_SMALL, 144));
-        assertFalse(WidgetState.showsFooter(WidgetState.LAYOUT_MEDIUM, 159));
-        assertTrue(WidgetState.showsFooter(WidgetState.LAYOUT_MEDIUM, 160));
-        assertTrue(WidgetState.showsFooter(WidgetState.LAYOUT_SMALL, 0));
-        assertFalse(WidgetState.showsFooter(WidgetState.LAYOUT_NARROW, 200));
-        assertFalse(WidgetState.showsFooter(WidgetState.LAYOUT_COMPACT, 200));
+    public void footerNeedsItsHeight() {
+        assertFalse(WidgetState.extraFor(170, 151));
+        assertTrue(WidgetState.extraFor(170, 152));
+        assertFalse(WidgetState.extraFor(240, 168));
+        assertTrue(WidgetState.extraFor(240, 169));
     }
 }

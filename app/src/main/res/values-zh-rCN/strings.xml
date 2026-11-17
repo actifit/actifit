@@ -903,6 +903,8 @@
     <string name="widget_synced_at">已同步 %1$s</string>
     <string name="widget_open_to_sync">打开 Actifit 进行同步</string>
     <string name="widget_login_hint">登录以赚取 AFIT</string>
+    <string name="widget_steps_percent">步数 %1$s%%</string>
+    <string name="widget_open_to_sync_short">打开以同步</string>
 </resources>
 
 

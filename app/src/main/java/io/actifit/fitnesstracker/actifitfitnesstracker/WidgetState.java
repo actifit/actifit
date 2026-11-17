@@ -11,27 +11,38 @@ final class WidgetState {
     /** Device-sensor pushes are throttled to at most one per this interval. */
     static final long PUSH_INTERVAL_MS = 60_000L;
 
-    // Layouts, smallest first. The size thresholds below are the dp each layout needs, budgeted for
-    // the largest padding in use (16dp: Android 12+'s system_app_widget_internal_padding).
+    // Layouts, smallest first.
     static final int LAYOUT_COMPACT = 0; // rings + animal (+ steps when there is room): 1x1, 2x1
     static final int LAYOUT_NARROW = 1;  // rings over the step count: short or narrow 2x2
     static final int LAYOUT_SMALL = 2;   // 2x2: header, rings + stats column, footer
     static final int LAYOUT_MEDIUM = 3;  // wide: as small, with bigger rings and "x / goal"
 
-    /** Smallest supported size (dp): compact 44dp rings + 8dp padding each side. */
+    /**
+     * The sizes (dp) each layout variant needs, smallest first: {width, height, layout, extra}, where
+     * extra = compact: the step count beside the rings; small / medium: the footer. Budgeted for the
+     * largest padding in use (16dp + 16dp), real TextView heights (~14.6dp per 11sp line) and ~6dp
+     * headroom:
+     *  - compact: 44dp rings + 2 x 8dp padding; with steps from 110dp wide;
+     *  - narrow: 8 + 56dp rings + 2 + 18dp count + 8 (+4);
+     *  - small: 16 + 20dp header + ~75dp stats column (count 22 + 3 rows of ~17.6) + 16 (+6),
+     *    footer +19; 16 + 64dp rings + 10 + ~54dp stats + 16 wide;
+     *  - medium: as small with the "x / goal" line (~92dp column), 72dp rings.
+     * Android 12+ hands this table to RemoteViews(Map) and the launcher picks the closest fitting
+     * entry; {@link #sizeEntry} applies the same rule for older versions, so both always agree.
+     */
+    static final int[][] SIZES = {
+            {60, 60, LAYOUT_COMPACT, 0},
+            {110, 60, LAYOUT_COMPACT, 1},
+            {96, 96, LAYOUT_NARROW, 0},
+            {160, 133, LAYOUT_SMALL, 0},
+            {160, 152, LAYOUT_SMALL, 1},
+            {230, 150, LAYOUT_MEDIUM, 0},
+            {230, 169, LAYOUT_MEDIUM, 1},
+    };
+    /** Smallest supported size (dp), the provider's minResize. */
     static final int COMPACT_MIN_DP = 60;
-    /** The compact layout shows the step count from this width (dp), e.g. 2x1. */
-    static final int COMPACT_STEPS_MIN_WIDTH_DP = 110;
-    /** Narrower or shorter than this the compact layout is used (narrow: 56dp rings + steps + 8dp padding). */
-    static final int NARROW_MIN_DP = 96;
-    /** Small: 16 + 64dp rings + 10 + stats column + 16 wide; 16 + 20dp header + ~73dp stats column + 16 tall (+18 footer). */
-    static final int SMALL_MIN_WIDTH_DP = 160;
-    static final int SMALL_MIN_HEIGHT_DP = 126;
-    static final int SMALL_FOOTER_MIN_HEIGHT_DP = 144;
-    /** Medium: 72dp rings; the stats column (~89dp with the "x / goal" line) sets the height (+18 footer). */
-    static final int MEDIUM_MIN_WIDTH_DP = 230;
-    static final int MEDIUM_MIN_HEIGHT_DP = 142;
-    static final int MEDIUM_FOOTER_MIN_HEIGHT_DP = 160;
+    /** Above this font scale the footer is dropped (its height budget assumes ~1x text). */
+    static final float LARGE_FONT_SCALE = 1.15f;
 
     private WidgetState() {
     }
@@ -146,31 +157,34 @@ final class WidgetState {
     }
 
     /**
-     * Layout for a widget of {@code widthDp} x {@code heightDp} (pre-Android 12: the launcher's
-     * reported size; Android 12+ uses the same thresholds as its size map). Unknown (0) sizes get
-     * the default 2x2 layout.
+     * The {@link #SIZES} entry for a widget of {@code widthDp} x {@code heightDp}, chosen like
+     * Android 12's RemoteViews(Map): among the entries that fit, the one closest to the widget size
+     * (squared distance); when none fits, the smallest. Unknown (0) sizes get the default 2x2 with
+     * its footer.
      */
+    static int[] sizeEntry(int widthDp, int heightDp) {
+        if (widthDp <= 0 || heightDp <= 0) return SIZES[4];
+        int[] best = null;
+        float bestDist = Float.MAX_VALUE;
+        for (int[] e : SIZES) {
+            if (e[0] > widthDp || e[1] > heightDp) continue;
+            float dw = widthDp - e[0];
+            float dh = heightDp - e[1];
+            float dist = dw * dw + dh * dh;
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = e;
+            }
+        }
+        return best != null ? best : SIZES[0];
+    }
+
     static int layoutFor(int widthDp, int heightDp) {
-        if (widthDp <= 0 || heightDp <= 0) return LAYOUT_SMALL;
-        if (widthDp < NARROW_MIN_DP || heightDp < NARROW_MIN_DP) return LAYOUT_COMPACT;
-        if (widthDp < SMALL_MIN_WIDTH_DP || heightDp < SMALL_MIN_HEIGHT_DP) return LAYOUT_NARROW;
-        if (widthDp >= MEDIUM_MIN_WIDTH_DP && heightDp >= MEDIUM_MIN_HEIGHT_DP) return LAYOUT_MEDIUM;
-        return LAYOUT_SMALL;
+        return sizeEntry(widthDp, heightDp)[2];
     }
 
-    /**
-     * Whether the small / medium layout has room for the streak footer at this height (it is the
-     * first thing dropped on a short widget; text is not shrunk). Unknown (0) heights keep it.
-     */
-    static boolean showsFooter(int layout, int heightDp) {
-        if (heightDp <= 0) return true;
-        if (layout == LAYOUT_MEDIUM) return heightDp >= MEDIUM_FOOTER_MIN_HEIGHT_DP;
-        if (layout == LAYOUT_SMALL) return heightDp >= SMALL_FOOTER_MIN_HEIGHT_DP;
-        return false;
-    }
-
-    /** Whether the compact layout has room for the step count next to the rings. */
-    static boolean compactShowsSteps(int widthDp) {
-        return widthDp >= COMPACT_STEPS_MIN_WIDTH_DP;
+    /** compact: show the step count; small / medium: show the footer. */
+    static boolean extraFor(int widthDp, int heightDp) {
+        return sizeEntry(widthDp, heightDp)[3] == 1;
     }
 }

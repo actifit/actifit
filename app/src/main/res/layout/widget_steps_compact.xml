@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Steps widget, compact (1x1 / 2x1): the three rings around the companion, plus today's steps
-     beside them when there is room (WidgetState.compactShowsSteps). -->
+     beside them when there is room (WidgetState.SIZES). -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"

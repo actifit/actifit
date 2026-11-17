@@ -902,6 +902,8 @@
     <string name="widget_synced_at">Ti mú ṣiṣẹ́pọ̀ %1$s</string>
     <string name="widget_open_to_sync">Ṣí Actifit láti mú ṣiṣẹ́pọ̀</string>
     <string name="widget_login_hint">Wọlé láti jèrè AFIT</string>
+    <string name="widget_steps_percent">%1$s%% ìgbésẹ̀</string>
+    <string name="widget_open_to_sync_short">Ṣí láti mú ṣiṣẹ́pọ̀</string>
 </resources>
 
 

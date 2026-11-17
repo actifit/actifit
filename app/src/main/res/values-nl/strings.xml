@@ -912,6 +912,8 @@
     <string name="widget_synced_at">Gesynchroniseerd %1$s</string>
     <string name="widget_open_to_sync">Open Actifit om te synchroniseren</string>
     <string name="widget_login_hint">Log in om AFIT te verdienen</string>
+    <string name="widget_steps_percent">%1$s%% stappen</string>
+    <string name="widget_open_to_sync_short">Open om te syncen</string>
 </resources>
 
 

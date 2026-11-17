@@ -914,6 +914,8 @@
     <string name="widget_synced_at">सिंक किया गया %1$s</string>
     <string name="widget_open_to_sync">सिंक करने के लिए Actifit खोलें</string>
     <string name="widget_login_hint">AFIT कमाने के लिए लॉग इन करें</string>
+    <string name="widget_steps_percent">%1$s%% कदम</string>
+    <string name="widget_open_to_sync_short">सिंक हेतु खोलें</string>
 </resources>
 
 
