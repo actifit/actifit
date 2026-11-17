@@ -61,6 +61,9 @@ public class TrackingManager {
     private Intent mServiceIntent;
     private ActivityMonitorService mSensorService;
 
+    // set once the last 30 days were re-read with manual step entries excluded (see #141)
+    private static final String PREF_MANUAL_RULE_BACKFILL_DONE = "hcManualRuleBackfillDone";
+
     public TrackingManager(Context context, Activity activity) {
         this.context = context;
         this.activity = activity;
@@ -382,7 +385,16 @@ public class TrackingManager {
                     });
                     int hcEntryCount = mStepsDBHelper.readHCStepsEntries().size();
                     Log.d(TAG, "HC entry count: " + hcEntryCount);
-                    if (hcEntryCount < 30) {
+                    if (!sharedPreferences.getBoolean(PREF_MANUAL_RULE_BACKFILL_DONE, false)) {
+                        // one-time after upgrade: re-read the last 30 days so totals saved before
+                        // manual entries were excluded are recomputed with the new rule. Runs on the
+                        // backfill thread; the flag is set once it completes.
+                        Log.d(TAG, "Re-reading 30 days of HC history with the manual-entry rule");
+                        healthConnectManager.backfillHCHistory(mStepsDBHelper, 30, () -> {
+                            sharedPreferences.edit().putBoolean(PREF_MANUAL_RULE_BACKFILL_DONE, true).apply();
+                            heatmapRefresh.run();
+                        });
+                    } else if (hcEntryCount < 30) {
                         Log.d(TAG, "HC table has fewer than 30 days — triggering backfill for " + (30 - hcEntryCount) + " missing days");
                         healthConnectManager.backfillHCHistory(mStepsDBHelper, 30, heatmapRefresh);
                     } else {

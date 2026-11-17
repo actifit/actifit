@@ -19,6 +19,7 @@ import androidx.health.connect.client.request.AggregateRequest;
 import androidx.health.connect.client.request.ReadRecordsRequest;
 import androidx.health.connect.client.response.ReadRecordsResponse;
 import androidx.health.connect.client.time.TimeRangeFilter;
+import androidx.health.connect.client.records.metadata.DataOrigin;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -216,38 +217,6 @@ public class HealthConnectManager {
         });
     }
 
-    public CompletableFuture<Long> readStepsData(ZonedDateTime day) {
-        if (healthConnectClient == null) {
-            return CompletableFuture.completedFuture(0L);
-        }
-        return hasAllPermissions().thenCompose(hasPermissions -> {
-            if (!hasPermissions) {
-                Log.d(TAG, "Permissions not granted for reading steps, returning 0.");
-                return CompletableFuture.completedFuture(0L);
-            }
-
-            Instant startOfDay = day.truncatedTo(ChronoUnit.DAYS).toInstant();
-            Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
-            TimeRangeFilter timeRangeFilter = TimeRangeFilter.between(startOfDay, endOfDay);
-
-            // Health Connect aggregation de-duplicates overlapping step records across data
-            // origins (e.g. Samsung Health plus a system source) via its priority list, so we don't
-            // double count. Steps typed in by hand are then taken out (see HcRewardSteps).
-            return aggregateSteps(timeRangeFilter).thenCombine(readAllStepRecords(timeRangeFilter),
-                    (total, records) -> {
-                        long rewardSteps = HcRewardSteps.rewardSteps(total,
-                                manualSteps(records), bestOriginTotal(nonManualStepsByOrigin(records)));
-                        Log.d(TAG, "Aggregated " + total + " de-duplicated steps for " + day.toLocalDate()
-                                + ", " + rewardSteps + " count for rewards");
-                        return rewardSteps;
-                    });
-        }).exceptionally(e -> {
-            Log.e(TAG, "Error in the readStepsData pipeline", e);
-            return 0L; 
-        });
-    }
-
-
     private static final int HC_MAX_READ_RETRIES = 2;
 
     public CompletableFuture<Long> readAndPersistStepsData(ZonedDateTime day, StepsDBHelper db) {
@@ -329,73 +298,94 @@ public class HealthConnectManager {
             CompletableFuture<Long> totalFuture = aggregateSteps(timeRangeFilter);
             CompletableFuture<List<StepsRecord>> recordsFuture = readAllStepRecords(timeRangeFilter);
 
-            return totalFuture.thenCombine(recordsFuture, (total, records) -> {
-                // Pick the primary (highest-priority) data origin: the non-manual source that
-                // contributed the most steps for the day. Using a single origin for the per-slot
-                // breakdown de-duplicates the case where two apps mirror the same steps (which is
-                // what previously doubled the raw sum), while still reflecting real per-slot timing.
-                Map<String, Long> stepsByOrigin = nonManualStepsByOrigin(records);
-
-                String primaryOrigin = null;
-                long bestOriginTotal = -1;
-                for (Map.Entry<String, Long> entry : stepsByOrigin.entrySet()) {
-                    if (entry.getValue() > bestOriginTotal) {
-                        bestOriginTotal = entry.getValue();
-                        primaryOrigin = entry.getKey();
-                    }
-                }
-
-                // Bucket only the primary origin's records into 15-min slots, keyed by start time.
-                Map<Integer, Integer> slotCounts = new HashMap<>();
-                if (primaryOrigin != null) {
-                    for (StepsRecord record : records) {
-                        if (record.getMetadata().getRecordingMethod()
-                                == Metadata.RECORDING_METHOD_MANUAL_ENTRY) {
-                            continue;
-                        }
-                        if (!primaryOrigin.equals(
-                                record.getMetadata().getDataOrigin().getPackageName())) {
-                            continue;
-                        }
-                        LocalDateTime ldt = LocalDateTime.ofInstant(
-                                record.getStartTime(), ZoneId.systemDefault());
-                        slotCounts.merge(bucketTimeSlot(ldt), (int) record.getCount(), Integer::sum);
-                    }
-                }
-                // Wipe the day's existing slots first so a re-sync fully replaces any stale
-                // (e.g. previously smeared) values instead of leaving orphan slots behind.
-                db.clearHCSlots(dateStr);
-                for (Map.Entry<Integer, Integer> slot : slotCounts.entrySet()) {
-                    db.upsertHCSlot(dateStr, slot.getKey(), slot.getValue());
-                }
-
-                long aggregateSteps = (total != null) ? total : 0L;
-                long manual = manualSteps(records);
-                long totalSteps = HcRewardSteps.rewardSteps(aggregateSteps, manual,
-                        Math.max(0L, bestOriginTotal));
-                long excluded = aggregateSteps - totalSteps;
-                if (excluded > 0) {
-                    Log.d(TAG, "Excluded " + excluded + " manually entered steps from the reward count for "
-                            + dateStr + " (aggregate " + aggregateSteps + ", manual " + manual + ")");
-                    flagManualStepsExcluded();
-                }
-                if (records.isEmpty()) {
-                    Log.w(TAG, "No Health Connect step data found for " + dateStr
-                            + " — source app (e.g. Samsung Health) may not be writing steps to Health Connect.");
-                }
-                db.upsertHCSummary(dateStr, (int) totalSteps);
-                Log.d(TAG, "Persisted reward total " + totalSteps + " for " + dateStr
-                        + "; per-slot detail from primary origin " + primaryOrigin
-                        + " across " + slotCounts.size() + " slots");
-                return totalSteps;
-            });
+            // When manual entries exist, a second aggregate limited to the apps that wrote
+            // automatic records gives the de-duplicated total without manual-only apps; any
+            // failure here propagates to the retry path (never fall back to counting manual steps).
+            return totalFuture.thenCompose(total -> recordsFuture.thenCompose(records -> {
+                Map<String, Long> auto = nonManualStepsByOrigin(records);
+                Map<String, Long> manual = manualStepsByOrigin(records);
+                CompletableFuture<Long> filteredFuture = HcRewardSteps.needsFilteredAggregate(auto, manual)
+                        ? aggregateSteps(timeRangeFilter, HcRewardSteps.filterOrigins(auto))
+                        : CompletableFuture.completedFuture(0L);
+                return filteredFuture.thenApply(filtered ->
+                        persistDay(dateStr, db, total, records, auto, manual, filtered));
+            }));
         });
     }
 
+    /** Writes the day's 15-min slots and reward total; returns the reward total. */
+    private long persistDay(String dateStr, StepsDBHelper db, Long total, List<StepsRecord> records,
+                            Map<String, Long> stepsByOrigin, Map<String, Long> manualByOrigin,
+                            long filteredAggregate) {
+        // Pick the primary (highest-priority) data origin: the non-manual source that
+        // contributed the most steps for the day. Using a single origin for the per-slot
+        // breakdown de-duplicates the case where two apps mirror the same steps (which is
+        // what previously doubled the raw sum), while still reflecting real per-slot timing.
+        String primaryOrigin = null;
+        long bestOriginTotal = -1;
+        for (Map.Entry<String, Long> entry : stepsByOrigin.entrySet()) {
+            if (entry.getValue() > bestOriginTotal) {
+                bestOriginTotal = entry.getValue();
+                primaryOrigin = entry.getKey();
+            }
+        }
+
+        // Bucket only the primary origin's records into 15-min slots, keyed by start time.
+        Map<Integer, Integer> slotCounts = new HashMap<>();
+        if (primaryOrigin != null) {
+            for (StepsRecord record : records) {
+                if (record.getMetadata().getRecordingMethod()
+                        == Metadata.RECORDING_METHOD_MANUAL_ENTRY) {
+                    continue;
+                }
+                if (!primaryOrigin.equals(
+                        record.getMetadata().getDataOrigin().getPackageName())) {
+                    continue;
+                }
+                LocalDateTime ldt = LocalDateTime.ofInstant(
+                        record.getStartTime(), ZoneId.systemDefault());
+                slotCounts.merge(bucketTimeSlot(ldt), (int) record.getCount(), Integer::sum);
+            }
+        }
+        // Wipe the day's existing slots first so a re-sync fully replaces any stale
+        // (e.g. previously smeared) values instead of leaving orphan slots behind.
+        db.clearHCSlots(dateStr);
+        for (Map.Entry<Integer, Integer> slot : slotCounts.entrySet()) {
+            db.upsertHCSlot(dateStr, slot.getKey(), slot.getValue());
+        }
+
+        long aggregateSteps = (total != null) ? total : 0L;
+        long totalSteps = HcRewardSteps.rewardSteps(aggregateSteps, stepsByOrigin,
+                manualByOrigin, filteredAggregate);
+        long excluded = aggregateSteps - totalSteps;
+        if (excluded > 0) {
+            Log.d(TAG, "Excluded " + excluded + " manually entered steps from the reward count for "
+                    + dateStr + " (aggregate " + aggregateSteps + ", filtered " + filteredAggregate
+                    + ", manual by app " + manualByOrigin + ")");
+        }
+        flagManualStepsExcluded(excluded);
+        if (records.isEmpty()) {
+            Log.w(TAG, "No Health Connect step data found for " + dateStr
+                    + " — source app (e.g. Samsung Health) may not be writing steps to Health Connect.");
+        }
+        db.upsertHCSummary(dateStr, (int) totalSteps);
+        Log.d(TAG, "Persisted reward total " + totalSteps + " for " + dateStr
+                + "; per-slot detail from primary origin " + primaryOrigin
+                + " across " + slotCounts.size() + " slots");
+        return totalSteps;
+    }
+
     private CompletableFuture<Long> aggregateSteps(TimeRangeFilter timeRangeFilter) {
+        return aggregateSteps(timeRangeFilter, Collections.emptySet());
+    }
+
+    /** COUNT_TOTAL over the range; a non-empty origins set limits it to those apps. */
+    private CompletableFuture<Long> aggregateSteps(TimeRangeFilter timeRangeFilter, Set<String> origins) {
         Set<AggregateMetric<?>> metrics = new HashSet<>();
         metrics.add(StepsRecord.COUNT_TOTAL);
-        AggregateRequest request = new AggregateRequest(metrics, timeRangeFilter, Collections.emptySet());
+        Set<DataOrigin> originFilter = new HashSet<>();
+        for (String pkg : origins) originFilter.add(new DataOrigin(pkg));
+        AggregateRequest request = new AggregateRequest(metrics, timeRangeFilter, originFilter);
         return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
                 (scope, continuation) -> {
                     try {
@@ -443,9 +433,15 @@ public class HealthConnectManager {
             acc.addAll(res.getRecords());
             String next = res.getPageToken();
             boolean more = next != null && !next.isEmpty();
-            if (!more || page + 1 >= HC_RECORDS_MAX_PAGES) {
-                if (more) Log.w(TAG, "Stopped reading step records after " + (page + 1) + " pages");
+            if (!more) {
                 return CompletableFuture.completedFuture(acc);
+            }
+            if (page + 1 >= HC_RECORDS_MAX_PAGES) {
+                // fail closed: unseen records could hold manual steps, so never count a partial read
+                CompletableFuture<List<StepsRecord>> failed = new CompletableFuture<>();
+                failed.completeExceptionally(new IllegalStateException(
+                        "Too many step records: stopped after " + (page + 1) + " pages"));
+                return failed;
             }
             return readStepRecordsPage(timeRangeFilter, next, acc, page + 1);
         });
@@ -455,13 +451,15 @@ public class HealthConnectManager {
         return record.getMetadata().getRecordingMethod() == Metadata.RECORDING_METHOD_MANUAL_ENTRY;
     }
 
-    /** Sum of steps the user typed in by hand. */
-    private static long manualSteps(List<StepsRecord> records) {
-        long sum = 0;
+    /** Steps the user typed in by hand, per data origin (package name). */
+    private static Map<String, Long> manualStepsByOrigin(List<StepsRecord> records) {
+        Map<String, Long> byOrigin = new HashMap<>();
         for (StepsRecord record : records) {
-            if (isManualEntry(record)) sum += record.getCount();
+            if (!isManualEntry(record)) continue;
+            String origin = record.getMetadata().getDataOrigin().getPackageName();
+            byOrigin.merge(origin, record.getCount(), Long::sum);
         }
-        return sum;
+        return byOrigin;
     }
 
     /** Non-manual step totals per data origin (package name). */
@@ -475,24 +473,17 @@ public class HealthConnectManager {
         return stepsByOrigin;
     }
 
-    private static long bestOriginTotal(Map<String, Long> stepsByOrigin) {
-        long best = 0;
-        for (Long v : stepsByOrigin.values()) {
-            if (v != null && v > best) best = v;
-        }
-        return best;
-    }
-
     // Prefs flags for the one-time "manually entered steps no longer count" note.
     static final String PREF_MANUAL_NOTE_PENDING = "hcManualStepsNotePending";
     static final String PREF_MANUAL_NOTE_SHOWN = "hcManualStepsNoteShown";
 
-    private void flagManualStepsExcluded() {
+    private void flagManualStepsExcluded(long excluded) {
+        if (excluded <= 0) return;
         try {
             android.content.SharedPreferences prefs =
                     context.getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
-            if (!prefs.getBoolean(PREF_MANUAL_NOTE_SHOWN, false)
-                    && !prefs.getBoolean(PREF_MANUAL_NOTE_PENDING, false)) {
+            if (HcRewardSteps.shouldFlagNote(excluded, prefs.getBoolean(PREF_MANUAL_NOTE_SHOWN, false),
+                    prefs.getBoolean(PREF_MANUAL_NOTE_PENDING, false))) {
                 prefs.edit().putBoolean(PREF_MANUAL_NOTE_PENDING, true).apply();
             }
         } catch (Exception e) {
@@ -509,8 +500,8 @@ public class HealthConnectManager {
         if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
         android.content.SharedPreferences prefs =
                 activity.getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
-        if (!prefs.getBoolean(PREF_MANUAL_NOTE_PENDING, false)
-                || prefs.getBoolean(PREF_MANUAL_NOTE_SHOWN, false)) {
+        if (!HcRewardSteps.shouldShowNote(prefs.getBoolean(PREF_MANUAL_NOTE_PENDING, false),
+                prefs.getBoolean(PREF_MANUAL_NOTE_SHOWN, false))) {
             return;
         }
         prefs.edit().putBoolean(PREF_MANUAL_NOTE_SHOWN, true)
