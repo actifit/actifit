@@ -17,6 +17,8 @@ import com.airbnb.lottie.LottieResult;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A still of the companion's Lottie animation for the home-screen widget (RemoteViews cannot host
@@ -35,29 +37,57 @@ final class WidgetAnimal {
 
     private static String cachedKey;
     private static Bitmap cachedBitmap;
+    /** Keys whose render failed in this process: not re-parsed on every push (the emoji is shown). */
+    private static final Set<String> failedKeys = new HashSet<>();
 
     private WidgetAnimal() {
     }
 
     /** The companion still, or null when it could not be rendered (the caller shows the emoji). Widget thread only. */
     static Bitmap get(Context app, int companion, boolean wilting) {
-        String key = "widget_animal_v" + CACHE_VERSION + "_" + companion + (wilting ? "_w" : "");
+        String key = cacheKey(companion, wilting);
         if (key.equals(cachedKey) && cachedBitmap != null) return cachedBitmap;
+        if (failedKeys.contains(key)) return null;
 
         File file = new File(app.getCacheDir(), key + ".png");
         Bitmap bmp = file.isFile() ? BitmapFactory.decodeFile(file.getPath()) : null;
         if (bmp == null) {
             bmp = render(app, companion, wilting);
-            if (bmp == null) return null;
-            try (OutputStream out = new FileOutputStream(file)) {
-                bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-            } catch (Exception e) {
-                Log.w(TAG, "could not cache the widget animal", e);
+            if (bmp == null) {
+                failedKeys.add(key);
+                return null;
             }
+            writeCache(bmp, file);
         }
         cachedKey = key;
         cachedBitmap = bmp;
         return bmp;
+    }
+
+    /**
+     * Derived from the asset name (not the companion index), the wilting state and the app version, so
+     * a reordered or replaced animal, or an app update, never reuses an old file.
+     */
+    private static String cacheKey(int companion, boolean wilting) {
+        String asset = AuraView.companionLottieAsset(companion);
+        String name = asset.substring(asset.lastIndexOf('/') + 1).replace(".json", "");
+        return "widget_animal_v" + CACHE_VERSION + "_" + BuildConfig.VERSION_CODE + "_" + name
+                + (wilting ? "_w" : "");
+    }
+
+    /** Writes via a temp file + rename, so a failed or interrupted write never leaves a truncated PNG. */
+    private static void writeCache(Bitmap bmp, File file) {
+        File tmp = new File(file.getPath() + ".tmp");
+        boolean ok = false;
+        try (OutputStream out = new FileOutputStream(tmp)) {
+            ok = bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+        } catch (Exception e) {
+            Log.w(TAG, "could not cache the widget animal", e);
+        }
+        if (!ok || !tmp.renameTo(file)) {
+            //noinspection ResultOfMethodCallIgnored
+            tmp.delete();
+        }
     }
 
     private static Bitmap render(Context app, int companion, boolean wilting) {

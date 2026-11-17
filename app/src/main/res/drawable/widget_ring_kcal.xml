@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Steps widget kcal ring (ProgressBar progressDrawable, driven by RemoteViews.setProgressBar).
-     Ratios are relative to the view width; with the layouts' 10.4% / 20.8% insets the three rings
+     Ratios are relative to the view width; with the layouts' ~10% / ~21% insets the three rings
      share one stroke width and a small gap, like the dashboard's AuraView. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">

@@ -358,12 +358,9 @@ final class WidgetUpdater {
             // outer ring in the companion's colour, as on the dashboard (static Actifit red before 12)
             boolean night = Utils.isDarkModeActive(ui);
             int color = visibleRingColor(AuraView.auraColor(s.companion, s.level, s.wilting), night);
+            // only the progress layer: the track comes from values / values-night, which the launcher
+            // resolves itself, so a later light/dark switch never shows a track baked for the other mode
             v.setColorStateList(R.id.widget_ring_steps, "setProgressTintList", ColorStateList.valueOf(color));
-            if (!night) {
-                // light-mode track = ring colour at alpha 55 (dark mode keeps the neutral white track)
-                v.setColorStateList(R.id.widget_ring_steps, "setProgressBackgroundTintList",
-                        ColorStateList.valueOf((color & 0x00FFFFFF) | (55 << 24)));
-            }
         }
 
         if (animal != null) {

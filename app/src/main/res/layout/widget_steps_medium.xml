@@ -11,7 +11,7 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <!-- ring insets 10.4% / 20.8% of the size: see the widget_ring_* drawables -->
+    <!-- ring insets 10dp / 20dp of 96dp (10.4% / 20.8%): see the widget_ring_* drawables -->
     <FrameLayout
         android:layout_width="96dp"
         android:layout_height="96dp">

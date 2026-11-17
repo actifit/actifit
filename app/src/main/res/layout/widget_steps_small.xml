@@ -23,7 +23,7 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <!-- ring insets 10.4% / 20.8% of the size: see the widget_ring_* drawables -->
+        <!-- ring insets 8dp / 17dp of 80dp (10% / 21%): see the widget_ring_* drawables -->
         <FrameLayout
             android:layout_width="80dp"
             android:layout_height="80dp">
