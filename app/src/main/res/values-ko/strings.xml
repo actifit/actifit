@@ -595,6 +595,14 @@
     <string name="success_workout_plan_saved">운동 계획이 저장되었습니다!</string>
     <string name="dialog_message_insufficient_afit_part1">다음이 필요합니다</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">내 운동 표시</string>
+    <string name="hc_show_workouts_note">대시보드와 보고서에 표시하기 위해 Health Connect에서 운동 종류, 시간, 거리를 읽습니다. 포함한 운동은 공개 보고서와 함께 게시됩니다. 운동은 보상에 포함되지 않으며, 보상은 걸음 수를 기준으로 합니다.</string>
+    <string name="hc_show_workouts_denied">운동이 계속 숨겨집니다: Health Connect에서 운동 세션 접근을 허용하지 않았습니다.</string>
+    <string name="hc_show_workouts_unavailable">이 기기에서 Health Connect를 사용할 수 없어 운동을 표시할 수 없습니다.</string>
+    <string name="hc_workouts_card_title">오늘의 운동</string>
+    <string name="hc_workouts_footnote">운동은 기록용으로 표시되며, 보상은 걸음 수를 기준으로 합니다.</string>
+    <string name="hc_workouts_minutes">%1$d분</string>
+    <string name="hc_workouts_manual">직접 입력</string>
 	<string name="sync_health_connect_btn">Health Connect 동기화</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">데이터 동기화</string>
@@ -931,6 +939,17 @@
     <plurals name="badges_home_nudge">
         <item quantity="other">받을 수 있는 배지 %d개</item>
     </plurals>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">Actifit 걸음 수</string>
+    <string name="widget_description">오늘의 걸음 수, 목표 진행률, 연속 기록을 한눈에</string>
+    <string name="widget_steps_label">걸음</string>
+    <string name="widget_synced_at">동기화됨 %1$s</string>
+    <string name="widget_open_to_sync">동기화하려면 Actifit을 여세요</string>
+    <string name="widget_login_hint">로그인하고 AFIT을 받으세요</string>
+    <string name="widget_steps_percent">걸음 %1$s%%</string>
+    <string name="widget_open_to_sync_short">열어서 동기화</string>
+    <string name="hc_manual_steps_note_title">직접 입력한 걸음 수</string>
+    <string name="hc_manual_steps_note_body">Health Connect에 직접 입력한 걸음 수는 더 이상 Actifit 보상에 포함되지 않습니다. 휴대전화나 트래커가 기록한 걸음 수만 포함되므로 Actifit의 걸음 수가 Health Connect보다 적을 수 있습니다.</string>
 </resources>
 
 

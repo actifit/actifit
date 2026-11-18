@@ -598,6 +598,14 @@
     <string name="success_workout_plan_saved">¡Plan de entrenamiento guardado!</string>
     <string name="dialog_message_insufficient_afit_part1">Necesitas</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Mostrar mis entrenamientos</string>
+    <string name="hc_show_workouts_note">Lee el tipo, la duración y la distancia de tus entrenamientos desde Health Connect para mostrarlos en tu panel y en tu informe. Los entrenamientos que incluyas se publican con tu informe público. Los entrenamientos no cuentan para las recompensas; las recompensas se basan en los pasos.</string>
+    <string name="hc_show_workouts_denied">Los entrenamientos seguirán ocultos: Health Connect no permitió el acceso a las sesiones de ejercicio.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect no está disponible en este dispositivo, así que no se pueden mostrar los entrenamientos.</string>
+    <string name="hc_workouts_card_title">Entrenamientos de hoy</string>
+    <string name="hc_workouts_footnote">Los entrenamientos se muestran como registro; las recompensas se basan en los pasos.</string>
+    <string name="hc_workouts_minutes">%1$d min</string>
+    <string name="hc_workouts_manual">introducido manualmente</string>
     <string name="sync_health_connect_btn">Sincronizar Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Sincronizar Datos</string>
@@ -946,6 +954,17 @@
         <item quantity="one">%d insignia por reclamar</item>
         <item quantity="other">%d insignias por reclamar</item>
     </plurals>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">Pasos de Actifit</string>
+    <string name="widget_description">Tus pasos de hoy, el progreso de tu meta y tu racha de un vistazo</string>
+    <string name="widget_steps_label">pasos</string>
+    <string name="widget_synced_at">Sincronizado %1$s</string>
+    <string name="widget_open_to_sync">Abre Actifit para sincronizar</string>
+    <string name="widget_login_hint">Inicia sesión para ganar AFIT</string>
+    <string name="widget_steps_percent">%1$s%% pasos</string>
+    <string name="widget_open_to_sync_short">Abre para sincronizar</string>
+    <string name="hc_manual_steps_note_title">Pasos introducidos manualmente</string>
+    <string name="hc_manual_steps_note_body">Los pasos introducidos a mano en Health Connect ya no cuentan para las recompensas de Actifit. Solo cuentan los pasos registrados por tu teléfono o pulsera, así que tu recuento en Actifit puede ser menor que en Health Connect.</string>
 </resources>
 
 

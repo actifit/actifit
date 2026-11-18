@@ -606,6 +606,14 @@
     <string name="success_workout_plan_saved">تم حفظ خطة التمرين!</string>
     <string name="dialog_message_insufficient_afit_part1">أنت بحاجة إلى</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">عرض تماريني</string>
+    <string name="hc_show_workouts_note">يقرأ نوع التمرين ومدته ومسافته من Health Connect لعرضها في لوحتك وفي تقريرك. التمارين التي تُضمّنها تُنشر مع تقريرك العام. لا تُحتسب التمارين ضمن المكافآت؛ فالمكافآت تعتمد على الخطوات.</string>
+    <string name="hc_show_workouts_denied">ستبقى التمارين مخفية: لم يسمح Health Connect بالوصول إلى جلسات التمرين.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect غير متاح على هذا الجهاز، لذا لا يمكن عرض التمارين.</string>
+    <string name="hc_workouts_card_title">تمارين اليوم</string>
+    <string name="hc_workouts_footnote">تُعرض التمارين للاطلاع فقط؛ المكافآت تعتمد على الخطوات.</string>
+    <string name="hc_workouts_minutes">%1$d د</string>
+    <string name="hc_workouts_manual">مُدخل يدويًا</string>
     <string name="sync_health_connect_btn">مزامنة Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">مزامنة البيانات</string>
@@ -971,6 +979,17 @@
         <item quantity="many">%d شارة للاستلام</item>
         <item quantity="other">%d شارة للاستلام</item>
     </plurals>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">خطوات Actifit</string>
+    <string name="widget_description">خطوات اليوم والتقدّم نحو هدفك وسلسلة أيامك بنظرة واحدة</string>
+    <string name="widget_steps_label">خطوة</string>
+    <string name="widget_synced_at">تمت المزامنة %1$s</string>
+    <string name="widget_open_to_sync">افتح Actifit للمزامنة</string>
+    <string name="widget_login_hint">سجّل الدخول لكسب AFIT</string>
+    <string name="widget_steps_percent">%1$s%% خطوات</string>
+    <string name="widget_open_to_sync_short">افتح للمزامنة</string>
+    <string name="hc_manual_steps_note_title">الخطوات المُدخلة يدويًا</string>
+    <string name="hc_manual_steps_note_body">الخطوات التي تُدخلها يدويًا في Health Connect لم تعد تُحتسب ضمن مكافآت Actifit. تُحتسب فقط الخطوات التي يسجلها هاتفك أو جهاز التتبع، لذلك قد يكون عدد خطواتك في Actifit أقل منه في Health Connect.</string>
 </resources>
 
 

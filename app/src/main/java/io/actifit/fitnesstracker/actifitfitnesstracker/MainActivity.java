@@ -2718,15 +2718,7 @@ public class MainActivity extends BaseActivity {
 
         // Compute streak: consecutive days ending at today (skip today if inactive — day in progress)
         int todaySteps = stepsBack[0];
-        int startDaysBack = (todaySteps >= 5000) ? 0 : 1;
-        int streak = 0;
-        for (int daysBack = startDaysBack; daysBack < stepsBack.length; daysBack++) {
-            if (stepsBack[daysBack] >= 5000) {
-                streak++;
-            } else {
-                break;
-            }
-        }
+        int streak = WidgetState.streak(stepsBack);
 
         TextView tvStreakCount = findViewById(R.id.tv_streak_count);
         if (tvStreakCount != null) {
@@ -2752,6 +2744,96 @@ public class MainActivity extends BaseActivity {
     public void updateHcDashboardRings(int steps, float distanceMeters, float kcal) {
         renderDashboardRings(R.id.dashboard_rings_hc, R.id.step_ring_hc, R.id.tv_step_pct_hc,
                 steps, distanceMeters, kcal);
+    }
+
+    /**
+     * Fills the "Today's workouts" card (Health Connect mode). Hidden when the list is null/empty,
+     * which is also what the read returns when "Show my workouts" is off. Workouts are shown for
+     * the record only; rewards are based on steps. Call on the UI thread.
+     */
+    public void updateHcWorkoutsCard(List<WorkoutMapper.Workout> workouts) {
+        View card = findViewById(R.id.hc_workouts_card);
+        LinearLayout list = findViewById(R.id.hc_workouts_list);
+        if (card == null || list == null) return;
+        list.removeAllViews();
+        hcWorkoutsCardDay = null;
+        if (workouts == null || workouts.isEmpty()) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        hcWorkoutsCardDay = todayKey();
+        android.graphics.Typeface fa = null;
+        try {
+            fa = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.font_awesome_6_solid);
+        } catch (Exception ignored) {
+            // icon falls back to the default font
+        }
+        float density = getResources().getDisplayMetrics().density;
+        for (WorkoutMapper.Workout w : workouts) {
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            row.setPadding(0, (int) (4 * density), 0, (int) (4 * density));
+
+            TextView icon = new TextView(this);
+            icon.setText(workoutIcon(w.key));
+            if (fa != null) icon.setTypeface(fa);
+            icon.setTextColor(getResources().getColor(R.color.actifitRed));
+            icon.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            icon.setMinWidth((int) (22 * density));
+            row.addView(icon);
+
+            TextView type = new TextView(this);
+            String label = workoutLabel(w.key);
+            if (w.manual) label += " · " + getString(R.string.hc_workouts_manual);
+            type.setText(label);
+            type.setTextColor(getResources().getColor(R.color.md_theme_onSurface));
+            type.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+            row.addView(type, new LinearLayout.LayoutParams(0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+            TextView minutes = new TextView(this);
+            minutes.setText(getString(R.string.hc_workouts_minutes, w.minutes()));
+            minutes.setTextColor(getResources().getColor(R.color.md_theme_onSurface));
+            minutes.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+            minutes.setTypeface(minutes.getTypeface(), android.graphics.Typeface.BOLD);
+            row.addView(minutes);
+
+            list.addView(row);
+        }
+        card.setVisibility(View.VISIBLE);
+    }
+
+    // the day (yyyyMMdd) the workouts card was filled for; null when it is empty/hidden
+    private String hcWorkoutsCardDay = null;
+
+    private static String todayKey() {
+        return new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(Calendar.getInstance().getTime());
+    }
+
+    /** Hides the workouts card if it was filled on an earlier day (call on the UI thread). */
+    public void clearStaleHcWorkoutsCard() {
+        if (hcWorkoutsCardDay != null && !hcWorkoutsCardDay.equals(todayKey())) {
+            updateHcWorkoutsCard(null);
+        }
+    }
+
+    /** Localized activity name for a WorkoutMapper key (the keys are string resource names). */
+    String workoutLabel(String key) {
+        int id = getResources().getIdentifier(key, "string", getPackageName());
+        return id != 0 ? getString(id) : WorkoutMapper.englishLabel(key);
+    }
+
+    private static String workoutIcon(String key) {
+        switch (key) {
+            case "Cycling": return "";      // bicycle
+            case "Swimming": return "";     // person-swimming
+            case "Walking": return "";      // person-walking
+            case "Running":
+            case "Treadmill": return "";    // person-running
+            case "Hiking": return "";       // person-hiking
+            default: return "";             // dumbbell
+        }
     }
 
     /** Sensors/device mode: no real distance/calorie source, so both are step-derived estimates. */
@@ -2916,10 +2998,7 @@ public class MainActivity extends BaseActivity {
     private void requestAiInsight(int[] stepsBack, android.content.SharedPreferences prefs, String todayStr,
                                   View aiCard, TextView tvInsight) {
         int todaySteps = Math.max(stepsBack[0], 0);
-        int streakDays = 0;
-        for (int i = (stepsBack[0] >= 5000) ? 0 : 1; i < stepsBack.length; i++) {
-            if (stepsBack[i] >= 5000) streakDays++; else break;
-        }
+        int streakDays = WidgetState.streak(stepsBack);
         int totalSteps7d = 0;
         for (int i = 0; i < 7; i++) totalSteps7d += Math.max(stepsBack[i], 0);
         int avgSteps7d = totalSteps7d / 7;

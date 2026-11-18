@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+    <!-- optional: requested only from the "Show my workouts" setting; workouts never affect rewards -->
+    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
     <!--<uses-permission android:name="android.permission.health.READ_HEART_RATE" />-->
 
     <!--
@@ -257,6 +259,19 @@
             <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             <action android:name="android.intent.action.TIME_SET" />
         </intent-filter>
+    </receiver>
+
+    <!-- home-screen steps widget (#144) -->
+    <receiver
+        android:name=".StepsWidgetProvider"
+        android:exported="false"
+        android:label="@string/widget_name">
+        <intent-filter>
+            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        </intent-filter>
+        <meta-data
+            android:name="android.appwidget.provider"
+            android:resource="@xml/steps_widget_info" />
     </receiver>
 
     <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->

@@ -28,6 +28,8 @@ public class ActifitApplication extends Application {
             }
         }, "db-warmup").start();
         instance = this;
+        // keep the home-screen steps widget in step with syncs, tracking mode, goal and login
+        WidgetUpdater.watchAppPrefs(this);
         SharedPreferences sharedPreferences = getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
         boolean isDarkModeEnabled = sharedPreferences.getBoolean("theme_mode", false);
         AppCompatDelegate.setDefaultNightMode(

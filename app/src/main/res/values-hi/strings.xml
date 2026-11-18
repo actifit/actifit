@@ -595,6 +595,14 @@
     <string name="success_workout_plan_saved">वर्कआउट योजना सहेजी गई!</string>
     <string name="dialog_message_insufficient_afit_part1">आपको</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">मेरे वर्कआउट दिखाएँ</string>
+    <string name="hc_show_workouts_note">आपके डैशबोर्ड और रिपोर्ट में दिखाने के लिए Health Connect से आपके वर्कआउट का प्रकार, अवधि और दूरी पढ़ता है। जिन वर्कआउट को आप शामिल करते हैं, वे आपकी सार्वजनिक रिपोर्ट के साथ प्रकाशित होते हैं। वर्कआउट इनाम में नहीं गिने जाते; इनाम कदमों पर आधारित होते हैं।</string>
+    <string name="hc_show_workouts_denied">वर्कआउट छिपे रहेंगे: Health Connect ने व्यायाम सत्रों तक पहुँच की अनुमति नहीं दी।</string>
+    <string name="hc_show_workouts_unavailable">इस डिवाइस पर Health Connect उपलब्ध नहीं है, इसलिए वर्कआउट नहीं दिखाए जा सकते।</string>
+    <string name="hc_workouts_card_title">आज के वर्कआउट</string>
+    <string name="hc_workouts_footnote">वर्कआउट आपके रिकॉर्ड के लिए दिखाए जाते हैं; इनाम कदमों पर आधारित होते हैं।</string>
+    <string name="hc_workouts_minutes">%1$d मिनट</string>
+    <string name="hc_workouts_manual">हाथ से दर्ज</string>
 	<string name="sync_health_connect_btn">Health Connect सिंक करें</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">डेटा सिंक करें</string>
@@ -945,6 +953,17 @@
         <item quantity="one">प्राप्त करने के लिए %d बैज</item>
         <item quantity="other">प्राप्त करने के लिए %d बैज</item>
     </plurals>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">Actifit कदम</string>
+    <string name="widget_description">आज के कदम, लक्ष्य की प्रगति और स्ट्रीक एक नज़र में</string>
+    <string name="widget_steps_label">कदम</string>
+    <string name="widget_synced_at">सिंक किया गया %1$s</string>
+    <string name="widget_open_to_sync">सिंक करने के लिए Actifit खोलें</string>
+    <string name="widget_login_hint">AFIT कमाने के लिए लॉग इन करें</string>
+    <string name="widget_steps_percent">%1$s%% कदम</string>
+    <string name="widget_open_to_sync_short">सिंक हेतु खोलें</string>
+    <string name="hc_manual_steps_note_title">हाथ से दर्ज किए गए कदम</string>
+    <string name="hc_manual_steps_note_body">Health Connect में हाथ से दर्ज किए गए कदम अब Actifit इनाम में नहीं गिने जाते। केवल आपके फ़ोन या ट्रैकर द्वारा रिकॉर्ड किए गए कदम गिने जाते हैं, इसलिए Actifit में आपके कदम Health Connect से कम दिख सकते हैं।</string>
 </resources>
 
 
