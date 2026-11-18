@@ -581,6 +581,14 @@
     <string name="success_workout_plan_saved">План тренувань збережено!</string>
     <string name="dialog_message_insufficient_afit_part1">Вам потрібно</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Показувати мої тренування</string>
+    <string name="hc_show_workouts_note">Зчитує тип, тривалість і відстань ваших тренувань із Health Connect, щоб показувати їх на панелі та у звіті. Тренування, які ви додаєте, публікуються разом із вашим публічним звітом. Тренування не зараховуються до винагород; винагороди нараховуються за кроки.</string>
+    <string name="hc_show_workouts_denied">Тренування залишаться прихованими: Health Connect не дозволив доступ до тренувань.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect недоступний на цьому пристрої, тому тренування не можна показати.</string>
+    <string name="hc_workouts_card_title">Сьогоднішні тренування</string>
+    <string name="hc_workouts_footnote">Тренування показано для довідки; винагороди нараховуються за кроки.</string>
+    <string name="hc_workouts_minutes">%1$d хв</string>
+    <string name="hc_workouts_manual">введено вручну</string>
     <string name="sync_health_connect_btn">Синхронізувати Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Синхронізувати дані</string>
@@ -910,6 +918,8 @@
     <string name="arena_countdown_days">%1$d д %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Синхронізувати з Health Connect</string>
     <string name="steps_synced_from_health_connect">Кроки синхронізовано з Health Connect</string>
+    <string name="hc_manual_steps_note_title">Кроки, введені вручну</string>
+    <string name="hc_manual_steps_note_body">Кроки, введені вручну в Health Connect, більше не зараховуються до винагород Actifit. Зараховуються лише кроки, записані телефоном або трекером, тому кількість кроків в Actifit може бути меншою, ніж у Health Connect.</string>
 <string name="earnings_action_open_signup">Відкрити сторінку реєстрації</string>
 <string name="earnings_got_it">Зрозуміло</string>
 <string name="earnings_how_afit_timing">AFIT надходить протягом 48 год</string>

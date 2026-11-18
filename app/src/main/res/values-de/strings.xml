@@ -599,6 +599,14 @@
     <string name="success_workout_plan_saved">Trainingsplan gespeichert!</string>
     <string name="dialog_message_insufficient_afit_part1">Du benötigst</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Meine Workouts anzeigen</string>
+    <string name="hc_show_workouts_note">Liest Art, Dauer und Distanz deiner Workouts aus Health Connect, um sie auf deinem Dashboard und in deinem Bericht anzuzeigen. Workouts, die du einbeziehst, werden mit deinem öffentlichen Bericht veröffentlicht. Workouts zählen nicht für Belohnungen; Belohnungen basieren auf Schritten.</string>
+    <string name="hc_show_workouts_denied">Workouts bleiben ausgeblendet: Health Connect hat den Zugriff auf Trainingseinheiten nicht erlaubt.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect ist auf diesem Gerät nicht verfügbar, daher können keine Workouts angezeigt werden.</string>
+    <string name="hc_workouts_card_title">Heutige Workouts</string>
+    <string name="hc_workouts_footnote">Workouts werden nur zur Übersicht angezeigt; Belohnungen basieren auf Schritten.</string>
+    <string name="hc_workouts_minutes">%1$d Min.</string>
+    <string name="hc_workouts_manual">manuell eingetragen</string>
     <string name="sync_health_connect_btn">Health Connect synchronisieren</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Daten synchronisieren</string>
@@ -919,6 +927,8 @@
     <string name="widget_login_hint">Melde dich an, um AFIT zu verdienen</string>
     <string name="widget_steps_percent">%1$s%% Schritte</string>
     <string name="widget_open_to_sync_short">Zum Sync öffnen</string>
+    <string name="hc_manual_steps_note_title">Manuell eingegebene Schritte</string>
+    <string name="hc_manual_steps_note_body">Schritte, die von Hand in Health Connect eingetragen werden, zählen nicht mehr für Actifit-Belohnungen. Es zählen nur Schritte, die dein Handy oder Tracker aufzeichnet. Deine Schrittzahl in Actifit kann daher niedriger sein als in Health Connect.</string>
 </resources>
 
 

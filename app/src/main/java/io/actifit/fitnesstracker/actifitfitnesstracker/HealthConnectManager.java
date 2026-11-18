@@ -9,6 +9,7 @@ import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.permission.HealthPermission;
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord;
 import androidx.health.connect.client.records.DistanceRecord;
+import androidx.health.connect.client.records.ExerciseSessionRecord;
 //import androidx.health.connect.client.records.HeartRateRecord;
 import androidx.health.connect.client.records.StepsRecord;
 import androidx.health.connect.client.units.Energy;
@@ -19,6 +20,7 @@ import androidx.health.connect.client.request.AggregateRequest;
 import androidx.health.connect.client.request.ReadRecordsRequest;
 import androidx.health.connect.client.response.ReadRecordsResponse;
 import androidx.health.connect.client.time.TimeRangeFilter;
+import androidx.health.connect.client.records.metadata.DataOrigin;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -26,6 +28,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,6 +70,14 @@ public class HealthConnectManager {
             HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(DistanceRecord.class));
     public static final String PERM_CALORIES =
             HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(ActiveCaloriesBurnedRecord.class));
+
+    // optional workouts (exercise sessions). NEVER part of requestPermissions or the required gate:
+    // it is asked for only from the opt-in "Show my workouts" setting, and steps never depend on it.
+    public static final String PERM_EXERCISE =
+            HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(ExerciseSessionRecord.class));
+    public static final Set<String> workoutPermissions = Collections.singleton(PERM_EXERCISE);
+    /** SharedPreferences (actifitSets) flag for the opt-in "Show my workouts" setting. */
+    public static final String PREF_SHOW_WORKOUTS = "hcShowWorkouts";
 
     // what we ASK for on setup: steps + the optional metrics. The gate above still only needs
     // steps, so granting a subset never breaks Health Connect mode.
@@ -215,49 +226,6 @@ public class HealthConnectManager {
         });
     }
 
-    public CompletableFuture<Long> readStepsData(ZonedDateTime day) {
-        if (healthConnectClient == null) {
-            return CompletableFuture.completedFuture(0L);
-        }
-        return hasAllPermissions().thenCompose(hasPermissions -> {
-            if (!hasPermissions) {
-                Log.d(TAG, "Permissions not granted for reading steps, returning 0.");
-                return CompletableFuture.completedFuture(0L);
-            }
-
-            Instant startOfDay = day.truncatedTo(ChronoUnit.DAYS).toInstant();
-            Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
-            TimeRangeFilter timeRangeFilter = TimeRangeFilter.between(startOfDay, endOfDay);
-
-            // Use Health Connect aggregation rather than summing raw records. Aggregation
-            // de-duplicates overlapping step records across data origins (e.g. Samsung Health
-            // plus a system source) via Health Connect's priority list, so we don't double count.
-            Set<AggregateMetric<?>> metrics = new HashSet<>();
-            metrics.add(StepsRecord.COUNT_TOTAL);
-            AggregateRequest request = new AggregateRequest(metrics, timeRangeFilter, Collections.emptySet());
-
-            return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
-                    (scope, continuation) -> {
-                        try {
-                            return healthConnectClient.aggregate(request, continuation);
-                        } catch (Throwable e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-            ).thenApply(response -> {
-                AggregationResult result = (AggregationResult) response;
-                Long total = result.get(StepsRecord.COUNT_TOTAL);
-                long totalSteps = (total != null) ? total : 0L;
-                Log.d(TAG, "Aggregated " + totalSteps + " de-duplicated steps for " + day.toLocalDate());
-                return totalSteps;
-            });
-        }).exceptionally(e -> {
-            Log.e(TAG, "Error in the readStepsData pipeline", e);
-            return 0L; 
-        });
-    }
-
-
     private static final int HC_MAX_READ_RETRIES = 2;
 
     public CompletableFuture<Long> readAndPersistStepsData(ZonedDateTime day, StepsDBHelper db) {
@@ -334,107 +302,228 @@ public class HealthConnectManager {
             // breakdown into an identical value in every slot when the source writes coarse,
             // long-spanning records. So we read RAW records for the per-slot detail and bucket
             // each record by its real start time — preserving actual activity timing.
-            Set<AggregateMetric<?>> metrics = new HashSet<>();
-            metrics.add(StepsRecord.COUNT_TOTAL);
-            AggregateRequest aggregateRequest =
-                    new AggregateRequest(metrics, timeRangeFilter, Collections.emptySet());
+            // The raw records also tell us how many steps were typed in by hand; those are
+            // taken out of the reward total (see HcRewardSteps).
+            CompletableFuture<Long> totalFuture = aggregateSteps(timeRangeFilter);
+            CompletableFuture<List<StepsRecord>> recordsFuture = readAllStepRecords(timeRangeFilter);
 
-            CompletableFuture<Long> totalFuture = FutureKt.future(
-                    coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
-                    (scope, continuation) -> {
-                        try {
-                            return healthConnectClient.aggregate(aggregateRequest, continuation);
-                        } catch (Throwable e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-            ).thenApply(response -> {
-                AggregationResult result = (AggregationResult) response;
-                Long total = result.get(StepsRecord.COUNT_TOTAL);
-                return (total != null) ? total : 0L;
-            });
-
-            ReadRecordsRequest<StepsRecord> recordsRequest = new ReadRecordsRequest<>(
-                    JvmClassMappingKt.getKotlinClass(StepsRecord.class),
-                    timeRangeFilter,
-                    Collections.emptySet(),
-                    true,
-                    1000,
-                    null
-            );
-
-            CompletableFuture<List<StepsRecord>> recordsFuture = FutureKt.future(
-                    coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
-                    (scope, continuation) -> {
-                        try {
-                            return healthConnectClient.readRecords(recordsRequest, continuation);
-                        } catch (Throwable e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-            ).thenApply(response ->
-                    ((ReadRecordsResponse<StepsRecord>) response).getRecords());
-
-            return totalFuture.thenCombine(recordsFuture, (total, records) -> {
-                // Pick the primary (highest-priority) data origin: the non-manual source that
-                // contributed the most steps for the day. Using a single origin for the per-slot
-                // breakdown de-duplicates the case where two apps mirror the same steps (which is
-                // what previously doubled the raw sum), while still reflecting real per-slot timing.
-                Map<String, Long> stepsByOrigin = new HashMap<>();
-                for (StepsRecord record : records) {
-                    if (record.getMetadata().getRecordingMethod()
-                            == Metadata.RECORDING_METHOD_MANUAL_ENTRY) {
-                        continue;
-                    }
-                    String origin = record.getMetadata().getDataOrigin().getPackageName();
-                    stepsByOrigin.merge(origin, record.getCount(), Long::sum);
-                }
-
-                String primaryOrigin = null;
-                long bestOriginTotal = -1;
-                for (Map.Entry<String, Long> entry : stepsByOrigin.entrySet()) {
-                    if (entry.getValue() > bestOriginTotal) {
-                        bestOriginTotal = entry.getValue();
-                        primaryOrigin = entry.getKey();
-                    }
-                }
-
-                // Bucket only the primary origin's records into 15-min slots, keyed by start time.
-                Map<Integer, Integer> slotCounts = new HashMap<>();
-                if (primaryOrigin != null) {
-                    for (StepsRecord record : records) {
-                        if (record.getMetadata().getRecordingMethod()
-                                == Metadata.RECORDING_METHOD_MANUAL_ENTRY) {
-                            continue;
-                        }
-                        if (!primaryOrigin.equals(
-                                record.getMetadata().getDataOrigin().getPackageName())) {
-                            continue;
-                        }
-                        LocalDateTime ldt = LocalDateTime.ofInstant(
-                                record.getStartTime(), ZoneId.systemDefault());
-                        slotCounts.merge(bucketTimeSlot(ldt), (int) record.getCount(), Integer::sum);
-                    }
-                }
-                // Wipe the day's existing slots first so a re-sync fully replaces any stale
-                // (e.g. previously smeared) values instead of leaving orphan slots behind.
-                db.clearHCSlots(dateStr);
-                for (Map.Entry<Integer, Integer> slot : slotCounts.entrySet()) {
-                    db.upsertHCSlot(dateStr, slot.getKey(), slot.getValue());
-                }
-
-                long totalSteps = (total != null) ? total : 0L;
-                if (records.isEmpty()) {
-                    Log.w(TAG, "No Health Connect step data found for " + dateStr
-                            + " — source app (e.g. Samsung Health) may not be writing steps to Health Connect.");
-                }
-                db.upsertHCSummary(dateStr, (int) totalSteps);
-                Log.d(TAG, "Persisted de-duplicated total " + totalSteps + " for " + dateStr
-                        + "; per-slot detail from primary origin " + primaryOrigin
-                        + " across " + slotCounts.size() + " slots");
-                return totalSteps;
-            });
+            // When manual entries exist, a second aggregate limited to the apps that wrote
+            // automatic records gives the de-duplicated total without manual-only apps; any
+            // failure here propagates to the retry path (never fall back to counting manual steps).
+            return totalFuture.thenCompose(total -> recordsFuture.thenCompose(records -> {
+                Map<String, Long> auto = nonManualStepsByOrigin(records);
+                Map<String, Long> manual = manualStepsByOrigin(records);
+                CompletableFuture<Long> filteredFuture = HcRewardSteps.needsFilteredAggregate(auto, manual)
+                        ? aggregateSteps(timeRangeFilter, HcRewardSteps.filterOrigins(auto))
+                        : CompletableFuture.completedFuture(0L);
+                return filteredFuture.thenApply(filtered ->
+                        persistDay(dateStr, db, total, records, auto, manual, filtered));
+            }));
         });
+    }
+
+    /** Writes the day's 15-min slots and reward total; returns the reward total. */
+    private long persistDay(String dateStr, StepsDBHelper db, Long total, List<StepsRecord> records,
+                            Map<String, Long> stepsByOrigin, Map<String, Long> manualByOrigin,
+                            long filteredAggregate) {
+        // Pick the primary (highest-priority) data origin: the non-manual source that
+        // contributed the most steps for the day. Using a single origin for the per-slot
+        // breakdown de-duplicates the case where two apps mirror the same steps (which is
+        // what previously doubled the raw sum), while still reflecting real per-slot timing.
+        String primaryOrigin = null;
+        long bestOriginTotal = -1;
+        for (Map.Entry<String, Long> entry : stepsByOrigin.entrySet()) {
+            if (entry.getValue() > bestOriginTotal) {
+                bestOriginTotal = entry.getValue();
+                primaryOrigin = entry.getKey();
+            }
+        }
+
+        // Bucket only the primary origin's records into 15-min slots, keyed by start time.
+        Map<Integer, Integer> slotCounts = new HashMap<>();
+        if (primaryOrigin != null) {
+            for (StepsRecord record : records) {
+                if (record.getMetadata().getRecordingMethod()
+                        == Metadata.RECORDING_METHOD_MANUAL_ENTRY) {
+                    continue;
+                }
+                if (!primaryOrigin.equals(
+                        record.getMetadata().getDataOrigin().getPackageName())) {
+                    continue;
+                }
+                LocalDateTime ldt = LocalDateTime.ofInstant(
+                        record.getStartTime(), ZoneId.systemDefault());
+                slotCounts.merge(bucketTimeSlot(ldt), (int) record.getCount(), Integer::sum);
+            }
+        }
+        // Wipe the day's existing slots first so a re-sync fully replaces any stale
+        // (e.g. previously smeared) values instead of leaving orphan slots behind.
+        db.clearHCSlots(dateStr);
+        for (Map.Entry<Integer, Integer> slot : slotCounts.entrySet()) {
+            db.upsertHCSlot(dateStr, slot.getKey(), slot.getValue());
+        }
+
+        long aggregateSteps = (total != null) ? total : 0L;
+        long totalSteps = HcRewardSteps.rewardSteps(aggregateSteps, stepsByOrigin,
+                manualByOrigin, filteredAggregate);
+        long excluded = aggregateSteps - totalSteps;
+        if (excluded > 0) {
+            Log.d(TAG, "Excluded " + excluded + " manually entered steps from the reward count for "
+                    + dateStr + " (aggregate " + aggregateSteps + ", filtered " + filteredAggregate
+                    + ", manual by app " + manualByOrigin + ")");
+        }
+        flagManualStepsExcluded(excluded);
+        if (records.isEmpty()) {
+            Log.w(TAG, "No Health Connect step data found for " + dateStr
+                    + " — source app (e.g. Samsung Health) may not be writing steps to Health Connect.");
+        }
+        db.upsertHCSummary(dateStr, (int) totalSteps);
+        Log.d(TAG, "Persisted reward total " + totalSteps + " for " + dateStr
+                + "; per-slot detail from primary origin " + primaryOrigin
+                + " across " + slotCounts.size() + " slots");
+        return totalSteps;
+    }
+
+    private CompletableFuture<Long> aggregateSteps(TimeRangeFilter timeRangeFilter) {
+        return aggregateSteps(timeRangeFilter, Collections.emptySet());
+    }
+
+    /** COUNT_TOTAL over the range; a non-empty origins set limits it to those apps. */
+    private CompletableFuture<Long> aggregateSteps(TimeRangeFilter timeRangeFilter, Set<String> origins) {
+        Set<AggregateMetric<?>> metrics = new HashSet<>();
+        metrics.add(StepsRecord.COUNT_TOTAL);
+        Set<DataOrigin> originFilter = new HashSet<>();
+        for (String pkg : origins) originFilter.add(new DataOrigin(pkg));
+        AggregateRequest request = new AggregateRequest(metrics, timeRangeFilter, originFilter);
+        return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                (scope, continuation) -> {
+                    try {
+                        return healthConnectClient.aggregate(request, continuation);
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        ).thenApply(response -> {
+            Long total = ((AggregationResult) response).get(StepsRecord.COUNT_TOTAL);
+            return (total != null) ? total : 0L;
+        });
+    }
+
+    private static final int HC_RECORDS_PAGE_SIZE = 1000;
+    // safety stop: 50 pages x 1000 records is far beyond any real day of step data
+    private static final int HC_RECORDS_MAX_PAGES = 50;
+
+    /** Reads every StepsRecord in the range, following pageToken until the last page. */
+    private CompletableFuture<List<StepsRecord>> readAllStepRecords(TimeRangeFilter timeRangeFilter) {
+        return readStepRecordsPage(timeRangeFilter, null, new ArrayList<>(), 0);
+    }
+
+    private CompletableFuture<List<StepsRecord>> readStepRecordsPage(TimeRangeFilter timeRangeFilter,
+            String pageToken, List<StepsRecord> acc, int page) {
+        ReadRecordsRequest<StepsRecord> request = new ReadRecordsRequest<>(
+                JvmClassMappingKt.getKotlinClass(StepsRecord.class),
+                timeRangeFilter,
+                Collections.emptySet(),
+                true,
+                HC_RECORDS_PAGE_SIZE,
+                pageToken
+        );
+        return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                (scope, continuation) -> {
+                    try {
+                        return healthConnectClient.readRecords(request, continuation);
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        ).thenCompose(response -> {
+            @SuppressWarnings("unchecked")
+            ReadRecordsResponse<StepsRecord> res = (ReadRecordsResponse<StepsRecord>) response;
+            acc.addAll(res.getRecords());
+            String next = res.getPageToken();
+            boolean more = next != null && !next.isEmpty();
+            if (!more) {
+                return CompletableFuture.completedFuture(acc);
+            }
+            if (page + 1 >= HC_RECORDS_MAX_PAGES) {
+                // fail closed: unseen records could hold manual steps, so never count a partial read
+                CompletableFuture<List<StepsRecord>> failed = new CompletableFuture<>();
+                failed.completeExceptionally(new IllegalStateException(
+                        "Too many step records: stopped after " + (page + 1) + " pages"));
+                return failed;
+            }
+            return readStepRecordsPage(timeRangeFilter, next, acc, page + 1);
+        });
+    }
+
+    private static boolean isManualEntry(StepsRecord record) {
+        return record.getMetadata().getRecordingMethod() == Metadata.RECORDING_METHOD_MANUAL_ENTRY;
+    }
+
+    /** Steps the user typed in by hand, per data origin (package name). */
+    private static Map<String, Long> manualStepsByOrigin(List<StepsRecord> records) {
+        Map<String, Long> byOrigin = new HashMap<>();
+        for (StepsRecord record : records) {
+            if (!isManualEntry(record)) continue;
+            String origin = record.getMetadata().getDataOrigin().getPackageName();
+            byOrigin.merge(origin, record.getCount(), Long::sum);
+        }
+        return byOrigin;
+    }
+
+    /** Non-manual step totals per data origin (package name). */
+    private static Map<String, Long> nonManualStepsByOrigin(List<StepsRecord> records) {
+        Map<String, Long> stepsByOrigin = new HashMap<>();
+        for (StepsRecord record : records) {
+            if (isManualEntry(record)) continue;
+            String origin = record.getMetadata().getDataOrigin().getPackageName();
+            stepsByOrigin.merge(origin, record.getCount(), Long::sum);
+        }
+        return stepsByOrigin;
+    }
+
+    // Prefs flags for the one-time "manually entered steps no longer count" note.
+    static final String PREF_MANUAL_NOTE_PENDING = "hcManualStepsNotePending";
+    static final String PREF_MANUAL_NOTE_SHOWN = "hcManualStepsNoteShown";
+
+    private void flagManualStepsExcluded(long excluded) {
+        if (excluded <= 0) return;
+        try {
+            android.content.SharedPreferences prefs =
+                    context.getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
+            if (HcRewardSteps.shouldFlagNote(excluded, prefs.getBoolean(PREF_MANUAL_NOTE_SHOWN, false),
+                    prefs.getBoolean(PREF_MANUAL_NOTE_PENDING, false))) {
+                prefs.edit().putBoolean(PREF_MANUAL_NOTE_PENDING, true).apply();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Could not flag manual steps note: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Shows, once ever, a short note that manually entered Health Connect steps no longer count
+     * toward rewards. Does nothing until a sync has actually left manual steps out.
+     * Must be called on the UI thread.
+     */
+    public static void maybeShowManualStepsNote(android.app.Activity activity) {
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
+        android.content.SharedPreferences prefs =
+                activity.getSharedPreferences("actifitSets", Context.MODE_PRIVATE);
+        if (!HcRewardSteps.shouldShowNote(prefs.getBoolean(PREF_MANUAL_NOTE_PENDING, false),
+                prefs.getBoolean(PREF_MANUAL_NOTE_SHOWN, false))) {
+            return;
+        }
+        prefs.edit().putBoolean(PREF_MANUAL_NOTE_SHOWN, true)
+                .putBoolean(PREF_MANUAL_NOTE_PENDING, false).apply();
+        try {
+            new androidx.appcompat.app.AlertDialog.Builder(activity)
+                    .setTitle(R.string.hc_manual_steps_note_title)
+                    .setMessage(R.string.hc_manual_steps_note_body)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+        } catch (Exception e) {
+            Log.w(TAG, "Could not show manual steps note: " + e.getMessage());
+        }
     }
 
     public void backfillHCHistory(StepsDBHelper db, int days, Runnable onComplete) {
@@ -460,6 +549,125 @@ public class HealthConnectManager {
         else if (min >= 15) min = 15;
         else min = 0;
         return hour * 100 + min;
+    }
+
+    /** Whether the user switched on "Show my workouts" in Settings. */
+    public static boolean isShowWorkoutsEnabled(Context ctx) {
+        return ctx.getSharedPreferences("actifitSets", Context.MODE_PRIVATE)
+                .getBoolean(PREF_SHOW_WORKOUTS, false);
+    }
+
+    public CompletableFuture<Boolean> hasWorkoutPermission() {
+        return getGrantedPermissions().thenApply(granted -> granted.contains(PERM_EXERCISE))
+                .exceptionally(e -> false);
+    }
+
+    /**
+     * Reads the day's workouts (exercise sessions that START within the local day, same window as
+     * readTodayMetrics), filtered and de-duplicated by WorkoutMapper.select. Returns an empty list
+     * when the "Show my workouts" setting is off, READ_EXERCISE isn't granted, or the read fails.
+     * Workouts never count toward rewards. Completes off the main thread.
+     */
+    public CompletableFuture<List<WorkoutMapper.Workout>> readWorkouts(ZonedDateTime day) {
+        if (healthConnectClient == null || !isShowWorkoutsEnabled(context)) {
+            return CompletableFuture.completedFuture(Collections.emptyList());
+        }
+        Instant startOfDay = day.truncatedTo(ChronoUnit.DAYS).toInstant();
+        Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
+        // Health Connect returns interval records that overlap the range, so a session that starts
+        // late and runs past midnight is still returned; select() keeps only sessions that start
+        // inside the day (a session belongs to its start day)
+        TimeRangeFilter filter = TimeRangeFilter.between(startOfDay, endOfDay);
+
+        return getGrantedPermissions().thenCompose(granted -> {
+            if (!granted.contains(PERM_EXERCISE)) {
+                return CompletableFuture.completedFuture(Collections.<WorkoutMapper.Workout>emptyList());
+            }
+            boolean hasDistance = granted.contains(PERM_DISTANCE);
+            return readExerciseSessionsPage(filter, null, new ArrayList<>(), 0).thenCompose(records -> {
+                List<WorkoutMapper.Session> sessions = new ArrayList<>();
+                for (ExerciseSessionRecord r : records) {
+                    sessions.add(new WorkoutMapper.Session(r.getExerciseType(),
+                            r.getStartTime().toEpochMilli(), r.getEndTime().toEpochMilli(),
+                            r.getMetadata().getRecordingMethod() == Metadata.RECORDING_METHOD_MANUAL_ENTRY,
+                            r.getMetadata().getDataOrigin().getPackageName()));
+                }
+                List<WorkoutMapper.Workout> workouts = WorkoutMapper.select(sessions,
+                        startOfDay.toEpochMilli(), endOfDay.toEpochMilli());
+                if (!hasDistance) {
+                    return CompletableFuture.completedFuture(workouts);
+                }
+                return addDistances(workouts);
+            });
+        }).exceptionally(e -> {
+            Log.e(TAG, "readWorkouts failed", e);
+            return Collections.emptyList();
+        });
+    }
+
+    private static final int HC_SESSIONS_MAX_PAGES = 10;
+
+    private CompletableFuture<List<ExerciseSessionRecord>> readExerciseSessionsPage(TimeRangeFilter filter,
+            String pageToken, List<ExerciseSessionRecord> acc, int page) {
+        ReadRecordsRequest<ExerciseSessionRecord> request = new ReadRecordsRequest<>(
+                JvmClassMappingKt.getKotlinClass(ExerciseSessionRecord.class),
+                filter, Collections.emptySet(), true, 500, pageToken);
+        return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                (scope, continuation) -> {
+                    try {
+                        return healthConnectClient.readRecords(request, continuation);
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        ).thenCompose(response -> {
+            @SuppressWarnings("unchecked")
+            ReadRecordsResponse<ExerciseSessionRecord> res = (ReadRecordsResponse<ExerciseSessionRecord>) response;
+            acc.addAll(res.getRecords());
+            String next = res.getPageToken();
+            if (next == null || next.isEmpty() || page + 1 >= HC_SESSIONS_MAX_PAGES) {
+                return CompletableFuture.completedFuture(acc);
+            }
+            return readExerciseSessionsPage(filter, next, acc, page + 1);
+        });
+    }
+
+    /**
+     * Adds the distance recorded during each distance-type workout, by the same app that wrote the
+     * session. A workout whose distance can't be read simply has none.
+     */
+    private CompletableFuture<List<WorkoutMapper.Workout>> addDistances(List<WorkoutMapper.Workout> workouts) {
+        List<CompletableFuture<WorkoutMapper.Workout>> parts = new ArrayList<>();
+        for (WorkoutMapper.Workout w : workouts) {
+            if (!WorkoutMapper.hasDistance(w.key) || w.origin.isEmpty()) {
+                parts.add(CompletableFuture.completedFuture(w));
+                continue;
+            }
+            Set<AggregateMetric<?>> metrics = new HashSet<>();
+            metrics.add(DistanceRecord.DISTANCE_TOTAL);
+            AggregateRequest request = new AggregateRequest(metrics,
+                    TimeRangeFilter.between(Instant.ofEpochMilli(w.startMs), Instant.ofEpochMilli(w.endMs)),
+                    Collections.singleton(new DataOrigin(w.origin)));
+            CompletableFuture<WorkoutMapper.Workout> part = FutureKt.future(coroutineScope,
+                    Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                    (scope, continuation) -> {
+                        try {
+                            return healthConnectClient.aggregate(request, continuation);
+                        } catch (Throwable e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            ).thenApply(response -> {
+                Length len = ((AggregationResult) response).get(DistanceRecord.DISTANCE_TOTAL);
+                return (len != null && len.getMeters() > 0) ? w.withDistance(Math.round(len.getMeters())) : w;
+            }).exceptionally(e -> w);
+            parts.add(part);
+        }
+        return CompletableFuture.allOf(parts.toArray(new CompletableFuture[0])).thenApply(v -> {
+            List<WorkoutMapper.Workout> out = new ArrayList<>();
+            for (CompletableFuture<WorkoutMapper.Workout> f : parts) out.add(f.join());
+            return out;
+        });
     }
 
     public Intent createPermissionRequestIntent() {

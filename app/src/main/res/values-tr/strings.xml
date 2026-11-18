@@ -594,6 +594,14 @@
     <string name="success_workout_plan_saved">Antrenman planı kaydedildi!</string>
     <string name="dialog_message_insufficient_afit_part1">Şuna ihtiyacınız var</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Antrenmanlarımı göster</string>
+    <string name="hc_show_workouts_note">Antrenmanlarınızın türünü, süresini ve mesafesini panonuzda ve raporunuzda göstermek için Health Connect\'ten okur. Eklediğiniz antrenmanlar herkese açık raporunuzla birlikte yayınlanır. Antrenmanlar ödüllere sayılmaz; ödüller adımlara dayanır.</string>
+    <string name="hc_show_workouts_denied">Antrenmanlar gizli kalacak: Health Connect egzersiz oturumlarına erişime izin vermedi.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect bu cihazda kullanılamıyor, bu yüzden antrenmanlar gösterilemiyor.</string>
+    <string name="hc_workouts_card_title">Bugünkü antrenmanlar</string>
+    <string name="hc_workouts_footnote">Antrenmanlar kayıt amacıyla gösterilir; ödüller adımlara dayanır.</string>
+    <string name="hc_workouts_minutes">%1$d dk</string>
+    <string name="hc_workouts_manual">elle girildi</string>
     <string name="sync_health_connect_btn">Health Connect\'ı senkronize et</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Veri Senkronize Et</string>
@@ -915,5 +923,7 @@
     <string name="widget_login_hint">AFIT kazanmak için giriş yap</string>
     <string name="widget_steps_percent">%%%1$s adım</string>
     <string name="widget_open_to_sync_short">Senkron için aç</string>
+    <string name="hc_manual_steps_note_title">Elle girilen adımlar</string>
+    <string name="hc_manual_steps_note_body">Health Connect\'e elle girilen adımlar artık Actifit ödüllerine sayılmıyor. Yalnızca telefonunuzun veya takip cihazınızın kaydettiği adımlar sayılır; bu yüzden Actifit\'teki adım sayınız Health Connect\'tekinden düşük olabilir.</string>
 </resources>
 

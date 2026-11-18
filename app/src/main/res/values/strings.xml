@@ -286,6 +286,8 @@
     <string name="fitbit_retired_choose_hc" tools:ignore="MissingTranslation">Choose Health Connect (then Save)</string>
     <string name="sync_from_health_connect_btn_lbl">Sync from Health Connect</string>
     <string name="steps_synced_from_health_connect">Steps synced from Health Connect</string>
+    <string name="hc_manual_steps_note_title">Manually entered steps</string>
+    <string name="hc_manual_steps_note_body">Steps typed into Health Connect by hand no longer count toward Actifit rewards. Only steps recorded by your phone or tracker count, so your Actifit step count may be lower than in Health Connect.</string>
     <string name="pending_rewards_title">You have upcoming rewards!</string>
     <string name="pending_rewards_header">You have upcoming rewards within 7 days!</string>
     <string name="pending_rewards_note">Please note that those rewards are not final, and are subject to increase or decrease depending on actifit and blockchain community engagement. You can view your recent actifit posts and pending rewards by clicking button below.</string>
@@ -599,6 +601,14 @@
     <string name="exercises">Exercises</string>
     <string name="regenerate_workout_free">REGENERATE WORKOUT (FREE)</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Show my workouts</string>
+    <string name="hc_show_workouts_note">Reads your workout type, duration and distance from Health Connect to show them on your dashboard and in your report. Workouts you include are published with your public report. Workouts do not count toward rewards; rewards are based on steps.</string>
+    <string name="hc_show_workouts_denied">Workouts stay hidden: Health Connect did not allow access to exercise sessions.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect is not available on this device, so workouts can\'t be shown.</string>
+    <string name="hc_workouts_card_title">Today\'s workouts</string>
+    <string name="hc_workouts_footnote">Workouts are shown for your record; rewards are based on steps.</string>
+    <string name="hc_workouts_minutes">%1$d min</string>
+    <string name="hc_workouts_manual">entered manually</string>
     <string name="sync_health_connect_btn">Sync Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Sync Data</string>

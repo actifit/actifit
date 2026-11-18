@@ -595,6 +595,14 @@
     <string name="success_workout_plan_saved">Piano di allenamento salvato!</string>
     <string name="dialog_message_insufficient_afit_part1">Hai bisogno di</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Mostra i miei allenamenti</string>
+    <string name="hc_show_workouts_note">Legge tipo, durata e distanza dei tuoi allenamenti da Health Connect per mostrarli nella dashboard e nel tuo report. Gli allenamenti che includi vengono pubblicati con il tuo report pubblico. Gli allenamenti non contano per i premi; i premi si basano sui passi.</string>
+    <string name="hc_show_workouts_denied">Gli allenamenti restano nascosti: Health Connect non ha consentito l\'accesso alle sessioni di esercizio.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect non è disponibile su questo dispositivo, quindi gli allenamenti non possono essere mostrati.</string>
+    <string name="hc_workouts_card_title">Allenamenti di oggi</string>
+    <string name="hc_workouts_footnote">Gli allenamenti sono mostrati come promemoria; i premi si basano sui passi.</string>
+    <string name="hc_workouts_minutes">%1$d min</string>
+    <string name="hc_workouts_manual">inserito manualmente</string>
 	<string name="sync_health_connect_btn">Sincronizza Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Sincronizza Dati</string>
@@ -916,5 +924,7 @@
     <string name="widget_login_hint">Accedi per guadagnare AFIT</string>
     <string name="widget_steps_percent">%1$s%% passi</string>
     <string name="widget_open_to_sync_short">Apri per sincronizzare</string>
+    <string name="hc_manual_steps_note_title">Passi inseriti manualmente</string>
+    <string name="hc_manual_steps_note_body">I passi inseriti a mano in Health Connect non contano più per i premi Actifit. Contano solo i passi registrati dal telefono o dal tracker, quindi il conteggio in Actifit può essere inferiore a quello di Health Connect.</string>
 </resources>
 
