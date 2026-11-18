@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Steps widget inner padding. Before Android 12 launchers add their own widget padding
+         (~8dp a side), so these are what remains of the ~12dp / ~8dp total; see values-v31. -->
+    <dimen name="widget_padding">4dp</dimen>
+    <!-- for the compact (1x1 / 2x1) and narrow layouts -->
+    <dimen name="widget_padding_tight">0dp</dimen>
+</resources>

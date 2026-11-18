@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home-screen steps widget (follows the system light/dark setting, resolved by the launcher).
+         Ring colours match the dashboard's AuraView: outer = companion colour (tinted at runtime on
+         Android 12+, Actifit red before), middle = distance teal, inner = calories amber. Light-mode
+         tracks are the ring colour at alpha 55, dark-mode tracks white at alpha 46, like AuraView. -->
+    <color name="widget_background">#FFFFFF</color>
+    <color name="widget_text_primary">#212121</color>
+    <color name="widget_text_secondary">#757575</color>
+    <color name="widget_accent">#FF112D</color>
+    <color name="widget_ring_steps">#FF112D</color>
+    <color name="widget_ring_steps_track">#37FF112D</color>
+    <color name="widget_ring_distance">#00C9B1</color>
+    <color name="widget_ring_distance_track">#3700C9B1</color>
+    <color name="widget_ring_kcal">#FFB300</color>
+    <color name="widget_ring_kcal_track">#37FFB300</color>
+</resources>

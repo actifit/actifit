@@ -915,6 +915,15 @@
     <string name="arena_countdown_days">%1$d दि %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Health Connect से सिंक करें</string>
     <string name="steps_synced_from_health_connect">Health Connect से कदम सिंक हो गए</string>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">Actifit कदम</string>
+    <string name="widget_description">आज के कदम, लक्ष्य की प्रगति और स्ट्रीक एक नज़र में</string>
+    <string name="widget_steps_label">कदम</string>
+    <string name="widget_synced_at">सिंक किया गया %1$s</string>
+    <string name="widget_open_to_sync">सिंक करने के लिए Actifit खोलें</string>
+    <string name="widget_login_hint">AFIT कमाने के लिए लॉग इन करें</string>
+    <string name="widget_steps_percent">%1$s%% कदम</string>
+    <string name="widget_open_to_sync_short">सिंक हेतु खोलें</string>
     <string name="hc_manual_steps_note_title">हाथ से दर्ज किए गए कदम</string>
     <string name="hc_manual_steps_note_body">Health Connect में हाथ से दर्ज किए गए कदम अब Actifit इनाम में नहीं गिने जाते। केवल आपके फ़ोन या ट्रैकर द्वारा रिकॉर्ड किए गए कदम गिने जाते हैं, इसलिए Actifit में आपके कदम Health Connect से कम दिख सकते हैं।</string>
 </resources>

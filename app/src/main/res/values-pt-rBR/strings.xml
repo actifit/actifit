@@ -795,6 +795,15 @@
     <string name="arena_metric_goal">Metas diárias alcançadas</string>
     <string name="sync_from_health_connect_btn_lbl">Sincronizar do Health Connect</string>
     <string name="steps_synced_from_health_connect">Passos sincronizados do Health Connect</string>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">Passos Actifit</string>
+    <string name="widget_description">Seus passos de hoje, o progresso da meta e sua sequência em um relance</string>
+    <string name="widget_steps_label">passos</string>
+    <string name="widget_synced_at">Sincronizado %1$s</string>
+    <string name="widget_open_to_sync">Abra o Actifit para sincronizar</string>
+    <string name="widget_login_hint">Faça login para ganhar AFIT</string>
+    <string name="widget_steps_percent">%1$s%% passos</string>
+    <string name="widget_open_to_sync_short">Abra para sincronizar</string>
     <string name="hc_manual_steps_note_title">Passos inseridos manualmente</string>
     <string name="hc_manual_steps_note_body">Os passos inseridos à mão no Health Connect não contam mais para as recompensas do Actifit. Só contam os passos registrados pelo celular ou pela pulseira, então sua contagem no Actifit pode ser menor que no Health Connect.</string>
 </resources>

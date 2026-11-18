@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home-screen steps widget - dark mode -->
+    <color name="widget_background">#1E1E1E</color>
+    <color name="widget_text_primary">#FFFFFF</color>
+    <color name="widget_text_secondary">#B0B0B0</color>
+    <color name="widget_accent">#FF5252</color>
+    <color name="widget_ring_steps">#FF5252</color>
+    <color name="widget_ring_steps_track">#2EFFFFFF</color>
+    <color name="widget_ring_distance">#00C9B1</color>
+    <color name="widget_ring_distance_track">#2EFFFFFF</color>
+    <color name="widget_ring_kcal">#FFB300</color>
+    <color name="widget_ring_kcal_track">#2EFFFFFF</color>
+</resources>

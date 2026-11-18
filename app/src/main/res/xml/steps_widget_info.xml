@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Steps widget. Defaults to 3x2: some launchers make 2 cells narrower than 160dp, which only fits
+     the rings-only layout. Still resizable down to 1x1. updatePeriodMillis (30 min, the platform
+     minimum) covers the midnight rollover and "Open Actifit to sync" labels; live updates are pushed
+     by WidgetUpdater. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_description"
+    android:initialLayout="@layout/widget_steps_small"
+    android:minWidth="180dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="60dp"
+    android:minResizeHeight="60dp"
+    android:previewImage="@mipmap/actifit_launcher"
+    android:previewLayout="@layout/widget_steps_preview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="3"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen" />

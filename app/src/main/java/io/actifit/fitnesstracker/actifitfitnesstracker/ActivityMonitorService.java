@@ -264,6 +264,10 @@ public class ActivityMonitorService extends Service implements SensorEventListen
             return;
         }
 
+        // the home-screen widget (no-op without a placed widget; throttled inside). Before the
+        // notification block, which returns early when POST_NOTIFICATIONS is denied.
+        WidgetUpdater.onSteps(ctx, curStepCount);
+
         // adjust step count display and print to notification activity
         // making sure we have an instance of mBuilder
         if (mBuilder != null) {

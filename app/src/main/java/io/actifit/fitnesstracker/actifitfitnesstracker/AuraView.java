@@ -232,8 +232,13 @@ public class AuraView extends View {
     // tier modulates saturation + brightness of the animal's signature colour;
     // wilting drains it toward a sickly, desaturated fade
     private int auraColor() {
+        return auraColor(companion, level, wilting);
+    }
+
+    /** The companion's ring colour for a tier, drained when wilting (also used by the home-screen widget). */
+    public static int auraColor(int companion, int level, boolean wilting) {
         float[] hsv = new float[3];
-        Color.colorToHSV(ANIMAL_COLORS[companion], hsv);
+        Color.colorToHSV(ANIMAL_COLORS[clamp(companion, ANIMAL_COLORS.length)], hsv);
         hsv[1] = Math.min(1f, hsv[1] * (0.6f + 0.08f * level));
         hsv[2] = Math.min(1f, hsv[2] * (0.72f + 0.056f * level));
         if (wilting) {

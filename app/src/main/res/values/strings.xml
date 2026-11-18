@@ -975,4 +975,15 @@
     <string name="gadget_session_expired">Your session has expired. Log out and log in again, then retry.</string>
     <string name="error_performing_operation">Something went wrong. Refresh your balance and gadgets before trying again.</string>
     <string name="rewards_nothing_to_claim">There are no pending rewards to claim.</string>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">Actifit steps</string>
+    <string name="widget_description">Today\'s steps, goal progress and streak at a glance</string>
+    <string name="widget_steps_label">steps</string>
+    <string name="widget_synced_at">Synced %1$s</string>
+    <string name="widget_open_to_sync">Open Actifit to sync</string>
+    <string name="widget_login_hint">Log in to earn AFIT</string>
+    <string name="widget_steps_percent">%1$s%% steps</string>
+    <string name="widget_open_to_sync_short">Open to sync</string>
+    <string name="widget_brand" translatable="false">Actifit</string>
+    <string name="widget_steps_of_goal" translatable="false">%1$s / %2$s</string>
 </resources>

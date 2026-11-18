@@ -925,6 +925,15 @@
     <string name="arena_countdown_days">%1$d ي %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">المزامنة من Health Connect</string>
     <string name="steps_synced_from_health_connect">تمت مزامنة الخطوات من Health Connect</string>
+    <!-- Home-screen steps widget -->
+    <string name="widget_name">خطوات Actifit</string>
+    <string name="widget_description">خطوات اليوم والتقدّم نحو هدفك وسلسلة أيامك بنظرة واحدة</string>
+    <string name="widget_steps_label">خطوة</string>
+    <string name="widget_synced_at">تمت المزامنة %1$s</string>
+    <string name="widget_open_to_sync">افتح Actifit للمزامنة</string>
+    <string name="widget_login_hint">سجّل الدخول لكسب AFIT</string>
+    <string name="widget_steps_percent">%1$s%% خطوات</string>
+    <string name="widget_open_to_sync_short">افتح للمزامنة</string>
     <string name="hc_manual_steps_note_title">الخطوات المُدخلة يدويًا</string>
     <string name="hc_manual_steps_note_body">الخطوات التي تُدخلها يدويًا في Health Connect لم تعد تُحتسب ضمن مكافآت Actifit. تُحتسب فقط الخطوات التي يسجلها هاتفك أو جهاز التتبع، لذلك قد يكون عدد خطواتك في Actifit أقل منه في Health Connect.</string>
 </resources>
