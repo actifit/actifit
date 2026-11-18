@@ -907,5 +907,7 @@
     <string name="arena_countdown_days">%1$d g %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Sincronizza da Health Connect</string>
     <string name="steps_synced_from_health_connect">Passi sincronizzati da Health Connect</string>
+    <string name="hc_manual_steps_note_title">Passi inseriti manualmente</string>
+    <string name="hc_manual_steps_note_body">I passi inseriti a mano in Health Connect non contano più per i premi Actifit. Contano solo i passi registrati dal telefono o dal tracker, quindi il conteggio in Actifit può essere inferiore a quello di Health Connect.</string>
 </resources>
 

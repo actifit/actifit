@@ -908,6 +908,8 @@
     <string name="arena_ends_in_clock">Termina en %1$s</string>
     <string name="sync_from_health_connect_btn_lbl">Sincronizar desde Health Connect</string>
     <string name="steps_synced_from_health_connect">Pasos sincronizados desde Health Connect</string>
+    <string name="hc_manual_steps_note_title">Pasos introducidos manualmente</string>
+    <string name="hc_manual_steps_note_body">Los pasos introducidos a mano en Health Connect ya no cuentan para las recompensas de Actifit. Solo cuentan los pasos registrados por tu teléfono o pulsera, así que tu recuento en Actifit puede ser menor que en Health Connect.</string>
 </resources>
 
 

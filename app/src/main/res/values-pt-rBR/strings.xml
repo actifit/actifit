@@ -787,6 +787,8 @@
     <string name="arena_metric_goal">Metas diárias alcançadas</string>
     <string name="sync_from_health_connect_btn_lbl">Sincronizar do Health Connect</string>
     <string name="steps_synced_from_health_connect">Passos sincronizados do Health Connect</string>
+    <string name="hc_manual_steps_note_title">Passos inseridos manualmente</string>
+    <string name="hc_manual_steps_note_body">Os passos inseridos à mão no Health Connect não contam mais para as recompensas do Actifit. Só contam os passos registrados pelo celular ou pela pulseira, então sua contagem no Actifit pode ser menor que no Health Connect.</string>
 </resources>
 
 

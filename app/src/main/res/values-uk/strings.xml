@@ -910,6 +910,8 @@
     <string name="arena_countdown_days">%1$d д %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Синхронізувати з Health Connect</string>
     <string name="steps_synced_from_health_connect">Кроки синхронізовано з Health Connect</string>
+    <string name="hc_manual_steps_note_title">Кроки, введені вручну</string>
+    <string name="hc_manual_steps_note_body">Кроки, введені вручну в Health Connect, більше не зараховуються до винагород Actifit. Зараховуються лише кроки, записані телефоном або трекером, тому кількість кроків в Actifit може бути меншою, ніж у Health Connect.</string>
 <string name="earnings_action_open_signup">Відкрити сторінку реєстрації</string>
 <string name="earnings_got_it">Зрозуміло</string>
 <string name="earnings_how_afit_timing">AFIT надходить протягом 48 год</string>

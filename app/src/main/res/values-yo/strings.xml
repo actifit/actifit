@@ -895,6 +895,8 @@
     </plurals>
     <string name="sync_from_health_connect_btn_lbl">Ṣe amuṣiṣẹpọ lati Health Connect</string>
     <string name="steps_synced_from_health_connect">A ti ṣe amuṣiṣẹpọ awọn igbesẹ lati Health Connect</string>
+    <string name="hc_manual_steps_note_title">Àwọn ìgbésẹ̀ tí a tẹ̀ wọlé fúnra ẹni</string>
+    <string name="hc_manual_steps_note_body">Àwọn ìgbésẹ̀ tí o tẹ̀ sínú Health Connect fúnra rẹ kò ní kà fún èrè Actifit mọ́. Àwọn ìgbésẹ̀ tí fóònù tàbí ẹ̀rọ ìtọpinpin rẹ gbà sílẹ̀ nìkan ló ń kà, nítorí náà iye ìgbésẹ̀ rẹ nínú Actifit lè kéré ju ti Health Connect lọ.</string>
 </resources>
 
 

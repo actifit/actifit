@@ -910,6 +910,8 @@
     <string name="arena_countdown_days">%1$d T. %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Von Health Connect synchronisieren</string>
     <string name="steps_synced_from_health_connect">Schritte von Health Connect synchronisiert</string>
+    <string name="hc_manual_steps_note_title">Manuell eingegebene Schritte</string>
+    <string name="hc_manual_steps_note_body">Schritte, die von Hand in Health Connect eingetragen werden, zählen nicht mehr für Actifit-Belohnungen. Es zählen nur Schritte, die dein Handy oder Tracker aufzeichnet. Deine Schrittzahl in Actifit kann daher niedriger sein als in Health Connect.</string>
 </resources>
 
 

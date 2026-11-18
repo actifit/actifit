@@ -286,6 +286,8 @@
     <string name="fitbit_retired_choose_hc" tools:ignore="MissingTranslation">Choose Health Connect (then Save)</string>
     <string name="sync_from_health_connect_btn_lbl">Sync from Health Connect</string>
     <string name="steps_synced_from_health_connect">Steps synced from Health Connect</string>
+    <string name="hc_manual_steps_note_title">Manually entered steps</string>
+    <string name="hc_manual_steps_note_body">Steps typed into Health Connect by hand no longer count toward Actifit rewards. Only steps recorded by your phone or tracker count, so your Actifit step count may be lower than in Health Connect.</string>
     <string name="pending_rewards_title">You have upcoming rewards!</string>
     <string name="pending_rewards_header">You have upcoming rewards within 7 days!</string>
     <string name="pending_rewards_note">Please note that those rewards are not final, and are subject to increase or decrease depending on actifit and blockchain community engagement. You can view your recent actifit posts and pending rewards by clicking button below.</string>
