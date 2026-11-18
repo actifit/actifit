@@ -9,6 +9,7 @@ import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.permission.HealthPermission;
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord;
 import androidx.health.connect.client.records.DistanceRecord;
+import androidx.health.connect.client.records.ExerciseSessionRecord;
 //import androidx.health.connect.client.records.HeartRateRecord;
 import androidx.health.connect.client.records.StepsRecord;
 import androidx.health.connect.client.units.Energy;
@@ -69,6 +70,14 @@ public class HealthConnectManager {
             HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(DistanceRecord.class));
     public static final String PERM_CALORIES =
             HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(ActiveCaloriesBurnedRecord.class));
+
+    // optional workouts (exercise sessions). NEVER part of requestPermissions or the required gate:
+    // it is asked for only from the opt-in "Show my workouts" setting, and steps never depend on it.
+    public static final String PERM_EXERCISE =
+            HealthPermission.getReadPermission(JvmClassMappingKt.getKotlinClass(ExerciseSessionRecord.class));
+    public static final Set<String> workoutPermissions = Collections.singleton(PERM_EXERCISE);
+    /** SharedPreferences (actifitSets) flag for the opt-in "Show my workouts" setting. */
+    public static final String PREF_SHOW_WORKOUTS = "hcShowWorkouts";
 
     // what we ASK for on setup: steps + the optional metrics. The gate above still only needs
     // steps, so granting a subset never breaks Health Connect mode.
@@ -540,6 +549,125 @@ public class HealthConnectManager {
         else if (min >= 15) min = 15;
         else min = 0;
         return hour * 100 + min;
+    }
+
+    /** Whether the user switched on "Show my workouts" in Settings. */
+    public static boolean isShowWorkoutsEnabled(Context ctx) {
+        return ctx.getSharedPreferences("actifitSets", Context.MODE_PRIVATE)
+                .getBoolean(PREF_SHOW_WORKOUTS, false);
+    }
+
+    public CompletableFuture<Boolean> hasWorkoutPermission() {
+        return getGrantedPermissions().thenApply(granted -> granted.contains(PERM_EXERCISE))
+                .exceptionally(e -> false);
+    }
+
+    /**
+     * Reads the day's workouts (exercise sessions that START within the local day, same window as
+     * readTodayMetrics), filtered and de-duplicated by WorkoutMapper.select. Returns an empty list
+     * when the "Show my workouts" setting is off, READ_EXERCISE isn't granted, or the read fails.
+     * Workouts never count toward rewards. Completes off the main thread.
+     */
+    public CompletableFuture<List<WorkoutMapper.Workout>> readWorkouts(ZonedDateTime day) {
+        if (healthConnectClient == null || !isShowWorkoutsEnabled(context)) {
+            return CompletableFuture.completedFuture(Collections.emptyList());
+        }
+        Instant startOfDay = day.truncatedTo(ChronoUnit.DAYS).toInstant();
+        Instant endOfDay = day.plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant();
+        // Health Connect returns interval records that overlap the range, so a session that starts
+        // late and runs past midnight is still returned; select() keeps only sessions that start
+        // inside the day (a session belongs to its start day)
+        TimeRangeFilter filter = TimeRangeFilter.between(startOfDay, endOfDay);
+
+        return getGrantedPermissions().thenCompose(granted -> {
+            if (!granted.contains(PERM_EXERCISE)) {
+                return CompletableFuture.completedFuture(Collections.<WorkoutMapper.Workout>emptyList());
+            }
+            boolean hasDistance = granted.contains(PERM_DISTANCE);
+            return readExerciseSessionsPage(filter, null, new ArrayList<>(), 0).thenCompose(records -> {
+                List<WorkoutMapper.Session> sessions = new ArrayList<>();
+                for (ExerciseSessionRecord r : records) {
+                    sessions.add(new WorkoutMapper.Session(r.getExerciseType(),
+                            r.getStartTime().toEpochMilli(), r.getEndTime().toEpochMilli(),
+                            r.getMetadata().getRecordingMethod() == Metadata.RECORDING_METHOD_MANUAL_ENTRY,
+                            r.getMetadata().getDataOrigin().getPackageName()));
+                }
+                List<WorkoutMapper.Workout> workouts = WorkoutMapper.select(sessions,
+                        startOfDay.toEpochMilli(), endOfDay.toEpochMilli());
+                if (!hasDistance) {
+                    return CompletableFuture.completedFuture(workouts);
+                }
+                return addDistances(workouts);
+            });
+        }).exceptionally(e -> {
+            Log.e(TAG, "readWorkouts failed", e);
+            return Collections.emptyList();
+        });
+    }
+
+    private static final int HC_SESSIONS_MAX_PAGES = 10;
+
+    private CompletableFuture<List<ExerciseSessionRecord>> readExerciseSessionsPage(TimeRangeFilter filter,
+            String pageToken, List<ExerciseSessionRecord> acc, int page) {
+        ReadRecordsRequest<ExerciseSessionRecord> request = new ReadRecordsRequest<>(
+                JvmClassMappingKt.getKotlinClass(ExerciseSessionRecord.class),
+                filter, Collections.emptySet(), true, 500, pageToken);
+        return FutureKt.future(coroutineScope, Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                (scope, continuation) -> {
+                    try {
+                        return healthConnectClient.readRecords(request, continuation);
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        ).thenCompose(response -> {
+            @SuppressWarnings("unchecked")
+            ReadRecordsResponse<ExerciseSessionRecord> res = (ReadRecordsResponse<ExerciseSessionRecord>) response;
+            acc.addAll(res.getRecords());
+            String next = res.getPageToken();
+            if (next == null || next.isEmpty() || page + 1 >= HC_SESSIONS_MAX_PAGES) {
+                return CompletableFuture.completedFuture(acc);
+            }
+            return readExerciseSessionsPage(filter, next, acc, page + 1);
+        });
+    }
+
+    /**
+     * Adds the distance recorded during each distance-type workout, by the same app that wrote the
+     * session. A workout whose distance can't be read simply has none.
+     */
+    private CompletableFuture<List<WorkoutMapper.Workout>> addDistances(List<WorkoutMapper.Workout> workouts) {
+        List<CompletableFuture<WorkoutMapper.Workout>> parts = new ArrayList<>();
+        for (WorkoutMapper.Workout w : workouts) {
+            if (!WorkoutMapper.hasDistance(w.key) || w.origin.isEmpty()) {
+                parts.add(CompletableFuture.completedFuture(w));
+                continue;
+            }
+            Set<AggregateMetric<?>> metrics = new HashSet<>();
+            metrics.add(DistanceRecord.DISTANCE_TOTAL);
+            AggregateRequest request = new AggregateRequest(metrics,
+                    TimeRangeFilter.between(Instant.ofEpochMilli(w.startMs), Instant.ofEpochMilli(w.endMs)),
+                    Collections.singleton(new DataOrigin(w.origin)));
+            CompletableFuture<WorkoutMapper.Workout> part = FutureKt.future(coroutineScope,
+                    Dispatchers.getDefault(), CoroutineStart.DEFAULT,
+                    (scope, continuation) -> {
+                        try {
+                            return healthConnectClient.aggregate(request, continuation);
+                        } catch (Throwable e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            ).thenApply(response -> {
+                Length len = ((AggregationResult) response).get(DistanceRecord.DISTANCE_TOTAL);
+                return (len != null && len.getMeters() > 0) ? w.withDistance(Math.round(len.getMeters())) : w;
+            }).exceptionally(e -> w);
+            parts.add(part);
+        }
+        return CompletableFuture.allOf(parts.toArray(new CompletableFuture[0])).thenApply(v -> {
+            List<WorkoutMapper.Workout> out = new ArrayList<>();
+            for (CompletableFuture<WorkoutMapper.Workout> f : parts) out.add(f.join());
+            return out;
+        });
     }
 
     public Intent createPermissionRequestIntent() {

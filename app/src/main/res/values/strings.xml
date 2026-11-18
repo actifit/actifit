@@ -601,6 +601,14 @@
     <string name="exercises">Exercises</string>
     <string name="regenerate_workout_free">REGENERATE WORKOUT (FREE)</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Show my workouts</string>
+    <string name="hc_show_workouts_note">Reads your workout type, duration and distance from Health Connect to show them on your dashboard and in your report. Workouts you include are published with your public report. Workouts do not count toward rewards; rewards are based on steps.</string>
+    <string name="hc_show_workouts_denied">Workouts stay hidden: Health Connect did not allow access to exercise sessions.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect is not available on this device, so workouts can\'t be shown.</string>
+    <string name="hc_workouts_card_title">Today\'s workouts</string>
+    <string name="hc_workouts_footnote">Workouts are shown for your record; rewards are based on steps.</string>
+    <string name="hc_workouts_minutes">%1$d min</string>
+    <string name="hc_workouts_manual">entered manually</string>
     <string name="sync_health_connect_btn">Sync Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Sync Data</string>

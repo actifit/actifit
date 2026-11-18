@@ -91,6 +91,33 @@
 
                     </RadioGroup>
 
+                    <!-- Conditional: shown when Health Connect selected. Opt-in workouts; the
+                         exercise permission is asked for only when this is switched on. -->
+                    <LinearLayout
+                        android:id="@+id/hc_workouts_section"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:visibility="gone">
+
+                        <CheckBox
+                            android:id="@+id/hc_show_workouts"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hc_show_workouts_lbl" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hc_show_workouts_note"
+                            android:textColor="@color/md_theme_textSecondary"
+                            android:textSize="@dimen/text_body"
+                            android:textStyle="italic"
+                            android:layout_marginTop="@dimen/spacing_xs" />
+
+                    </LinearLayout>
+
                     <!-- Conditional: shown when Device Sensors selected -->
                     <LinearLayout
                         android:id="@+id/background_tracking_section"

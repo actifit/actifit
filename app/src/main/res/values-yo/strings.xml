@@ -595,6 +595,14 @@
     <string name="success_workout_plan_saved">Ètò ìdárayá ti fipamọ́!</string>
     <string name="dialog_message_insufficient_afit_part1">O nílò</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">Fi àwọn adaṣe mi hàn</string>
+    <string name="hc_show_workouts_note">Ó ń ka irú adaṣe rẹ, ìgbà tí ó gbà àti ijinna rẹ̀ láti Health Connect láti fi wọ́n hàn lórí dashboard rẹ àti nínú ìjábọ̀ rẹ. Àwọn adaṣe tí o fi kún un ni a ó tẹ̀ jáde pẹ̀lú ìjábọ̀ gbangba rẹ. Àwọn adaṣe kò ní kà fún èrè; ìgbésẹ̀ ni èrè dá lé.</string>
+    <string name="hc_show_workouts_denied">Àwọn adaṣe yóò wà ní ìpamọ́: Health Connect kò fàyè gba ìráyè sí àwọn ìgbà adaṣe.</string>
+    <string name="hc_show_workouts_unavailable">Health Connect kò sí lórí ẹ̀rọ yìí, nítorí náà a kò lè fi àwọn adaṣe hàn.</string>
+    <string name="hc_workouts_card_title">Àwọn adaṣe òní</string>
+    <string name="hc_workouts_footnote">A ń fi àwọn adaṣe hàn fún àkọsílẹ̀ rẹ; ìgbésẹ̀ ni èrè dá lé.</string>
+    <string name="hc_workouts_minutes">ìṣẹ́jú %1$d</string>
+    <string name="hc_workouts_manual">tí a tẹ̀ wọlé fúnra ẹni</string>
     <string name="sync_health_connect_btn">Ṣe amuṣiṣẹpọ Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Ṣiṣẹpọ Data</string>

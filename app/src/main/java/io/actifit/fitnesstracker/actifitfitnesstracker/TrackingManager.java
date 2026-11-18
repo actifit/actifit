@@ -312,6 +312,9 @@ public class TrackingManager {
         View hcTracking = ((android.app.Activity) context).findViewById(R.id.health_connect_active);
         hcTracking.setVisibility(View.VISIBLE);
 
+        // a list filled yesterday must not sit under "Today's workouts" while today's sync runs
+        if (context instanceof MainActivity) ((MainActivity) context).clearStaleHcWorkoutsCard();
+
         ZonedDateTime today = ZonedDateTime.now();
         healthConnectManager.readAndPersistStepsData(today, mStepsDBHelper).whenComplete((steps, readThrowable) -> {
             ((Activity) context).runOnUiThread(() -> {
@@ -336,6 +339,11 @@ public class TrackingManager {
                     if (chartSwitcherView != null) chartSwitcherView.setVisibility(View.VISIBLE);
                     chartManager.displayChartDataHC(true);
                     chartManager.displayDayChartDataHC(true);
+                    // a failed sync can't confirm today's workouts; never leave an older day's list
+                    // under "Today's workouts"
+                    if (context instanceof MainActivity) {
+                        ((MainActivity) context).updateHcWorkoutsCard(null);
+                    }
                     return;
                 }
                 Log.d(TAG, "Steps from Health Connect: " + steps);
@@ -368,6 +376,14 @@ public class TrackingManager {
                             ((MainActivity) context).updateHcDashboardRings(hcSteps, distM, kcal);
                         }
                     });
+                    // then today's workouts (opt-in; empty when "Show my workouts" is off). Shown
+                    // for the record only; they never count toward rewards.
+                    healthConnectManager.readWorkouts(ZonedDateTime.now()).whenComplete((workouts, wThrowable) ->
+                            ((Activity) context).runOnUiThread(() -> {
+                                if (context instanceof MainActivity) {
+                                    ((MainActivity) context).updateHcWorkoutsCard(workouts);
+                                }
+                            }));
                 });
 
                 View barChartContainer = ((android.app.Activity) context).findViewById(R.id.bar_chart_container);
@@ -440,6 +456,11 @@ public class TrackingManager {
             try {
                 String dataTrackingSystem = sharedPreferences.getString("dataTrackingSystem", context.getString(R.string.device_tracking_ntt));
                 chartManager.hideCharts();
+                // the workouts card belongs to Health Connect mode only
+                if (!dataTrackingSystem.equals(context.getString(R.string.health_connect_tracking_ntt))
+                        && context instanceof MainActivity) {
+                    ((MainActivity) context).updateHcWorkoutsCard(null);
+                }
 
                 if (dataTrackingSystem.equals(context.getString(R.string.fitbit_tracking_ntt))) {
                     View thirdPartyTracking = ((android.app.Activity) context).findViewById(R.id.third_party_active);

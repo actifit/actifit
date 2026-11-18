@@ -595,6 +595,14 @@
     <string name="success_workout_plan_saved">운동 계획이 저장되었습니다!</string>
     <string name="dialog_message_insufficient_afit_part1">다음이 필요합니다</string>
     <string name="health_connect_option_lbl">Health Connect</string>
+    <string name="hc_show_workouts_lbl">내 운동 표시</string>
+    <string name="hc_show_workouts_note">대시보드와 보고서에 표시하기 위해 Health Connect에서 운동 종류, 시간, 거리를 읽습니다. 포함한 운동은 공개 보고서와 함께 게시됩니다. 운동은 보상에 포함되지 않으며, 보상은 걸음 수를 기준으로 합니다.</string>
+    <string name="hc_show_workouts_denied">운동이 계속 숨겨집니다: Health Connect에서 운동 세션 접근을 허용하지 않았습니다.</string>
+    <string name="hc_show_workouts_unavailable">이 기기에서 Health Connect를 사용할 수 없어 운동을 표시할 수 없습니다.</string>
+    <string name="hc_workouts_card_title">오늘의 운동</string>
+    <string name="hc_workouts_footnote">운동은 기록용으로 표시되며, 보상은 걸음 수를 기준으로 합니다.</string>
+    <string name="hc_workouts_minutes">%1$d분</string>
+    <string name="hc_workouts_manual">직접 입력</string>
 	<string name="sync_health_connect_btn">Health Connect 동기화</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">데이터 동기화</string>

@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+    <!-- optional: requested only from the "Show my workouts" setting; workouts never affect rewards -->
+    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
     <!--<uses-permission android:name="android.permission.health.READ_HEART_RATE" />-->
 
     <!--
