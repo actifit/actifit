@@ -2508,7 +2508,7 @@ public class MainActivity extends BaseActivity {
             renderTodayCards(Math.max(0, currentDisplayedStepCount));
         }
         updateStreakAndHeatmap();
-        loadAiInsight();
+        loadDashboardTip();
         // also runs after a Health Connect sync completes (TrackingManager), so the route
         // card's GPS badge is re-checked against the freshly synced HC slots
         loadLastRoute();
@@ -2974,52 +2974,17 @@ public class MainActivity extends BaseActivity {
         apiManager.displayEstimatedReward(q, tvAfit, todaySteps);
     }
 
-    private void loadAiInsight() {
-        android.content.SharedPreferences prefs = getSharedPreferences("actifitSets", MODE_PRIVATE);
-        String todayStr = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(new java.util.Date());
-        String cachedDate = prefs.getString("ai_insight_date", "");
-        String cachedText = prefs.getString("ai_insight_text", "");
-        View aiCard = findViewById(R.id.ai_insight_card);
-        TextView tvInsight = findViewById(R.id.tv_ai_insight);
-        if (aiCard == null || tvInsight == null) return;
-
-        if (todayStr.equals(cachedDate) && !cachedText.isEmpty()) {
-            tvInsight.setText(cachedText);
-            aiCard.setVisibility(View.VISIBLE);
-            return;
-        }
-
-        // the prompt inputs come from 31 days of step counts: read them off the main thread
-        if (chartManager == null) return;
-        chartManager.loadThenRender(this::loadRecentSteps,
-                stepsBack -> requestAiInsight(stepsBack, prefs, todayStr, aiCard, tvInsight));
-    }
-
-    private void requestAiInsight(int[] stepsBack, android.content.SharedPreferences prefs, String todayStr,
-                                  View aiCard, TextView tvInsight) {
-        int todaySteps = Math.max(stepsBack[0], 0);
-        int streakDays = WidgetState.streak(stepsBack);
-        int totalSteps7d = 0;
-        for (int i = 0; i < 7; i++) totalSteps7d += Math.max(stepsBack[i], 0);
-        int avgSteps7d = totalSteps7d / 7;
-
-        AiService aiService = new AiService();
-        aiService.generateDashboardInsight(todaySteps, streakDays, avgSteps7d, new AiService.TextResponseCallback() {
-            @Override
-            public void onSuccess(String insight) {
-                runOnUiThread(() -> {
-                    tvInsight.setText(insight);
-                    aiCard.setVisibility(View.VISIBLE);
-                    prefs.edit()
-                        .putString("ai_insight_date", todayStr)
-                        .putString("ai_insight_text", insight)
-                        .apply();
-                });
-            }
-            @Override
-            public void onFailure(String errorMessage) {
-                Log.e(TAG, "AI insight error: " + errorMessage);
-            }
+    private void loadDashboardTip() {
+        View tipCard = findViewById(R.id.ai_insight_card);
+        TextView tvTip = findViewById(R.id.tv_ai_insight);
+        if (tipCard == null || tvTip == null || chartManager == null) return;
+        // the tip inputs come from 31 days of step counts: read them off the main thread
+        chartManager.loadThenRender(this::loadRecentSteps, stepsBack -> {
+            int today = Math.max(stepsBack[0], 0);
+            int total7 = 0;
+            for (int i = 0; i < 7; i++) total7 += Math.max(stepsBack[i], 0);
+            tvTip.setText(DashboardTip.text(this, today, WidgetState.streak(stepsBack), total7 / 7));
+            tipCard.setVisibility(View.VISIBLE);
         });
     }
 
@@ -3933,7 +3898,7 @@ public class MainActivity extends BaseActivity {
 
                 updateStreakAndHeatmap();
 
-                loadAiInsight();
+                loadDashboardTip();
 
 
                 loadLastRoute();
@@ -4271,7 +4236,7 @@ public class MainActivity extends BaseActivity {
 
             updateStreakAndHeatmap();
 
-            loadAiInsight();
+            loadDashboardTip();
 
 
             displayVotingStatus();

@@ -690,7 +690,6 @@
     <string name="x_like_btn">♡  Curtir no X</string>
     <string name="community_feed_title">Comunidade</string>
     <string name="community_see_all">Ver tudo →</string>
-    <string name="powered_by_gemini">Desenvolvido por Gemini</string>
     <string name="consistency_label">Consistência</string>
     <string name="generating_insight">A gerar insight...</string>
     <string name="route_tracking_label">Rastreamento de rota</string>
@@ -963,6 +962,15 @@
     <string name="widget_open_to_sync_short">Abra para sincronizar</string>
     <string name="hc_manual_steps_note_title">Passos introduzidos manualmente</string>
     <string name="hc_manual_steps_note_body">Os passos introduzidos à mão no Health Connect já não contam para as recompensas do Actifit. Só contam os passos registados pelo telemóvel ou pela pulseira, por isso a contagem no Actifit pode ser inferior à do Health Connect.</string>
+    <string name="ad_rewards_paused">As recompensas por anúncios estão pausadas para manutenção. Tente novamente mais tarde.</string>
+    <string name="ad_reward_start_failed">Não foi possível iniciar a recompensa. Tente novamente.</string>
+    <string name="tip_keep_streak">A sua sequência de %1$d dias está à espera: mais %2$s passos hoje mantêm-na.</string>
+    <string name="tip_start">Cada passo conta. Comece o dia com uma caminhada curta.</string>
+    <string name="tip_ten_k">%1$s passos hoje. Passou dos 10.000, ótimo trabalho!</string>
+    <string name="tip_above_avg">Está %1$s passos acima da sua média de 7 dias. Continue assim!</string>
+    <string name="tip_streak">%1$d dias seguidos. A consistência é o que traz resultados.</string>
+    <string name="tip_below_avg">Faltam %1$s passos para a sua média de 7 dias. Consegue!</string>
+    <string name="tip_generic">Uma caminhada de 10 minutos acrescenta cerca de 1.000 passos. Experimente após a próxima refeição.</string>
 </resources>
 
 

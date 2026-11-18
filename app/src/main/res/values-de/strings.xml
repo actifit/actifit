@@ -694,7 +694,6 @@
     <string name="x_like_btn">♡  Gefällt mir auf X</string>
     <string name="community_feed_title">Community</string>
     <string name="community_see_all">Alle anzeigen →</string>
-    <string name="powered_by_gemini">Unterstützt von Gemini</string>
     <string name="consistency_label">Beständigkeit</string>
     <string name="generating_insight">Erkenntnisse werden erstellt...</string>
     <string name="route_tracking_label">Routenverfolgung</string>
@@ -967,6 +966,15 @@
     <string name="widget_open_to_sync_short">Zum Sync öffnen</string>
     <string name="hc_manual_steps_note_title">Manuell eingegebene Schritte</string>
     <string name="hc_manual_steps_note_body">Schritte, die von Hand in Health Connect eingetragen werden, zählen nicht mehr für Actifit-Belohnungen. Es zählen nur Schritte, die dein Handy oder Tracker aufzeichnet. Deine Schrittzahl in Actifit kann daher niedriger sein als in Health Connect.</string>
+    <string name="ad_rewards_paused">Werbeprämien sind wegen Wartungsarbeiten pausiert. Bitte versuche es später erneut.</string>
+    <string name="ad_reward_start_failed">Die Prämie konnte nicht gestartet werden. Bitte versuche es erneut.</string>
+    <string name="tip_keep_streak">Deine %1$d-Tage-Serie wartet: %2$s Schritte mehr heute halten sie am Leben.</string>
+    <string name="tip_start">Jeder Schritt zählt. Starte den Tag mit einem kurzen Spaziergang.</string>
+    <string name="tip_ten_k">%1$s Schritte heute. Du hast die 10.000 geknackt, super!</string>
+    <string name="tip_above_avg">Du liegst %1$s Schritte über deinem 7-Tage-Durchschnitt. Weiter so!</string>
+    <string name="tip_streak">%1$d Tage in Folge. Beständigkeit bringt Ergebnisse.</string>
+    <string name="tip_below_avg">Noch %1$s Schritte bis zu deinem 7-Tage-Durchschnitt. Du schaffst das!</string>
+    <string name="tip_generic">Ein 10-minütiger Spaziergang bringt etwa 1.000 Schritte. Probier es nach deiner nächsten Mahlzeit.</string>
 </resources>
 
 

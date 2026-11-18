@@ -689,7 +689,6 @@
     <string name="x_like_btn">♡  X\'te Beğen</string>
     <string name="community_feed_title">Topluluk</string>
     <string name="community_see_all">Tümünü Gör →</string>
-    <string name="powered_by_gemini">Gemini tarafından desteklenmektedir</string>
     <string name="consistency_label">Tutarlılık</string>
     <string name="generating_insight">Bilgi oluşturuluyor...</string>
     <string name="route_tracking_label">Rota Takibi</string>
@@ -963,5 +962,14 @@
     <string name="widget_open_to_sync_short">Senkron için aç</string>
     <string name="hc_manual_steps_note_title">Elle girilen adımlar</string>
     <string name="hc_manual_steps_note_body">Health Connect\'e elle girilen adımlar artık Actifit ödüllerine sayılmıyor. Yalnızca telefonunuzun veya takip cihazınızın kaydettiği adımlar sayılır; bu yüzden Actifit\'teki adım sayınız Health Connect\'tekinden düşük olabilir.</string>
+    <string name="ad_rewards_paused">Reklam ödülleri bakım nedeniyle duraklatıldı. Lütfen daha sonra tekrar deneyin.</string>
+    <string name="ad_reward_start_failed">Ödül başlatılamadı. Lütfen tekrar deneyin.</string>
+    <string name="tip_keep_streak">%1$d günlük serin seni bekliyor: bugün %2$s adım daha atarsan devam eder.</string>
+    <string name="tip_start">Her adım önemli. Güne kısa bir yürüyüşle başla.</string>
+    <string name="tip_ten_k">Bugün %1$s adım. 10.000 adımı geçtin, harika!</string>
+    <string name="tip_above_avg">7 günlük ortalamanın %1$s adım üzerindesin. Böyle devam!</string>
+    <string name="tip_streak">Üst üste %1$d gün. Sonuçları istikrar getirir.</string>
+    <string name="tip_below_avg">7 günlük ortalamana ulaşmak için %1$s adım kaldı. Yapabilirsin!</string>
+    <string name="tip_generic">10 dakikalık bir yürüyüş yaklaşık 1.000 adım ekler. Bir sonraki yemeğinden sonra dene.</string>
 </resources>
 

@@ -40,7 +40,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -389,12 +388,32 @@ public class RewardManager {
             return;
         }
 
-        double rewardValue = calculateRewardValue(tier);
-        rewardValue = Math.floor(rewardValue * 1000) / 1000;
+        // The bot issues a one-time id and picks the amount; AdMob only ever sees "r1_<id>".
+        AdRewardApi.request(context, MainActivity.username, tier, new AdRewardApi.Callback() {
+            @Override
+            public void onReady(String id, double amount) {
+                showAd(view, AdRewardApi.customData(id), amount, curStepCount);
+            }
 
-        Button myBtn = (Button) view;
+            @Override
+            public void onError(AdRewardApi.Error error) {
+                if (giftLoader != null) giftLoader.clearAnimation();
+                int msg = error == AdRewardApi.Error.ALREADY_CLAIMED ? R.string.reward_already_claimed
+                        : error == AdRewardApi.Error.DISABLED ? R.string.ad_rewards_paused
+                        : R.string.ad_reward_start_failed;
+                Toast.makeText(context, context.getString(msg), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void showAd(View view, String customData, double rewardValue, int curStepCount) {
+        if (rewardedAd == null || activity.isFinishing()) {
+            if (giftLoader != null) giftLoader.clearAnimation();
+            if (rewardedAd == null) Toast.makeText(context, context.getString(R.string.ad_not_ready), Toast.LENGTH_LONG).show();
+            return;
+        }
         ServerSideVerificationOptions options = new ServerSideVerificationOptions.Builder()
-                .setCustomData(MainActivity.username + "_" + rewardValue + "_" + tier + "_" + android.net.Uri.encode(myBtn.getText().toString()))
+                .setCustomData(customData)
                 .build();
         rewardedAd.setServerSideVerificationOptions(options);
 
@@ -433,25 +452,6 @@ public class RewardManager {
                     getRequiredSteps(view.getId()), finalRewardValue + "", scaler, checkMark, curStepCount, null);
             adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
         });
-    }
-
-    private double calculateRewardValue(int tier) {
-        switch (tier) {
-            case 1:
-                return generateRandomVal(Float.parseFloat(context.getString(R.string.tier_one_reward_max)),
-                        Float.parseFloat(context.getString(R.string.tier_one_reward_min)));
-            case 2:
-                return generateRandomVal(Float.parseFloat(context.getString(R.string.tier_two_reward_max)),
-                        Float.parseFloat(context.getString(R.string.tier_two_reward_min)));
-            case 3:
-                return generateRandomVal(Float.parseFloat(context.getString(R.string.tier_three_reward_max)),
-                        Float.parseFloat(context.getString(R.string.tier_three_reward_min)));
-            case 4:
-                return generateRandomVal(Float.parseFloat(context.getString(R.string.tier_four_reward_max)),
-                        Float.parseFloat(context.getString(R.string.tier_four_reward_min)));
-            default:
-                return 0;
-        }
     }
 
     private void recordRewardClaim(int viewId, double finalRewardValue) {
@@ -532,13 +532,6 @@ public class RewardManager {
         } else {
             return stepsDBHelper != null ? stepsDBHelper.fetchTodayStepCount() : 0;
         }
-    }
-
-    private float generateRandomVal(float max, float min) {
-        float value = new Random().nextFloat() * (max - min) + min;
-        if (value < min) value = min;
-        if (value > max) value = max;
-        return value;
     }
 
     public void loadConsentData(Boolean goForAds) {
