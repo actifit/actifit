@@ -37,7 +37,8 @@ final class DashboardTip {
     }
 
     static String text(Context ctx, int today, int streak, int avg7) {
-        NumberFormat nf = NumberFormat.getIntegerInstance();
+        // the app's language, which can differ from the device default
+        NumberFormat nf = NumberFormat.getIntegerInstance(ctx.getResources().getConfiguration().getLocales().get(0));
         switch (kind(today, streak, avg7)) {
             case KEEP_STREAK:
                 return ctx.getString(R.string.tip_keep_streak, streak,

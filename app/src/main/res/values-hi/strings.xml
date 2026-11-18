@@ -965,13 +965,14 @@
     <string name="hc_manual_steps_note_body">Health Connect में हाथ से दर्ज किए गए कदम अब Actifit इनाम में नहीं गिने जाते। केवल आपके फ़ोन या ट्रैकर द्वारा रिकॉर्ड किए गए कदम गिने जाते हैं, इसलिए Actifit में आपके कदम Health Connect से कम दिख सकते हैं।</string>
     <string name="ad_rewards_paused">रखरखाव के कारण विज्ञापन इनाम अभी रुके हुए हैं। कृपया बाद में फिर कोशिश करें।</string>
     <string name="ad_reward_start_failed">इनाम शुरू नहीं हो सका। कृपया फिर से कोशिश करें।</string>
-    <string name="tip_keep_streak">आपकी %1$d-दिन की लगातार सीरीज़ इंतज़ार कर रही है: आज %2$s और कदम इसे जारी रखेंगे।</string>
+    <string name="tip_keep_streak">अब तक आपकी सीरीज़: %1$d। आज %2$s और कदम इसे जारी रखेंगे।</string>
     <string name="tip_start">हर कदम मायने रखता है। आज की शुरुआत एक छोटी सैर से करें।</string>
     <string name="tip_ten_k">आज %1$s कदम। आपने 10,000 पार कर लिए, शाबाश!</string>
     <string name="tip_above_avg">आप अपने 7-दिन के औसत से %1$s कदम आगे हैं। ऐसे ही चलते रहें!</string>
-    <string name="tip_streak">लगातार %1$d दिन। निरंतरता से ही नतीजे मिलते हैं।</string>
+    <string name="tip_streak">सीरीज़: लगातार %1$d। निरंतरता से ही नतीजे मिलते हैं।</string>
     <string name="tip_below_avg">अपने 7-दिन के औसत तक पहुँचने के लिए %1$s और कदम। आप कर सकते हैं!</string>
     <string name="tip_generic">10 मिनट की सैर से लगभग 1,000 कदम जुड़ते हैं। अगले भोजन के बाद आज़माएँ।</string>
+    <string name="ad_reward_claimed_pending">उपहार मिल गया! आपका AFIT इनाम रास्ते में है, और राशि के साथ आपको एक सूचना मिलेगी।</string>
 </resources>
 
 

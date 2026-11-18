@@ -1025,11 +1025,12 @@
     <string name="widget_steps_of_goal" translatable="false">%1$s / %2$s</string>
     <string name="ad_rewards_paused">Ad rewards are paused for maintenance. Please try again later.</string>
     <string name="ad_reward_start_failed">Couldn\'t start the reward. Please try again.</string>
-    <string name="tip_keep_streak">Your %1$d-day streak is waiting: %2$s more steps today keep it going.</string>
+    <string name="tip_keep_streak">Your streak so far: %1$d. %2$s more steps today keep it going.</string>
     <string name="tip_start">Every step counts. Start today with a short walk.</string>
     <string name="tip_ten_k">%1$s steps today. You\'ve passed 10,000, great work!</string>
     <string name="tip_above_avg">You\'re %1$s steps above your 7-day average. Keep it up!</string>
-    <string name="tip_streak">%1$d days in a row. Consistency is what builds results.</string>
+    <string name="tip_streak">Streak: %1$d in a row. Consistency is what builds results.</string>
     <string name="tip_below_avg">%1$s more steps to reach your 7-day average. You\'ve got this!</string>
     <string name="tip_generic">A 10-minute walk adds about 1,000 steps. Try one after your next meal.</string>
+    <string name="ad_reward_claimed_pending">Gift claimed! Your AFIT reward is on its way, and you\'ll get a notification with the amount.</string>
 </resources>

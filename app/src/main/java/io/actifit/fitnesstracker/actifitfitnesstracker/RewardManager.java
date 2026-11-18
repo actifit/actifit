@@ -42,6 +42,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+
 /**
  * Manages reward tiers, AdMob rewarded ads, claim logic, and consent forms.
  * Extracted from MainActivity to reduce class size.
@@ -57,6 +60,7 @@ public class RewardManager {
     private RewardedAd rewardedAd;
     private boolean isAdLoading;
     private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
+    private final AtomicBoolean rewardInFlight = new AtomicBoolean(false);
 
     private ConsentInformation consentInformation;
     private ConsentForm consentForm;
@@ -335,10 +339,10 @@ public class RewardManager {
     }
 
     void showRewardedVideo(View view, int tier) {
+        // one reward request at a time: a second tap while the first is in flight would
+        // overwrite the playing ad's verification data and callbacks
+        if (rewardInFlight.get()) return;
         int curStepCount = getCurrentStepCount(mStepsDBHelper);
-        if (giftLoader != null) {
-            giftLoader.startAnimation(scaler);
-        }
 
         if (context.getString(R.string.test_mode).equals("off")) {
             int id = view.getId();
@@ -388,28 +392,54 @@ public class RewardManager {
             return;
         }
 
-        // The bot issues a one-time id and picks the amount; AdMob only ever sees "r1_<id>".
+        if (!rewardInFlight.compareAndSet(false, true)) return;
+        if (giftLoader != null) {
+            giftLoader.startAnimation(scaler);
+        }
+        // The bot issues a one-time id and picks the amount when it pays; AdMob only ever
+        // sees "r1_<id>" (no username, no step tier).
         AdRewardApi.request(context, MainActivity.username, tier, new AdRewardApi.Callback() {
             @Override
-            public void onReady(String id, double amount) {
-                showAd(view, AdRewardApi.customData(id), amount, curStepCount);
+            public void onReady(String id) {
+                showAd(view, AdRewardApi.customData(id), curStepCount);
             }
 
             @Override
             public void onError(AdRewardApi.Error error) {
-                if (giftLoader != null) giftLoader.clearAnimation();
+                endRewardRequest();
+                if (error == AdRewardApi.Error.ALREADY_CLAIMED) {
+                    // claimed on another device or before a reinstall: show it as claimed here too
+                    recordRewardClaim(view.getId(), "");
+                    adjustRewardButtonsStatus(getCurrentStepCount(mStepsDBHelper));
+                }
                 int msg = error == AdRewardApi.Error.ALREADY_CLAIMED ? R.string.reward_already_claimed
                         : error == AdRewardApi.Error.DISABLED ? R.string.ad_rewards_paused
+                        : error == AdRewardApi.Error.AUTH ? R.string.gadget_session_expired
                         : R.string.ad_reward_start_failed;
                 Toast.makeText(context, context.getString(msg), Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    private void showAd(View view, String customData, double rewardValue, int curStepCount) {
-        if (rewardedAd == null || activity.isFinishing()) {
-            if (giftLoader != null) giftLoader.clearAnimation();
-            if (rewardedAd == null) Toast.makeText(context, context.getString(R.string.ad_not_ready), Toast.LENGTH_LONG).show();
+    private void endRewardRequest() {
+        rewardInFlight.set(false);
+        if (giftLoader != null) giftLoader.clearAnimation();
+    }
+
+    /** Only show an ad over our own screen: the id can arrive after the user has left it. */
+    private boolean inForeground() {
+        if (activity.isFinishing() || activity.isDestroyed()) return false;
+        return !(activity instanceof LifecycleOwner) || ((LifecycleOwner) activity).getLifecycle()
+                .getCurrentState().isAtLeast(Lifecycle.State.RESUMED);
+    }
+
+    private void showAd(View view, String customData, int curStepCount) {
+        if (rewardedAd == null || !inForeground()) {
+            // the unused id simply expires on the server
+            endRewardRequest();
+            if (rewardedAd == null && inForeground()) {
+                Toast.makeText(context, context.getString(R.string.ad_not_ready), Toast.LENGTH_LONG).show();
+            }
             return;
         }
         ServerSideVerificationOptions options = new ServerSideVerificationOptions.Builder()
@@ -427,34 +457,34 @@ public class RewardManager {
             public void onAdFailedToShowFullScreenContent(AdError adError) {
                 Log.d(TAG, "onAdFailedToShowFullScreenContent");
                 rewardedAd = null;
-                if (giftLoader != null) giftLoader.clearAnimation();
+                endRewardRequest();
+                loadRewardedAd();
             }
 
             @Override
             public void onAdDismissedFullScreenContent() {
                 Log.d(TAG, "onAdDismissedFullScreenContent");
                 rewardedAd = null;
+                endRewardRequest();
                 loadRewardedAd();
             }
         });
 
-        double finalRewardValue = rewardValue;
         rewardedAd.show(activity, rewardItem -> {
             Log.d("TAG", "The user earned the reward.");
-            Toast.makeText(context,
-                    context.getString(R.string.ad_reward_success).replace("_VAL_", finalRewardValue + ""),
-                    Toast.LENGTH_SHORT).show();
+            // the amount is picked by the server when AdMob confirms the view; it arrives as a notification
+            Toast.makeText(context, context.getString(R.string.ad_reward_claimed_pending), Toast.LENGTH_LONG).show();
 
             if (giftLoader != null) giftLoader.clearAnimation();
 
-            recordRewardClaim(view.getId(), finalRewardValue);
+            recordRewardClaim(view.getId(), "");
             updateRewardButtonAndStatus((Button) view, getRewardStatusTextView(view.getId()), true,
-                    getRequiredSteps(view.getId()), finalRewardValue + "", scaler, checkMark, curStepCount, null);
+                    getRequiredSteps(view.getId()), "", scaler, checkMark, curStepCount, null);
             adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
         });
     }
 
-    private void recordRewardClaim(int viewId, double finalRewardValue) {
+    private void recordRewardClaim(int viewId, String finalRewardValue) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         Date date = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
@@ -463,19 +493,19 @@ public class RewardManager {
         if (viewId == R.id.daily_free_reward) {
             dailyRewardClaimed = true;
             editor.putString(context.getString(R.string.daily_free_reward), strDate);
-            editor.putString("freerewardedValue", finalRewardValue + "");
+            editor.putString("freerewardedValue", finalRewardValue);
         } else if (viewId == R.id.daily_5k_reward) {
             fivekRewardClaimed = true;
             editor.putString(context.getString(R.string.daily_5k_reward), strDate);
-            editor.putString("5krewardedValue", finalRewardValue + "");
+            editor.putString("5krewardedValue", finalRewardValue);
         } else if (viewId == R.id.daily_7k_reward) {
             sevenkRewardClaimed = true;
             editor.putString(context.getString(R.string.daily_7k_reward), strDate);
-            editor.putString("7krewardedValue", finalRewardValue + "");
+            editor.putString("7krewardedValue", finalRewardValue);
         } else if (viewId == R.id.daily_10k_reward) {
             tenkRewardClaimed = true;
             editor.putString(context.getString(R.string.daily_10k_reward), strDate);
-            editor.putString("10krewardedValue", finalRewardValue + "");
+            editor.putString("10krewardedValue", finalRewardValue);
         }
         editor.commit();
     }

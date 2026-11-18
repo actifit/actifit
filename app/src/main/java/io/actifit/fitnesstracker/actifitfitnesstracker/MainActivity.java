@@ -2981,8 +2981,9 @@ public class MainActivity extends BaseActivity {
         // the tip inputs come from 31 days of step counts: read them off the main thread
         chartManager.loadThenRender(this::loadRecentSteps, stepsBack -> {
             int today = Math.max(stepsBack[0], 0);
+            // the 7 full days before today; today's count is still growing
             int total7 = 0;
-            for (int i = 0; i < 7; i++) total7 += Math.max(stepsBack[i], 0);
+            for (int i = 1; i <= 7; i++) total7 += Math.max(stepsBack[i], 0);
             tvTip.setText(DashboardTip.text(this, today, WidgetState.streak(stepsBack), total7 / 7));
             tipCard.setVisibility(View.VISIBLE);
         });

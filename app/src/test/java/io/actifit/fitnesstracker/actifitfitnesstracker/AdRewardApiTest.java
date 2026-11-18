@@ -10,11 +10,10 @@ public class AdRewardApiTest {
     private static final String ID = "0123456789abcdef0123456789abcdef";
 
     @Test
-    public void successCarriesIdAndAmount() {
-        AdRewardApi.Reply r = AdRewardApi.parse("{\"status\":\"success\",\"id\":\"" + ID + "\",\"amount\":2.345}");
+    public void successCarriesOnlyTheId() {
+        AdRewardApi.Reply r = AdRewardApi.parse("{\"status\":\"success\",\"id\":\"" + ID + "\"}");
         assertNull(r.error);
         assertEquals(ID, r.id);
-        assertEquals(2.345, r.amount, 1e-9);
     }
 
     @Test
@@ -30,8 +29,11 @@ public class AdRewardApiTest {
     }
 
     @Test
-    public void refusedTokenIsAuth() {
+    public void everySessionRefusalIsAuth() {
         assertEquals(AdRewardApi.Error.AUTH, AdRewardApi.parse("{\"success\":false,\"error\":\"token\"}").error);
+        assertEquals(AdRewardApi.Error.AUTH,
+                AdRewardApi.parse("{\"error\":\"Authentication failed. Key not found\"}").error);
+        assertEquals(AdRewardApi.Error.AUTH, AdRewardApi.parse("{\"error\":\"Invalid token payload\"}").error);
     }
 
     @Test
@@ -45,5 +47,12 @@ public class AdRewardApiTest {
         assertEquals(AdRewardApi.Error.FAILED, AdRewardApi.parse("{\"status\":\"error\",\"error\":\"banned\"}").error);
         assertEquals(AdRewardApi.Error.FAILED, AdRewardApi.parse("<html>502</html>").error);
         assertEquals(AdRewardApi.Error.FAILED, AdRewardApi.parse("").error);
+    }
+
+    @Test
+    public void http503MeansPausedAnythingElseFailed() {
+        assertEquals(AdRewardApi.Error.DISABLED, AdRewardApi.classifyHttp(503));
+        assertEquals(AdRewardApi.Error.FAILED, AdRewardApi.classifyHttp(500));
+        assertEquals(AdRewardApi.Error.FAILED, AdRewardApi.classifyHttp(404));
     }
 }

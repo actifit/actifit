@@ -989,13 +989,14 @@
     <string name="widget_open_to_sync_short">Відкрийте для синхр.</string>
     <string name="ad_rewards_paused">Винагороди за рекламу призупинено на час технічного обслуговування. Спробуйте пізніше.</string>
     <string name="ad_reward_start_failed">Не вдалося запустити винагороду. Спробуйте ще раз.</string>
-    <string name="tip_keep_streak">Ваша серія з %1$d днів чекає: ще %2$s кроків сьогодні збережуть її.</string>
+    <string name="tip_keep_streak">Ваша серія наразі: %1$d. Ще %2$s кроків сьогодні збережуть її.</string>
     <string name="tip_start">Кожен крок важливий. Почніть день з короткої прогулянки.</string>
     <string name="tip_ten_k">%1$s кроків сьогодні. Ви подолали 10 000, чудова робота!</string>
     <string name="tip_above_avg">Ви на %1$s кроків вище свого 7-денного середнього. Так тримати!</string>
-    <string name="tip_streak">%1$d днів поспіль. Саме постійність дає результат.</string>
+    <string name="tip_streak">Серія: %1$d поспіль. Саме постійність дає результат.</string>
     <string name="tip_below_avg">Ще %1$s кроків до вашого 7-денного середнього. У вас вийде!</string>
     <string name="tip_generic">10-хвилинна прогулянка додає близько 1 000 кроків. Спробуйте після наступного прийому їжі.</string>
+    <string name="ad_reward_claimed_pending">Подарунок отримано! Ваша винагорода AFIT уже в дорозі, а суму ви побачите в сповіщенні.</string>
 </resources>
 
 

@@ -951,13 +951,14 @@
     <string name="hc_manual_steps_note_body">Health Connect에 직접 입력한 걸음 수는 더 이상 Actifit 보상에 포함되지 않습니다. 휴대전화나 트래커가 기록한 걸음 수만 포함되므로 Actifit의 걸음 수가 Health Connect보다 적을 수 있습니다.</string>
     <string name="ad_rewards_paused">점검으로 인해 광고 보상이 일시 중지되었습니다. 나중에 다시 시도해 주세요.</string>
     <string name="ad_reward_start_failed">보상을 시작할 수 없습니다. 다시 시도해 주세요.</string>
-    <string name="tip_keep_streak">%1$d일 연속 기록이 기다리고 있어요: 오늘 %2$s걸음만 더 걸으면 이어갈 수 있어요.</string>
+    <string name="tip_keep_streak">지금까지 연속 기록: %1$d. 오늘 %2$s걸음만 더 걸으면 이어갈 수 있어요.</string>
     <string name="tip_start">모든 걸음이 소중해요. 짧은 산책으로 오늘을 시작해 보세요.</string>
     <string name="tip_ten_k">오늘 %1$s걸음. 10,000걸음을 넘었어요, 훌륭해요!</string>
     <string name="tip_above_avg">7일 평균보다 %1$s걸음 더 걸었어요. 계속 힘내세요!</string>
-    <string name="tip_streak">%1$d일 연속이에요. 꾸준함이 결과를 만듭니다.</string>
+    <string name="tip_streak">연속 기록: %1$d. 꾸준함이 결과를 만듭니다.</string>
     <string name="tip_below_avg">7일 평균까지 %1$s걸음 남았어요. 할 수 있어요!</string>
     <string name="tip_generic">10분 산책이면 약 1,000걸음이 늘어나요. 다음 식사 후에 걸어 보세요.</string>
+    <string name="ad_reward_claimed_pending">선물을 받았어요! AFIT 보상이 지급 중이며, 금액은 알림으로 알려 드려요.</string>
 </resources>
 
 

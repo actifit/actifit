@@ -963,13 +963,14 @@
     <string name="hc_manual_steps_note_body">Stappen die met de hand in Health Connect zijn ingevoerd, tellen niet meer mee voor Actifit-beloningen. Alleen stappen die je telefoon of tracker registreert tellen, dus je aantal in Actifit kan lager zijn dan in Health Connect.</string>
     <string name="ad_rewards_paused">Advertentiebeloningen zijn gepauzeerd voor onderhoud. Probeer het later opnieuw.</string>
     <string name="ad_reward_start_failed">De beloning kon niet worden gestart. Probeer het opnieuw.</string>
-    <string name="tip_keep_streak">Je reeks van %1$d dagen wacht: nog %2$s stappen vandaag houden hem in stand.</string>
+    <string name="tip_keep_streak">Je reeks tot nu toe: %1$d. Nog %2$s stappen vandaag houden hem in stand.</string>
     <string name="tip_start">Elke stap telt. Begin vandaag met een korte wandeling.</string>
     <string name="tip_ten_k">%1$s stappen vandaag. Je bent over de 10.000, goed gedaan!</string>
     <string name="tip_above_avg">Je zit %1$s stappen boven je 7-daags gemiddelde. Ga zo door!</string>
-    <string name="tip_streak">%1$d dagen op rij. Volhouden levert resultaat op.</string>
+    <string name="tip_streak">Reeks: %1$d op rij. Volhouden levert resultaat op.</string>
     <string name="tip_below_avg">Nog %1$s stappen tot je 7-daags gemiddelde. Dat lukt je!</string>
     <string name="tip_generic">Een wandeling van 10 minuten levert ongeveer 1.000 stappen op. Probeer er een na je volgende maaltijd.</string>
+    <string name="ad_reward_claimed_pending">Cadeau geclaimd! Je AFIT-beloning is onderweg en je krijgt een melding met het bedrag.</string>
 </resources>
 
 

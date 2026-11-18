@@ -845,13 +845,14 @@
     <string name="hc_manual_steps_note_body">Os passos inseridos à mão no Health Connect não contam mais para as recompensas do Actifit. Só contam os passos registrados pelo celular ou pela pulseira, então sua contagem no Actifit pode ser menor que no Health Connect.</string>
     <string name="ad_rewards_paused">As recompensas por anúncios estão pausadas para manutenção. Tente novamente mais tarde.</string>
     <string name="ad_reward_start_failed">Não foi possível iniciar a recompensa. Tente novamente.</string>
-    <string name="tip_keep_streak">Sua sequência de %1$d dias está esperando: mais %2$s passos hoje a mantêm.</string>
+    <string name="tip_keep_streak">Sua sequência até agora: %1$d. Mais %2$s passos hoje a mantêm.</string>
     <string name="tip_start">Cada passo conta. Comece o dia com uma caminhada curta.</string>
     <string name="tip_ten_k">%1$s passos hoje. Você passou dos 10.000, ótimo trabalho!</string>
     <string name="tip_above_avg">Você está %1$s passos acima da sua média de 7 dias. Continue assim!</string>
-    <string name="tip_streak">%1$d dias seguidos. A constância é o que traz resultados.</string>
+    <string name="tip_streak">Sequência: %1$d seguidos. A constância é o que traz resultados.</string>
     <string name="tip_below_avg">Faltam %1$s passos para a sua média de 7 dias. Você consegue!</string>
     <string name="tip_generic">Uma caminhada de 10 minutos soma cerca de 1.000 passos. Experimente depois da próxima refeição.</string>
+    <string name="ad_reward_claimed_pending">Presente resgatado! Sua recompensa em AFIT está a caminho e você receberá uma notificação com o valor.</string>
 </resources>
 
 

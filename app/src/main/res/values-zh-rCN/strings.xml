@@ -950,13 +950,14 @@
     <string name="hc_manual_steps_note_body">在 Health Connect 中手动输入的步数将不再计入 Actifit 奖励。只有手机或手环记录的步数才会计入，因此 Actifit 中的步数可能低于 Health Connect 中的步数。</string>
     <string name="ad_rewards_paused">广告奖励因维护暂停。请稍后再试。</string>
     <string name="ad_reward_start_failed">无法开始领取奖励。请重试。</string>
-    <string name="tip_keep_streak">你的 %1$d 天连续记录正在等你：今天再走 %2$s 步即可保持。</string>
+    <string name="tip_keep_streak">你目前的连续记录：%1$d。今天再走 %2$s 步即可保持。</string>
     <string name="tip_start">每一步都算数。今天从一次短途散步开始吧。</string>
     <string name="tip_ten_k">今天 %1$s 步。你已突破 10,000 步，太棒了！</string>
     <string name="tip_above_avg">你比 7 天平均多走了 %1$s 步。继续保持！</string>
-    <string name="tip_streak">连续 %1$d 天。坚持才能带来成果。</string>
+    <string name="tip_streak">连续记录：%1$d。坚持才能带来成果。</string>
     <string name="tip_below_avg">还差 %1$s 步就达到你的 7 天平均。你可以的！</string>
     <string name="tip_generic">散步 10 分钟大约能增加 1,000 步。下一餐后试试吧。</string>
+    <string name="ad_reward_claimed_pending">礼物已领取！你的 AFIT 奖励正在发放，金额将通过通知告诉你。</string>
 </resources>
 
 

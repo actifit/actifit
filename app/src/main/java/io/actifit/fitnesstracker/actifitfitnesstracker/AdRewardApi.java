@@ -15,7 +15,8 @@ import java.util.regex.Pattern;
 /**
  * A one-time rewarded-ad id from the bot (/adRewardIntent). The ad's server-side verification
  * data then carries only "r1_&lt;id&gt;": the step tiers unlock on Health Connect steps, so the
- * ad network must not see the username or the tier. The bot also picks the amount.
+ * ad network must not see the username or the tier. The bot picks the amount when it pays
+ * and tells the user in a notification.
  */
 final class AdRewardApi {
 
@@ -25,19 +26,17 @@ final class AdRewardApi {
     enum Error { DISABLED, ALREADY_CLAIMED, AUTH, FAILED }
 
     interface Callback {
-        void onReady(String id, double amount);
+        void onReady(String id);
 
         void onError(Error error);
     }
 
     static final class Reply {
         final String id;
-        final double amount;
         final Error error;
 
-        private Reply(String id, double amount, Error error) {
+        private Reply(String id, Error error) {
             this.id = id;
-            this.amount = amount;
             this.error = error;
         }
     }
@@ -56,15 +55,26 @@ final class AdRewardApi {
             JSONObject o = new JSONObject(body);
             String id = o.optString("id", "");
             if ("success".equals(o.optString("status")) && ID.matcher(id).matches()) {
-                return new Reply(id, o.optDouble("amount", 0), null);
+                return new Reply(id, null);
             }
-            // checkHdrs refuses a missing or expired token with {success: false}
-            if (o.has("success") && !o.optBoolean("success", true)) return new Reply(null, 0, Error.AUTH);
-            if ("already_claimed".equals(o.optString("error"))) return new Reply(null, 0, Error.ALREADY_CLAIMED);
+            // checkHdrs: {success: false} for a missing or expired token; the two error texts
+            // for a valid token whose session is gone (key rotation, logout elsewhere)
+            String error = o.optString("error");
+            if ((o.has("success") && !o.optBoolean("success", true))
+                    || "Authentication failed. Key not found".equals(error)
+                    || "Invalid token payload".equals(error)) {
+                return new Reply(null, Error.AUTH);
+            }
+            if ("already_claimed".equals(error)) return new Reply(null, Error.ALREADY_CLAIMED);
         } catch (Exception ignored) {
             // not JSON (proxy page etc.)
         }
-        return new Reply(null, 0, Error.FAILED);
+        return new Reply(null, Error.FAILED);
+    }
+
+    /** A failed HTTP status: 503 is the bot's "temporarily disabled" (securityDisabled). */
+    static Error classifyHttp(int status) {
+        return status == HTTP_UNAVAILABLE ? Error.DISABLED : Error.FAILED;
     }
 
     static void request(Context ctx, String user, int tier, Callback cb) {
@@ -96,11 +106,11 @@ final class AdRewardApi {
                     } else if (r.error != null) {
                         cb.onError(r.error);
                     } else {
-                        cb.onReady(r.id, r.amount);
+                        cb.onReady(r.id);
                     }
                 },
                 err -> cb.onError(err.networkResponse != null
-                        && err.networkResponse.statusCode == HTTP_UNAVAILABLE ? Error.DISABLED : Error.FAILED)) {
+                        ? classifyHttp(err.networkResponse.statusCode) : Error.FAILED)) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> h = new HashMap<>();

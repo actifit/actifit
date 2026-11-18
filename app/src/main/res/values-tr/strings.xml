@@ -964,12 +964,13 @@
     <string name="hc_manual_steps_note_body">Health Connect\'e elle girilen adımlar artık Actifit ödüllerine sayılmıyor. Yalnızca telefonunuzun veya takip cihazınızın kaydettiği adımlar sayılır; bu yüzden Actifit\'teki adım sayınız Health Connect\'tekinden düşük olabilir.</string>
     <string name="ad_rewards_paused">Reklam ödülleri bakım nedeniyle duraklatıldı. Lütfen daha sonra tekrar deneyin.</string>
     <string name="ad_reward_start_failed">Ödül başlatılamadı. Lütfen tekrar deneyin.</string>
-    <string name="tip_keep_streak">%1$d günlük serin seni bekliyor: bugün %2$s adım daha atarsan devam eder.</string>
+    <string name="tip_keep_streak">Şu ana kadarki serin: %1$d. Bugün %2$s adım daha atarsan devam eder.</string>
     <string name="tip_start">Her adım önemli. Güne kısa bir yürüyüşle başla.</string>
     <string name="tip_ten_k">Bugün %1$s adım. 10.000 adımı geçtin, harika!</string>
     <string name="tip_above_avg">7 günlük ortalamanın %1$s adım üzerindesin. Böyle devam!</string>
-    <string name="tip_streak">Üst üste %1$d gün. Sonuçları istikrar getirir.</string>
+    <string name="tip_streak">Seri: üst üste %1$d. Sonuçları istikrar getirir.</string>
     <string name="tip_below_avg">7 günlük ortalamana ulaşmak için %1$s adım kaldı. Yapabilirsin!</string>
     <string name="tip_generic">10 dakikalık bir yürüyüş yaklaşık 1.000 adım ekler. Bir sonraki yemeğinden sonra dene.</string>
+    <string name="ad_reward_claimed_pending">Hediye alındı! AFIT ödülün yolda; tutarı bir bildirimle öğreneceksin.</string>
 </resources>
 
