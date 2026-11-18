@@ -314,6 +314,50 @@
 
             </HorizontalScrollView>
 
+            <!-- Profile badges (ISO, activity levels, lucky, charity). Own profile: every badge
+                 with claim buttons; another user's: only the badges they hold. -->
+            <TextView
+                android:id="@+id/badges_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="@dimen/text_subtitle"
+                android:textColor="@color/md_theme_onSurface"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:paddingTop="@dimen/spacing_lg"
+                android:paddingBottom="@dimen/spacing_xs"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/badges_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="@color/md_theme_textSecondary"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:paddingBottom="@dimen/spacing_sm"
+                android:visibility="gone" />
+
+            <HorizontalScrollView
+                android:id="@+id/badges_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md"
+                android:clipToPadding="false"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/badges_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+
+            </HorizontalScrollView>
+
             <!-- Arena badges (shown at runtime when the user has earned any) -->
             <TextView
                 android:id="@+id/arena_badges_header"

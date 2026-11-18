@@ -913,6 +913,44 @@
     <string name="arena_ends_in_clock">Eindigt over %1$s</string>
     <string name="sync_from_health_connect_btn_lbl">Synchroniseren vanuit Health Connect</string>
     <string name="steps_synced_from_health_connect">Stappen gesynchroniseerd vanuit Health Connect</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">Ophalen</string>
+    <string name="badge_claimed">Opgehaald</string>
+    <string name="badge_missed_event">Evenement gemist</string>
+    <string name="badge_not_lucky_yet">Het geluk is nog niet gekomen!</string>
+    <string name="badge_name_iso">ISO-evenement</string>
+    <string name="badge_name_activity">Activiteit niv. %d</string>
+    <string name="badge_name_lucky">Geluksverdubbeling</string>
+    <string name="badge_name_charity">Donateur goed doel</string>
+    <string name="badge_desc_iso">Toegekend aan iedereen die heeft deelgenomen aan het Actifit ISO-evenement.</string>
+    <string name="badge_desc_lucky">Toegekend wanneer een van je activiteitsrapporten een willekeurige verdubbelde AFIT-beloning wint.</string>
+    <string name="badge_desc_charity">Toegekend zodra je de beloningen van een activiteitsrapport aan een goed doel doneert.</string>
+    <string name="badges_activity_max">Je hebt het hoogste activiteitsniveau bereikt.</string>
+    <string name="badge_claim_success">Badge opgehaald: %s</string>
+    <string name="badge_claim_not_met">Je voldoet nog niet aan de vereisten voor deze badge.</string>
+    <string name="badge_claim_login_again">Je sessie is verlopen. Log opnieuw in om deze badge op te halen.</string>
+    <string name="badge_claim_network">De badge kon niet worden opgehaald. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">opgehaald</string>
+    <string name="badge_state_claimable">klaar om op te halen</string>
+    <string name="badge_state_missed">gemist</string>
+    <string name="badge_state_locked">nog niet verdiend</string>
+    <plurals name="badges_header">
+        <item quantity="one">Badge (%d)</item>
+        <item quantity="other">Badges (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="one">Nog %1$d beloond rapport tot activiteitsniveau %2$d</item>
+        <item quantity="other">Nog %1$d beloonde rapporten tot activiteitsniveau %2$d</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="one">Verdien je naarmate je beloonde activiteitsrapporten oplopen. Niveau %1$d vereist %2$d beloond rapport.</item>
+        <item quantity="other">Verdien je naarmate je beloonde activiteitsrapporten oplopen. Niveau %1$d vereist %2$d beloonde rapporten.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="one">%d badge om op te halen</item>
+        <item quantity="other">%d badges om op te halen</item>
+    </plurals>
     <!-- Home-screen steps widget -->
     <string name="widget_name">Actifit-stappen</string>
     <string name="widget_description">Je stappen van vandaag, je doelvoortgang en je reeks in één oogopslag</string>

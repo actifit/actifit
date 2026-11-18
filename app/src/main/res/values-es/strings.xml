@@ -916,6 +916,44 @@
     <string name="arena_ends_in_clock">Termina en %1$s</string>
     <string name="sync_from_health_connect_btn_lbl">Sincronizar desde Health Connect</string>
     <string name="steps_synced_from_health_connect">Pasos sincronizados desde Health Connect</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">Reclamar</string>
+    <string name="badge_claimed">Reclamada</string>
+    <string name="badge_missed_event">Evento perdido</string>
+    <string name="badge_not_lucky_yet">¡La suerte aún no llega!</string>
+    <string name="badge_name_iso">Evento ISO</string>
+    <string name="badge_name_activity">Actividad nivel %d</string>
+    <string name="badge_name_lucky">Doble afortunado</string>
+    <string name="badge_name_charity">Donante benéfico</string>
+    <string name="badge_desc_iso">Se otorga a todos los que participaron en el evento ISO de Actifit.</string>
+    <string name="badge_desc_lucky">Se otorga cuando uno de tus informes de actividad gana una recompensa AFIT duplicada al azar.</string>
+    <string name="badge_desc_charity">Se otorga cuando donas las recompensas de un informe de actividad a una organización benéfica.</string>
+    <string name="badges_activity_max">Has alcanzado el nivel de actividad más alto.</string>
+    <string name="badge_claim_success">Insignia reclamada: %s</string>
+    <string name="badge_claim_not_met">Aún no cumples los requisitos de esta insignia.</string>
+    <string name="badge_claim_login_again">Tu sesión ha caducado. Vuelve a iniciar sesión para reclamar esta insignia.</string>
+    <string name="badge_claim_network">No se pudo reclamar la insignia. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">reclamada</string>
+    <string name="badge_state_claimable">lista para reclamar</string>
+    <string name="badge_state_missed">perdida</string>
+    <string name="badge_state_locked">aún no conseguida</string>
+    <plurals name="badges_header">
+        <item quantity="one">Insignia (%d)</item>
+        <item quantity="other">Insignias (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="one">Te falta %1$d informe recompensado para el nivel de actividad %2$d</item>
+        <item quantity="other">Te faltan %1$d informes recompensados para el nivel de actividad %2$d</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="one">Se obtiene a medida que suman tus informes de actividad recompensados. El nivel %1$d requiere %2$d informe recompensado.</item>
+        <item quantity="other">Se obtiene a medida que suman tus informes de actividad recompensados. El nivel %1$d requiere %2$d informes recompensados.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="one">%d insignia por reclamar</item>
+        <item quantity="other">%d insignias por reclamar</item>
+    </plurals>
     <!-- Home-screen steps widget -->
     <string name="widget_name">Pasos de Actifit</string>
     <string name="widget_description">Tus pasos de hoy, el progreso de tu meta y tu racha de un vistazo</string>

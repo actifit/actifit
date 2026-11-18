@@ -1156,6 +1156,19 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- "N badges to claim": shown by BadgeHomeNudge only when the logged-in user can
+                 claim at least one profile badge; opens the profile. -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/badges_home_nudge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:textColor="@color/actifitRed"
+                app:chipBackgroundColor="@color/md_theme_surface"
+                app:chipStrokeColor="@color/actifitRed"
+                app:chipStrokeWidth="1dp"
+                android:visibility="gone" />
+
             <!-- News Carousel -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"

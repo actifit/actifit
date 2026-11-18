@@ -3898,8 +3898,9 @@ public class MainActivity extends BaseActivity {
 
         Log.d(TAG, "[Actifit] - onResume Main");
 
-        ArenaHomeCard.refresh(this,
-                getSharedPreferences("actifitSets", MODE_PRIVATE).getString("actifitUser", ""));
+        String resumeUser = getSharedPreferences("actifitSets", MODE_PRIVATE).getString("actifitUser", "");
+        ArenaHomeCard.refresh(this, resumeUser);
+        BadgeHomeNudge.refresh(this, resumeUser);
 
         new Thread(() -> {
 

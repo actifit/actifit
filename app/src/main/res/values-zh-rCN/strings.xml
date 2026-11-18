@@ -904,6 +904,40 @@
     <string name="arena_countdown_days">%1$d天 %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">从 Health Connect 同步</string>
     <string name="steps_synced_from_health_connect">已从 Health Connect 同步步数</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">领取</string>
+    <string name="badge_claimed">已领取</string>
+    <string name="badge_missed_event">错过活动</string>
+    <string name="badge_not_lucky_yet">好运尚未降临！</string>
+    <string name="badge_name_iso">ISO 活动</string>
+    <string name="badge_name_activity">活动等级 %d</string>
+    <string name="badge_name_lucky">幸运翻倍</string>
+    <string name="badge_name_charity">慈善捐赠者</string>
+    <string name="badge_desc_iso">授予所有参加过 Actifit ISO 活动的用户。</string>
+    <string name="badge_desc_lucky">当你的某篇活动报告随机赢得双倍 AFIT 奖励时授予。</string>
+    <string name="badge_desc_charity">当你将活动报告的奖励捐赠给慈善机构时授予。</string>
+    <string name="badges_activity_max">你已达到最高活动等级。</string>
+    <string name="badge_claim_success">已领取徽章：%s</string>
+    <string name="badge_claim_not_met">你暂未满足此徽章的要求。</string>
+    <string name="badge_claim_login_again">你的会话已过期。请重新登录以领取此徽章。</string>
+    <string name="badge_claim_network">无法领取徽章。请检查网络连接后重试。</string>
+    <string name="badge_tile_description">%1$s，%2$s</string>
+    <string name="badge_state_claimed">已领取</string>
+    <string name="badge_state_claimable">可领取</string>
+    <string name="badge_state_missed">已错过</string>
+    <string name="badge_state_locked">尚未获得</string>
+    <plurals name="badges_header">
+        <item quantity="other">徽章 (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="other">再获得 %1$d 篇奖励报告即可达到活动等级 %2$d</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="other">随着获得奖励的活动报告增加而获得。等级 %1$d 需要 %2$d 篇获得奖励的报告。</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="other">%d 个徽章待领取</item>
+    </plurals>
     <!-- Home-screen steps widget -->
     <string name="widget_name">Actifit 步数</string>
     <string name="widget_description">一眼查看今日步数、目标进度和连续达标天数</string>

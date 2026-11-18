@@ -915,6 +915,44 @@
     <string name="arena_countdown_days">%1$d g %2$02d:%3$02d:%4$02d</string>
     <string name="sync_from_health_connect_btn_lbl">Sincronizza da Health Connect</string>
     <string name="steps_synced_from_health_connect">Passi sincronizzati da Health Connect</string>
+    <!-- Profile badges (ISO, activity levels, lucky doubled-up, charity) -->
+    <string name="badge_claim">Riscatta</string>
+    <string name="badge_claimed">Riscattato</string>
+    <string name="badge_missed_event">Evento perso</string>
+    <string name="badge_not_lucky_yet">La fortuna non è ancora arrivata!</string>
+    <string name="badge_name_iso">Evento ISO</string>
+    <string name="badge_name_activity">Attività liv. %d</string>
+    <string name="badge_name_lucky">Raddoppio fortunato</string>
+    <string name="badge_name_charity">Donatore benefico</string>
+    <string name="badge_desc_iso">Assegnato a tutti coloro che hanno partecipato all\'evento ISO di Actifit.</string>
+    <string name="badge_desc_lucky">Assegnato quando uno dei tuoi report di attività vince una ricompensa AFIT raddoppiata a caso.</string>
+    <string name="badge_desc_charity">Assegnato quando doni le ricompense di un report di attività a un ente benefico.</string>
+    <string name="badges_activity_max">Hai raggiunto il livello di attività più alto.</string>
+    <string name="badge_claim_success">Badge riscattato: %s</string>
+    <string name="badge_claim_not_met">Non soddisfi ancora i requisiti per questo badge.</string>
+    <string name="badge_claim_login_again">La tua sessione è scaduta. Accedi di nuovo per riscattare questo badge.</string>
+    <string name="badge_claim_network">Impossibile riscattare il badge. Controlla la connessione e riprova.</string>
+    <string name="badge_tile_description">%1$s, %2$s</string>
+    <string name="badge_state_claimed">riscattato</string>
+    <string name="badge_state_claimable">pronto da riscattare</string>
+    <string name="badge_state_missed">perso</string>
+    <string name="badge_state_locked">non ancora ottenuto</string>
+    <plurals name="badges_header">
+        <item quantity="one">Badge (%d)</item>
+        <item quantity="other">Badge (%d)</item>
+    </plurals>
+    <plurals name="badges_activity_progress">
+        <item quantity="one">Ancora %1$d report premiato per il livello di attività %2$d</item>
+        <item quantity="other">Ancora %1$d report premiati per il livello di attività %2$d</item>
+    </plurals>
+    <plurals name="badge_desc_activity">
+        <item quantity="one">Si ottiene man mano che crescono i tuoi report di attività premiati. Il livello %1$d richiede %2$d report premiato.</item>
+        <item quantity="other">Si ottiene man mano che crescono i tuoi report di attività premiati. Il livello %1$d richiede %2$d report premiati.</item>
+    </plurals>
+    <plurals name="badges_home_nudge">
+        <item quantity="one">%d badge da riscattare</item>
+        <item quantity="other">%d badge da riscattare</item>
+    </plurals>
     <!-- Home-screen steps widget -->
     <string name="widget_name">Passi Actifit</string>
     <string name="widget_description">I passi di oggi, i progressi verso l\'obiettivo e la tua serie a colpo d\'occhio</string>
