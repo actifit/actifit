@@ -159,7 +159,7 @@ final class WidgetState {
     /**
      * The {@link #SIZES} entry for a widget of {@code widthDp} x {@code heightDp}, chosen like
      * Android 12's RemoteViews(Map): among the entries that fit, the one closest to the widget size
-     * (squared distance); when none fits, the smallest. Unknown (0) sizes get the default 2x2 with
+     * (squared distance); when none fits, the smallest. Unknown (0) sizes get the default (3x2) with
      * its footer.
      */
     static int[] sizeEntry(int widthDp, int heightDp) {
