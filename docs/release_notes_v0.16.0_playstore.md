@@ -10,4 +10,5 @@ Covers everything since v0.15.2, the last production release.
 • Only automatically counted steps earn rewards
 • Dashboard tips are now made on your phone
 • GPS-verified badge for recorded routes; clearer earnings panel
+• Video uploads work again (new 3Speak service)
 • Faster startup, fewer freezes, and translation fixes

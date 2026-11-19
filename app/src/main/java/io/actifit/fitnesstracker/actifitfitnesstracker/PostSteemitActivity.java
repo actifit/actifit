@@ -1524,72 +1524,18 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                     // properties
                     if (selVidEntry != null) {
                         try {
-                            // Create sourceMap JSONArray
-                            JSONArray sourceMap = new JSONArray();
-
-                            JSONObject thumbnailMap = new JSONObject();
-                            thumbnailMap.put("type", "thumbnail");
-                            thumbnailMap.put("url", selVidEntry.thumbnail);
-                            sourceMap.put(thumbnailMap);
-
-                            JSONObject videoMap = new JSONObject();
-                            videoMap.put("type", "video");
-                            videoMap.put("url", selVidEntry.video_v2);
-                            videoMap.put("format", "m3u8");
-                            sourceMap.put(videoMap);
-
-                            // Create content JSONObject
-                            JSONObject content = new JSONObject();
-                            content.put("description", "");
-                            JSONArray tags = new JSONArray();
-                            tags.put("actifit");
-                            tags.put("3speak");
-                            content.put("tags", tags);
-
-                            // Create info JSONObject
-                            JSONObject info = new JSONObject();
-                            info.put("platform", "3speak");
-                            info.put("title", selVidEntry.title);
-                            info.put("author", MainActivity.username);
-                            info.put("permlink", selVidEntry.permlink);
-                            info.put("duration", selVidEntry.duration);
-                            info.put("filesize", selVidEntry.size);
-                            info.put("file", selVidEntry.filename);
-                            info.put("lang", "en");
-                            info.put("firstUpload", false);
-                            info.put("video_v2", selVidEntry.video_v2);
-                            info.put("sourceMap", sourceMap);
-
-                            // Create video JSONObject
-                            JSONObject video = new JSONObject();
-                            video.put("info", info);
-                            video.put("content", content);
-
-                            // Create vidJsonMeta JSONObject
-                            JSONObject vidJsonMeta = new JSONObject();
-                            vidJsonMeta.put("video", video);
-
-                            // include as part of the json_metadata
-                            data.put("video", vidJsonMeta.toString());
-
-                            // add 3speak beneficiary data
-                            JSONArray spkBenefic = Utils.grab3SpeakDefaultBenefic();
-                            try {
-                                JSONArray vidBenefic = new JSONArray(selVidEntry.beneficiaries);
-                                for (int k = 0; k < vidBenefic.length(); k++)
-                                    spkBenefic.put(vidBenefic.getJSONObject(k));
-                            } catch (Exception exc) {
-                                exc.printStackTrace();
-                            }
-                            data.put("spkBenefic", spkBenefic);
-
-                            // also append vid permalink to ensure it gets recognized on 3speak side
+                            // 3Speak embed video: player link in the body, "video" in json_metadata,
+                            // 3Speak's beneficiaries, and the 3Speak permlink as the post permlink
+                            JSONObject video = ThreeSpeakVideo.metadata(MainActivity.username,
+                                    selVidEntry.permlink, selVidEntry.embed_url,
+                                    steemitPostTitle.getText().toString(), selVidEntry.duration,
+                                    selVidEntry.thumbnail_url);
+                            data.put("video", video.toString());
+                            data.put("spkBenefic", ThreeSpeakVideo.beneficiaries());
                             data.put("spkPermlink", selVidEntry.permlink);
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-
                     }
 
                     // also send out any additional beneficiaries
@@ -1806,12 +1752,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         finalPostContent = steemitPostContent.getText().toString();
 
         // check if we have a video and the video still is part of the content
-        if (selVidEntry != null) {
-            String soughtString = "https://3speak.tv/watch?v=" + MainActivity.username + "/" + selVidEntry.permlink;
-            if (!finalPostContent.contains(soughtString)) {
-                // video has been removed, set as null
-                selVidEntry = null;
-            }
+        // (videos from before the 3Speak embed service have no embed_url and are dropped too)
+        if (selVidEntry != null && !ThreeSpeakVideo.isInContent(finalPostContent, selVidEntry.embed_url)) {
+            // video has been removed from the text
+            selVidEntry = null;
         }
 
         // turn any text still in the input into a chip (same cleanup, dedupe and 10-tag cap),
