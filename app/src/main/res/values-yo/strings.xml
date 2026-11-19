@@ -690,7 +690,6 @@
     <string name="x_like_btn">♡  Fẹ́ràn lórí X</string>
     <string name="community_feed_title">Àwùjọ</string>
     <string name="community_see_all">Wo gbogbo →</string>
-    <string name="powered_by_gemini">Gba agbara nipasẹ Gemini</string>
     <string name="consistency_label">Ìtẹramọ́</string>
     <string name="generating_insight">Ṣíṣẹ̀ ìmọ̀...</string>
     <string name="route_tracking_label">Ìtọ́pa ọ̀nà</string>
@@ -948,6 +947,16 @@
     <string name="widget_open_to_sync_short">Ṣí láti mú ṣiṣẹ́pọ̀</string>
     <string name="hc_manual_steps_note_title">Àwọn ìgbésẹ̀ tí a tẹ̀ wọlé fúnra ẹni</string>
     <string name="hc_manual_steps_note_body">Àwọn ìgbésẹ̀ tí o tẹ̀ sínú Health Connect fúnra rẹ kò ní kà fún èrè Actifit mọ́. Àwọn ìgbésẹ̀ tí fóònù tàbí ẹ̀rọ ìtọpinpin rẹ gbà sílẹ̀ nìkan ló ń kà, nítorí náà iye ìgbésẹ̀ rẹ nínú Actifit lè kéré ju ti Health Connect lọ.</string>
+    <string name="ad_rewards_paused">Àwọn èrè ìpolówó ti dúró fún àtúnṣe. Jọ̀wọ́ gbìyànjú lẹ́yìn náà.</string>
+    <string name="ad_reward_start_failed">A kò lè bẹ̀rẹ̀ èrè náà. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.</string>
+    <string name="tip_keep_streak">Ìtẹ̀léra rẹ títí di báyìí: %1$d. Ìgbésẹ̀ %2$s sí i lónìí yóò jẹ́ kí ó tẹ̀síwájú.</string>
+    <string name="tip_start">Gbogbo ìgbésẹ̀ ló ṣe pàtàkì. Bẹ̀rẹ̀ òní pẹ̀lú ìrìn kúkúrú.</string>
+    <string name="tip_ten_k">Ìgbésẹ̀ %1$s lónìí. O ti kọjá 10,000, iṣẹ́ takuntakun!</string>
+    <string name="tip_above_avg">O ti kọjá ìpíndọ́gba ọjọ́ méje rẹ pẹ̀lú ìgbésẹ̀ %1$s. Máa bá a lọ!</string>
+    <string name="tip_streak">Ìtẹ̀léra: %1$d léraléra. Ìtẹ̀síwájú ló ń mú èsì wá.</string>
+    <string name="tip_below_avg">Ìgbésẹ̀ %1$s sí i kí o tó dé ìpíndọ́gba ọjọ́ méje rẹ. O lè ṣe é!</string>
+    <string name="tip_generic">Ìrìn ìṣẹ́jú mẹ́wàá ń fi bíi ìgbésẹ̀ 1,000 kún un. Gbìyànjú rẹ̀ lẹ́yìn oúnjẹ rẹ tó kàn.</string>
+    <string name="ad_reward_claimed_pending">O ti gba ẹ̀bùn náà! Èrè AFIT rẹ ń bọ̀, ìfitónilétí yóò sì sọ iye rẹ̀ fún ọ.</string>
 </resources>
 
 

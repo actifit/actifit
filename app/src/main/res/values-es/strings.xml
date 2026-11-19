@@ -693,7 +693,6 @@
     <string name="x_like_btn">♡  Me gusta en X</string>
     <string name="community_feed_title">Comunidad</string>
     <string name="community_see_all">Ver todo →</string>
-    <string name="powered_by_gemini">Desarrollado por Gemini</string>
     <string name="consistency_label">Consistencia</string>
     <string name="generating_insight">Generando perspectiva...</string>
     <string name="route_tracking_label">Seguimiento de ruta</string>
@@ -965,6 +964,16 @@
     <string name="widget_open_to_sync_short">Abre para sincronizar</string>
     <string name="hc_manual_steps_note_title">Pasos introducidos manualmente</string>
     <string name="hc_manual_steps_note_body">Los pasos introducidos a mano en Health Connect ya no cuentan para las recompensas de Actifit. Solo cuentan los pasos registrados por tu teléfono o pulsera, así que tu recuento en Actifit puede ser menor que en Health Connect.</string>
+    <string name="ad_rewards_paused">Las recompensas por anuncios están en pausa por mantenimiento. Inténtalo más tarde.</string>
+    <string name="ad_reward_start_failed">No se pudo iniciar la recompensa. Inténtalo de nuevo.</string>
+    <string name="tip_keep_streak">Tu racha hasta ahora: %1$d. %2$s pasos más hoy la mantienen.</string>
+    <string name="tip_start">Cada paso cuenta. Empieza hoy con un paseo corto.</string>
+    <string name="tip_ten_k">%1$s pasos hoy. ¡Has superado los 10.000, buen trabajo!</string>
+    <string name="tip_above_avg">Estás %1$s pasos por encima de tu promedio de 7 días. ¡Sigue así!</string>
+    <string name="tip_streak">Racha: %1$d seguidos. La constancia es lo que da resultados.</string>
+    <string name="tip_below_avg">Te faltan %1$s pasos para tu promedio de 7 días. ¡Tú puedes!</string>
+    <string name="tip_generic">Un paseo de 10 minutos suma unos 1.000 pasos. Prueba uno después de tu próxima comida.</string>
+    <string name="ad_reward_claimed_pending">¡Regalo reclamado! Tu recompensa en AFIT está en camino y recibirás una notificación con la cantidad.</string>
 </resources>
 
 

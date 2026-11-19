@@ -229,7 +229,7 @@ public final class BadgesApi {
         claimQueue(app).add(req);
     }
 
-    private interface TokenCallback {
+    interface TokenCallback {
         void onDone(boolean ok);
     }
 
@@ -237,7 +237,7 @@ public final class BadgesApi {
      * Re-issues the session token from the stored posting key: the same login_auth request
      * Wallet/Market/Settings/Social send when they open. No stored key -> not ok ("log in again").
      */
-    private static void refreshToken(Context app, String user, TokenCallback cb) {
+    static void refreshToken(Context app, String user, TokenCallback cb) {
         String pkey = HiveBroadcaster.storedKey(app, HiveBroadcaster.KeyRole.POSTING);
         if (user == null || user.isEmpty() || pkey.isEmpty()) {
             cb.onDone(false);
@@ -271,7 +271,7 @@ public final class BadgesApi {
 
     private static RequestQueue claimQueue;
 
-    private static synchronized RequestQueue claimQueue(Context app) {
+    static synchronized RequestQueue claimQueue(Context app) {
         if (claimQueue == null) claimQueue = Volley.newRequestQueue(app);
         return claimQueue;
     }
