@@ -43,9 +43,24 @@ public final class ThreeSpeakVideo {
         return content != null && embedUrl != null && !embedUrl.isEmpty() && content.contains(embedUrl);
     }
 
-    /** States in which the video can still be added to a report. */
-    public static boolean canAttach(String status) {
-        return !"failed".equals(status) && !"deleted".equals(status);
+    /** Our status for an upload 3Speak has no record of (token issued, file never arrived). */
+    public static final String STATUS_MISSING = "missing";
+    /** Our status for a video that already has a Hive post (used in an earlier report). */
+    public static final String STATUS_POSTED = "posted";
+
+    /**
+     * Can the video be added to a report? Only once 3Speak has the file (processing or
+     * published), or right after this phone finished uploading it ("uploading" can lag).
+     */
+    public static boolean canAttach(String status, boolean uploadedHere) {
+        if ("processing".equals(status) || "published".equals(status)) return true;
+        return uploadedHere && "uploading".equals(status);
+    }
+
+    /** Does a condenser_api.get_content result describe an existing post? */
+    public static boolean isExistingPost(JSONObject rpcReply) {
+        JSONObject r = rpcReply == null ? null : rpcReply.optJSONObject("result");
+        return r != null && !r.optString("author", "").isEmpty();
     }
 
     /**
@@ -93,7 +108,7 @@ public final class ThreeSpeakVideo {
         v.permlink = permlink;
         v.embed_url = (embedUrl == null || embedUrl.isEmpty()) ? embedUrl(owner, permlink) : embedUrl;
         v.created = created;
-        if (status != null) {
+        if (status != null && status.has("status")) {
             v.status = status.optString("status", "");
             v.encodingProgress = status.optDouble("encodingProgress", 0);
             v.duration = status.optDouble("duration", 0);
@@ -101,8 +116,11 @@ public final class ThreeSpeakVideo {
             v.thumbnail_url = (thumb.isEmpty() || "null".equals(thumb)) ? null : thumb;
             String title = status.optString("originalFilename", status.optString("filename", ""));
             v.title = "null".equals(title) ? "" : title;
+        } else if (status != null) {
+            // 3Speak answered without a status: {"error":"Video not found"}
+            v.status = STATUS_MISSING;
         } else {
-            v.status = "";
+            v.status = ""; // 3Speak unreachable: unknown
         }
         if (Double.isNaN(v.encodingProgress)) v.encodingProgress = 0;
         if (Double.isNaN(v.duration)) v.duration = 0;

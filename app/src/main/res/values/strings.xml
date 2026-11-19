@@ -558,6 +558,8 @@
     <string name="vid_status_failed">Failed</string>
     <string name="vid_status_deleted">Deleted</string>
     <string name="vid_status_unknown">Waiting for 3Speak</string>
+    <string name="vid_status_missing">Not uploaded</string>
+    <string name="vid_status_posted">Already in a report</string>
     <string name="survey_reward_temp">Taking part in Actifit polls allows you to earn extra AFIT. There is a one time _REWARD_ for answering this poll. There is No correct or incorrect answer.</string>
     <string name="Now">Now</string>
     <string name="sync_steps">Sync your steps from Fitbit</string>

@@ -43,9 +43,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -73,15 +76,22 @@ public class VideoUploadFragment extends DialogFragment {
     private static final int CHOOSING_VID_REQUEST = 1235;
     private static final int RECORD_VID_REQUEST = 1;
     private static final int TIMEOUT_MS = 20000;
+    private static final int STATUS_TIMEOUT_MS = 5000;
+    private static final String HIVE_RPC = "https://hiveapi.actifit.io";
     private static final int CHUNK_SIZE = 1024 * 1024;
 
     private final Context ctx;
     private final Activity parent;
     private final boolean addToPostEnabled;
 
-    private final ExecutorService io = Executors.newSingleThreadExecutor();
+    // App-wide, never shut down: an upload keeps going after the dialog is closed (its
+    // one-time token is already spent), and work never touches a detached fragment.
+    private static final ExecutorService IO = Executors.newSingleThreadExecutor();
+    private static volatile boolean uploading = false;
+    // finished uploads from this phone; 3Speak may still report "uploading" for a moment
+    private static final Set<String> UPLOADED_HERE = Collections.synchronizedSet(new HashSet<>());
+
     private final Handler ui = new Handler(Looper.getMainLooper());
-    private volatile boolean uploading = false;
 
     private LinearLayout vidsView, newVidLayoutContainer, progressContainer;
     private HorizontalScrollView hScrollView;
@@ -101,12 +111,6 @@ public class VideoUploadFragment extends DialogFragment {
         if (getDialog() != null && getDialog().getWindow() != null) {
             getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        io.shutdownNow();
     }
 
     @Nullable
@@ -173,11 +177,11 @@ public class VideoUploadFragment extends DialogFragment {
         refreshList.startAnimation(rotate);
         noVids.setVisibility(View.GONE);
         final String user = MainActivity.username;
-        io.execute(() -> {
+        IO.execute(() -> {
             List<UploadedVideoModel> list = new ArrayList<>();
             boolean failed = false;
             try {
-                JSONObject res = httpJson("GET", Utils.apiUrl(ctx) + "video/myUploads", null, true);
+                JSONObject res = httpJson("GET", Utils.apiUrl(ctx) + "video/myUploads", null, true, TIMEOUT_MS);
                 JSONArray rows = res.optJSONArray("uploads");
                 if (rows == null) throw new IOException(res.optString("error", "no uploads list"));
                 for (int i = 0; i < rows.length(); i++) {
@@ -186,14 +190,19 @@ public class VideoUploadFragment extends DialogFragment {
                     if (permlink.isEmpty()) continue;
                     JSONObject status = null;
                     try {
-                        status = httpJson("GET", ThreeSpeakVideo.statusUrl(permlink), null, false);
+                        status = httpJson("GET", ThreeSpeakVideo.statusUrl(permlink), null, false, STATUS_TIMEOUT_MS);
                     } catch (Exception e) {
                         Log.d(TAG, "status " + permlink + ": " + e.getMessage());
                     }
-                    list.add(ThreeSpeakVideo.fromStatus(user, permlink, row.optString("embed_url", ""),
-                            row.optString("created", ""), status));
+                    UploadedVideoModel v = ThreeSpeakVideo.fromStatus(user, permlink, row.optString("embed_url", ""),
+                            row.optString("created", ""), status);
+                    // already used in a report? (the report post takes the video's permlink)
+                    if (ThreeSpeakVideo.canAttach(v.status, UPLOADED_HERE.contains(permlink)) && alreadyPosted(user, permlink)) {
+                        v.status = ThreeSpeakVideo.STATUS_POSTED;
+                    }
+                    list.add(v);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Log.d(TAG, "myUploads: " + e.getMessage());
                 failed = true;
             }
@@ -202,7 +211,7 @@ public class VideoUploadFragment extends DialogFragment {
                 if (!isAdded()) return;
                 refreshList.clearAnimation();
                 showUploads(list);
-                if (loadFailed) toast(getString(R.string.vids_list_load_failed));
+                if (loadFailed) toast(ctx.getString(R.string.vids_list_load_failed));
             });
         });
     }
@@ -243,7 +252,8 @@ public class VideoUploadFragment extends DialogFragment {
         }
 
         Button addToPost = entry.findViewById(R.id.addVidToPost);
-        if (addToPostEnabled && parent instanceof PostSteemitActivity && ThreeSpeakVideo.canAttach(v.status)) {
+        if (addToPostEnabled && parent instanceof PostSteemitActivity
+                && ThreeSpeakVideo.canAttach(v.status, UPLOADED_HERE.contains(v.permlink))) {
             addToPost.setVisibility(View.VISIBLE);
             addToPost.setOnClickListener(x -> {
                 PostSteemitActivity post = (PostSteemitActivity) parent;
@@ -270,6 +280,10 @@ public class VideoUploadFragment extends DialogFragment {
                 return getString(R.string.vid_status_failed);
             case "deleted":
                 return getString(R.string.vid_status_deleted);
+            case ThreeSpeakVideo.STATUS_MISSING:
+                return getString(R.string.vid_status_missing);
+            case ThreeSpeakVideo.STATUS_POSTED:
+                return getString(R.string.vid_status_posted);
             default:
                 return getString(R.string.vid_status_unknown);
         }
@@ -301,8 +315,11 @@ public class VideoUploadFragment extends DialogFragment {
         progressContainer.setVisibility(View.VISIBLE);
         vidProgressPercent.setVisibility(View.VISIBLE);
         vidProgressPercent.setText(getString(R.string.vid_upload_starting));
-        final String user = MainActivity.username;
-        io.execute(() -> {
+        // strings resolved here: the dialog may be gone when the upload ends
+        final String msgUnavailable = getString(R.string.vid_upload_unavailable);
+        final String msgFailed = getString(R.string.vid_upload_failed);
+        final String msgDone = getString(R.string.vid_upload_done);
+        IO.execute(() -> {
             String error = null;
             try {
                 long size = Utils.getVidSize(ctx, fileUri);
@@ -310,27 +327,29 @@ public class VideoUploadFragment extends DialogFragment {
                 if (size <= 0) throw new IOException("unknown file size");
 
                 JSONObject body = new JSONObject().put("short", false);
-                JSONObject tk = httpJson("POST", Utils.apiUrl(ctx) + "video/uploadToken", body, true);
+                JSONObject tk = httpJson("POST", Utils.apiUrl(ctx) + "video/uploadToken", body, true, TIMEOUT_MS);
                 String token = tk.optString("token", "");
                 String permlink = tk.optString("permlink", "");
                 if (token.isEmpty() || permlink.isEmpty()) {
-                    String serverMsg = tk.optString("error", "");
-                    error = serverMsg.isEmpty() ? getString(R.string.vid_upload_unavailable) : serverMsg;
+                    // our errors come as {error}, an expired login as {success:false, message}
+                    String serverMsg = tk.optString("error", tk.optString("message", ""));
+                    error = serverMsg.isEmpty() ? msgUnavailable : serverMsg;
                 } else {
                     tusUpload(fileUri, size, fileName, tk.optString("upload_url", ThreeSpeakVideo.EMBED_BASE + "/uploads"), token);
-                    ui.post(() -> {
-                        if (!isAdded()) return;
-                        Toast.makeText(ctx, getString(R.string.vid_upload_done), Toast.LENGTH_LONG).show();
-                    });
+                    UPLOADED_HERE.add(permlink);
+                    toast(msgDone);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Log.d(TAG, "upload: " + e.getMessage());
-                error = getString(R.string.vid_upload_failed);
+                error = msgFailed;
             }
             final String err = error;
             uploading = false;
             ui.post(() -> {
-                if (!isAdded()) return;
+                if (!isAdded()) {
+                    if (err != null) Toast.makeText(ctx, err, Toast.LENGTH_LONG).show();
+                    return;
+                }
                 progressContainer.setVisibility(View.GONE);
                 if (err != null) {
                     new AlertDialog.Builder(getActivity()).setMessage(err)
@@ -373,7 +392,7 @@ public class VideoUploadFragment extends DialogFragment {
                     do {
                         double pct = (double) uploader.getOffset() / size * 100;
                         ui.post(() -> {
-                            if (isAdded()) vidProgressPercent.setText(getString(R.string.vid_uploading, df.format(pct)));
+                            if (isAdded()) vidProgressPercent.setText(ctx.getString(R.string.vid_uploading, df.format(pct)));
                         });
                     } while (uploader.uploadChunk() > -1);
                     uploader.finish();
@@ -388,12 +407,12 @@ public class VideoUploadFragment extends DialogFragment {
     // ---------------------------------------------------------------- http
 
     /** Small blocking JSON call (run on the io thread). Error bodies are returned too. */
-    private JSONObject httpJson(String method, String url, JSONObject body, boolean auth) throws Exception {
+    private JSONObject httpJson(String method, String url, JSONObject body, boolean auth, int timeoutMs) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         try {
             c.setRequestMethod(method);
-            c.setConnectTimeout(TIMEOUT_MS);
-            c.setReadTimeout(TIMEOUT_MS);
+            c.setConnectTimeout(timeoutMs);
+            c.setReadTimeout(timeoutMs);
             c.setRequestProperty("Accept", "application/json");
             if (auth) c.setRequestProperty("x-acti-token", "Bearer " + LoginActivity.accessToken);
             if (body != null) {
@@ -413,6 +432,19 @@ public class VideoUploadFragment extends DialogFragment {
             }
         } finally {
             c.disconnect();
+        }
+    }
+
+    /** Is there already a Hive post at @user/permlink? Unknown (node down) counts as no. */
+    private boolean alreadyPosted(String user, String permlink) {
+        try {
+            JSONObject req = new JSONObject().put("jsonrpc", "2.0").put("id", 1)
+                    .put("method", "condenser_api.get_content")
+                    .put("params", new JSONArray().put(user).put(permlink));
+            return ThreeSpeakVideo.isExistingPost(httpJson("POST", HIVE_RPC, req, false, STATUS_TIMEOUT_MS));
+        } catch (Exception e) {
+            Log.d(TAG, "get_content " + permlink + ": " + e.getMessage());
+            return false;
         }
     }
 

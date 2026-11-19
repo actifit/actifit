@@ -65,13 +65,29 @@ public class ThreeSpeakVideoTest {
     }
 
     @Test
-    public void failedAndDeletedVideosCannotBeAttached() {
-        assertTrue(ThreeSpeakVideo.canAttach("uploading"));
-        assertTrue(ThreeSpeakVideo.canAttach("processing"));
-        assertTrue(ThreeSpeakVideo.canAttach("published"));
-        assertTrue(ThreeSpeakVideo.canAttach(""));
-        assertFalse(ThreeSpeakVideo.canAttach("failed"));
-        assertFalse(ThreeSpeakVideo.canAttach("deleted"));
+    public void onlyVideos3SpeakHasCanBeAttached() {
+        assertTrue(ThreeSpeakVideo.canAttach("processing", false));
+        assertTrue(ThreeSpeakVideo.canAttach("published", false));
+        // "uploading" only right after this phone finished sending it
+        assertTrue(ThreeSpeakVideo.canAttach("uploading", true));
+        assertFalse(ThreeSpeakVideo.canAttach("uploading", false));
+        assertFalse(ThreeSpeakVideo.canAttach("", true));                 // 3Speak unreachable
+        assertFalse(ThreeSpeakVideo.canAttach(ThreeSpeakVideo.STATUS_MISSING, true));
+        assertFalse(ThreeSpeakVideo.canAttach(ThreeSpeakVideo.STATUS_POSTED, false));
+        assertFalse(ThreeSpeakVideo.canAttach("failed", true));
+        assertFalse(ThreeSpeakVideo.canAttach("deleted", false));
+    }
+
+    @Test
+    public void getContentReplyTellsWhetherThePostExists() throws Exception {
+        assertTrue(ThreeSpeakVideo.isExistingPost(new JSONObject()
+                .put("result", new JSONObject().put("author", "alice").put("permlink", "p"))));
+        // condenser returns an empty shell for a missing post
+        assertFalse(ThreeSpeakVideo.isExistingPost(new JSONObject()
+                .put("result", new JSONObject().put("author", "").put("permlink", ""))));
+        assertFalse(ThreeSpeakVideo.isExistingPost(new JSONObject()
+                .put("error", new JSONObject().put("code", -32000))));
+        assertFalse(ThreeSpeakVideo.isExistingPost(null));
     }
 
     @Test
@@ -93,7 +109,9 @@ public class ThreeSpeakVideoTest {
         UploadedVideoModel v = ThreeSpeakVideo.fromStatus("alice", "p2", EMBED, "", null);
         assertEquals(EMBED, v.embed_url);
         assertEquals("", v.status);
-        assertTrue(ThreeSpeakVideo.canAttach(v.status));
+        UploadedVideoModel gone = ThreeSpeakVideo.fromStatus("alice", "p4", EMBED, "",
+                new JSONObject().put("error", "Video not found"));
+        assertEquals(ThreeSpeakVideo.STATUS_MISSING, gone.status);
         UploadedVideoModel n = ThreeSpeakVideo.fromStatus("alice", "p3", null, "",
                 new JSONObject().put("thumbnail_url", JSONObject.NULL).put("status", "uploading"));
         assertNull(n.thumbnail_url);
