@@ -34,6 +34,7 @@ public class ThreeSpeakVideoTest {
         JSONObject v = ThreeSpeakVideo.metadata("alice", "yn77aj9g", EMBED, "Morning run", 42.5, "https://img/t.jpg");
         assertEquals("3speak", v.getString("platform"));
         assertEquals(EMBED, v.getString("url"));
+        assertFalse(v.getBoolean("reusable"));
         assertEquals("https://img/t.jpg", v.getString("thumbnail"));
         JSONObject info = v.getJSONObject("info");
         assertEquals("alice", info.getString("author"));

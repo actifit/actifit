@@ -3,6 +3,7 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -360,6 +361,20 @@ public class VideoUploadFragment extends DialogFragment {
         });
     }
 
+    /** The video's length in whole seconds, or 0 when the file has no readable duration. */
+    private long durationSeconds(Uri fileUri) {
+        MediaMetadataRetriever r = new MediaMetadataRetriever();
+        try {
+            r.setDataSource(ctx, fileUri);
+            String ms = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            return ms == null ? 0 : Math.round(Long.parseLong(ms) / 1000.0);
+        } catch (Exception e) {
+            return 0;
+        } finally {
+            try { r.release(); } catch (Exception ignored) { }
+        }
+    }
+
     /** Sends the file to 3Speak by TUS, authorised by the one-time upload token. */
     private void tusUpload(Uri fileUri, long size, String fileName, String uploadUrl, String token)
             throws IOException, ProtocolException {
@@ -381,6 +396,8 @@ public class VideoUploadFragment extends DialogFragment {
             meta.put("filename", fileName == null ? "video.mp4" : fileName);
             String type = ctx.getContentResolver().getType(fileUri);
             meta.put("filetype", type == null ? "video/mp4" : type);
+            long seconds = durationSeconds(fileUri);
+            if (seconds > 0) meta.put("duration", String.valueOf(seconds));
             upload.setMetadata(meta);
 
             final DecimalFormat df = new DecimalFormat("0.0");

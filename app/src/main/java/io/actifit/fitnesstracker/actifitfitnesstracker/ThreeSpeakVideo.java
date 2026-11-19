@@ -5,14 +5,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * 3Speak videos through the embed service (embed.3speak.tv). Actifit's server hands out a
+ * 3Speak videos through the embed service (embed2.3speak.tv, 3Speak's primary upload host). Actifit's server hands out a
  * short-lived upload token (POST /video/uploadToken); the file goes straight to 3Speak by
  * TUS; the report links the video by its embed URL, which plays right away while 3Speak
- * encodes it. No Android types here so it can be unit tested.
+ * encodes it. Our server then links the video to the report post on 3Speak. No Android
+ * types here so it can be unit tested.
  */
 public final class ThreeSpeakVideo {
 
-    public static final String EMBED_BASE = "https://embed.3speak.tv";
+    public static final String EMBED_BASE = "https://embed2.3speak.tv";
     public static final String PLAYER_BASE = "https://play.3speak.tv/embed?v=";
 
     private ThreeSpeakVideo() {}
@@ -84,6 +85,7 @@ public final class ThreeSpeakVideo {
         JSONObject video = new JSONObject();
         video.put("platform", "3speak");
         video.put("url", embedUrl);
+        video.put("reusable", false);
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) video.put("thumbnail", thumbnailUrl);
         video.put("info", info);
         return video;
