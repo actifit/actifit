@@ -103,4 +103,15 @@
         <item name="cornerSizeTopRight">@dimen/card_corner_radius</item>
     </style>
 
+    <!-- a ticked tip line in the video sheet's first-time state -->
+    <style name="VidTip">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:drawableStart">@drawable/vid_ic_check_green</item>
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">#3A3638</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>

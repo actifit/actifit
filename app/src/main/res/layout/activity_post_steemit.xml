@@ -754,6 +754,8 @@
                             app:trackThickness="3dp"
                             app:trackCornerRadius="2dp" />
 
+                        <include layout="@layout/vid_attached_card" />
+
                         <!-- Editor -->
                         <EditText
                             android:id="@+id/steemit_post_text"

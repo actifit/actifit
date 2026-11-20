@@ -238,12 +238,54 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         if (i == R.id.btn_choose_file) {
             showChoosingFile(0);
         } else if (i == R.id.btn_video_post) {
-            // show video modal
-            VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken,
-                    this, true);
-            // dialog.getView().setMinimumWidth(400);
-            dialog.show(getSupportFragmentManager(), "video_upload_fragment");
+            openVideoSheet();
         }
+    }
+
+    private void openVideoSheet() {
+        VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken,
+                this, true);
+        dialog.show(getSupportFragmentManager(), "video_upload_fragment");
+    }
+
+    /** The "Video attached" card above the text box: shown while a video is attached. */
+    private void showAttachedVideo() {
+        View card = findViewById(R.id.attachedVideoCard);
+        if (card == null) return;
+        if (selVidEntry == null) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        card.setVisibility(View.VISIBLE);
+        View thumbFrame = findViewById(R.id.attachedThumbFrame);
+        thumbFrame.setClipToOutline(true);
+        ImageView thumb = findViewById(R.id.attachedThumb);
+        String image = selVidEntry.frame_url != null ? selVidEntry.frame_url : selVidEntry.thumbnail_url;
+        if (image != null) Glide.with(this).load(image).into(thumb);
+        else thumb.setImageDrawable(null);
+        TextView duration = findViewById(R.id.attachedDuration);
+        duration.setVisibility(selVidEntry.duration > 0 ? View.VISIBLE : View.GONE);
+        duration.setText(ThreeSpeakVideo.durationLabel(selVidEntry.duration));
+        ((TextView) findViewById(R.id.attachedBody)).setText(selVidEntry.frame_url != null
+                ? R.string.vid_attached_body_frame : R.string.vid_attached_body);
+        final String player = selVidEntry.embed_url;
+        thumbFrame.setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(player)));
+            } catch (Exception ignored) { }
+        });
+    }
+
+    /** The permlink of the attached video, or null. */
+    public String attachedVideoPermlink() {
+        return selVidEntry == null ? null : selVidEntry.permlink;
+    }
+
+    /** Detaches the video from the report. */
+    private void clearMainVid() {
+        selVidEntry = null;
+        getSharedPreferences("actifitSets", MODE_PRIVATE).edit().remove("selVidEntry").apply();
+        showAttachedVideo();
     }
 
     @Override
@@ -765,6 +807,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         Button btnVideoPost = (Button) findViewById(R.id.btn_video_post);
         btnVideoPost.setText("");
         btnVideoPost.setOnClickListener(this);
+        findViewById(R.id.attachedChange).setOnClickListener(v -> openVideoSheet());
+        findViewById(R.id.attachedRemove).setOnClickListener(v -> clearMainVid());
+        // a saved video from before the 3Speak embed service can't be posted
+        if (selVidEntry != null && (selVidEntry.embed_url == null || selVidEntry.embed_url.isEmpty())) {
+            clearMainVid();
+        }
+        showAttachedVideo();
 
         // Launcher for picking images
         imagePickerLauncher = registerForActivityResult(
@@ -1115,10 +1164,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("selVidEntry", json);
         editor.apply();
-    }
-
-    public void appendContent(String text) {
-        steemitPostContent.setText(steemitPostContent.getText().append(text));
+        showAttachedVideo();
     }
 
     void focusContent() {
@@ -1437,7 +1483,10 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                             .trim().toLowerCase().replace("@", ""));
                     data.put("posting_key", accountPostingKey);
                     data.put("title", finalPostTitle);
-                    data.put("content", postContent);
+                    // the attached video plays at the top of the report
+                    data.put("content", selVidEntry == null ? postContent
+                            : ThreeSpeakVideo.withVideoAtTop(postContent, MainActivity.username,
+                                    selVidEntry.permlink, selVidEntry.embed_url, selVidEntry.frame_url));
                     data.put("tags", finalPostTags);
                     data.put("step_count", accountActivityCount);
                     data.put("activity_type", selectedActivitiesVal);
@@ -1608,7 +1657,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                     editor[0].putString("actifitLastPostDate", targetDate);
                                     // also clear editor text content
                                     editor[0].putString("steemPostContent", "");
+                                    // and the attached video: it's in this report now
+                                    editor[0].remove("selVidEntry");
                                     editor[0].apply();
+                                    runOnUiThread(() -> {
+                                        selVidEntry = null;
+                                        showAttachedVideo();
+                                    });
                                     result[0] = response.getString("status");
                                 } else {
                                     // notification = getString(R.string.failed_post);
@@ -1751,10 +1806,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         finalPostContent = steemitPostContent.getText().toString();
 
-        // check if we have a video and the video still is part of the content
-        // (videos from before the 3Speak embed service have no embed_url and are dropped too)
-        if (selVidEntry != null && !ThreeSpeakVideo.isInContent(finalPostContent, selVidEntry.embed_url)) {
-            // video has been removed from the text
+        // videos from before the 3Speak embed service have no embed_url and can't be posted
+        if (selVidEntry != null && (selVidEntry.embed_url == null || selVidEntry.embed_url.isEmpty())) {
             selVidEntry = null;
         }
 

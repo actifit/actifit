@@ -4,6 +4,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
+
 /**
  * 3Speak videos through the embed service (embed2.3speak.tv, 3Speak's primary upload host). Actifit's server hands out a
  * short-lived upload token (POST /video/uploadToken); the file goes straight to 3Speak by
@@ -15,6 +24,9 @@ public final class ThreeSpeakVideo {
 
     public static final String EMBED_BASE = "https://embed2.3speak.tv";
     public static final String PLAYER_BASE = "https://play.3speak.tv/embed?v=";
+    /** Uploads per account per rolling day; mirrors actifit-bot's threespeak_upload.js. */
+    public static final int DAILY_LIMIT = 10;
+    private static final long DAY_MS = 24L * 60 * 60 * 1000;
 
     private ThreeSpeakVideo() {}
 
@@ -43,6 +55,78 @@ public final class ThreeSpeakVideo {
                 ? "▶ [Watch on 3speak.tv](" + watch + ")"
                 : "[![Watch on 3speak.tv](" + thumbnailUrl + ")](" + watch + ")";
         return "\n" + embedUrl + "\n\n" + link + "\n";
+    }
+
+    /**
+     * The report body with the video at the top. A draft from an older build may already
+     * have the video in its text; it is not added twice.
+     */
+    public static String withVideoAtTop(String content, String owner, String permlink, String embedUrl,
+                                        String thumbnailUrl) {
+        String text = content == null ? "" : content;
+        if (isInContent(text, embedUrl)) return text;
+        return reportSnippet(owner, permlink, embedUrl, thumbnailUrl).trim() + "\n\n" + text;
+    }
+
+    /** The report that used this video: the post takes the video's permlink. */
+    public static String postUrl(String owner, String permlink) {
+        return "https://actifit.io/@" + owner + "/" + permlink;
+    }
+
+    /** "0:08", "1:42", "12:05". */
+    public static String durationLabel(double seconds) {
+        long s = Math.max(0, Math.round(seconds));
+        return (s / 60) + ":" + (s % 60 < 10 ? "0" : "") + (s % 60);
+    }
+
+    /** Parses our server's created time ("2026-11-20T12:24:00.000Z", UTC), or null. */
+    static Date parseCreated(String created) {
+        if (created == null || created.length() < 19) return null;
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+        f.setTimeZone(TimeZone.getTimeZone("UTC"));
+        try {
+            return f.parse(created.substring(0, 19));
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    /**
+     * When the upload was made, as the list shows it: "Today, 2:24 PM", "Yesterday, 7:10 AM"
+     * or "Nov 18, 6:02 PM", in the phone's time zone. todayFormat and yesterdayFormat take
+     * the time as %1$s. Empty when the time can't be read.
+     */
+    public static String uploadTimeLabel(String created, long nowMs, TimeZone tz, Locale locale,
+                                         String todayFormat, String yesterdayFormat) {
+        Date d = parseCreated(created);
+        if (d == null) return "";
+        DateFormat time = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
+        time.setTimeZone(tz);
+        String t = time.format(d);
+        Calendar then = Calendar.getInstance(tz, locale);
+        then.setTime(d);
+        Calendar day = Calendar.getInstance(tz, locale);
+        day.setTimeInMillis(nowMs);
+        if (sameDay(then, day)) return String.format(locale, todayFormat, t);
+        day.add(Calendar.DAY_OF_YEAR, -1);
+        if (sameDay(then, day)) return String.format(locale, yesterdayFormat, t);
+        SimpleDateFormat date = new SimpleDateFormat("MMM d", locale);
+        date.setTimeZone(tz);
+        return date.format(d) + ", " + t;
+    }
+
+    private static boolean sameDay(Calendar a, Calendar b) {
+        return a.get(Calendar.YEAR) == b.get(Calendar.YEAR) && a.get(Calendar.DAY_OF_YEAR) == b.get(Calendar.DAY_OF_YEAR);
+    }
+
+    /** How many of these uploads count against today's limit (the server's rolling 24 hours). */
+    public static int uploadsInLastDay(List<String> created, long nowMs) {
+        int n = 0;
+        for (String c : created) {
+            Date d = parseCreated(c);
+            if (d != null && nowMs - d.getTime() < DAY_MS) n++;
+        }
+        return n;
     }
 
     /** Is the video still in the report text (the user may have deleted the snippet)? */

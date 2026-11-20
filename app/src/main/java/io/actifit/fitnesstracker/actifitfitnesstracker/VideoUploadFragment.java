@@ -1,36 +1,44 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.text.Html;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.Button;
-import android.widget.HorizontalScrollView;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -52,8 +60,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -72,7 +82,7 @@ import io.tus.java.client.TusUploader;
 import static android.app.Activity.RESULT_OK;
 
 /**
- * Upload a video to 3Speak and add it to the report.
+ * The video sheet: upload a video to 3Speak and add one to the report.
  *
  * Flow (3Speak embed service): Actifit's server issues a short-lived upload token for the
  * logged-in user (POST /video/uploadToken, the 3Speak API key never reaches the phone); the
@@ -80,7 +90,7 @@ import static android.app.Activity.RESULT_OK;
  * embed URL, which plays right away while 3Speak encodes it. The list shows the user's
  * recent uploads (GET /video/myUploads) with 3Speak's public status for each.
  */
-public class VideoUploadFragment extends DialogFragment {
+public class VideoUploadFragment extends BottomSheetDialogFragment {
 
     private static final String TAG = "VideoUpload";
     private static final int CHOOSING_VID_REQUEST = 1235;
@@ -94,20 +104,28 @@ public class VideoUploadFragment extends DialogFragment {
     private final Activity parent;
     private final boolean addToPostEnabled;
 
-    // App-wide, never shut down: an upload keeps going after the dialog is closed (its
+    // App-wide, never shut down: an upload keeps going after the sheet is closed (its
     // one-time token is already spent), and work never touches a detached fragment.
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
     private static volatile boolean uploading = false;
     // finished uploads from this phone; 3Speak may still report "uploading" for a moment
     private static final Set<String> UPLOADED_HERE = Collections.synchronizedSet(new HashSet<>());
+    // the running upload, so a sheet opened again mid-upload shows its progress
+    private static volatile VideoUploadFragment active;
+    private static volatile long uploadSent, uploadTotal, uploadSeconds;
+    private static volatile Bitmap uploadPreview;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
 
-    private LinearLayout vidsView, newVidLayoutContainer, progressContainer;
-    private HorizontalScrollView hScrollView;
-    private TextView noVids, vidProgressPercent;
+    private LayoutInflater rowInflater;
+    private LinearLayout vidsList, uploadCard, emptyState;
+    private TextView subtitle, uploadMeta, uploadBytes, uploadPct, oneAtATime, recentLabel;
+    private ImageView uploadFrame;
+    private LinearProgressIndicator uploadProgress;
+    private MaterialButton vidSelector, recordVideo;
+    private View loader;
+    private ImageButton refreshList;
     private RotateAnimation rotate;
-    public TextView refreshList;
 
     public VideoUploadFragment(Context ctx, String accessToken, Activity parent, boolean addToPostEnabled) {
         this.ctx = ctx;
@@ -118,8 +136,14 @@ public class VideoUploadFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (getDialog() != null && getDialog().getWindow() != null) {
-            getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        Dialog d = getDialog();
+        if (d instanceof BottomSheetDialog) {
+            BottomSheetBehavior<?> b = ((BottomSheetDialog) d).getBehavior();
+            b.setSkipCollapsed(true);
+            b.setState(BottomSheetBehavior.STATE_EXPANDED);
+            // our layout draws the rounded sheet
+            View sheet = d.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (sheet != null) sheet.setBackgroundColor(Color.TRANSPARENT);
         }
     }
 
@@ -128,53 +152,55 @@ public class VideoUploadFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.video_upload_view, container, false);
+        rowInflater = inflater;
 
         rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        rotate.setDuration(2000);
+        rotate.setDuration(1200);
         rotate.setInterpolator(new LinearInterpolator());
         rotate.setRepeatCount(Animation.INFINITE);
 
-        vidsView = view.findViewById(R.id.vidsList);
-        newVidLayoutContainer = view.findViewById(R.id.newVidLayoutContainer);
-        progressContainer = view.findViewById(R.id.progressContainer);
-        vidProgressPercent = view.findViewById(R.id.vidUploadProgressPercent);
-        view.findViewById(R.id.thumbUploadProgressPercent).setVisibility(View.GONE);
-        hScrollView = view.findViewById(R.id.horizontalScrollView);
-        noVids = view.findViewById(R.id.no_vids);
+        vidsList = view.findViewById(R.id.vidsList);
+        uploadCard = view.findViewById(R.id.uploadCard);
+        emptyState = view.findViewById(R.id.emptyState);
+        subtitle = view.findViewById(R.id.vidsSubtitle);
+        uploadMeta = view.findViewById(R.id.uploadMeta);
+        uploadBytes = view.findViewById(R.id.uploadBytes);
+        uploadPct = view.findViewById(R.id.uploadPct);
+        uploadFrame = view.findViewById(R.id.uploadFrame);
+        uploadFrame.setClipToOutline(true);
+        uploadProgress = view.findViewById(R.id.uploadProgress);
+        oneAtATime = view.findViewById(R.id.oneAtATime);
+        recentLabel = view.findViewById(R.id.recentLabel);
+        loader = view.findViewById(R.id.loader);
         refreshList = view.findViewById(R.id.refresh_list);
-
-        view.findViewById(R.id.vids_list_info).setOnClickListener(v -> showInfo(R.string.vids_list_description));
-        view.findViewById(R.id.upload_vid_info).setOnClickListener(v -> showInfo(R.string.upload_vid_description));
+        vidSelector = view.findViewById(R.id.vidSelector);
+        recordVideo = view.findViewById(R.id.recordVideo);
+        subtitle.setText(getString(R.string.vids_sheet_subtitle, 0, ThreeSpeakVideo.DAILY_LIMIT));
 
         refreshList.setOnClickListener(v -> loadUploads());
-        // "show list" button from the old layout: same as refresh
-        view.findViewById(R.id.chooseFile).setOnClickListener(v -> loadUploads());
-
-        view.findViewById(R.id.vidSelector).setOnClickListener(v -> {
+        view.findViewById(R.id.closeButton).setOnClickListener(v -> dismiss());
+        vidSelector.setOnClickListener(v -> {
             if (uploading) return;
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("video/*");
             startActivityForResult(Intent.createChooser(intent, getString(R.string.select_vid_title)),
                     CHOOSING_VID_REQUEST);
         });
-        view.findViewById(R.id.recordVideo).setOnClickListener(v -> {
+        recordVideo.setOnClickListener(v -> {
             if (uploading) return;
             startActivityForResult(new Intent(MediaStore.ACTION_VIDEO_CAPTURE), RECORD_VID_REQUEST);
         });
-        view.findViewById(R.id.closeButton).setOnClickListener(v -> dismiss());
 
+        active = this;
+        showUploadState();
         loadUploads();
         return view;
     }
 
-    private void showInfo(int msgRes) {
-        if (getActivity() == null) return;
-        new AlertDialog.Builder(getActivity())
-                .setMessage(Html.fromHtml(getString(msgRes)))
-                .setTitle(getString(R.string.actifit_info))
-                .setIcon(getResources().getDrawable(R.drawable.actifit_logo))
-                .setPositiveButton(getString(R.string.close_button), null)
-                .show();
+    @Override
+    public void onDestroyView() {
+        if (active == this) active = null;
+        super.onDestroyView();
     }
 
     private void toast(String msg) {
@@ -185,10 +211,11 @@ public class VideoUploadFragment extends DialogFragment {
 
     private void loadUploads() {
         refreshList.startAnimation(rotate);
-        noVids.setVisibility(View.GONE);
+        if (vidsList.getChildCount() == 0) loader.setVisibility(View.VISIBLE);
         final String user = MainActivity.username;
         IO.execute(() -> {
             List<UploadedVideoModel> list = new ArrayList<>();
+            List<String> created = new ArrayList<>();
             boolean failed = false;
             try {
                 JSONObject res = httpJson("GET", Utils.apiUrl(ctx) + "video/myUploads", null, true, TIMEOUT_MS);
@@ -198,6 +225,7 @@ public class VideoUploadFragment extends DialogFragment {
                     JSONObject row = rows.getJSONObject(i);
                     String permlink = row.optString("permlink", "");
                     if (permlink.isEmpty()) continue;
+                    created.add(row.optString("created", ""));
                     JSONObject status = null;
                     try {
                         status = httpJson("GET", ThreeSpeakVideo.statusUrl(permlink), null, false, STATUS_TIMEOUT_MS);
@@ -209,6 +237,7 @@ public class VideoUploadFragment extends DialogFragment {
                     // our own frame beats 3Speak's, which may be the report's activity image
                     String frame = thumbs().getString(permlink, null);
                     if (frame != null) v.thumbnail_url = frame;
+                    v.frame_url = frame;
                     // already used in a report? (the report post takes the video's permlink)
                     if (ThreeSpeakVideo.canAttach(v.status, UPLOADED_HERE.contains(permlink)) && alreadyPosted(user, permlink)) {
                         v.status = ThreeSpeakVideo.STATUS_POSTED;
@@ -220,66 +249,105 @@ public class VideoUploadFragment extends DialogFragment {
                 failed = true;
             }
             final boolean loadFailed = failed;
+            final int today = ThreeSpeakVideo.uploadsInLastDay(created, System.currentTimeMillis());
             ui.post(() -> {
                 if (!isAdded()) return;
                 refreshList.clearAnimation();
-                showUploads(list);
-                if (loadFailed) toast(ctx.getString(R.string.vids_list_load_failed));
+                loader.setVisibility(View.GONE);
+                showUploads(list, loadFailed);
+                if (!loadFailed) subtitle.setText(getString(R.string.vids_sheet_subtitle, today, ThreeSpeakVideo.DAILY_LIMIT));
+                if (loadFailed) Toast.makeText(ctx, getString(R.string.vids_list_load_failed), Toast.LENGTH_LONG).show();
             });
         });
     }
 
-    private void showUploads(List<UploadedVideoModel> list) {
-        vidsView.removeAllViews();
-        noVids.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
-        for (UploadedVideoModel v : list) vidsView.addView(entryView(v));
-        vidsView.setGravity(Gravity.LEFT);
-        hScrollView.smoothScrollTo(0, 0);
+    private void showUploads(List<UploadedVideoModel> list, boolean loadFailed) {
+        vidsList.removeAllViews();
+        boolean empty = list.isEmpty();
+        emptyState.setVisibility(empty && !loadFailed ? View.VISIBLE : View.GONE);
+        recentLabel.setVisibility(empty ? View.GONE : View.VISIBLE);
+        for (UploadedVideoModel v : list) vidsList.addView(entryView(v));
     }
 
     private View entryView(UploadedVideoModel v) {
-        View entry = LayoutInflater.from(ctx).inflate(R.layout.vid_single_entry, vidsView, false);
-        DecimalFormat df = new DecimalFormat("#.##");
+        View entry = rowInflater.inflate(R.layout.vid_single_entry, vidsList, false);
+        String status = v.status == null ? "" : v.status;
 
-        ((TextView) entry.findViewById(R.id.title_val)).setText(v.title == null ? "" : v.title);
-        ((TextView) entry.findViewById(R.id.status_val)).setText(statusLabel(v));
-        ((TextView) entry.findViewById(R.id.duration_val)).setText(df.format(v.duration) + " sec");
-        entry.findViewById(R.id.size_val).setVisibility(View.GONE);
-        TextView date = entry.findViewById(R.id.date_val);
-        if (v.created != null && v.created.length() >= 19) {
-            date.setText(Utils.getTimeDifference(v.created.substring(0, 19)));
-        }
+        ((TextView) entry.findViewById(R.id.date_val)).setText(ThreeSpeakVideo.uploadTimeLabel(v.created,
+                System.currentTimeMillis(), TimeZone.getDefault(), Locale.getDefault(),
+                getString(R.string.vid_today), getString(R.string.vid_yesterday)));
 
-        ImageView thumb = entry.findViewById(R.id.thumbnail);
-        if (v.thumbnail_url != null) {
-            Glide.with(ctx).load(v.thumbnail_url).into(thumb);
-        }
-        // playback happens on 3Speak; open the player in the browser
-        thumb.setOnClickListener(x -> openInBrowser(v.embed_url));
-        Button play = entry.findViewById(R.id.playVid);
-        play.setVisibility(View.VISIBLE);
-        play.setOnClickListener(x -> openInBrowser(v.embed_url));
-        for (int id : new int[]{R.id.stopVid, R.id.deleteVid, R.id.submitVid, R.id.markVidPublished, R.id.submitLoader}) {
-            View b = entry.findViewById(id);
-            if (b != null) b.setVisibility(View.GONE);
-        }
+        TextView duration = entry.findViewById(R.id.duration_val);
+        if (v.duration > 0) duration.setText(ThreeSpeakVideo.durationLabel(v.duration));
+        else duration.setVisibility(View.GONE);
 
-        Button addToPost = entry.findViewById(R.id.addVidToPost);
-        if (addToPostEnabled && parent instanceof PostSteemitActivity
-                && ThreeSpeakVideo.canAttach(v.status, UPLOADED_HERE.contains(v.permlink))) {
-            addToPost.setVisibility(View.VISIBLE);
-            addToPost.setOnClickListener(x -> {
-                PostSteemitActivity post = (PostSteemitActivity) parent;
-                post.setMainVid(v);
-                // only our own frame goes in the text: it becomes the post's cover
-                post.appendContent(ThreeSpeakVideo.reportSnippet(MainActivity.username, v.permlink, v.embed_url,
-                        thumbs().getString(v.permlink, null)));
-                dismiss();
-            });
+        FrameLayout thumbFrame = entry.findViewById(R.id.thumbFrame);
+        thumbFrame.setClipToOutline(true);
+        ImageView thumbIcon = entry.findViewById(R.id.thumbIcon);
+        boolean playable = !ThreeSpeakVideo.STATUS_MISSING.equals(status)
+                && !"failed".equals(status) && !"deleted".equals(status);
+        if (playable) {
+            if (v.thumbnail_url != null) Glide.with(ctx).load(v.thumbnail_url).into((ImageView) entry.findViewById(R.id.thumbnail));
+            // playback happens on 3Speak; open the player in the browser
+            thumbFrame.setOnClickListener(x -> openInBrowser(v.embed_url));
         } else {
-            addToPost.setVisibility(View.GONE);
+            thumbFrame.setBackgroundResource(R.drawable.vid_bg_thumb_missing);
+            thumbFrame.setClickable(false);
+            thumbFrame.setContentDescription(null);
+            thumbIcon.setImageResource(R.drawable.vid_ic_alert);
+            thumbIcon.setImageTintList(ColorStateList.valueOf(0xFF8A8486));
+        }
+
+        TextView chip = entry.findViewById(R.id.status_val);
+        chip.setText(statusLabel(v));
+        int[] colors = chipColors(status);
+        GradientDrawable chipBg = new GradientDrawable();
+        chipBg.setCornerRadius(999f);
+        chipBg.setColor(ContextCompat.getColor(ctx, colors[0]));
+        chip.setBackground(chipBg);
+        chip.setTextColor(ContextCompat.getColor(ctx, colors[1]));
+        if ("processing".equals(status)) {
+            LinearProgressIndicator bar = entry.findViewById(R.id.encodeProgress);
+            bar.setVisibility(View.VISIBLE);
+            bar.setProgress((int) Math.round(v.encodingProgress));
+        }
+
+        MaterialButton add = entry.findViewById(R.id.addVidToPost);
+        if (addToPostEnabled && parent instanceof PostSteemitActivity
+                && ThreeSpeakVideo.canAttach(status, UPLOADED_HERE.contains(v.permlink))) {
+            add.setVisibility(View.VISIBLE);
+            if (v.permlink.equals(((PostSteemitActivity) parent).attachedVideoPermlink())) {
+                add.setText(R.string.vid_added);
+                add.setEnabled(false);
+            } else {
+                add.setOnClickListener(x -> {
+                    ((PostSteemitActivity) parent).setMainVid(v);
+                    dismiss();
+                });
+            }
+        }
+        if (ThreeSpeakVideo.STATUS_POSTED.equals(status)) {
+            MaterialButton view = entry.findViewById(R.id.viewPost);
+            view.setVisibility(View.VISIBLE);
+            view.setOnClickListener(x -> openInBrowser(ThreeSpeakVideo.postUrl(MainActivity.username, v.permlink)));
         }
         return entry;
+    }
+
+    /** Background and text color of the status chip. */
+    private static int[] chipColors(String status) {
+        switch (status) {
+            case "uploading":
+            case "processing":
+                return new int[]{R.color.vid_chip_amber_bg, R.color.vid_chip_amber_fg};
+            case "published":
+                return new int[]{R.color.vid_chip_green_bg, R.color.vid_chip_green_fg};
+            case "failed":
+            case ThreeSpeakVideo.STATUS_MISSING:
+                return new int[]{R.color.vid_chip_red_bg, R.color.vid_chip_red_fg};
+            default:
+                return new int[]{R.color.vid_chip_grey_bg, R.color.vid_chip_grey_fg};
+        }
     }
 
     private String statusLabel(UploadedVideoModel v) {
@@ -309,11 +377,48 @@ public class VideoUploadFragment extends DialogFragment {
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
         } catch (Exception e) {
-            Log.d(TAG, "open player: " + e.getMessage());
+            Log.d(TAG, "open: " + e.getMessage());
         }
     }
 
     // ---------------------------------------------------------------- upload
+
+    /** The upload card and the upload buttons, from the running upload's shared state. */
+    private void showUploadState() {
+        if (uploadCard == null) return;
+        uploadCard.setVisibility(uploading ? View.VISIBLE : View.GONE);
+        oneAtATime.setVisibility(uploading ? View.VISIBLE : View.GONE);
+        vidSelector.setEnabled(!uploading);
+        recordVideo.setEnabled(!uploading);
+        if (!uploading) return;
+        Bitmap preview = uploadPreview;
+        if (preview != null) uploadFrame.setImageBitmap(preview);
+        String size = mb(uploadTotal);
+        uploadMeta.setText(uploadSeconds > 0 ? ThreeSpeakVideo.durationLabel(uploadSeconds) + " · " + size + " MB" : size + " MB");
+        if (uploadTotal > 0 && uploadSent > 0) {
+            int pct = (int) (uploadSent * 100 / uploadTotal);
+            uploadProgress.setIndeterminate(false);
+            uploadProgress.setProgressCompat(pct, true);
+            uploadBytes.setText(getString(R.string.vid_upload_bytes, mb(uploadSent), size));
+            uploadPct.setText(pct + "%");
+        } else {
+            uploadProgress.setIndeterminate(true);
+            uploadBytes.setText(getString(R.string.vid_upload_starting));
+            uploadPct.setText("");
+        }
+    }
+
+    private static String mb(long bytes) {
+        return new DecimalFormat("0.0").format(bytes / (1024.0 * 1024.0));
+    }
+
+    /** Refreshes whichever sheet is open now (if any) from the upload's shared state. */
+    private void postUploadState() {
+        ui.post(() -> {
+            VideoUploadFragment f = active;
+            if (f != null && f.isAdded()) f.showUploadState();
+        });
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -327,10 +432,12 @@ public class VideoUploadFragment extends DialogFragment {
 
     private void startUpload(Uri fileUri) {
         uploading = true;
-        progressContainer.setVisibility(View.VISIBLE);
-        vidProgressPercent.setVisibility(View.VISIBLE);
-        vidProgressPercent.setText(getString(R.string.vid_upload_starting));
-        // strings resolved here: the dialog may be gone when the upload ends
+        uploadSent = 0;
+        uploadTotal = 0;
+        uploadSeconds = 0;
+        uploadPreview = null;
+        showUploadState();
+        // strings resolved here: the sheet may be gone when the upload ends
         final String msgUnavailable = getString(R.string.vid_upload_unavailable);
         final String msgFailed = getString(R.string.vid_upload_failed);
         final String msgDone = getString(R.string.vid_upload_done);
@@ -340,6 +447,9 @@ public class VideoUploadFragment extends DialogFragment {
                 long size = Utils.getVidSize(ctx, fileUri);
                 String fileName = Utils.getOriginalFileName(ctx, fileUri);
                 if (size <= 0) throw new IOException("unknown file size");
+                uploadTotal = size;
+                uploadSeconds = durationSeconds(fileUri);
+                postUploadState();
 
                 JSONObject body = new JSONObject().put("short", false);
                 JSONObject tk = httpJson("POST", Utils.apiUrl(ctx) + "video/uploadToken", body, true, TIMEOUT_MS);
@@ -353,7 +463,14 @@ public class VideoUploadFragment extends DialogFragment {
                     // the frame is taken now, while the picked file is still readable
                     File frame = frameFile(fileUri);
                     try {
-                        tusUpload(fileUri, size, fileName, tk.optString("upload_url", ThreeSpeakVideo.EMBED_BASE + "/uploads"), token);
+                        if (frame != null) {
+                            BitmapFactory.Options o = new BitmapFactory.Options();
+                            o.inSampleSize = 4;
+                            uploadPreview = BitmapFactory.decodeFile(frame.getPath(), o);
+                            postUploadState();
+                        }
+                        tusUpload(fileUri, size, fileName, uploadSeconds,
+                                tk.optString("upload_url", ThreeSpeakVideo.EMBED_BASE + "/uploads"), token);
                         UPLOADED_HERE.add(permlink);
                         uploading = false;
                         toast(msgDone);
@@ -370,17 +487,19 @@ public class VideoUploadFragment extends DialogFragment {
             }
             final String err = error;
             uploading = false;
+            uploadPreview = null;
             ui.post(() -> {
-                if (!isAdded()) {
+                VideoUploadFragment f = active;
+                if (f == null || !f.isAdded()) {
                     if (err != null) Toast.makeText(ctx, err, Toast.LENGTH_LONG).show();
                     return;
                 }
-                progressContainer.setVisibility(View.GONE);
-                if (err != null) {
-                    new AlertDialog.Builder(getActivity()).setMessage(err)
-                            .setPositiveButton(getString(R.string.close_button), null).show();
+                f.showUploadState();
+                if (err != null && f.getActivity() != null) {
+                    new AlertDialog.Builder(f.getActivity()).setMessage(err)
+                            .setPositiveButton(f.getString(R.string.close_button), null).show();
                 }
-                loadUploads();
+                f.loadUploads();
             });
         });
     }
@@ -444,7 +563,7 @@ public class VideoUploadFragment extends DialogFragment {
     }
 
     /** Sends the file to 3Speak by TUS, authorised by the one-time upload token. */
-    private void tusUpload(Uri fileUri, long size, String fileName, String uploadUrl, String token)
+    private void tusUpload(Uri fileUri, long size, String fileName, long seconds, String uploadUrl, String token)
             throws IOException, ProtocolException {
         TusClient client = new TusClient();
         client.setUploadCreationURL(new URL(uploadUrl));
@@ -464,21 +583,17 @@ public class VideoUploadFragment extends DialogFragment {
             meta.put("filename", fileName == null ? "video.mp4" : fileName);
             String type = ctx.getContentResolver().getType(fileUri);
             meta.put("filetype", type == null ? "video/mp4" : type);
-            long seconds = durationSeconds(fileUri);
             if (seconds > 0) meta.put("duration", String.valueOf(seconds));
             upload.setMetadata(meta);
 
-            final DecimalFormat df = new DecimalFormat("0.0");
             TusExecutor executor = new TusExecutor() {
                 @Override
                 protected void makeAttempt() throws ProtocolException, IOException {
                     TusUploader uploader = client.resumeOrCreateUpload(upload);
                     uploader.setChunkSize(CHUNK_SIZE);
                     do {
-                        double pct = (double) uploader.getOffset() / size * 100;
-                        ui.post(() -> {
-                            if (isAdded()) vidProgressPercent.setText(ctx.getString(R.string.vid_uploading, df.format(pct)));
-                        });
+                        uploadSent = uploader.getOffset();
+                        postUploadState();
                     } while (uploader.uploadChunk() > -1);
                     uploader.finish();
                 }
