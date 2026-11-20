@@ -15,10 +15,25 @@ public class ThreeSpeakVideoTest {
 
     @Test
     public void snippetPutsTheEmbedUrlOnItsOwnLineSoFrontendsShowAPlayer() {
-        String s = ThreeSpeakVideo.reportSnippet("alice", "yn77aj9g", EMBED);
+        String s = ThreeSpeakVideo.reportSnippet("alice", "yn77aj9g", EMBED, null);
         assertTrue(s.contains("\n" + EMBED + "\n"));
-        assertTrue(s.contains("(https://3speak.tv/watch?v=alice/yn77aj9g)"));
+        assertTrue(s.contains("▶ [Watch on 3speak.tv](https://3speak.tv/watch?v=alice/yn77aj9g)"));
+        assertFalse(s.contains("!["));
         assertTrue(ThreeSpeakVideo.isInContent("my report" + s, EMBED));
+    }
+
+    @Test
+    public void withAFrameTheWatchLinkIsTheFrameSoItBecomesTheCover() {
+        String thumb = "https://usermedia.actifit.io/abc.jpg";
+        String s = ThreeSpeakVideo.reportSnippet("alice", "yn77aj9g", EMBED, thumb);
+        assertTrue(s.contains("\n" + EMBED + "\n"));
+        assertTrue(s.contains("[![Watch on 3speak.tv](" + thumb + ")](https://3speak.tv/watch?v=alice/yn77aj9g)"));
+        // the post service collects images with /!\[(.*?)\]\((.*?)\)/ and the first is the cover
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("!\\[(.*?)\\]\\((.*?)\\)").matcher(s);
+        assertTrue(m.find());
+        assertEquals(thumb, m.group(2));
+        assertEquals(s, ThreeSpeakVideo.reportSnippet("alice", "yn77aj9g", EMBED, thumb));
+        assertTrue(ThreeSpeakVideo.reportSnippet("alice", "p", EMBED, "").contains("▶ [Watch on 3speak.tv]"));
     }
 
     @Test

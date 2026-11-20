@@ -33,10 +33,16 @@ public final class ThreeSpeakVideo {
 
     /**
      * Text added to the report body: the embed URL on its own line (Hive frontends turn it
-     * into a player), then a plain link for apps that don't.
+     * into a player), then a link for apps that don't. With a frame, the link is the frame:
+     * the post service makes the report's first image its cover, which 3Speak also takes as
+     * the video's thumbnail.
      */
-    public static String reportSnippet(String owner, String permlink, String embedUrl) {
-        return "\n" + embedUrl + "\n\n▶ [Watch on 3speak.tv](" + watchUrl(owner, permlink) + ")\n";
+    public static String reportSnippet(String owner, String permlink, String embedUrl, String thumbnailUrl) {
+        String watch = watchUrl(owner, permlink);
+        String link = (thumbnailUrl == null || thumbnailUrl.isEmpty())
+                ? "▶ [Watch on 3speak.tv](" + watch + ")"
+                : "[![Watch on 3speak.tv](" + thumbnailUrl + ")](" + watch + ")";
+        return "\n" + embedUrl + "\n\n" + link + "\n";
     }
 
     /** Is the video still in the report text (the user may have deleted the snippet)? */
