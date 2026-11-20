@@ -805,25 +805,27 @@ public class  Utils {
     }
 
 
+    /**
+     * Size in bytes of a picked video, or 0 if unknown. Read through the content resolver,
+     * so it works with the system picker's grant and needs no media permission.
+     */
     public static long getVidSize(Context ctx, Uri videoUri){
-        long fileSizeInBytes = 0;
-        try{
-            String filePath = getRealPathFromURI(ctx, videoUri);
-            File file = new File(filePath);
-            fileSizeInBytes = file.length();
-            //vidSize = (float)fileSizeInBytes / (1024 * 1024); // Convert to MB
-        }catch (Exception ex){
+        try (Cursor c = ctx.getContentResolver().query(videoUri,
+                new String[]{OpenableColumns.SIZE}, null, null, null)) {
+            if (c != null && c.moveToFirst() && !c.isNull(0)) {
+                long size = c.getLong(0);
+                if (size > 0) return size;
+            }
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return fileSizeInBytes;
-    }
-
-    public static String getRealPathFromURI(Context ctx, Uri contentUri) {
-        String[] proj = {MediaStore.Images.Media.DATA};
-        Cursor cursor = ctx.getContentResolver().query(contentUri, proj, null, null, null);
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        return cursor.getString(column_index);
+        try (android.content.res.AssetFileDescriptor fd =
+                     ctx.getContentResolver().openAssetFileDescriptor(videoUri, "r")) {
+            if (fd != null && fd.getLength() > 0) return fd.getLength();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return 0;
     }
 
     public static double getVidDuration(Context ctx, Uri videoUri){
