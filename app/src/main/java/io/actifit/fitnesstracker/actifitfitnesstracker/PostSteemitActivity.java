@@ -197,6 +197,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     // MarkedView mdView;
     TextView mdView;
+    private Markwon markwon;
 
     String accountUsername, accountPostingKey, accountActivityCount, finalPostTitle, finalPostTags,
             finalPostContent;
@@ -238,12 +239,68 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         if (i == R.id.btn_choose_file) {
             showChoosingFile(0);
         } else if (i == R.id.btn_video_post) {
-            // show video modal
-            VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken,
-                    this, true);
-            // dialog.getView().setMinimumWidth(400);
-            dialog.show(getSupportFragmentManager(), "video_upload_fragment");
+            openVideoSheet();
         }
+    }
+
+    private void openVideoSheet() {
+        VideoUploadFragment dialog = new VideoUploadFragment(getApplicationContext(), LoginActivity.accessToken,
+                this, true);
+        dialog.show(getSupportFragmentManager(), "video_upload_fragment");
+    }
+
+    /** The preview shows the report as it will be posted: the attached video on top. */
+    private void refreshPreview() {
+        if (markwon == null || mdView == null || steemitPostContent == null) return;
+        String text = steemitPostContent.getText().toString();
+        try {
+            markwon.setMarkdown(mdView, selVidEntry == null ? text
+                    : ThreeSpeakVideo.withVideoAtTop(text, MainActivity.username, selVidEntry.permlink,
+                            selVidEntry.embed_url, selVidEntry.frame_url));
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "preview: " + e.getMessage());
+        }
+    }
+
+    /** The "Video attached" card above the text box: shown while a video is attached. */
+    private void showAttachedVideo() {
+        refreshPreview();
+        View card = findViewById(R.id.attachedVideoCard);
+        if (card == null) return;
+        if (selVidEntry == null) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        card.setVisibility(View.VISIBLE);
+        View thumbFrame = findViewById(R.id.attachedThumbFrame);
+        thumbFrame.setClipToOutline(true);
+        ImageView thumb = findViewById(R.id.attachedThumb);
+        String image = selVidEntry.frame_url != null ? selVidEntry.frame_url : selVidEntry.thumbnail_url;
+        if (image != null) Glide.with(this).load(image).into(thumb);
+        else thumb.setImageDrawable(null);
+        TextView duration = findViewById(R.id.attachedDuration);
+        duration.setVisibility(selVidEntry.duration > 0 ? View.VISIBLE : View.GONE);
+        duration.setText(ThreeSpeakVideo.durationLabel(selVidEntry.duration));
+        ((TextView) findViewById(R.id.attachedBody)).setText(selVidEntry.frame_url != null
+                ? R.string.vid_attached_body_frame : R.string.vid_attached_body);
+        final String player = selVidEntry.embed_url;
+        thumbFrame.setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(player)));
+            } catch (Exception ignored) { }
+        });
+    }
+
+    /** The permlink of the attached video, or null. */
+    public String attachedVideoPermlink() {
+        return selVidEntry == null ? null : selVidEntry.permlink;
+    }
+
+    /** Detaches the video from the report. */
+    private void clearMainVid() {
+        selVidEntry = null;
+        getSharedPreferences("actifitSets", MODE_PRIVATE).edit().remove("selVidEntry").apply();
+        showAttachedVideo();
     }
 
     @Override
@@ -569,7 +626,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         // MarkedView mdView = new MarkedView(this);
 
 
-        final Markwon markwon = Markwon.builder(steemit_post_context)
+        markwon = Markwon.builder(steemit_post_context)
                 // .usePlugin(ImagesPlugin.create())
                 // support HTML
                 // .usePlugin(HtmlPlugin.create())
@@ -619,21 +676,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
-                if (s.length() != 0) {
-                    // mdView.setMDText(steemitPostContent.getText().toString());
-                    try {
-                        markwon.setMarkdown(mdView, steemitPostContent.getText().toString());
-                    } catch (Exception e) {
-                        Log.e(MainActivity.TAG, "error ontextchanged markwon");
-                    }
-
-                    // store current text
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("steemPostContent",
-                            steemitPostContent.getText().toString());
-                    editor.apply();
-
-                }
+                // preview and saved draft follow every change, clearing the text included
+                refreshPreview();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("steemPostContent", steemitPostContent.getText().toString());
+                editor.apply();
                 if (s.length() < min_char_count) {
                     charCount.setTextColor(getResources().getColor(R.color.actifitRed));
                 } else {
@@ -683,7 +730,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         }
 
-        markwon.setMarkdown(mdView, steemitPostContent.getText().toString());
+        refreshPreview();
         // set markdown text pattern. ('contents' object is markdown text)
         // mdView.setMDText(steemitPostContent.getText().toString());
 
@@ -765,6 +812,42 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         Button btnVideoPost = (Button) findViewById(R.id.btn_video_post);
         btnVideoPost.setText("");
         btnVideoPost.setOnClickListener(this);
+        findViewById(R.id.attachedChange).setOnClickListener(v -> openVideoSheet());
+        findViewById(R.id.attachedRemove).setOnClickListener(v -> clearMainVid());
+        // a saved video from before the 3Speak embed service can't be posted
+        if (selVidEntry != null && (selVidEntry.embed_url == null || selVidEntry.embed_url.isEmpty())) {
+            clearMainVid();
+        }
+        if (selVidEntry == null) {
+            // the card is the one place a video lives: a video left in the text is attached
+            UploadedVideoModel inText = ThreeSpeakVideo.videoInText(
+                    steemitPostContent.getText().toString(), MainActivity.username);
+            if (inText != null) {
+                String frame = getSharedPreferences("threespeakThumbs", MODE_PRIVATE)
+                        .getString(inText.permlink, null);
+                inText.frame_url = frame;
+                inText.thumbnail_url = frame;
+                setMainVid(inText);
+            }
+        }
+        if (selVidEntry != null) {
+            // a draft from builds 82/83 has the video in its text: the card shows it now
+            String text = steemitPostContent.getText().toString();
+            if (ThreeSpeakVideo.isInContent(text, selVidEntry.embed_url)) {
+                steemitPostContent.setText(ThreeSpeakVideo.stripVideoLinks(text, MainActivity.username,
+                        selVidEntry.permlink, selVidEntry.embed_url));
+            }
+            // builds 82/83 kept a posted video saved: drop it if its report already exists
+            final String user = MainActivity.username, permlink = selVidEntry.permlink;
+            new Thread(() -> {
+                if (VideoUploadFragment.alreadyPosted(user, permlink)) {
+                    runOnUiThread(() -> {
+                        if (selVidEntry != null && permlink.equals(selVidEntry.permlink)) clearMainVid();
+                    });
+                }
+            }).start();
+        }
+        showAttachedVideo();
 
         // Launcher for picking images
         imagePickerLauncher = registerForActivityResult(
@@ -1115,10 +1198,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("selVidEntry", json);
         editor.apply();
-    }
-
-    public void appendContent(String text) {
-        steemitPostContent.setText(steemitPostContent.getText().append(text));
+        showAttachedVideo();
     }
 
     void focusContent() {
@@ -1437,7 +1517,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                             .trim().toLowerCase().replace("@", ""));
                     data.put("posting_key", accountPostingKey);
                     data.put("title", finalPostTitle);
-                    data.put("content", postContent);
+                    // a video already in an earlier report can't go in this one: its permlink
+                    // would make this post an edit of that report
+                    if (selVidEntry != null && VideoUploadFragment.alreadyPosted(MainActivity.username, selVidEntry.permlink)) {
+                        selVidEntry = null;
+                        getSharedPreferences("actifitSets", MODE_PRIVATE).edit().remove("selVidEntry").apply();
+                        runOnUiThread(PostSteemitActivity.this::showAttachedVideo);
+                    }
+                    // the attached video plays at the top of the report
+                    data.put("content", selVidEntry == null ? postContent
+                            : ThreeSpeakVideo.withVideoAtTop(postContent, MainActivity.username,
+                                    selVidEntry.permlink, selVidEntry.embed_url, selVidEntry.frame_url));
                     data.put("tags", finalPostTags);
                     data.put("step_count", accountActivityCount);
                     data.put("activity_type", selectedActivitiesVal);
@@ -1608,7 +1698,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                                     editor[0].putString("actifitLastPostDate", targetDate);
                                     // also clear editor text content
                                     editor[0].putString("steemPostContent", "");
+                                    // and the attached video: it's in this report now
+                                    editor[0].remove("selVidEntry");
                                     editor[0].apply();
+                                    runOnUiThread(() -> {
+                                        selVidEntry = null;
+                                        showAttachedVideo();
+                                    });
                                     result[0] = response.getString("status");
                                 } else {
                                     // notification = getString(R.string.failed_post);
@@ -1751,10 +1847,8 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         finalPostContent = steemitPostContent.getText().toString();
 
-        // check if we have a video and the video still is part of the content
-        // (videos from before the 3Speak embed service have no embed_url and are dropped too)
-        if (selVidEntry != null && !ThreeSpeakVideo.isInContent(finalPostContent, selVidEntry.embed_url)) {
-            // video has been removed from the text
+        // videos from before the 3Speak embed service have no embed_url and can't be posted
+        if (selVidEntry != null && (selVidEntry.embed_url == null || selVidEntry.embed_url.isEmpty())) {
             selVidEntry = null;
         }
 

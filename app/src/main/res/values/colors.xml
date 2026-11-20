@@ -51,4 +51,22 @@
     <!-- Positive/negative colors for transaction list -->
     <color name="positive_amount_color">#00AA00</color>
     <color name="negative_amount_color">#CC0000</color>
+    <!-- video upload sheet (redesign) -->
+    <color name="vid_red">#D90C24</color>
+    <color name="vid_red_text">#C20A20</color>
+    <color name="vid_text">#1D1B1F</color>
+    <color name="vid_text_secondary">#5C575A</color>
+    <color name="vid_surface_soft">#F4F0F1</color>
+    <color name="vid_divider">#EFEAEC</color>
+    <color name="vid_card_tint">#FFF4F5</color>
+    <color name="vid_card_stroke">#F6D3D8</color>
+    <color name="vid_chip_amber_bg">#FFF0D6</color>
+    <color name="vid_chip_amber_fg">#7A4A00</color>
+    <color name="vid_chip_green_bg">#E2F3E6</color>
+    <color name="vid_chip_green_fg">#1D5E30</color>
+    <color name="vid_chip_grey_bg">#EFEBEC</color>
+    <color name="vid_chip_grey_fg">#4A4547</color>
+    <color name="vid_chip_red_bg">#FDE7EA</color>
+    <color name="vid_chip_red_fg">#9B0A1C</color>
+    <color name="vid_thumb_bg">#2B2729</color>
 </resources>

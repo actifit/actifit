@@ -29,6 +29,8 @@ public class UploadedVideoModel {
     // 3Speak embed service (embed2.3speak.tv): the player link and the encoder's thumbnail
     public String embed_url;
     public String thumbnail_url;
+    // the frame this phone took and uploaded; it goes in the report text as the cover
+    public String frame_url;
     //public JSONArray tags;
 
     public UploadedVideoModel(JSONObject jsonObject) {

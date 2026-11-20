@@ -133,4 +133,91 @@ public class ThreeSpeakVideoTest {
         assertNull(n.thumbnail_url);
         assertEquals(0, n.duration, 0);
     }
+    @Test
+    public void theVideoGoesAtTheTopOfTheReportOnce() {
+        String thumb = "https://usermedia.actifit.io/f.jpg";
+        String body = ThreeSpeakVideo.withVideoAtTop("My run today.", "alice", "p1", EMBED, thumb);
+        assertTrue(body.startsWith(EMBED + "\n\n[![Watch on 3speak.tv](" + thumb + ")]"));
+        assertTrue(body.endsWith("\n\nMy run today."));
+        // a draft from build 82/83 already has the video in its text: not added twice
+        assertEquals(body, ThreeSpeakVideo.withVideoAtTop(body, "alice", "p1", EMBED, thumb));
+        // no frame: the plain watch link
+        assertTrue(ThreeSpeakVideo.withVideoAtTop(null, "alice", "p1", EMBED, null)
+                .startsWith(EMBED + "\n\n▶ [Watch on 3speak.tv]"));
+    }
+
+    @Test
+    public void lengthsShowAsMinutesAndSeconds() {
+        assertEquals("0:08", ThreeSpeakVideo.durationLabel(8));
+        assertEquals("0:10", ThreeSpeakVideo.durationLabel(9.6));
+        assertEquals("1:42", ThreeSpeakVideo.durationLabel(102));
+        assertEquals("12:05", ThreeSpeakVideo.durationLabel(725));
+        assertEquals("0:00", ThreeSpeakVideo.durationLabel(-3));
+    }
+
+    /** uploadTimeLabel with the narrow no-break space newer Java/Android put before AM/PM made plain. */
+    private static String label(String created, long now, java.util.TimeZone tz, java.util.Locale loc, String t, String y) {
+        return ThreeSpeakVideo.uploadTimeLabel(created, now, tz, loc, t, y).replace(' ', ' ');
+    }
+
+    @Test
+    public void uploadTimesReadAsTodayYesterdayOrADate() {
+        java.util.TimeZone beirut = java.util.TimeZone.getTimeZone("Asia/Beirut"); // UTC+2 in November
+        java.util.Locale us = java.util.Locale.US;
+        long now = java.time.Instant.parse("2026-11-20T12:30:00Z").toEpochMilli(); // 14:30 local
+        String fmtT = "Today, %1$s", fmtY = "Yesterday, %1$s";
+        assertEquals("Today, 2:24 PM", label("2026-11-20T12:24:00.000Z", now, beirut, us, fmtT, fmtY));
+        // 23:30 UTC on the 19th is already the 20th in Beirut
+        assertTrue(label("2026-11-19T23:30:00.000Z", now, beirut, us, fmtT, fmtY).startsWith("Today, 1:30"));
+        assertEquals("Yesterday, 7:10 AM", label("2026-11-19T05:10:00.000Z", now, beirut, us, fmtT, fmtY));
+        assertEquals("Nov 18, 6:02 PM", label("2026-11-18T16:02:00.000Z", now, beirut, us, fmtT, fmtY));
+        assertEquals("", label("", now, beirut, us, fmtT, fmtY));
+        assertEquals("", label("not a date at all", now, beirut, us, fmtT, fmtY));
+    }
+
+    @Test
+    public void todaysCountUsesTheServersRolling24Hours() {
+        long now = java.time.Instant.parse("2026-11-20T12:30:00Z").toEpochMilli();
+        java.util.List<String> created = java.util.Arrays.asList(
+                "2026-11-20T12:24:00.000Z",   // minutes ago
+                "2026-11-19T13:00:00.000Z",   // 23.5 h ago: still counts
+                "2026-11-19T12:00:00.000Z",   // 24.5 h ago: no longer counts
+                "", "garbage");
+        assertEquals(2, ThreeSpeakVideo.uploadsInLastDay(created, now));
+    }
+
+    @Test
+    public void viewPostOpensTheReportAtTheVideosPermlink() {
+        assertEquals("https://actifit.io/@alice/jy23sazs", ThreeSpeakVideo.postUrl("alice", "jy23sazs"));
+    }
+    @Test
+    public void anOldDraftsVideoLinesComeOutOfTheText() {
+        String thumb = "https://usermedia.actifit.io/f.jpg";
+        String old = "Great run.\n" + ThreeSpeakVideo.reportSnippet("alice", "yn77aj9g", EMBED, thumb) + "\nMore text after.";
+        String clean = ThreeSpeakVideo.stripVideoLinks(old, "alice", "yn77aj9g", EMBED);
+        assertFalse(clean.contains("play.3speak.tv"));
+        assertFalse(clean.contains("3speak.tv/watch"));
+        assertTrue(clean.startsWith("Great run."));
+        assertTrue(clean.endsWith("More text after."));
+        assertFalse(clean.contains("\n\n\n"));
+        // the plain-link snippet from build 82, at the very start of the text
+        String old82 = ThreeSpeakVideo.reportSnippet("alice", "yn77aj9g", EMBED, null) + "My words.";
+        assertEquals("My words.", ThreeSpeakVideo.stripVideoLinks(old82, "alice", "yn77aj9g", EMBED));
+        // another video's links stay
+        String other = "https://play.3speak.tv/embed?v=alice/other1";
+        assertTrue(ThreeSpeakVideo.stripVideoLinks(other + "\nhi", "alice", "yn77aj9g", EMBED).contains(other));
+    }
+    @Test
+    public void aVideoLeftInTheTextIsFoundOnlyIfItIsTheUsersOwn() {
+        String text = "\nhttps://play.3speak.tv/embed?v=alice/jm6vqar9\n\n[![Watch](https://x/f.jpg)](https://3speak.tv/watch?v=alice/jm6vqar9)\n";
+        UploadedVideoModel v = ThreeSpeakVideo.videoInText(text, "alice");
+        assertEquals("jm6vqar9", v.permlink);
+        assertEquals("https://play.3speak.tv/embed?v=alice/jm6vqar9", v.embed_url);
+        // someone else's video pasted into the report is left alone
+        assertNull(ThreeSpeakVideo.videoInText(text, "bob"));
+        // a user whose name starts the same is not a match
+        assertNull(ThreeSpeakVideo.videoInText("https://play.3speak.tv/embed?v=alice2/p1", "alice"));
+        assertNull(ThreeSpeakVideo.videoInText("just words", "alice"));
+        assertNull(ThreeSpeakVideo.videoInText(null, "alice"));
+    }
 }
