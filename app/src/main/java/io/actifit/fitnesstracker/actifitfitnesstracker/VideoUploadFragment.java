@@ -472,7 +472,6 @@ public class VideoUploadFragment extends BottomSheetDialogFragment {
                         tusUpload(fileUri, size, fileName, uploadSeconds,
                                 tk.optString("upload_url", ThreeSpeakVideo.EMBED_BASE + "/uploads"), token);
                         UPLOADED_HERE.add(permlink);
-                        uploading = false;
                         toast(msgDone);
                         // best effort: a missing frame never fails the upload
                         String url = frame == null ? null : uploadFrame(frame);
@@ -607,7 +606,7 @@ public class VideoUploadFragment extends BottomSheetDialogFragment {
     // ---------------------------------------------------------------- http
 
     /** Small blocking JSON call (run on the io thread). Error bodies are returned too. */
-    private JSONObject httpJson(String method, String url, JSONObject body, boolean auth, int timeoutMs) throws Exception {
+    private static JSONObject httpJson(String method, String url, JSONObject body, boolean auth, int timeoutMs) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         try {
             c.setRequestMethod(method);
@@ -635,8 +634,11 @@ public class VideoUploadFragment extends BottomSheetDialogFragment {
         }
     }
 
-    /** Is there already a Hive post at @user/permlink? Unknown (node down) counts as no. */
-    private boolean alreadyPosted(String user, String permlink) {
+    /**
+     * Is there already a Hive post at @user/permlink? Unknown (node down) counts as no.
+     * Blocking: call it off the main thread.
+     */
+    static boolean alreadyPosted(String user, String permlink) {
         try {
             JSONObject req = new JSONObject().put("jsonrpc", "2.0").put("id", 1)
                     .put("method", "condenser_api.get_content")

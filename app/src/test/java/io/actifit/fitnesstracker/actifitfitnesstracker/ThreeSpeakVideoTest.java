@@ -190,4 +190,21 @@ public class ThreeSpeakVideoTest {
     public void viewPostOpensTheReportAtTheVideosPermlink() {
         assertEquals("https://actifit.io/@alice/jy23sazs", ThreeSpeakVideo.postUrl("alice", "jy23sazs"));
     }
+    @Test
+    public void anOldDraftsVideoLinesComeOutOfTheText() {
+        String thumb = "https://usermedia.actifit.io/f.jpg";
+        String old = "Great run.\n" + ThreeSpeakVideo.reportSnippet("alice", "yn77aj9g", EMBED, thumb) + "\nMore text after.";
+        String clean = ThreeSpeakVideo.stripVideoLinks(old, "alice", "yn77aj9g", EMBED);
+        assertFalse(clean.contains("play.3speak.tv"));
+        assertFalse(clean.contains("3speak.tv/watch"));
+        assertTrue(clean.startsWith("Great run."));
+        assertTrue(clean.endsWith("More text after."));
+        assertFalse(clean.contains("\n\n\n"));
+        // the plain-link snippet from build 82, at the very start of the text
+        String old82 = ThreeSpeakVideo.reportSnippet("alice", "yn77aj9g", EMBED, null) + "My words.";
+        assertEquals("My words.", ThreeSpeakVideo.stripVideoLinks(old82, "alice", "yn77aj9g", EMBED));
+        // another video's links stay
+        String other = "https://play.3speak.tv/embed?v=alice/other1";
+        assertTrue(ThreeSpeakVideo.stripVideoLinks(other + "\nhi", "alice", "yn77aj9g", EMBED).contains(other));
+    }
 }

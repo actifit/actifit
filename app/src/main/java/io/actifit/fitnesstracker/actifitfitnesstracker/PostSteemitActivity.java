@@ -813,6 +813,23 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         if (selVidEntry != null && (selVidEntry.embed_url == null || selVidEntry.embed_url.isEmpty())) {
             clearMainVid();
         }
+        if (selVidEntry != null) {
+            // a draft from builds 82/83 has the video in its text: the card shows it now
+            String text = steemitPostContent.getText().toString();
+            if (ThreeSpeakVideo.isInContent(text, selVidEntry.embed_url)) {
+                steemitPostContent.setText(ThreeSpeakVideo.stripVideoLinks(text, MainActivity.username,
+                        selVidEntry.permlink, selVidEntry.embed_url));
+            }
+            // builds 82/83 kept a posted video saved: drop it if its report already exists
+            final String user = MainActivity.username, permlink = selVidEntry.permlink;
+            new Thread(() -> {
+                if (VideoUploadFragment.alreadyPosted(user, permlink)) {
+                    runOnUiThread(() -> {
+                        if (selVidEntry != null && permlink.equals(selVidEntry.permlink)) clearMainVid();
+                    });
+                }
+            }).start();
+        }
         showAttachedVideo();
 
         // Launcher for picking images
@@ -1483,6 +1500,13 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
                             .trim().toLowerCase().replace("@", ""));
                     data.put("posting_key", accountPostingKey);
                     data.put("title", finalPostTitle);
+                    // a video already in an earlier report can't go in this one: its permlink
+                    // would make this post an edit of that report
+                    if (selVidEntry != null && VideoUploadFragment.alreadyPosted(MainActivity.username, selVidEntry.permlink)) {
+                        selVidEntry = null;
+                        getSharedPreferences("actifitSets", MODE_PRIVATE).edit().remove("selVidEntry").apply();
+                        runOnUiThread(PostSteemitActivity.this::showAttachedVideo);
+                    }
                     // the attached video plays at the top of the report
                     data.put("content", selVidEntry == null ? postContent
                             : ThreeSpeakVideo.withVideoAtTop(postContent, MainActivity.username,

@@ -68,6 +68,22 @@ public final class ThreeSpeakVideo {
         return reportSnippet(owner, permlink, embedUrl, thumbnailUrl).trim() + "\n\n" + text;
     }
 
+    /**
+     * The report text without this video's player and watch lines, which builds 82/83 pasted
+     * into the text (the card shows the video now).
+     */
+    public static String stripVideoLinks(String content, String owner, String permlink, String embedUrl) {
+        if (content == null) return "";
+        String watch = watchUrl(owner, permlink);
+        StringBuilder out = new StringBuilder();
+        for (String line : content.split("\n", -1)) {
+            if ((embedUrl != null && !embedUrl.isEmpty() && line.contains(embedUrl)) || line.contains(watch)) continue;
+            if (out.length() > 0) out.append('\n');
+            out.append(line);
+        }
+        return out.toString().replaceAll("^\\s+", "").replaceAll("\n{3,}", "\n\n");
+    }
+
     /** The report that used this video: the post takes the video's permlink. */
     public static String postUrl(String owner, String permlink) {
         return "https://actifit.io/@" + owner + "/" + permlink;
