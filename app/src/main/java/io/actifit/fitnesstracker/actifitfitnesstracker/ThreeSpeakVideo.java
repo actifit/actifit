@@ -84,6 +84,22 @@ public final class ThreeSpeakVideo {
         return out.toString().replaceAll("^\\s+", "").replaceAll("\n{3,}", "\n\n");
     }
 
+    /**
+     * The user's own 3Speak video whose player link is in the report text (a draft from
+     * builds 82/83), as an attachable video, or null.
+     */
+    public static UploadedVideoModel videoInText(String content, String owner) {
+        if (content == null || owner == null || owner.isEmpty()) return null;
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile(java.util.regex.Pattern.quote(PLAYER_BASE + owner + "/") + "([a-z0-9-]+)")
+                .matcher(content);
+        if (!m.find()) return null;
+        UploadedVideoModel v = new UploadedVideoModel(new JSONObject());
+        v.permlink = m.group(1);
+        v.embed_url = embedUrl(owner, v.permlink);
+        return v;
+    }
+
     /** The report that used this video: the post takes the video's permlink. */
     public static String postUrl(String owner, String permlink) {
         return "https://actifit.io/@" + owner + "/" + permlink;

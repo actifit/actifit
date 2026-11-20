@@ -818,6 +818,18 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         if (selVidEntry != null && (selVidEntry.embed_url == null || selVidEntry.embed_url.isEmpty())) {
             clearMainVid();
         }
+        if (selVidEntry == null) {
+            // the card is the one place a video lives: a video left in the text is attached
+            UploadedVideoModel inText = ThreeSpeakVideo.videoInText(
+                    steemitPostContent.getText().toString(), MainActivity.username);
+            if (inText != null) {
+                String frame = getSharedPreferences("threespeakThumbs", MODE_PRIVATE)
+                        .getString(inText.permlink, null);
+                inText.frame_url = frame;
+                inText.thumbnail_url = frame;
+                setMainVid(inText);
+            }
+        }
         if (selVidEntry != null) {
             // a draft from builds 82/83 has the video in its text: the card shows it now
             String text = steemitPostContent.getText().toString();

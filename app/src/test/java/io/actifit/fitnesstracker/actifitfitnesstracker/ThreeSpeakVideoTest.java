@@ -207,4 +207,17 @@ public class ThreeSpeakVideoTest {
         String other = "https://play.3speak.tv/embed?v=alice/other1";
         assertTrue(ThreeSpeakVideo.stripVideoLinks(other + "\nhi", "alice", "yn77aj9g", EMBED).contains(other));
     }
+    @Test
+    public void aVideoLeftInTheTextIsFoundOnlyIfItIsTheUsersOwn() {
+        String text = "\nhttps://play.3speak.tv/embed?v=alice/jm6vqar9\n\n[![Watch](https://x/f.jpg)](https://3speak.tv/watch?v=alice/jm6vqar9)\n";
+        UploadedVideoModel v = ThreeSpeakVideo.videoInText(text, "alice");
+        assertEquals("jm6vqar9", v.permlink);
+        assertEquals("https://play.3speak.tv/embed?v=alice/jm6vqar9", v.embed_url);
+        // someone else's video pasted into the report is left alone
+        assertNull(ThreeSpeakVideo.videoInText(text, "bob"));
+        // a user whose name starts the same is not a match
+        assertNull(ThreeSpeakVideo.videoInText("https://play.3speak.tv/embed?v=alice2/p1", "alice"));
+        assertNull(ThreeSpeakVideo.videoInText("just words", "alice"));
+        assertNull(ThreeSpeakVideo.videoInText(null, "alice"));
+    }
 }
