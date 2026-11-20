@@ -3,6 +3,8 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
@@ -36,6 +38,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,10 +54,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.tus.java.client.ProtocolException;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import io.tus.java.client.TusClient;
 import io.tus.java.client.TusExecutor;
 import io.tus.java.client.TusURLMemoryStore;
@@ -197,6 +206,9 @@ public class VideoUploadFragment extends DialogFragment {
                     }
                     UploadedVideoModel v = ThreeSpeakVideo.fromStatus(user, permlink, row.optString("embed_url", ""),
                             row.optString("created", ""), status);
+                    // our own frame beats 3Speak's, which may be the report's activity image
+                    String frame = thumbs().getString(permlink, null);
+                    if (frame != null) v.thumbnail_url = frame;
                     // already used in a report? (the report post takes the video's permlink)
                     if (ThreeSpeakVideo.canAttach(v.status, UPLOADED_HERE.contains(permlink)) && alreadyPosted(user, permlink)) {
                         v.status = ThreeSpeakVideo.STATUS_POSTED;
@@ -259,7 +271,7 @@ public class VideoUploadFragment extends DialogFragment {
             addToPost.setOnClickListener(x -> {
                 PostSteemitActivity post = (PostSteemitActivity) parent;
                 post.setMainVid(v);
-                post.appendContent(ThreeSpeakVideo.reportSnippet(MainActivity.username, v.permlink, v.embed_url));
+                post.appendContent(ThreeSpeakVideo.reportSnippet(MainActivity.username, v.permlink, v.embed_url, v.thumbnail_url));
                 dismiss();
             });
         } else {
@@ -338,6 +350,9 @@ public class VideoUploadFragment extends DialogFragment {
                 } else {
                     tusUpload(fileUri, size, fileName, tk.optString("upload_url", ThreeSpeakVideo.EMBED_BASE + "/uploads"), token);
                     UPLOADED_HERE.add(permlink);
+                    // best effort: a missing frame never fails the upload
+                    String frame = uploadFrame(fileUri);
+                    if (frame != null) thumbs().edit().putString(permlink, frame).apply();
                     toast(msgDone);
                 }
             } catch (Throwable e) {
@@ -359,6 +374,44 @@ public class VideoUploadFragment extends DialogFragment {
                 loadUploads();
             });
         });
+    }
+
+    /** Frames uploaded from this phone, by video permlink (3Speak has no frame of its own). */
+    private SharedPreferences thumbs() {
+        return ctx.getSharedPreferences("threespeakThumbs", Context.MODE_PRIVATE);
+    }
+
+    /**
+     * Takes a frame a quarter into the video and uploads it to Actifit's media server, like
+     * report photos. Returns its URL, or null if any step fails.
+     */
+    private String uploadFrame(Uri fileUri) {
+        File file = null;
+        try {
+            Bitmap frame = Utils.generateThumbnail(ctx, fileUri);
+            if (frame == null) return null;
+            int longSide = Math.max(frame.getWidth(), frame.getHeight());
+            if (longSide > 1280) {
+                float f = 1280f / longSide;
+                frame = Bitmap.createScaledBitmap(frame, Math.round(frame.getWidth() * f), Math.round(frame.getHeight() * f), true);
+            }
+            String name = UUID.randomUUID() + ".jpg";
+            file = new File(ctx.getCacheDir(), name);
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                frame.compress(Bitmap.CompressFormat.JPEG, 85, out);
+            }
+            MultipartBody.Part part = MultipartBody.Part.createFormData("image", name,
+                    RequestBody.create(MediaType.parse("image/jpeg"), file));
+            retrofit2.Response<ResponseBody> res = RetrofitClient.getClient().create(ApiService.class)
+                    .uploadImage(part, ctx.getString(R.string.media_upload_key)).execute();
+            if (res.body() != null) res.body().close();
+            return res.isSuccessful() ? ctx.getString(R.string.actifit_usermedia_url) + name : null;
+        } catch (Throwable e) {
+            Log.d(TAG, "frame upload: " + e.getMessage());
+            return null;
+        } finally {
+            if (file != null) file.delete();
+        }
     }
 
     /** The video's length in whole seconds, or 0 when the file has no readable duration. */
