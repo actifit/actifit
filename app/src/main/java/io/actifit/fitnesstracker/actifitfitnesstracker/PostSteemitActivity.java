@@ -197,6 +197,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
     // MarkedView mdView;
     TextView mdView;
+    private Markwon markwon;
 
     String accountUsername, accountPostingKey, accountActivityCount, finalPostTitle, finalPostTags,
             finalPostContent;
@@ -248,8 +249,22 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         dialog.show(getSupportFragmentManager(), "video_upload_fragment");
     }
 
+    /** The preview shows the report as it will be posted: the attached video on top. */
+    private void refreshPreview() {
+        if (markwon == null || mdView == null || steemitPostContent == null) return;
+        String text = steemitPostContent.getText().toString();
+        try {
+            markwon.setMarkdown(mdView, selVidEntry == null ? text
+                    : ThreeSpeakVideo.withVideoAtTop(text, MainActivity.username, selVidEntry.permlink,
+                            selVidEntry.embed_url, selVidEntry.frame_url));
+        } catch (Exception e) {
+            Log.e(MainActivity.TAG, "preview: " + e.getMessage());
+        }
+    }
+
     /** The "Video attached" card above the text box: shown while a video is attached. */
     private void showAttachedVideo() {
+        refreshPreview();
         View card = findViewById(R.id.attachedVideoCard);
         if (card == null) return;
         if (selVidEntry == null) {
@@ -611,7 +626,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         // MarkedView mdView = new MarkedView(this);
 
 
-        final Markwon markwon = Markwon.builder(steemit_post_context)
+        markwon = Markwon.builder(steemit_post_context)
                 // .usePlugin(ImagesPlugin.create())
                 // support HTML
                 // .usePlugin(HtmlPlugin.create())
@@ -661,21 +676,11 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
-                if (s.length() != 0) {
-                    // mdView.setMDText(steemitPostContent.getText().toString());
-                    try {
-                        markwon.setMarkdown(mdView, steemitPostContent.getText().toString());
-                    } catch (Exception e) {
-                        Log.e(MainActivity.TAG, "error ontextchanged markwon");
-                    }
-
-                    // store current text
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("steemPostContent",
-                            steemitPostContent.getText().toString());
-                    editor.apply();
-
-                }
+                // preview and saved draft follow every change, clearing the text included
+                refreshPreview();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("steemPostContent", steemitPostContent.getText().toString());
+                editor.apply();
                 if (s.length() < min_char_count) {
                     charCount.setTextColor(getResources().getColor(R.color.actifitRed));
                 } else {
@@ -725,7 +730,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
 
         }
 
-        markwon.setMarkdown(mdView, steemitPostContent.getText().toString());
+        refreshPreview();
         // set markdown text pattern. ('contents' object is markdown text)
         // mdView.setMDText(steemitPostContent.getText().toString());
 
