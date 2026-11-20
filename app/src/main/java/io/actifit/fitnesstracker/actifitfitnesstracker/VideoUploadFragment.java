@@ -271,7 +271,9 @@ public class VideoUploadFragment extends DialogFragment {
             addToPost.setOnClickListener(x -> {
                 PostSteemitActivity post = (PostSteemitActivity) parent;
                 post.setMainVid(v);
-                post.appendContent(ThreeSpeakVideo.reportSnippet(MainActivity.username, v.permlink, v.embed_url, v.thumbnail_url));
+                // only our own frame goes in the text: it becomes the post's cover
+                post.appendContent(ThreeSpeakVideo.reportSnippet(MainActivity.username, v.permlink, v.embed_url,
+                        thumbs().getString(v.permlink, null)));
                 dismiss();
             });
         } else {
@@ -348,12 +350,19 @@ public class VideoUploadFragment extends DialogFragment {
                     String serverMsg = tk.optString("error", tk.optString("message", ""));
                     error = serverMsg.isEmpty() ? msgUnavailable : serverMsg;
                 } else {
-                    tusUpload(fileUri, size, fileName, tk.optString("upload_url", ThreeSpeakVideo.EMBED_BASE + "/uploads"), token);
-                    UPLOADED_HERE.add(permlink);
-                    // best effort: a missing frame never fails the upload
-                    String frame = uploadFrame(fileUri);
-                    if (frame != null) thumbs().edit().putString(permlink, frame).apply();
-                    toast(msgDone);
+                    // the frame is taken now, while the picked file is still readable
+                    File frame = frameFile(fileUri);
+                    try {
+                        tusUpload(fileUri, size, fileName, tk.optString("upload_url", ThreeSpeakVideo.EMBED_BASE + "/uploads"), token);
+                        UPLOADED_HERE.add(permlink);
+                        uploading = false;
+                        toast(msgDone);
+                        // best effort: a missing frame never fails the upload
+                        String url = frame == null ? null : uploadFrame(frame);
+                        if (url != null) thumbs().edit().putString(permlink, url).apply();
+                    } finally {
+                        if (frame != null) frame.delete();
+                    }
                 }
             } catch (Throwable e) {
                 Log.d(TAG, "upload: " + e.getMessage());
@@ -381,36 +390,42 @@ public class VideoUploadFragment extends DialogFragment {
         return ctx.getSharedPreferences("threespeakThumbs", Context.MODE_PRIVATE);
     }
 
-    /**
-     * Takes a frame a quarter into the video and uploads it to Actifit's media server, like
-     * report photos. Returns its URL, or null if any step fails.
-     */
-    private String uploadFrame(Uri fileUri) {
-        File file = null;
+    /** A JPEG of the frame a quarter into the video, at most 1280 px, or null. */
+    private File frameFile(Uri fileUri) {
+        MediaMetadataRetriever r = new MediaMetadataRetriever();
         try {
-            Bitmap frame = Utils.generateThumbnail(ctx, fileUri);
+            r.setDataSource(ctx, fileUri);
+            String ms = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            long atUs = ms == null ? 0 : Long.parseLong(ms) * 1000 / 4;
+            Bitmap frame = r.getScaledFrameAtTime(atUs, MediaMetadataRetriever.OPTION_CLOSEST_SYNC, 1280, 1280);
             if (frame == null) return null;
-            int longSide = Math.max(frame.getWidth(), frame.getHeight());
-            if (longSide > 1280) {
-                float f = 1280f / longSide;
-                frame = Bitmap.createScaledBitmap(frame, Math.round(frame.getWidth() * f), Math.round(frame.getHeight() * f), true);
-            }
-            String name = UUID.randomUUID() + ".jpg";
-            file = new File(ctx.getCacheDir(), name);
+            File file = new File(ctx.getCacheDir(), UUID.randomUUID() + ".jpg");
             try (FileOutputStream out = new FileOutputStream(file)) {
                 frame.compress(Bitmap.CompressFormat.JPEG, 85, out);
+            } finally {
+                frame.recycle();
             }
-            MultipartBody.Part part = MultipartBody.Part.createFormData("image", name,
+            return file;
+        } catch (Throwable e) {
+            Log.d(TAG, "frame: " + e.getMessage());
+            return null;
+        } finally {
+            try { r.release(); } catch (Exception ignored) { }
+        }
+    }
+
+    /** Uploads the frame to Actifit's media server, like report photos. Returns its URL, or null. */
+    private String uploadFrame(File file) {
+        try {
+            MultipartBody.Part part = MultipartBody.Part.createFormData("image", file.getName(),
                     RequestBody.create(MediaType.parse("image/jpeg"), file));
             retrofit2.Response<ResponseBody> res = RetrofitClient.getClient().create(ApiService.class)
                     .uploadImage(part, ctx.getString(R.string.media_upload_key)).execute();
             if (res.body() != null) res.body().close();
-            return res.isSuccessful() ? ctx.getString(R.string.actifit_usermedia_url) + name : null;
+            return res.isSuccessful() ? ctx.getString(R.string.actifit_usermedia_url) + file.getName() : null;
         } catch (Throwable e) {
             Log.d(TAG, "frame upload: " + e.getMessage());
             return null;
-        } finally {
-            if (file != null) file.delete();
         }
     }
 
