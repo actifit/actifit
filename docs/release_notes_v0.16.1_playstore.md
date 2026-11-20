@@ -1,4 +1,6 @@
-# Actifit v0.16.1 — Play Store "What's New" (500 char limit)
+# Actifit v0.16.1 "Endorphin" — Play Store "What's New" (500 char limit)
+
+Play Console release name: `v0.16.1 (84) · Endorphin`
 
 Covers everything since v0.15.2, the last production release (v0.16.0 was never shipped).
 
