@@ -1964,7 +1964,17 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
         final int generation = hcWorkoutsGeneration.incrementAndGet();
         hcWorkouts = null;
         healthConnectManager.readWorkouts(day).whenComplete((workouts, t) -> {
-            if (t != null || workouts == null || workouts.isEmpty()) return;
+            if (t != null || workouts == null) return;
+            if (workouts.isEmpty()) {
+                // with "Show my workouts" on, say the day has none rather than staying silent
+                if (HealthConnectManager.isShowWorkoutsEnabled(this)) {
+                    runOnUiThread(() -> {
+                        if (generation != hcWorkoutsGeneration.get() || isFinishing()) return;
+                        Toast.makeText(this, R.string.hc_workouts_none_day, Toast.LENGTH_LONG).show();
+                    });
+                }
+                return;
+            }
             if (generation != hcWorkoutsGeneration.get()) return;
             runOnUiThread(() -> {
                 if (generation != hcWorkoutsGeneration.get()) return;

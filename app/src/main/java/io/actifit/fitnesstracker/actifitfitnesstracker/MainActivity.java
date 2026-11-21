@@ -2747,9 +2747,11 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * Fills the "Today's workouts" card (Health Connect mode). Hidden when the list is null/empty,
-     * which is also what the read returns when "Show my workouts" is off. Workouts are shown for
-     * the record only; rewards are based on steps. Call on the UI thread.
+     * Fills the "Today's workouts" card (Health Connect mode). null (no confirmed read: a failed
+     * sync, another day's list, another tracking mode) hides it. An empty list hides it while
+     * "Show my workouts" is off; once it is on, the card stays up with a "no workouts today"
+     * line, so the feature is visible before the first workout is recorded. Workouts are shown
+     * for the record only; rewards are based on steps. Call on the UI thread.
      */
     public void updateHcWorkoutsCard(List<WorkoutMapper.Workout> workouts) {
         View card = findViewById(R.id.hc_workouts_card);
@@ -2757,11 +2759,21 @@ public class MainActivity extends BaseActivity {
         if (card == null || list == null) return;
         list.removeAllViews();
         hcWorkoutsCardDay = null;
-        if (workouts == null || workouts.isEmpty()) {
+        if (workouts == null
+                || (workouts.isEmpty() && !HealthConnectManager.isShowWorkoutsEnabled(this))) {
             card.setVisibility(View.GONE);
             return;
         }
         hcWorkoutsCardDay = todayKey();
+        if (workouts.isEmpty()) {
+            TextView empty = new TextView(this);
+            empty.setText(R.string.hc_workouts_empty);
+            empty.setTextColor(getResources().getColor(R.color.md_theme_onSurface));
+            empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+            list.addView(empty);
+            card.setVisibility(View.VISIBLE);
+            return;
+        }
         android.graphics.Typeface fa = null;
         try {
             fa = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.font_awesome_6_solid);
