@@ -649,6 +649,8 @@
     <string name="hc_workouts_footnote">Workouts are shown for your record; rewards are based on steps.</string>
     <string name="hc_workouts_minutes">%1$d min</string>
     <string name="hc_workouts_manual">entered manually</string>
+    <string name="hc_workouts_empty">No workouts in Health Connect today. Workouts you record in a Health Connect app (Google Fit, Samsung Health, your watch\'s app) show up here.</string>
+    <string name="hc_workouts_none_day">No workouts in Health Connect for this day.</string>
     <string name="sync_health_connect_btn">Sync Health Connect</string>
     <string name="fitbit_mode">Fitbit</string>
     <string name="sync_data_btn_lbl">Sync Data</string>

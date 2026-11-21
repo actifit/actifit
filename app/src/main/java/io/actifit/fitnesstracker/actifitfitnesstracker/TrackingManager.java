@@ -432,6 +432,17 @@ public class TrackingManager {
         });
     }
 
+    /**
+     * Re-reads today's workouts into the dashboard card, e.g. after "Show my workouts" was turned
+     * on or off in Settings. Health Connect mode only; a failed read hides the card.
+     */
+    public void refreshHcWorkouts() {
+        if (!(context instanceof MainActivity) || !isHealthConnectEnabledInSettings()) return;
+        healthConnectManager.readWorkouts(ZonedDateTime.now()).whenComplete((workouts, t) ->
+                ((Activity) context).runOnUiThread(() ->
+                        ((MainActivity) context).updateHcWorkoutsCard(t == null ? workouts : null)));
+    }
+
     public boolean isHealthConnectPermActivated() {
         int sdkStatus = HealthConnectClient.getSdkStatus(context);
         if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
