@@ -2818,6 +2818,8 @@ public class MainActivity extends BaseActivity {
 
     // the day (yyyyMMdd) the workouts card was filled for; null when it is empty/hidden
     private String hcWorkoutsCardDay = null;
+    // "Show my workouts" as of the last onResume; a change means Settings flipped it
+    private Boolean lastShowWorkouts = null;
 
     private static String todayKey() {
         return new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(Calendar.getInstance().getTime());
@@ -3877,6 +3879,12 @@ public class MainActivity extends BaseActivity {
         Log.d(TAG, "[Actifit] - onResume Main");
 
         String resumeUser = getSharedPreferences("actifitSets", MODE_PRIVATE).getString("actifitUser", "");
+        // "Show my workouts" changed in Settings: show (or hide) the workouts card right away
+        boolean showWorkouts = HealthConnectManager.isShowWorkoutsEnabled(this);
+        if (lastShowWorkouts != null && lastShowWorkouts != showWorkouts && trackingManager != null) {
+            trackingManager.refreshHcWorkouts();
+        }
+        lastShowWorkouts = showWorkouts;
         ArenaHomeCard.refresh(this, resumeUser);
         BadgeHomeNudge.refresh(this, resumeUser);
 
