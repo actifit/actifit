@@ -53,6 +53,8 @@ The badges you know from actifit.io are now on Android:
 * **Claim with one tap.** Badges you can claim are listed first, and tapping any badge tells you how to earn it.
 * **Never miss one:** a "badges to claim" chip appears on your dashboard whenever a badge is waiting for you.
 
+👀 **Psst… we're not done.** A few shiny new badges are already being polished behind the scenes. We won't say what they are yet, but keep moving and keep posting: you might be closer to them than you think. 🏅✨
+
 ---
 
 ## 🏋️ Your Workouts From Health Connect
@@ -102,9 +104,9 @@ Update Actifit from **[Google Play](https://play.google.com/store/apps/details?i
 
 ---
 
-## 🗳️ Support Hive Dev Proposal #391
+## 🗳️ Support the HDev Proposal #391
 
-Actifit is built by the **Hive Dev team**, funded through **[Hive Dev Proposal #3 (#391)](https://peakd.com/@hdev/hive-dev-proposal-3)**. If you enjoy Actifit, please vote for #391:
+Actifit is built by the **HDev team**, funded through the **[HDev Proposal #3 (#391)](https://peakd.com/@hdev/hive-dev-proposal-3)**. If you enjoy Actifit, please vote for #391:
 
 * [Vote on PeakD](https://peakd.com/me/proposals/391)
 * [Vote on Ecency](https://ecency.com/proposals/391)
