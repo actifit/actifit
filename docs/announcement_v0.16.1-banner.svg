@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1500" height="1000" viewBox="0 0 1500 1000">
+  <defs>
+    <!-- Legibility overlays layered over the photo (photo is supplied by the renderer as the page background) -->
+    <linearGradient id="leftDark" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"  stop-color="#140804" stop-opacity="0.72"/>
+      <stop offset="45%" stop-color="#140804" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#140804" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="vDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#0a0402" stop-opacity="0.55"/>
+      <stop offset="28%"  stop-color="#0a0402" stop-opacity="0.10"/>
+      <stop offset="62%"  stop-color="#0a0402" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#0a0402" stop-opacity="0.78"/>
+    </linearGradient>
+
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#ffe27a"/>
+      <stop offset="100%" stop-color="#ffb53d"/>
+    </linearGradient>
+
+    <filter id="txtShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="#000000" flood-opacity="0.75"/>
+    </filter>
+    <filter id="ctaShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+
+    <!-- Actifit runner logo (red) -->
+    <symbol id="actifit-runner" viewBox="0 0 448.1 425.7">
+      <g fill="#E62838">
+        <path d="M147.1,238.5c-0.4,0.6-0.8,1.1-1.1,1.6c-23,29.7-46,59.3-68.8,89.1c-19.3,25.2-38.4,50.7-57.6,76.1
+        c-0.4,0.6-1.1,1.7-0.8,2.2c0.8,1,1.2,1.2,2.4,1.1c3-0.6,2.8-0.4,5.2-2c34.5-26.4,69.1-52.7,103.4-79.4
+        c16.3-12.7,32.1-26,47.8-39.3c6.6-5.6,12.5-12,18.7-18c0.6-0.5,1.7-1.1,2.4-0.9c6.9,2.4,13.1,6,17.6,12.1
+        c1.3,1.8,1.6,3.7,0.5,5.5c-1.3,2.1-2.5,4.3-4.3,5.9c-5.9,5.4-11.7,10.8-18,15.6c-19.3,14.6-39.9,27.2-60.7,39.6
+        c-4,2.3-7.9,4.7-11.8,7c-0.6,0.3-0.8,1-0.7,1.6c0.4,2,0.6,2.1,2.1,1.9c9-1.1,18-1.8,26.9-3.4c16.8-3,32.9-8.4,48.8-14.7
+        c9.8-3.8,19.7-7.6,29-12.6c13.6-7.2,24.8-17.4,33.1-30.6c6.5-10.4,6.5-20.9,0.4-31.5c-4.6-8-10.2-15.2-16.8-21.5
+        c-12-11.4-24.3-22.5-36.8-33.3c-10.8-9.3-22.6-17.3-35.6-23.4c-8.7-4.1-17.5-7.2-27.3-5.9c-7.6,1-13.8,4-16.9,11.4
+        c-3,7.3-2.8,15-0.2,22.4c2.3,6.6,6.8,11.9,11.8,16.7C142,234.1,144.5,236.2,147.1,238.5z M106.2,144.6c0,1.1,0.7,1,1.2,0.4
+        c0.4-0.8,0.8-1.6,1-2.4c3.1-12.5,6.1-25,9.3-37.4c2.8-11.1,6.2-22,12.4-31.8c4.6-7.4,10.7-13.1,18.9-16.5
+        c8.1-3.4,15.5-2.4,22.1,3.2c3,2.5,5.8,5.2,8.4,8c5.5,5.9,10.7,12.2,16.3,18c6,6.2,13.1,10.2,22.3,9.4c6.7-0.6,11.1-3.9,12.9-10.5
+        c1.8-6.9,1.2-13.8-1-20.5c-3.8-11.4-11.2-20.3-20.3-27.8c-9.5-7.8-20.4-13.3-31.9-17.5c-9.2-3.4-18.6-5.2-28.6-3.1
+        c-6.2,1.3-15.1,6.2-19.9,10.4c-5.8,5.3-10.8,11.4-14.8,18.3C106.3,59.4,103,75.4,102.5,92c-0.3,10.3,0.2,20.7,0.8,31
+        C103.8,130.2,105.2,137.4,106.2,144.6z M410.1,98.8c-0.2-1-0.7-1.9-1.4-1.9c-0.9,0-1.9,0.9-2.3,1.6c-0.8,1.6-1.3,3.4-1.9,5.1
+        c-2.7,7.6-5,15.5-9.4,22.3c-7.1,11-14.9,21.5-24.6,30.4c-6.5,6.1-13.7,11.2-21.8,14.9c-6.8,3.1-12.5,1.8-16.8-4.2
+        c-2.4-3.4-4.4-7.4-5.8-11.4c-2-5.5-3.3-11.4-5.1-17c-2.2-7-4.7-13.9-9.9-19.3c-7.7-7.9-16.1-9.6-23.7-1.9
+        c-1.2,1.2-2.9,3.5-3.7,5.1c-2.8,5.2-3.9,10.9-3.5,16.8c0.5,8.2,2.3,16.2,4.9,23.9c5.2,15.5,13.5,28.9,26.7,39
+        c6.6,5.1,13.9,8.3,22.3,8.3c9.6-0.1,18.4-3.1,26.1-8.7c18.7-13.5,33.1-30.7,43.3-51.3c2.7-5.5,5-11.3,6.5-17.1
+        c2.3-8.8,2.6-18,1.2-26.9L410.1,98.8z"/>
+        <circle cx="292.3" cy="65.4" r="38"/>
+      </g>
+    </symbol>
+
+    <!-- reusable hex (pointy-top, R=60) -->
+    <path id="hex" d="M0,-60 L52,-30 L52,30 L0,60 L-52,30 L-52,-30 Z"/>
+  </defs>
+
+  <!-- ===== overlays over the photo ===== -->
+  <rect width="1500" height="1000" fill="url(#vDark)"/>
+  <rect width="1500" height="1000" fill="url(#leftDark)"/>
+
+  <!-- ===== HEADER ===== -->
+  <use href="#actifit-runner" x="60" y="52" width="96" height="92"/>
+  <text x="172" y="130" font-family="Poppins" font-weight="700" font-size="66" fill="#ffffff" letter-spacing="-1" filter="url(#txtShadow)">actifit</text>
+  <g transform="translate(400, 74)" filter="url(#txtShadow)">
+    <rect x="0" y="0" width="290" height="52" rx="26" fill="#ff7a00" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+    <text x="145" y="36" font-family="Poppins" font-weight="700" font-size="26" fill="#ffffff" text-anchor="middle">Android v0.16.1</text>
+  </g>
+
+  <!-- ===== HEADLINE ===== -->
+  <text x="80" y="300" font-family="Poppins" font-weight="700" font-size="88" letter-spacing="-2" filter="url(#txtShadow)"><tspan fill="url(#accent)">Endorphin</tspan><tspan fill="#ffffff"> Is Live:</tspan></text>
+  <text x="80" y="400" font-family="Poppins" font-weight="700" font-size="88" fill="#ffffff" letter-spacing="-2" filter="url(#txtShadow)">Videos Are Back!</text>
+
+  <!-- ===== SUBHEAD ===== -->
+  <text x="82" y="465" font-family="Poppins" font-weight="500" font-size="29" fill="#ffffff" letter-spacing="0.5" filter="url(#txtShadow)">3Speak Videos  |  Steps Widget  |  Badges &amp; More!</text>
+
+  <!-- ===== BADGES ===== -->
+  <g filter="url(#txtShadow)">
+  <g transform="translate(180, 610)">
+    <use href="#hex" fill="rgba(0,0,0,0.38)" stroke="rgba(255,255,255,0.5)" stroke-width="2.5"/>
+    <g><rect x="-26" y="-14" width="36" height="28" rx="6" fill="#ff6a3d"/><path d="M12 -6 L27 -14 L27 14 L12 6 Z" fill="#ff6a3d"/><circle cx="-8" cy="0" r="7" fill="#ffffff"/><circle cx="-8" cy="0" r="3" fill="#ff6a3d"/></g>
+    <text x="0" y="92" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Video</text>
+    <text x="0" y="116" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Reports</text>
+  </g>
+  <g transform="translate(408, 610)">
+    <use href="#hex" fill="rgba(0,0,0,0.38)" stroke="rgba(255,255,255,0.5)" stroke-width="2.5"/>
+    <g><rect x="-16" y="-25" width="32" height="50" rx="6" fill="#2fd6c3"/><rect x="-12" y="-19" width="24" height="36" rx="3" fill="#0b4f48"/><circle cx="0" cy="-1" r="9" fill="none" stroke="#1d7f75" stroke-width="4"/><path d="M0 -10 A9 9 0 1 1 -8.5 2" fill="none" stroke="#ffe27a" stroke-width="4" stroke-linecap="round"/></g>
+    <text x="0" y="92" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Steps</text>
+    <text x="0" y="116" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Widget</text>
+  </g>
+  <g transform="translate(636, 610)">
+    <use href="#hex" fill="rgba(0,0,0,0.38)" stroke="rgba(255,255,255,0.5)" stroke-width="2.5"/>
+    <g><path d="M-12 -24 L-4 -6 M12 -24 L4 -6" stroke="#3d8bff" stroke-width="6" stroke-linecap="round"/><circle cx="0" cy="8" r="15" fill="#ffc23d"/><path d="M0 -1 L3 5 L9 5.5 L4.5 9.5 L6 15.5 L0 12 L-6 15.5 L-4.5 9.5 L-9 5.5 L-3 5 Z" fill="#b36b00"/></g>
+    <text x="0" y="92" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Claimable</text>
+    <text x="0" y="116" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Badges</text>
+  </g>
+  <g transform="translate(864, 610)">
+    <use href="#hex" fill="rgba(0,0,0,0.38)" stroke="rgba(255,255,255,0.5)" stroke-width="2.5"/>
+    <g><rect x="-26" y="-12" width="8" height="24" rx="2" fill="#b98cff"/><rect x="18" y="-12" width="8" height="24" rx="2" fill="#b98cff"/><rect x="-18" y="-8" width="6" height="16" rx="2" fill="#7a4fe0"/><rect x="12" y="-8" width="6" height="16" rx="2" fill="#7a4fe0"/><rect x="-12" y="-3" width="24" height="6" rx="2" fill="#e8e0ff"/></g>
+    <text x="0" y="92" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Health Connect</text>
+    <text x="0" y="116" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Workouts</text>
+  </g>
+  <g transform="translate(1092, 610)">
+    <use href="#hex" fill="rgba(0,0,0,0.38)" stroke="rgba(255,255,255,0.5)" stroke-width="2.5"/>
+    <g><path d="M0 26 C-8 14 -18 4 -18 -6 A18 18 0 0 1 18 -6 C18 4 8 14 0 26 Z" fill="#3ddc84"/><path d="M-7 -6 L-1 0 L8 -11" stroke="#0b5a33" stroke-width="4.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <text x="0" y="92" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">GPS-Verified</text>
+    <text x="0" y="116" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Routes</text>
+  </g>
+  <g transform="translate(1320, 610)">
+    <use href="#hex" fill="rgba(0,0,0,0.38)" stroke="rgba(255,255,255,0.5)" stroke-width="2.5"/>
+    <g><path d="M5 -26 L-15 4 L-1 4 L-6 26 L15 -6 L1 -6 Z" fill="#ffc23d" stroke="#ff9d00" stroke-width="1.5" stroke-linejoin="round"/></g>
+    <text x="0" y="92" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Faster,</text>
+    <text x="0" y="116" font-family="Poppins" font-weight="700" font-size="19" fill="#fff" text-anchor="middle">Smoother App</text>
+  </g>
+  </g>
+
+  <!-- ===== TAGLINE ===== -->
+  <text x="750" y="815" font-family="Poppins" font-weight="500" font-style="italic" font-size="30" fill="#ffffff" text-anchor="middle" filter="url(#txtShadow)">Feel the rush: update Actifit on Google Play today!</text>
+
+  <!-- ===== CTA BUTTON ===== -->
+  <g transform="translate(750, 890)" filter="url(#ctaShadow)">
+    <rect x="-205" y="-38" width="410" height="76" rx="12" fill="#ff112d"/>
+    <text x="0" y="9" font-family="Poppins" font-weight="700" font-size="31" fill="#ffffff" text-anchor="middle">Read The Full Update</text>
+  </g>
+
+  <!-- ===== HIVE LOGO bottom-right ===== -->
+  <g transform="translate(1372, 906)" filter="url(#txtShadow)">
+    <image href="data:image/png;base64,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" x="0" y="0" width="76" height="66" preserveAspectRatio="xMidYMid meet"/>
+  </g>
+</svg>
