@@ -414,6 +414,7 @@ public class RewardManager {
                     // claimed on another device or before a reinstall: show it as claimed here too
                     recordRewardClaim(view.getId(), "");
                     adjustRewardButtonsStatus(getCurrentStepCount(mStepsDBHelper));
+                    fillMissingAmounts();
                 }
                 int msg = error == AdRewardApi.Error.ALREADY_CLAIMED ? R.string.reward_already_claimed
                         : error == AdRewardApi.Error.DISABLED ? R.string.ad_rewards_paused
@@ -484,7 +485,7 @@ public class RewardManager {
             updateRewardButtonAndStatus((Button) view, getRewardStatusTextView(view.getId()), true,
                     getRequiredSteps(view.getId()), "", scaler, checkMark, curStepCount, null);
             adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
-            pollPaidAmount(view.getId(), 0);
+            pollPaidAmount(view.getId(), MainActivity.username, 0);
         });
     }
 
@@ -493,21 +494,28 @@ public class RewardManager {
     private static final int AMOUNT_POLL_TRIES = 10;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    /** After the ad: read the amount the bot paid, then show it and keep it on the button. */
-    private void pollPaidAmount(int viewId, int attempt) {
+    /**
+     * After the ad: read the amount the bot paid to `user`, then show it and keep it on the
+     * button. Stops when the account changes or its session can't be renewed.
+     */
+    private void pollPaidAmount(int viewId, String user, int attempt) {
         if (attempt >= AMOUNT_POLL_TRIES) return; // the notification still tells the user
-        mainHandler.postDelayed(() -> AdRewardApi.today(context, MainActivity.username, amounts -> {
-            String amount = amounts.get(tierFor(viewId));
-            if (amount == null) {
-                pollPaidAmount(viewId, attempt + 1);
-                return;
-            }
-            showPaidAmount(viewId, amount);
-            if (inForeground()) {
-                Toast.makeText(context, context.getString(R.string.ad_reward_success).replace("_VAL_", amount),
-                        Toast.LENGTH_LONG).show();
-            }
-        }), AMOUNT_POLL_MS);
+        mainHandler.postDelayed(() -> {
+            if (!user.equals(MainActivity.username)) return;
+            AdRewardApi.today(context, user, amounts -> {
+                if (amounts == null || !user.equals(MainActivity.username)) return;
+                String amount = amounts.get(tierFor(viewId));
+                if (amount == null) {
+                    pollPaidAmount(viewId, user, attempt + 1);
+                    return;
+                }
+                showPaidAmount(viewId, amount);
+                if (inForeground()) {
+                    Toast.makeText(context, context.getString(R.string.ad_reward_success).replace("_VAL_", amount),
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+        }, AMOUNT_POLL_MS);
     }
 
     /** Claimed today but the amount never arrived (app closed, other device): ask once. */
@@ -518,7 +526,9 @@ public class RewardManager {
             if (isClaimed(id) && sharedPreferences.getString(valueKey(id), "").isEmpty()) missing = true;
         }
         if (!missing) return;
-        AdRewardApi.today(context, MainActivity.username, amounts -> {
+        final String user = MainActivity.username;
+        AdRewardApi.today(context, user, amounts -> {
+            if (amounts == null || !user.equals(MainActivity.username)) return;
             for (int id : ids) {
                 String amount = amounts.get(tierFor(id));
                 if (amount != null && isClaimed(id) && sharedPreferences.getString(valueKey(id), "").isEmpty()) {
@@ -529,7 +539,7 @@ public class RewardManager {
     }
 
     private void showPaidAmount(int viewId, String amount) {
-        recordRewardClaim(viewId, amount);
+        sharedPreferences.edit().putString(valueKey(viewId), amount).apply();
         Button button = buttonFor(viewId);
         if (button == null) return;
         updateRewardButtonAndStatus(button, getRewardStatusTextView(viewId), true, getRequiredSteps(viewId),

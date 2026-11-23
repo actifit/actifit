@@ -34,7 +34,10 @@ final class AdRewardApi {
         void onError(Error error);
     }
 
-    /** Today's paid amounts by tier (1 free, 2 5K, 3 7K, 4 10K); empty when none or on failure. */
+    /**
+     * Today's paid amounts by tier (1 free, 2 5K, 3 7K, 4 10K); empty when none or on a failed
+     * call, null when the session couldn't be renewed (asking again would only log in again).
+     */
     interface AmountsCallback {
         void onAmounts(Map<Integer, String> amounts);
     }
@@ -148,7 +151,7 @@ final class AdRewardApi {
 
                     @Override
                     public void onError(Error error) {
-                        cb.onAmounts(new HashMap<>());
+                        cb.onAmounts(error == Error.AUTH ? null : new HashMap<>());
                     }
                 });
     }
