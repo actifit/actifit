@@ -2,6 +2,7 @@ package io.actifit.fitnesstracker.actifitfitnesstracker;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -54,5 +55,35 @@ public class AdRewardApiTest {
         assertEquals(AdRewardApi.Error.DISABLED, AdRewardApi.classifyHttp(503));
         assertEquals(AdRewardApi.Error.FAILED, AdRewardApi.classifyHttp(500));
         assertEquals(AdRewardApi.Error.FAILED, AdRewardApi.classifyHttp(404));
+    }
+
+    @Test
+    public void todayRepliesMapEachPaidTierToItsAmount() {
+        java.util.Map<Integer, String> m = AdRewardApi.parseToday(
+                "{\"status\":\"success\",\"rewards\":{\"2\":3.141,\"4\":9.5,\"1\":2}}");
+        assertEquals("3.141", m.get(2));
+        assertEquals("9.5", m.get(4));
+        assertEquals("2", m.get(1));
+        assertEquals(3, m.size());
+    }
+
+    @Test
+    public void todayRepliesThatAreErrorsOrJunkGiveNothing() {
+        assertTrue(AdRewardApi.parseToday("{\"status\":\"error\"}").isEmpty());
+        assertTrue(AdRewardApi.parseToday("{\"success\":false}").isEmpty());
+        assertTrue(AdRewardApi.parseToday("<html>502</html>").isEmpty());
+        assertTrue(AdRewardApi.parseToday("{\"status\":\"success\",\"rewards\":{}}").isEmpty());
+        // unknown tiers, zero/negative and non-numbers are skipped, the rest kept
+        java.util.Map<Integer, String> m = AdRewardApi.parseToday(
+                "{\"status\":\"success\",\"rewards\":{\"9\":1,\"1\":0,\"2\":-1,\"3\":\"x\",\"4\":1.25}}");
+        assertEquals(1, m.size());
+        assertEquals("1.25", m.get(4));
+    }
+
+    @Test
+    public void amountsShowAtMostThreeDecimals() {
+        assertEquals("3.142", AdRewardApi.formatAmount(3.14159));
+        assertEquals("0.01", AdRewardApi.formatAmount(0.01));
+        assertEquals("7", AdRewardApi.formatAmount(7.0));
     }
 }

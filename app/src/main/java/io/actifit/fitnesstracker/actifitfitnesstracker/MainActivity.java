@@ -1575,6 +1575,8 @@ public class MainActivity extends BaseActivity {
                     scaler,
                     checkMark,
                     curStepCount);
+            // amounts claimed today that never reached the app: ask the bot once
+            rewardManager.fillMissingAmounts();
 
             // animate reward button
             /*

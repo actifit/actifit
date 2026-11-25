@@ -5,6 +5,8 @@ import static java.lang.Integer.parseInt;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.animation.ObjectAnimator;
 import android.content.res.ColorStateList;
@@ -214,6 +216,7 @@ public class RewardManager {
                 sharedPreferences.getString("7krewardedValue", ""), scaler, checkMark, curStepCount, progress7kReward);
         updateRewardButtonAndStatus(tenkRewardButton, textView10kRewardStatus, tenkRewardClaimed, activityMilestoneThree,
                 sharedPreferences.getString("10krewardedValue", ""), scaler, checkMark, curStepCount, progress10kReward);
+        fillMissingAmounts();
 
         AlertDialog pointer = rewardsDialogBuilder.setView(rewardsLayout)
                 .setIcon(context.getResources().getDrawable(R.drawable.actifit_logo))
@@ -411,6 +414,7 @@ public class RewardManager {
                     // claimed on another device or before a reinstall: show it as claimed here too
                     recordRewardClaim(view.getId(), "");
                     adjustRewardButtonsStatus(getCurrentStepCount(mStepsDBHelper));
+                    fillMissingAmounts();
                 }
                 int msg = error == AdRewardApi.Error.ALREADY_CLAIMED ? R.string.reward_already_claimed
                         : error == AdRewardApi.Error.DISABLED ? R.string.ad_rewards_paused
@@ -472,8 +476,8 @@ public class RewardManager {
 
         rewardedAd.show(activity, rewardItem -> {
             Log.d("TAG", "The user earned the reward.");
-            // the amount is picked by the server when AdMob confirms the view; it arrives as a notification
-            Toast.makeText(context, context.getString(R.string.ad_reward_claimed_pending), Toast.LENGTH_LONG).show();
+            // the bot picks the amount when AdMob confirms the view; pollPaidAmount shows it
+            Toast.makeText(context, context.getString(R.string.ad_reward_pending_short), Toast.LENGTH_SHORT).show();
 
             if (giftLoader != null) giftLoader.clearAnimation();
 
@@ -481,7 +485,97 @@ public class RewardManager {
             updateRewardButtonAndStatus((Button) view, getRewardStatusTextView(view.getId()), true,
                     getRequiredSteps(view.getId()), "", scaler, checkMark, curStepCount, null);
             adjustRewardButtonsStatus(mStepsDBHelper.fetchTodayStepCount());
+            pollPaidAmount(view.getId(), MainActivity.username, 0);
         });
+    }
+
+    // AdMob usually confirms a view within seconds; the bot pays then
+    private static final int AMOUNT_POLL_MS = 3000;
+    private static final int AMOUNT_POLL_TRIES = 10;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    /**
+     * After the ad: read the amount the bot paid to `user`, then show it and keep it on the
+     * button. Stops when the account changes or its session can't be renewed.
+     */
+    private void pollPaidAmount(int viewId, String user, int attempt) {
+        if (attempt >= AMOUNT_POLL_TRIES) return; // the notification still tells the user
+        mainHandler.postDelayed(() -> {
+            if (!user.equals(MainActivity.username)) return;
+            AdRewardApi.today(context, user, amounts -> {
+                if (amounts == null || !user.equals(MainActivity.username)) return;
+                String amount = amounts.get(tierFor(viewId));
+                if (amount == null) {
+                    pollPaidAmount(viewId, user, attempt + 1);
+                    return;
+                }
+                showPaidAmount(viewId, amount);
+                if (inForeground()) {
+                    // short on purpose: toasts are cut at two lines on many phones
+                    Toast.makeText(context, context.getString(R.string.ad_reward_earned, amount),
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+        }, AMOUNT_POLL_MS);
+    }
+
+    /**
+     * Claimed today but the amount never arrived (app closed, other device): ask the bot.
+     * Runs on each popup open while an amount is missing; it stops once stored or the day ends.
+     */
+    void fillMissingAmounts() {
+        final int[] ids = {R.id.daily_free_reward, R.id.daily_5k_reward, R.id.daily_7k_reward, R.id.daily_10k_reward};
+        boolean missing = false;
+        for (int id : ids) {
+            if (isClaimed(id) && sharedPreferences.getString(valueKey(id), "").isEmpty()) missing = true;
+        }
+        if (!missing) return;
+        final String user = MainActivity.username;
+        AdRewardApi.today(context, user, amounts -> {
+            if (amounts == null || !user.equals(MainActivity.username)) return;
+            for (int id : ids) {
+                String amount = amounts.get(tierFor(id));
+                if (amount != null && isClaimed(id) && sharedPreferences.getString(valueKey(id), "").isEmpty()) {
+                    showPaidAmount(id, amount);
+                }
+            }
+        });
+    }
+
+    private void showPaidAmount(int viewId, String amount) {
+        sharedPreferences.edit().putString(valueKey(viewId), amount).apply();
+        Button button = buttonFor(viewId);
+        if (button == null) return;
+        updateRewardButtonAndStatus(button, getRewardStatusTextView(viewId), true, getRequiredSteps(viewId),
+                amount, scaler, checkMark, getCurrentStepCount(mStepsDBHelper), null);
+    }
+
+    private static int tierFor(int viewId) {
+        if (viewId == R.id.daily_5k_reward) return 2;
+        if (viewId == R.id.daily_7k_reward) return 3;
+        if (viewId == R.id.daily_10k_reward) return 4;
+        return 1;
+    }
+
+    private static String valueKey(int viewId) {
+        if (viewId == R.id.daily_5k_reward) return "5krewardedValue";
+        if (viewId == R.id.daily_7k_reward) return "7krewardedValue";
+        if (viewId == R.id.daily_10k_reward) return "10krewardedValue";
+        return "freerewardedValue";
+    }
+
+    private boolean isClaimed(int viewId) {
+        if (viewId == R.id.daily_5k_reward) return fivekRewardClaimed;
+        if (viewId == R.id.daily_7k_reward) return sevenkRewardClaimed;
+        if (viewId == R.id.daily_10k_reward) return tenkRewardClaimed;
+        return dailyRewardClaimed;
+    }
+
+    private Button buttonFor(int viewId) {
+        if (viewId == R.id.daily_5k_reward) return fivekRewardButton;
+        if (viewId == R.id.daily_7k_reward) return sevenkRewardButton;
+        if (viewId == R.id.daily_10k_reward) return tenkRewardButton;
+        return freeRewardButton;
     }
 
     private void recordRewardClaim(int viewId, String finalRewardValue) {
