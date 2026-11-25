@@ -39,7 +39,7 @@ The following files are **git-ignored** (they hold machine-specific paths and se
 
 | Real file (create this) | Template | Required for | Notes |
 |---|---|---|---|
-| `local.properties` | [`local.properties.example`](local.properties.example) | All builds | Set `sdk.dir` to your own Android SDK path (Android Studio auto-creates this) and fill in `gemini.api.key` (injected into `BuildConfig.GEMINI_API_KEY`). |
+| `local.properties` | [`local.properties.example`](local.properties.example) | All builds | Set `sdk.dir` to your own Android SDK path (Android Studio auto-creates this) Never put API keys here: anything built into the APK is public (see the rule in [CLAUDE.md](CLAUDE.md)). |
 | `keystore.properties` | [`keystore.properties.example`](keystore.properties.example) | All builds | Loaded unconditionally by `app/build.gradle`, so it must exist even for debug. Fill in the alias and passwords. |
 | `app/google-services.json` | [`app/google-services.json.example`](app/google-services.json.example) | All builds | Firebase config — the `google-services` Gradle plugin fails without it. Get the real file from the Firebase console (project `actifit-io`) or the project owner. |
 | `app/src/main/res/values/unofficial_strings.xml` | [`app/unofficial_strings.xml.example`](app/unofficial_strings.xml.example) | All builds | App endpoints + credentials (Fitbit, DeepL, AdMob, media, sign key, etc.). Won't compile without it; masked keys must be filled in for the related features to work. **Copy the template into `app/src/main/res/values/` and rename to `unofficial_strings.xml`** — the template lives outside `res/values/` because Android's resource merger rejects any non-`.xml` filename in that folder. |

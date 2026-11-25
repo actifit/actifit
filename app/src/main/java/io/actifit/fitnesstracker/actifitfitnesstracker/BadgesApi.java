@@ -234,6 +234,18 @@ public final class BadgesApi {
     }
 
     /**
+     * The bot refused the session: checkHdrs answers {success: false} for a missing or expired
+     * token, and these two error texts for a valid token whose session is gone (key rotation,
+     * logout elsewhere).
+     */
+    static boolean isSessionError(JSONObject o) {
+        String error = o.optString("error");
+        return (o.has("success") && !o.optBoolean("success", true))
+                || "Authentication failed. Key not found".equals(error)
+                || "Invalid token payload".equals(error);
+    }
+
+    /**
      * Re-issues the session token from the stored posting key: the same login_auth request
      * Wallet/Market/Settings/Social send when they open. No stored key -> not ok ("log in again").
      */

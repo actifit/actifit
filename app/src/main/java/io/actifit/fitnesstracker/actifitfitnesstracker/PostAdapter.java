@@ -103,7 +103,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         // new TranslatorOptions().; //.setMaxRetries(8).setTimeout(Duration.ofSeconds(
         // 5));
         // this.translator = new Translator(authKey);//, options);
-        this.aiService = new AiService();
+        this.aiService = new AiService(ctx);
 
     }
 
@@ -814,7 +814,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             // if (translatedBody.getVisibility() == View.GONE) {
             Thread thread = new Thread(() -> {
                 if (postEntry.translatedText.isEmpty()) {
-                    aiService.translateText(postEntry.body, new AiService.TextResponseCallback() {
+                    aiService.translatePost(postEntry.author, postEntry.permlink, new AiService.TextResponseCallback() {
                         @Override
                         public void onSuccess(String translatedText) {
                             activity.runOnUiThread(() -> {
@@ -837,7 +837,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                         public void onFailure(String errorMessage) {
                             activity.runOnUiThread(() -> {
                                 Log.e("GeminiTranslation", "Translation failed via AiService: " + errorMessage);
-                                Toast.makeText(ctx, "Translation Failed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ctx, errorMessage, Toast.LENGTH_SHORT).show(); // e.g. log in again, daily limit
                                 postEntry.isTranslated = false;
                                 // translatingPermlinks.remove(postEntry.permlink);
                                 notifyDataSetChanged(); // Refresh to hide progress bar

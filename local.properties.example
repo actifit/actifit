@@ -5,5 +5,3 @@
 # Each developer should set this to their own machine's Android SDK path.
 sdk.dir=*****
 
-# Required by the build (injected into BuildConfig.GEMINI_API_KEY).
-gemini.api.key=*****

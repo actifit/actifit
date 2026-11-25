@@ -2264,7 +2264,7 @@ public class PostSteemitActivity extends BaseActivity implements View.OnClickLis
             loadingIndicator.setVisibility(View.VISIBLE);
             btnQuery.setEnabled(false);
 
-            AiService aiService = new AiService();
+            AiService aiService = new AiService(PostSteemitActivity.this);
             activeRequest[0] = aiService.generateChatResponse(aiChatHistory, new AiService.TextResponseCallback() {
                 @Override
                 public void onSuccess(String result) {

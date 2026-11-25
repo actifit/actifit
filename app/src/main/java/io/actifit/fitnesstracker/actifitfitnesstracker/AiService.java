@@ -1,159 +1,268 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import okhttp3.*;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 //Create a singleton OkHttpClient object
 
 class NetworkClient {
     private static final  OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(120, TimeUnit.SECONDS) // a full workout plan can take ~45s+
+            .readTimeout(130, TimeUnit.SECONDS) // a full workout plan can take ~45s+, and the bot retries a busy model
             .build();
     public static OkHttpClient getInstance(){
         return okHttpClient;
     }
 }
 
+/**
+ * The AI features, served by the Actifit bot (/ai/*). The app holds no Gemini key: a key
+ * built into an APK can be pulled out by anyone who downloads the app, and Google suspended
+ * the project after that happened. The bot builds the prompts, holds the key and applies a
+ * daily limit per account, so every call needs the user's login session.
+ */
 public class AiService {
 
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private static final String API_KEY = BuildConfig.GEMINI_API_KEY;
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"; // gemini-flash-latest hung past 90s in testing (2026-10-29)
-    //private final OkHttpClient client = new OkHttpClient();
+    private final Context app;
     private final OkHttpClient client = NetworkClient.getInstance(); // use singleton client
-
     private final Gson gson = new GsonBuilder().create();
 
-    /** Every Gemini call must carry the API key; without it Google answers 403 "unregistered callers". */
-    private static Request geminiRequest(RequestBody body) {
-        return new Request.Builder().url(API_URL).addHeader("x-goog-api-key", API_KEY).post(body).build();
+    public AiService(Context ctx) {
+        this.app = ctx.getApplicationContext();
     }
-
 
     public interface ResponseCallback {
         void onSuccess(AiResponse response);
         void onFailure(String errorMessage);
     }
 
+    public interface TextResponseCallback {
+        void onSuccess(String text);
+        void onFailure(String errorMessage);
+    }
+
+    public interface CancellableRequest {
+        void cancel();
+    }
+
+    /** A bot /ai/* reply: the text, or a message to show, or a refused session. */
+    static final class Reply {
+        final String text;
+        final String error;
+        final boolean auth;
+
+        private Reply(String text, String error, boolean auth) {
+            this.text = text;
+            this.error = error;
+            this.auth = auth;
+        }
+    }
+
+    /** Classifies a bot /ai/* reply; {@code fallback} is shown when the bot gives no message. */
+    static Reply parseReply(int httpCode, String body, String fallback) {
+        try {
+            JSONObject o = new JSONObject(body);
+            if (BadgesApi.isSessionError(o)) return new Reply(null, null, true);
+            String text = o.optString("text", "");
+            if (httpCode == 200 && "success".equals(o.optString("status")) && !text.trim().isEmpty()) {
+                return new Reply(text.trim(), null, false);
+            }
+            String message = o.optString("message", "");
+            return new Reply(null, message.isEmpty() ? fallback : message, false);
+        } catch (Exception e) {
+            // not JSON: the rate limiter's text page, a proxy error page
+            return new Reply(null, fallback, false);
+        }
+    }
+
     public void generateWorkoutPlan(WorkoutRequest workoutRequest, final ResponseCallback callback) {
-        RequestBody requestBody = createRequestBody(workoutRequest);
-
-        Request request = geminiRequest(requestBody);
-
-        client.newCall(request).enqueue(new Callback() {
+        JSONObject body = new JSONObject();
+        try {
+            JSONObject r = new JSONObject();
+            r.put("fitnessGoal", workoutRequest.getFitnessGoal());
+            r.put("experienceLevel", workoutRequest.getExperienceLevel());
+            r.put("weeklyTime", workoutRequest.getWeeklyTime());
+            r.put("dailyFrequency", workoutRequest.getDailyFrequency());
+            r.put("preferredWorkout", workoutRequest.getPreferredWorkout());
+            r.put("equipment", workoutRequest.getEquipment());
+            r.put("limitations", workoutRequest.getLimitations());
+            r.put("otherLimitations", capped(workoutRequest.getOtherLimitations(), 500));
+            body.put("request", r);
+        } catch (Exception e) {
+            callback.onFailure(app.getString(R.string.ai_failed));
+            return;
+        }
+        post("ai/workoutPlan", body, true, new Call[1], new boolean[1], new TextResponseCallback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                android.util.Log.e("AiService", "OkHttp Failure", e); // <-- LOG EXCEPTION
-                callback.onFailure("Failed " + e.getMessage());
+            public void onSuccess(String text) {
+                try {
+                    callback.onSuccess(parseWorkoutPlanFromContent(extractJsonFromContentString(text)));
+                } catch (Exception e) {
+                    callback.onFailure(app.getString(R.string.ai_failed));
+                }
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseBodyString = response.body().string(); // Read body ONCE
-                if (response.isSuccessful()) {
-                    try {
-                        if (BuildConfig.DEBUG) android.util.Log.d("AiService", "Success Response Body: " + responseBodyString); // holds health data
-
-                        //String responseBody = response.body().string();
-                        AiResponse aiResponse = parseAiResponse(responseBodyString);
-                        callback.onSuccess(aiResponse);
-                    } catch (Exception e) {
-                        callback.onFailure("Error parsing response " + e.getMessage());
-                    }
-
-                } else {
-                    // Log the error response details!
-                    String errorMessage = "Response failed: " + response.message() + " (" + response.code() + ")";
-                    android.util.Log.e("AiService", errorMessage + (BuildConfig.DEBUG ? " Body: " + responseBodyString : ""));
-                    callback.onFailure("Response failed: " + response.message() + " " + response.code());
-                }
-
+            public void onFailure(String errorMessage) {
+                callback.onFailure(errorMessage);
             }
         });
     }
 
-
-    private RequestBody createRequestBody(WorkoutRequest workoutRequest) {
-
-        String prompt = generatePrompt(workoutRequest);
-
-        List<Map<String, Object>> contents = new ArrayList<>();
-        Map<String, Object> userMessage = new HashMap<>();
-        userMessage.put("parts", List.of(Map.of("text", prompt)));
-        contents.add(userMessage);
-
-        Map<String, Object> requestBodyMap = new HashMap<>();
-        requestBodyMap.put("contents", contents);
-
-        String requestJson = gson.toJson(requestBodyMap);
-        if (BuildConfig.DEBUG) android.util.Log.d("AiService", "Request JSON: " + requestJson); // holds health data
-        return RequestBody.create(
-                requestJson,
-                MediaType.parse("application/json; charset=utf-8")
-        );
-    }
-
-
-    private AiResponse parseAiResponse(String responseBody) {
+    /** Translates a post into English; the bot fetches the post itself, by author and permlink. */
+    public void translatePost(String author, String permlink, final TextResponseCallback callback) {
+        JSONObject body = new JSONObject();
         try {
-            Map<String, Object> responseMap = gson.fromJson(responseBody, Map.class);
-            List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseMap.get("candidates");
-
-            if (candidates != null && !candidates.isEmpty()) {
-
-                Map<String, Object> firstCandidate = candidates.get(0);
-
-                if (firstCandidate != null && firstCandidate.containsKey("content")){
-                    Object contentObject = firstCandidate.get("content");
-                    if (contentObject instanceof Map){
-                        Map<String, Object> contentMap = (Map<String, Object>) contentObject;
-                        if (contentMap.containsKey("parts")){
-                            Object partsObject = contentMap.get("parts");
-                            if (partsObject instanceof List){
-                                List<Map<String,Object>> contentParts = (List<Map<String, Object>>) partsObject;
-                                if (!contentParts.isEmpty()){
-                                    String content = (String) contentParts.get(0).get("text");
-
-                                    String extractedContent = extractJsonFromContentString(content);
-
-                                    System.out.println(">>>outcome of AI query:"+extractedContent);
-
-                                    return parseWorkoutPlanFromContent(extractedContent);
-                                } else {
-                                    throw new Exception("No parts in response");
-                                }
-
-                            } else {
-                                throw new Exception("Parts is not a list");
-                            }
-                        }  else {
-                            throw new Exception("No parts present in content");
-                        }
-                    } else {
-                        throw new Exception("Content is not a map");
-                    }
-                } else{
-                    throw new Exception("No content present in first candidate");
-                }
-
-            } else {
-                throw new Exception("No candidates present in response");
-            }
+            body.put("author", author);
+            body.put("permlink", permlink);
         } catch (Exception e) {
-            // Handle the parsing error
-            throw new RuntimeException("Error parsing AI response " + e.getMessage());
+            callback.onFailure(app.getString(R.string.ai_failed));
+            return;
         }
+        post("ai/translate", body, true, new Call[1], new boolean[1], callback);
     }
 
-    private String extractJsonFromContentString(String content){
+    public CancellableRequest generateChatResponse(List<ChatMessage> history, final TextResponseCallback callback) {
+        final Call[] currentCall = new Call[1];
+        final boolean[] canceled = {false};
+        JSONObject body = new JSONObject();
+        try {
+            JSONArray turns = new JSONArray();
+            for (ChatMessage message : chatWindow(history)) {
+                turns.put(new JSONObject().put("role", message.getRole()).put("text", message.getText()));
+            }
+            body.put("history", turns);
+        } catch (Exception e) {
+            callback.onFailure(app.getString(R.string.ai_failed));
+            return () -> { };
+        }
+        post("ai/chat", body, true, currentCall, canceled, callback);
+        return () -> {
+            canceled[0] = true;
+            if (currentCall[0] != null) {
+                currentCall[0].cancel();
+            }
+        };
+    }
+
+    /**
+     * POSTs to the bot with the session token. A refused session is renewed once (the stored
+     * posting key logs in again) and the call sent again.
+     */
+    private void post(String path, JSONObject json, boolean mayRefresh, Call[] currentCall, boolean[] canceled,
+                      TextResponseCallback callback) {
+        if (canceled[0]) return;
+        String token = LoginActivity.accessToken;
+        if (token == null || token.isEmpty()) {
+            if (mayRefresh) refreshThenPost(path, json, currentCall, canceled, callback);
+            else callback.onFailure(app.getString(R.string.ai_login_needed));
+            return;
+        }
+        Request request = new Request.Builder()
+                .url(Utils.apiUrl(app) + path)
+                .addHeader(app.getString(R.string.validation_header),
+                        app.getString(R.string.validation_pre_data) + " " + token)
+                .post(RequestBody.create(json.toString(), JSON))
+                .build();
+        Call call = client.newCall(request);
+        currentCall[0] = call;
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if (call.isCanceled() || canceled[0]) return;
+                callback.onFailure(app.getString(R.string.ai_network_error));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String body;
+                try {
+                    body = response.body() != null ? response.body().string() : "";
+                } finally {
+                    response.close();
+                }
+                if (call.isCanceled() || canceled[0]) return;
+                Reply r = parseReply(response.code(), body, app.getString(R.string.ai_failed));
+                if (r.auth) {
+                    if (mayRefresh) refreshThenPost(path, json, currentCall, canceled, callback);
+                    else callback.onFailure(app.getString(R.string.ai_login_needed));
+                } else if (r.text != null) {
+                    callback.onSuccess(r.text);
+                } else {
+                    callback.onFailure(r.error);
+                }
+            }
+        });
+    }
+
+    private void refreshThenPost(String path, JSONObject json, Call[] currentCall, boolean[] canceled,
+                                 TextResponseCallback callback) {
+        // Volley delivers on the main thread; OkHttp calls back on its own
+        new Handler(Looper.getMainLooper()).post(() -> BadgesApi.refreshToken(app, username(), ok -> {
+            if (canceled[0]) return;
+            if (ok) post(path, json, false, currentCall, canceled, callback);
+            else callback.onFailure(app.getString(R.string.ai_login_needed));
+        }));
+    }
+
+    /** MainActivity sets the static; after Android recreates only this screen it is empty. */
+    private String username() {
+        if (MainActivity.username != null && !MainActivity.username.isEmpty()) return MainActivity.username;
+        return app.getSharedPreferences("actifitSets", Context.MODE_PRIVATE).getString("actifitUser", "");
+    }
+
+    // within the bot's limits (ai_proxy.js: 30 turns, 4000 characters a turn, 20000 in all)
+    static final int CHAT_MAX_TURNS = 30;
+    static final int CHAT_MAX_TURN_CHARS = 4000;
+    static final int CHAT_MAX_CHARS = 18000;
+
+    /**
+     * The most recent part of the conversation the bot accepts: a long chat keeps working,
+     * the model just stops seeing its oldest turns. Starts on a user turn, ends on the last.
+     */
+    static List<ChatMessage> chatWindow(List<ChatMessage> history) {
+        List<ChatMessage> out = new ArrayList<>();
+        int total = 0;
+        for (int i = history.size() - 1; i >= 0 && out.size() < CHAT_MAX_TURNS; i--) {
+            ChatMessage m = history.get(i);
+            String text = capped(m.getText(), CHAT_MAX_TURN_CHARS);
+            if (!out.isEmpty() && total + text.length() > CHAT_MAX_CHARS) break;
+            total += text.length();
+            out.add(0, text.equals(m.getText()) ? m : new ChatMessage(m.getRole(), text));
+        }
+        while (out.size() > 1 && !out.get(0).isUser()) out.remove(0);
+        return out;
+    }
+
+    static String capped(String s, int max) {
+        if (s == null) return "";
+        return s.length() <= max ? s : s.substring(0, max);
+    }
+
+    static String extractJsonFromContentString(String content){
         if (content == null) {
             return null;
         }
@@ -207,8 +316,6 @@ public class AiService {
                 String reps =  (String) exerciseMap.get("reps");
                 String duration = (String) exerciseMap.get("duration");
 
-                //String imageUrl = parseArray(exerciseMap.get("imageUrl"));
-
                 List<String> days = parseArray(exerciseMap.get("days"));
 
                 exerciseList.add(new Exercise(exerciseName, sets, reps, duration, null, days));
@@ -221,10 +328,6 @@ public class AiService {
         } catch (Exception e) {
             throw new RuntimeException("Error parsing the workout plan: " + e.getMessage());
         }
-    }
-
-    private String safeParseString(Object value) {
-        return value instanceof String ? (String) value : null;
     }
 
     private List<String> parseArray(Object arrayObject) {
@@ -246,225 +349,5 @@ public class AiService {
         }
 
         return daysList;
-    }
-
-
-
-    // creating the prompt
-    private String generatePrompt(WorkoutRequest request) {
-        String prompt = "I am a user with the following fitness details. My fitness goal is to: " +
-                request.getFitnessGoal() + ". I would describe my current experience level as: "
-                + request.getExperienceLevel() + ". I can allocate " + request.getWeeklyTime() + " to workouts each week. "
-                + "I intend to work out " + request.getDailyFrequency() + " per week. "
-                + "I generally prefer " + request.getPreferredWorkout() + " style workouts. " +
-                "I have the following equipment: " + request.getEquipment() ;
-
-
-        if (request.getLimitations() != null && !request.getLimitations().isEmpty() ){
-            prompt +=   ". And my physical limitations are: " + request.getLimitations();
-        }
-        if (request.getOtherLimitations() != null && !request.getOtherLimitations().isEmpty() ){
-            prompt +=   ". with the following details on limitations: " + request.getOtherLimitations();
-        }
-
-        prompt +=   ". Based on this information can you give me a detailed workout plan and a brief explanation for it." +
-                "Response should be in JSON format with the fields workoutPlan and explanation. "+
-                "workoutPlan should have description and a list of exercises each with name, reps, sets, "+
-                //+ "and duration.";
-                "duration, "+
-                //"and a field imageUrl which should contain a publicly available url for an image representing this exercise, "+
-                "and a field days, specifying a list of days the exercise is to be performed on. "+
-                //imageUrl
-                "Ensure that all string values for name, sets, reps, duration, and days should be wrapped in double quotes.";
-
-        return prompt;
-    }
-
-    // ======================================================================
-    // === NEW CODE FOR TRANSLATION =========================================
-    // ======================================================================
-
-    public interface TextResponseCallback {
-        void onSuccess(String translatedText);
-        void onFailure(String errorMessage);
-    }
-
-    public interface CancellableRequest {
-        void cancel();
-    }
-
-    public void translateText(String textToTranslate, final TextResponseCallback callback) {
-        //String prompt = "Translate the following text into English. Provide only the translated text without any additional comments or introductions. The text is: \"" + textToTranslate + "\"";
-        String prompt = "Identify the language of the following text. If the text is not English, translate it fully into English. If the text is already English, return it unchanged. Provide only the resulting English text, or the original English text if no translation was needed, without any additional comments or introductions. The text is: \"" + textToTranslate + "\"";
-        List<Map<String, Object>> contents = new ArrayList<>();
-        Map<String, Object> userMessage = new HashMap<>();
-        userMessage.put("parts", List.of(Map.of("text", prompt)));
-        contents.add(userMessage);
-        Map<String, Object> requestBodyMap = new HashMap<>();
-        requestBodyMap.put("contents", contents);
-        String requestJson = gson.toJson(requestBodyMap);
-        RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
-        Request request = geminiRequest(requestBody);
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                callback.onFailure("Network request failed: " + e.getMessage());
-            }
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseBody = response.body().string();
-                if (response.isSuccessful()) {
-                    try {
-                        String translatedText = parseSimpleTextResponse(responseBody);
-                        callback.onSuccess(translatedText);
-                    } catch (Exception e) {
-                        callback.onFailure("Failed to parse translation response: " + e.getMessage());
-                    }
-                } else {
-                    callback.onFailure("API Error: " + response.code() + " - " + responseBody);
-                }
-            }
-        });
-    }
-
-    public static class ContentBlockedException extends Exception {
-        public ContentBlockedException(String message) {
-            super(message);
-        }
-    }
-
-    private String parseSimpleTextResponse(String responseBody) throws Exception {
-        Map<String, Object> responseMap = gson.fromJson(responseBody, Map.class);
-
-        // Check if the prompt itself was blocked before any candidate was generated
-        Map<String, Object> promptFeedback = (Map<String, Object>) responseMap.get("promptFeedback");
-        if (promptFeedback != null && promptFeedback.get("blockReason") != null) {
-            throw new ContentBlockedException("Your request couldn't be processed because it may violate content guidelines.");
-        }
-
-        List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseMap.get("candidates");
-        if (candidates != null && !candidates.isEmpty()) {
-            Map<String, Object> candidate = candidates.get(0);
-
-            // Check if the generated response itself was blocked/cut for safety reasons
-            String finishReason = (String) candidate.get("finishReason");
-            if ("SAFETY".equals(finishReason) || "PROHIBITED_CONTENT".equals(finishReason)) {
-                throw new ContentBlockedException("The response couldn't be generated because it may violate content guidelines.");
-            }
-
-            Map<String, Object> content = (Map<String, Object>) candidate.get("content");
-            if (content != null) {
-                List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
-                if (parts != null && !parts.isEmpty()) {
-                    return (String) parts.get(0).get("text");
-                }
-            }
-        }
-        throw new Exception("Could not find translated text in response.");
-    }
-
-    public void generateFromPrompt(String prompt, final TextResponseCallback callback) {
-        generateFromPromptWithRetry(prompt, callback, 0);
-    }
-
-    private void generateFromPromptWithRetry(String prompt, final TextResponseCallback callback, final int attempt) {
-        List<Map<String, Object>> contents = new ArrayList<>();
-        Map<String, Object> userMessage = new HashMap<>();
-        userMessage.put("parts", List.of(Map.of("text", prompt)));
-        contents.add(userMessage);
-        Map<String, Object> requestBodyMap = new HashMap<>();
-        requestBodyMap.put("contents", contents);
-        String requestJson = gson.toJson(requestBodyMap);
-        RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
-        Request request = geminiRequest(requestBody);
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override public void onFailure(Call call, IOException e) {
-                callback.onFailure("Network error: " + e.getMessage());
-            }
-            @Override public void onResponse(Call call, Response response) throws IOException {
-                String responseBody = response.body().string();
-                if (response.isSuccessful()) {
-                    try {
-                        callback.onSuccess(parseSimpleTextResponse(responseBody).trim());
-                    } catch (ContentBlockedException e) {
-                        callback.onFailure(e.getMessage());
-                    } catch (Exception e) {
-                        callback.onFailure("Parse error: " + e.getMessage());
-                    }
-                } else if (response.code() == 503 && attempt < 3) {
-                    long delayMs = (attempt + 1) * 1500L;
-                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
-                            () -> generateFromPromptWithRetry(prompt, callback, attempt + 1),
-                            delayMs
-                    );
-                } else {
-                    callback.onFailure("API error: " + response.code() + " - " + responseBody);
-                }
-            }
-        });
-    }
-
-    public CancellableRequest generateChatResponse(List<ChatMessage> history, final TextResponseCallback callback) {
-        final Call[] currentCall = new Call[1];
-        final boolean[] canceled = {false};
-        generateChatResponseWithRetry(history, callback, 0, currentCall, canceled);
-        return () -> {
-            canceled[0] = true;
-            if (currentCall[0] != null) {
-                currentCall[0].cancel();
-            }
-        };
-    }
-
-    private void generateChatResponseWithRetry(List<ChatMessage> history, final TextResponseCallback callback, final int attempt, final Call[] currentCall, final boolean[] canceled) {
-        if (canceled[0]) return;
-        List<Map<String, Object>> contents = new ArrayList<>();
-        for (ChatMessage message : history) {
-            Map<String, Object> turn = new HashMap<>();
-            turn.put("role", message.getRole());
-            turn.put("parts", List.of(Map.of("text", message.getText())));
-            contents.add(turn);
-        }
-        Map<String, Object> requestBodyMap = new HashMap<>();
-        requestBodyMap.put("contents", contents);
-        String requestJson = gson.toJson(requestBodyMap);
-        RequestBody requestBody = RequestBody.create(requestJson, MediaType.parse("application/json; charset=utf-8"));
-        Request request = geminiRequest(requestBody);
-        Call call = client.newCall(request);
-        currentCall[0] = call;
-        call.enqueue(new Callback() {
-            @Override public void onFailure(Call call, IOException e) {
-                if (call.isCanceled()) return;
-                callback.onFailure("Network error: " + e.getMessage());
-            }
-            @Override public void onResponse(Call call, Response response) throws IOException {
-                if (call.isCanceled()) {
-                    response.close();
-                    return;
-                }
-                String responseBody = response.body().string();
-                if (response.isSuccessful()) {
-                    try {
-                        callback.onSuccess(parseSimpleTextResponse(responseBody).trim());
-                    } catch (ContentBlockedException e) {
-                        callback.onFailure(e.getMessage());
-                    } catch (Exception e) {
-                        callback.onFailure("Parse error: " + e.getMessage());
-                    }
-                } else if (response.code() == 503 && attempt < 3) {
-                    long delayMs = (attempt + 1) * 1500L;
-                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
-                            () -> {
-                                if (canceled[0]) return;
-                                generateChatResponseWithRetry(history, callback, attempt + 1, currentCall, canceled);
-                            },
-                            delayMs
-                    );
-                } else {
-                    callback.onFailure("API error: " + response.code() + " - " + responseBody);
-                }
-            }
-        });
     }
 }

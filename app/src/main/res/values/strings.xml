@@ -797,6 +797,9 @@
     <string name="ai_popup_title">AI Assistant</string>
     <string name="ai_hint_input">What would you like help with?</string>
     <string name="ai_accept_button">Insert</string>
+    <string name="ai_failed">The AI assistant could not answer, please try again</string>
+    <string name="ai_network_error">Could not reach the AI assistant, check your connection</string>
+    <string name="ai_login_needed">Please log in again to use the AI assistant</string>
     <string name="step_goal_format">/ %1$s steps</string>
     <string name="step_pct_to_goal_format">%1$d%% to goal</string>
     <string name="retry_action">Retry</string>

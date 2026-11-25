@@ -76,13 +76,8 @@ final class AdRewardApi {
             }
             // checkHdrs: {success: false} for a missing or expired token; the two error texts
             // for a valid token whose session is gone (key rotation, logout elsewhere)
-            String error = o.optString("error");
-            if ((o.has("success") && !o.optBoolean("success", true))
-                    || "Authentication failed. Key not found".equals(error)
-                    || "Invalid token payload".equals(error)) {
-                return new Reply(null, Error.AUTH);
-            }
-            if ("already_claimed".equals(error)) return new Reply(null, Error.ALREADY_CLAIMED);
+            if (BadgesApi.isSessionError(o)) return new Reply(null, Error.AUTH);
+            if ("already_claimed".equals(o.optString("error"))) return new Reply(null, Error.ALREADY_CLAIMED);
         } catch (Exception ignored) {
             // not JSON (proxy page etc.)
         }
