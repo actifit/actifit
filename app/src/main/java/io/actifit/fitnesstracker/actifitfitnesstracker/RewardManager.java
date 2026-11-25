@@ -476,8 +476,8 @@ public class RewardManager {
 
         rewardedAd.show(activity, rewardItem -> {
             Log.d("TAG", "The user earned the reward.");
-            // the amount is picked by the server when AdMob confirms the view; it arrives as a notification
-            Toast.makeText(context, context.getString(R.string.ad_reward_claimed_pending), Toast.LENGTH_LONG).show();
+            // the bot picks the amount when AdMob confirms the view; pollPaidAmount shows it
+            Toast.makeText(context, context.getString(R.string.ad_reward_pending_short), Toast.LENGTH_SHORT).show();
 
             if (giftLoader != null) giftLoader.clearAnimation();
 
@@ -511,7 +511,8 @@ public class RewardManager {
                 }
                 showPaidAmount(viewId, amount);
                 if (inForeground()) {
-                    Toast.makeText(context, context.getString(R.string.ad_reward_success).replace("_VAL_", amount),
+                    // short on purpose: toasts are cut at two lines on many phones
+                    Toast.makeText(context, context.getString(R.string.ad_reward_earned, amount),
                             Toast.LENGTH_LONG).show();
                 }
             });
@@ -519,7 +520,7 @@ public class RewardManager {
     }
 
     /** Claimed today but the amount never arrived (app closed, other device): ask once. */
-    private void fillMissingAmounts() {
+    void fillMissingAmounts() {
         final int[] ids = {R.id.daily_free_reward, R.id.daily_5k_reward, R.id.daily_7k_reward, R.id.daily_10k_reward};
         boolean missing = false;
         for (int id : ids) {

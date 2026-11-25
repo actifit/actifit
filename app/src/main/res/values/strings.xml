@@ -1074,5 +1074,7 @@
     <string name="tip_streak">Streak: %1$d in a row. Consistency is what builds results.</string>
     <string name="tip_below_avg">%1$s more steps to reach your 7-day average. You\'ve got this!</string>
     <string name="tip_generic">A 10-minute walk adds about 1,000 steps. Try one after your next meal.</string>
+    <string name="ad_reward_pending_short">Gift claimed! Getting your amount…</string>
+    <string name="ad_reward_earned">🎉 You earned %1$s AFIT!</string>
     <string name="ad_reward_claimed_pending">Gift claimed! Your AFIT reward is on its way, and you\'ll get a notification with the amount.</string>
 </resources>
