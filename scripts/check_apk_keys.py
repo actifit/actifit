@@ -6,6 +6,8 @@ so run this on every release APK before uploading it:
 
     python scripts/check_apk_keys.py "app/release/Actifit v0.16.2.apk"
 
+It reads an .aab the same way.
+
 Allowed: the Firebase keys from app/google-services.json (public by design and restricted
 to this app) and keys Google's own SDKs bundle (listed by SHA-256 in KNOWN_SDK_KEYS).
 Prints only the last 4 characters of each key it finds.
@@ -34,7 +36,8 @@ def firebase_keys(root):
     path = os.path.join(root, 'app', 'google-services.json')
     if not os.path.exists(path):
         return set()
-    data = json.load(open(path, encoding='utf-8'))
+    with open(path, encoding='utf-8') as f:
+        data = json.load(f)
     return {sha(k['current_key'].encode()) for c in data.get('client', []) for k in c.get('api_key', [])}
 
 

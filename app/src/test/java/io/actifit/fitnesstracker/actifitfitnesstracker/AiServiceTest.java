@@ -7,6 +7,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** The bot's /ai/* replies, as AiService reads them. */
 public class AiServiceTest {
 
@@ -42,6 +45,54 @@ public class AiServiceTest {
         assertEquals(FALLBACK, AiService.parseReply(502, "<html>bad gateway</html>", FALLBACK).error);
         // a success body on an error status is not trusted
         assertEquals(FALLBACK, AiService.parseReply(500, "{\"status\":\"success\",\"text\":\"x\"}", FALLBACK).error);
+    }
+
+    private static String text(int n) {
+        return new String(new char[n]).replace('\0', 'x');
+    }
+
+    private static List<ChatMessage> alternating(int turns, String body) {
+        List<ChatMessage> h = new ArrayList<>();
+        for (int i = 0; i < turns; i++) {
+            h.add(new ChatMessage(i % 2 == 0 ? ChatMessage.ROLE_USER : ChatMessage.ROLE_AI, body == null ? "t" + i : body));
+        }
+        return h;
+    }
+
+    @Test
+    public void shortChatIsSentWhole() {
+        List<ChatMessage> h = alternating(3, null);
+        assertEquals(h, AiService.chatWindow(h));
+    }
+
+    @Test
+    public void longChatKeepsTheLatestTurnsWithinTheBotLimits() {
+        List<ChatMessage> h = alternating(40, text(3500));
+        h.add(new ChatMessage(ChatMessage.ROLE_USER, "latest"));
+        List<ChatMessage> w = AiService.chatWindow(h);
+        int total = 0;
+        for (ChatMessage m : w) total += m.getText().length();
+        assertTrue(w.size() <= 30);
+        assertTrue(total <= 20000);
+        assertTrue(w.get(0).isUser());
+        assertEquals("latest", w.get(w.size() - 1).getText());
+    }
+
+    @Test
+    public void oneHugeTurnIsCappedNotDropped() {
+        List<ChatMessage> h = new ArrayList<>();
+        h.add(new ChatMessage(ChatMessage.ROLE_USER, text(9000)));
+        List<ChatMessage> w = AiService.chatWindow(h);
+        assertEquals(1, w.size());
+        assertEquals(4000, w.get(0).getText().length());
+    }
+
+    @Test
+    public void tooManyShortTurnsKeepsTheLast30() {
+        List<ChatMessage> w = AiService.chatWindow(alternating(61, null));
+        assertTrue(w.size() <= 30);
+        assertTrue(w.get(0).isUser());
+        assertEquals("t60", w.get(w.size() - 1).getText());
     }
 
     @Test

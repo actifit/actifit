@@ -151,7 +151,7 @@ public class AiService {
         JSONObject body = new JSONObject();
         try {
             JSONArray turns = new JSONArray();
-            for (ChatMessage message : history) {
+            for (ChatMessage message : chatWindow(history)) {
                 turns.put(new JSONObject().put("role", message.getRole()).put("text", message.getText()));
             }
             body.put("history", turns);
@@ -221,11 +221,40 @@ public class AiService {
     private void refreshThenPost(String path, JSONObject json, Call[] currentCall, boolean[] canceled,
                                  TextResponseCallback callback) {
         // Volley delivers on the main thread; OkHttp calls back on its own
-        new Handler(Looper.getMainLooper()).post(() -> BadgesApi.refreshToken(app, MainActivity.username, ok -> {
+        new Handler(Looper.getMainLooper()).post(() -> BadgesApi.refreshToken(app, username(), ok -> {
             if (canceled[0]) return;
             if (ok) post(path, json, false, currentCall, canceled, callback);
             else callback.onFailure(app.getString(R.string.ai_login_needed));
         }));
+    }
+
+    /** MainActivity sets the static; after Android recreates only this screen it is empty. */
+    private String username() {
+        if (MainActivity.username != null && !MainActivity.username.isEmpty()) return MainActivity.username;
+        return app.getSharedPreferences("actifitSets", Context.MODE_PRIVATE).getString("actifitUser", "");
+    }
+
+    // within the bot's limits (ai_proxy.js: 30 turns, 4000 characters a turn, 20000 in all)
+    static final int CHAT_MAX_TURNS = 30;
+    static final int CHAT_MAX_TURN_CHARS = 4000;
+    static final int CHAT_MAX_CHARS = 18000;
+
+    /**
+     * The most recent part of the conversation the bot accepts: a long chat keeps working,
+     * the model just stops seeing its oldest turns. Starts on a user turn, ends on the last.
+     */
+    static List<ChatMessage> chatWindow(List<ChatMessage> history) {
+        List<ChatMessage> out = new ArrayList<>();
+        int total = 0;
+        for (int i = history.size() - 1; i >= 0 && out.size() < CHAT_MAX_TURNS; i--) {
+            ChatMessage m = history.get(i);
+            String text = capped(m.getText(), CHAT_MAX_TURN_CHARS);
+            if (!out.isEmpty() && total + text.length() > CHAT_MAX_CHARS) break;
+            total += text.length();
+            out.add(0, text.equals(m.getText()) ? m : new ChatMessage(m.getRole(), text));
+        }
+        while (out.size() > 1 && !out.get(0).isUser()) out.remove(0);
+        return out;
     }
 
     static String capped(String s, int max) {

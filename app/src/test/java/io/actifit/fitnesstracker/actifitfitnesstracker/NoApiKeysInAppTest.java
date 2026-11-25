@@ -1,5 +1,6 @@
 package io.actifit.fitnesstracker.actifitfitnesstracker;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -33,6 +35,16 @@ public class NoApiKeysInAppTest {
             }
         }
         assertTrue("API key in BuildConfig: " + bad + " - call it through the bot instead", bad.isEmpty());
+    }
+
+    /** Catches the wiring itself, on machines (CI) whose local.properties holds no key. */
+    @Test
+    public void buildGradleWiresNoKeyIntoTheApp() throws Exception {
+        File gradle = new File("build.gradle");
+        if (!new File("src/main").isDirectory()) gradle = new File("app/build.gradle");
+        String s = new String(Files.readAllBytes(gradle.toPath()), StandardCharsets.UTF_8);
+        Matcher m = Pattern.compile("(?i)(buildConfigField|resValue)[^\\n]*(key|secret|token)").matcher(s);
+        assertFalse("build.gradle puts a key into the app: " + (m.find() ? m.group() : ""), m.reset().find());
     }
 
     @Test

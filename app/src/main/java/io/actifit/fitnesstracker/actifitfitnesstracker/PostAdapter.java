@@ -837,7 +837,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
                         public void onFailure(String errorMessage) {
                             activity.runOnUiThread(() -> {
                                 Log.e("GeminiTranslation", "Translation failed via AiService: " + errorMessage);
-                                Toast.makeText(ctx, "Translation Failed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ctx, errorMessage, Toast.LENGTH_SHORT).show(); // e.g. log in again, daily limit
                                 postEntry.isTranslated = false;
                                 // translatingPermlinks.remove(postEntry.permlink);
                                 notifyDataSetChanged(); // Refresh to hide progress bar
