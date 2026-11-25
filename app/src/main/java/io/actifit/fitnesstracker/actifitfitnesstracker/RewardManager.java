@@ -519,7 +519,10 @@ public class RewardManager {
         }, AMOUNT_POLL_MS);
     }
 
-    /** Claimed today but the amount never arrived (app closed, other device): ask once. */
+    /**
+     * Claimed today but the amount never arrived (app closed, other device): ask the bot.
+     * Runs on each popup open while an amount is missing; it stops once stored or the day ends.
+     */
     void fillMissingAmounts() {
         final int[] ids = {R.id.daily_free_reward, R.id.daily_5k_reward, R.id.daily_7k_reward, R.id.daily_10k_reward};
         boolean missing = false;
