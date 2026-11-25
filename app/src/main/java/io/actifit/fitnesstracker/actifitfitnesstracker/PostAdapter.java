@@ -103,7 +103,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
         // new TranslatorOptions().; //.setMaxRetries(8).setTimeout(Duration.ofSeconds(
         // 5));
         // this.translator = new Translator(authKey);//, options);
-        this.aiService = new AiService();
+        this.aiService = new AiService(ctx);
 
     }
 
@@ -814,7 +814,7 @@ public class PostAdapter extends ArrayAdapter<SingleHivePostModel> {
             // if (translatedBody.getVisibility() == View.GONE) {
             Thread thread = new Thread(() -> {
                 if (postEntry.translatedText.isEmpty()) {
-                    aiService.translateText(postEntry.body, new AiService.TextResponseCallback() {
+                    aiService.translatePost(postEntry.author, postEntry.permlink, new AiService.TextResponseCallback() {
                         @Override
                         public void onSuccess(String translatedText) {
                             activity.runOnUiThread(() -> {

@@ -10,7 +10,7 @@ The app tracks user activity (steps, workouts) and allows users to post their da
 - **Build System**: Gradle
 - **Architecture**: Service-based background monitoring with SQLite persistence.
 - **Blockchain**: Hive/Blurt integration via `bitcoinj-core` and custom Hive signing logic.
-- **AI Integration**: Custom `AiService` utilizing the Gemini API for fitness-related insights.
+- **AI Integration**: `AiService` calls the Actifit bot's `/ai/*` routes, which hold the Gemini key.
 - **Data Persistence**: `StepsDBHelper` (SQLite) for storing activity history and settings.
 - **Networking**: Volley, Retrofit, and OkHttp for API communication.
 - **UI/UX**: 
@@ -26,19 +26,19 @@ The app tracks user activity (steps, workouts) and allows users to post their da
 - `HiveRequests.java`: Core logic for interacting with the Hive blockchain (posting, voting, transfers).
 - `HealthConnectManager.java`: Handles integration with the Android Health Connect API.
 - `WorkoutWizardActivity.java`: A multi-step wizard for logging and managing specific workouts.
-- `AiService.java`: Handles interactions with the Gemini AI for generating responses or analyzing data.
+- `AiService.java`: Calls the bot's `/ai/*` routes (chat, workout plans, translation); the app holds no key.
 - `PostSteemitActivity.java`: The interface for creating and publishing activity reports to the blockchain.
 
 ## Development Conventions
 - **Naming**: Follows standard Android/Java camelCase conventions.
 - **Architecture**: Heavily relies on `BaseActivity.java` for shared functionality across screens.
-- **Networking**: API keys (like Gemini) are managed via `local.properties` and injected into `BuildConfig`.
+- **Networking**: **Never put an API key in `local.properties` → `BuildConfig`, in resources or anywhere else that ends up in the APK**: anything in the APK is public. Google suspended the Gemini project after the key built into the app was harvested. Billable APIs go through the bot (Gemini: `/ai/*` in actifit-bot `ai_proxy.js`). `NoApiKeysInAppTest` guards BuildConfig and resources; run `python scripts/check_apk_keys.py <apk>` on every release APK before uploading it.
 - **Localization**: Managed via `LocaleManager.java` and supports multiple languages (ar, de, es, hi, it, ko, nl, pt, tr, uk, yo, zh).
 
 ## Building and Running
 ### Prerequisites
 - Android Studio / SDK (target SDK 35/36).
-- `local.properties` file with necessary API keys (e.g., `gemini.api.key`).
+- `local.properties` with the SDK path (no API keys).
 - `keystore.properties` for release signing.
 
 ### Key Commands

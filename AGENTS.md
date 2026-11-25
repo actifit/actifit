@@ -16,7 +16,7 @@ Decentralized fitness tracker Android app. Tracks steps/workouts, posts activity
 - `org.gradle.configuration-cache=true` is enabled in `gradle.properties`
 
 ## Prerequisites (not in repo)
-- `local.properties` must contain `gemini.api.key=<key>` — injected into `BuildConfig.GEMINI_API_KEY` for both debug and release
+- **Never put an API key in `local.properties` → `BuildConfig`, in resources or anywhere else that ends up in the APK**: anything in the APK is public. Google suspended the Gemini project after the key built into the app was harvested. Billable APIs go through the bot (Gemini: `/ai/*` in actifit-bot `ai_proxy.js`). `NoApiKeysInAppTest` guards BuildConfig and resources; run `python scripts/check_apk_keys.py <apk>` on every release APK before uploading it.
 - `google-services.json` in `app/` — gitignored, required for Firebase build
 - `keystore.properties` exists at root with release signing config (gitignored)
 - Android SDK with target SDK 35/36 installed
@@ -30,7 +30,7 @@ Decentralized fitness tracker Android app. Tracks steps/workouts, posts activity
 - **`HealthConnectManager`** — Android Health Connect API integration
 - **`HiveRequests`** — Hive blockchain interactions (posting, voting, transfers)
 - **`StepsDBHelper`** — SQLite persistence for step counts/history
-- **`AiService`** — Gemini AI integration for fitness insights
+- **`AiService`** — AI assistant, workout plans and post translation, served by the bot's `/ai/*` routes (no key in the app)
 - **`PostSteemitActivity`** — UI for publishing activity reports to blockchain
 - **`WorkoutWizardActivity`** — multi-step workout logging wizard
 
@@ -76,4 +76,4 @@ Decentralized fitness tracker Android app. Tracks steps/workouts, posts activity
 | `res/values/hive_queries.xml` | Hive RPC node list |
 | `app/src/main/assets/` | Exercise JSON data |
 | `keystore.properties` | Release signing (gitignored) |
-| `local.properties` | SDK path + `gemini.api.key` (gitignored) |
+| `local.properties` | SDK path (gitignored); never API keys |

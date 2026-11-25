@@ -173,7 +173,7 @@ public class WorkoutWizardActivity extends BaseActivity
                 allExercisesMap.put(exercise.getName(), Utils.getExerciseModel(exercise));
             }
         }
-        aiService = new AiService();
+        aiService = new AiService(this);
 
         limitationsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

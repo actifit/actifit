@@ -24,9 +24,11 @@ Actifit is a decentralized fitness tracker Android app. It tracks steps and work
 
 ## Prerequisites (gitignored, must be provided)
 
-- `local.properties` — must include `gemini.api.key=<key>` (injected into `BuildConfig.GEMINI_API_KEY`)
+- `local.properties` — SDK path only.
 - `app/google-services.json` — Firebase configuration
 - `keystore.properties` — release signing config at project root
+
+**Never put an API key in `local.properties` → `BuildConfig`, in resources or anywhere else that ends up in the APK**: anything in the APK is public. Google suspended the Gemini project after the key built into the app was harvested. Billable APIs go through the bot (Gemini: `/ai/*` in actifit-bot `ai_proxy.js`). `NoApiKeysInAppTest` guards BuildConfig and resources; run `python scripts/check_apk_keys.py <apk>` on every release APK before uploading it.
 
 ## Architecture
 
@@ -44,7 +46,7 @@ Actifit is a decentralized fitness tracker Android app. It tracks steps and work
 | `HealthConnectManager` | Android Health Connect API integration |
 | `HiveRequests` | Hive/Blurt blockchain RPC (posting, voting, transfers) |
 | `StepsDBHelper` | SQLite persistence for steps and activity history |
-| `AiService` | Gemini AI integration for fitness insights |
+| `AiService` | AI assistant, workout plans, post translation via the bot's `/ai/*` (no key in the app) |
 | `PostSteemitActivity` | UI for composing and publishing blockchain activity reports |
 | `WorkoutWizardActivity` | Multi-step workout logging wizard |
 | `ApiManager` | Centralized REST API communication |
@@ -79,7 +81,7 @@ Actifit is a decentralized fitness tracker Android app. It tracks steps and work
 | `app/src/main/AndroidManifest.xml` | Permissions, activities, services, providers |
 | `res/values/hive_queries.xml` | Hive RPC node list with fallback ordering |
 | `app/src/main/assets/exercises.json` | Exercise database loaded at runtime |
-| `local.properties` | SDK path + `gemini.api.key` (gitignored) |
+| `local.properties` | SDK path (gitignored); never API keys |
 | `keystore.properties` | Release signing credentials (gitignored) |
 
 ## VS Code / IDE Setup
